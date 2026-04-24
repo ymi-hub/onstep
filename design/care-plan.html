@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>OnStep · Care Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Noto+Sans+KR:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --navy:   #2D3B55;
+    --rose:   #C8666E;
+    --rose-lt:#F9EAEA;
+    --teal:   #4FA8A8;
+    --teal-lt:#D6EEEE;
+    --slate:  #8392A5;
+    --smoke:  #F5F5F7;
+    --white:  #FFFFFF;
+    --ink:    #1A2233;
+    --mist:   #C8D0DC;
+    --border: #EAEDF2;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    background: #E8ECF0;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 48px;
+    font-family: 'DM Sans','Noto Sans KR', sans-serif;
+    min-height: 100vh;
+  }
+
+  .phone {
+    width: 390px;
+    background: var(--smoke);
+    border-radius: 48px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.6) inset, 0 40px 100px rgba(30,40,60,.25);
+    overflow: hidden;
+  }
+
+  .notch {
+    height: 44px; background: var(--smoke);
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px;
+  }
+  .notch-bar { width: 126px; height: 5px; background: var(--ink); border-radius: 3px; opacity:.12; }
+
+  .scroll { height: 844px; overflow-y: auto; scrollbar-width: none; }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  /* ── 앱바 ── */
+  .appbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px 8px;
+    background: var(--smoke);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .back-btn {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer; border: none;
+    box-shadow: 0 2px 8px rgba(30,40,60,.08);
+    text-decoration: none; color: var(--ink);
+  }
+  .appbar-title { font-size: 13px; font-weight: 600; letter-spacing: 2.5px; color: var(--ink); }
+  .save-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; font-weight: 600; color: var(--rose); letter-spacing: 1px;
+    padding: 6px 4px;
+  }
+  .save-btn:disabled { color: var(--mist); }
+
+  /* ── 프로필 이미지 ── */
+  .profile-area {
+    margin: 8px 20px 0;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 180px;
+    background: linear-gradient(145deg, #5BBFBF 0%, #3D9999 50%, #2D7A7A 100%);
+    position: relative;
+    cursor: pointer;
+  }
+  .profile-face {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  /* SVG 얼굴 일러스트 */
+  .profile-face svg { width: 160px; height: 160px; }
+  .profile-upload {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.25);
+    gap: 8px;
+    transition: opacity .2s;
+  }
+  .profile-upload:hover { background: rgba(0,0,0,.35); }
+  .upload-circle {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(255,255,255,.9);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .upload-label { font-size: 12px; color: rgba(255,255,255,.9); letter-spacing: 1px; font-weight: 500; }
+  .info-dot {
+    position: absolute; top: 14px; right: 14px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(255,255,255,.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: rgba(255,255,255,.8); font-weight: 700;
+  }
+  /* 업로드된 이미지 미리보기 */
+  #profile-preview {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    display: none;
+  }
+
+  /* ── REGISTRATION 헤더 ── */
+  .reg-header { padding: 20px 20px 0; }
+  .reg-tag { font-size: 9px; letter-spacing: 3px; color: var(--rose); font-weight: 600; margin-bottom: 6px; }
+  .reg-title { font-family:'Cormorant Garamond',serif; font-size: 30px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .reg-desc { font-size: 13px; color: var(--slate); line-height: 1.6; }
+
+  /* ── 입력 카드 ── */
+  .input-row { display: flex; gap: 12px; padding: 16px 20px 0; }
+  .input-card {
+    flex: 1; background: var(--white); border-radius: 16px;
+    padding: 16px; box-shadow: 0 2px 12px rgba(30,40,60,.05);
+    cursor: pointer; transition: box-shadow .2s;
+  }
+  .input-card:hover { box-shadow: 0 4px 20px rgba(30,40,60,.1); }
+  .input-card-icon { font-size: 20px; margin-bottom: 8px; }
+  .input-card-label { font-size: 9px; letter-spacing: 2px; color: var(--slate); font-weight: 600; margin-bottom: 6px; }
+  .input-card-value {
+    font-size: 14px; color: var(--mist); font-weight: 400;
+    border: none; background: none; width: 100%; outline: none;
+    font-family: inherit;
+  }
+  .input-card-value.filled { color: var(--ink); font-weight: 500; }
+
+  /* ── 케어 섹션 ── */
+  .care-section { padding: 20px 20px 0; }
+  .care-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .care-section-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .care-section-icon { font-size: 20px; }
+
+  /* 제품 슬롯 그리드 */
+  .product-slots {
+    display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    margin-bottom: 12px;
+  }
+  .product-slots::-webkit-scrollbar { display: none; }
+
+  .slot-add {
+    width: 88px; height: 88px; flex-shrink: 0;
+    border: 2px dashed var(--border); border-radius: 18px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; cursor: pointer; transition: all .2s;
+    background: var(--white);
+  }
+  .slot-add:hover { border-color: var(--rose); background: var(--rose-lt); }
+  .slot-add-icon { font-size: 20px; color: var(--rose); }
+  .slot-add-label { font-size: 10px; color: var(--slate); font-weight: 500; }
+
+  .slot-product {
+    width: 88px; height: 88px; flex-shrink: 0;
+    border-radius: 18px; overflow: hidden;
+    position: relative; cursor: pointer;
+    background: var(--border);
+    box-shadow: 0 2px 12px rgba(30,40,60,.1);
+  }
+  .slot-product img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .slot-product-remove {
+    position: absolute; top: 4px; right: 4px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(0,0,0,.5); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; cursor: pointer; border: none;
+  }
+  .slot-product-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,.6));
+    color: #fff; font-size: 9px; padding: 4px 6px 6px;
+    font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* emoji 제품 슬롯 (이미지 없을 때) */
+  .slot-emoji {
+    width: 88px; height: 88px; flex-shrink: 0;
+    border-radius: 18px; overflow: hidden; position: relative; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; box-shadow: 0 2px 12px rgba(30,40,60,.1);
+    background: linear-gradient(145deg, #f0f4ff, #e8edf8);
+  }
+  .slot-emoji-icon { font-size: 28px; }
+  .slot-emoji-name { font-size: 9px; color: var(--slate); font-weight: 500; text-align: center; padding: 0 4px; }
+  .slot-emoji .slot-product-remove { position: absolute; top: 4px; right: 4px; }
+
+  /* 텍스트에어리어 */
+  .care-textarea {
+    width: 100%; background: var(--white); border-radius: 16px;
+    padding: 16px; border: none; outline: none;
+    font-size: 13px; color: var(--slate); line-height: 1.6;
+    resize: none; font-family: inherit; min-height: 80px;
+    box-shadow: 0 2px 12px rgba(30,40,60,.05);
+  }
+  .care-textarea:focus { box-shadow: 0 0 0 2px var(--rose); }
+  .care-textarea::placeholder { color: var(--mist); }
+
+  /* ── DAILY CURATOR TIP ── */
+  .curator-card {
+    margin: 20px 20px 28px;
+    background: linear-gradient(135deg, #F9F0F0 0%, #F5EAEA 100%);
+    border-radius: 20px; padding: 20px;
+    border: 1px solid rgba(200,102,110,.1);
+  }
+  .curator-label { display: flex; align-items: center; gap: 6px; font-size: 9px; letter-spacing: 2.5px; color: var(--rose); font-weight: 600; margin-bottom: 10px; }
+  .curator-title { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+  .curator-textarea {
+    width: 100%; background: none; border: none; outline: none;
+    font-size: 12px; color: var(--slate); line-height: 1.6;
+    resize: none; font-family: inherit; min-height: 60px;
+  }
+  .curator-textarea::placeholder { color: var(--mist); }
+
+  /* ── 하단 내비 ── */
+  .bottom-nav {
+    background: var(--white); border-top: 1px solid var(--border);
+    display: flex; padding: 10px 0 20px;
+  }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 0; }
+  .nav-icon { font-size: 20px; }
+  .nav-label { font-size: 9px; letter-spacing: 1px; color: var(--mist); font-weight: 500; }
+  .nav-item.active .nav-label { color: var(--rose); }
+
+  /* ── 제품 추가 모달 ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    display: flex; align-items: flex-end; justify-content: center;
+    z-index: 100; opacity: 0; pointer-events: none; transition: opacity .3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    width: 390px; background: var(--white);
+    border-radius: 28px 28px 0 0; padding: 24px;
+    transform: translateY(100%); transition: transform .35s cubic-bezier(.4,0,.2,1);
+    max-height: 80vh; overflow-y: auto;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 20px; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 11px; letter-spacing: 1px; color: var(--slate); font-weight: 500; margin-bottom: 6px; }
+  .form-input {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+    border-radius: 12px; font-size: 14px; font-family: inherit; outline: none;
+    transition: border-color .2s;
+  }
+  .form-input:focus { border-color: var(--rose); }
+
+  .category-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+  .cat-btn {
+    padding: 10px 4px; border-radius: 12px; border: 1.5px solid var(--border);
+    background: var(--white); text-align: center; cursor: pointer;
+    transition: all .2s; font-family: inherit;
+  }
+  .cat-btn .cat-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+  .cat-btn .cat-name { font-size: 10px; color: var(--slate); font-weight: 500; }
+  .cat-btn.selected { border-color: var(--rose); background: var(--rose-lt); }
+  .cat-btn.selected .cat-name { color: var(--rose); }
+
+  .modal-add-btn {
+    width: 100%; padding: 14px; background: var(--navy); color: #fff;
+    border: none; border-radius: 50px; font-size: 13px; font-weight: 600;
+    letter-spacing: 2px; cursor: pointer; margin-top: 8px; font-family: inherit;
+    transition: background .2s;
+  }
+  .modal-add-btn:hover { background: #3D4F6E; }
+
+  /* ── 저장 완료 토스트 ── */
+  .toast {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--navy); color: #fff; padding: 12px 24px; border-radius: 50px;
+    font-size: 13px; font-weight: 600; letter-spacing: 1px;
+    opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"><div class="notch-bar"></div></div>
+
+  <div class="scroll">
+
+    <!-- 앱바 -->
+    <div class="appbar">
+      <a class="back-btn" href="skincare.html">←</a>
+      <div class="appbar-title">CARE PLAN</div>
+      <button class="save-btn" onclick="savePlan()">저장</button>
+    </div>
+
+    <!-- 프로필 이미지 -->
+    <div class="profile-area" onclick="triggerUpload()">
+      <div class="profile-face">
+        <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- 목 -->
+          <rect x="66" y="108" width="28" height="30" rx="10" fill="rgba(255,255,255,.25)"/>
+          <!-- 얼굴 -->
+          <ellipse cx="80" cy="82" rx="38" ry="44" fill="rgba(255,255,255,.3)"/>
+          <!-- 눈 -->
+          <ellipse cx="67" cy="76" rx="5" ry="6" fill="rgba(255,255,255,.6)"/>
+          <ellipse cx="93" cy="76" rx="5" ry="6" fill="rgba(255,255,255,.6)"/>
+          <ellipse cx="67" cy="77" rx="3" ry="3.5" fill="rgba(45,59,85,.5)"/>
+          <ellipse cx="93" cy="77" rx="3" ry="3.5" fill="rgba(45,59,85,.5)"/>
+          <!-- 눈썹 -->
+          <path d="M60 68 Q67 64 74 67" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <path d="M86 67 Q93 64 100 68" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <!-- 코 -->
+          <path d="M80 80 Q77 88 74 90 Q80 92 86 90 Q83 88 80 80Z" fill="rgba(255,255,255,.2)"/>
+          <!-- 입 -->
+          <path d="M70 98 Q80 104 90 98" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <!-- 머리카락 -->
+          <ellipse cx="80" cy="42" rx="42" ry="22" fill="rgba(45,59,85,.4)"/>
+          <path d="M38 55 Q36 80 40 100" stroke="rgba(45,59,85,.3)" stroke-width="8" stroke-linecap="round" fill="none"/>
+          <path d="M122 55 Q124 80 120 100" stroke="rgba(45,59,85,.3)" stroke-width="8" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div id="profile-preview"></div>
+      <div class="profile-upload" id="upload-overlay">
+        <div class="upload-circle">📷</div>
+        <div class="upload-label">대표 이미지 등록</div>
+      </div>
+      <div class="info-dot">i</div>
+    </div>
+    <input type="file" id="profile-input" accept="image/*" style="display:none" onchange="previewProfile(this)">
+
+    <!-- REGISTRATION 헤더 -->
+    <div class="reg-header">
+      <div class="reg-tag">REGISTRATION</div>
+      <div class="reg-title">케어 플랜 설정</div>
+      <div class="reg-desc">개인화된 일상 큐레이션을 통해 당신만의 아름다운 루틴을 완성하세요.</div>
+    </div>
+
+    <!-- SESSION / CARE PERIOD 입력 -->
+    <div class="input-row">
+      <div class="input-card">
+        <div class="input-card-icon">📅</div>
+        <div class="input-card-label">SESSION</div>
+        <input class="input-card-value" id="session-input" type="number" min="1" max="99" placeholder="회차수를 입력" oninput="markFilled(this)">
+      </div>
+      <div class="input-card">
+        <div class="input-card-icon">🗓</div>
+        <div class="input-card-label">CARE PERIOD</div>
+        <input class="input-card-value" id="period-start" type="date" placeholder="기간을 선택" oninput="markFilled(this)" onchange="updatePeriodDisplay()">
+        <input class="input-card-value" id="period-end" type="date" style="margin-top:4px;font-size:12px" oninput="markFilled(this)" onchange="updatePeriodDisplay()">
+      </div>
+    </div>
+
+    <!-- 아침 케어 섹션 -->
+    <div class="care-section">
+      <div class="care-section-header">
+        <div class="care-section-title">아침 케어 (Morning)</div>
+        <div class="care-section-icon">☀️</div>
+      </div>
+
+      <div class="product-slots" id="morning-slots">
+        <div class="slot-add" onclick="openModal('morning')">
+          <div class="slot-add-icon">＋</div>
+          <div class="slot-add-label">제품 선택</div>
+        </div>
+      </div>
+
+      <textarea class="care-textarea" id="morning-desc" placeholder="아침 케어 설명을 입력하세요" rows="3"></textarea>
+    </div>
+
+    <!-- 저녁 케어 섹션 -->
+    <div class="care-section" style="margin-top:20px">
+      <div class="care-section-header">
+        <div class="care-section-title">저녁 케어 (Nightly)</div>
+        <div class="care-section-icon">🌙</div>
+      </div>
+
+      <div class="product-slots" id="nightly-slots">
+        <div class="slot-add" onclick="openModal('nightly')">
+          <div class="slot-add-icon">＋</div>
+          <div class="slot-add-label">제품 선택</div>
+        </div>
+      </div>
+
+      <textarea class="care-textarea" id="nightly-desc" placeholder="루틴 설명을 입력하세요" rows="3"></textarea>
+    </div>
+
+    <!-- DAILY CURATOR TIP -->
+    <div class="curator-card">
+      <div class="curator-label">✦ DAILY CURATOR TIP</div>
+      <div class="curator-title">오늘의 큐레이터 팁을 등록하세요</div>
+      <textarea class="curator-textarea" id="curator-tip" placeholder="전문가의 노하우가 담긴 조언을 입력해 주세요" rows="3"></textarea>
+    </div>
+
+    <!-- 하단 내비 -->
+    <div class="bottom-nav">
+      <div class="nav-item"><div class="nav-icon">🏠</div><div class="nav-label">홈</div></div>
+      <div class="nav-item"><div class="nav-icon">📋</div><div class="nav-label">기록</div></div>
+      <div class="nav-item active"><div class="nav-icon">🌸</div><div class="nav-label">케어</div></div>
+      <div class="nav-item"><div class="nav-icon">👤</div><div class="nav-label">프로필</div></div>
+    </div>
+
+  </div><!-- /scroll -->
+</div><!-- /phone -->
+
+<!-- 제품 추가 모달 -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">제품 추가</div>
+
+    <div class="form-group">
+      <div class="form-label">카테고리</div>
+      <div class="category-grid" id="category-grid">
+        <button class="cat-btn selected" data-cat="cleanser" onclick="selectCat(this)">
+          <span class="cat-icon">🧴</span><span class="cat-name">클렌저</span>
+        </button>
+        <button class="cat-btn" data-cat="toner" onclick="selectCat(this)">
+          <span class="cat-icon">💧</span><span class="cat-name">토너</span>
+        </button>
+        <button class="cat-btn" data-cat="serum" onclick="selectCat(this)">
+          <span class="cat-icon">🔬</span><span class="cat-name">세럼</span>
+        </button>
+        <button class="cat-btn" data-cat="essence" onclick="selectCat(this)">
+          <span class="cat-icon">✨</span><span class="cat-name">에센스</span>
+        </button>
+        <button class="cat-btn" data-cat="cream" onclick="selectCat(this)">
+          <span class="cat-icon">🫙</span><span class="cat-name">크림</span>
+        </button>
+        <button class="cat-btn" data-cat="sunscreen" onclick="selectCat(this)">
+          <span class="cat-icon">☀️</span><span class="cat-name">선크림</span>
+        </button>
+        <button class="cat-btn" data-cat="mask" onclick="selectCat(this)">
+          <span class="cat-icon">🎭</span><span class="cat-name">마스크</span>
+        </button>
+        <button class="cat-btn" data-cat="oil" onclick="selectCat(this)">
+          <span class="cat-icon">💎</span><span class="cat-name">오일</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">제품명</div>
+      <input class="form-input" id="product-name" type="text" placeholder="예) 자음 세럼">
+    </div>
+    <div class="form-group">
+      <div class="form-label">브랜드</div>
+      <input class="form-input" id="product-brand" type="text" placeholder="예) Sulwhasoo">
+    </div>
+
+    <button class="modal-add-btn" onclick="addProduct()">추가하기</button>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── 상태 ──────────────────────────────────
+  const DB_KEY = 'onstep_care_plan';
+  let currentSlot = 'morning'; // 모달 열 때 어떤 슬롯인지
+  let selectedCat = 'cleanser';
+
+  const CATEGORY_META = {
+    cleanser:  { icon: '🧴', label: '클렌저' },
+    toner:     { icon: '💧', label: '토너' },
+    serum:     { icon: '🔬', label: '세럼' },
+    essence:   { icon: '✨', label: '에센스' },
+    cream:     { icon: '🫙', label: '크림' },
+    sunscreen: { icon: '☀️', label: '선크림' },
+    mask:      { icon: '🎭', label: '마스크' },
+    oil:       { icon: '💎', label: '오일' },
+  };
+
+  // ── 초기 로드 ─────────────────────────────
+  window.addEventListener('load', () => {
+    const saved = localStorage.getItem(DB_KEY);
+    if (!saved) return;
+    const plan = JSON.parse(saved);
+    if (plan.session)    { document.getElementById('session-input').value = plan.session; markFilled(document.getElementById('session-input')); }
+    if (plan.periodStart){ document.getElementById('period-start').value = plan.periodStart; }
+    if (plan.periodEnd)  { document.getElementById('period-end').value = plan.periodEnd; }
+    if (plan.morningDesc){ document.getElementById('morning-desc').value = plan.morningDesc; }
+    if (plan.nightlyDesc){ document.getElementById('nightly-desc').value = plan.nightlyDesc; }
+    if (plan.curatorTip) { document.getElementById('curator-tip').value = plan.curatorTip; }
+    if (plan.morning)    plan.morning.forEach(p => renderSlot('morning', p));
+    if (plan.nightly)    plan.nightly.forEach(p => renderSlot('nightly', p));
+  });
+
+  // ── 프로필 업로드 ─────────────────────────
+  function triggerUpload() {
+    document.getElementById('profile-input').click();
+  }
+  function previewProfile(input) {
+    if (!input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.getElementById('profile-preview');
+      preview.style.backgroundImage = `url(${e.target.result})`;
+      preview.style.display = 'block';
+      document.getElementById('upload-overlay').style.opacity = '0';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  // ── 입력 스타일 ───────────────────────────
+  function markFilled(el) {
+    el.classList.toggle('filled', el.value !== '');
+  }
+  function updatePeriodDisplay() {
+    const s = document.getElementById('period-start').value;
+    const e = document.getElementById('period-end').value;
+    if (s) markFilled(document.getElementById('period-start'));
+    if (e) markFilled(document.getElementById('period-end'));
+  }
+
+  // ── 모달 ──────────────────────────────────
+  function openModal(slot) {
+    currentSlot = slot;
+    document.getElementById('product-name').value = '';
+    document.getElementById('product-brand').value = '';
+    // 기본 카테고리 초기화
+    selectCatByKey(slot === 'morning' ? 'cleanser' : 'cleanser');
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+  function selectCat(btn) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedCat = btn.dataset.cat;
+  }
+  function selectCatByKey(key) {
+    document.querySelectorAll('.cat-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.cat === key);
+    });
+    selectedCat = key;
+  }
+
+  // ── 제품 추가 ─────────────────────────────
+  function addProduct() {
+    const name = document.getElementById('product-name').value.trim();
+    if (!name) { showToast('제품명을 입력해주세요'); return; }
+    const brand = document.getElementById('product-brand').value.trim();
+    const meta = CATEGORY_META[selectedCat];
+    const product = {
+      id: Date.now(),
+      category: selectedCat,
+      name,
+      brand,
+      icon: meta.icon,
+      label: meta.label,
+    };
+    renderSlot(currentSlot, product);
+    closeModal();
+    showToast(`${meta.icon} ${name} 추가됨`);
+  }
+
+  function renderSlot(slot, product) {
+    const container = document.getElementById(`${slot}-slots`);
+    const addBtn = container.querySelector('.slot-add');
+
+    const div = document.createElement('div');
+    div.className = 'slot-emoji';
+    div.dataset.id = product.id;
+    div.innerHTML = `
+      <div class="slot-emoji-icon">${product.icon}</div>
+      <div class="slot-emoji-name">${product.name}</div>
+      <button class="slot-product-remove" onclick="removeSlot(this,'${slot}')">✕</button>
+    `;
+    container.insertBefore(div, addBtn);
+  }
+
+  function removeSlot(btn, slot) {
+    btn.closest('.slot-emoji, .slot-product').remove();
+  }
+
+  // ── 저장 ──────────────────────────────────
+  function savePlan() {
+    const morning = collectSlots('morning');
+    const nightly = collectSlots('nightly');
+
+    const plan = {
+      session: document.getElementById('session-input').value,
+      periodStart: document.getElementById('period-start').value,
+      periodEnd:   document.getElementById('period-end').value,
+      morningDesc: document.getElementById('morning-desc').value,
+      nightlyDesc: document.getElementById('nightly-desc').value,
+      curatorTip:  document.getElementById('curator-tip').value,
+      morning,
+      nightly,
+      savedAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(DB_KEY, JSON.stringify(plan));
+    showToast('✓ 케어 플랜이 저장되었습니다');
+
+    // 1.5초 후 루틴 화면으로 이동
+    setTimeout(() => { window.location.href = 'skincare.html'; }, 1500);
+  }
+
+  function collectSlots(slot) {
+    const container = document.getElementById(`${slot}-slots`);
+    return [...container.querySelectorAll('.slot-emoji, .slot-product')].map(el => ({
+      id: el.dataset.id,
+      icon: el.querySelector('.slot-emoji-icon')?.textContent || '',
+      name: el.querySelector('.slot-emoji-name, .slot-product-label')?.textContent || '',
+      category: '',
+    }));
+  }
+
+  // ── 토스트 ────────────────────────────────
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+</script>
+</body>
+</html>

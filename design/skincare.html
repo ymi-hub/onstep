@@ -585,7 +585,9 @@
         <span></span><span></span><span></span>
       </div>
       <div class="appbar-title">ATELIER BEAUTÉ</div>
-      <div class="appbar-avatar">👤</div>
+      <a href="care-plan.html" style="text-decoration:none">
+        <div class="appbar-avatar" title="케어 플랜 설정">✏️</div>
+      </a>
     </div>
 
     <!-- Hero -->
@@ -604,41 +606,19 @@
       </div>
     </div>
 
-    <!-- 세션 트래커 -->
-    <div class="tracker">
+    <!-- 세션 트래커 (localStorage에서 동적 로드) -->
+    <div class="tracker" id="tracker-wrap">
       <div class="tracker-top">
         <div class="tracker-session">
-          <div class="tracker-num">12<sup>th</sup></div>
+          <div class="tracker-num" id="session-num">—</div>
           <div class="tracker-word">SESSION</div>
         </div>
-        <div class="tracker-pct">80% COMPLETE</div>
+        <div class="tracker-pct" id="session-pct">— COMPLETE</div>
       </div>
-      <div class="tracker-progress-label">PROGRESS · DAY 08/10</div>
-      <div class="tracker-period">PERIOD: 2026.4.10 — 4.20</div>
-      <div class="dots-row">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot today"></div>
-        <div class="dot empty"></div>
-        <div class="dot empty"></div>
-      </div>
-      <div class="days-row">
-        <div class="day-label">금</div>
-        <div class="day-label">토</div>
-        <div class="day-label">일</div>
-        <div class="day-label">월</div>
-        <div class="day-label">화</div>
-        <div class="day-label">수</div>
-        <div class="day-label">목</div>
-        <div class="day-label active">금</div>
-        <div class="day-label">토</div>
-        <div class="day-label">일</div>
-      </div>
+      <div class="tracker-progress-label" id="tracker-day-label">PROGRESS · SET UP CARE PLAN →</div>
+      <div class="tracker-period" id="tracker-period"></div>
+      <div class="dots-row" id="dots-row"></div>
+      <div class="days-row" id="days-row"></div>
     </div>
 
     <!-- AM/PM 탭 -->
@@ -646,12 +626,12 @@
       <div class="time-tab active" id="tab-am" onclick="switchTab('am')">
         <div class="time-tab-icon">☀️</div>
         <div class="time-tab-label">MORNING</div>
-        <div class="time-tab-sub">4 STEPS</div>
+        <div class="time-tab-sub" id="am-step-count">— STEPS</div>
       </div>
       <div class="time-tab" id="tab-pm" onclick="switchTab('pm')">
         <div class="time-tab-icon">🌙</div>
         <div class="time-tab-label">NIGHTLY</div>
-        <div class="time-tab-sub">6 STEPS</div>
+        <div class="time-tab-sub" id="pm-step-count">— STEPS</div>
       </div>
     </div>
 
@@ -661,28 +641,13 @@
         <div class="routine-icon-wrap">☀️</div>
         <div class="routine-meta">
           <div class="routine-name">Morning Care</div>
-          <div class="routine-sub">4 STEPS · 15 MINS</div>
+          <div class="routine-sub" id="am-sub">4 STEPS · 15 MINS</div>
         </div>
         <div class="routine-chevron">▲</div>
       </div>
       <div class="routine-body">
-        <div class="routine-steps">
-          <div class="step-item done" onclick="toggleStep(this)">
-            <div class="step-icon">🧴</div>
-            <div class="step-label">클렌저</div>
-          </div>
-          <div class="step-item done" onclick="toggleStep(this)">
-            <div class="step-icon">💧</div>
-            <div class="step-label">토너</div>
-          </div>
-          <div class="step-item" onclick="toggleStep(this)">
-            <div class="step-icon">🔬</div>
-            <div class="step-label">세럼</div>
-          </div>
-          <div class="step-item" onclick="toggleStep(this)">
-            <div class="step-icon">☀️</div>
-            <div class="step-label">선크림</div>
-          </div>
+        <div class="routine-steps" id="am-steps">
+          <!-- 동적 로드 -->
         </div>
         <div class="routine-btn-wrap">
           <button class="routine-btn" onclick="checkRoutine(this)">
@@ -699,36 +664,13 @@
         <div class="routine-icon-wrap">🌙</div>
         <div class="routine-meta">
           <div class="routine-name">Nightly Care</div>
-          <div class="routine-sub">6 STEPS · 25 MINS</div>
+          <div class="routine-sub" id="pm-sub">6 STEPS · 25 MINS</div>
         </div>
         <div class="routine-chevron">▲</div>
       </div>
       <div class="routine-body">
-        <div class="routine-steps">
-          <div class="step-item" onclick="toggleStep(this)">
-            <div class="step-icon">🧴</div>
-            <div class="step-label">오일<br>클렌저</div>
-          </div>
-          <div class="step-item" onclick="toggleStep(this)">
-            <div class="step-icon">🫧</div>
-            <div class="step-label">폼<br>클렌저</div>
-          </div>
-          <div class="step-item" onclick="toggleStep(this)">
-            <div class="step-icon">💧</div>
-            <div class="step-label">토너</div>
-          </div>
-          <div class="step-item" onclick="toggleStep(this)">
-            <div class="step-icon">✨</div>
-            <div class="step-label">에센스</div>
-          </div>
-          <div class="step-item" onclick="toggleStep(this)">
-            <div class="step-icon">🔬</div>
-            <div class="step-label">세럼</div>
-          </div>
-          <div class="step-item" onclick="toggleStep(this)">
-            <div class="step-icon">🫙</div>
-            <div class="step-label">크림</div>
-          </div>
+        <div class="routine-steps" id="pm-steps">
+          <!-- 동적 로드 -->
         </div>
         <div class="routine-btn-wrap">
           <button class="routine-btn" onclick="checkRoutine(this)">
@@ -739,6 +681,14 @@
       </div>
     </div>
 
+    <!-- 케어 플랜 없을 때 빈 상태 -->
+    <div id="empty-state" style="display:none;text-align:center;padding:32px 20px">
+      <div style="font-size:48px;margin-bottom:16px">🌸</div>
+      <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:8px">케어 플랜을 등록하세요</div>
+      <div style="font-size:13px;color:var(--slate);margin-bottom:20px;line-height:1.6">아직 케어 플랜이 없어요.<br>제품을 등록하면 루틴이 자동으로 구성돼요.</div>
+      <a href="care-plan.html" style="display:inline-block;padding:12px 28px;background:var(--navy);color:#fff;border-radius:50px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:1.5px">케어 플랜 등록하기 →</a>
+    </div>
+
     <!-- Skin Insight -->
     <div class="insight">
       <div class="insight-label">SKIN INSIGHT</div>
@@ -747,9 +697,7 @@
         <div class="orb-star">✦</div>
       </div>
       <div class="insight-text" id="insight-text">
-        "Day 8 focus is on deep cellular hydration.
-        Ensure you apply the serum on slightly damp
-        skin for maximum absorption."
+        "케어 플랜을 등록하면 오늘의 스킨케어 인사이트가 여기에 표시됩니다."
       </div>
     </div>
 
@@ -780,46 +728,188 @@
 </div><!-- /phone -->
 
 <script>
-  // AM/PM 탭 전환
-  function switchTab(type) {
-    const tabAm = document.getElementById('tab-am');
-    const tabPm = document.getElementById('tab-pm');
-    const cardAm = document.getElementById('card-am');
-    const cardPm = document.getElementById('card-pm');
-    const insightText = document.getElementById('insight-text');
+  const DB_KEY = 'onstep_care_plan';
 
-    if (type === 'am') {
-      tabAm.classList.add('active');
-      tabPm.classList.remove('active');
-      cardAm.classList.add('expanded');
-      cardPm.classList.remove('expanded');
-      insightText.textContent = '"Day 8 focus is on deep cellular hydration. Ensure you apply the serum on slightly damp skin for maximum absorption."';
+  // ── 기본 제품 (케어 플랜 미등록 시 표시) ──────────
+  const DEFAULT_MORNING = [
+    { icon:'🧴', name:'클렌저'  },
+    { icon:'💧', name:'토너'    },
+    { icon:'🔬', name:'세럼'    },
+    { icon:'☀️', name:'선크림'  },
+  ];
+  const DEFAULT_NIGHTLY = [
+    { icon:'🧴', name:'오일클렌저' },
+    { icon:'🫧', name:'폼클렌저'  },
+    { icon:'💧', name:'토너'       },
+    { icon:'✨', name:'에센스'     },
+    { icon:'🔬', name:'세럼'       },
+    { icon:'🫙', name:'크림'       },
+  ];
+
+  // ── 초기화 ────────────────────────────────────────
+  window.addEventListener('load', () => {
+    const raw = localStorage.getItem(DB_KEY);
+    const plan = raw ? JSON.parse(raw) : null;
+    loadPlan(plan);
+  });
+
+  function loadPlan(plan) {
+    if (!plan) {
+      renderTracker(null);
+      renderSteps('am-steps', DEFAULT_MORNING);
+      renderSteps('pm-steps', DEFAULT_NIGHTLY);
+      updateStepCounts(DEFAULT_MORNING.length, DEFAULT_NIGHTLY.length);
+      document.getElementById('insight-text').textContent =
+        '"케어 플랜을 등록하면 오늘의 맞춤 인사이트가 여기에 표시됩니다."';
+      return;
+    }
+
+    // 트래커
+    renderTracker(plan);
+
+    // 제품 스텝
+    const morning = plan.morning?.length ? plan.morning : DEFAULT_MORNING;
+    const nightly = plan.nightly?.length ? plan.nightly : DEFAULT_NIGHTLY;
+    renderSteps('am-steps', morning);
+    renderSteps('pm-steps', nightly);
+    updateStepCounts(morning.length, nightly.length);
+
+    // Insight
+    if (plan.curatorTip) {
+      document.getElementById('insight-text').textContent = `"${plan.curatorTip}"`;
     } else {
-      tabPm.classList.add('active');
-      tabAm.classList.remove('active');
-      cardPm.classList.add('expanded');
-      cardAm.classList.remove('expanded');
-      insightText.textContent = '"Evening is for recovery. Double cleanse thoroughly before layering your actives. Allow each layer to fully absorb."';
+      const day = calcCurrentDay(plan.periodStart);
+      document.getElementById('insight-text').textContent =
+        `"Day ${day} focus is on deep cellular hydration. Ensure you apply the serum on slightly damp skin for maximum absorption."`;
     }
   }
 
-  // 카드 토글
+  // ── 트래커 렌더 ───────────────────────────────────
+  function renderTracker(plan) {
+    if (!plan) {
+      document.getElementById('session-num').innerHTML = '—';
+      document.getElementById('session-pct').textContent = '케어 플랜 미등록';
+      document.getElementById('tracker-day-label').innerHTML =
+        '<a href="care-plan.html" style="color:var(--navy);font-weight:600">+ 케어 플랜 등록하기 →</a>';
+      document.getElementById('tracker-period').textContent = '';
+      return;
+    }
+
+    const sessionNum = plan.session || '1';
+    const suffix = getSuffix(Number(sessionNum));
+    document.getElementById('session-num').innerHTML = `${sessionNum}<sup>${suffix}</sup>`;
+
+    const totalDays = calcTotalDays(plan.periodStart, plan.periodEnd);
+    const currentDay = calcCurrentDay(plan.periodStart);
+    const pct = totalDays ? Math.min(100, Math.round(currentDay / totalDays * 100)) : 0;
+
+    document.getElementById('session-pct').textContent = `${pct}% COMPLETE`;
+    document.getElementById('tracker-day-label').textContent =
+      `PROGRESS · DAY ${String(currentDay).padStart(2,'0')}/${totalDays}`;
+
+    if (plan.periodStart && plan.periodEnd) {
+      const s = plan.periodStart.replace(/-/g, '.');
+      const e = plan.periodEnd.replace(/-/g, '.');
+      document.getElementById('tracker-period').textContent = `PERIOD: ${s} — ${e}`;
+    }
+
+    // 도트 렌더
+    buildDots(currentDay, totalDays, plan.periodStart);
+  }
+
+  function buildDots(currentDay, totalDays, periodStart) {
+    const dotsRow = document.getElementById('dots-row');
+    const daysRow = document.getElementById('days-row');
+    dotsRow.innerHTML = '';
+    daysRow.innerHTML = '';
+    const DAYS_KO = ['일','월','화','수','목','금','토'];
+    const start = periodStart ? new Date(periodStart) : new Date();
+
+    for (let i = 0; i < totalDays; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i < currentDay - 1 ? '' : i === currentDay - 1 ? ' today' : ' empty');
+      dotsRow.appendChild(d);
+
+      const ld = document.createElement('div');
+      const dayDate = new Date(start);
+      dayDate.setDate(start.getDate() + i);
+      ld.className = 'day-label' + (i === currentDay - 1 ? ' active' : '');
+      ld.textContent = DAYS_KO[dayDate.getDay()];
+      daysRow.appendChild(ld);
+    }
+  }
+
+  function calcCurrentDay(periodStart) {
+    if (!periodStart) return 1;
+    const start = new Date(periodStart);
+    const today = new Date();
+    const diff = Math.floor((today - start) / 86400000) + 1;
+    return Math.max(1, diff);
+  }
+  function calcTotalDays(s, e) {
+    if (!s || !e) return 10;
+    return Math.floor((new Date(e) - new Date(s)) / 86400000) + 1;
+  }
+  function getSuffix(n) {
+    const s = ['th','st','nd','rd'];
+    const v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+  }
+
+  // ── 스텝 렌더 ─────────────────────────────────────
+  function renderSteps(containerId, products) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    products.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'step-item';
+      div.onclick = function() { toggleStep(this); };
+      div.innerHTML = `
+        <div class="step-icon">${p.icon || '🌸'}</div>
+        <div class="step-label">${p.name}</div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function updateStepCounts(am, pm) {
+    document.getElementById('am-step-count').textContent = `${am} STEPS`;
+    document.getElementById('pm-step-count').textContent = `${pm} STEPS`;
+    document.getElementById('am-sub').textContent = `${am} STEPS · ${am * 3} MINS`;
+    document.getElementById('pm-sub').textContent = `${pm} STEPS · ${pm * 4} MINS`;
+  }
+
+  // ── AM/PM 탭 전환 ─────────────────────────────────
+  function switchTab(type) {
+    const raw = localStorage.getItem(DB_KEY);
+    const plan = raw ? JSON.parse(raw) : null;
+
+    document.getElementById('tab-am').classList.toggle('active', type === 'am');
+    document.getElementById('tab-pm').classList.toggle('active', type === 'pm');
+    document.getElementById('card-am').classList.toggle('expanded', type === 'am');
+    document.getElementById('card-pm').classList.toggle('expanded', type === 'pm');
+
+    const insightText = document.getElementById('insight-text');
+    if (type === 'am') {
+      const day = plan ? calcCurrentDay(plan.periodStart) : 1;
+      insightText.textContent = `"Day ${day} focus is on deep cellular hydration. Ensure you apply the serum on slightly damp skin for maximum absorption."`;
+    } else {
+      insightText.textContent = plan?.curatorTip
+        ? `"${plan.curatorTip}"`
+        : '"Evening is for recovery. Double cleanse thoroughly before layering your actives."';
+    }
+  }
+
+  // ── 카드 / 스텝 인터랙션 ──────────────────────────
   function toggleCard(id) {
     document.getElementById(id).classList.toggle('expanded');
   }
-
-  // 스텝 체크 토글
   function toggleStep(el) {
     el.classList.toggle('done');
-    updateProgress();
   }
-
-  // CHECK ROUTINE 버튼
   function checkRoutine(btn) {
     const card = btn.closest('.routine-card');
-    const steps = card.querySelectorAll('.step-item');
-    steps.forEach(s => s.classList.add('done'));
-    btn.textContent = '';
+    card.querySelectorAll('.step-item').forEach(s => s.classList.add('done'));
     btn.innerHTML = 'COMPLETED ✓';
     btn.style.background = '#4A7C59';
     setTimeout(() => {
@@ -827,9 +917,6 @@
       btn.style.background = '';
     }, 2000);
   }
-
-  // 진행도 업데이트 (데모용)
-  function updateProgress() {}
 </script>
 </body>
 </html>

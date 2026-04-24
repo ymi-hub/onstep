@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import assets, flow_guide
+from app.routers import assets, flow_guide, care_plan
 
 app = FastAPI(
     title="OnStep API",
@@ -18,6 +18,7 @@ app.add_middleware(
 
 app.include_router(flow_guide.router)
 app.include_router(assets.router)
+app.include_router(care_plan.router)
 
 
 @app.get("/health")
