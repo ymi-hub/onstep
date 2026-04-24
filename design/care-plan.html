@@ -139,6 +139,8 @@
   .cat-btn .cat-name{font-size:10px;color:var(--slate);font-weight:500}
   .cat-btn.selected{border-color:var(--rose);background:var(--rose-lt)}
   .cat-btn.selected .cat-name{color:var(--rose)}
+  .custom-cat-row{display:none;gap:8px;margin-top:10px;align-items:center}
+  .custom-cat-icon{width:52px!important;text-align:center;padding:11px 6px!important;font-size:18px;flex-shrink:0}
 
   /* 모달 하단 버튼 */
   .modal-btn-row{display:flex;gap:10px;margin-top:16px}
@@ -314,6 +316,11 @@
         <button class="cat-btn" data-cat="exfoliant" onclick="selectCat(this)"><span class="cat-icon">🔅</span><span class="cat-name">각질케어</span></button>
         <button class="cat-btn" data-cat="eyecream" onclick="selectCat(this)"><span class="cat-icon">👁️</span><span class="cat-name">아이크림</span></button>
         <button class="cat-btn" data-cat="etc" onclick="selectCat(this)"><span class="cat-icon">💊</span><span class="cat-name">기타</span></button>
+        <button class="cat-btn" data-cat="__custom__" onclick="selectCat(this)"><span class="cat-icon">✏️</span><span class="cat-name">직접입력</span></button>
+      </div>
+      <div class="custom-cat-row" id="custom-cat-row">
+        <input class="form-input custom-cat-icon" id="custom-cat-icon" type="text" placeholder="🌿" maxlength="4">
+        <input class="form-input" id="custom-cat-name" type="text" placeholder="카테고리명 직접 입력">
       </div>
     </div>
     <div class="form-group">
@@ -322,7 +329,7 @@
     </div>
     <div class="form-group">
       <div class="form-label">브랜드</div>
-      <input class="form-input" id="product-brand" type="text" placeholder="예) Sulwhasoo">
+      <input class="form-input" id="product-brand" type="text" placeholder="Beauty-giana">
     </div>
     <div class="modal-btn-row">
       <button class="modal-del-btn" id="modal-del-btn" onclick="deleteProduct()">삭제</button>
@@ -417,15 +424,22 @@ function openModal(slot, editId = null) {
   modal.editId = editId;
 
   if (editId !== null) {
-    // 수정 모드
     const p = state[slot].find(x => x.id === editId);
+    if (!p) return;
     document.getElementById('modal-title').textContent = '제품 수정';
     document.getElementById('modal-confirm-btn').textContent = '수정 완료';
     document.getElementById('modal-del-btn').classList.add('show');
     document.getElementById('product-name').value = p.name;
     document.getElementById('product-brand').value = p.brand || '';
-    selectCatByKey(p.category);
-    // 편집 중인 슬롯 하이라이트
+    if (CAT[p.category]) {
+      selectCatByKey(p.category);
+      document.getElementById('custom-cat-icon').value = '';
+      document.getElementById('custom-cat-name').value = '';
+    } else {
+      selectCatByKey('__custom__');
+      document.getElementById('custom-cat-icon').value = p.icon || '';
+      document.getElementById('custom-cat-name').value = p.category || '';
+    }
     document.querySelectorAll('.slot-product').forEach(el => el.classList.remove('editing'));
     document.querySelector(`.slot-product[data-id="${editId}"]`)?.classList.add('editing');
   } else {
@@ -433,7 +447,9 @@ function openModal(slot, editId = null) {
     document.getElementById('modal-confirm-btn').textContent = '추가하기';
     document.getElementById('modal-del-btn').classList.remove('show');
     document.getElementById('product-name').value = '';
-    document.getElementById('product-brand').value = '';
+    document.getElementById('product-brand').value = 'Beauty-giana';
+    document.getElementById('custom-cat-icon').value = '';
+    document.getElementById('custom-cat-name').value = '';
     selectCatByKey('cleanser');
   }
   document.getElementById('modal-overlay').classList.add('open');
@@ -452,12 +468,18 @@ function selectCat(btn) {
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   selectedCat = btn.dataset.cat;
+  const isCustom = selectedCat === '__custom__';
+  document.getElementById('custom-cat-row').style.display = isCustom ? 'flex' : 'none';
+  if (isCustom) setTimeout(() => document.getElementById('custom-cat-name').focus(), 60);
 }
 function selectCatByKey(key) {
+  const isPreset = key && !!CAT[key];
+  const resolvedKey = isPreset ? key : '__custom__';
   document.querySelectorAll('.cat-btn').forEach(b => {
-    b.classList.toggle('selected', b.dataset.cat === key);
+    b.classList.toggle('selected', b.dataset.cat === resolvedKey);
   });
-  selectedCat = key;
+  selectedCat = resolvedKey;
+  document.getElementById('custom-cat-row').style.display = resolvedKey === '__custom__' ? 'flex' : 'none';
 }
 
 // ── 제품 추가/수정 확인 ──────────────────────────
@@ -465,20 +487,28 @@ function confirmProduct() {
   const name = document.getElementById('product-name').value.trim();
   if (!name) { showToast('제품명을 입력해주세요'); return; }
   const brand = document.getElementById('product-brand').value.trim();
-  const meta = CAT[selectedCat];
+
+  let icon, categoryKey;
+  if (selectedCat === '__custom__') {
+    icon = document.getElementById('custom-cat-icon').value.trim() || '✨';
+    categoryKey = document.getElementById('custom-cat-name').value.trim();
+    if (!categoryKey) { showToast('카테고리명을 입력해주세요'); return; }
+  } else {
+    const meta = CAT[selectedCat] || CAT['etc'];
+    icon = meta.icon;
+    categoryKey = selectedCat;
+  }
 
   if (modal.editId !== null) {
-    // 수정
     const idx = state[modal.slot].findIndex(p => p.id === modal.editId);
     if (idx !== -1) {
-      state[modal.slot][idx] = { ...state[modal.slot][idx], name, brand, category: selectedCat, icon: meta.icon };
+      state[modal.slot][idx] = { ...state[modal.slot][idx], name, brand, category: categoryKey, icon };
     }
     showToast(`✓ ${name} 수정됨`);
   } else {
-    // 추가
     if (state[modal.slot].length >= MAX) { showToast(`최대 ${MAX}개까지 등록 가능합니다`); return; }
-    state[modal.slot].push({ id: Date.now(), category: selectedCat, name, brand, icon: meta.icon });
-    showToast(`${meta.icon} ${name} 추가됨`);
+    state[modal.slot].push({ id: Date.now(), category: categoryKey, name, brand, icon });
+    showToast(`${icon} ${name} 추가됨`);
   }
   renderGrid(modal.slot);
   closeModal();
