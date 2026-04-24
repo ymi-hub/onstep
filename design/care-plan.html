@@ -139,7 +139,8 @@
   .cat-btn .cat-name{font-size:10px;color:var(--slate);font-weight:500}
   .cat-btn.selected{border-color:var(--rose);background:var(--rose-lt)}
   .cat-btn.selected .cat-name{color:var(--rose)}
-  .custom-cat-row{display:none;gap:8px;margin-top:10px;align-items:center}
+  .cat-edit-label{font-size:10px;letter-spacing:1px;color:var(--slate);font-weight:500;margin-top:12px;margin-bottom:5px}
+  .cat-edit-row{display:flex;gap:8px}
   .custom-cat-icon{width:52px!important;text-align:center;padding:11px 6px!important;font-size:18px;flex-shrink:0}
 
   /* 모달 하단 버튼 */
@@ -316,11 +317,11 @@
         <button class="cat-btn" data-cat="exfoliant" onclick="selectCat(this)"><span class="cat-icon">🔅</span><span class="cat-name">각질케어</span></button>
         <button class="cat-btn" data-cat="eyecream" onclick="selectCat(this)"><span class="cat-icon">👁️</span><span class="cat-name">아이크림</span></button>
         <button class="cat-btn" data-cat="etc" onclick="selectCat(this)"><span class="cat-icon">💊</span><span class="cat-name">기타</span></button>
-        <button class="cat-btn" data-cat="__custom__" onclick="selectCat(this)"><span class="cat-icon">✏️</span><span class="cat-name">직접입력</span></button>
       </div>
-      <div class="custom-cat-row" id="custom-cat-row">
-        <input class="form-input custom-cat-icon" id="custom-cat-icon" type="text" placeholder="🌿" maxlength="4">
-        <input class="form-input" id="custom-cat-name" type="text" placeholder="카테고리명 직접 입력">
+      <div class="cat-edit-label">✏ 카테고리 이름 변경</div>
+      <div class="cat-edit-row">
+        <input class="form-input custom-cat-icon" id="custom-cat-icon" type="text" placeholder="🧴" maxlength="4">
+        <input class="form-input" id="custom-cat-name" type="text" placeholder="카테고리명">
       </div>
     </div>
     <div class="form-group">
@@ -329,7 +330,7 @@
     </div>
     <div class="form-group">
       <div class="form-label">브랜드</div>
-      <input class="form-input" id="product-brand" type="text" placeholder="Beauty-giana">
+      <input class="form-input" id="product-brand" type="text" placeholder="뷰티지아나">
     </div>
     <div class="modal-btn-row">
       <button class="modal-del-btn" id="modal-del-btn" onclick="deleteProduct()">삭제</button>
@@ -431,15 +432,10 @@ function openModal(slot, editId = null) {
     document.getElementById('modal-del-btn').classList.add('show');
     document.getElementById('product-name').value = p.name;
     document.getElementById('product-brand').value = p.brand || '';
-    if (CAT[p.category]) {
-      selectCatByKey(p.category);
-      document.getElementById('custom-cat-icon').value = '';
-      document.getElementById('custom-cat-name').value = '';
-    } else {
-      selectCatByKey('__custom__');
-      document.getElementById('custom-cat-icon').value = p.icon || '';
-      document.getElementById('custom-cat-name').value = p.category || '';
-    }
+    const catKey = p.catKey || (CAT[p.category] ? p.category : 'etc');
+    selectCatByKey(catKey);
+    document.getElementById('custom-cat-icon').value = p.icon || CAT[catKey]?.icon || '';
+    document.getElementById('custom-cat-name').value = p.category || CAT[catKey]?.label || '';
     document.querySelectorAll('.slot-product').forEach(el => el.classList.remove('editing'));
     document.querySelector(`.slot-product[data-id="${editId}"]`)?.classList.add('editing');
   } else {
@@ -447,9 +443,7 @@ function openModal(slot, editId = null) {
     document.getElementById('modal-confirm-btn').textContent = '추가하기';
     document.getElementById('modal-del-btn').classList.remove('show');
     document.getElementById('product-name').value = '';
-    document.getElementById('product-brand').value = 'Beauty-giana';
-    document.getElementById('custom-cat-icon').value = '';
-    document.getElementById('custom-cat-name').value = '';
+    document.getElementById('product-brand').value = '뷰티지아나';
     selectCatByKey('cleanser');
   }
   document.getElementById('modal-overlay').classList.add('open');
@@ -468,18 +462,19 @@ function selectCat(btn) {
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   selectedCat = btn.dataset.cat;
-  const isCustom = selectedCat === '__custom__';
-  document.getElementById('custom-cat-row').style.display = isCustom ? 'flex' : 'none';
-  if (isCustom) setTimeout(() => document.getElementById('custom-cat-name').focus(), 60);
+  const meta = CAT[selectedCat] || {};
+  document.getElementById('custom-cat-icon').value = meta.icon || '';
+  document.getElementById('custom-cat-name').value = meta.label || '';
 }
 function selectCatByKey(key) {
-  const isPreset = key && !!CAT[key];
-  const resolvedKey = isPreset ? key : '__custom__';
+  const resolved = CAT[key] ? key : 'etc';
   document.querySelectorAll('.cat-btn').forEach(b => {
-    b.classList.toggle('selected', b.dataset.cat === resolvedKey);
+    b.classList.toggle('selected', b.dataset.cat === resolved);
   });
-  selectedCat = resolvedKey;
-  document.getElementById('custom-cat-row').style.display = resolvedKey === '__custom__' ? 'flex' : 'none';
+  selectedCat = resolved;
+  const meta = CAT[resolved] || {};
+  document.getElementById('custom-cat-icon').value = meta.icon || '';
+  document.getElementById('custom-cat-name').value = meta.label || '';
 }
 
 // ── 제품 추가/수정 확인 ──────────────────────────
@@ -488,26 +483,18 @@ function confirmProduct() {
   if (!name) { showToast('제품명을 입력해주세요'); return; }
   const brand = document.getElementById('product-brand').value.trim();
 
-  let icon, categoryKey;
-  if (selectedCat === '__custom__') {
-    icon = document.getElementById('custom-cat-icon').value.trim() || '✨';
-    categoryKey = document.getElementById('custom-cat-name').value.trim();
-    if (!categoryKey) { showToast('카테고리명을 입력해주세요'); return; }
-  } else {
-    const meta = CAT[selectedCat] || CAT['etc'];
-    icon = meta.icon;
-    categoryKey = selectedCat;
-  }
+  const icon = document.getElementById('custom-cat-icon').value.trim() || CAT[selectedCat]?.icon || '✨';
+  const category = document.getElementById('custom-cat-name').value.trim() || CAT[selectedCat]?.label || '기타';
 
   if (modal.editId !== null) {
     const idx = state[modal.slot].findIndex(p => p.id === modal.editId);
     if (idx !== -1) {
-      state[modal.slot][idx] = { ...state[modal.slot][idx], name, brand, category: categoryKey, icon };
+      state[modal.slot][idx] = { ...state[modal.slot][idx], name, brand, catKey: selectedCat, category, icon };
     }
     showToast(`✓ ${name} 수정됨`);
   } else {
     if (state[modal.slot].length >= MAX) { showToast(`최대 ${MAX}개까지 등록 가능합니다`); return; }
-    state[modal.slot].push({ id: Date.now(), category: categoryKey, name, brand, icon });
+    state[modal.slot].push({ id: Date.now(), catKey: selectedCat, category, name, brand, icon });
     showToast(`${icon} ${name} 추가됨`);
   }
   renderGrid(modal.slot);
