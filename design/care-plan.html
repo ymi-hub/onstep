@@ -356,10 +356,11 @@
         <button class="cat-btn" data-cat="eyecream" onclick="selectCat(this)"><span class="cat-icon">👁️</span><span class="cat-name">아이크림</span></button>
         <button class="cat-btn" data-cat="etc" onclick="selectCat(this)"><span class="cat-icon">💊</span><span class="cat-name">기타</span></button>
       </div>
-      <div class="cat-edit-label">✏ 카테고리 이름 변경</div>
+      <div class="cat-edit-label">✏ 카테고리 이름 변경 후 저장</div>
       <div class="cat-edit-row">
         <input class="form-input custom-cat-icon" id="custom-cat-icon" type="text" placeholder="🧴" maxlength="4">
         <input class="form-input" id="custom-cat-name" type="text" placeholder="카테고리명">
+        <button class="cat-add-confirm" onclick="saveCatName()">저장</button>
       </div>
       <div class="cat-add-form" id="cat-add-form">
         <input class="form-input custom-cat-icon" id="new-cat-icon" type="text" placeholder="🌿" maxlength="4">
@@ -369,10 +370,10 @@
     </div>
     <div class="form-group">
       <div class="form-label">제품 이미지 <span style="color:var(--mist);font-size:10px">(선택)</span></div>
-      <div class="prod-img-area" onclick="document.getElementById('prod-img-input').click()">
+      <label class="prod-img-area" for="prod-img-input">
         <div id="prod-img-preview" class="prod-img-preview"></div>
-        <div class="prod-img-placeholder" id="prod-img-placeholder"><span>📷</span><span style="margin-left:6px">이미지 추가</span></div>
-      </div>
+        <div class="prod-img-placeholder" id="prod-img-placeholder"><span>📷</span><span style="margin-left:6px">이미지 추가 / 변경</span></div>
+      </label>
       <input type="file" id="prod-img-input" accept="image/*" style="display:none" onchange="previewProdImg(this)">
     </div>
     <div class="form-group">
@@ -412,13 +413,16 @@ let state = {
 let modal = { slot:null, editId:null };
 let selectedCat = 'cleanser';
 let customCats = [];
+let catOverrides = {};
 let prodImgData = null;
 
 // ── 초기 로드 ────────────────────────────────────
 window.addEventListener('load', () => {
-  renderCategoryGrid(); // 저장 데이터 없어도 항상 + 버튼 표시
   const raw = localStorage.getItem(DB_KEY);
-  if (!raw) return;
+  if (!raw) {
+    renderAll(); // 데이터 없어도 루틴탭·카테고리 + 버튼 표시
+    return;
+  }
   const saved = JSON.parse(raw);
   document.getElementById('session-input').value = saved.session || '';
   document.getElementById('period-start').value = saved.periodStart || '';
@@ -437,6 +441,8 @@ window.addEventListener('load', () => {
   state.nightly = mig(saved.nightly);
   customCats = saved.customCats || [];
   customCats.forEach(c => { CAT[c.key] = {icon:c.icon,label:c.label}; });
+  catOverrides = saved.catOverrides || {};
+  Object.entries(catOverrides).forEach(([k, v]) => { if (CAT[k]) Object.assign(CAT[k], v); });
   renderAll();
 });
 
@@ -514,7 +520,9 @@ function openModal(slot, editId = null) {
     document.querySelectorAll('.slot-product').forEach(el => el.classList.remove('editing'));
     document.querySelector(`.slot-product[data-id="${editId}"]`)?.classList.add('editing');
   } else {
-    document.getElementById('modal-title').textContent = '제품 추가';
+    const rCount = state[slot]?.routines?.length || 1;
+    const rLabel = rCount > 1 ? ` — 루틴 ${state[slot].active}` : '';
+    document.getElementById('modal-title').textContent = `제품 추가${rLabel}`;
     document.getElementById('modal-confirm-btn').textContent = '추가하기';
     document.getElementById('modal-del-btn').classList.remove('show');
     document.getElementById('product-name').value = '';
@@ -611,6 +619,7 @@ function savePlan() {
     morning: state.morning,
     nightly: state.nightly,
     customCats,
+    catOverrides,
     savedAt: new Date().toISOString(),
   };
   localStorage.setItem(DB_KEY, JSON.stringify(plan));
@@ -685,6 +694,16 @@ function delRoutine(slot, id) {
 function renderCategoryGrid() {
   const grid = document.getElementById('category-grid');
   if (!grid) return;
+  // 기존 버튼 라벨을 CAT 최신값으로 갱신 (이름변경 반영)
+  grid.querySelectorAll('.cat-btn:not([data-custom])').forEach(btn => {
+    const key = btn.dataset.cat;
+    if (key && CAT[key]) {
+      const ic = btn.querySelector('.cat-icon');
+      const nm = btn.querySelector('.cat-name');
+      if (ic) ic.textContent = CAT[key].icon;
+      if (nm) nm.textContent = CAT[key].label;
+    }
+  });
   grid.querySelectorAll('[data-custom]').forEach(b => b.remove());
   const old = document.getElementById('cat-add-trigger');
   if (old) old.remove();
@@ -720,6 +739,22 @@ function confirmNewCat() {
   document.getElementById('new-cat-name').value = '';
   renderCategoryGrid();
   showToast(`${icon} ${label} 추가됨`);
+}
+
+function saveCatName() {
+  const icon = document.getElementById('custom-cat-icon').value.trim();
+  const label = document.getElementById('custom-cat-name').value.trim();
+  if (!label) { showToast('카테고리명을 입력해주세요'); return; }
+  if (!selectedCat) return;
+  const newIcon = icon || CAT[selectedCat]?.icon || '✨';
+  CAT[selectedCat] = { icon: newIcon, label };
+  catOverrides[selectedCat] = { icon: newIcon, label };
+  // customCats에 있는 항목이면 거기도 업데이트
+  const ci = customCats.findIndex(c => c.key === selectedCat);
+  if (ci !== -1) { customCats[ci].icon = newIcon; customCats[ci].label = label; }
+  renderCategoryGrid();
+  selectCatByKey(selectedCat);
+  showToast(`✓ "${label}" 저장됨`);
 }
 
 // ── 제품 이미지 ──────────────────────────────────
