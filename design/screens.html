@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnStep — 화면설계 프로토타입</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #111; font-family: -apple-system, 'Noto Sans KR', sans-serif; color: #fff; padding: 40px 20px; }
+
+  h1 { text-align: center; font-size: 14px; letter-spacing: 4px; color: #666; margin-bottom: 8px; }
+  h2 { text-align: center; font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+  .subtitle { text-align: center; font-size: 13px; color: #555; margin-bottom: 48px; }
+
+  /* 탭 */
+  .tab-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 40px; flex-wrap: wrap; }
+  .tab { padding: 8px 18px; border-radius: 20px; background: #222; color: #666; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #333; transition: all .2s; }
+  .tab.active { background: #fff; color: #000; border-color: #fff; }
+
+  /* 화면 그룹 */
+  .screen-group { display: none; }
+  .screen-group.active { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
+
+  /* 폰 프레임 */
+  .phone { width: 375px; background: #1a1a1a; border-radius: 48px; overflow: hidden;
+           box-shadow: 0 0 0 1px #333, 0 32px 80px rgba(0,0,0,.8); flex-shrink: 0; }
+  .phone-label { text-align: center; font-size: 11px; letter-spacing: 2px; color: #444; margin-top: 16px; }
+
+  /* 노치 */
+  .notch { width: 120px; height: 32px; background: #111; border-radius: 0 0 20px 20px; margin: 0 auto; }
+
+  /* ─── SCREEN CONTENTS ─── */
+  .screen { padding: 24px 24px 32px; min-height: 780px; position: relative; }
+
+  /* AM 테마 */
+  .am { background: #FFF8F0; color: #1a1a1a; }
+  .am .phase-tag { color: #FF8C42; }
+  .am .card { background: #FFE8CC; border-radius: 24px; }
+  .am .btn { background: #FF8C42; color: #fff; }
+  .am .chip { background: #FFD4A8; color: #cc5500; }
+  .am .nav-active { color: #FF8C42; }
+  .am .forced { border-color: #FF8C42; background: rgba(255,140,66,.1); }
+  .am .stat-hi { background: rgba(255,140,66,.15); color: #cc5500; }
+
+  /* PM 테마 */
+  .pm { background: #F0F4FF; color: #1a1a1a; }
+  .pm .phase-tag { color: #3D6FFF; }
+  .pm .card { background: #D8E4FF; border-radius: 24px; }
+  .pm .btn { background: #3D6FFF; color: #fff; }
+  .pm .chip { background: #C0D0FF; color: #1a40c8; }
+  .pm .nav-active { color: #3D6FFF; }
+  .pm .forced { border-color: #3D6FFF; background: rgba(61,111,255,.1); }
+  .pm .stat-hi { background: rgba(61,111,255,.15); color: #1a40c8; }
+
+  /* EVENING 테마 */
+  .ev { background: #1A1A2E; color: #f0f0ff; }
+  .ev .phase-tag { color: #E94F6B; }
+  .ev .card { background: #2D2D4A; border-radius: 24px; }
+  .ev .btn { background: #E94F6B; color: #fff; }
+  .ev .chip { background: rgba(233,79,107,.2); color: #ff8fa0; }
+  .ev .nav-active { color: #E94F6B; }
+  .ev .forced { border: 1.5px solid #E94F6B; background: rgba(233,79,107,.12); }
+  .ev .stat-hi { background: rgba(233,79,107,.2); color: #ff8fa0; }
+  .ev .sub { color: rgba(240,240,255,.5); }
+
+  /* NIGHT 테마 */
+  .ni { background: #0D0D1A; color: #e8e8ff; }
+  .ni .phase-tag { color: #7B68EE; }
+  .ni .card { background: #1A1A2E; border-radius: 24px; }
+  .ni .btn { background: #7B68EE; color: #fff; }
+  .ni .chip { background: rgba(123,104,238,.2); color: #b0a0ff; }
+  .ni .nav-active { color: #7B68EE; }
+  .ni .sub { color: rgba(232,232,255,.4); }
+
+  /* 공통 */
+  .phase-tag { font-size: 11px; font-weight: 700; letter-spacing: 3px; margin-bottom: 6px; }
+  .greeting { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+  .weather { font-size: 13px; opacity: .5; margin-bottom: 28px; display: flex; align-items: center; gap: 4px; }
+  .card { padding: 24px; margin-bottom: 14px; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 8px; }
+  .card-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; line-height: 1.3; }
+  .card-desc { font-size: 14px; opacity: .65; margin-bottom: 22px; line-height: 1.5; }
+  .btn { width: 100%; padding: 14px; border-radius: 16px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .forced { padding: 14px 16px; border-radius: 14px; display: flex; align-items: center; gap: 10px; font-size: 13px; line-height: 1.4; margin-bottom: 14px; }
+  .forced-icon { font-size: 18px; flex-shrink: 0; }
+  .forced-arrow { margin-left: auto; font-size: 12px; opacity: .5; }
+  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .chip { font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; }
+
+  /* 하단 내비 */
+  .nav { display: flex; justify-content: space-around; padding: 16px 0 8px; border-top: 1px solid rgba(128,128,128,.15); margin-top: auto; position: absolute; bottom: 0; left: 0; right: 0; background: inherit; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: .35; font-size: 10px; font-weight: 600; }
+  .nav-item.active { opacity: 1; }
+  .nav-icon { font-size: 22px; }
+
+  /* 자산 화면 */
+  .tab-nav { display: flex; border-bottom: 1px solid rgba(128,128,128,.15); margin: 0 -24px 20px; padding: 0 24px; }
+  .tab-nav-item { flex: 1; padding: 12px 0; text-align: center; font-size: 13px; font-weight: 600; opacity: .4; }
+  .tab-nav-item.active { opacity: 1; border-bottom: 2px solid currentColor; }
+  .asset-card { border-radius: 20px; padding: 18px; margin-bottom: 12px; }
+  .am .asset-card { background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  .pm .asset-card { background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  .ev .asset-card { background: #2D2D4A; }
+  .ni .asset-card { background: #1A1A2E; }
+  .asset-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .asset-name { font-size: 17px; font-weight: 700; }
+  .asset-brand { font-size: 12px; opacity: .4; margin-top: 2px; }
+  .stat-row { display: flex; gap: 8px; }
+  .stat { text-align: center; padding: 6px 12px; border-radius: 10px; background: rgba(128,128,128,.08); }
+  .stat-label { font-size: 10px; opacity: .4; }
+  .stat-val { font-size: 13px; font-weight: 700; }
+  .use-btn { width: 32px; height: 32px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; background: rgba(128,128,128,.1); }
+
+  /* 인라인 편집 */
+  .inline-edit { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(128,128,128,.12); }
+  .input-row { display: flex; gap: 8px; align-items: flex-end; }
+  .fake-input { flex: 1; background: rgba(128,128,128,.1); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+  .fake-input-label { font-size: 10px; opacity: .4; margin-bottom: 4px; }
+  .save-btn { padding: 10px 18px; border-radius: 10px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .cancel-btn { padding: 10px 16px; border-radius: 10px; border: none; font-size: 13px; cursor: pointer; background: transparent; opacity: .5; }
+
+  /* Outfit 플래너 */
+  .outfit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .outfit-slot { border-radius: 16px; aspect-ratio: 3/4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 12px; opacity: .5; border: 2px dashed rgba(128,128,128,.3); cursor: pointer; }
+  .outfit-slot.filled { opacity: 1; border-style: solid; border-color: rgba(128,128,128,.2); }
+  .outfit-slot-icon { font-size: 28px; }
+  .outfit-label { font-size: 11px; font-weight: 600; }
+
+  /* bottom sheet */
+  .sheet { background: #fff; border-radius: 28px 28px 0 0; padding: 24px; position: absolute; bottom: 0; left: 0; right: 0; color: #1a1a1a; }
+  .sheet-handle { width: 36px; height: 4px; background: #e0e0e0; border-radius: 2px; margin: 0 auto 20px; }
+  .sheet-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+  .form-field { margin-bottom: 14px; }
+  .form-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+  .form-input { width: 100%; padding: 12px 14px; border: 1.5px solid #e8e8e8; border-radius: 12px; font-size: 15px; }
+  .form-input:focus { outline: none; border-color: #3D6FFF; }
+
+  /* ROI 화면 */
+  .roi-header { text-align: center; padding: 20px 0 10px; }
+  .roi-big { font-size: 48px; font-weight: 900; line-height: 1; }
+  .roi-sub { font-size: 13px; opacity: .5; margin-top: 6px; }
+  .bar-chart { margin: 20px 0; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-name { font-size: 12px; width: 80px; flex-shrink: 0; opacity: .7; }
+  .bar-track { flex: 1; height: 8px; background: rgba(128,128,128,.15); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .bar-val { font-size: 12px; font-weight: 700; width: 40px; text-align: right; flex-shrink: 0; }
+  .summary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .summary-card { border-radius: 16px; padding: 16px; text-align: center; }
+  .am .summary-card { background: #FFE8CC; }
+  .pm .summary-card { background: #D8E4FF; }
+  .ev .summary-card { background: #2D2D4A; }
+  .ni .summary-card { background: #1A1A2E; }
+  .summary-val { font-size: 22px; font-weight: 800; }
+  .summary-label { font-size: 11px; opacity: .5; margin-top: 4px; }
+
+  .section-label { font-size: 11px; letter-spacing: 2px; font-weight: 600; opacity: .4; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<h1>ONSTEP · LIFE OS</h1>
+<h2>화면설계 프로토타입</h2>
+<p class="subtitle">Zero Setting: 고민의 시간을 삭제하고 내일의 나를 자산화한다</p>
+
+<!-- 탭 -->
+<div class="tab-bar">
+  <div class="tab active" onclick="show('home')">홈 · Flow Guide</div>
+  <div class="tab" onclick="show('asset')">자산 관리</div>
+  <div class="tab" onclick="show('outfit')">내일 옷 고르기</div>
+  <div class="tab" onclick="show('roi')">ROI 분석</div>
+  <div class="tab" onclick="show('add')">아이템 추가</div>
+</div>
+
+<!-- ════════════════════════════════
+     1. 홈 / Flow Guide (4 테마)
+════════════════════════════════ -->
+<div class="screen-group active" id="g-home">
+
+  <!-- AM -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen am">
+        <div class="phase-tag">GOOD MORNING</div>
+        <div class="greeting">오늘도<br>온스텝으로 🌅</div>
+        <div class="weather">🌤 22°C · 맑음 · 습도 45%</div>
+        <div class="card">
+          <div class="card-header">
+            <span class="badge chip">지금 할 것 · 5분</span>
+            <span style="font-size:18px">✅</span>
+          </div>
+          <div class="card-title">림프 순환 운동<br>목·어깨 마사지</div>
+          <div class="card-desc">아침 5분 투자가 하루 에너지를 결정합니다. 지금 바로 시작하세요.</div>
+          <button class="btn">시작하기 →</button>
+        </div>
+        <div class="chip-row">
+          <span class="chip">🧥 내일 옷 준비됨</span>
+          <span class="chip">📅 루틴 3/3</span>
+        </div>
+        <div style="height:56px"></div>
+        <div class="nav">
+          <div class="nav-item active nav-active"><div class="nav-icon">🏠</div>홈</div>
+          <div class="nav-item"><div class="nav-icon">👗</div>자산</div>
+          <div class="nav-item"><div class="nav-icon">📊</div>ROI</div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">AM · 06:00–11:59</div>
+  </div>
+
+  <!-- PM -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen pm">
+        <div class="phase-tag">FOCUS TIME</div>
+        <div class="greeting">오후도<br>온스텝으로 ☀️</div>
+        <div class="weather">⛅ 24°C · 구름조금 · 습도 52%</div>
+        <div class="card">
+          <div class="card-header">
+            <span class="badge chip">지금 할 것 · 25분</span>
+          </div>
+          <div class="card-title">지금 가장 중요한<br>한 가지에 집중하세요</div>
+          <div class="card-desc">오후의 집중력이 하루 성과를 완성합니다. 방해 요소를 모두 끄세요.</div>
+          <button class="btn">시작하기 →</button>
+        </div>
+        <div class="chip-row">
+          <span class="chip">💪 오늘 루틴 2/3</span>
+          <span class="chip">🧥 내일 옷 미준비</span>
+        </div>
+        <div style="height:56px"></div>
+        <div class="nav">
+          <div class="nav-item active nav-active"><div class="nav-icon">🏠</div>홈</div>
+          <div class="nav-item"><div class="nav-icon">👗</div>자산</div>
+          <div class="nav-item"><div class="nav-icon">📊</div>ROI</div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">PM · 12:00–17:59</div>
+  </div>
+
+  <!-- EVENING -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen ev">
+        <div class="phase-tag">EVENING RESET</div>
+        <div class="greeting">오늘 하루<br>수고했어요 🌙</div>
+        <div class="weather sub">🌙 18°C · 맑음 · 습도 60%</div>
+        <div class="forced">
+          <span class="forced-icon">👗</span>
+          <span style="flex:1">내일 옷이 아직 준비되지 않았어요.<br><b>3분으로 내일 아침을 구하세요</b></span>
+          <span class="forced-arrow">›</span>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="badge chip">강제 루틴 · 3분</span>
+            <span style="font-size:14px;opacity:.4">스킵 불가</span>
+          </div>
+          <div class="card-title">내일 입을 옷을<br>지금 고르세요</div>
+          <div class="card-desc">3분 투자로 내일 아침 30분을 버세요. 의사결정 비용을 제로로.</div>
+          <button class="btn">옷 고르러 가기 →</button>
+        </div>
+        <div style="height:56px"></div>
+        <div class="nav">
+          <div class="nav-item active nav-active"><div class="nav-icon">🏠</div>홈</div>
+          <div class="nav-item"><div class="nav-icon">👗</div>자산</div>
+          <div class="nav-item"><div class="nav-icon">📊</div>ROI</div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">EVENING · 18:00–21:59</div>
+  </div>
+
+  <!-- NIGHT -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen ni">
+        <div class="phase-tag">SLEEP MODE</div>
+        <div class="greeting">편안한 밤<br>되세요 🌠</div>
+        <div class="weather sub">🌑 16°C · 맑음</div>
+        <div class="card">
+          <div class="card-header">
+            <span class="badge chip">수면 준비 · 10분</span>
+            <span style="font-size:18px">✅</span>
+          </div>
+          <div class="card-title">화면을 끄고<br>수면 준비를 시작하세요</div>
+          <div class="card-desc">수면이 내일의 자산을 충전합니다. 내일 옷도 준비됐어요 👗</div>
+          <button class="btn">수면 모드 →</button>
+        </div>
+        <div class="chip-row">
+          <span class="chip">✅ 내일 준비 완료</span>
+          <span class="chip">🎯 오늘 루틴 3/3</span>
+        </div>
+        <div style="height:56px"></div>
+        <div class="nav">
+          <div class="nav-item active nav-active"><div class="nav-icon">🏠</div>홈</div>
+          <div class="nav-item"><div class="nav-icon">👗</div>자산</div>
+          <div class="nav-item"><div class="nav-icon">📊</div>ROI</div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">NIGHT · 22:00–05:59</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     2. 자산 관리
+════════════════════════════════ -->
+<div class="screen-group" id="g-asset">
+  <!-- 목록 (AM) -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen am">
+        <div style="font-size:22px;font-weight:800;margin-bottom:20px">자산 관리</div>
+        <div class="tab-nav">
+          <div class="tab-nav-item active" style="color:#FF8C42">👗 옷장</div>
+          <div class="tab-nav-item">💄 화장대</div>
+          <div class="tab-nav-item">⌚ 액세서리</div>
+        </div>
+        <!-- 아이템 1 -->
+        <div class="asset-card">
+          <div class="asset-row">
+            <div>
+              <div class="asset-name">화이트 린넨 셔츠</div>
+              <div class="asset-brand">Uniqlo · 봄/여름</div>
+            </div>
+            <button class="use-btn">+</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-label">착용</div><div class="stat-val">24회</div></div>
+            <div class="stat"><div class="stat-label">회당비용</div><div class="stat-val">₩1,250</div></div>
+            <div class="stat stat-hi"><div class="stat-label">ROI</div><div class="stat-val">240%</div></div>
+          </div>
+          <!-- 인라인 편집 상태 -->
+          <div class="inline-edit">
+            <div class="input-row">
+              <div style="flex:1">
+                <div class="fake-input-label">구매가 (₩)</div>
+                <div class="fake-input">30,000</div>
+              </div>
+              <button class="cancel-btn">취소</button>
+              <button class="save-btn btn" style="background:#FF8C42;color:#fff;border-radius:10px;padding:10px 16px">저장</button>
+            </div>
+          </div>
+        </div>
+        <!-- 아이템 2 -->
+        <div class="asset-card">
+          <div class="asset-row">
+            <div>
+              <div class="asset-name">블랙 슬랙스</div>
+              <div class="asset-brand">Zara · 사계절</div>
+            </div>
+            <button class="use-btn">+</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-label">착용</div><div class="stat-val">18회</div></div>
+            <div class="stat"><div class="stat-label">회당비용</div><div class="stat-val">₩2,778</div></div>
+            <div class="stat stat-hi"><div class="stat-label">ROI</div><div class="stat-val">180%</div></div>
+          </div>
+        </div>
+        <!-- 아이템 3 -->
+        <div class="asset-card" style="opacity:.55">
+          <div class="asset-row">
+            <div>
+              <div class="asset-name">네이비 블레이저</div>
+              <div class="asset-brand">H&M · 봄/가을</div>
+            </div>
+            <button class="use-btn">+</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-label">착용</div><div class="stat-val">2회</div></div>
+            <div class="stat"><div class="stat-label">회당비용</div><div class="stat-val">₩22,500</div></div>
+            <div class="stat"><div class="stat-label">ROI</div><div class="stat-val" style="color:#e74c3c">20%</div></div>
+          </div>
+        </div>
+        <div style="height:56px"></div>
+        <div class="nav">
+          <div class="nav-item"><div class="nav-icon">🏠</div>홈</div>
+          <div class="nav-item active nav-active"><div class="nav-icon">👗</div>자산</div>
+          <div class="nav-item"><div class="nav-icon">📊</div>ROI</div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">자산 목록 · 인라인 편집</div>
+  </div>
+
+  <!-- 화장대 탭 (EVENING) -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen ev">
+        <div style="font-size:22px;font-weight:800;margin-bottom:20px">자산 관리</div>
+        <div class="tab-nav">
+          <div class="tab-nav-item">👗 옷장</div>
+          <div class="tab-nav-item active" style="color:#E94F6B">💄 화장대</div>
+          <div class="tab-nav-item">⌚ 액세서리</div>
+        </div>
+        <div class="asset-card">
+          <div class="asset-row">
+            <div>
+              <div class="asset-name">설화수 자음 세럼</div>
+              <div class="asset-brand">Sulwhasoo · 스킨케어</div>
+            </div>
+            <button class="use-btn">+</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-label">사용</div><div class="stat-val">89회</div></div>
+            <div class="stat"><div class="stat-label">회당비용</div><div class="stat-val">₩1,685</div></div>
+            <div class="stat stat-hi"><div class="stat-label">ROI</div><div class="stat-val">890%</div></div>
+          </div>
+        </div>
+        <div class="asset-card">
+          <div class="asset-row">
+            <div>
+              <div class="asset-name">샤넬 루쥬 코코 112</div>
+              <div class="asset-brand">Chanel · 립</div>
+            </div>
+            <button class="use-btn">+</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-label">사용</div><div class="stat-val">34회</div></div>
+            <div class="stat"><div class="stat-label">회당비용</div><div class="stat-val">₩1,471</div></div>
+            <div class="stat stat-hi"><div class="stat-label">ROI</div><div class="stat-val">340%</div></div>
+          </div>
+        </div>
+        <div class="asset-card" style="opacity:.55">
+          <div class="asset-row">
+            <div>
+              <div class="asset-name">맥 스튜디오 픽스</div>
+              <div class="asset-brand">MAC · 파운데이션</div>
+            </div>
+            <button class="use-btn">+</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-label">사용</div><div class="stat-val">3회</div></div>
+            <div class="stat"><div class="stat-label">회당비용</div><div class="stat-val">₩12,333</div></div>
+            <div class="stat"><div class="stat-label">ROI</div><div class="stat-val" style="color:#ff6b6b">30%</div></div>
+          </div>
+        </div>
+        <div style="height:56px"></div>
+        <div class="nav">
+          <div class="nav-item"><div class="nav-icon">🏠</div>홈</div>
+          <div class="nav-item active nav-active"><div class="nav-icon">👗</div>자산</div>
+          <div class="nav-item"><div class="nav-icon">📊</div>ROI</div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">화장대 자산 · EVENING 테마</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     3. 내일 옷 고르기 (Outfit Planner)
+════════════════════════════════ -->
+<div class="screen-group" id="g-outfit">
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen ev">
+        <div class="phase-tag">EVENING RESET</div>
+        <div style="font-size:22px;font-weight:800;margin-bottom:4px">내일 옷 고르기</div>
+        <div class="weather sub">4월 25일 금요일 · 예상 22°C ☀️</div>
+        <div style="margin:20px 0 10px;font-size:13px;opacity:.5;letter-spacing:1px">OUTFIT SLOTS</div>
+        <div class="outfit-grid">
+          <div class="outfit-slot filled" style="border-color:#E94F6B;background:rgba(233,79,107,.08)">
+            <div class="outfit-slot-icon">👗</div>
+            <div class="outfit-label" style="color:#E94F6B">화이트 셔츠</div>
+          </div>
+          <div class="outfit-slot filled" style="border-color:#E94F6B;background:rgba(233,79,107,.08)">
+            <div class="outfit-slot-icon">👖</div>
+            <div class="outfit-label" style="color:#E94F6B">블랙 슬랙스</div>
+          </div>
+          <div class="outfit-slot">
+            <div class="outfit-slot-icon">👟</div>
+            <div class="outfit-label">신발 추가</div>
+          </div>
+          <div class="outfit-slot">
+            <div class="outfit-slot-icon">👜</div>
+            <div class="outfit-label">가방 추가</div>
+          </div>
+        </div>
+        <div style="padding:14px;background:rgba(233,79,107,.1);border-radius:14px;margin-bottom:14px;font-size:13px;opacity:.8">
+          💡 내일 날씨가 맑고 22°C 예상.<br>가볍게 입기 좋은 날이에요.
+        </div>
+        <button class="btn" style="background:#E94F6B;color:#fff;border-radius:16px;padding:14px;width:100%;font-size:15px;font-weight:700;border:none">
+          내일 옷 확정하기 ✓
+        </button>
+        <div style="height:56px"></div>
+        <div class="nav">
+          <div class="nav-item active nav-active"><div class="nav-icon">🏠</div>홈</div>
+          <div class="nav-item"><div class="nav-icon">👗</div>자산</div>
+          <div class="nav-item"><div class="nav-icon">📊</div>ROI</div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">Outfit Planner · 저녁 강제 루틴</div>
+  </div>
+
+  <!-- AM 확인 화면 -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen am">
+        <div class="phase-tag">GOOD MORNING</div>
+        <div style="font-size:22px;font-weight:800;margin-bottom:20px">오늘의 옷 ✅</div>
+        <div class="outfit-grid">
+          <div class="outfit-slot filled" style="border-color:#FF8C42;background:rgba(255,140,66,.1)">
+            <div class="outfit-slot-icon">👗</div>
+            <div class="outfit-label" style="color:#FF8C42">화이트 셔츠</div>
+          </div>
+          <div class="outfit-slot filled" style="border-color:#FF8C42;background:rgba(255,140,66,.1)">
+            <div class="outfit-slot-icon">👖</div>
+            <div class="outfit-label" style="color:#FF8C42">블랙 슬랙스</div>
+          </div>
+        </div>
+        <div style="padding:14px;background:rgba(255,140,66,.12);border-radius:14px;margin-bottom:14px;font-size:14px;text-align:center">
+          어젯밤에 미리 준비한 옷이에요 🎉<br>
+          <span style="opacity:.5;font-size:12px">의사결정 비용 0원</span>
+        </div>
+        <button class="btn am" style="background:#FF8C42;color:#fff;border-radius:16px;padding:14px;width:100%;font-size:15px;font-weight:700;border:none">
+          오늘도 온스텝! →
+        </button>
+        <div style="height:56px"></div>
+        <div class="nav">
+          <div class="nav-item active nav-active"><div class="nav-icon">🏠</div>홈</div>
+          <div class="nav-item"><div class="nav-icon">👗</div>자산</div>
+          <div class="nav-item"><div class="nav-icon">📊</div>ROI</div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">아침 옷 확인 · AM 테마</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     4. ROI 분석
+════════════════════════════════ -->
+<div class="screen-group" id="g-roi">
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen pm">
+        <div class="roi-header">
+          <div style="font-size:13px;letter-spacing:2px;opacity:.4;margin-bottom:8px">TOTAL ASSET ROI</div>
+          <div class="roi-big" style="color:#3D6FFF">342%</div>
+          <div class="roi-sub">총 38개 아이템 · 구매가 합계 ₩1,240,000</div>
+        </div>
+        <div class="summary-row">
+          <div class="summary-card">
+            <div class="summary-val">289회</div>
+            <div class="summary-label">총 착용 횟수</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-val">₩4,290</div>
+            <div class="summary-label">평균 회당 비용</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-val">7개</div>
+            <div class="summary-label">ROI 0% 아이템</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-val">₩89,000</div>
+            <div class="summary-label">잠자는 자산</div>
+          </div>
+        </div>
+        <div style="margin-top:20px;margin-bottom:10px" class="section-label">TOP ROI 아이템</div>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <div class="bar-name">자음 세럼</div>
+            <div class="bar-track"><div class="bar-fill" style="width:90%;background:#3D6FFF"></div></div>
+            <div class="bar-val">890%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-name">화이트 셔츠</div>
+            <div class="bar-track"><div class="bar-fill" style="width:70%;background:#3D6FFF"></div></div>
+            <div class="bar-val">240%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-name">샤넬 립스틱</div>
+            <div class="bar-track"><div class="bar-fill" style="width:55%;background:#3D6FFF"></div></div>
+            <div class="bar-val">340%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-name">블랙 슬랙스</div>
+            <div class="bar-track"><div class="bar-fill" style="width:48%;background:#3D6FFF"></div></div>
+            <div class="bar-val">180%</div>
+          </div>
+          <div class="bar-row" style="opacity:.4">
+            <div class="bar-name">네이비 블레이저</div>
+            <div class="bar-track"><div class="bar-fill" style="width:8%;background:#e74c3c"></div></div>
+            <div class="bar-val" style="color:#e74c3c">20%</div>
+          </div>
+        </div>
+        <div style="height:56px"></div>
+        <div class="nav">
+          <div class="nav-item"><div class="nav-icon">🏠</div>홈</div>
+          <div class="nav-item"><div class="nav-icon">👗</div>자산</div>
+          <div class="nav-item active nav-active"><div class="nav-icon">📊</div>ROI</div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>설정</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">ROI 분석 · 자산 성과</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     5. 아이템 추가 (Bottom Sheet)
+════════════════════════════════ -->
+<div class="screen-group" id="g-add">
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen am" style="position:relative;overflow:hidden">
+        <!-- 배경 흐림 처리 -->
+        <div style="opacity:.3">
+          <div class="phase-tag">GOOD MORNING</div>
+          <div class="greeting">오늘도<br>온스텝으로 🌅</div>
+          <div class="asset-card" style="background:#fff;margin-top:20px;opacity:.5">...</div>
+        </div>
+        <!-- Bottom Sheet -->
+        <div class="sheet">
+          <div class="sheet-handle"></div>
+          <div class="sheet-title">새 아이템 추가</div>
+          <div class="form-field">
+            <div class="form-label">카테고리</div>
+            <div style="display:flex;gap:8px">
+              <div style="padding:8px 16px;background:#FF8C42;color:#fff;border-radius:10px;font-size:13px;font-weight:600">👗 옷장</div>
+              <div style="padding:8px 16px;background:#f0f0f0;border-radius:10px;font-size:13px;font-weight:600;color:#888">💄 화장대</div>
+              <div style="padding:8px 16px;background:#f0f0f0;border-radius:10px;font-size:13px;font-weight:600;color:#888">⌚ 액세서리</div>
+            </div>
+          </div>
+          <div class="form-field">
+            <div class="form-label">이름 *</div>
+            <div class="form-input" style="color:#ccc;border:1.5px solid #e8e8e8;border-radius:12px;padding:12px 14px;font-size:15px">화이트 린넨 셔츠</div>
+          </div>
+          <div class="form-field">
+            <div class="form-label">브랜드</div>
+            <div class="form-input" style="color:#ccc;border:1.5px solid #e8e8e8;border-radius:12px;padding:12px 14px;font-size:15px">Uniqlo</div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <div class="form-field" style="flex:1">
+              <div class="form-label">구매가 (₩)</div>
+              <div class="form-input" style="color:#ccc;border:1.5px solid #FF8C42;border-radius:12px;padding:12px 14px;font-size:15px">30,000</div>
+            </div>
+            <div class="form-field" style="flex:1">
+              <div class="form-label">시즌</div>
+              <div class="form-input" style="color:#ccc;border:1.5px solid #e8e8e8;border-radius:12px;padding:12px 14px;font-size:15px">봄/여름</div>
+            </div>
+          </div>
+          <button style="width:100%;padding:14px;background:#FF8C42;color:#fff;border:none;border-radius:16px;font-size:15px;font-weight:700;margin-top:4px">
+            자산으로 추가하기 →
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">아이템 추가 · Bottom Sheet</div>
+  </div>
+</div>
+
+<script>
+  function show(key) {
+    document.querySelectorAll('.screen-group').forEach(g => g.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('g-' + key).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
