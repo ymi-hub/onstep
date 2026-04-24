@@ -267,37 +267,56 @@
     font-weight: 500;
     margin-bottom: 10px;
   }
+  /* ── 요일 트래커 (새 디자인) ── */
   .dots-row {
     display: flex;
-    gap: 5px;
-    margin-bottom: 6px;
+    gap: 2px;
+    align-items: flex-end;
+    margin-bottom: 4px;
+    overflow: hidden;
   }
-  .dot {
-    width: 24px; height: 7px;
-    border-radius: 4px;
-    background: var(--navy);
-    transition: all .3s;
-  }
-  .dot.empty {
-    background: var(--mist);
-  }
-  .dot.today {
-    background: var(--navy);
-    box-shadow: 0 0 0 2px rgba(45,59,85,.2);
-  }
-  .days-row {
+  .days-row { display: none; }
+
+  .day-col {
     display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 5px;
-    margin-top: 4px;
+    flex: 1;
+    transition: all .25s;
   }
-  .day-label {
-    width: 24px;
-    text-align: center;
-    font-size: 9px;
+  .day-col-label {
+    font-size: 8px;
     color: var(--mist);
     font-weight: 400;
+    letter-spacing: 0;
+    transition: all .25s;
+    line-height: 1;
   }
-  .day-label.active { color: var(--navy); font-weight: 600; }
+  .day-col-dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(45,59,85,.65);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #fff;
+    transition: all .25s;
+    flex-shrink: 0;
+  }
+  .day-col.empty .day-col-dot {
+    background: var(--border);
+    color: transparent;
+  }
+  .day-col.today .day-col-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .day-col.today .day-col-dot {
+    width: 36px; height: 36px;
+    font-size: 15px;
+    background: var(--navy);
+    box-shadow: 0 4px 14px rgba(45,59,85,.4), 0 0 0 3px rgba(45,59,85,.12);
+  }
 
   /* ── 루틴 카드 ── */
   .routine-card {
@@ -370,7 +389,6 @@
   /* 제품이 5개 초과면 좌우 스크롤, 이하면 flex wrap */
   .routine-steps-wrap {
     padding: 0 20px 16px;
-    overflow: hidden;
   }
   .routine-steps {
     display: flex;
@@ -828,6 +846,14 @@
     renderSkRoutineTabs('morning', plan.morning);
     renderSkRoutineTabs('nightly', plan.nightly);
 
+    // 케어 시간 표시
+    if (plan.morningTime) {
+      document.getElementById('am-sub').textContent = `${morning.length} STEPS · ${plan.morningTime}`;
+    }
+    if (plan.nightlyTime) {
+      document.getElementById('pm-sub').textContent = `${nightly.length} STEPS · ${plan.nightlyTime}`;
+    }
+
     // Insight
     if (plan.curatorTip) {
       document.getElementById('insight-text').textContent = `"${plan.curatorTip}"`;
@@ -873,23 +899,39 @@
 
   function buildDots(currentDay, totalDays, periodStart) {
     const dotsRow = document.getElementById('dots-row');
-    const daysRow = document.getElementById('days-row');
     dotsRow.innerHTML = '';
-    daysRow.innerHTML = '';
     const DAYS_KO = ['일','월','화','수','목','금','토'];
     const start = periodStart ? new Date(periodStart) : new Date();
+    const todayIdx = currentDay - 1;
 
-    for (let i = 0; i < totalDays; i++) {
-      const d = document.createElement('div');
-      d.className = 'dot' + (i < currentDay - 1 ? '' : i === currentDay - 1 ? ' today' : ' empty');
-      dotsRow.appendChild(d);
+    // 7일 창 중앙에 오늘 배치
+    const windowSize = Math.min(7, totalDays);
+    const half = Math.floor(windowSize / 2);
+    let s = Math.max(0, todayIdx - half);
+    let e = s + windowSize - 1;
+    if (e >= totalDays) { e = totalDays - 1; s = Math.max(0, e - windowSize + 1); }
 
-      const ld = document.createElement('div');
+    for (let i = s; i <= e; i++) {
       const dayDate = new Date(start);
       dayDate.setDate(start.getDate() + i);
-      ld.className = 'day-label' + (i === currentDay - 1 ? ' active' : '');
-      ld.textContent = DAYS_KO[dayDate.getDay()];
-      daysRow.appendChild(ld);
+      const dayName = DAYS_KO[dayDate.getDay()];
+      const isToday = i === todayIdx;
+      const isPast  = i < todayIdx;
+
+      const col = document.createElement('div');
+      col.className = 'day-col' + (isToday ? ' today' : isPast ? ' past' : ' empty');
+
+      const label = document.createElement('div');
+      label.className = 'day-col-label';
+      label.textContent = dayName;
+
+      const dot = document.createElement('div');
+      dot.className = 'day-col-dot';
+      if (isPast) dot.textContent = '✓';
+
+      col.appendChild(label);
+      col.appendChild(dot);
+      dotsRow.appendChild(col);
     }
   }
 
