@@ -183,6 +183,30 @@
   /* 제품 이미지 업로드 */
   .prod-img-area{height:72px;border:1.5px dashed var(--border);border-radius:12px;cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--smoke);transition:border-color .2s}
   .prod-img-area:hover{border-color:var(--rose)}
+
+  /* 카테고리 드래그 */
+  .cat-btn[draggable]{cursor:grab}
+  .cat-btn.dragging{opacity:.35;transform:scale(.95)}
+  .cat-btn.drag-over{border-color:var(--navy)!important;background:var(--ice)!important}
+
+  /* 회차별 일정 */
+  .session-list{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+  .session-row{background:var(--white);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;border:1px solid var(--border)}
+  .session-num{font-size:11px;font-weight:700;color:var(--navy);min-width:34px}
+  .session-slots{flex:1;display:flex;gap:6px}
+  .session-slot{flex:1;background:var(--smoke);border-radius:8px;padding:6px;text-align:center}
+  .session-slot-label{font-size:10px;color:var(--ink);font-weight:600;margin-bottom:2px}
+  .session-slot-count{font-size:9px;color:var(--slate)}
+
+  /* 전체 제품 목록 */
+  .prod-list-hd{font-size:9px;letter-spacing:2px;color:var(--slate);font-weight:600;margin:14px 0 6px;padding:0 2px}
+  .prod-list-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .2s}
+  .prod-list-item:last-child{border-bottom:none}
+  .prod-list-item:hover{opacity:.72}
+  .prod-list-icon{width:40px;height:40px;border-radius:12px;background:var(--ice);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden;background-size:cover;background-position:center}
+  .prod-list-name{font-size:13px;font-weight:600;color:var(--ink)}
+  .prod-list-sub{font-size:10px;color:var(--slate);margin-top:2px}
+  .prod-list-badge{font-size:9px;padding:2px 7px;background:var(--border);border-radius:10px;color:var(--slate);white-space:nowrap;flex-shrink:0}
   .prod-img-preview{position:absolute;inset:0;background-size:cover;background-position:center;display:none}
   .prod-img-placeholder{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--slate);font-weight:500}
 </style>
@@ -238,7 +262,7 @@
       <div class="input-card">
         <div class="input-card-icon">📅</div>
         <div class="input-card-label">SESSION</div>
-        <input class="input-card-value" id="session-input" type="number" min="1" max="99" placeholder="회차수를 입력" oninput="this.classList.toggle('filled',this.value!='')">
+        <input class="input-card-value" id="session-input" type="number" min="1" max="99" placeholder="회차수를 입력" oninput="this.classList.toggle('filled',this.value!='');renderSessionList()">
       </div>
       <div class="input-card">
         <div class="input-card-icon">🗓</div>
@@ -312,6 +336,30 @@
         <div class="progress-bar"><div class="progress-fill" id="nightly-progress" style="width:0%"></div></div>
       </div>
       <textarea class="care-textarea" id="nightly-desc" placeholder="루틴 설명을 입력하세요" rows="3" style="margin-top:10px"></textarea>
+    </div>
+
+    <!-- 회차별 일정 -->
+    <div class="care-section" style="margin-top:18px">
+      <div class="care-section-header">
+        <div class="care-section-title">회차별 일정</div>
+        <div class="care-section-right">
+          <span class="product-count" id="session-total-count">—</span>
+        </div>
+      </div>
+      <div class="session-list" id="session-list">
+        <div style="font-size:12px;color:var(--mist);padding:8px 0">회차수를 입력하면 일정이 표시됩니다</div>
+      </div>
+    </div>
+
+    <!-- 전체 제품 목록 -->
+    <div class="care-section" style="margin-top:18px">
+      <div class="care-section-header">
+        <div class="care-section-title">전체 제품 목록</div>
+        <div class="care-section-right">
+          <span class="product-count" id="total-prod-count">0</span>
+        </div>
+      </div>
+      <div id="product-list-full" style="padding:0 0 4px"></div>
     </div>
 
     <!-- Curator Tip -->
@@ -407,8 +455,8 @@ const CAT = {
 };
 
 let state = {
-  morning: { routines:[{id:1,products:[]}], active:1 },
-  nightly: { routines:[{id:1,products:[]}], active:1 }
+  morning: { routines:[{id:1,products:[]},{id:2,products:[]}], active:1 },
+  nightly: { routines:[{id:1,products:[]},{id:2,products:[]}], active:1 }
 };
 let modal = { slot:null, editId:null };
 let selectedCat = 'cleanser';
@@ -436,7 +484,12 @@ window.addEventListener('load', () => {
     const el = document.getElementById(id);
     if (el.value) el.classList.add('filled');
   });
-  const mig = r => Array.isArray(r) ? {routines:[{id:1,products:r}],active:1} : (r || {routines:[{id:1,products:[]}],active:1});
+  const mig = r => {
+    let obj = Array.isArray(r) ? {routines:[{id:1,products:r}],active:1} : (r || {routines:[{id:1,products:[]}],active:1});
+    if (!obj.routines) obj.routines = [{id:1,products:[]}];
+    if (!obj.routines.find(x => x.id === 2)) obj.routines.push({id:2,products:[]});
+    return obj;
+  };
   state.morning = mig(saved.morning);
   state.nightly = mig(saved.nightly);
   customCats = saved.customCats || [];
@@ -453,6 +506,8 @@ function renderAll() {
   renderGrid('morning');
   renderGrid('nightly');
   renderCategoryGrid();
+  renderSessionList();
+  renderProductList();
 }
 
 function renderGrid(slot) {
@@ -493,7 +548,12 @@ function renderGrid(slot) {
 }
 
 // ── 모달 ────────────────────────────────────────
-function openModal(slot, editId = null) {
+function openModal(slot, editId = null, routineId = null) {
+  if (routineId !== null && state[slot]) {
+    state[slot].active = routineId;
+    renderRoutineTabs(slot);
+    renderGrid(slot);
+  }
   modal.slot = slot;
   modal.editId = editId;
 
@@ -589,6 +649,9 @@ function confirmProduct() {
     showToast(`${icon} ${name} 추가됨`);
   }
   renderGrid(modal.slot);
+  renderRoutineTabs(modal.slot);
+  renderSessionList();
+  renderProductList();
   closeModal();
 }
 
@@ -597,12 +660,18 @@ function deleteProduct() {
   if (modal.editId === null) return;
   setActiveProducts(modal.slot, getActiveProducts(modal.slot).filter(p => p.id !== modal.editId));
   renderGrid(modal.slot);
+  renderRoutineTabs(modal.slot);
+  renderSessionList();
+  renderProductList();
   showToast('제품이 삭제되었습니다');
   closeModal();
 }
 function deleteById(slot, id) {
   setActiveProducts(slot, getActiveProducts(slot).filter(p => p.id !== id));
   renderGrid(slot);
+  renderRoutineTabs(slot);
+  renderSessionList();
+  renderProductList();
 }
 
 // ── 저장 ────────────────────────────────────────
@@ -658,34 +727,19 @@ function setActiveProducts(slot, products) {
   if (idx !== -1) state[slot].routines[idx].products = products;
 }
 
-// ── 루틴 탭 ──────────────────────────────────────
+// ── 루틴 탭 (고정 2개) ───────────────────────────
 function renderRoutineTabs(slot) {
   const c = document.getElementById(`${slot}-routine-tabs`);
   if (!c) return;
   const {routines, active} = state[slot];
-  c.innerHTML = routines.map(r => {
-    const del = routines.length > 1
-      ? `<span class="r-tab-del" onclick="event.stopPropagation();delRoutine('${slot}',${r.id})">✕</span>`
-      : '';
-    return `<button class="r-tab${r.id===active?' active':''}" onclick="switchRoutine('${slot}',${r.id})">루틴 ${r.id}${del}</button>`;
-  }).join('') + `<button class="r-tab r-tab-add" onclick="addRoutine('${slot}')">＋ 루틴 추가</button>`;
+  c.innerHTML = [1,2].map(id => {
+    const r = routines.find(x => x.id === id) || {id, products:[]};
+    const cnt = r.products.length ? ` <span style="font-size:9px;opacity:.7">(${r.products.length})</span>` : '';
+    return `<button type="button" class="r-tab${id===active?' active':''}" onclick="switchRoutine('${slot}',${id})">루틴 ${id}${cnt}</button>`;
+  }).join('');
 }
 function switchRoutine(slot, id) {
   state[slot].active = id;
-  renderRoutineTabs(slot);
-  renderGrid(slot);
-}
-function addRoutine(slot) {
-  const newId = Math.max(...state[slot].routines.map(r => r.id)) + 1;
-  state[slot].routines.push({id:newId, products:[]});
-  state[slot].active = newId;
-  renderRoutineTabs(slot);
-  renderGrid(slot);
-}
-function delRoutine(slot, id) {
-  if (state[slot].routines.length <= 1) return;
-  state[slot].routines = state[slot].routines.filter(r => r.id !== id);
-  if (state[slot].active === id) state[slot].active = state[slot].routines[0].id;
   renderRoutineTabs(slot);
   renderGrid(slot);
 }
@@ -717,6 +771,7 @@ function renderCategoryGrid() {
     grid.appendChild(btn);
   });
   const addBtn = document.createElement('button');
+  addBtn.type = 'button';
   addBtn.id = 'cat-add-trigger';
   addBtn.className = 'cat-btn';
   addBtn.innerHTML = '<span class="cat-icon" style="color:var(--navy)">＋</span><span class="cat-name">추가</span>';
@@ -726,6 +781,13 @@ function renderCategoryGrid() {
     if (f.classList.contains('show')) document.getElementById('new-cat-name').focus();
   };
   grid.appendChild(addBtn);
+
+  // 저장된 순서 복원
+  applyCatOrder();
+  // 드래그 가능 설정 (＋ 버튼 제외)
+  grid.querySelectorAll('.cat-btn:not(#cat-add-trigger)').forEach(btn => {
+    btn.setAttribute('draggable', 'true');
+  });
 }
 function confirmNewCat() {
   const icon = document.getElementById('new-cat-icon').value.trim() || '🌿';
@@ -770,12 +832,134 @@ function previewProdImg(input) {
   reader.readAsDataURL(input.files[0]);
 }
 
-// Enter → 추가
+// Enter → 제품명/브랜드 입력 시만 확인 (카테고리 편집 중에는 닫히지 않음)
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.getElementById('modal-overlay').classList.contains('open')) {
-    confirmProduct();
+    const id = document.activeElement?.id;
+    if (id === 'product-name' || id === 'product-brand') confirmProduct();
   }
 });
+
+// ── 카테고리 드래그 순서 변경 ─────────────────────
+(function initCatDrag() {
+  const grid = document.getElementById('category-grid');
+  if (!grid) return;
+  let src = null;
+  grid.addEventListener('dragstart', e => {
+    const btn = e.target.closest('.cat-btn[draggable]');
+    if (!btn) return;
+    src = btn; btn.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  grid.addEventListener('dragend', () => {
+    grid.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('dragging','drag-over'));
+    src = null; saveCatOrder();
+  });
+  grid.addEventListener('dragover', e => {
+    e.preventDefault();
+    const btn = e.target.closest('.cat-btn[draggable]');
+    grid.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('drag-over'));
+    if (btn && btn !== src) btn.classList.add('drag-over');
+  });
+  grid.addEventListener('dragleave', e => {
+    e.target.closest?.('.cat-btn')?.classList.remove('drag-over');
+  });
+  grid.addEventListener('drop', e => {
+    e.preventDefault();
+    const tgt = e.target.closest('.cat-btn[draggable]');
+    if (!tgt || !src || tgt === src) return;
+    tgt.classList.remove('drag-over');
+    const all = [...grid.querySelectorAll('.cat-btn')];
+    if (all.indexOf(src) < all.indexOf(tgt)) grid.insertBefore(src, tgt.nextSibling);
+    else grid.insertBefore(src, tgt);
+  });
+})();
+
+function saveCatOrder() {
+  const grid = document.getElementById('category-grid');
+  if (!grid) return;
+  catOverrides._order = [...grid.querySelectorAll('.cat-btn')].map(b => b.dataset.cat).filter(Boolean);
+}
+function applyCatOrder() {
+  const order = catOverrides._order;
+  if (!order?.length) return;
+  const grid = document.getElementById('category-grid');
+  order.forEach(key => {
+    const btn = grid?.querySelector(`.cat-btn[data-cat="${key}"]`);
+    if (btn) grid.appendChild(btn);
+  });
+}
+
+// ── 회차별 일정 ──────────────────────────────────
+function renderSessionList() {
+  const list = document.getElementById('session-list');
+  const countEl = document.getElementById('session-total-count');
+  if (!list) return;
+  const sessions = parseInt(document.getElementById('session-input').value) || 0;
+  if (countEl) countEl.textContent = sessions ? `${sessions}회차` : '—';
+  if (!sessions) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--mist);padding:8px 0">회차수를 입력하면 일정이 표시됩니다</div>';
+    return;
+  }
+  list.innerHTML = '';
+  for (let i = 1; i <= sessions; i++) {
+    const rId = ((i-1) % 2) + 1;
+    const mProds = state.morning.routines.find(r => r.id === rId)?.products || [];
+    const nProds = state.nightly.routines.find(r => r.id === rId)?.products || [];
+    const row = document.createElement('div');
+    row.className = 'session-row';
+    row.innerHTML = `
+      <div class="session-num">${i}회</div>
+      <div class="session-slots">
+        <div class="session-slot">
+          <div class="session-slot-label">☀️ 루틴${rId}</div>
+          <div class="session-slot-count">${mProds.length}개 제품</div>
+        </div>
+        <div class="session-slot">
+          <div class="session-slot-label">🌙 루틴${rId}</div>
+          <div class="session-slot-count">${nProds.length}개 제품</div>
+        </div>
+      </div>`;
+    list.appendChild(row);
+  }
+}
+
+// ── 전체 제품 목록 ────────────────────────────────
+function renderProductList() {
+  const list = document.getElementById('product-list-full');
+  const countEl = document.getElementById('total-prod-count');
+  if (!list) return;
+  list.innerHTML = '';
+  let total = 0;
+  [['morning','☀️ 아침 케어'],['nightly','🌙 저녁 케어']].forEach(([slot, label]) => {
+    [1,2].forEach(rId => {
+      const r = state[slot].routines.find(x => x.id === rId);
+      if (!r?.products.length) return;
+      const hd = document.createElement('div');
+      hd.className = 'prod-list-hd';
+      hd.textContent = `${label} · 루틴 ${rId}`;
+      list.appendChild(hd);
+      r.products.forEach(p => {
+        total++;
+        const item = document.createElement('div');
+        item.className = 'prod-list-item';
+        const iconDiv = p.imgData
+          ? `<div class="prod-list-icon" style="background-image:url(${p.imgData});background-size:cover"></div>`
+          : `<div class="prod-list-icon">${p.icon||'🌸'}</div>`;
+        item.innerHTML = `${iconDiv}
+          <div style="flex:1;min-width:0">
+            <div class="prod-list-name">${p.name}</div>
+            <div class="prod-list-sub">${[p.brand,p.category].filter(Boolean).join(' · ')}</div>
+          </div>
+          <span class="prod-list-badge">${label.split(' ')[0]} 루틴${rId}</span>`;
+        item.onclick = () => openModal(slot, p.id, rId);
+        list.appendChild(item);
+      });
+    });
+  });
+  if (countEl) countEl.textContent = total;
+  if (!total) list.innerHTML = '<div style="font-size:12px;color:var(--mist);padding:12px 0;text-align:center">루틴에 제품을 추가하면 여기에 표시됩니다</div>';
+}
 </script>
 </body>
 </html>
