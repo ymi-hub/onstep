@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>OnStep · Skincare</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Sans+KR:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --navy:    #2D3B55;
+    --navy-lt: #3D4F6E;
+    --slate:   #8392A5;
+    --smoke:   #F4F5F7;
+    --ice:     #EEF1F6;
+    --white:   #FFFFFF;
+    --ink:     #1A2233;
+    --mist:    #C8D0DC;
+    --gold:    #B8A882;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    background: #E8ECF0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    font-family: 'DM Sans', 'Noto Sans KR', sans-serif;
+  }
+
+  /* ── 폰 래퍼 ── */
+  .phone {
+    width: 390px;
+    background: var(--smoke);
+    border-radius: 48px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.6) inset,
+      0 40px 100px rgba(30,40,60,.25),
+      0 8px 24px rgba(30,40,60,.12);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── 노치 ── */
+  .notch {
+    height: 44px;
+    background: var(--smoke);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 6px;
+  }
+  .notch-bar {
+    width: 126px; height: 5px;
+    background: var(--ink);
+    border-radius: 3px;
+    opacity: .12;
+  }
+
+  /* ── 스크롤 영역 ── */
+  .scroll {
+    height: 844px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  /* ── 상단 앱바 ── */
+  .appbar {
+    padding: 12px 24px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--smoke);
+  }
+  .appbar-menu { width: 20px; display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
+  .appbar-menu span { height: 1.5px; background: var(--ink); border-radius: 2px; }
+  .appbar-menu span:nth-child(2) { width: 70%; }
+  .appbar-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--ink);
+  }
+  .appbar-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8392A5, #5A6B82);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #fff; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(45,59,85,.2);
+  }
+
+  /* ── Hero 카드 ── */
+  .hero {
+    margin: 8px 20px 0;
+    border-radius: 24px;
+    background: linear-gradient(145deg, #2D3B55 0%, #1A2640 60%, #0F1B30 100%);
+    overflow: hidden;
+    position: relative;
+    height: 200px;
+  }
+  .hero-label {
+    position: absolute;
+    top: 18px; left: 20px;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,.45);
+    font-weight: 500;
+  }
+  .hero-focus {
+    position: absolute;
+    bottom: 22px; left: 20px; right: 100px;
+  }
+  .hero-focus-tag {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .hero-focus-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: #fff;
+  }
+  /* 제품 이미지 영역 */
+  .hero-product {
+    position: absolute;
+    right: -10px; top: 0; bottom: 0;
+    width: 140px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .hero-bottle {
+    width: 80px; height: 160px;
+    position: relative;
+  }
+  .bottle-body {
+    position: absolute;
+    bottom: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 46px; height: 110px;
+    background: linear-gradient(160deg,
+      rgba(255,255,255,.25) 0%,
+      rgba(200,210,230,.15) 40%,
+      rgba(150,170,200,.1) 100%);
+    border-radius: 22px 22px 18px 18px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .bottle-cap {
+    position: absolute;
+    bottom: 116px; left: 50%;
+    transform: translateX(-50%);
+    width: 18px; height: 36px;
+    background: linear-gradient(160deg, rgba(255,255,255,.3), rgba(200,220,240,.15));
+    border-radius: 8px 8px 4px 4px;
+    border: 1px solid rgba(255,255,255,.25);
+  }
+  .bottle-pump {
+    position: absolute;
+    bottom: 148px; left: 50%;
+    transform: translateX(-50%);
+    width: 3px; height: 14px;
+    background: rgba(255,255,255,.3);
+    border-radius: 2px;
+  }
+  .bottle-pump::after {
+    content:'';
+    position: absolute;
+    top: 0; left: -5px;
+    width: 14px; height: 4px;
+    background: rgba(255,255,255,.25);
+    border-radius: 2px;
+  }
+  /* 글로우 효과 */
+  .hero::before {
+    content:'';
+    position: absolute;
+    right: 20px; top: 50%;
+    transform: translateY(-50%);
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(100,140,200,.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── 섹션 패딩 ── */
+  .section { padding: 0 20px; }
+
+  /* ── 세션 트래커 ── */
+  .tracker {
+    margin: 16px 20px 0;
+    background: var(--white);
+    border-radius: 20px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 12px rgba(30,40,60,.06);
+  }
+  .tracker-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .tracker-session {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .tracker-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40px;
+    font-weight: 400;
+    color: var(--navy);
+    line-height: 1;
+  }
+  .tracker-num sup {
+    font-size: 16px;
+    vertical-align: super;
+  }
+  .tracker-word {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--slate);
+    font-weight: 400;
+    margin-top: 4px;
+    align-self: flex-end;
+    margin-bottom: 6px;
+  }
+  .tracker-pct {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--navy);
+    font-weight: 600;
+    background: var(--ice);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .tracker-progress-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--slate);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .tracker-period {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--mist);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .dots-row {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 6px;
+  }
+  .dot {
+    width: 24px; height: 7px;
+    border-radius: 4px;
+    background: var(--navy);
+    transition: all .3s;
+  }
+  .dot.empty {
+    background: var(--mist);
+  }
+  .dot.today {
+    background: var(--navy);
+    box-shadow: 0 0 0 2px rgba(45,59,85,.2);
+  }
+  .days-row {
+    display: flex;
+    gap: 5px;
+    margin-top: 4px;
+  }
+  .day-label {
+    width: 24px;
+    text-align: center;
+    font-size: 9px;
+    color: var(--mist);
+    font-weight: 400;
+  }
+  .day-label.active { color: var(--navy); font-weight: 600; }
+
+  /* ── 루틴 카드 ── */
+  .routine-card {
+    margin: 14px 20px 0;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(30,40,60,.06);
+    overflow: hidden;
+    transition: box-shadow .3s;
+  }
+  .routine-card:hover { box-shadow: 0 4px 20px rgba(30,40,60,.1); }
+
+  .routine-header {
+    display: flex;
+    align-items: center;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+    gap: 14px;
+  }
+  .routine-icon-wrap {
+    width: 48px; height: 48px;
+    border-radius: 16px;
+    background: var(--ice);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    transition: background .3s;
+  }
+  .routine-card.expanded .routine-icon-wrap {
+    background: var(--navy);
+  }
+  .routine-meta { flex: 1; }
+  .routine-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .routine-sub {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--slate);
+    font-weight: 400;
+  }
+  .routine-chevron {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--ice);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    color: var(--slate);
+    transition: transform .3s, background .3s;
+    flex-shrink: 0;
+  }
+  .routine-card.expanded .routine-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* 루틴 확장 컨텐츠 */
+  .routine-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .4s cubic-bezier(.4,0,.2,1);
+  }
+  .routine-card.expanded .routine-body {
+    max-height: 300px;
+  }
+  .routine-steps {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 20px;
+  }
+  .step-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .step-icon {
+    width: 54px; height: 54px;
+    border-radius: 18px;
+    background: var(--ice);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    transition: all .2s;
+    position: relative;
+    border: 1.5px solid transparent;
+  }
+  .step-item.done .step-icon {
+    background: var(--navy);
+    border-color: var(--navy);
+  }
+  .step-item.done .step-icon::after {
+    content: '✓';
+    position: absolute;
+    bottom: -4px; right: -4px;
+    width: 16px; height: 16px;
+    background: var(--navy);
+    border-radius: 50%;
+    font-size: 9px;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 16px;
+    text-align: center;
+    border: 1.5px solid #fff;
+  }
+  .step-label {
+    font-size: 11px;
+    color: var(--slate);
+    font-weight: 400;
+    text-align: center;
+  }
+  .step-item.done .step-label {
+    color: var(--navy);
+    font-weight: 500;
+  }
+
+  /* CHECK ROUTINE 버튼 */
+  .routine-btn-wrap {
+    padding: 0 20px 20px;
+  }
+  .routine-btn {
+    width: 100%;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 24px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all .2s;
+  }
+  .routine-btn:hover { background: var(--navy-lt); transform: translateY(-1px); }
+  .routine-btn:active { transform: translateY(0); }
+  .routine-btn-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+
+  /* ── Skin Insight 카드 ── */
+  .insight {
+    margin: 14px 20px 28px;
+    background: linear-gradient(135deg, #2D3B55 0%, #1E2D45 100%);
+    border-radius: 24px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .insight::before {
+    content:'';
+    position: absolute;
+    top: -30px; right: -20px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+  }
+  .insight::after {
+    content:'';
+    position: absolute;
+    top: -10px; right: 30px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.03);
+  }
+  .insight-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .insight-orb {
+    position: absolute;
+    top: 18px; right: 18px;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .orb {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.1);
+  }
+  .orb-star {
+    font-size: 12px;
+    color: rgba(255,255,255,.3);
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+  .insight-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.55;
+    color: rgba(255,255,255,.9);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── 하단 내비 ── */
+  .bottom-nav {
+    background: var(--white);
+    border-top: 1px solid rgba(200,208,220,.4);
+    display: flex;
+    padding: 10px 0 20px;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+  .nav-icon {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    position: relative;
+  }
+  .nav-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--mist);
+    font-weight: 500;
+  }
+  .nav-item.active .nav-label { color: var(--navy); }
+  .nav-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--navy);
+    position: absolute;
+    bottom: -6px;
+  }
+
+  /* ── 타임 탭 (AM/PM 전환) ── */
+  .time-tab-wrap {
+    padding: 14px 20px 4px;
+    display: flex;
+    gap: 8px;
+  }
+  .time-tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: 14px;
+    border: 1.5px solid var(--ice);
+    background: var(--white);
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .time-tab.active {
+    background: var(--navy);
+    border-color: var(--navy);
+  }
+  .time-tab-icon { font-size: 16px; margin-bottom: 3px; }
+  .time-tab-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--slate);
+  }
+  .time-tab.active .time-tab-label { color: #fff; }
+  .time-tab-sub {
+    font-size: 9px;
+    color: var(--mist);
+    margin-top: 1px;
+  }
+  .time-tab.active .time-tab-sub { color: rgba(255,255,255,.5); }
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"><div class="notch-bar"></div></div>
+
+  <div class="scroll">
+
+    <!-- 앱바 -->
+    <div class="appbar">
+      <div class="appbar-menu">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="appbar-title">ATELIER BEAUTÉ</div>
+      <div class="appbar-avatar">👤</div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-label">DIGITAL ATELIER</div>
+      <div class="hero-focus">
+        <div class="hero-focus-tag">CURRENT FOCUS</div>
+        <div class="hero-focus-title">Deep Hydration &<br>Barrier Repair</div>
+      </div>
+      <div class="hero-product">
+        <div class="hero-bottle">
+          <div class="bottle-pump"></div>
+          <div class="bottle-cap"></div>
+          <div class="bottle-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 세션 트래커 -->
+    <div class="tracker">
+      <div class="tracker-top">
+        <div class="tracker-session">
+          <div class="tracker-num">12<sup>th</sup></div>
+          <div class="tracker-word">SESSION</div>
+        </div>
+        <div class="tracker-pct">80% COMPLETE</div>
+      </div>
+      <div class="tracker-progress-label">PROGRESS · DAY 08/10</div>
+      <div class="tracker-period">PERIOD: 2026.4.10 — 4.20</div>
+      <div class="dots-row">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot today"></div>
+        <div class="dot empty"></div>
+        <div class="dot empty"></div>
+      </div>
+      <div class="days-row">
+        <div class="day-label">금</div>
+        <div class="day-label">토</div>
+        <div class="day-label">일</div>
+        <div class="day-label">월</div>
+        <div class="day-label">화</div>
+        <div class="day-label">수</div>
+        <div class="day-label">목</div>
+        <div class="day-label active">금</div>
+        <div class="day-label">토</div>
+        <div class="day-label">일</div>
+      </div>
+    </div>
+
+    <!-- AM/PM 탭 -->
+    <div class="time-tab-wrap">
+      <div class="time-tab active" id="tab-am" onclick="switchTab('am')">
+        <div class="time-tab-icon">☀️</div>
+        <div class="time-tab-label">MORNING</div>
+        <div class="time-tab-sub">4 STEPS</div>
+      </div>
+      <div class="time-tab" id="tab-pm" onclick="switchTab('pm')">
+        <div class="time-tab-icon">🌙</div>
+        <div class="time-tab-label">NIGHTLY</div>
+        <div class="time-tab-sub">6 STEPS</div>
+      </div>
+    </div>
+
+    <!-- Morning Care 루틴 카드 -->
+    <div class="routine-card expanded" id="card-am">
+      <div class="routine-header" onclick="toggleCard('card-am')">
+        <div class="routine-icon-wrap">☀️</div>
+        <div class="routine-meta">
+          <div class="routine-name">Morning Care</div>
+          <div class="routine-sub">4 STEPS · 15 MINS</div>
+        </div>
+        <div class="routine-chevron">▲</div>
+      </div>
+      <div class="routine-body">
+        <div class="routine-steps">
+          <div class="step-item done" onclick="toggleStep(this)">
+            <div class="step-icon">🧴</div>
+            <div class="step-label">클렌저</div>
+          </div>
+          <div class="step-item done" onclick="toggleStep(this)">
+            <div class="step-icon">💧</div>
+            <div class="step-label">토너</div>
+          </div>
+          <div class="step-item" onclick="toggleStep(this)">
+            <div class="step-icon">🔬</div>
+            <div class="step-label">세럼</div>
+          </div>
+          <div class="step-item" onclick="toggleStep(this)">
+            <div class="step-icon">☀️</div>
+            <div class="step-label">선크림</div>
+          </div>
+        </div>
+        <div class="routine-btn-wrap">
+          <button class="routine-btn" onclick="checkRoutine(this)">
+            CHECK ROUTINE
+            <div class="routine-btn-icon">✓</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nightly Care 루틴 카드 -->
+    <div class="routine-card" id="card-pm">
+      <div class="routine-header" onclick="toggleCard('card-pm')">
+        <div class="routine-icon-wrap">🌙</div>
+        <div class="routine-meta">
+          <div class="routine-name">Nightly Care</div>
+          <div class="routine-sub">6 STEPS · 25 MINS</div>
+        </div>
+        <div class="routine-chevron">▲</div>
+      </div>
+      <div class="routine-body">
+        <div class="routine-steps">
+          <div class="step-item" onclick="toggleStep(this)">
+            <div class="step-icon">🧴</div>
+            <div class="step-label">오일<br>클렌저</div>
+          </div>
+          <div class="step-item" onclick="toggleStep(this)">
+            <div class="step-icon">🫧</div>
+            <div class="step-label">폼<br>클렌저</div>
+          </div>
+          <div class="step-item" onclick="toggleStep(this)">
+            <div class="step-icon">💧</div>
+            <div class="step-label">토너</div>
+          </div>
+          <div class="step-item" onclick="toggleStep(this)">
+            <div class="step-icon">✨</div>
+            <div class="step-label">에센스</div>
+          </div>
+          <div class="step-item" onclick="toggleStep(this)">
+            <div class="step-icon">🔬</div>
+            <div class="step-label">세럼</div>
+          </div>
+          <div class="step-item" onclick="toggleStep(this)">
+            <div class="step-icon">🫙</div>
+            <div class="step-label">크림</div>
+          </div>
+        </div>
+        <div class="routine-btn-wrap">
+          <button class="routine-btn" onclick="checkRoutine(this)">
+            CHECK ROUTINE
+            <div class="routine-btn-icon">✓</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skin Insight -->
+    <div class="insight">
+      <div class="insight-label">SKIN INSIGHT</div>
+      <div class="insight-orb">
+        <div class="orb"></div>
+        <div class="orb-star">✦</div>
+      </div>
+      <div class="insight-text" id="insight-text">
+        "Day 8 focus is on deep cellular hydration.
+        Ensure you apply the serum on slightly damp
+        skin for maximum absorption."
+      </div>
+    </div>
+
+    <!-- 하단 내비 -->
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <div class="nav-icon">✦</div>
+        <div class="nav-label">CARE</div>
+      </div>
+      <div class="nav-item active">
+        <div class="nav-icon">
+          📊
+          <div class="nav-dot"></div>
+        </div>
+        <div class="nav-label">ROUTINE</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">📖</div>
+        <div class="nav-label">LOG</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">👤</div>
+        <div class="nav-label">PROFILE</div>
+      </div>
+    </div>
+
+  </div><!-- /scroll -->
+</div><!-- /phone -->
+
+<script>
+  // AM/PM 탭 전환
+  function switchTab(type) {
+    const tabAm = document.getElementById('tab-am');
+    const tabPm = document.getElementById('tab-pm');
+    const cardAm = document.getElementById('card-am');
+    const cardPm = document.getElementById('card-pm');
+    const insightText = document.getElementById('insight-text');
+
+    if (type === 'am') {
+      tabAm.classList.add('active');
+      tabPm.classList.remove('active');
+      cardAm.classList.add('expanded');
+      cardPm.classList.remove('expanded');
+      insightText.textContent = '"Day 8 focus is on deep cellular hydration. Ensure you apply the serum on slightly damp skin for maximum absorption."';
+    } else {
+      tabPm.classList.add('active');
+      tabAm.classList.remove('active');
+      cardPm.classList.add('expanded');
+      cardAm.classList.remove('expanded');
+      insightText.textContent = '"Evening is for recovery. Double cleanse thoroughly before layering your actives. Allow each layer to fully absorb."';
+    }
+  }
+
+  // 카드 토글
+  function toggleCard(id) {
+    document.getElementById(id).classList.toggle('expanded');
+  }
+
+  // 스텝 체크 토글
+  function toggleStep(el) {
+    el.classList.toggle('done');
+    updateProgress();
+  }
+
+  // CHECK ROUTINE 버튼
+  function checkRoutine(btn) {
+    const card = btn.closest('.routine-card');
+    const steps = card.querySelectorAll('.step-item');
+    steps.forEach(s => s.classList.add('done'));
+    btn.textContent = '';
+    btn.innerHTML = 'COMPLETED ✓';
+    btn.style.background = '#4A7C59';
+    setTimeout(() => {
+      btn.innerHTML = 'CHECK ROUTINE <div class="routine-btn-icon">✓</div>';
+      btn.style.background = '';
+    }, 2000);
+  }
+
+  // 진행도 업데이트 (데모용)
+  function updateProgress() {}
+</script>
+</body>
+</html>
