@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>OnStep · Skincare</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Sans+KR:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -85,6 +87,14 @@
     font-weight: 600;
     letter-spacing: 3px;
     color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .appbar-logo {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    object-fit: cover;
   }
   .appbar-avatar {
     width: 34px; height: 34px;
@@ -611,7 +621,7 @@
       <div class="appbar-menu">
         <span></span><span></span><span></span>
       </div>
-      <div class="appbar-title">ATELIER BEAUTÉ</div>
+      <div class="appbar-title"><img src="logo.png" alt="OnStep" class="appbar-logo">ATELIER BEAUTÉ</div>
       <a href="care-plan.html" style="text-decoration:none">
         <div class="appbar-avatar" title="케어 플랜 설정">✏️</div>
       </a>
