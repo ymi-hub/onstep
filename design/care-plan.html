@@ -161,6 +161,24 @@
   .progress-bar{height:3px;background:var(--border);border-radius:2px;margin:4px 0 0;overflow:hidden}
   .progress-fill{height:100%;background:var(--navy);border-radius:2px;transition:width .3s}
   .progress-fill.warn{background:var(--rose)}
+
+  /* 루틴 탭 */
+  .routine-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .r-tab{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--slate);transition:all .2s;letter-spacing:.5px}
+  .r-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .r-tab-add{border-style:dashed}
+  .r-tab-del{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.25);font-size:9px;margin-left:4px;vertical-align:middle;line-height:1}
+
+  /* 커스텀 카테고리 추가 폼 */
+  .cat-add-form{display:none;gap:8px;margin-top:8px;padding:10px 12px;background:var(--smoke);border-radius:12px;align-items:center}
+  .cat-add-form.show{display:flex}
+  .cat-add-confirm{padding:10px 14px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0}
+
+  /* 제품 이미지 업로드 */
+  .prod-img-area{height:72px;border:1.5px dashed var(--border);border-radius:12px;cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--smoke);transition:border-color .2s}
+  .prod-img-area:hover{border-color:var(--rose)}
+  .prod-img-preview{position:absolute;inset:0;background-size:cover;background-position:center;display:none}
+  .prod-img-placeholder{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--slate);font-weight:500}
 </style>
 </head>
 <body>
@@ -233,6 +251,7 @@
           <span style="font-size:18px">☀️</span>
         </div>
       </div>
+      <div class="routine-tabs" id="morning-routine-tabs"></div>
 
       <div class="slots-wrapper">
         <div class="product-grid" id="morning-grid">
@@ -259,6 +278,7 @@
           <span style="font-size:18px">🌙</span>
         </div>
       </div>
+      <div class="routine-tabs" id="nightly-routine-tabs"></div>
 
       <div class="slots-wrapper">
         <div class="product-grid" id="nightly-grid">
@@ -304,7 +324,7 @@
 
     <div class="form-group">
       <div class="form-label">카테고리</div>
-      <div class="category-grid">
+      <div class="category-grid" id="category-grid">
         <button class="cat-btn selected" data-cat="cleanser" onclick="selectCat(this)"><span class="cat-icon">🧴</span><span class="cat-name">클렌저</span></button>
         <button class="cat-btn" data-cat="toner" onclick="selectCat(this)"><span class="cat-icon">💧</span><span class="cat-name">토너</span></button>
         <button class="cat-btn" data-cat="serum" onclick="selectCat(this)"><span class="cat-icon">🔬</span><span class="cat-name">세럼</span></button>
@@ -323,6 +343,19 @@
         <input class="form-input custom-cat-icon" id="custom-cat-icon" type="text" placeholder="🧴" maxlength="4">
         <input class="form-input" id="custom-cat-name" type="text" placeholder="카테고리명">
       </div>
+      <div class="cat-add-form" id="cat-add-form">
+        <input class="form-input custom-cat-icon" id="new-cat-icon" type="text" placeholder="🌿" maxlength="4">
+        <input class="form-input" id="new-cat-name" type="text" placeholder="새 카테고리명" style="flex:1">
+        <button class="cat-add-confirm" onclick="confirmNewCat()">추가</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">제품 이미지 <span style="color:var(--mist);font-size:10px">(선택)</span></div>
+      <div class="prod-img-area" onclick="document.getElementById('prod-img-input').click()">
+        <div id="prod-img-preview" class="prod-img-preview"></div>
+        <div class="prod-img-placeholder" id="prod-img-placeholder"><span>📷</span><span style="margin-left:6px">이미지 추가</span></div>
+      </div>
+      <input type="file" id="prod-img-input" accept="image/*" style="display:none" onchange="previewProdImg(this)">
     </div>
     <div class="form-group">
       <div class="form-label">제품명 *</div>
@@ -354,9 +387,14 @@ const CAT = {
   eyecream:{icon:'👁️',label:'아이크림'}, etc:{icon:'💊',label:'기타'},
 };
 
-let state = { morning:[], nightly:[] };
+let state = {
+  morning: { routines:[{id:1,products:[]}], active:1 },
+  nightly: { routines:[{id:1,products:[]}], active:1 }
+};
 let modal = { slot:null, editId:null };
 let selectedCat = 'cleanser';
+let customCats = [];
+let prodImgData = null;
 
 // ── 초기 로드 ────────────────────────────────────
 window.addEventListener('load', () => {
@@ -373,29 +411,38 @@ window.addEventListener('load', () => {
     const el = document.getElementById(id);
     if (el.value) el.classList.add('filled');
   });
-  state.morning = saved.morning || [];
-  state.nightly = saved.nightly || [];
+  const mig = r => Array.isArray(r) ? {routines:[{id:1,products:r}],active:1} : (r || {routines:[{id:1,products:[]}],active:1});
+  state.morning = mig(saved.morning);
+  state.nightly = mig(saved.nightly);
+  customCats = saved.customCats || [];
+  customCats.forEach(c => { CAT[c.key] = {icon:c.icon,label:c.label}; });
   renderAll();
 });
 
 // ── 렌더 ────────────────────────────────────────
 function renderAll() {
+  renderRoutineTabs('morning');
+  renderRoutineTabs('nightly');
   renderGrid('morning');
   renderGrid('nightly');
+  renderCategoryGrid();
 }
 
 function renderGrid(slot) {
   const grid = document.getElementById(`${slot}-grid`);
   const addBtn = document.getElementById(`${slot}-add-btn`);
-  // 기존 제품 슬롯 제거
   grid.querySelectorAll('.slot-product').forEach(el => el.remove());
 
-  state[slot].forEach(p => {
+  const products = getActiveProducts(slot);
+  products.forEach(p => {
     const div = document.createElement('div');
     div.className = 'slot-product';
     div.dataset.id = p.id;
+    const iconHtml = p.imgData
+      ? `<div class="slot-product-icon" style="background:url(${p.imgData}) center/cover;border-radius:8px"></div>`
+      : `<div class="slot-product-icon">${p.icon}</div>`;
     div.innerHTML = `
-      <div class="slot-product-icon">${p.icon}</div>
+      ${iconHtml}
       <div class="slot-product-name">${p.name}</div>
       ${p.brand ? `<div class="slot-product-brand">${p.brand}</div>` : ''}
       <button class="slot-remove" onclick="event.stopPropagation();deleteById('${slot}',${p.id})">✕</button>
@@ -405,8 +452,7 @@ function renderGrid(slot) {
     grid.insertBefore(div, addBtn);
   });
 
-  // MAX 도달 시 추가버튼 숨김
-  const count = state[slot].length;
+  const count = products.length;
   addBtn.style.display = count >= MAX ? 'none' : 'flex';
 
   // 카운트 / 프로그레스바
@@ -425,7 +471,7 @@ function openModal(slot, editId = null) {
   modal.editId = editId;
 
   if (editId !== null) {
-    const p = state[slot].find(x => x.id === editId);
+    const p = getActiveProducts(slot).find(x => x.id === editId);
     if (!p) return;
     document.getElementById('modal-title').textContent = '제품 수정';
     document.getElementById('modal-confirm-btn').textContent = '수정 완료';
@@ -436,6 +482,14 @@ function openModal(slot, editId = null) {
     selectCatByKey(catKey);
     document.getElementById('custom-cat-icon').value = p.icon || CAT[catKey]?.icon || '';
     document.getElementById('custom-cat-name').value = p.category || CAT[catKey]?.label || '';
+    prodImgData = p.imgData || null;
+    if (p.imgData) {
+      document.getElementById('prod-img-preview').style.cssText = `background-image:url(${p.imgData});display:block`;
+      document.getElementById('prod-img-placeholder').style.display = 'none';
+    } else {
+      document.getElementById('prod-img-preview').style.display = 'none';
+      document.getElementById('prod-img-placeholder').style.display = 'flex';
+    }
     document.querySelectorAll('.slot-product').forEach(el => el.classList.remove('editing'));
     document.querySelector(`.slot-product[data-id="${editId}"]`)?.classList.add('editing');
   } else {
@@ -444,6 +498,10 @@ function openModal(slot, editId = null) {
     document.getElementById('modal-del-btn').classList.remove('show');
     document.getElementById('product-name').value = '';
     document.getElementById('product-brand').value = '뷰티지아나';
+    prodImgData = null;
+    document.getElementById('prod-img-preview').style.display = 'none';
+    document.getElementById('prod-img-placeholder').style.display = 'flex';
+    document.getElementById('prod-img-input').value = '';
     selectCatByKey('cleanser');
   }
   document.getElementById('modal-overlay').classList.add('open');
@@ -487,14 +545,18 @@ function confirmProduct() {
   const category = document.getElementById('custom-cat-name').value.trim() || CAT[selectedCat]?.label || '기타';
 
   if (modal.editId !== null) {
-    const idx = state[modal.slot].findIndex(p => p.id === modal.editId);
+    const prods = getActiveProducts(modal.slot);
+    const idx = prods.findIndex(p => p.id === modal.editId);
     if (idx !== -1) {
-      state[modal.slot][idx] = { ...state[modal.slot][idx], name, brand, catKey: selectedCat, category, icon };
+      prods[idx] = { ...prods[idx], name, brand, catKey: selectedCat, category, icon, imgData: prodImgData };
+      setActiveProducts(modal.slot, prods);
     }
     showToast(`✓ ${name} 수정됨`);
   } else {
-    if (state[modal.slot].length >= MAX) { showToast(`최대 ${MAX}개까지 등록 가능합니다`); return; }
-    state[modal.slot].push({ id: Date.now(), catKey: selectedCat, category, name, brand, icon });
+    const prods = getActiveProducts(modal.slot);
+    if (prods.length >= MAX) { showToast(`최대 ${MAX}개까지 등록 가능합니다`); return; }
+    prods.push({ id: Date.now(), catKey: selectedCat, category, name, brand, icon, imgData: prodImgData });
+    setActiveProducts(modal.slot, prods);
     showToast(`${icon} ${name} 추가됨`);
   }
   renderGrid(modal.slot);
@@ -504,13 +566,13 @@ function confirmProduct() {
 // ── 삭제 ────────────────────────────────────────
 function deleteProduct() {
   if (modal.editId === null) return;
-  state[modal.slot] = state[modal.slot].filter(p => p.id !== modal.editId);
+  setActiveProducts(modal.slot, getActiveProducts(modal.slot).filter(p => p.id !== modal.editId));
   renderGrid(modal.slot);
   showToast('제품이 삭제되었습니다');
   closeModal();
 }
 function deleteById(slot, id) {
-  state[slot] = state[slot].filter(p => p.id !== id);
+  setActiveProducts(slot, getActiveProducts(slot).filter(p => p.id !== id));
   renderGrid(slot);
 }
 
@@ -525,6 +587,7 @@ function savePlan() {
     curatorTip: document.getElementById('curator-tip').value,
     morning: state.morning,
     nightly: state.nightly,
+    customCats,
     savedAt: new Date().toISOString(),
   };
   localStorage.setItem(DB_KEY, JSON.stringify(plan));
@@ -551,6 +614,102 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── 헬퍼 ──────────────────────────────────────────
+function getActiveProducts(slot) {
+  const active = state[slot].active;
+  return state[slot].routines.find(r => r.id === active)?.products || [];
+}
+function setActiveProducts(slot, products) {
+  const idx = state[slot].routines.findIndex(r => r.id === state[slot].active);
+  if (idx !== -1) state[slot].routines[idx].products = products;
+}
+
+// ── 루틴 탭 ──────────────────────────────────────
+function renderRoutineTabs(slot) {
+  const c = document.getElementById(`${slot}-routine-tabs`);
+  if (!c) return;
+  const {routines, active} = state[slot];
+  c.innerHTML = routines.map(r => {
+    const del = routines.length > 1
+      ? `<span class="r-tab-del" onclick="event.stopPropagation();delRoutine('${slot}',${r.id})">✕</span>`
+      : '';
+    return `<button class="r-tab${r.id===active?' active':''}" onclick="switchRoutine('${slot}',${r.id})">루틴 ${r.id}${del}</button>`;
+  }).join('') + `<button class="r-tab r-tab-add" onclick="addRoutine('${slot}')">＋ 루틴 추가</button>`;
+}
+function switchRoutine(slot, id) {
+  state[slot].active = id;
+  renderRoutineTabs(slot);
+  renderGrid(slot);
+}
+function addRoutine(slot) {
+  const newId = Math.max(...state[slot].routines.map(r => r.id)) + 1;
+  state[slot].routines.push({id:newId, products:[]});
+  state[slot].active = newId;
+  renderRoutineTabs(slot);
+  renderGrid(slot);
+}
+function delRoutine(slot, id) {
+  if (state[slot].routines.length <= 1) return;
+  state[slot].routines = state[slot].routines.filter(r => r.id !== id);
+  if (state[slot].active === id) state[slot].active = state[slot].routines[0].id;
+  renderRoutineTabs(slot);
+  renderGrid(slot);
+}
+
+// ── 커스텀 카테고리 ──────────────────────────────
+function renderCategoryGrid() {
+  const grid = document.getElementById('category-grid');
+  if (!grid) return;
+  grid.querySelectorAll('[data-custom]').forEach(b => b.remove());
+  const old = document.getElementById('cat-add-trigger');
+  if (old) old.remove();
+  customCats.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.dataset.cat = c.key;
+    btn.dataset.custom = '1';
+    btn.innerHTML = `<span class="cat-icon">${c.icon}</span><span class="cat-name">${c.label}</span>`;
+    btn.onclick = () => selectCat(btn);
+    grid.appendChild(btn);
+  });
+  const addBtn = document.createElement('button');
+  addBtn.id = 'cat-add-trigger';
+  addBtn.className = 'cat-btn';
+  addBtn.innerHTML = '<span class="cat-icon" style="color:var(--navy)">＋</span><span class="cat-name">추가</span>';
+  addBtn.onclick = () => {
+    const f = document.getElementById('cat-add-form');
+    f.classList.toggle('show');
+    if (f.classList.contains('show')) document.getElementById('new-cat-name').focus();
+  };
+  grid.appendChild(addBtn);
+}
+function confirmNewCat() {
+  const icon = document.getElementById('new-cat-icon').value.trim() || '🌿';
+  const label = document.getElementById('new-cat-name').value.trim();
+  if (!label) { showToast('카테고리명을 입력해주세요'); return; }
+  const key = 'cc_' + Date.now();
+  customCats.push({key, icon, label});
+  CAT[key] = {icon, label};
+  document.getElementById('cat-add-form').classList.remove('show');
+  document.getElementById('new-cat-icon').value = '';
+  document.getElementById('new-cat-name').value = '';
+  renderCategoryGrid();
+  showToast(`${icon} ${label} 추가됨`);
+}
+
+// ── 제품 이미지 ──────────────────────────────────
+function previewProdImg(input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    prodImgData = e.target.result;
+    document.getElementById('prod-img-preview').style.cssText =
+      `background-image:url(${e.target.result});display:block`;
+    document.getElementById('prod-img-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(input.files[0]);
 }
 
 // Enter → 추가

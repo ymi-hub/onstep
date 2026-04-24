@@ -607,6 +607,11 @@
   }
   .time-tab.active .time-tab-sub { color: rgba(255,255,255,.5); }
 
+  /* 루틴 선택 탭 (skincare) */
+  .sk-routine-tabs{display:flex;gap:6px;padding:10px 20px 4px;flex-wrap:wrap}
+  .sk-r-tab{padding:5px 12px;border-radius:16px;border:1.5px solid var(--mist);background:var(--white);font-size:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--slate);transition:all .2s;letter-spacing:.5px}
+  .sk-r-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
 </style>
 </head>
 <body>
@@ -683,12 +688,13 @@
         <div class="routine-chevron">▲</div>
       </div>
       <div class="routine-body">
+        <div class="sk-routine-tabs" id="am-routine-tabs" style="display:none"></div>
         <div class="routine-steps-wrap">
           <div class="routine-steps" id="am-steps"></div>
         </div>
         <a class="routine-edit-btn" href="care-plan.html">✎ 제품 편집하기</a>
         <div class="routine-btn-wrap">
-          <button class="routine-btn" onclick="checkRoutine(this)">
+          <button class="routine-btn" onclick="checkRoutine(this,'morning')">
             CHECK ROUTINE
             <div class="routine-btn-icon">✓</div>
           </button>
@@ -707,12 +713,13 @@
         <div class="routine-chevron">▲</div>
       </div>
       <div class="routine-body">
+        <div class="sk-routine-tabs" id="pm-routine-tabs" style="display:none"></div>
         <div class="routine-steps-wrap">
           <div class="routine-steps" id="pm-steps"></div>
         </div>
         <a class="routine-edit-btn" href="care-plan.html">✎ 제품 편집하기</a>
         <div class="routine-btn-wrap">
-          <button class="routine-btn" onclick="checkRoutine(this)">
+          <button class="routine-btn" onclick="checkRoutine(this,'nightly')">
             CHECK ROUTINE
             <div class="routine-btn-icon">✓</div>
           </button>
@@ -806,12 +813,20 @@
     // 트래커
     renderTracker(plan);
 
-    // 제품 스텝
-    const morning = plan.morning?.length ? plan.morning : DEFAULT_MORNING;
-    const nightly = plan.nightly?.length ? plan.nightly : DEFAULT_NIGHTLY;
+    // 루틴 데이터 파싱 (구/신 포맷 호환)
+    const getProds = (slot, def) => {
+      if (!slot) return def;
+      if (Array.isArray(slot)) return slot.length ? slot : def;
+      const id = slot.currentRoutine || slot.active || 1;
+      return slot.routines?.find(r => r.id === id)?.products || def;
+    };
+    const morning = getProds(plan.morning, DEFAULT_MORNING);
+    const nightly = getProds(plan.nightly, DEFAULT_NIGHTLY);
     renderSteps('am-steps', morning);
     renderSteps('pm-steps', nightly);
     updateStepCounts(morning.length, nightly.length);
+    renderSkRoutineTabs('morning', plan.morning);
+    renderSkRoutineTabs('nightly', plan.nightly);
 
     // Insight
     if (plan.curatorTip) {
@@ -905,10 +920,9 @@
       const div = document.createElement('div');
       div.className = 'step-item';
       div.onclick = function() { toggleStep(this); };
-      div.innerHTML = `
-        <div class="step-icon">${p.icon || '🌸'}</div>
-        <div class="step-label">${p.name}</div>
-      `;
+      div.innerHTML = p.imgData
+        ? `<div class="step-icon" style="background:url(${p.imgData}) center/cover;border-radius:8px;width:32px;height:32px"></div><div class="step-label">${p.name}</div>`
+        : `<div class="step-icon">${p.icon || '🌸'}</div><div class="step-label">${p.name}</div>`;
       container.appendChild(div);
     });
   }
@@ -948,15 +962,63 @@
   function toggleStep(el) {
     el.classList.toggle('done');
   }
-  function checkRoutine(btn) {
+  function checkRoutine(btn, slot) {
     const card = btn.closest('.routine-card');
     card.querySelectorAll('.step-item').forEach(s => s.classList.add('done'));
     btn.innerHTML = 'COMPLETED ✓';
     btn.style.background = '#4A7C59';
+    const raw = localStorage.getItem(DB_KEY);
+    if (raw && slot) {
+      const plan = JSON.parse(raw);
+      const sd = plan[slot];
+      if (sd?.routines?.length > 1) {
+        const today = new Date().toISOString().slice(0,10);
+        const cur = sd.currentRoutine || sd.active || 1;
+        const ids = sd.routines.map(r => r.id);
+        const nextId = ids[(ids.indexOf(cur)+1) % ids.length];
+        sd.currentRoutine = nextId; sd.lastDoneDate = today; sd.lastDoneRoutineId = cur;
+        plan[slot] = sd;
+        localStorage.setItem(DB_KEY, JSON.stringify(plan));
+        setTimeout(() => {
+          const prods = sd.routines.find(r => r.id === nextId)?.products || [];
+          renderSteps(slot==='morning'?'am-steps':'pm-steps', prods);
+          renderSkRoutineTabs(slot, sd);
+          btn.innerHTML = 'CHECK ROUTINE <div class="routine-btn-icon">✓</div>';
+          btn.style.background = '';
+        }, 2000);
+        return;
+      }
+    }
     setTimeout(() => {
       btn.innerHTML = 'CHECK ROUTINE <div class="routine-btn-icon">✓</div>';
       btn.style.background = '';
     }, 2000);
+  }
+
+  function renderSkRoutineTabs(slot, slotData) {
+    const id = slot === 'morning' ? 'am-routine-tabs' : 'pm-routine-tabs';
+    const el = document.getElementById(id);
+    if (!el || !slotData?.routines || slotData.routines.length <= 1) {
+      if (el) el.style.display = 'none';
+      return;
+    }
+    const cur = slotData.currentRoutine || slotData.active || 1;
+    el.style.display = 'flex';
+    el.innerHTML = slotData.routines.map(r =>
+      `<button class="sk-r-tab${r.id===cur?' active':''}" onclick="selectSkRoutine('${slot}',${r.id})">루틴 ${r.id}</button>`
+    ).join('');
+  }
+
+  function selectSkRoutine(slot, id) {
+    const raw = localStorage.getItem(DB_KEY);
+    if (!raw) return;
+    const plan = JSON.parse(raw);
+    if (!plan[slot]?.routines) return;
+    plan[slot].currentRoutine = id;
+    localStorage.setItem(DB_KEY, JSON.stringify(plan));
+    const prods = plan[slot].routines.find(r => r.id === id)?.products || [];
+    renderSteps(slot === 'morning' ? 'am-steps' : 'pm-steps', prods);
+    renderSkRoutineTabs(slot, plan[slot]);
   }
 </script>
 </body>
