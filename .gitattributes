@@ -1,0 +1,15 @@
+# Windows/Mac 줄바꿈 자동 통일
+* text=auto eol=lf
+
+# 바이너리 파일 — 변환 금지
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.psd binary
+*.pdf binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
