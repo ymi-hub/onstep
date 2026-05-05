@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>OnStep · Log</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="OnStep">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FFFFFF">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FFFFFF; --surface:#F5F5F3; --surface-low:#EFEFED;
+  --surface-mid:#E8E8E6; --surface-high:#DDDDD9;
+  --ink:#0A0A0A; --sub:#444444; --mist:#999999;
+  --lime:#C5FF00; --lime-dark:#A8DB00; --lime-fg:#0A0A0A;
+  --border:rgba(10,10,10,.1); --border-md:rgba(10,10,10,.18); --border-light:rgba(10,10,10,.08);
+  --shadow:0 2px 16px rgba(0,0,0,.07);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:9999px;
+  --green:#2d6a4f; --gutter:16px;
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  background:#EBEBEB; display:flex; justify-content:center; align-items:flex-start;
+  min-height:100vh; padding:24px 16px 48px;
+  font-family:'Inter',sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased;
+}
+.phone {
+  width:390px; background:#FFFFFF; border-radius:48px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.6) inset, 0 40px 100px rgba(0,0,0,.22);
+  overflow:hidden; position:relative;
+}
+.notch { height:44px; background:#FFFFFF; display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px; }
+.notch-bar { width:126px; height:5px; background:var(--ink); border-radius:3px; opacity:.1; }
+.scroll { height:844px; overflow-y:auto; scrollbar-width:none; background:#FFFFFF; }
+.scroll::-webkit-scrollbar { display:none; }
+
+/* AppBar */
+.appbar {
+  padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+  background:rgba(255,255,255,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  position:sticky; top:0; z-index:10; border-bottom:1px solid var(--border);
+}
+.appbar-menu { width:22px; display:flex; flex-direction:column; gap:5px; cursor:pointer; }
+.appbar-menu span { height:1.5px; background:var(--ink); border-radius:2px; display:block; }
+.appbar-menu span:nth-child(2) { width:68%; }
+.appbar-center {
+  font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700;
+  letter-spacing:.02em; color:var(--ink);
+}
+#auth-avatar {
+  width:32px; height:32px; border-radius:9999px; background:var(--surface-mid);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; overflow:hidden; border:1.5px solid var(--border);
+}
+
+/* Filter bar */
+.filter-bar {
+  display:flex; gap:8px; overflow-x:auto; scrollbar-width:none;
+  border-bottom:1px solid var(--border); padding:10px 16px;
+  position:sticky; top:49px; z-index:8;
+  background:rgba(255,255,255,.94); backdrop-filter:blur(16px);
+}
+.filter-bar::-webkit-scrollbar { display:none; }
+.filter-chip {
+  flex-shrink:0; padding:6px 14px; border-radius:var(--r-full);
+  border:1.5px solid var(--border-md);
+  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--mist);
+  cursor:pointer; transition:all .18s; white-space:nowrap; background:transparent;
+}
+.filter-chip.active { color:#FFFFFF; background:var(--ink); border-color:var(--ink); }
+
+/* Issue header */
+.issue-hd {
+  display:flex; align-items:center; gap:10px;
+  padding:20px 16px 12px; border-bottom:1px solid var(--border);
+}
+.issue-month {
+  font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:800;
+  letter-spacing:-.01em; color:var(--ink);
+}
+.issue-num {
+  font-family:'Inter',sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--mist);
+  background:var(--surface); padding:3px 8px; border-radius:var(--r-full);
+}
+.issue-count {
+  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--mist); margin-left:auto;
+}
+
+/* Cover card */
+.cover-card { margin:16px 16px 0; position:relative; border-radius:var(--r-xl); overflow:hidden; cursor:pointer; box-shadow:var(--shadow); border:1px solid var(--border); }
+.cover-img {
+  width:100%; height:220px; background:var(--surface-mid);
+  background-size:cover; background-position:center;
+  display:flex; align-items:center; justify-content:center;
+}
+.cover-body { padding:14px 16px 18px; background:#FFFFFF; }
+.cover-type {
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:6px;
+}
+.cover-title {
+  font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:800;
+  color:var(--ink); line-height:1.1; margin-bottom:8px; letter-spacing:-.01em;
+}
+.cover-meta {
+  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--mist);
+}
+
+/* Feature card */
+.feature-card {
+  display:flex; cursor:pointer; min-height:130px;
+  margin:10px 16px 0; border-radius:var(--r-xl); overflow:hidden;
+  box-shadow:var(--shadow); border:1px solid var(--border);
+}
+.feature-img {
+  width:38%; flex-shrink:0; background:var(--surface-mid);
+  background-size:cover; background-position:center;
+  display:flex; align-items:center; justify-content:center;
+}
+.feature-body {
+  flex:1; padding:14px 14px 14px 12px; background:#FFFFFF;
+  display:flex; flex-direction:column; justify-content:space-between;
+}
+.feature-type {
+  font-family:'Inter',sans-serif; font-size:8px; font-weight:700;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--mist); margin-bottom:4px;
+}
+.feature-title {
+  font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700;
+  color:var(--ink); line-height:1.2; flex:1; letter-spacing:-.01em;
+}
+.feature-desc {
+  font-family:'Inter',sans-serif; font-size:10px; color:var(--mist);
+  line-height:1.5; margin-top:4px; overflow:hidden;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+}
+.feature-meta {
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:600;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--mist); margin-top:8px;
+}
+.feature-thumbs { display:flex; gap:4px; margin-top:8px; }
+.feature-thumb {
+  width:24px; height:24px; background:var(--surface-high);
+  background-size:cover; background-position:center;
+  flex-shrink:0; border-radius:var(--r-sm); border:1px solid var(--border-light);
+  display:flex; align-items:center; justify-content:center; font-size:9px;
+}
+
+/* Brief grid */
+.brief-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px 16px 0; }
+.brief-card { cursor:pointer; border-radius:var(--r-lg); overflow:hidden; box-shadow:var(--shadow); border:1px solid var(--border); background:#FFFFFF; }
+.brief-img {
+  width:100%; aspect-ratio:1/1; background:var(--surface-mid);
+  background-size:cover; background-position:center;
+  display:flex; align-items:center; justify-content:center;
+}
+.brief-body { padding:10px 10px 12px; }
+.brief-type {
+  font-family:'Inter',sans-serif; font-size:8px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:3px;
+}
+.brief-title {
+  font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700;
+  color:var(--ink); line-height:1.2; margin-bottom:4px; letter-spacing:-.01em;
+}
+.brief-date {
+  font-family:'Inter',sans-serif; font-size:8px; font-weight:600;
+  letter-spacing:.06em; color:var(--mist);
+}
+
+/* Load more */
+.load-more-wrap { padding:20px 16px; text-align:center; }
+.load-more-btn {
+  font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700;
+  color:var(--mist); background:none; border:1.5px solid var(--border-md);
+  border-radius:var(--r-full); padding:10px 28px; cursor:pointer; letter-spacing:.02em; transition:all .2s;
+}
+.load-more-btn:hover { color:var(--ink); border-color:var(--ink); }
+
+/* Empty archive */
+.empty-archive { padding:60px 32px; text-align:center; }
+.empty-archive-title {
+  font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:800;
+  color:var(--mist); margin-bottom:10px; letter-spacing:-.01em;
+}
+.empty-archive-sub {
+  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--mist);
+}
+
+/* Detail panel */
+.detail-panel {
+  position:absolute; inset:0; z-index:60; background:#FFFFFF;
+  transform:translateX(100%); transition:transform .36s cubic-bezier(.4,0,.2,1);
+  display:flex; flex-direction:column;
+}
+.detail-panel.open { transform:translateX(0); }
+.detail-appbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px 12px;
+  background:rgba(255,255,255,.92); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border); flex-shrink:0;
+}
+.detail-back {
+  background:none; border:none;
+  font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700;
+  color:var(--ink); cursor:pointer; padding:0;
+}
+.detail-body { flex:1; overflow-y:auto; scrollbar-width:none; }
+.detail-body::-webkit-scrollbar { display:none; }
+.detail-hero-img {
+  width:100%; height:240px; background:var(--surface-mid);
+  background-size:cover; background-position:center;
+  display:flex; align-items:center; justify-content:center;
+  font-size:48px; opacity:.2;
+}
+.detail-content { padding:20px; }
+.detail-type {
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:8px;
+}
+.detail-title {
+  font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:800;
+  color:var(--ink); line-height:1.05; margin-bottom:10px; letter-spacing:-.02em;
+}
+.detail-date {
+  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--mist); margin-bottom:16px;
+}
+.detail-desc {
+  font-family:'Inter',sans-serif; font-size:13px; color:var(--sub);
+  line-height:1.7; border-top:1px solid var(--border-light);
+  padding-top:16px; margin-bottom:20px;
+}
+.detail-prods-label {
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:10px;
+}
+.detail-prods-grid {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:24px;
+}
+.detail-prod-item { text-align:center; }
+.detail-prod-img {
+  width:100%; aspect-ratio:1/1; background:var(--surface-mid);
+  background-size:cover; background-position:center;
+  border:1px solid var(--border-light); border-radius:var(--r-md);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; margin-bottom:4px;
+}
+.detail-prod-name {
+  font-family:'Inter',sans-serif; font-size:8px; font-weight:600;
+  color:var(--ink); letter-spacing:.04em;
+  overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
+}
+.detail-ok-btn {
+  width:100%; height:52px; background:var(--ink); color:#fff; border:none;
+  font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700;
+  cursor:pointer; transition:opacity .2s; border-radius:var(--r-md);
+}
+.detail-ok-btn:active { opacity:.8; }
+
+/* Bottom nav */
+.bottom-nav {
+  background:#0A0A0A; border-top:none;
+  display:flex; padding:10px 0 20px;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+  cursor:pointer; padding:4px 0; text-decoration:none;
+}
+.nav-icon {
+  font-size:20px; height:24px; display:flex; align-items:center;
+  justify-content:center; position:relative; color:rgba(255,255,255,.4);
+}
+.nav-label {
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.35);
+}
+.nav-item.active .nav-label { color:var(--lime); }
+.nav-item.active .nav-icon { color:var(--lime); }
+.nav-item.active .nav-icon::after {
+  content:''; display:block; width:16px; height:2px;
+  background:var(--lime); position:absolute; bottom:-4px; border-radius:var(--r-full);
+}
+
+/* Toast */
+.toast {
+  position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--ink); color:#fff; padding:10px 20px;
+  font-family:'Inter',sans-serif; font-size:12px; letter-spacing:.04em;
+  opacity:0; transition:opacity .25s, transform .25s; pointer-events:none;
+  white-space:nowrap; z-index:200;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+@media (max-width:430px) {
+  body { background:#FFFFFF; padding:0; }
+  .phone { width:100%; border-radius:0; box-shadow:none; }
+  .scroll { height:100dvh; }
+  .bottom-nav { padding-bottom:calc(env(safe-area-inset-bottom,0px) + 10px); }
+}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div class="notch-bar"></div></div>
+  <div class="scroll">
+
+    <!-- AppBar -->
+    <div class="appbar">
+      <div class="appbar-menu">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="appbar-center">LOG</div>
+      <div id="auth-avatar" onclick="handleAuthClick()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <div class="filter-chip active" data-type="all" onclick="setFilter('all')">ALL&nbsp;<span id="fc-all">0</span></div>
+      <div class="filter-chip" data-type="routine" onclick="setFilter('routine')">루틴케어</div>
+      <div class="filter-chip" data-type="care" onclick="setFilter('care')">집중케어</div>
+      <div class="filter-chip" data-type="makeup" onclick="setFilter('makeup')">메이크업</div>
+      <div class="filter-chip" data-type="look" onclick="setFilter('look')">룩북</div>
+    </div>
+
+    <!-- Archive content -->
+    <div id="archive-content"></div>
+
+    <!-- Load more -->
+    <div id="load-more-wrap" style="display:none">
+      <button class="load-more-btn" onclick="loadMore()">Load More →</button>
+    </div>
+
+    <div style="height:20px"></div>
+
+    <!-- Bottom nav -->
+    <div class="bottom-nav">
+      <a class="nav-item" href="today.html">
+        <div class="nav-icon">◎</div>
+        <div class="nav-label">Today</div>
+      </a>
+      <a class="nav-item active" href="log.html">
+        <div class="nav-icon">◈</div>
+        <div class="nav-label">Log</div>
+      </a>
+      <a class="nav-item" href="box.html">
+        <div class="nav-icon">◫</div>
+        <div class="nav-label">Box</div>
+      </a>
+      <a class="nav-item" href="setup.html">
+        <div class="nav-icon">⊞</div>
+        <div class="nav-label">Setup</div>
+      </a>
+    </div>
+
+  </div><!-- /scroll -->
+
+  <!-- Detail panel -->
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-appbar">
+      <button class="detail-back" onclick="closeDetail()">←</button>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:.02em">ARCHIVE</div>
+      <div style="width:28px"></div>
+    </div>
+    <div class="detail-body" id="detail-content-inner"></div>
+  </div>
+
+</div><!-- /phone -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Firebase ──────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey: "AIzaSyBdKnyU8t0XrQsT_EhKS2nk9zOKwjxoquk",
+  authDomain: "onstep-lifeos.firebaseapp.com",
+  projectId: "onstep-lifeos",
+  storageBucket: "onstep-lifeos.firebasestorage.app",
+  messagingSenderId: "333501649998",
+  appId: "1:333501649998:web:4eebd8b84a32ea8a581f1f"
+});
+const fbAuth = firebase.auth();
+let currentUser = null;
+firebase.auth().onAuthStateChanged(user => { currentUser = user; updateAuthAvatar(user); });
+
+function updateAuthAvatar(user) {
+  const el = document.getElementById('auth-avatar');
+  if (!el) return;
+  if (user) {
+    el.innerHTML = user.photoURL
+      ? `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover;filter:grayscale(20%)">`
+      : `<span style="font-size:11px;color:#fff;font-weight:700">${(user.displayName||user.email||'?')[0].toUpperCase()}</span>`;
+    el.style.background = '#1A1C1C'; el.style.borderColor = '#1A1C1C';
+  } else {
+    el.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>';
+    el.style.background = ''; el.style.borderColor = '';
+  }
+}
+
+function handleAuthClick() {
+  if (currentUser) {
+    if (confirm(`${currentUser.displayName || currentUser.email}\n로그아웃할까요?`)) fbAuth.signOut();
+  } else {
+    fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .catch(e => alert('로그인 오류: ' + e.message));
+  }
+}
+
+// ── Sample data ───────────────────────────────────────────────
+const SAMPLE_DATA = [
+  { id:1, type:'care', title:'Spring Hydration Protocol', emoji:'✦', description:'봄철 수분 집중 케어. 장벽 강화 + 광채 개선 2주 프로그램.', activatedAt:'2026-05-04T09:00:00', baselineImg:null, items:[{name:'자음수',step:'Toner'},{name:'레티놀 앰플',step:'Ampoule'},{name:'수분크림',step:'Cream'},{name:'선크림',step:'SPF'}] },
+  { id:2, type:'makeup', title:'Glass Skin · No-Makeup', emoji:'◎', description:'데일리 유리 피부 메이크업. 세미 매트 베이스 + 투명 립.', activatedAt:'2026-05-03T08:30:00', baselineImg:null, products:[{name:'스킨 틴트',step:'Base'},{name:'하이라이터',step:'Glow'},{name:'립밤',step:'Lip'}] },
+  { id:3, type:'look', title:'Minimal Monday', emoji:'◈', description:'모노톤 미니멀 오피스 룩. 화이트 셔츠 + 슬랙스 + 로퍼.', activatedAt:'2026-05-02T07:00:00', baselineImg:null, items:[{name:'화이트 셔츠',step:'Top'},{name:'슬랙스',step:'Bottom'},{name:'로퍼',step:'Shoes'}] },
+  { id:4, type:'routine', title:'A.M. Ritual', emoji:'☀', description:'아침 7스텝 루틴. 클렌징 → 세럼 → 선크림.', activatedAt:'2026-05-01T06:30:00', baselineImg:null, items:[{name:'폼 클렌저',step:'01'},{name:'토너',step:'02'},{name:'세럼',step:'03'},{name:'선크림',step:'07'}] },
+  { id:5, type:'care', title:'Recovery Week', emoji:'✦', description:'민감성 진정 집중 케어. 7일 장벽 회복 프로토콜.', activatedAt:'2026-04-28T09:00:00', baselineImg:null, items:[{name:'시카 크림',step:'Calm'},{name:'마스크팩',step:'Mask'}] },
+  { id:6, type:'makeup', title:'Sleek & Sharp', emoji:'◎', description:'에디토리얼 오피스 메이크업. 샤프한 라이너 + 누드 립.', activatedAt:'2026-04-25T08:00:00', baselineImg:null, products:[{name:'파운데이션',step:'Base'},{name:'아이라이너',step:'Eye'},{name:'립스틱',step:'Lip'},{name:'하이라이터',step:'Finish'}] },
+  { id:7, type:'look', title:'Weekend Fresh', emoji:'◈', description:'캐주얼 주말 룩. 데님 + 오버핏 티 + 스니커즈.', activatedAt:'2026-04-20T10:00:00', baselineImg:null, items:[{name:'오버핏 티',step:'Top'},{name:'데님',step:'Bottom'},{name:'스니커즈',step:'Shoes'}] },
+  { id:8, type:'routine', title:'P.M. Protocol', emoji:'☽', description:'저녁 보습 루틴. 이중세안 → 에센스 → 나이트크림.', activatedAt:'2026-04-15T22:00:00', baselineImg:null, items:[{name:'클렌징밤',step:'01'},{name:'에센스',step:'03'},{name:'나이트크림',step:'06'}] },
+  { id:9, type:'care', title:'Brightening Cycle', emoji:'✦', description:'미백 집중 케어 3주 사이클. 비타민C 세럼 중심 루틴.', activatedAt:'2026-03-30T09:00:00', baselineImg:null, items:[{name:'비타민C 세럼',step:'Vit.C'},{name:'나이아신아마이드',step:'Niacin'},{name:'SPF50+',step:'SPF'}] },
+  { id:10, type:'makeup', title:'Date Night Glam', emoji:'◎', description:'저녁 데이트 메이크업. 글로시 스모키 + 레드 립.', activatedAt:'2026-03-22T17:00:00', baselineImg:null, products:[{name:'루미너스 파운데이션',step:'Base'},{name:'스모키 팔레트',step:'Eye'},{name:'레드 립스틱',step:'Lip'}] },
+  { id:11, type:'look', title:'Power Suit', emoji:'◈', description:'프레젠테이션 데이 파워 수트. 네이비 블레이저 + 화이트 블라우스.', activatedAt:'2026-03-18T08:00:00', baselineImg:null, items:[{name:'네이비 블레이저',step:'Outer'},{name:'화이트 블라우스',step:'Top'},{name:'슬랙스',step:'Bottom'},{name:'힐',step:'Shoes'}] },
+  { id:12, type:'routine', title:'Skin Reset', emoji:'☀', description:'봄맞이 스킨케어 리셋. 각질 제거 + 재정비.', activatedAt:'2026-03-10T09:00:00', baselineImg:null, items:[{name:'AHA 토너',step:'01'},{name:'세럼',step:'03'},{name:'크림',step:'05'}] },
+];
+
+// ── Constants ────────────────────────────────────────────────
+const TYPE_LABEL = { routine:'루틴케어', care:'집중케어', makeup:'메이크업', look:'룩북' };
+const TYPE_ICON  = { routine:'☀', care:'✦', makeup:'◎', look:'◈' };
+const MONTHS_PER_LOAD = 2;
+
+let allItems = [];
+let filteredItems = [];
+let activeFilter = 'all';
+let visibleMonths = MONTHS_PER_LOAD;
+
+// ── Data loading ──────────────────────────────────────────────
+function loadData() {
+  const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio') || '[]');
+  const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]')
+    .map(t => ({...t, type:'care', activatedAt: t.activatedAt || (t.scheduledDates||[])[0] || new Date().toISOString()}));
+  const mkpData = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
+  const mkp = (mkpData.themes||[])
+    .map(t => ({...t, type:'makeup', activatedAt: t.activatedAt || (t.scheduledDates||[])[0] || new Date().toISOString()}));
+  const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]')
+    .map(t => ({...t, type:'look', activatedAt: t.activatedAt || (t.scheduledDates||[])[0] || new Date().toISOString()}));
+
+  const portfolioIds = new Set(portfolio.map(p => p.id));
+  const extras = [...care, ...mkp, ...looks].filter(t => !portfolioIds.has(t.id));
+  const merged = [...portfolio, ...extras];
+
+  allItems = merged.length ? merged : SAMPLE_DATA;
+  allItems.sort((a, b) => new Date(b.activatedAt) - new Date(a.activatedAt));
+  applyFilter();
+}
+
+function applyFilter() {
+  filteredItems = activeFilter === 'all'
+    ? [...allItems]
+    : allItems.filter(i => i.type === activeFilter);
+  visibleMonths = MONTHS_PER_LOAD;
+  render();
+}
+
+function setFilter(type) {
+  activeFilter = type;
+  document.querySelectorAll('.filter-chip').forEach(c =>
+    c.classList.toggle('active', c.dataset.type === type)
+  );
+  applyFilter();
+  updateFilterCounts();
+}
+
+function updateFilterCounts() {
+  const allEl = document.getElementById('fc-all');
+  if (allEl) allEl.textContent = allItems.length;
+}
+
+function groupByMonth(items) {
+  const groups = {};
+  items.forEach(item => {
+    const d = new Date(item.activatedAt);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+  return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
+}
+
+function monthLabel(key) {
+  const [y, m] = key.split('-');
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  return `${months[parseInt(m)-1]} ${y}`;
+}
+
+// ── Render ────────────────────────────────────────────────────
+function render() {
+  const container = document.getElementById('archive-content');
+  const lmWrap = document.getElementById('load-more-wrap');
+
+  if (!filteredItems.length) {
+    container.innerHTML = `<div class="empty-archive">
+      <div class="empty-archive-title">Archive</div>
+      <div class="empty-archive-sub">SETUP에서 설계를 완료하면<br>이곳에 기록됩니다</div>
+    </div>`;
+    lmWrap.style.display = 'none';
+    return;
+  }
+
+  const groups = groupByMonth(filteredItems);
+  const visibleGroups = groups.slice(0, visibleMonths);
+
+  let html = '';
+  visibleGroups.forEach(([key, items], idx) => {
+    const num = String(groups.length - idx).padStart(2, '0');
+    html += renderIssue(key, items, num);
+  });
+  container.innerHTML = html;
+
+  lmWrap.style.display = groups.length > visibleMonths ? 'block' : 'none';
+}
+
+function renderIssue(key, items, num) {
+  let html = `<div class="issue-hd">
+    <span class="issue-month">${monthLabel(key)}</span>
+    <span class="issue-num">Issue ${num}</span>
+    <span class="issue-count">${items.length} ITEMS</span>
+  </div>`;
+
+  if (items[0]) html += renderCoverCard(items[0]);
+  if (items[1]) html += renderFeatureCard(items[1]);
+
+  const briefs = items.slice(2);
+  for (let i = 0; i < briefs.length; i += 2) {
+    html += `<div class="brief-grid">`;
+    html += renderBriefCard(briefs[i]);
+    if (briefs[i+1]) html += renderBriefCard(briefs[i+1]);
+    else html += `<div class="brief-card"></div>`;
+    html += `</div>`;
+  }
+  return html;
+}
+
+function renderCoverCard(item) {
+  const imgStyle = item.baselineImg ? `background-image:url(${item.baselineImg})` : `background:var(--surface-mid)`;
+  const placeholder = TYPE_ICON[item.type] || '✦';
+  const dateStr = new Date(item.activatedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase();
+  return `<div class="cover-card" onclick="openDetail(${item.id})">
+    <div class="cover-img" style="${imgStyle}">
+      ${!item.baselineImg ? `<span style="font-size:40px;opacity:.12">${placeholder}</span>` : ''}
+    </div>
+    <div class="cover-body">
+      <div class="cover-type">${TYPE_LABEL[item.type]||item.type}</div>
+      <div class="cover-title">${item.title||item.name||'Untitled'}</div>
+      <div class="cover-meta">${dateStr}${item.description ? ` · ${item.description.slice(0,40)}` : ''}</div>
+    </div>
+  </div>`;
+}
+
+function renderFeatureCard(item) {
+  const imgStyle = item.baselineImg ? `background-image:url(${item.baselineImg})` : '';
+  const placeholder = TYPE_ICON[item.type] || '✦';
+  const products = item.products || item.items || [];
+  const dateStr = new Date(item.activatedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase();
+  const thumbs = products.slice(0,4).map(p => {
+    const imgS = p.imgData ? `background-image:url(${p.imgData});background-size:cover` : '';
+    return `<div class="feature-thumb" style="${imgS}">${!p.imgData ? (p.step ? p.step[0] : '·') : ''}</div>`;
+  }).join('');
+  return `<div class="feature-card" onclick="openDetail(${item.id})">
+    <div class="feature-img" style="${imgStyle}">
+      ${!item.baselineImg ? `<span style="font-size:28px;opacity:.15">${placeholder}</span>` : ''}
+    </div>
+    <div class="feature-body">
+      <div>
+        <div class="feature-type">${TYPE_LABEL[item.type]||item.type}</div>
+        <div class="feature-title">${item.title||item.name||'Untitled'}</div>
+        ${item.description ? `<div class="feature-desc">${item.description}</div>` : ''}
+      </div>
+      <div>
+        ${thumbs ? `<div class="feature-thumbs">${thumbs}</div>` : ''}
+        <div class="feature-meta">${dateStr}${products.length ? ` · ${products.length} ITEMS` : ''}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderBriefCard(item) {
+  const imgStyle = item.baselineImg ? `background-image:url(${item.baselineImg})` : '';
+  const placeholder = TYPE_ICON[item.type] || '✦';
+  const dateStr = new Date(item.activatedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase();
+  return `<div class="brief-card" onclick="openDetail(${item.id})">
+    <div class="brief-img" style="${imgStyle}">
+      ${!item.baselineImg ? `<span style="font-size:24px;opacity:.12">${placeholder}</span>` : ''}
+    </div>
+    <div class="brief-body">
+      <div class="brief-type">${TYPE_LABEL[item.type]||item.type}</div>
+      <div class="brief-title">${item.title||item.name||'Untitled'}</div>
+      <div class="brief-date">${dateStr}</div>
+    </div>
+  </div>`;
+}
+
+function loadMore() {
+  visibleMonths += MONTHS_PER_LOAD;
+  render();
+}
+
+// ── Detail panel ──────────────────────────────────────────────
+function openDetail(id) {
+  const item = allItems.find(i => i.id === id);
+  if (!item) return;
+  const panel = document.getElementById('detail-panel');
+  const products = item.products || item.items || [];
+  const dateStr = new Date(item.activatedAt).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+
+  const imgStyle = item.baselineImg ? `background-image:url(${item.baselineImg});background-size:cover;font-size:0` : '';
+  const prodsHtml = products.length ? `
+    <div class="detail-prods-label">ITEMS · ${products.length}</div>
+    <div class="detail-prods-grid">${products.slice(0,8).map(p => {
+      const imgS = p.imgData ? `background-image:url(${p.imgData});background-size:cover` : '';
+      return `<div class="detail-prod-item">
+        <div class="detail-prod-img" style="${imgS}">${!p.imgData ? (p.step ? p.step[0] : '·') : ''}</div>
+        <div class="detail-prod-name">${p.name||p.step||''}</div>
+      </div>`;
+    }).join('')}</div>` : '';
+
+  document.getElementById('detail-content-inner').innerHTML = `
+    <div class="detail-hero-img" style="${imgStyle}">${!item.baselineImg ? (TYPE_ICON[item.type]||'✦') : ''}</div>
+    <div class="detail-content">
+      <div class="detail-type">${TYPE_LABEL[item.type]||item.type}</div>
+      <div class="detail-title">${item.title||item.name||'Untitled'}</div>
+      <div class="detail-date">${dateStr}</div>
+      ${item.description ? `<div class="detail-desc">${item.description}</div>` : ''}
+      ${prodsHtml}
+      <button class="detail-ok-btn" onclick="reactivateItem(${id})">ok → Today에 반영</button>
+    </div>`;
+  panel.classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+function reactivateItem(id) {
+  const item = allItems.find(i => i.id === id);
+  if (!item) return;
+  const KEY = 'onstep_planned_portfolio';
+  const portfolio = JSON.parse(localStorage.getItem(KEY)||'[]');
+  portfolio.unshift({...item, id:Date.now(), activatedAt:new Date().toISOString()});
+  localStorage.setItem(KEY, JSON.stringify(portfolio));
+  closeDetail();
+  showToast(`✓ "${item.title||item.name}" — Today에 반영됩니다`);
+  loadData();
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+loadData();
+updateFilterCounts();
+</script>
+</body>
+</html>

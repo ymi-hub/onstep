@@ -1,0 +1,2641 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>OnStep · Routine</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="OnStep">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FFFFFF">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF; --surface:#F5F5F3; --surface-low:#EFEFED;
+  --surface-mid:#E8E8E6; --surface-high:#DDDDD9; --surface-inv:#0A0A0A;
+  --ink:#0A0A0A; --sub:#444444; --mist:#999999;
+  --lime:#C5FF00; --lime-dark:#A8DB00; --lime-fg:#0A0A0A;
+  --border:rgba(10,10,10,.1); --border-md:rgba(10,10,10,.18);
+  --shadow:0 2px 16px rgba(0,0,0,.07);
+  --gutter:16px; --margin:16px;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:9999px;
+  --green:#2d6a4f; --amber:#b45309; --error:#ba1a1a;
+  --xs:4px; --sm:8px; --md:16px; --lg:24px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-start;padding:24px 16px 48px;font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+.phone{width:390px;background:#FFFFFF;border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative}
+.notch{height:44px;background:#FFFFFF;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
+.scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:#FFFFFF}
+.scroll::-webkit-scrollbar{display:none}
+@media(max-width:430px){
+  body{background:var(--bg);padding:0}
+  .phone{width:100%;border-radius:0;box-shadow:none}
+  .notch{height:calc(env(safe-area-inset-top,0px) + 12px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
+  .notch-bar{display:none}
+  .scroll{height:calc(100dvh - env(safe-area-inset-top,0px) - 12px)}
+  .modal{width:100%}
+  .toast{bottom:calc(env(safe-area-inset-bottom,0px) + 80px)}
+}
+
+/* ── AppBar ── */
+.appbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border);
+}
+.appbar-menu{width:22px;display:flex;flex-direction:column;gap:5px;cursor:pointer}
+.appbar-menu span{height:1.5px;background:var(--ink);border-radius:2px}
+.appbar-menu span:nth-child(2){width:68%}
+.appbar-center{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink)}
+.appbar-edit{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);background:none;border:none;cursor:pointer;padding:0;letter-spacing:.02em}
+
+/* ── Session Hero ── */
+.routine-hero{padding:28px 16px 20px;position:relative;border-bottom:1px solid var(--border)}
+.session-title{
+  font-family:'Space Grotesk',sans-serif;font-size:48px;font-weight:800;
+  color:var(--ink);line-height:.95;letter-spacing:-.02em;margin-bottom:0;
+  text-transform:uppercase;
+}
+.session-period{
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
+  color:var(--sub);margin-top:4px;
+}
+
+/* ── Routine Section ── */
+.routine-section{padding:24px 16px}
+.routine-section+.routine-section{border-top:1px solid var(--border)}
+.rs-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.rs-hd-left{display:flex;align-items:center;gap:8px}
+.rs-icon{display:none}
+.rs-name{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;color:var(--ink);line-height:1;text-transform:uppercase;letter-spacing:-.01em}
+.rs-badge{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist)}
+
+/* Step tabs — text style with lime underline */
+.step-tabs{display:flex;gap:0;margin-bottom:0;border-bottom:1px solid var(--border)}
+.step-tab{
+  padding:10px 20px 10px;border-radius:0;
+  border:none;border-bottom:2px solid transparent;background:none;
+  font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.06em;color:var(--mist);cursor:pointer;transition:all .18s;
+  margin-bottom:-1px;
+}
+.step-tab.active{color:var(--ink);border-bottom-color:var(--lime)}
+
+/* Time display — small inline */
+.time-section{display:flex;align-items:center;gap:8px;padding:12px 0;cursor:pointer;position:relative}
+.time-label{display:none}
+.time-big{display:flex;align-items:center;gap:5px}
+.time-value{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:var(--ink)}
+.time-ampm{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--mist)}
+
+/* Horizontal product scroll strip */
+.prod-scroll-strip{display:flex;gap:10px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.prod-scroll-strip::-webkit-scrollbar{display:none}
+.prod-card{flex-shrink:0;width:110px;background:#fff;border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:opacity .15s;box-shadow:var(--shadow);border:1px solid var(--border)}
+.prod-card:active{opacity:.75}
+.prod-card-img{
+  width:100%;aspect-ratio:1/1;background:var(--surface-low);
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  overflow:hidden;background-size:cover;background-position:center;
+}
+.prod-card-cat{padding:7px 7px 0;font-family:'Inter',sans-serif;font-size:7px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
+.prod-card-name{padding:3px 7px 9px;font-family:'Georgia',serif;font-size:12px;font-style:italic;color:var(--ink);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.prod-card-add{
+  flex-shrink:0;width:110px;
+  background:var(--surface-low);border-radius:var(--r-lg);border:1.5px dashed var(--border-md);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:5px;cursor:pointer;transition:background .15s;aspect-ratio:1/1;
+}
+.prod-card-add:active{background:var(--surface-mid)}
+.prod-card-add-plus{font-size:22px;color:var(--border-md);font-weight:300;line-height:1}
+.prod-card-add-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--border-md)}
+
+/* LIST toggle + dropdown */
+.prod-list-toggle{
+  width:100%;margin-top:6px;padding:9px 14px;
+  border:1px solid var(--border-md);border-radius:var(--r-sm);
+  background:none;cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--sub);
+  transition:background .15s;
+}
+.prod-list-toggle:active{background:var(--surface-low)}
+.prod-list-count-badge{background:var(--surface-mid);color:var(--mist);padding:2px 8px;border-radius:var(--r-full);font-size:9px;font-weight:700;letter-spacing:0;margin-right:auto}
+.prod-list-toggle-arrow{font-size:14px;line-height:1;transition:transform .22s;color:var(--mist);margin-left:auto}
+.prod-list-toggle.open .prod-list-toggle-arrow{transform:rotate(180deg)}
+.prod-list-dropdown{overflow:hidden;max-height:0;transition:max-height .32s cubic-bezier(.4,0,.2,1)}
+.prod-list-dropdown.open{max-height:900px}
+.prod-list-inner{border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;margin-top:8px}
+.prod-list-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;background:#fff}
+.prod-list-item:last-child{border-bottom:none}
+.prod-list-item:active{background:var(--surface-low)}
+.prod-list-img{width:40px;height:40px;border-radius:var(--r-sm);background:var(--surface-mid);flex-shrink:0;overflow:hidden;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:17px}
+.prod-list-info{flex:1;min-width:0}
+.prod-list-cat{font-family:'Inter',sans-serif;font-size:7px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:2px}
+.prod-list-name{font-family:'Georgia',serif;font-size:13px;font-style:italic;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.prod-list-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-list-arrow{color:var(--mist);font-size:14px;flex-shrink:0;font-weight:300}
+
+/* Before photo */
+.before-photo-wrap{margin-top:14px}
+.before-photo-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.before-photo-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.before-photo-area{
+  width:100%;aspect-ratio:3/2;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);
+  background:var(--surface-low);cursor:pointer;overflow:hidden;position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  transition:border-color .2s;
+}
+.before-photo-area.has-img{border-style:solid;border-color:var(--ink)}
+.before-photo-preview{position:absolute;inset:0;background-size:cover;background-position:center;display:none}
+.before-photo-area.has-img .before-photo-preview{display:block}
+.before-photo-icon{font-size:24px;opacity:.25;line-height:1}
+.before-photo-hint{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
+.before-photo-badge{
+  position:absolute;bottom:10px;right:10px;
+  background:rgba(0,0,0,.55);color:#fff;
+  font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 9px;border-radius:var(--r-sm);display:none;
+}
+.before-photo-area.has-img .before-photo-badge{display:block}
+/* Empty state */
+.empty-state-wrap{display:none;flex-direction:column;align-items:center;gap:12px;padding:36px 20px 28px;text-align:center;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);background:var(--surface-low)}
+.empty-state-text{font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);line-height:1.5}
+.empty-configure-btn{padding:11px 24px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+/* Routine description/tips inputs */
+.routine-inputs{padding:16px 0 0;display:flex;flex-direction:column;gap:12px}
+.routine-input-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
+.routine-input-field{width:100%;border:1.5px solid var(--border-md);border-radius:var(--r-sm);padding:10px 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none;background:var(--surface-low);resize:none;transition:border-color .2s;box-sizing:border-box}
+.routine-input-field:focus{border-color:var(--ink)}
+.routine-input-field::placeholder{color:var(--mist)}
+/* Pagination dots */
+.page-dots{display:flex;justify-content:center;gap:6px;padding:14px 0 0}
+.page-dot{width:6px;height:6px;border-radius:var(--r-full);background:var(--border)}
+.page-dot.active{background:var(--ink)}
+
+/* Expert tip — lime left border */
+.tip-card{background:#F9FFE0;border:1px solid rgba(197,255,0,.35);border-left:3px solid var(--lime);border-radius:var(--r-md);padding:14px 16px 18px;margin-top:20px}
+.tip-card-hd{display:flex;align-items:center;gap:6px;margin-bottom:10px;font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
+.tip-card-input{
+  width:100%;border:none;outline:none;background:none;
+  font-family:'Inter',sans-serif;font-size:13px;color:var(--sub);line-height:1.65;
+  resize:none;min-height:40px;
+}
+.tip-card-input::placeholder{color:var(--mist)}
+
+/* Action buttons */
+.routine-actions{padding:16px 20px 24px}
+.publish-btn{
+  width:100%;height:56px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+  transition:opacity .18s;display:block;margin-bottom:12px;
+}
+.publish-btn:active{opacity:.8}
+.draft-btn{
+  width:100%;height:56px;background:var(--surface);color:var(--ink);
+  border:1px solid var(--border-md);border-radius:var(--r-md);
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:400;cursor:pointer;
+}
+.draft-btn:active{background:var(--surface-low)}
+
+/* History */
+.history-section{padding:0 20px 32px;border-top:1px solid var(--border);margin-top:8px}
+.history-label-wrap{
+  font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;
+  letter-spacing:-.01em;color:var(--ink);
+  padding:24px 0 16px;
+}
+.history-item{
+  display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);
+  cursor:pointer;gap:0;
+}
+.history-num{
+  font-family:'Space Grotesk',sans-serif;font-size:52px;font-weight:800;
+  color:#D0D0D0;min-width:64px;line-height:1;
+}
+.history-num.dimmed{color:#E5E5E5}
+.history-info{flex:1;min-width:0}
+.history-date-range{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--ink)}
+.history-sub{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:2px}
+.history-arrow{color:var(--mist);font-size:14px;flex-shrink:0;font-weight:300}
+
+/* Bottom nav */
+.bottom-nav{background:#0A0A0A;border-top:none;display:flex;padding:10px 0 20px}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;text-decoration:none}
+.nav-icon{font-size:18px;height:22px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);}
+.nav-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.nav-item.active .nav-label{color:#C5FF00}
+.nav-item.active .nav-icon{color:#C5FF00}
+.nav-item.active .nav-icon::after{display:none}
+
+/* ══════════════════════════════════════
+   SESSION ARCHIVE overlay
+   ══════════════════════════════════════ */
+.archive-overlay{
+  position:absolute;inset:0;z-index:200;background:#FFFFFF;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.archive-overlay.open{transform:translateX(0)}
+.archive-appbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.archive-appbar-center{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink)}
+#archive-avatar{width:32px;height:32px;border-radius:9999px;background:var(--surface-mid);display:flex;align-items:center;justify-content:center;border:1.5px solid var(--border);overflow:hidden;cursor:pointer}
+.archive-body{flex:1;overflow-y:auto;scrollbar-width:none}
+.archive-body::-webkit-scrollbar{display:none}
+.archive-section-hd{padding:28px 20px 16px}
+.archive-hd-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:6px}
+.archive-hd-title{font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.01em;margin-bottom:10px}
+.archive-hd-line{width:28px;height:2px;background:var(--ink)}
+
+/* Archive session entries */
+.ae-wrap{padding:0 20px}
+.archive-entry{padding:24px 0;border-top:1px solid var(--border)}
+.ae-hd{display:flex;align-items:center;gap:0;cursor:pointer;user-select:none}
+.ae-num{
+  font-family:'Space Grotesk',sans-serif;font-size:72px;font-weight:800;
+  color:#DADADA;min-width:80px;line-height:.88;flex-shrink:0;
+}
+.ae-info{flex:1;min-width:0;padding-right:8px}
+.ae-title{
+  font-family:'Inter',sans-serif;font-size:18px;font-weight:700;
+  color:var(--ink);letter-spacing:-.01em;line-height:1.2;
+}
+.ae-dates{font-family:'Inter',sans-serif;font-size:12px;color:var(--sub);margin-top:5px;line-height:1.5}
+.ae-actions{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.ae-edit-btn,.ae-nav-btn{
+  width:30px;height:30px;border:none;background:transparent;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--mist);transition:color .15s;
+}
+.ae-nav-btn{color:var(--ink);font-size:18px;font-weight:300}
+.ae-body{display:none;padding-top:16px}
+.ae-body.open{display:block}
+.ae-slot-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px}
+.ae-prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.ae-prod-img{
+  width:100%;aspect-ratio:1/1;background:var(--surface-mid);border-radius:var(--r-sm);
+  overflow:hidden;background-size:cover;background-position:center;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  filter:grayscale(20%);
+}
+.ae-prod-name{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);margin-top:6px;padding:0 2px}
+
+/* ── Look / Makeup Schedule sections ── */
+.sched-section{padding:0 20px 24px;border-top:1px solid var(--border)}
+.sched-hd{display:flex;align-items:center;justify-content:space-between;padding:20px 0 14px}
+.sched-hd-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--ink)}
+.sched-hd-count{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--mist)}
+.sched-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.sched-strip::-webkit-scrollbar{display:none}
+.sched-cell{flex-shrink:0;width:56px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:transform .18s}
+.sched-cell:active{transform:scale(.94)}
+.sched-thumb{width:56px;height:70px;border-radius:var(--r-sm);background:var(--surface-low);border:1.5px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;overflow:hidden;background-size:cover;background-position:center;transition:border-color .2s;position:relative}
+.sched-cell.has-data .sched-thumb{border-color:var(--ink)}
+.sched-thumb-dot{position:absolute;bottom:4px;right:4px;width:6px;height:6px;border-radius:var(--r-full);background:var(--ink);display:none}
+.sched-cell.has-data .sched-thumb-dot{display:block}
+.sched-thumb-plus{font-size:18px;color:var(--border-md)}
+.sched-day-num{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--mist)}
+.sched-cell.has-data .sched-day-num{color:var(--ink)}
+/* Makeup themes */
+.mkp-theme{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:12px;transition:border-color .2s;box-shadow:var(--shadow)}
+.mkp-theme.scheduled{border-color:var(--ink)}
+.mkp-theme-hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mkp-theme-emoji{font-size:18px;line-height:1;flex-shrink:0}
+.mkp-theme-name{font-family:'Space Grotesk',sans-serif;font-size:17px;color:var(--ink);flex:1}
+.mkp-sched-badge{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:#fff;padding:3px 7px;border-radius:var(--r-sm);flex-shrink:0}
+.mkp-inspo-badge{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--surface-mid);color:var(--mist);padding:3px 7px;border-radius:var(--r-sm);flex-shrink:0}
+.mkp-theme-desc{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);line-height:1.5;margin-bottom:10px}
+.mkp-prod-list{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.mkp-prod-row{display:flex;align-items:baseline;gap:6px}
+.mkp-prod-step{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--border-md);min-width:44px;flex-shrink:0}
+.mkp-prod-name{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--ink);flex:1}
+.mkp-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);flex-shrink:0}
+.mkp-day-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:7px}
+/* Date chips + add button */
+.mkp-date-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:2px}
+.mkp-date-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.06em;background:var(--ink);color:#fff;padding:3px 8px;border-radius:var(--r-sm)}
+.mkp-date-chip.more{background:var(--surface-mid);color:var(--mist)}
+.mkp-add-date-btn{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--mist);border:1.5px dashed var(--border);background:none;padding:3px 9px;border-radius:var(--r-sm);cursor:pointer;transition:border-color .15s,color .15s}
+.mkp-add-date-btn:active{border-color:var(--ink);color:var(--ink)}
+.mkp-del-btn{background:none;border:none;font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);cursor:pointer;padding:0;margin-top:8px;text-decoration:underline}
+/* Makeup Theme Add Sheet */
+.mkp-sheet-overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+.mkp-sheet-overlay.open{opacity:1;pointer-events:auto}
+.mkp-sheet-inner{background:var(--surface);border-radius:var(--r-xl) var(--r-xl) 0 0;width:100%;padding:24px 20px 36px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.mkp-sheet-overlay.open .mkp-sheet-inner{transform:translateY(0)}
+.mkp-sheet-handle{width:32px;height:3px;background:var(--border-md);border-radius:2px;margin:0 auto 20px}
+.mkp-sheet-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink);margin-bottom:16px}
+.mkp-sheet-row{display:flex;gap:10px;margin-bottom:12px}
+.mkp-emoji-input{width:52px;height:48px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:22px;text-align:center;outline:none;background:var(--surface-low);flex-shrink:0}
+.mkp-name-input{flex:1;height:48px;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:0 14px;font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--ink);outline:none;background:var(--surface);box-sizing:border-box}
+.mkp-emoji-input:focus,.mkp-name-input:focus{border-color:var(--ink)}
+.mkp-desc-input{width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);resize:none;height:64px;outline:none;box-sizing:border-box;margin-bottom:16px}
+.mkp-desc-input:focus{border-color:var(--ink)}
+.mkp-desc-input::placeholder,.mkp-name-input::placeholder{color:var(--mist)}
+.mkp-save-btn{width:100%;height:48px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.03em}
+/* Calendar Date Picker Sheet */
+.mkp-cal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:110;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+.mkp-cal-overlay.open{opacity:1;pointer-events:auto}
+.mkp-cal-inner{background:var(--surface);border-radius:var(--r-xl) var(--r-xl) 0 0;width:100%;padding:20px 16px 32px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.mkp-cal-overlay.open .mkp-cal-inner{transform:translateY(0)}
+.mkp-cal-handle{width:32px;height:3px;background:var(--border-md);border-radius:2px;margin:0 auto 16px}
+.mkp-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mkp-cal-month{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:400;color:var(--ink)}
+.mkp-cal-arrow{background:none;border:none;font-size:18px;color:var(--mist);cursor:pointer;padding:4px 10px;line-height:1}
+.mkp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.mkp-cal-hd{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);text-align:center;padding:4px 0 8px}
+.mkp-cal-cell{height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);cursor:pointer;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.mkp-cal-cell.empty{pointer-events:none}
+.mkp-cal-cell.today{font-weight:700}
+.mkp-cal-cell.selected{background:var(--ink);color:#fff;font-weight:700}
+.mkp-cal-cell.past{color:var(--border-md)}
+.mkp-cal-cell:not(.empty):not(.selected):active{background:var(--surface-low)}
+.mkp-cal-done{width:100%;height:44px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:14px}
+/* Today's step indicator */
+.step-today-badge{
+  display:flex;align-items:center;gap:8px;padding:12px 16px;
+  background:var(--ink);border-radius:var(--r-md);margin-bottom:16px;
+}
+.step-today-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.step-today-val{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--lime);flex:1;text-align:right}
+
+/* Archive bottom */
+.archive-new-btn-wrap{padding:12px 20px 8px;flex-shrink:0;background:#FFFFFF;border-top:1px solid var(--border)}
+.archive-new-btn{
+  width:100%;padding:18px;background:var(--ink);color:#fff;border:none;
+  border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;
+  font-weight:700;letter-spacing:.01em;cursor:pointer;transition:opacity .18s;
+}
+.archive-new-btn:active{opacity:.8}
+.archive-bottom-nav{background:#0A0A0A;border-top:none;display:flex;padding:10px 0 20px;flex-shrink:0}
+
+/* ══════════════════════════════════════
+   Edit Session Sheet
+   ══════════════════════════════════════ */
+.edit-overlay{position:absolute;inset:0;z-index:150;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .25s}
+.edit-overlay.open{opacity:1;pointer-events:auto}
+.edit-sheet{
+  position:absolute;bottom:0;left:0;right:0;z-index:151;
+  background:#FFFFFF;border-radius:var(--r-xl) var(--r-xl) 0 0;
+  transform:translateY(100%);transition:transform .34s cubic-bezier(.4,0,.2,1);
+  padding:10px 20px 40px;
+}
+.edit-sheet.open{transform:translateY(0)}
+.edit-handle{width:36px;height:4px;background:var(--border-md);border-radius:2px;margin:0 auto 16px}
+.edit-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink);margin-bottom:20px}
+.edit-field-group{margin-bottom:16px}
+.edit-field-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
+.edit-input{
+  width:100%;padding:10px 12px;border:1.5px solid var(--border-md);
+  border-radius:var(--r-sm);background:var(--surface-low);font-family:'Inter',sans-serif;
+  font-size:14px;color:var(--ink);outline:none;transition:border-color .2s;
+}
+.edit-input:focus{border-bottom-color:var(--ink)}
+.edit-input::placeholder{color:var(--mist)}
+.edit-date-row{display:flex;align-items:center;gap:8px}
+.edit-date-sep{color:var(--mist);font-size:12px;flex-shrink:0}
+.edit-btn-row{display:flex;gap:10px;margin-top:24px}
+.edit-save-btn{flex:1;height:52px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.edit-cancel-btn{height:52px;padding:0 20px;background:var(--surface);color:var(--ink);border:1px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer}
+
+/* ══════════════════════════════════════
+   Product modal (bottom sheet)
+   ══════════════════════════════════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:300;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{width:390px;background:var(--surface);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 20px 36px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--border-md);border-radius:2px;margin:0 auto 16px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
+.modal-close{width:32px;height:32px;border-radius:var(--r-sm);background:var(--surface-low);border:1px solid var(--border);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sub)}
+.form-group{margin-bottom:14px}
+.form-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
+.form-input{width:100%;padding:10px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);background:var(--surface-low);font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);outline:none;transition:border-color .2s}
+.form-input:focus{border-bottom-color:var(--ink)}
+.form-input::placeholder{color:var(--mist)}
+.category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
+.cat-btn{padding:10px 4px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface-low);text-align:center;cursor:pointer;transition:all .2s}
+.cat-btn .cat-icon{font-size:18px;display:block;margin-bottom:3px}
+.cat-btn .cat-name{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sub)}
+.cat-btn.selected{border-color:var(--ink);background:var(--surface)}
+.cat-btn.selected .cat-name{color:var(--ink)}
+.prod-img-area{height:72px;border:1.5px dashed var(--border-md);border-radius:var(--r-sm);cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--surface-low)}
+.prod-img-preview{position:absolute;inset:0;background-size:cover;background-position:center;display:none}
+.prod-img-placeholder{display:flex;gap:6px;align-items:center;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist)}
+.modal-btn-row{display:flex;gap:10px;margin-top:16px}
+.modal-del-btn{flex:0 0 auto;padding:13px 18px;background:var(--surface-low);color:var(--sub);border:1px solid var(--border);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;cursor:pointer;display:none}
+.modal-del-btn.show{display:block}
+.modal-add-btn{flex:1;padding:14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:opacity .2s}
+.modal-add-btn:active{opacity:.75}
+
+/* BOX search inside product modal */
+.box-search-area{border:1.5px solid var(--border);border-radius:var(--r-sm);overflow:hidden;background:var(--surface-low)}
+.box-search-inp{width:100%;padding:10px 12px;border:none;font-family:'Inter',sans-serif;font-size:13px;background:transparent;outline:none;color:var(--ink)}
+.box-search-inp::placeholder{color:var(--mist)}
+.box-search-results{max-height:150px;overflow-y:auto}
+.box-result-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--border);cursor:pointer;transition:background .15s}
+.box-result-row:hover{background:var(--surface-mid)}
+.box-result-row.selected{background:#f0f0f0}
+.box-result-img{width:34px;height:34px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px}
+.box-result-info{flex:1;min-width:0}
+.box-result-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.box-result-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px}
+.box-result-check{color:var(--ink);font-size:13px;font-weight:700;opacity:0;transition:opacity .15s}
+.box-result-row.selected .box-result-check{opacity:1}
+.box-divider{height:1px;background:var(--border);margin:14px 0 10px}
+
+/* ── Content Type Tabs ── */
+.ct-tabs{display:flex;border-bottom:1px solid var(--border);background:rgba(255,255,255,.94);backdrop-filter:blur(16px);position:sticky;top:49px;z-index:9}
+.ct-tab{flex:1;padding:11px 0 10px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--mist);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
+.ct-tab.active{color:var(--ink);border-bottom-color:var(--lime)}
+.ct-panel{display:none}
+.ct-panel.active{display:block}
+/* Baseline photo */
+.baseline-wrap{padding:20px 20px 0}
+.baseline-lbl{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:8px}
+.baseline-photo{height:130px;border:1.5px dashed var(--border-md);border-radius:var(--r-md);background:var(--surface-low);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;overflow:hidden;background-size:cover;background-position:center;position:relative;transition:border-color .2s}
+.baseline-photo.has-img{border-style:solid;border-color:var(--ink)}
+.baseline-photo-text{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
+.baseline-photo-edit{position:absolute;bottom:7px;right:9px;font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.9);background:rgba(0,0,0,.5);padding:3px 8px;border-radius:var(--r-sm);display:none}
+.baseline-photo.has-img .baseline-photo-edit{display:block}
+/* ok button */
+.ok-btn{width:100%;height:54px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;letter-spacing:.02em;cursor:pointer;transition:opacity .18s;display:block;margin-bottom:12px}
+.ok-btn:active{opacity:.8}
+/* Content panel hero */
+.ct-hero{padding:24px 20px 12px}
+.ct-hero-type{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:4px}
+.ct-hero-title{font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:800;color:var(--ink);line-height:.9;letter-spacing:-.02em;margin-bottom:8px}
+.ct-hero-sub{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);line-height:1.5}
+/* Content cards */
+.ct-list{padding:0 20px}
+.ct-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:12px;transition:border-color .2s}
+.ct-card.published{border-color:var(--ink)}
+.ct-card-body{padding:14px 16px 10px}
+.ct-card-hd{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.ct-card-emoji{font-size:20px;line-height:1;flex-shrink:0}
+.ct-card-name{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--ink);flex:1}
+.ct-card-badge{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:var(--r-sm);flex-shrink:0}
+.ct-card-badge.on{background:var(--ink);color:#fff}
+.ct-card-badge.off{background:var(--surface-mid);color:var(--mist)}
+.ct-card-desc{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);line-height:1.5;margin-bottom:10px}
+.ct-card-items{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;scrollbar-width:none}
+.ct-card-items::-webkit-scrollbar{display:none}
+.ct-card-item-wrap{flex-shrink:0;width:40px;text-align:center}
+.ct-card-item-img{width:40px;height:40px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:15px;overflow:hidden;margin-bottom:3px}
+.ct-card-item-nm{font-family:'Inter',sans-serif;font-size:8px;font-weight:600;color:var(--ink);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ct-card-dates{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.ct-date-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;background:var(--ink);color:#fff;padding:3px 8px;border-radius:var(--r-sm);letter-spacing:.04em}
+.ct-card-actions{padding:10px 16px 12px;border-top:1px solid var(--border);display:flex;gap:8px}
+.ct-card-ok-btn{flex:1;padding:10px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
+.ct-card-ok-btn:active{opacity:.75}
+.ct-card-edit-btn{padding:10px 14px;background:var(--surface-low);color:var(--sub);border:1px solid var(--border);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.ct-card-del-btn{padding:10px 12px;background:none;color:var(--mist);border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer;font-size:13px}
+.ct-add-wrap{padding:4px 20px 24px}
+.ct-add-btn{border:1.5px dashed var(--border-md);border-radius:var(--r-md);padding:16px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);transition:all .15s}
+.ct-add-btn:active{border-color:var(--ink);color:var(--ink)}
+/* Content Add Sheet */
+.ct-sheet-ov{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:120;opacity:0;pointer-events:none;transition:opacity .3s;display:flex;align-items:flex-end}
+.ct-sheet-ov.open{opacity:1;pointer-events:auto}
+.ct-sheet{background:#FFFFFF;border-radius:var(--r-xl) var(--r-xl) 0 0;width:100%;max-height:94%;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);scrollbar-width:none;padding-bottom:40px}
+.ct-sheet::-webkit-scrollbar{display:none}
+.ct-sheet-ov.open .ct-sheet{transform:translateY(0)}
+.ct-sheet-sticky{position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:1;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.ct-sheet-handle{width:32px;height:3px;background:var(--border-md);border-radius:2px;margin:14px auto 0}
+.ct-sheet-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 0}
+.ct-sheet-hd-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
+.ct-sheet-close{width:28px;height:28px;border-radius:var(--r-sm);background:var(--surface-mid);border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sub)}
+.ct-sheet-sec{padding:16px 20px 0}
+.ct-sheet-sec-lbl{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
+.ct-sheet-baseline{height:110px;border:1.5px dashed var(--border-md);border-radius:var(--r-md);background:var(--surface-low);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;overflow:hidden;background-size:cover;background-position:center;transition:all .2s}
+.ct-sheet-baseline.has-img{border-style:solid;border-color:var(--ink)}
+.ct-sheet-baseline-text{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
+.ct-name-row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.ct-emoji-inp{width:48px;height:44px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:20px;text-align:center;outline:none;background:var(--surface-low)}
+.ct-emoji-inp:focus{border-color:var(--ink)}
+.ct-name-inp{flex:1;height:44px;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:0 12px;font-family:'Space Grotesk',sans-serif;font-size:15px;color:var(--ink);outline:none;background:var(--surface)}
+.ct-name-inp:focus{border-color:var(--ink)}
+.ct-name-inp::placeholder{color:var(--mist)}
+.ct-desc-inp{width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);resize:none;height:60px;outline:none;background:var(--surface)}
+.ct-desc-inp:focus{border-color:var(--ink)}
+.ct-desc-inp::placeholder{color:var(--mist)}
+.ct-box-wrap{border:1.5px solid var(--border);border-radius:var(--r-sm);overflow:hidden;background:var(--surface-low);margin-bottom:10px}
+.ct-box-inp{width:100%;padding:9px 12px;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none}
+.ct-box-inp::placeholder{color:var(--mist)}
+.ct-box-results{max-height:130px;overflow-y:auto}
+.ct-box-row{display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid var(--border);cursor:pointer;transition:background .15s}
+.ct-box-row:active{background:var(--surface-mid)}
+.ct-box-img{width:30px;height:30px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden}
+.ct-box-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct-box-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist)}
+.ct-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ct-chip{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:5px 10px 5px 5px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--ink)}
+.ct-chip-img{width:20px;height:20px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:10px;overflow:hidden;flex-shrink:0}
+.ct-chip-del{font-size:10px;color:var(--mist);cursor:pointer;margin-left:2px}
+.ct-tpo-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.ct-tpo-chip{padding:7px 14px;border:1.5px solid var(--border);border-radius:var(--r-full);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--mist);cursor:pointer;transition:all .15s;background:var(--surface)}
+.ct-tpo-chip.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.ct-dates-wrap{display:flex;flex-wrap:wrap;gap:5px}
+.ct-date-del-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;background:var(--ink);color:#fff;padding:4px 9px;border-radius:var(--r-sm);cursor:pointer;letter-spacing:.04em}
+.ct-date-add-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;border:1.5px dashed var(--border-md);background:none;padding:4px 10px;border-radius:var(--r-sm);color:var(--mist);cursor:pointer;transition:all .15s}
+.ct-date-add-chip:active{border-color:var(--ink);color:var(--ink)}
+.ct-sheet-ok-wrap{padding:16px 20px 4px}
+.ct-sheet-ok{width:100%;height:52px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;cursor:pointer;transition:opacity .2s;letter-spacing:.02em}
+.ct-sheet-ok:active{opacity:.8}
+.ct-sheet-save{margin-top:8px;width:100%;height:42px;background:var(--surface);color:var(--sub);border:1px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer}
+/* Calendar for ct-sheet */
+.ct-cal-ov{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:135;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+.ct-cal-ov.open{opacity:1;pointer-events:auto}
+.ct-cal-inner{background:var(--surface);border-radius:var(--r-xl) var(--r-xl) 0 0;width:100%;padding:20px 16px 32px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.ct-cal-ov.open .ct-cal-inner{transform:translateY(0)}
+.ct-cal-handle{width:32px;height:3px;background:var(--border-md);border-radius:2px;margin:0 auto 16px}
+.ct-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ct-cal-month{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:400;color:var(--ink)}
+.ct-cal-arrow{background:none;border:none;font-size:18px;color:var(--mist);cursor:pointer;padding:4px 10px;line-height:1}
+.ct-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.ct-cal-hd{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);text-align:center;padding:4px 0 8px}
+.ct-cal-cell{height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);cursor:pointer;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.ct-cal-cell.empty{pointer-events:none}
+.ct-cal-cell.today{font-weight:700}
+.ct-cal-cell.selected{background:var(--ink);color:#fff;font-weight:700}
+.ct-cal-cell.past{color:var(--border-md)}
+.ct-cal-cell:not(.empty):not(.selected):active{background:var(--surface-low)}
+.ct-cal-done{width:100%;height:44px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:14px}
+
+/* Toast */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 24px;border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:500}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══ Setup Hub ══ */
+.hub-header{padding:28px 16px 20px;border-bottom:1px solid var(--border)}
+.hub-header-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:4px}
+.hub-header-title{font-family:'Space Grotesk',sans-serif;font-size:60px;font-weight:800;color:var(--ink);line-height:.9;letter-spacing:-.02em;margin-bottom:4px}
+.hub-header-title::after{content:'';display:block;width:40px;height:4px;background:var(--lime);border-radius:2px;margin-top:8px}
+.hub-header-sub{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);margin-top:14px;line-height:1.6}
+/* Hub grid (2-col masonry) */
+.hub-grid-wrap{padding:24px 16px 8px;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.hub-col{display:flex;flex-direction:column;gap:12px}
+.hub-col-right{padding-top:64px}
+.hub-gc{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;background:#FFFFFF;box-shadow:var(--shadow);transition:transform .15s}
+.hub-gc:active{transform:scale(.97)}
+.hub-gc-img{width:100%;aspect-ratio:1/1;background:var(--surface-low)}
+.hub-gc-body{padding:10px 12px 0}
+.hub-gc-badge{display:inline-block;font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;background:var(--lime);color:var(--ink);padding:3px 8px;border-radius:4px;margin-bottom:7px;text-transform:uppercase}
+.hub-gc-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:800;color:var(--ink);line-height:1.2;margin-bottom:3px;letter-spacing:-.01em}
+.hub-gc-sub{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);padding-bottom:10px}
+.hub-gc-cta{border-top:1px solid var(--border);padding:10px 12px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--ink)}
+/* Hub count badge (legacy support) */
+.hub-card-count{display:none}
+/* Editorial quote */
+.setup-quote{padding:32px 20px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.setup-quote-text{font-family:'Georgia',serif;font-size:20px;font-style:italic;color:var(--ink);line-height:1.55;margin-bottom:16px}
+.setup-quote-attr{display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist)}
+.setup-quote-attr::before{content:'';display:block;width:28px;height:1px;background:var(--mist)}
+/* System utilities */
+.sys-utils{padding:24px 20px 32px}
+.sys-utils-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--mist);margin-bottom:16px}
+.sys-util-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.sys-util-row:last-child{border-bottom:none}
+.sys-util-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.sys-util-icon{font-size:16px;color:var(--mist)}
+
+/* ══ Setup Sub-Panels ══ */
+.setup-panel{position:absolute;inset:0;z-index:50;background:#FFFFFF;transform:translateX(100%);transition:transform .36s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.setup-panel.open{transform:translateX(0)}
+.panel-appbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-shrink:0}
+.panel-back{background:none;border:none;cursor:pointer;font-size:20px;font-weight:600;color:var(--ink);padding:0;line-height:1;display:flex;align-items:center}
+.panel-appbar-center{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink)}
+.panel-appbar-action{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);background:none;border:none;cursor:pointer;padding:0}
+.panel-body{flex:1;overflow-y:auto;scrollbar-width:none}
+.panel-body::-webkit-scrollbar{display:none}
+.panel-bnav{background:#0A0A0A;border-top:none;display:flex;padding:10px 0 20px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div class="notch-bar"></div></div>
+  <div class="scroll" id="main-scroll">
+
+    <!-- AppBar -->
+    <div class="appbar">
+      <div style="cursor:pointer;color:var(--ink);display:flex;align-items:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </div>
+      <div class="appbar-center">OnStep</div>
+      <div id="auth-avatar" style="width:32px;height:32px;border-radius:9999px;background:var(--surface-mid);border:1.5px solid var(--border);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg></div>
+    </div>
+
+    <!-- Hub Header -->
+    <div class="hub-header">
+      <div class="hub-header-label">CONFIGURATION</div>
+      <div class="hub-header-title">Setup</div>
+      <div class="hub-header-sub">Meticulous configuration for the high-performance life. Align your routine with strategic intent.</div>
+    </div>
+
+    <!-- Hub grid (2-col masonry) -->
+    <div class="hub-grid-wrap">
+      <!-- Left column -->
+      <div class="hub-col">
+        <div class="hub-gc" onclick="openSetupPanel('routine')">
+          <div class="hub-gc-img"></div>
+          <div class="hub-gc-body">
+            <div class="hub-gc-badge">#SESSION</div>
+            <div class="hub-gc-title">ROUTINE SETUP</div>
+            <div class="hub-gc-sub">DAILY CALIBRATIONS</div>
+          </div>
+          <div class="hub-gc-cta">View Steps →</div>
+        </div>
+        <div class="hub-gc" onclick="openSetupPanel('look')">
+          <div class="hub-gc-img"></div>
+          <div class="hub-gc-body">
+            <div class="hub-gc-badge">#LOOKBOOK</div>
+            <div class="hub-gc-title">PLANNING</div>
+            <div class="hub-gc-sub">QUARTERLY VISION</div>
+          </div>
+          <div class="hub-gc-cta">Curate Days →</div>
+        </div>
+      </div>
+      <!-- Right column (offset) -->
+      <div class="hub-col hub-col-right">
+        <div class="hub-gc" onclick="openSetupPanel('makeup')">
+          <div class="hub-gc-img"></div>
+          <div class="hub-gc-body">
+            <div class="hub-gc-badge">#MAKEUP</div>
+            <div class="hub-gc-title">STRATEGY</div>
+            <div class="hub-gc-sub">IDENTITY FRAMEWORK</div>
+          </div>
+          <div class="hub-gc-cta">Reconstruct →</div>
+        </div>
+        <div class="hub-gc" onclick="openSetupPanel('care')">
+          <div class="hub-gc-img"></div>
+          <div class="hub-gc-body">
+            <div class="hub-gc-badge">#INTENSIVE CARE</div>
+            <div class="hub-gc-title">SPECIAL CARE</div>
+            <div class="hub-gc-sub">CRITICAL SYSTEMS</div>
+          </div>
+          <div class="hub-gc-cta">Intervene →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAB -->
+    <div style="display:flex;justify-content:flex-end;padding:4px 20px 8px">
+      <button onclick="openSetupPanel('routine')" style="width:52px;height:52px;border-radius:9999px;background:var(--lime);color:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(197,255,0,.4)">⚙</button>
+    </div>
+
+    <!-- Editorial quote -->
+    <div class="setup-quote">
+      <div class="setup-quote-text">"Strategic planning is not about future decisions, but about the future of current decisions. The curator must select with precision to build a gallery worth living."</div>
+      <div class="setup-quote-attr">THE CURATOR'S NOTE V.2.4</div>
+    </div>
+
+    <!-- System utilities -->
+    <div class="sys-utils">
+      <div class="sys-utils-label">SYSTEM UTILITIES</div>
+      <div class="sys-util-row" onclick="if(confirm('모든 데이터를 초기화하시겠습니까?')){localStorage.clear();location.reload()}">
+        <span class="sys-util-name">GLOBAL RESET</span>
+        <span class="sys-util-icon">↺</span>
+      </div>
+      <div class="sys-util-row" onclick="exportData()">
+        <span class="sys-util-name">DATA EXPORT</span>
+        <span class="sys-util-icon">⊡</span>
+      </div>
+      <div class="sys-util-row">
+        <span class="sys-util-name">PRIVACY LOCK</span>
+        <span class="sys-util-icon">🔒</span>
+      </div>
+    </div>
+
+    <!-- Legacy hub-count holders (hidden) -->
+    <span id="hub-count-routine" style="display:none"></span>
+    <span id="hub-count-care" style="display:none"></span>
+    <span id="hub-count-makeup" style="display:none"></span>
+    <span id="hub-count-look" style="display:none"></span>
+
+    <!-- Bottom nav -->
+    <div class="bottom-nav">
+      <a class="nav-item" href="today.html">
+        <div class="nav-icon">◎</div><div class="nav-label">Today</div>
+      </a>
+      <a class="nav-item" href="log.html">
+        <div class="nav-icon">◈</div><div class="nav-label">Log</div>
+      </a>
+      <a class="nav-item" href="box.html">
+        <div class="nav-icon">◫</div><div class="nav-label">Box</div>
+      </a>
+      <a class="nav-item active" href="setup.html">
+        <div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div>
+      </a>
+    </div>
+  </div><!-- /scroll -->
+
+  <!-- ══ SUB-PANEL: ROUTINE ══ -->
+  <div class="setup-panel" id="setup-panel-routine">
+    <div class="panel-appbar">
+      <button class="panel-back" onclick="closeSetupPanel()" style="font-size:18px;font-weight:400">✕</button>
+      <div style="background:var(--lime);color:var(--ink);font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:var(--r-full)">EDIT MODE</div>
+      <button class="panel-appbar-action" onclick="openEditSheet()">SAVE</button>
+    </div>
+    <div class="panel-body" id="routine-panel-body">
+
+      <!-- Session Hero -->
+      <div class="routine-hero">
+        <div style="position:absolute;top:18px;right:18px;font-size:36px;opacity:.08;transform:rotate(15deg);line-height:1">✦</div>
+        <div style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px">CURRENT SESSION</div>
+        <div class="session-title" id="session-title-display">12TH SESSION</div>
+        <div style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-top:12px;margin-bottom:2px">INTERVAL</div>
+        <div class="session-period" id="session-period-display"></div>
+      </div>
+      <input type="file" id="baseline-input" accept="image/*" style="display:none" onchange="onBaselineFile(this)">
+
+      <!-- Morning Routine Section -->
+      <div class="routine-section">
+        <div class="rs-hd">
+          <div class="rs-hd-left"><span class="rs-name">MORNING</span></div>
+          <span class="rs-badge">A.M. ROUTINE</span>
+        </div>
+        <div class="step-tabs">
+          <button class="step-tab active" id="mstep-1" onclick="pickStep('morning',1)">STEP 1</button>
+          <button class="step-tab" id="mstep-2" onclick="pickStep('morning',2)">STEP 2</button>
+        </div>
+        <div class="time-section" onclick="pickTime('morning')">
+          <span style="font-size:14px">⏰</span>
+          <div class="time-big">
+            <span class="time-value" id="morning-time-display">08:00</span>
+            <span class="time-ampm" id="morning-time-ampm">AM</span>
+          </div>
+          <input type="time" id="morning-time" value="08:00"
+            style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
+            onchange="updateTimeDisplay('morning',this.value)">
+        </div>
+        <div class="prod-scroll-strip" id="morning-grid"></div>
+        <button class="prod-list-toggle" id="morning-list-toggle" onclick="toggleProdList('morning')">
+          LIST <span class="prod-list-count-badge" id="morning-list-count">0</span>
+          <span class="prod-list-toggle-arrow">▾</span>
+        </button>
+        <div class="prod-list-dropdown" id="morning-list-dropdown">
+          <div class="prod-list-inner" id="morning-list-inner"></div>
+        </div>
+        <div class="routine-inputs">
+          <div>
+            <label class="routine-input-label">ROUTINE DESCRIPTION</label>
+            <textarea class="routine-input-field" rows="3" placeholder="Describe your morning routine focus and intent..."></textarea>
+          </div>
+          <div>
+            <label class="routine-input-label">EXECUTION TIPS</label>
+            <textarea class="routine-input-field" rows="3" placeholder="Key techniques, timing, and application notes..."></textarea>
+          </div>
+        </div>
+        <div class="tip-card">
+          <div class="tip-card-hd">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            EXPERT TIP
+          </div>
+          <textarea class="tip-card-input" id="morning-tip" rows="2"
+            placeholder="Apply the toner while the skin is still slightly damp for maximum hydration absorption."
+            oninput="updateRoutineTip('morning',this.value)"></textarea>
+        </div>
+      </div>
+
+      <!-- Night Routine Section -->
+      <div class="routine-section">
+        <div class="rs-hd">
+          <div class="rs-hd-left"><span class="rs-name">NIGHT</span></div>
+          <span class="rs-badge">P.M. ROUTINE</span>
+        </div>
+        <div class="step-tabs">
+          <button class="step-tab active" id="nstep-1" onclick="pickStep('nightly',1)">STEP 1</button>
+          <button class="step-tab" id="nstep-2" onclick="pickStep('nightly',2)">STEP 2</button>
+        </div>
+        <div class="time-section" onclick="pickTime('nightly')">
+          <span style="font-size:14px">🌙</span>
+          <div class="time-big">
+            <span class="time-value" id="nightly-time-display">10:00</span>
+            <span class="time-ampm" id="nightly-time-ampm">PM</span>
+          </div>
+          <input type="time" id="nightly-time" value="22:00"
+            style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
+            onchange="updateTimeDisplay('nightly',this.value)">
+        </div>
+        <div class="prod-scroll-strip" id="nightly-grid"></div>
+        <button class="prod-list-toggle" id="nightly-list-toggle" onclick="toggleProdList('nightly')">
+          LIST <span class="prod-list-count-badge" id="nightly-list-count">0</span>
+          <span class="prod-list-toggle-arrow">▾</span>
+        </button>
+        <div class="prod-list-dropdown" id="nightly-list-dropdown">
+          <div class="prod-list-inner" id="nightly-list-inner"></div>
+        </div>
+        <div id="nightly-empty" class="empty-state-wrap">
+          <div class="empty-state-text">No products assigned.<br>Configure your night routine steps.</div>
+          <button class="empty-configure-btn" onclick="openModal('nightly')">CONFIGURE</button>
+        </div>
+        <div class="page-dots" id="nightly-dots"></div>
+        <div class="tip-card" id="nightly-tip-card">
+          <div class="tip-card-hd">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            EXPERT TIP
+          </div>
+          <textarea class="tip-card-input" id="nightly-tip" rows="2"
+            placeholder="Double cleansing is essential at night to remove pollutants and SPF effectively."
+            oninput="updateRoutineTip('nightly',this.value)"></textarea>
+        </div>
+      </div>
+
+      <!-- Hidden: publish/draft (accessible via SAVE in appbar) -->
+      <div style="display:none">
+        <button id="publish-btn" onclick="activateContent('routine')"></button>
+      </div>
+
+      <!-- Session Before Photo -->
+      <div style="padding:24px 16px 8px">
+        <div class="before-photo-label">SESSION BEFORE PHOTO</div>
+        <label class="before-photo-area" id="session-before-area" for="session-before-input">
+          <div class="before-photo-preview" id="session-before-preview"></div>
+          <span class="before-photo-icon">📷</span>
+          <span class="before-photo-hint">Add Before Photo</span>
+          <span class="before-photo-badge">CHANGE</span>
+        </label>
+        <input type="file" id="session-before-input" accept="image/*" style="display:none"
+          onchange="onBeforePhoto('session',this)">
+      </div>
+
+      <!-- History -->
+      <div class="history-section">
+        <div class="history-label-wrap">PREVIOUS SESSIONS<br>ARCHIVE</div>
+        <div id="history-list"></div>
+      </div>
+
+    </div><!-- /panel-body -->
+    <div class="panel-bnav">
+      <a class="nav-item" href="today.html">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        </div>
+        <div class="nav-label">HOME</div>
+      </a>
+      <a class="nav-item active" href="setup.html">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        </div>
+        <div class="nav-label">ROUTINES</div>
+      </a>
+      <a class="nav-item" href="log.html">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        </div>
+        <div class="nav-label">LIBRARY</div>
+      </a>
+      <a class="nav-item" href="#">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
+        </div>
+        <div class="nav-label">PROFILE</div>
+      </a>
+    </div>
+  </div><!-- /setup-panel-routine -->
+
+  <!-- ══ SUB-PANEL: 집중케어 ══ -->
+  <div class="setup-panel" id="setup-panel-care">
+    <div class="panel-appbar">
+      <button class="panel-back" onclick="closeSetupPanel()">←</button>
+      <div class="panel-appbar-center">집중케어</div>
+      <div style="width:28px"></div>
+    </div>
+    <div class="panel-body">
+      <div class="ct-hero">
+        <div class="ct-hero-type">INTENSIVE CARE</div>
+        <div class="ct-hero-title">집중케어</div>
+        <div class="ct-hero-sub">케어 프로그램 설계 · BOX 뷰티 제품 매핑 · 기간 & 스케줄 설정</div>
+      </div>
+      <div class="ct-list" id="setup-care-list"></div>
+      <div class="ct-add-wrap">
+        <div class="ct-add-btn" onclick="openCtSheet('care')">
+          <span style="font-size:16px;line-height:1">+</span> 새 집중케어 설계
+        </div>
+      </div>
+    </div>
+    <div class="panel-bnav">
+      <a class="nav-item" href="today.html"><div class="nav-icon">◎</div><div class="nav-label">Today</div></a>
+      <a class="nav-item" href="log.html"><div class="nav-icon">◈</div><div class="nav-label">Log</div></a>
+      <a class="nav-item" href="box.html"><div class="nav-icon">◫</div><div class="nav-label">Box</div></a>
+      <a class="nav-item active" href="setup.html"><div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div></a>
+    </div>
+  </div><!-- /setup-panel-care -->
+
+  <!-- ══ SUB-PANEL: 메이크업북 ══ -->
+  <div class="setup-panel" id="setup-panel-makeup">
+    <div class="panel-appbar">
+      <button class="panel-back" onclick="closeSetupPanel()">←</button>
+      <div class="panel-appbar-center">메이크업북</div>
+      <div style="width:28px"></div>
+    </div>
+    <div class="panel-body">
+      <div class="ct-hero">
+        <div class="ct-hero-type">BEAUTY</div>
+        <div class="ct-hero-title">메이크업북</div>
+        <div class="ct-hero-sub">테마별 화장법 설계 · BOX 뷰티 제품 매핑 · Today 스케줄 연동</div>
+      </div>
+      <div class="ct-list" id="setup-mkp-list"></div>
+      <div class="ct-add-wrap">
+        <div class="ct-add-btn" onclick="openCtSheet('makeup')">
+          <span style="font-size:16px;line-height:1">+</span> 새 메이크업 테마 설계
+        </div>
+      </div>
+    </div>
+    <div class="panel-bnav">
+      <a class="nav-item" href="today.html"><div class="nav-icon">◎</div><div class="nav-label">Today</div></a>
+      <a class="nav-item" href="log.html"><div class="nav-icon">◈</div><div class="nav-label">Log</div></a>
+      <a class="nav-item" href="box.html"><div class="nav-icon">◫</div><div class="nav-label">Box</div></a>
+      <a class="nav-item active" href="setup.html"><div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div></a>
+    </div>
+  </div><!-- /setup-panel-makeup -->
+
+  <!-- ══ SUB-PANEL: 룩북 ══ -->
+  <div class="setup-panel" id="setup-panel-look">
+    <div class="panel-appbar">
+      <button class="panel-back" onclick="closeSetupPanel()">←</button>
+      <div class="panel-appbar-center">룩북</div>
+      <div style="width:28px"></div>
+    </div>
+    <div class="panel-body">
+      <div class="ct-hero">
+        <div class="ct-hero-type">FASHION</div>
+        <div class="ct-hero-title">룩북</div>
+        <div class="ct-hero-sub">T.P.O 기반 코디 설계 · BOX 패션·액세서리 매핑 · Today OOTD 연동</div>
+      </div>
+      <div class="ct-list" id="setup-look-list"></div>
+      <div class="ct-add-wrap">
+        <div class="ct-add-btn" onclick="openCtSheet('look')">
+          <span style="font-size:16px;line-height:1">+</span> 새 룩 설계
+        </div>
+      </div>
+    </div>
+    <div class="panel-bnav">
+      <a class="nav-item" href="today.html"><div class="nav-icon">◎</div><div class="nav-label">Today</div></a>
+      <a class="nav-item" href="log.html"><div class="nav-icon">◈</div><div class="nav-label">Log</div></a>
+      <a class="nav-item" href="box.html"><div class="nav-icon">◫</div><div class="nav-label">Box</div></a>
+      <a class="nav-item active" href="setup.html"><div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div></a>
+    </div>
+  </div><!-- /setup-panel-look -->
+
+  <!-- SESSION ARCHIVE Overlay -->
+  <div class="archive-overlay" id="archive-overlay">
+    <div class="archive-appbar">
+      <div class="appbar-menu" onclick="closeArchive()" style="cursor:pointer">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="archive-appbar-center">SESSION ARCHIVE</div>
+      <div id="archive-avatar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
+      </div>
+    </div>
+    <div class="archive-body">
+      <div class="archive-section-hd">
+        <div class="archive-hd-label">IN-DEPTH MANAGEMENT</div>
+        <div class="archive-hd-title">회차 일정 관리</div>
+        <div class="archive-hd-line"></div>
+      </div>
+      <div class="ae-wrap" id="archive-entries"></div>
+    </div>
+    <div class="archive-new-btn-wrap">
+      <button class="archive-new-btn" onclick="startNewSession()">새 세션 시작하기</button>
+    </div>
+    <div class="archive-bottom-nav">
+      <div class="nav-item active" onclick="closeArchive()">
+        <div class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        </div>
+        <div class="nav-label">ARCHIVE</div>
+      </div>
+      <div class="nav-item" onclick="closeArchive()">
+        <div class="nav-icon">✦</div><div class="nav-label">ROUTINE</div>
+      </div>
+      <a class="nav-item" href="log.html">
+        <div class="nav-icon">◌</div><div class="nav-label">SKIN</div>
+      </a>
+      <div class="nav-item">
+        <div class="nav-icon">◈</div><div class="nav-label">PROFILE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Content Add Sheet (makeup / look) ── -->
+  <div class="ct-sheet-ov" id="ct-sheet-ov" onclick="if(event.target===this)closeCtSheet()">
+    <div class="ct-sheet" id="ct-sheet">
+      <div class="ct-sheet-sticky">
+        <div class="ct-sheet-handle"></div>
+        <div class="ct-sheet-hd">
+          <div class="ct-sheet-hd-title" id="ct-sheet-title">메이크업 테마 설계</div>
+          <button class="ct-sheet-close" onclick="closeCtSheet()">✕</button>
+        </div>
+      </div>
+      <div class="ct-sheet-sec">
+        <span class="ct-sheet-sec-lbl">BASELINE 레퍼런스</span>
+        <div class="ct-sheet-baseline" id="ct-sheet-baseline" onclick="pickCtBaseline()">
+          <span style="font-size:22px;opacity:.25">📷</span>
+          <span class="ct-sheet-baseline-text">레퍼런스 사진 추가</span>
+        </div>
+        <input type="file" id="ct-baseline-input" accept="image/*" style="display:none" onchange="onCtBaselineFile(this)">
+      </div>
+      <div class="ct-sheet-sec">
+        <span class="ct-sheet-sec-lbl">제목</span>
+        <div class="ct-name-row">
+          <input class="ct-emoji-inp" id="ct-emoji" type="text" placeholder="✨" maxlength="2">
+          <input class="ct-name-inp" id="ct-name" type="text" placeholder="테마 이름">
+        </div>
+        <textarea class="ct-desc-inp" id="ct-desc" rows="2" placeholder="간단한 설명 (선택)..."></textarea>
+      </div>
+      <div class="ct-sheet-sec">
+        <span class="ct-sheet-sec-lbl" id="ct-items-lbl">아이템 매핑 (BOX)</span>
+        <div class="ct-box-wrap">
+          <input class="ct-box-inp" id="ct-box-inp" type="text" placeholder="제품명·브랜드 검색..."
+            oninput="renderCtBoxResults(this.value)" onfocus="renderCtBoxResults(this.value)">
+          <div id="ct-box-results"></div>
+        </div>
+        <div class="ct-chips" id="ct-selected-chips"></div>
+      </div>
+      <div class="ct-sheet-sec" id="ct-tpo-sec" style="display:none">
+        <span class="ct-sheet-sec-lbl">T.P.O</span>
+        <div class="ct-tpo-wrap">
+          <div class="ct-tpo-chip" onclick="toggleTpo(this,'daily')">Daily</div>
+          <div class="ct-tpo-chip" onclick="toggleTpo(this,'work')">Work</div>
+          <div class="ct-tpo-chip" onclick="toggleTpo(this,'date')">Date</div>
+          <div class="ct-tpo-chip" onclick="toggleTpo(this,'party')">Party</div>
+          <div class="ct-tpo-chip" onclick="toggleTpo(this,'sport')">Sport</div>
+          <div class="ct-tpo-chip" onclick="toggleTpo(this,'casual')">Casual</div>
+          <div class="ct-tpo-chip" onclick="toggleTpo(this,'formal')">Formal</div>
+          <div class="ct-tpo-chip" onclick="toggleTpo(this,'travel')">Travel</div>
+        </div>
+      </div>
+      <div class="ct-sheet-sec">
+        <span class="ct-sheet-sec-lbl">예정 날짜</span>
+        <div class="ct-dates-wrap" id="ct-dates-wrap">
+          <button class="ct-date-add-chip" onclick="openCtCal()">+ 날짜 추가</button>
+        </div>
+      </div>
+      <div class="ct-sheet-ok-wrap">
+        <button class="ct-sheet-ok" onclick="saveCtContent()">ok →</button>
+        <button class="ct-sheet-save" onclick="saveCtDraft()">임시저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Calendar for ct-sheet ── -->
+  <div class="ct-cal-ov" id="ct-cal-ov" onclick="if(event.target===this)closeCtCal()">
+    <div class="ct-cal-inner">
+      <div class="ct-cal-handle"></div>
+      <div class="ct-cal-nav">
+        <button class="ct-cal-arrow" onclick="ctCalNav(-1)">‹</button>
+        <div class="ct-cal-month" id="ct-cal-title"></div>
+        <button class="ct-cal-arrow" onclick="ctCalNav(1)">›</button>
+      </div>
+      <div class="ct-cal-grid" id="ct-cal-grid"></div>
+      <button class="ct-cal-done" onclick="closeCtCal()">완료</button>
+    </div>
+  </div>
+
+  <!-- ── mkp-cal-overlay (집중케어 makeup theme dates) ── -->
+  <div class="mkp-cal-overlay" id="mkp-cal-overlay" onclick="if(event.target===this)closeDatePicker()">
+    <div class="mkp-cal-inner">
+      <div class="mkp-cal-handle"></div>
+      <div class="mkp-cal-nav">
+        <button class="mkp-cal-arrow" onclick="calNavMonth(-1)">‹</button>
+        <div class="mkp-cal-month" id="mkp-cal-title"></div>
+        <button class="mkp-cal-arrow" onclick="calNavMonth(1)">›</button>
+      </div>
+      <div class="mkp-cal-grid" id="mkp-cal-grid"></div>
+      <button class="mkp-cal-done" onclick="closeDatePicker()">완료</button>
+    </div>
+  </div>
+
+  <!-- Edit Session Sheet -->
+  <div class="edit-overlay" id="edit-overlay" onclick="if(event.target===this)closeEditSheet()"></div>
+  <div class="edit-sheet" id="edit-sheet">
+    <div class="edit-handle"></div>
+    <div class="edit-title" id="edit-sheet-title">Session 설정</div>
+    <div class="edit-field-group">
+      <label class="edit-field-label">SESSION #</label>
+      <input class="edit-input" id="edit-session-num" type="number" min="1" max="99" placeholder="회차 번호">
+    </div>
+    <div class="edit-field-group">
+      <label class="edit-field-label">PERIOD</label>
+      <div class="edit-date-row">
+        <input class="edit-input" id="edit-period-start" type="date" style="flex:1">
+        <span class="edit-date-sep">—</span>
+        <input class="edit-input" id="edit-period-end" type="date" style="flex:1">
+      </div>
+    </div>
+    <div class="edit-btn-row">
+      <button class="edit-save-btn" onclick="saveEditSheet()">SAVE</button>
+      <button class="edit-cancel-btn" onclick="closeEditSheet()">Cancel</button>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<!-- Product modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">제품 추가</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <div class="form-label">BOX에서 가져오기 <span style="color:var(--mist);font-size:9px;font-weight:400;letter-spacing:0">(선택 시 자동 채움)</span></div>
+      <div class="box-search-area">
+        <input class="box-search-inp" type="text" id="box-search-inp" placeholder="제품명·브랜드 검색..." oninput="renderBoxSearchResults(this.value)" onfocus="renderBoxSearchResults(this.value)">
+        <div id="box-search-results"></div>
+      </div>
+    </div>
+    <div class="box-divider"></div>
+    <div class="form-group">
+      <div class="form-label">카테고리</div>
+      <div class="category-grid" id="category-grid">
+        <button class="cat-btn selected" data-cat="toner"   onclick="selectCat(this)"><span class="cat-icon">💧</span><span class="cat-name">TONER</span></button>
+        <button class="cat-btn" data-cat="serum"   onclick="selectCat(this)"><span class="cat-icon">🔬</span><span class="cat-name">SERUM</span></button>
+        <button class="cat-btn" data-cat="ampoule" onclick="selectCat(this)"><span class="cat-icon">🧪</span><span class="cat-name">AMPOULE</span></button>
+        <button class="cat-btn" data-cat="booster" onclick="selectCat(this)"><span class="cat-icon">⚡</span><span class="cat-name">BOOSTER</span></button>
+        <button class="cat-btn" data-cat="cream"   onclick="selectCat(this)"><span class="cat-icon">🫙</span><span class="cat-name">CREAM</span></button>
+        <button class="cat-btn" data-cat="pack"    onclick="selectCat(this)"><span class="cat-icon">🎭</span><span class="cat-name">PACK</span></button>
+        <button class="cat-btn" data-cat="mist"    onclick="selectCat(this)"><span class="cat-icon">🌫️</span><span class="cat-name">MIST</span></button>
+        <button class="cat-btn" data-cat="etc"     onclick="selectCat(this)"><span class="cat-icon">✨</span><span class="cat-name">ETC</span></button>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">제품 이미지 <span style="color:var(--mist);font-size:9px;font-weight:400;letter-spacing:0">(선택)</span></div>
+      <label class="prod-img-area" for="prod-img-input">
+        <div id="prod-img-preview" class="prod-img-preview"></div>
+        <div class="prod-img-placeholder" id="prod-img-placeholder"><span>📷</span><span style="margin-left:6px">이미지 추가</span></div>
+      </label>
+      <input type="file" id="prod-img-input" accept="image/*" style="display:none" onchange="previewProdImg(this)">
+    </div>
+    <div class="form-group">
+      <div class="form-label">제품명 *</div>
+      <input class="form-input" id="product-name" type="text" placeholder="예) Essential Water">
+    </div>
+    <div class="form-group">
+      <div class="form-label">브랜드</div>
+      <input class="form-input" id="product-brand" type="text" placeholder="브랜드명">
+    </div>
+    <div class="modal-btn-row">
+      <button class="modal-del-btn" id="modal-del-btn" onclick="deleteProduct()">삭제</button>
+      <button class="modal-add-btn" id="modal-confirm-btn" onclick="confirmProduct()">추가하기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Firebase ──────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:"AIzaSyBdKnyU8t0XrQsT_EhKS2nk9zOKwjxoquk",
+  authDomain:"onstep-lifeos.firebaseapp.com",
+  projectId:"onstep-lifeos",
+  storageBucket:"onstep-lifeos.firebasestorage.app",
+  messagingSenderId:"333501649998",
+  appId:"1:333501649998:web:4eebd8b84a32ea8a581f1f"
+});
+const fbAuth = firebase.auth();
+const fbDb   = firebase.firestore();
+let currentUser = null;
+
+firebase.auth().onAuthStateChanged(user => {
+  currentUser = user;
+  updateArchiveAvatar(user);
+  if (user) loadFromCloud(user.uid);
+});
+
+function updateArchiveAvatar(user) {
+  const el = document.getElementById('archive-avatar');
+  if (!el) return;
+  if (user) {
+    el.style.background = '#0C1014';
+    el.innerHTML = user.photoURL
+      ? `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover">`
+      : `<span style="font-size:11px;color:#fff;font-weight:700">${(user.displayName||user.email||'?')[0].toUpperCase()}</span>`;
+  }
+}
+
+async function loadFromCloud(uid) {
+  try {
+    const snap = await fbDb.collection('users').doc(uid).collection('careplan').doc('data').get();
+    if (!snap.exists) return;
+    applyPlanData(snap.data());
+  } catch(e) { console.warn('Cloud load:', e); }
+}
+
+async function saveToCloud(plan) {
+  if (!currentUser) return;
+  try {
+    await fbDb.collection('users').doc(currentUser.uid).collection('careplan').doc('data').set(plan);
+  } catch(e) { console.warn('Cloud save:', e); }
+}
+
+// ── Constants ─────────────────────────────────────────────────
+const DB_KEY = 'onstep_care_plan';
+const MAX = 20;
+const CAT = {
+  toner:   {icon:'💧', label:'토너'},
+  serum:   {icon:'🔬', label:'세럼'},
+  ampoule: {icon:'🧪', label:'앰플'},
+  booster: {icon:'⚡', label:'부스터'},
+  cream:   {icon:'🫙', label:'크림'},
+  pack:    {icon:'🎭', label:'팩'},
+  mist:    {icon:'🌫️', label:'미스트'},
+  etc:     {icon:'✨', label:'기타'},
+};
+
+// ── State ─────────────────────────────────────────────────────
+// ── Real product sample data (5 per routine) ──────────────────
+const SAMPLE_MORNING_S1 = [
+  { id:1001, catKey:'toner',   name:'AHA/BHA Clarifying Toner',    brand:'COSRX',       icon:'💧', imgData:null },
+  { id:1002, catKey:'serum',   name:'No.3 Super Glowy Serum',       brand:'Numbuzin',    icon:'🔬', imgData:null },
+  { id:1003, catKey:'ampoule', name:'First Treatment Essence EX',   brand:'MISSHA',      icon:'🧪', imgData:null },
+  { id:1004, catKey:'cream',   name:'Water Sleeping Mask',          brand:'LANEIGE',     icon:'🫙', imgData:null },
+  { id:1005, catKey:'mist',    name:'Dewy Mist',                    brand:'Tatcha',      icon:'🌫️', imgData:null },
+];
+const SAMPLE_MORNING_S2 = [
+  { id:1011, catKey:'booster', name:'Enriched Firming Serum',       brand:'Sulwhasoo',   icon:'⚡', imgData:null },
+  { id:1012, catKey:'serum',   name:'Retinol Active Serum',         brand:'IOPE',        icon:'🔬', imgData:null },
+  { id:1013, catKey:'cream',   name:'Cicapair Tiger Grass Cream',   brand:'Dr.Jart+',    icon:'🫙', imgData:null },
+];
+const SAMPLE_NIGHTLY = [
+  { id:2001, catKey:'pack',    name:'Clean It Zero Original',       brand:'Banila Co',   icon:'🎭', imgData:null },
+  { id:2002, catKey:'toner',   name:'Birch Juice Moisturizing Toner', brand:'Round Lab', icon:'💧', imgData:null },
+  { id:2003, catKey:'serum',   name:'Propolis Synergy Serum',       brand:'By Wishtrend', icon:'🔬', imgData:null },
+  { id:2004, catKey:'cream',   name:'Hydra Plump Sleeping Cream',   brand:'BELIF',       icon:'🫙', imgData:null },
+  { id:2005, catKey:'ampoule', name:'Retinol Eye Cream',            brand:'RoC',         icon:'🧪', imgData:null },
+];
+const SAMPLE_MAKEUP_THEMES = [
+  {
+    id:1, name:'Daily Glow', emoji:'✨',
+    description:'Natural dewy finish perfect for everyday wear.',
+    products:[
+      {id:1,step:'Base',  name:'Skin Tint SPF30',               brand:'ILIA Beauty',    icon:'◎',imgData:null},
+      {id:2,step:'Cheek', name:'Soft Pinch Liquid Blush',        brand:'RARE BEAUTY',    icon:'◌',imgData:null},
+      {id:3,step:'Eye',   name:'Gimme Brow+ Gel',                brand:'Benefit',        icon:'▸',imgData:null},
+      {id:4,step:'Lip',   name:'Lip Glow Oil',                   brand:'Dior',           icon:'◈',imgData:null},
+      {id:5,step:'Finish',name:'All Nighter Setting Spray',      brand:'Urban Decay',    icon:'✦',imgData:null}
+    ],
+    scheduledDates:['2026-04-29','2026-05-01','2026-05-06','2026-05-08']
+  },
+  {
+    id:2, name:'Sleek & Sharp', emoji:'🖤',
+    description:'Polished editorial look for days you want to command the room.',
+    products:[
+      {id:1,step:'Base',  name:'Luminous Silk Foundation',       brand:'Giorgio Armani', icon:'◎',imgData:null},
+      {id:2,step:'Eye',   name:'Naked3 Palette',                 brand:'Urban Decay',    icon:'▪',imgData:null},
+      {id:3,step:'Liner', name:'Calligraphie Liner',             brand:'Lancôme',        icon:'▸',imgData:null},
+      {id:4,step:'Lip',   name:'Matte Revolution Lipstick',      brand:'Charlotte Tilbury',icon:'◈',imgData:null}
+    ],
+    scheduledDates:['2026-04-30','2026-05-02','2026-05-07']
+  },
+  {
+    id:3, name:'Office Minimal', emoji:'💼',
+    description:'Understated confidence for the boardroom. Clean, precise, professional.',
+    products:[
+      {id:1,step:'Base',   name:'BB Cream SPF50+',               brand:'Dr.Jart+',       icon:'◎',imgData:null},
+      {id:2,step:'Conceal',name:'Radiant Creamy Concealer',      brand:'NARS',           icon:'◌',imgData:null},
+      {id:3,step:'Brow',   name:'Micro Precision Pen',           brand:'Anastasia BH',   icon:'▸',imgData:null},
+      {id:4,step:'Lip',    name:'Ink Velvet Tint',               brand:'Peripera',       icon:'◈',imgData:null}
+    ],
+    scheduledDates:[]
+  },
+  {
+    id:4, name:'Weekend Fresh', emoji:'☀️',
+    description:'Quick 5-min routine for relaxed days. SPF is your best friend.',
+    products:[
+      {id:1,step:'Base',  name:'Tinted Moisturizer SPF30',       brand:'Laura Mercier',  icon:'◎',imgData:null},
+      {id:2,step:'Color', name:'Multi-Stick (Cheek+Lip)',         brand:'ILIA Beauty',    icon:'◌',imgData:null},
+      {id:3,step:'Lip',   name:'Almost Lipstick in Black Honey',  brand:'Clinique',       icon:'◈',imgData:null}
+    ],
+    scheduledDates:[]
+  },
+  {
+    id:5, name:'Glazed Donut', emoji:'🍩',
+    description:'K-beauty glass skin moment — sheer, dewy, luminous all day.',
+    products:[
+      {id:1,step:'Prep',  name:'Pore Minimizing Blur Stick',     brand:'Milk Makeup',    icon:'◎',imgData:null},
+      {id:2,step:'Base',  name:'Essential Finisher Cushion',      brand:'Sulwhasoo',      icon:'◌',imgData:null},
+      {id:3,step:'Glow',  name:'Gloss Bomb Universal Lip Luminizer',brand:'Fenty Beauty', icon:'✦',imgData:null},
+      {id:4,step:'Lip',   name:'Juicy Lasting Tint Cherry',       brand:'Rom&nd',         icon:'◈',imgData:null},
+      {id:5,step:'Lash',  name:'Unlocked Tubing Mascara',         brand:'Hourglass',      icon:'▸',imgData:null}
+    ],
+    scheduledDates:[]
+  }
+];
+const SAMPLE_LOOK_SCHEDULE = {}; // populated below
+
+// ── State ─────────────────────────────────────────────────────
+let lookSchedule   = Object.assign({}, SAMPLE_LOOK_SCHEDULE);
+let makeupSchedule = { themes: SAMPLE_MAKEUP_THEMES.map(t=>({...t, scheduledDates:[...(t.scheduledDates||[])]})) };
+
+let state = {
+  session: 12,
+  periodStart: '2026-04-10',
+  periodEnd:   '2026-04-20',
+  morningTime: '08:00',
+  nightlyTime: '22:00',
+  morning: {
+    active: 1,
+    routines: [
+      { id:1, products: SAMPLE_MORNING_S1.map(p=>({...p})), tip:'Apply the toner while the skin is still slightly damp for maximum hydration absorption.' },
+      { id:2, products: SAMPLE_MORNING_S2.map(p=>({...p})), tip:'Alternating with retinol on Step 2 days enhances cell turnover without irritation.' }
+    ]
+  },
+  nightly: {
+    active: 1,
+    routines: [
+      { id:1, products: SAMPLE_NIGHTLY.map(p=>({...p})), tip:'Double cleansing is essential at night to remove pollutants and SPF effectively.' },
+      { id:2, products:[], tip:'' }
+    ]
+  },
+  history: [
+    {
+      session:11, periodStart:'2026-03-20', periodEnd:'2026-04-09',
+      morning:{ routines:[{id:1,products:[
+        {id:2001,catKey:'serum',name:'Vitamin C Brightening Serum',brand:'Kiehl\'s',icon:'🔬',imgData:null},
+        {id:2002,catKey:'cream',name:'Ultra Facial Cream',brand:'Kiehl\'s',icon:'🫙',imgData:null}
+      ],tip:''}]},
+      nightly:{ routines:[{id:1,products:[
+        {id:2003,catKey:'etc',name:'Facial Treatment Oil',brand:'SK-II',icon:'✨',imgData:null}
+      ],tip:''}]}
+    },
+    {
+      session:10, periodStart:'2026-02-28', periodEnd:'2026-03-19',
+      morning:{ routines:[{id:1,products:[
+        {id:3001,catKey:'serum',name:'Serum Foundation SPF35',brand:'Giorgio Armani',icon:'🔬',imgData:null}
+      ],tip:''}]},
+      nightly:{ routines:[{id:1,products:[
+        {id:3002,catKey:'etc',name:'Advanced Night Repair',brand:'Estée Lauder',icon:'✨',imgData:null},
+        {id:3003,catKey:'pack',name:'Sleeping Mask',brand:'LANEIGE',icon:'🎭',imgData:null}
+      ],tip:''}]}
+    },
+    { session:9, periodStart:'2026-02-05', periodEnd:'2026-02-27',
+      morning:{routines:[{id:1,products:[],tip:''}]}, nightly:{routines:[{id:1,products:[],tip:''}]} }
+  ]
+};
+
+let modal = { slot:null, editId:null };
+let selectedCat = 'toner';
+let prodImgData = null;
+
+// ── Init ──────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const raw = localStorage.getItem(DB_KEY);
+  if (raw) applyPlanData(JSON.parse(raw));
+  else {
+    saveThemesToStorage();  // save sample data on first load
+    renderAll();
+  }
+});
+
+function applyPlanData(saved) {
+  const mig = r => {
+    if (!r) return { active:1, routines:[{id:1,products:[],tip:''},{id:2,products:[],tip:''}] };
+    if (Array.isArray(r)) return { active:1, routines:[{id:1,products:r,tip:''},{id:2,products:[],tip:''}] };
+    if (!r.routines) r.routines = [{id:1,products:[],tip:''},{id:2,products:[],tip:''}];
+    r.routines.forEach(rt => { if (rt.tip===undefined) rt.tip=''; });
+    if (!r.routines.find(x=>x.id===2)) r.routines.push({id:2,products:[],tip:''});
+    if (!r.active) r.active = 1;
+    return r;
+  };
+  if (saved.session)      state.session      = parseInt(saved.session)||state.session;
+  if (saved.periodStart)  state.periodStart  = saved.periodStart;
+  if (saved.periodEnd)    state.periodEnd    = saved.periodEnd;
+  if (saved.morningTime)  state.morningTime  = saved.morningTime;
+  if (saved.nightlyTime)  state.nightlyTime  = saved.nightlyTime;
+  if (saved.morning)      state.morning      = mig(saved.morning);
+  if (saved.nightly)      state.nightly      = mig(saved.nightly);
+  if (saved.history)      state.history      = saved.history;
+  if (saved.lookSchedule)   lookSchedule   = saved.lookSchedule;
+  if (saved.makeupSchedule) {
+    makeupSchedule = saved.makeupSchedule;
+    // migrate old scheduledDays → scheduledDates
+    (makeupSchedule.themes||[]).forEach(t => {
+      if (!t.scheduledDates) t.scheduledDates = [];
+      delete t.scheduledDays;
+    });
+  }
+  saveThemesToStorage();
+  renderAll();
+}
+
+function renderAll() {
+  updateHero();
+  updateTimeDisplay('morning', state.morningTime);
+  updateTimeDisplay('nightly', state.nightlyTime);
+  renderGrid('morning');
+  renderGrid('nightly');
+  renderTodayStepBadge();
+  renderHistory();
+  renderMakeupThemes();
+  updateHubCounts();
+}
+
+// ── Hub Panel navigation ──────────────────────────────────────
+let _currentPanel = null;
+function openSetupPanel(type) {
+  if (_currentPanel) {
+    document.getElementById(`setup-panel-${_currentPanel}`)?.classList.remove('open');
+  }
+  _currentPanel = type;
+  const panel = document.getElementById(`setup-panel-${type}`);
+  if (panel) panel.classList.add('open');
+  if (type === 'care')   renderCtCareList();
+  if (type === 'makeup') renderCtMkpList();
+  if (type === 'look')   renderCtLookList();
+}
+function closeSetupPanel() {
+  if (_currentPanel) {
+    document.getElementById(`setup-panel-${_currentPanel}`)?.classList.remove('open');
+    _currentPanel = null;
+  }
+}
+function updateHubCounts() {
+  // routine: morning + nightly product count
+  const mCnt = (state.morning?.routines?.reduce((s,r)=>s+(r.products?.length||0),0)||0);
+  const nCnt = (state.nightly?.routines?.reduce((s,r)=>s+(r.products?.length||0),0)||0);
+  const rEl = document.getElementById('hub-count-routine');
+  if (rEl) rEl.textContent = (mCnt+nCnt) ? `${mCnt+nCnt} PRODUCTS` : 'SET UP';
+  // care
+  const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+  const cEl = document.getElementById('hub-count-care');
+  if (cEl) cEl.textContent = care.length ? `${care.length} PROGRAMS` : 'SET UP';
+  // makeup
+  const mkp = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
+  const mEl = document.getElementById('hub-count-makeup');
+  if (mEl) mEl.textContent = (mkp.themes?.length) ? `${mkp.themes.length} THEMES` : 'SET UP';
+  // look
+  const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+  const lEl = document.getElementById('hub-count-look');
+  if (lEl) lEl.textContent = looks.length ? `${looks.length} LOOKS` : 'SET UP';
+}
+
+// ── Hero ──────────────────────────────────────────────────────
+function getSuffix(n) {
+  const a=['th','st','nd','rd'], v=n%100;
+  return a[(v-20)%10]||a[v]||a[0];
+}
+
+function updateHero() {
+  const n = state.session || 0;
+  const titleEl = document.getElementById('session-title-display');
+  const periodEl = document.getElementById('session-period-display');
+  const pubBtn   = document.getElementById('publish-btn');
+  if (titleEl) {
+    titleEl.textContent = n ? `${n}${getSuffix(n).toUpperCase()} SESSION` : '— SESSION';
+  }
+  if (periodEl) {
+    const s = state.periodStart, e = state.periodEnd;
+    const fmt = d => d ? d.replace(/-/g,'.') : '···';
+    periodEl.textContent = s ? `${fmt(s)} — ${fmt(e)}` : '';
+  }
+  if (pubBtn && n) pubBtn.textContent = `PUBLISH ${n}${getSuffix(n).toUpperCase()} SESSION`;
+}
+
+// ── Time ──────────────────────────────────────────────────────
+function pickTime(slot) {
+  const el = document.getElementById(`${slot}-time`);
+  el?.showPicker ? el.showPicker() : el?.click();
+}
+
+function updateTimeDisplay(slot, val) {
+  if (!val) return;
+  const [h, m] = val.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12  = h > 12 ? h-12 : h === 0 ? 12 : h;
+  const pad = n => String(n).padStart(2,'0');
+  const vEl = document.getElementById(`${slot}-time-display`);
+  const aEl = document.getElementById(`${slot}-time-ampm`);
+  if (vEl) vEl.textContent = `${pad(h12)}:${pad(m)}`;
+  if (aEl) aEl.textContent = ampm;
+  if (slot === 'morning') state.morningTime = val;
+  else state.nightlyTime = val;
+}
+
+// ── Step tabs ─────────────────────────────────────────────────
+function pickStep(slot, id) {
+  const tipEl = document.getElementById(`${slot}-tip`);
+  if (tipEl) {
+    const cur = state[slot].routines.find(r => r.id === state[slot].active);
+    if (cur) cur.tip = tipEl.value;
+  }
+  state[slot].active = id;
+  const pfx = slot === 'morning' ? 'm' : 'n';
+  document.getElementById(`${pfx}step-1`)?.classList.toggle('active', id===1);
+  document.getElementById(`${pfx}step-2`)?.classList.toggle('active', id===2);
+  renderGrid(slot);
+}
+
+function updateRoutineTip(slot, val) {
+  const cur = state[slot].routines.find(r => r.id === state[slot].active);
+  if (cur) cur.tip = val;
+}
+
+// ── Grid render ───────────────────────────────────────────────
+function getActiveProducts(slot) {
+  return state[slot].routines.find(r => r.id === state[slot].active)?.products || [];
+}
+function setActiveProducts(slot, products) {
+  const idx = state[slot].routines.findIndex(r => r.id === state[slot].active);
+  if (idx !== -1) state[slot].routines[idx].products = products;
+}
+
+function renderGrid(slot) {
+  const grid    = document.getElementById(`${slot}-grid`);
+  const emptyEl = document.getElementById(`${slot}-empty`);
+  if (!grid) return;
+
+  const activeId = state[slot].active;
+  const routine  = state[slot].routines.find(r => r.id === activeId);
+  const products = routine?.products || [];
+
+  const tipEl = document.getElementById(`${slot}-tip`);
+  if (tipEl) tipEl.value = routine?.tip || '';
+
+  if (products.length === 0) {
+    grid.innerHTML = `<div class="prod-card-add" onclick="openModal('${slot}')">
+      <div class="prod-card-add-plus">+</div>
+      <div class="prod-card-add-label">ADD</div>
+    </div>`;
+    if (emptyEl) emptyEl.style.display = 'flex';
+  } else {
+    if (emptyEl) emptyEl.style.display = 'none';
+    let html = products.map(p => `
+      <div class="prod-card" onclick="openModal('${slot}',${p.id})">
+        <div class="prod-card-img" ${p.imgData ? `style="background-image:url(${p.imgData})"` : ''}>
+          ${!p.imgData ? `<span style="opacity:.2">${p.icon||'✦'}</span>` : ''}
+        </div>
+        <div class="prod-card-cat">${(CAT[p.catKey]?.label || p.catKey || '').toUpperCase()}</div>
+        <div class="prod-card-name">${p.name}</div>
+      </div>`).join('');
+    if (products.length < MAX) {
+      html += `<div class="prod-card-add" onclick="openModal('${slot}')">
+        <div class="prod-card-add-plus">+</div>
+        <div class="prod-card-add-label">ADD</div>
+      </div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  renderProdList(slot);
+}
+
+function renderProdList(slot) {
+  const products = getActiveProducts(slot);
+  const countEl  = document.getElementById(`${slot}-list-count`);
+  const innerEl  = document.getElementById(`${slot}-list-inner`);
+  if (countEl) countEl.textContent = products.length;
+  if (!innerEl) return;
+  if (!products.length) {
+    innerEl.innerHTML = `<div style="padding:18px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);text-align:center">No products registered</div>`;
+    return;
+  }
+  innerEl.innerHTML = products.map((p, i) => `
+    <div class="prod-list-item" onclick="openModal('${slot}',${p.id})">
+      <div class="prod-list-img" ${p.imgData ? `style="background-image:url(${p.imgData})"` : ''}>
+        ${!p.imgData ? `<span>${p.icon||'✦'}</span>` : ''}
+      </div>
+      <div class="prod-list-info">
+        <div class="prod-list-cat">${(CAT[p.catKey]?.label || p.catKey || '').toUpperCase()}</div>
+        <div class="prod-list-name">${p.name}</div>
+        <div class="prod-list-brand">${p.brand||''}</div>
+      </div>
+      <div class="prod-list-arrow">›</div>
+    </div>`).join('');
+}
+
+function toggleProdList(slot) {
+  const toggle   = document.getElementById(`${slot}-list-toggle`);
+  const dropdown = document.getElementById(`${slot}-list-dropdown`);
+  if (!toggle || !dropdown) return;
+  const isOpen = dropdown.classList.contains('open');
+  dropdown.classList.toggle('open', !isOpen);
+  toggle.classList.toggle('open', !isOpen);
+}
+
+// ── History ───────────────────────────────────────────────────
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  if (!el) return;
+  const sessions = (state.history || []).slice().reverse();
+  const fmt = d => (d||'').replace(/-/g,'.');
+  el.innerHTML = sessions.map((s, i) => `
+    <div class="history-item" onclick="openArchive()">
+      <div class="history-num${i > 0 ? ' dimmed' : ''}">${s.session}</div>
+      <div class="history-info">
+        <div class="history-date-range">${fmt(s.periodStart)} — ${fmt(s.periodEnd)}</div>
+        <div class="history-sub">${s.session}${getSuffix(s.session).toUpperCase()} SESSION · REVIEW</div>
+      </div>
+      <div class="history-arrow">›</div>
+    </div>`).join('');
+}
+
+// ── Archive ───────────────────────────────────────────────────
+function openArchive() {
+  renderArchiveEntries();
+  document.getElementById('archive-overlay').classList.add('open');
+}
+
+function closeArchive() {
+  document.getElementById('archive-overlay').classList.remove('open');
+}
+
+function renderArchiveEntries() {
+  const el = document.getElementById('archive-entries');
+  if (!el) return;
+  const all = [
+    { session: state.session, periodStart: state.periodStart, periodEnd: state.periodEnd, morning: state.morning, nightly: state.nightly },
+    ...(state.history || [])
+  ].filter(s => s.session).sort((a,b) => b.session - a.session);
+
+  el.innerHTML = all.map((s, i) => {
+    const n = s.session;
+    const sfx = getSuffix(n).toUpperCase();
+    const mProds = (s.morning?.routines?.[0]?.products || []).slice(0,4);
+    const nProds = (s.nightly?.routines?.[0]?.products || []).slice(0,4);
+    const hasMorning = mProds.length > 0;
+    const hasNight   = nProds.length > 0;
+    const prodCard = p => `
+      <div>
+        <div class="ae-prod-img" ${p.imgData ? `style="background-image:url(${p.imgData})"` : ''}>
+          ${!p.imgData ? `<span style="opacity:.2">${p.icon||'✦'}</span>` : ''}
+        </div>
+        <div class="ae-prod-name">${p.name}</div>
+      </div>`;
+    return `
+    <div class="archive-entry">
+      <div class="ae-hd" onclick="toggleAeBody(${i})">
+        <div class="ae-num">${String(n).padStart(2,'0')}</div>
+        <div class="ae-info">
+          <div class="ae-title">${n}${sfx}<br>SESSION</div>
+          <div class="ae-dates">${(s.periodStart||'').replace(/-/g,'.')} -<br>${(s.periodEnd||'').replace(/-/g,'.')} 루틴</div>
+        </div>
+        <div class="ae-actions">
+          <button class="ae-edit-btn" onclick="event.stopPropagation();openEditSheetForSession(${i})" title="편집">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          </button>
+          <button class="ae-nav-btn">›</button>
+        </div>
+      </div>
+      <div class="ae-body" id="ae-body-${i}">
+        ${hasMorning ? `<div class="ae-slot-label">MORNING</div><div class="ae-prod-grid">${mProds.map(prodCard).join('')}</div>` : ''}
+        ${hasNight   ? `<div class="ae-slot-label">NIGHT</div><div class="ae-prod-grid">${nProds.map(prodCard).join('')}</div>` : ''}
+        ${!hasMorning && !hasNight ? `<div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:8px 0">등록된 제품이 없습니다</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAeBody(i) {
+  document.getElementById(`ae-body-${i}`)?.classList.toggle('open');
+}
+
+function startNewSession() {
+  closeArchive();
+  openEditSheet();
+}
+
+// ── Edit Sheet ────────────────────────────────────────────────
+function openEditSheet() {
+  document.getElementById('edit-session-num').value = state.session || '';
+  document.getElementById('edit-period-start').value = state.periodStart || '';
+  document.getElementById('edit-period-end').value   = state.periodEnd || '';
+  document.getElementById('edit-overlay').classList.add('open');
+  document.getElementById('edit-sheet').classList.add('open');
+}
+
+function openEditSheetForSession(idx) {
+  // editing a history entry — just open the sheet with that session's info
+  openEditSheet();
+}
+
+function closeEditSheet() {
+  document.getElementById('edit-overlay').classList.remove('open');
+  document.getElementById('edit-sheet').classList.remove('open');
+}
+
+function saveEditSheet() {
+  const n = parseInt(document.getElementById('edit-session-num').value) || state.session;
+  const s = document.getElementById('edit-period-start').value;
+  const e = document.getElementById('edit-period-end').value;
+  state.session      = n;
+  state.periodStart  = s;
+  state.periodEnd    = e;
+  updateHero();
+  closeEditSheet();
+  showToast('✓ 세션 정보가 업데이트됐습니다');
+}
+
+// ── Publish / Draft ───────────────────────────────────────────
+function publishSession() {
+  persistPlan(true);
+  showToast(`✓ ${state.session}${getSuffix(state.session)} 세션이 발행됐습니다`);
+}
+
+function saveDraft() {
+  persistPlan(false);
+  showToast('초안이 저장됐습니다');
+}
+
+function persistPlan(published = false) {
+  const plan = {
+    session:      state.session,
+    periodStart:  state.periodStart,
+    periodEnd:    state.periodEnd,
+    morningTime:  state.morningTime,
+    nightlyTime:  state.nightlyTime,
+    morning:      state.morning,
+    nightly:      state.nightly,
+    history:      state.history,
+    lookSchedule,
+    makeupSchedule,
+    published,
+    savedAt:      new Date().toISOString(),
+  };
+  localStorage.setItem(DB_KEY, JSON.stringify(plan));
+  if (currentUser) saveToCloud(plan);
+}
+
+// ── Product Modal ─────────────────────────────────────────────
+let selectedBoxAssetId = null;
+
+function openModal(slot, editId = null) {
+  modal.slot   = slot;
+  modal.editId = editId;
+  selectedBoxAssetId = null;
+
+  // BOX search reset
+  const bsi = document.getElementById('box-search-inp');
+  if (bsi) bsi.value = '';
+  renderBoxSearchResults('');
+
+  if (editId !== null) {
+    const p = getActiveProducts(slot).find(x => x.id === editId);
+    if (!p) return;
+    document.getElementById('modal-title').textContent = '제품 수정';
+    document.getElementById('modal-confirm-btn').textContent = '수정 완료';
+    document.getElementById('modal-del-btn').classList.add('show');
+    document.getElementById('product-name').value  = p.name;
+    document.getElementById('product-brand').value = p.brand || '';
+    prodImgData = p.imgData || null;
+    selectedBoxAssetId = p.assetId || null;
+    if (p.imgData) {
+      document.getElementById('prod-img-preview').style.cssText = `background-image:url(${p.imgData});display:block`;
+      document.getElementById('prod-img-placeholder').style.display = 'none';
+    } else {
+      document.getElementById('prod-img-preview').style.display = 'none';
+      document.getElementById('prod-img-placeholder').style.display = 'flex';
+    }
+    selectCatByKey(p.catKey || 'etc');
+    // BOX 검색창에 기존 제품명 표시
+    if (bsi) { bsi.value = p.name || ''; renderBoxSearchResults(p.name || ''); }
+  } else {
+    document.getElementById('modal-title').textContent = `제품 추가 — STEP ${state[slot]?.active||1}`;
+    document.getElementById('modal-confirm-btn').textContent = '추가하기';
+    document.getElementById('modal-del-btn').classList.remove('show');
+    document.getElementById('product-name').value  = '';
+    document.getElementById('product-brand').value = '';
+    prodImgData = null;
+    document.getElementById('prod-img-preview').style.display = 'none';
+    document.getElementById('prod-img-placeholder').style.display = 'flex';
+    document.getElementById('prod-img-input').value = '';
+    selectCatByKey('toner');
+  }
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('box-search-inp')?.focus(), 350);
+}
+
+function renderBoxSearchResults(q) {
+  const el = document.getElementById('box-search-results');
+  if (!el) return;
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const beauty = assets.filter(a => a.domain === 'beauty');
+  const filtered = q.trim()
+    ? beauty.filter(a =>
+        (a.name||'').toLowerCase().includes(q.toLowerCase()) ||
+        (a.brand||'').toLowerCase().includes(q.toLowerCase()))
+    : beauty.slice(0, 8);
+  if (!filtered.length) {
+    el.innerHTML = `<div style="padding:10px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);text-align:center">BOX에 등록된 뷰티 제품이 없습니다</div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(a => {
+    const isSel = selectedBoxAssetId === a.id;
+    const imgStyle = a.imgData ? `background-image:url(${a.imgData});background-size:cover;background-position:center` : '';
+    const icon = CAT[a.catKey]?.icon || '✨';
+    return `<div class="box-result-row${isSel?' selected':''}" onclick="selectBoxAsset(${a.id})">
+      <div class="box-result-img" style="${imgStyle}">${!a.imgData ? icon : ''}</div>
+      <div class="box-result-info">
+        <div class="box-result-name">${a.name}</div>
+        ${a.brand ? `<div class="box-result-brand">${a.brand}</div>` : ''}
+      </div>
+      <div class="box-result-check">✓</div>
+    </div>`;
+  }).join('');
+}
+
+function selectBoxAsset(assetId) {
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const asset  = assets.find(a => a.id === assetId);
+  if (!asset) return;
+  selectedBoxAssetId = assetId;
+  document.getElementById('product-name').value  = asset.name  || '';
+  document.getElementById('product-brand').value = asset.brand || '';
+  const catKey = asset.catKey && CAT[asset.catKey] ? asset.catKey : 'etc';
+  selectCatByKey(catKey);
+  if (asset.imgData) {
+    prodImgData = asset.imgData;
+    document.getElementById('prod-img-preview').style.cssText = `background-image:url(${asset.imgData});display:block`;
+    document.getElementById('prod-img-placeholder').style.display = 'none';
+  }
+  renderBoxSearchResults(document.getElementById('box-search-inp')?.value || '');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  modal.editId = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function selectCat(btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedCat = btn.dataset.cat;
+}
+
+function selectCatByKey(key) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('selected', b.dataset.cat === key));
+  selectedCat = CAT[key] ? key : 'etc';
+}
+
+function confirmProduct() {
+  const name  = document.getElementById('product-name').value.trim();
+  if (!name) { showToast('제품명을 입력해주세요'); return; }
+  const brand = document.getElementById('product-brand').value.trim();
+  const meta  = CAT[selectedCat] || { icon:'✨' };
+
+  if (modal.editId !== null) {
+    const prods = getActiveProducts(modal.slot);
+    const idx   = prods.findIndex(p => p.id === modal.editId);
+    if (idx !== -1) prods[idx] = { ...prods[idx], name, brand, catKey: selectedCat, icon: meta.icon, imgData: prodImgData, assetId: selectedBoxAssetId || prods[idx].assetId || null };
+    setActiveProducts(modal.slot, prods);
+    showToast(`✓ ${name} 수정됨`);
+  } else {
+    const prods = getActiveProducts(modal.slot);
+    if (prods.length >= MAX) { showToast(`최대 ${MAX}개까지 등록 가능합니다`); return; }
+    prods.push({ id: Date.now(), catKey: selectedCat, name, brand, icon: meta.icon, imgData: prodImgData, assetId: selectedBoxAssetId || null });
+    setActiveProducts(modal.slot, prods);
+    showToast(`${meta.icon} ${name} 추가됨`);
+  }
+  renderGrid(modal.slot);
+  persistPlan(false);
+  closeModal();
+}
+
+function deleteProduct() {
+  if (modal.editId === null) return;
+  setActiveProducts(modal.slot, getActiveProducts(modal.slot).filter(p => p.id !== modal.editId));
+  renderGrid(modal.slot);
+  persistPlan(false);
+  showToast('제품이 삭제되었습니다');
+  closeModal();
+}
+
+function previewProdImg(input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    prodImgData = e.target.result;
+    document.getElementById('prod-img-preview').style.cssText = `background-image:url(${e.target.result});display:block`;
+    document.getElementById('prod-img-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+// ── Today's Step Badge ────────────────────────────────────────
+function getTodayStep() {
+  if (!state.periodStart) return 1;
+  const diff = Math.floor((new Date() - new Date(state.periodStart)) / 86400000);
+  return diff % 2 === 0 ? 1 : 2;
+}
+
+function renderTodayStepBadge() {
+  const wrap = document.getElementById('step-today-wrap');
+  const val  = document.getElementById('step-today-val');
+  if (!wrap || !val) return;
+  const step = getTodayStep();
+  val.textContent = `STEP ${step}`;
+  wrap.style.display = 'block';
+}
+
+// ── Look Schedule ─────────────────────────────────────────────
+function renderLookStrip() {
+  const strip    = document.getElementById('look-strip');
+  const countEl  = document.getElementById('look-sched-count');
+  if (!strip) return;
+  const total = 10;
+  const filled = Object.keys(lookSchedule).filter(k => lookSchedule[k]).length;
+  if (countEl) countEl.textContent = `${filled} / ${total}`;
+
+  strip.innerHTML = Array.from({length: total}, (_, i) => {
+    const day = i + 1;
+    const data = lookSchedule[day];
+    const hasData = !!data;
+    const imgStyle = data?.imgData ? `background-image:url(${data.imgData});background-size:cover;background-position:center` : '';
+    return `
+      <div class="sched-cell${hasData?' has-data':''}" onclick="openLookCell(${day})">
+        <div class="sched-thumb" style="${imgStyle}">
+          ${!data?.imgData ? `<span class="sched-thumb-plus">+</span>` : ''}
+          <div class="sched-thumb-dot"></div>
+        </div>
+        <div class="sched-day-num">D${day}</div>
+      </div>`;
+  }).join('');
+}
+
+function openLookCell(day) {
+  showToast(`D${day} 룩 설정 — 준비 중입니다`);
+}
+
+// ── Makeup Themes ─────────────────────────────────────────────
+const MKP_KEY = 'onstep_makeup_themes';
+
+function saveThemesToStorage() {
+  localStorage.setItem(MKP_KEY, JSON.stringify({ themes: makeupSchedule.themes }));
+}
+
+function renderMakeupThemes() {
+  const el = document.getElementById('makeup-themes-list');
+  if (!el) return;
+  const themes = makeupSchedule.themes || [];
+  if (!themes.length) {
+    el.innerHTML = `<div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:8px 0">등록된 테마가 없습니다</div>`;
+    return;
+  }
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  el.innerHTML = themes.map(t => {
+    const dates = (t.scheduledDates||[]).slice().sort();
+    const scheduled = dates.length > 0;
+    const chips = dates.slice(0,4).map(d => {
+      const dt = new Date(d+'T00:00:00');
+      return `<span class="mkp-date-chip">${MONTHS[dt.getMonth()]} ${dt.getDate()}</span>`;
+    }).join('');
+    const moreChip = dates.length > 4 ? `<span class="mkp-date-chip more">+${dates.length-4}</span>` : '';
+    const prodRows = (t.products||[]).map(p =>
+      `<div class="mkp-prod-row"><span class="mkp-prod-step">${p.step}</span><span class="mkp-prod-name">${p.name}</span><span class="mkp-prod-brand">${p.brand}</span></div>`
+    ).join('');
+    return `
+      <div class="mkp-theme${scheduled?' scheduled':''}">
+        <div class="mkp-theme-hd">
+          <span class="mkp-theme-emoji">${t.emoji||'✦'}</span>
+          <span class="mkp-theme-name">${t.name}</span>
+          ${scheduled ? `<span class="mkp-sched-badge">SCHEDULED</span>` : `<span class="mkp-inspo-badge">INSPIRATION</span>`}
+        </div>
+        <div class="mkp-theme-desc">${t.description||''}</div>
+        ${prodRows ? `<div class="mkp-prod-list">${prodRows}</div>` : ''}
+        <div class="mkp-day-label">일정 배정</div>
+        <div class="mkp-date-row">
+          ${chips}${moreChip}
+          <button class="mkp-add-date-btn" onclick="openDatePicker(${t.id})">+ 날짜 추가</button>
+        </div>
+        <button class="mkp-del-btn" onclick="deleteTheme(${t.id})">삭제</button>
+      </div>`;
+  }).join('');
+}
+
+// ── Calendar date picker ───────────────────────────────────────
+let calSheet = { themeId: null, year: new Date().getFullYear(), month: new Date().getMonth() };
+
+function openDatePicker(themeId) {
+  calSheet.themeId = themeId;
+  calSheet.year  = new Date().getFullYear();
+  calSheet.month = new Date().getMonth();
+  renderCalendar();
+  document.getElementById('mkp-cal-overlay').classList.add('open');
+}
+
+function closeDatePicker() {
+  document.getElementById('mkp-cal-overlay').classList.remove('open');
+}
+
+function calNavMonth(dir) {
+  calSheet.month += dir;
+  if (calSheet.month > 11) { calSheet.month = 0; calSheet.year++; }
+  if (calSheet.month < 0)  { calSheet.month = 11; calSheet.year--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const { year, month, themeId } = calSheet;
+  const t = makeupSchedule.themes.find(x => x.id === themeId);
+  if (!t) return;
+  const selected = t.scheduledDates || [];
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAY_HDS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const today = new Date().toISOString().slice(0,10);
+  const firstDow = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  let html = DAY_HDS.map(h => `<div class="mkp-cal-hd">${h}</div>`).join('');
+  for (let i = 0; i < firstDow; i++) html += `<div class="mkp-cal-cell empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSel = selected.includes(ds);
+    const isToday = ds === today;
+    const isPast = ds < today;
+    html += `<div class="mkp-cal-cell${isSel?' selected':''}${isToday?' today':''}${isPast&&!isSel?' past':''}" onclick="toggleCalDate('${ds}')">${d}</div>`;
+  }
+  document.getElementById('mkp-cal-title').textContent = `${MONTHS[month]} ${year}`;
+  document.getElementById('mkp-cal-grid').innerHTML = html;
+}
+
+function toggleCalDate(dateStr) {
+  const t = makeupSchedule.themes.find(x => x.id === calSheet.themeId);
+  if (!t) return;
+  if (!t.scheduledDates) t.scheduledDates = [];
+  const idx = t.scheduledDates.indexOf(dateStr);
+  if (idx === -1) t.scheduledDates.push(dateStr);
+  else t.scheduledDates.splice(idx, 1);
+  renderCalendar();
+  renderMakeupThemes();
+  saveThemesToStorage();
+}
+
+function deleteTheme(themeId) {
+  makeupSchedule.themes = makeupSchedule.themes.filter(x => x.id !== themeId);
+  renderMakeupThemes();
+  saveThemesToStorage();
+}
+
+// ── Add new theme sheet ────────────────────────────────────────
+function addMakeupTheme() {
+  document.getElementById('mkp-new-emoji').value = '';
+  document.getElementById('mkp-new-name').value = '';
+  document.getElementById('mkp-new-desc').value = '';
+  document.getElementById('mkp-sheet-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('mkp-new-name').focus(), 350);
+}
+
+function closeMkpSheet() {
+  document.getElementById('mkp-sheet-overlay').classList.remove('open');
+}
+
+function saveNewTheme() {
+  const emoji = document.getElementById('mkp-new-emoji').value.trim() || '✦';
+  const name  = document.getElementById('mkp-new-name').value.trim();
+  if (!name) { showToast('테마 이름을 입력하세요'); return; }
+  const desc  = document.getElementById('mkp-new-desc').value.trim();
+  makeupSchedule.themes.push({ id: Date.now(), name, emoji, description: desc, products: [], scheduledDates: [] });
+  saveThemesToStorage();
+  renderMakeupThemes();
+  closeMkpSheet();
+  showToast(`"${name}" 테마 추가됨`);
+}
+
+// ── Care List (집중케어 패널) ─────────────────────────────────
+function renderCtCareList() {
+  const el = document.getElementById('setup-care-list');
+  if (!el) return;
+  const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+  if (!care.length) {
+    el.innerHTML = `<div style="padding:8px 0 4px;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);text-align:center">등록된 케어 프로그램이 없습니다</div>`;
+    return;
+  }
+  const today = new Date().toISOString().slice(0,10);
+  el.innerHTML = care.map(t => {
+    const isPublished = (t.scheduledDates||[]).some(d => d >= today);
+    const dateChips = (t.scheduledDates||[]).slice(0,3).map(d =>
+      `<span class="ct-date-chip">${d.slice(5).replace('-','/')}</span>`).join('');
+    const itemsHtml = (t.items||[]).slice(0,6).map(p => {
+      const asset = getBoxAssets().find(a => a.id === p.assetId);
+      const imgStyle = (asset?.imgData||p.imgData) ? `background-image:url(${asset?.imgData||p.imgData})` : '';
+      return `<div class="ct-card-item-wrap">
+        <div class="ct-card-item-img" style="${imgStyle}">${!(asset?.imgData||p.imgData)?'✦':''}</div>
+        <div class="ct-card-item-nm">${p.name||''}</div>
+      </div>`;
+    }).join('');
+    return `<div class="ct-card${isPublished?' published':''}">
+      <div class="ct-card-body">
+        <div class="ct-card-hd">
+          <span class="ct-card-emoji">${t.emoji||'✦'}</span>
+          <span class="ct-card-name">${t.name}</span>
+          <span class="ct-card-badge ${isPublished?'on':'off'}">${isPublished?'ACTIVE':'DRAFT'}</span>
+        </div>
+        ${t.description?`<div class="ct-card-desc">${t.description}</div>`:''}
+        ${itemsHtml?`<div class="ct-card-items">${itemsHtml}</div>`:''}
+        ${dateChips?`<div class="ct-card-dates">${dateChips}</div>`:''}
+      </div>
+      <div class="ct-card-actions">
+        <button class="ct-card-ok-btn" onclick="activateCare(${t.id})">ok →</button>
+        <button class="ct-card-edit-btn" onclick="editCtContent('care',${t.id})">편집</button>
+        <button class="ct-card-del-btn" onclick="deleteCtContent('care',${t.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function activateCare(id) {
+  const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+  const t = care.find(x => x.id === id);
+  if (!t) return;
+  const today = new Date().toISOString().slice(0,10);
+  if (!(t.scheduledDates||[]).includes(today)) {
+    const idx = care.findIndex(x => x.id === id);
+    if (idx !== -1) { care[idx].scheduledDates = [today, ...(care[idx].scheduledDates||[])]; }
+    localStorage.setItem('onstep_care_themes', JSON.stringify(care));
+  }
+  addToLogPortfolio({ id: Date.now(), type:'care', title:t.name, emoji:t.emoji, baselineImg:t.baselineImg||null, activatedAt: new Date().toISOString() });
+  showToast(`✓ "${t.name}" — Today에 반영됩니다`);
+  renderCtCareList();
+  updateHubCounts();
+}
+
+// ── Baseline Photo (집중케어) ──────────────────────────────────
+let careBaselineImg = null;
+
+function pickBaseline() {
+  document.getElementById('baseline-input').click();
+}
+function onBeforePhoto(slot, input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const area = document.getElementById(`${slot}-before-area`);
+    const preview = document.getElementById(`${slot}-before-preview`);
+    if (preview) preview.style.backgroundImage = `url(${e.target.result})`;
+    if (area) area.classList.add('has-img');
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function onBaselineFile(input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    careBaselineImg = e.target.result;
+    const el = document.getElementById('care-baseline');
+    el.style.backgroundImage = `url(${e.target.result})`;
+    el.classList.add('has-img');
+    el.querySelector('.baseline-photo-text').style.display = 'none';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+// ── activateContent ('ok →' 트리거) ────────────────────────────
+function activateContent(type) {
+  if (type === 'care') {
+    persistPlan(true);
+    // LOG 아카이브에 Planned Portfolio 등록
+    const entry = {
+      id: Date.now(), type: 'care',
+      title: `${state.session}회차 집중케어`,
+      period: `${state.periodStart} ~ ${state.periodEnd}`,
+      baselineImg: careBaselineImg || null,
+      activatedAt: new Date().toISOString(),
+    };
+    addToLogPortfolio(entry);
+    showToast(`✓ ${state.session}회차 세션 활성화 — Today에 반영됩니다`);
+  }
+}
+
+function addToLogPortfolio(entry) {
+  const KEY = 'onstep_planned_portfolio';
+  const list = JSON.parse(localStorage.getItem(KEY) || '[]');
+  list.unshift(entry);
+  localStorage.setItem(KEY, JSON.stringify(list));
+}
+
+// ── Makeup List (메이크업 패널) ───────────────────────────────
+function getBoxAssets() { return JSON.parse(localStorage.getItem('onstep_box_assets') || '[]'); }
+
+function renderCtMkpList() {
+  const el = document.getElementById('setup-mkp-list');
+  if (!el) return;
+  const data = JSON.parse(localStorage.getItem('onstep_makeup_themes') || 'null');
+  const themes = data?.themes || makeupSchedule?.themes || [];
+  if (!themes.length) {
+    el.innerHTML = `<div style="padding:8px 0 4px;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);text-align:center">등록된 테마가 없습니다</div>`;
+    return;
+  }
+  const today = new Date().toISOString().slice(0,10);
+  el.innerHTML = themes.map(t => {
+    const isPublished = (t.scheduledDates||[]).includes(today) || (t.scheduledDates||[]).some(d => d >= today);
+    const dateChips = (t.scheduledDates||[]).slice(0,3).map(d =>
+      `<span class="ct-date-chip">${d.slice(5).replace('-','/')}</span>`).join('');
+    const itemsHtml = (t.products||[]).slice(0,6).map(p => {
+      const asset = getBoxAssets().find(a => a.id === p.assetId);
+      const imgStyle = (asset?.imgData||p.imgData) ? `background-image:url(${asset?.imgData||p.imgData})` : '';
+      return `<div class="ct-card-item-wrap">
+        <div class="ct-card-item-img" style="${imgStyle}">${!(asset?.imgData||p.imgData)?'✦':''}</div>
+        <div class="ct-card-item-nm">${p.name||p.step||''}</div>
+      </div>`;
+    }).join('');
+    return `<div class="ct-card${isPublished?' published':''}">
+      <div class="ct-card-body">
+        <div class="ct-card-hd">
+          <span class="ct-card-emoji">${t.emoji||'✦'}</span>
+          <span class="ct-card-name">${t.name}</span>
+          <span class="ct-card-badge ${isPublished?'on':'off'}">${isPublished?'SCHEDULED':'INSPO'}</span>
+        </div>
+        ${t.description?`<div class="ct-card-desc">${t.description}</div>`:''}
+        ${itemsHtml?`<div class="ct-card-items">${itemsHtml}</div>`:''}
+        ${dateChips?`<div class="ct-card-dates">${dateChips}</div>`:''}
+      </div>
+      <div class="ct-card-actions">
+        <button class="ct-card-ok-btn" onclick="activateMkpTheme(${t.id})">ok →</button>
+        <button class="ct-card-edit-btn" onclick="editCtContent('makeup',${t.id})">편집</button>
+        <button class="ct-card-del-btn" onclick="deleteCtContent('makeup',${t.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function activateMkpTheme(themeId) {
+  const data = JSON.parse(localStorage.getItem('onstep_makeup_themes') || 'null');
+  const t = (data?.themes || makeupSchedule?.themes || []).find(x => x.id === themeId);
+  if (!t) return;
+  const today = new Date().toISOString().slice(0,10);
+  if (!(t.scheduledDates||[]).includes(today)) {
+    const updated = data || { themes: makeupSchedule?.themes || [] };
+    const idx = updated.themes.findIndex(x => x.id === themeId);
+    if (idx !== -1) { updated.themes[idx].scheduledDates = [today, ...(updated.themes[idx].scheduledDates||[])]; }
+    localStorage.setItem('onstep_makeup_themes', JSON.stringify(updated));
+  }
+  const entry = { id: Date.now(), type:'makeup', title:t.name, emoji:t.emoji, baselineImg:t.baselineImg||null, activatedAt: new Date().toISOString() };
+  addToLogPortfolio(entry);
+  showToast(`✓ "${t.name}" — Today MOTD에 반영됩니다`);
+  renderCtMkpList();
+}
+
+// ── Look List (룩북 패널) ─────────────────────────────────────
+function renderCtLookList() {
+  const el = document.getElementById('setup-look-list');
+  if (!el) return;
+  const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+  if (!looks.length) {
+    el.innerHTML = `<div style="padding:8px 0 4px;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);text-align:center">등록된 룩이 없습니다</div>`;
+    return;
+  }
+  const today = new Date().toISOString().slice(0,10);
+  el.innerHTML = looks.map(t => {
+    const isPublished = (t.scheduledDates||[]).some(d => d >= today);
+    const dateChips = (t.scheduledDates||[]).slice(0,3).map(d =>
+      `<span class="ct-date-chip">${d.slice(5).replace('-','/')}</span>`).join('');
+    const tpoHtml = (t.tpo||[]).map(tp =>
+      `<span style="font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--surface-mid);color:var(--sub);padding:2px 7px;border-radius:var(--r-sm)">${tp}</span>`
+    ).join(' ');
+    const itemsHtml = (t.items||[]).slice(0,6).map(p => {
+      const asset = getBoxAssets().find(a => a.id === p.assetId);
+      const imgStyle = (asset?.imgData||p.imgData) ? `background-image:url(${asset?.imgData||p.imgData})` : '';
+      return `<div class="ct-card-item-wrap">
+        <div class="ct-card-item-img" style="${imgStyle}">${!(asset?.imgData||p.imgData)?'◈':''}</div>
+        <div class="ct-card-item-nm">${p.name||''}</div>
+      </div>`;
+    }).join('');
+    return `<div class="ct-card${isPublished?' published':''}">
+      <div class="ct-card-body">
+        <div class="ct-card-hd">
+          <span class="ct-card-emoji">${t.emoji||'◈'}</span>
+          <span class="ct-card-name">${t.name}</span>
+          <span class="ct-card-badge ${isPublished?'on':'off'}">${isPublished?'SCHEDULED':'DRAFT'}</span>
+        </div>
+        ${tpoHtml?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${tpoHtml}</div>`:''}
+        ${t.description?`<div class="ct-card-desc">${t.description}</div>`:''}
+        ${itemsHtml?`<div class="ct-card-items">${itemsHtml}</div>`:''}
+        ${dateChips?`<div class="ct-card-dates">${dateChips}</div>`:''}
+      </div>
+      <div class="ct-card-actions">
+        <button class="ct-card-ok-btn" onclick="activateLook(${t.id})">ok →</button>
+        <button class="ct-card-edit-btn" onclick="editCtContent('look',${t.id})">편집</button>
+        <button class="ct-card-del-btn" onclick="deleteCtContent('look',${t.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function activateLook(lookId) {
+  const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+  const t = looks.find(x => x.id === lookId);
+  if (!t) return;
+  const today = new Date().toISOString().slice(0,10);
+  if (!(t.scheduledDates||[]).includes(today)) {
+    const idx = looks.findIndex(x => x.id === lookId);
+    if (idx !== -1) { looks[idx].scheduledDates = [today, ...(looks[idx].scheduledDates||[])]; }
+    localStorage.setItem('onstep_look_themes', JSON.stringify(looks));
+  }
+  const entry = { id: Date.now(), type:'look', title:t.name, emoji:t.emoji, baselineImg:t.baselineImg||null, activatedAt: new Date().toISOString() };
+  addToLogPortfolio(entry);
+  showToast(`✓ "${t.name}" — Today OOTD에 반영됩니다`);
+  renderCtLookList();
+}
+
+function deleteCtContent(type, id) {
+  if (type === 'care') {
+    const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]').filter(x => x.id !== id);
+    localStorage.setItem('onstep_care_themes', JSON.stringify(care));
+    renderCtCareList();
+  } else if (type === 'makeup') {
+    const data = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
+    data.themes = (data.themes||[]).filter(x => x.id !== id);
+    localStorage.setItem('onstep_makeup_themes', JSON.stringify(data));
+    if (makeupSchedule) makeupSchedule.themes = data.themes;
+    renderCtMkpList();
+  } else {
+    const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]').filter(x => x.id !== id);
+    localStorage.setItem('onstep_look_themes', JSON.stringify(looks));
+    renderCtLookList();
+  }
+  updateHubCounts();
+  showToast('삭제됐습니다');
+}
+
+// ── Content Add Sheet ──────────────────────────────────────────
+let ctSheetState = { type:'makeup', editId:null, baselineImg:null, items:[], dates:[], tpo:[] };
+let ctCalState   = { year: new Date().getFullYear(), month: new Date().getMonth() };
+
+function openCtSheet(type, editId = null) {
+  ctSheetState = { type, editId, baselineImg:null, items:[], dates:[], tpo:[] };
+  const titleMap = { care:'집중케어 설계', makeup:'메이크업 테마 설계', look:'룩 설계' };
+  document.getElementById('ct-sheet-title').textContent = titleMap[type] || '설계';
+  const itemsMap = { care:'아이템 매핑 (BOX 뷰티)', makeup:'아이템 매핑 (BOX 뷰티)', look:'아이템 매핑 (BOX 패션·ACC)' };
+  document.getElementById('ct-items-lbl').textContent = itemsMap[type] || '아이템 매핑 (BOX)';
+  document.getElementById('ct-tpo-sec').style.display = type === 'look' ? '' : 'none';
+  // reset form
+  document.getElementById('ct-emoji').value = '';
+  document.getElementById('ct-name').value  = '';
+  document.getElementById('ct-desc').value  = '';
+  document.getElementById('ct-box-inp').value = '';
+  document.getElementById('ct-box-results').innerHTML = '';
+  renderCtChips();
+  renderCtDates();
+  document.querySelectorAll('.ct-tpo-chip').forEach(el => el.classList.remove('active'));
+  const bl = document.getElementById('ct-sheet-baseline');
+  bl.style.backgroundImage = '';
+  bl.classList.remove('has-img');
+  bl.querySelector('.ct-sheet-baseline-text').style.display = '';
+
+  // fill edit data
+  if (editId !== null) {
+    let t = null;
+    if (type === 'care') {
+      const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+      t = care.find(x => x.id === editId);
+      if (t) ctSheetState.items = (t.items||[]).map(p => ({...p}));
+    } else if (type === 'makeup') {
+      const data = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
+      t = (data.themes||[]).find(x => x.id === editId);
+      if (t) ctSheetState.items = (t.products||[]).map(p => ({...p}));
+    } else {
+      const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+      t = looks.find(x => x.id === editId);
+      if (t) ctSheetState.items = (t.items||[]).map(p => ({...p}));
+    }
+    if (t) {
+      document.getElementById('ct-emoji').value = t.emoji||'';
+      document.getElementById('ct-name').value  = t.name||'';
+      document.getElementById('ct-desc').value  = t.description||'';
+      ctSheetState.dates = [...(t.scheduledDates||[])];
+      ctSheetState.tpo   = [...(t.tpo||[])];
+      ctSheetState.baselineImg = t.baselineImg||null;
+      if (t.baselineImg) {
+        bl.style.backgroundImage = `url(${t.baselineImg})`;
+        bl.classList.add('has-img');
+        bl.querySelector('.ct-sheet-baseline-text').style.display = 'none';
+      }
+      (t.tpo||[]).forEach(tp => {
+        document.querySelector(`.ct-tpo-chip[onclick*="'${tp}'"]`)?.classList.add('active');
+      });
+      renderCtChips();
+      renderCtDates();
+    }
+  }
+  document.getElementById('ct-sheet-ov').classList.add('open');
+  setTimeout(() => document.getElementById('ct-name').focus(), 350);
+}
+
+function closeCtSheet() { document.getElementById('ct-sheet-ov').classList.remove('open'); }
+
+function pickCtBaseline() { document.getElementById('ct-baseline-input').click(); }
+function onCtBaselineFile(input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    ctSheetState.baselineImg = e.target.result;
+    const el = document.getElementById('ct-sheet-baseline');
+    el.style.backgroundImage = `url(${e.target.result})`;
+    el.classList.add('has-img');
+    el.querySelector('.ct-sheet-baseline-text').style.display = 'none';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function renderCtBoxResults(q) {
+  const el = document.getElementById('ct-box-results');
+  if (!el) return;
+  const all = getBoxAssets();
+  const filtered = (ctSheetState.type === 'look'
+    ? all.filter(a => a.domain === 'fashion' || a.domain === 'acc')
+    : all.filter(a => a.domain === 'beauty')
+  ).filter(a => !q.trim() ? true :
+    (a.name||'').toLowerCase().includes(q.toLowerCase()) ||
+    (a.brand||'').toLowerCase().includes(q.toLowerCase())
+  ).slice(0, 8);
+  if (!filtered.length) {
+    el.innerHTML = `<div style="padding:9px 12px;font-size:11px;color:var(--mist);text-align:center">BOX에 등록된 제품이 없습니다</div>`;
+    return;
+  }
+  const alreadyIds = ctSheetState.items.map(i => i.assetId);
+  el.innerHTML = filtered.map(a => {
+    const used = alreadyIds.includes(a.id);
+    const icon = a.domain === 'beauty' ? '✦' : '◈';
+    return `<div class="ct-box-row${used?' selected':''}" onclick="${used?'':` addCtItem(${a.id})`}">
+      <div class="ct-box-img" style="${a.imgData?`background-image:url(${a.imgData});background-size:cover`:''}">${!a.imgData?icon:''}</div>
+      <div style="flex:1;min-width:0">
+        <div class="ct-box-name">${a.name}</div>
+        ${a.brand?`<div class="ct-box-brand">${a.brand}</div>`:''}
+      </div>
+      ${used?`<span style="color:var(--ink);font-size:11px;font-weight:700">✓</span>`:`<span style="color:var(--mist);font-size:14px">+</span>`}
+    </div>`;
+  }).join('');
+}
+
+function addCtItem(assetId) {
+  const asset = getBoxAssets().find(a => a.id === assetId);
+  if (!asset) return;
+  if (ctSheetState.items.find(i => i.assetId === assetId)) return;
+  ctSheetState.items.push({ assetId, name: asset.name, brand: asset.brand||'', imgData: asset.imgData||null });
+  renderCtChips();
+  renderCtBoxResults(document.getElementById('ct-box-inp')?.value || '');
+}
+
+function removeCtItem(assetId) {
+  ctSheetState.items = ctSheetState.items.filter(i => i.assetId !== assetId);
+  renderCtChips();
+  renderCtBoxResults(document.getElementById('ct-box-inp')?.value || '');
+}
+
+function renderCtChips() {
+  const el = document.getElementById('ct-selected-chips');
+  if (!el) return;
+  el.innerHTML = ctSheetState.items.map(p =>
+    `<div class="ct-chip">
+      <div class="ct-chip-img" style="${p.imgData?`background-image:url(${p.imgData});background-size:cover`:''}">${!p.imgData?'✦':''}</div>
+      ${p.name}
+      <span class="ct-chip-del" onclick="removeCtItem(${p.assetId})">✕</span>
+    </div>`
+  ).join('');
+}
+
+function toggleTpo(el, val) {
+  el.classList.toggle('active');
+  const idx = ctSheetState.tpo.indexOf(val);
+  if (idx === -1) ctSheetState.tpo.push(val);
+  else ctSheetState.tpo.splice(idx, 1);
+}
+
+// ── CT Calendar ────────────────────────────────────────────────
+function openCtCal() {
+  ctCalState.year  = new Date().getFullYear();
+  ctCalState.month = new Date().getMonth();
+  renderCtCal();
+  document.getElementById('ct-cal-ov').classList.add('open');
+}
+function closeCtCal() { document.getElementById('ct-cal-ov').classList.remove('open'); }
+function ctCalNav(dir) {
+  ctCalState.month += dir;
+  if (ctCalState.month > 11) { ctCalState.month = 0; ctCalState.year++; }
+  if (ctCalState.month < 0)  { ctCalState.month = 11; ctCalState.year--; }
+  renderCtCal();
+}
+function renderCtCal() {
+  const { year, month } = ctCalState;
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAY_HDS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const today = new Date().toISOString().slice(0,10);
+  const firstDow = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  let html = DAY_HDS.map(h => `<div class="ct-cal-hd">${h}</div>`).join('');
+  for (let i = 0; i < firstDow; i++) html += `<div class="ct-cal-cell empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSel = ctSheetState.dates.includes(ds);
+    const isToday = ds === today;
+    const isPast  = ds < today;
+    html += `<div class="ct-cal-cell${isSel?' selected':''}${isToday?' today':''}${isPast&&!isSel?' past':''}" onclick="toggleCtDate('${ds}')">${d}</div>`;
+  }
+  document.getElementById('ct-cal-title').textContent = `${MONTHS[month]} ${year}`;
+  document.getElementById('ct-cal-grid').innerHTML = html;
+}
+function toggleCtDate(ds) {
+  const idx = ctSheetState.dates.indexOf(ds);
+  if (idx === -1) ctSheetState.dates.push(ds);
+  else ctSheetState.dates.splice(idx, 1);
+  renderCtCal();
+  renderCtDates();
+}
+function renderCtDates() {
+  const el = document.getElementById('ct-dates-wrap');
+  if (!el) return;
+  const chips = ctSheetState.dates.sort().map(d =>
+    `<span class="ct-date-del-chip" onclick="removeCtDate('${d}')">${d.slice(5).replace('-','/')} ✕</span>`
+  ).join('');
+  el.innerHTML = chips + `<button class="ct-date-add-chip" onclick="openCtCal()">+ 날짜 추가</button>`;
+}
+function removeCtDate(ds) {
+  ctSheetState.dates = ctSheetState.dates.filter(d => d !== ds);
+  renderCtDates();
+}
+
+// ── Save CT Content ────────────────────────────────────────────
+function saveCtContent(draft = false) {
+  const name  = document.getElementById('ct-name').value.trim();
+  if (!name) { showToast('이름을 입력해주세요'); document.getElementById('ct-name').focus(); return; }
+  const emoji = document.getElementById('ct-emoji').value.trim() || '✦';
+  const desc  = document.getElementById('ct-desc').value.trim();
+
+  if (ctSheetState.type === 'care') {
+    const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+    const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: ctSheetState.items, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
+    if (ctSheetState.editId) {
+      const idx = care.findIndex(x => x.id === ctSheetState.editId);
+      if (idx !== -1) care[idx] = obj; else care.push(obj);
+    } else { care.push(obj); }
+    localStorage.setItem('onstep_care_themes', JSON.stringify(care));
+    if (!draft) addToLogPortfolio({ id: Date.now(), type:'care', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
+    renderCtCareList();
+  } else if (ctSheetState.type === 'makeup') {
+    const stored = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
+    const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, products: ctSheetState.items, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
+    if (ctSheetState.editId) {
+      const idx = stored.themes.findIndex(x => x.id === ctSheetState.editId);
+      if (idx !== -1) stored.themes[idx] = obj; else stored.themes.push(obj);
+    } else { stored.themes.push(obj); }
+    localStorage.setItem('onstep_makeup_themes', JSON.stringify(stored));
+    if (makeupSchedule) makeupSchedule.themes = stored.themes;
+    if (!draft) addToLogPortfolio({ id: Date.now(), type:'makeup', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
+    renderCtMkpList();
+  } else {
+    const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+    const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: ctSheetState.items, tpo: ctSheetState.tpo, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
+    if (ctSheetState.editId) {
+      const idx = looks.findIndex(x => x.id === ctSheetState.editId);
+      if (idx !== -1) looks[idx] = obj; else looks.push(obj);
+    } else { looks.push(obj); }
+    localStorage.setItem('onstep_look_themes', JSON.stringify(looks));
+    if (!draft) addToLogPortfolio({ id: Date.now(), type:'look', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
+    renderCtLookList();
+  }
+  updateHubCounts();
+  closeCtSheet();
+  showToast(draft ? '임시저장 완료' : `✓ "${name}" 설계 완료 — LOG 포트폴리오에 등록됩니다`);
+}
+function saveCtDraft() { saveCtContent(true); }
+
+function editCtContent(type, id) { openCtSheet(type, id); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('modal-overlay').classList.contains('open')) {
+    if (['product-name','product-brand'].includes(document.activeElement?.id)) confirmProduct();
+  }
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function exportData() {
+  const keys = ['onstep_box_assets','onstep_care_plan','onstep_makeup_themes','onstep_look_themes','onstep_care_themes'];
+  const data = {};
+  keys.forEach(k => { try { data[k] = JSON.parse(localStorage.getItem(k)||'null'); } catch(e) {} });
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'onstep-backup.json'; a.click();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>OnStep — BLANC LUXE Design System</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════
+   BLANC LUXE DESIGN SYSTEM — GLOBAL
+   Chanel.com inspired · OnStep v26
+   ════════════════════════════════════════ */
+:root {
+  /* Core palette */
+  --noir: #0A0A0A;
+  --blanc: #FFFFFF;
+  --warm-white: #FAF8F5;
+  --paper: #F4F1ED;
+  --taupe: #C8BFB5;
+  --taupe-dark: #8A7F77;
+  --ink-light: #3A3730;
+
+  /* Typography */
+  --f-serif: 'Cormorant Garamond', Georgia, serif;
+  --f-sans:  'Inter', 'DM Sans', sans-serif;
+
+  /* Borders */
+  --line: 1px solid #0A0A0A;
+  --line-light: 1px solid rgba(10,10,10,.12);
+  --line-mid: 1px solid rgba(10,10,10,.24);
+
+  /* Spacing */
+  --gutter: 20px;
+  --r: 0px;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: var(--f-sans);
+  background: #111;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 80px;
+  -webkit-font-smoothing: antialiased;
+  color: var(--noir);
+}
+
+/* ── Studio bar ── */
+.studio-bar {
+  position: fixed; top:0; left:0; right:0; z-index:300;
+  background: #0A0A0A;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height:52px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.studio-brand {
+  font-family: var(--f-serif);
+  font-size: 15px; font-style: italic; font-weight: 300;
+  color: #fff; letter-spacing: .12em;
+}
+.studio-tabs { display:flex; gap:2px; }
+.studio-tab {
+  padding: 7px 18px; border: 1px solid rgba(255,255,255,.15);
+  background: transparent; color: rgba(255,255,255,.45);
+  font-family: var(--f-sans); font-size: 9px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  cursor: pointer; transition: all .2s;
+}
+.studio-tab.on { background: #fff; color: #0A0A0A; border-color: #fff; }
+.studio-meta {
+  font-family: var(--f-sans); font-size: 9px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(255,255,255,.3);
+}
+
+/* Design system banner */
+.ds-banner {
+  width: 100%; max-width: 1140px;
+  padding: 72px 0 48px;
+  display: none;
+}
+.ds-banner.on { display: block; }
+.ds-header {
+  text-align: center; margin-bottom: 64px;
+}
+.ds-eyebrow {
+  font-size: 9px; font-weight: 700; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--taupe); margin-bottom: 16px;
+}
+.ds-title {
+  font-family: var(--f-serif); font-size: 64px; font-weight: 300;
+  font-style: italic; color: #fff; line-height: .95; letter-spacing: -.01em;
+  margin-bottom: 16px;
+}
+.ds-sub {
+  font-size: 13px; color: rgba(255,255,255,.4); letter-spacing: .04em;
+}
+
+/* Token grid */
+.ds-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-bottom: 2px; }
+.ds-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 2px; }
+.ds-card {
+  background: #1A1A1A; padding: 24px;
+}
+.ds-card-lbl {
+  font-size: 9px; font-weight: 700; letter-spacing: .2em;
+  text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 12px;
+}
+
+/* Color swatches */
+.swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatch {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+}
+.swatch-block { width: 48px; height: 48px; border: 1px solid rgba(255,255,255,.08); }
+.swatch-name { font-size: 9px; color: rgba(255,255,255,.4); letter-spacing: .06em; }
+.swatch-hex  { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.7); font-family: monospace; }
+
+/* Typography scale */
+.type-row { margin-bottom: 12px; }
+.type-label { font-size: 8px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.25); margin-bottom: 4px; }
+
+/* Screen grid */
+.screens-row {
+  display: none; gap: 24px; justify-content: center;
+  flex-wrap: wrap; padding-top: 64px;
+}
+.screens-row.on { display: flex; }
+
+/* ── Phone frame ── */
+.phone {
+  width: 390px; flex-shrink: 0;
+  background: var(--warm-white);
+  box-shadow: 0 40px 100px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06) inset;
+  position: relative;
+  display: none;
+}
+.phone.on { display: block; }
+.phone-notch { height:44px; background:var(--warm-white); display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px; }
+.phone-notch-bar { width:120px; height:4px; background:var(--noir); border-radius:2px; opacity:.1; }
+.scroll { height:800px; overflow-y:auto; scrollbar-width:none; background:var(--warm-white); }
+.scroll::-webkit-scrollbar { display:none; }
+
+/* ════════════════════════════════════════
+   BLANC LUXE — SHARED UI TOKENS
+   ════════════════════════════════════════ */
+/* Appbar */
+.lx-appbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 14px 20px 12px;
+  background: rgba(250,248,245,.94);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: var(--line-light);
+  position: sticky; top:0; z-index:10;
+}
+.lx-appbar-title {
+  font-family: var(--f-serif); font-size:15px; font-style:italic;
+  font-weight:300; letter-spacing:.14em; color:var(--noir);
+}
+.lx-appbar-label {
+  font-size:9px; font-weight:700; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--taupe-dark);
+}
+.lx-appbar-icon {
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  border: var(--line-light); cursor:pointer;
+}
+/* Bottom nav */
+.lx-bnav {
+  background: rgba(250,248,245,.94);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: var(--line-light);
+  display: flex; padding: 12px 0 24px;
+  position: sticky; bottom:0;
+}
+.lx-nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; text-decoration:none; }
+.lx-nav-icon { font-size:18px; height:22px; display:flex; align-items:center; justify-content:center; }
+.lx-nav-lbl { font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--taupe); }
+.lx-nav-item.active .lx-nav-lbl { color:var(--noir); }
+.lx-nav-item.active .lx-nav-icon { border-bottom: 2px solid var(--noir); }
+/* Section label */
+.lx-sec-lbl {
+  font-size:9px; font-weight:700; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--taupe-dark);
+}
+/* Divider line */
+.lx-hr { height:1px; background:rgba(10,10,10,.1); margin:0; }
+/* Badge */
+.lx-badge {
+  display:inline-block; padding:3px 9px;
+  border: var(--line-light);
+  font-size:8px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--taupe-dark);
+}
+.lx-badge.filled { background:var(--noir); color:#fff; border-color:var(--noir); }
+
+/* ════════════════════════════════════════
+   SCREEN 01 — TODAY
+   ════════════════════════════════════════ */
+.today-bg { background:var(--warm-white); }
+
+/* Session watermark */
+.today-watermark {
+  font-family: var(--f-serif); font-size:160px; font-weight:300; font-style:italic;
+  color: rgba(10,10,10,.05); line-height:1; position:absolute;
+  right:-10px; top:8px; letter-spacing:-.04em; pointer-events:none; user-select:none;
+}
+.today-hero { padding:28px 20px 0; position:relative; overflow:hidden; }
+.today-hero-eyebrow {
+  font-size:9px; font-weight:700; letter-spacing:.24em;
+  text-transform:uppercase; color:var(--taupe-dark); margin-bottom:10px;
+}
+.today-hero-title {
+  font-family: var(--f-serif); font-size:52px; font-weight:300;
+  font-style:italic; color:var(--noir); line-height:.88;
+  letter-spacing:-.01em; margin-bottom:8px;
+}
+.today-hero-date {
+  font-size:10px; color:var(--taupe-dark); letter-spacing:.08em;
+}
+/* Progress bar */
+.today-prog-wrap { padding:22px 20px 0; }
+.today-prog-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.today-prog-pct { font-family:var(--f-serif); font-size:22px; font-style:italic; color:var(--noir); }
+.today-prog-track { height:1px; background:rgba(10,10,10,.12); position:relative; }
+.today-prog-fill { height:1px; background:var(--noir); position:absolute; top:0; left:0; }
+/* Cycle strip */
+.today-cycle { padding:20px 20px 0; }
+.today-cycle-inner { border: var(--line-light); padding:14px 16px; display:flex; align-items:center; justify-content:space-between; }
+.today-cycle-left { }
+.today-cycle-step { font-family:var(--f-serif); font-size:28px; font-style:italic; color:var(--noir); line-height:1; }
+.today-cycle-meta { font-size:9px; color:var(--taupe-dark); letter-spacing:.08em; margin-top:3px; }
+.today-cycle-right { text-align:right; }
+.today-cycle-day { font-family:var(--f-serif); font-size:13px; font-style:italic; color:var(--taupe-dark); }
+/* Flow section */
+.today-section { padding:22px 20px 0; }
+.today-section-hd { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
+.today-section-title { font-family:var(--f-serif); font-size:24px; font-style:italic; color:var(--noir); }
+.today-section-link { font-size:9px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--taupe-dark); text-decoration:none; }
+/* Product cards horizontal scroll */
+.today-prod-scroll { display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; }
+.today-prod-scroll::-webkit-scrollbar { display:none; }
+.today-prod-card { flex-shrink:0; width:120px; border: var(--line-light); background:var(--blanc); }
+.today-prod-img { width:120px; height:110px; background:var(--paper); display:flex; align-items:center; justify-content:center; font-size:32px; overflow:hidden; background-size:cover; background-position:center; }
+.today-prod-info { padding:10px 10px 12px; }
+.today-prod-cat { font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--taupe-dark); margin-bottom:3px; }
+.today-prod-name { font-size:10px; font-weight:600; color:var(--noir); line-height:1.3; }
+.today-prod-brand { font-size:9px; color:var(--taupe-dark); margin-top:2px; }
+.today-prod-card.done .today-prod-img::after { content:'✓'; position:absolute; inset:0; background:rgba(10,10,10,.6); display:flex; align-items:center; justify-content:center; font-size:22px; color:#fff; }
+.today-prod-card.done { opacity:.55; }
+/* Expert tip */
+.today-tip { margin:18px 20px 0; border-left:2px solid var(--noir); padding:12px 14px; background:var(--blanc); }
+.today-tip-lbl { font-size:8px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--noir); margin-bottom:6px; }
+.today-tip-text { font-family:var(--f-serif); font-size:13px; font-style:italic; color:var(--ink-light); line-height:1.65; }
+/* MOTD section */
+.today-motd { padding:20px 20px 0; }
+.today-motd-hd { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+.today-motd-emoji { font-size:18px; }
+.today-motd-name { font-family:var(--f-serif); font-size:18px; font-style:italic; color:var(--noir); }
+.today-motd-desc { font-size:10px; color:var(--taupe-dark); line-height:1.5; margin-bottom:10px; }
+/* CTA */
+.today-cta { margin:22px 20px 0; }
+.today-cta-btn { width:100%; padding:16px; background:var(--noir); color:var(--blanc); border:none; cursor:pointer; font-family:var(--f-serif); font-size:18px; font-style:italic; font-weight:300; letter-spacing:.06em; display:flex; align-items:center; justify-content:space-between; }
+.today-cta-arrow { font-size:20px; font-style:normal; }
+/* OOTD section */
+.today-ootd { padding:20px 20px 0; }
+.today-ootd-photo { height:200px; background:var(--paper); border:var(--line-light); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; cursor:pointer; }
+.today-ootd-icon { font-size:28px; opacity:.25; }
+.today-ootd-lbl { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--taupe-dark); }
+
+/* ════════════════════════════════════════
+   SCREEN 02 — LOG
+   ════════════════════════════════════════ */
+/* Tab bar */
+.lx-tabs { display:flex; overflow-x:auto; scrollbar-width:none; border-bottom:var(--line-light); background:var(--warm-white); }
+.lx-tabs::-webkit-scrollbar { display:none; }
+.lx-tab {
+  flex-shrink:0; padding:12px 16px 10px;
+  font-size:9px; font-weight:700; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--taupe-dark);
+  cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap;
+}
+.lx-tab.active { color:var(--noir); border-bottom-color:var(--noir); }
+/* Journal card */
+.log-journal-card { border:var(--line-light); margin:16px 20px 0; background:var(--blanc); }
+.log-jc-hd { padding:14px 16px; border-bottom:var(--line-light); display:flex; align-items:baseline; justify-content:space-between; }
+.log-jc-date { font-size:9px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--taupe-dark); }
+.log-jc-score { font-family:var(--f-serif); font-size:22px; font-style:italic; color:var(--noir); }
+.log-jc-body { padding:14px 16px 16px; }
+.log-jc-text { font-family:var(--f-serif); font-size:14px; font-style:italic; color:var(--ink-light); line-height:1.7; margin-bottom:10px; }
+.log-jc-tags { display:flex; gap:5px; flex-wrap:wrap; }
+.log-jc-tag { font-size:8px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; border:var(--line-light); padding:3px 8px; color:var(--taupe-dark); }
+/* Muse / Lookbook grid */
+.log-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin:16px 20px 0; }
+.log-grid-cell { background:var(--paper); aspect-ratio:3/4; display:flex; align-items:flex-end; position:relative; overflow:hidden; cursor:pointer; }
+.log-grid-cell-img { position:absolute; inset:0; background-size:cover; background-position:center; }
+.log-grid-cell-info { position:relative; z-index:1; width:100%; padding:8px; background:linear-gradient(0deg,rgba(10,10,10,.7),transparent); }
+.log-grid-cell-name { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#fff; }
+.log-grid-cell-date { font-size:8px; color:rgba(255,255,255,.6); }
+/* Library theme card */
+.log-lib-card { margin:14px 20px 0; border:var(--line-light); background:var(--blanc); }
+.log-lib-hd { padding:14px 16px 12px; display:flex; align-items:center; gap:10px; border-bottom:var(--line-light); }
+.log-lib-emoji { font-size:18px; }
+.log-lib-name { font-family:var(--f-serif); font-size:16px; font-style:italic; color:var(--noir); flex:1; }
+.log-lib-body { padding:12px 16px; }
+.log-lib-desc { font-size:11px; color:var(--taupe-dark); line-height:1.5; margin-bottom:10px; }
+.log-lib-items { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; }
+.log-lib-items::-webkit-scrollbar { display:none; }
+.log-lib-item { flex-shrink:0; width:44px; height:44px; background:var(--paper); border:var(--line-light); display:flex; align-items:center; justify-content:center; font-size:16px; }
+.log-add-btn { margin:12px 20px 0; padding:14px 16px; border:1px dashed rgba(10,10,10,.2); display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--taupe-dark); }
+
+/* ════════════════════════════════════════
+   SCREEN 03 — BOX
+   ════════════════════════════════════════ */
+/* Domain tabs */
+.box-domain-tabs { display:flex; border-bottom:var(--line-light); }
+.box-domain-tab { flex:1; padding:11px 0 9px; text-align:center; font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--taupe-dark); cursor:pointer; border-bottom:2px solid transparent; }
+.box-domain-tab.active { color:var(--noir); border-bottom-color:var(--noir); }
+/* Product grid */
+.box-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin:0; }
+.box-product-card { background:var(--blanc); cursor:pointer; transition:opacity .15s; }
+.box-product-card:active { opacity:.8; }
+.box-prod-img { width:100%; aspect-ratio:1/1; background:var(--paper); display:flex; align-items:center; justify-content:center; font-size:36px; overflow:hidden; background-size:cover; background-position:center; position:relative; }
+.box-prod-expiry-bar { position:absolute; bottom:0; left:0; height:2px; background:var(--noir); }
+.box-prod-expiry-bar.warn { background:#C0392B; }
+.box-prod-info { padding:10px 12px 14px; border-top:var(--line-light); }
+.box-prod-cat { font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--taupe-dark); margin-bottom:3px; }
+.box-prod-name { font-size:11px; font-weight:600; color:var(--noir); line-height:1.3; }
+.box-prod-brand { font-size:9px; color:var(--taupe-dark); margin-top:2px; }
+.box-prod-meta { display:flex; align-items:center; gap:6px; margin-top:6px; }
+.box-prod-qty { font-size:9px; color:var(--taupe-dark); }
+.box-prod-uses { font-size:8px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--taupe); padding:2px 6px; border:var(--line-light); }
+/* Box hero */
+.box-hero { padding:22px 20px 16px; border-bottom:var(--line-light); display:flex; align-items:flex-end; justify-content:space-between; }
+.box-hero-title { font-family:var(--f-serif); font-size:48px; font-weight:300; font-style:italic; color:var(--noir); line-height:.9; }
+.box-hero-count { font-size:10px; font-weight:600; letter-spacing:.08em; color:var(--taupe-dark); }
+/* Box cat filter */
+.box-cats { display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; padding:12px 20px; border-bottom:var(--line-light); background:var(--warm-white); position:sticky; top:49px; z-index:8; }
+.box-cats::-webkit-scrollbar { display:none; }
+.box-cat-chip { flex-shrink:0; padding:6px 14px; border:var(--line-light); font-size:9px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--taupe-dark); cursor:pointer; }
+.box-cat-chip.active { background:var(--noir); color:#fff; border-color:var(--noir); }
+/* Add FAB */
+.box-add-row { padding:16px 20px; border-top:var(--line-light); }
+.box-add-btn { width:100%; padding:14px; background:var(--noir); color:#fff; border:none; cursor:pointer; font-family:var(--f-serif); font-size:16px; font-style:italic; font-weight:300; letter-spacing:.06em; display:flex; align-items:center; justify-content:space-between; }
+
+/* ════════════════════════════════════════
+   SCREEN 04 — SETUP
+   ════════════════════════════════════════ */
+/* Content type tabs */
+.setup-ct-tabs { display:flex; border-bottom:var(--line-light); background:var(--warm-white); position:sticky; top:49px; z-index:9; }
+.setup-ct-tab { flex:1; padding:12px 0 10px; text-align:center; font-size:9px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--taupe-dark); cursor:pointer; border-bottom:2px solid transparent; }
+.setup-ct-tab.active { color:var(--noir); border-bottom-color:var(--noir); }
+/* Session block */
+.setup-session { padding:26px 20px 20px; border-bottom:var(--line-light); position:relative; overflow:hidden; }
+.setup-sess-watermark { font-family:var(--f-serif); font-size:120px; font-weight:300; font-style:italic; color:rgba(10,10,10,.05); position:absolute; right:-8px; top:-8px; line-height:1; pointer-events:none; }
+.setup-sess-title { font-family:var(--f-serif); font-size:42px; font-weight:300; font-style:italic; color:var(--noir); line-height:.9; margin-bottom:6px; }
+.setup-sess-period { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--taupe-dark); }
+/* Baseline */
+.setup-baseline { margin:18px 20px 0; }
+.setup-baseline-lbl { font-size:9px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--taupe-dark); margin-bottom:8px; }
+.setup-baseline-photo { height:110px; background:var(--paper); border:1px dashed rgba(10,10,10,.2); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; }
+.setup-baseline-icon { font-size:22px; opacity:.2; }
+.setup-baseline-text { font-size:9px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--taupe-dark); }
+/* Routine section */
+.setup-routine { padding:20px 20px 0; }
+.setup-routine-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.setup-routine-name { font-family:var(--f-serif); font-size:26px; font-style:italic; color:var(--noir); }
+.setup-step-tabs { display:flex; gap:6px; margin-bottom:16px; }
+.setup-step-tab { padding:7px 18px; border:var(--line-light); font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--taupe-dark); cursor:pointer; }
+.setup-step-tab.active { background:var(--noir); color:#fff; border-color:var(--noir); }
+/* Time picker */
+.setup-time { display:flex; align-items:baseline; gap:6px; padding:16px 0; border-bottom:var(--line-light); margin-bottom:16px; }
+.setup-time-val { font-family:var(--f-serif); font-size:56px; font-weight:300; font-style:italic; color:var(--noir); line-height:.95; }
+.setup-time-ampm { font-size:14px; font-weight:600; letter-spacing:.06em; color:var(--taupe-dark); }
+/* Product grid */
+.setup-prod-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.setup-prod-card { border:var(--line-light); background:var(--blanc); cursor:pointer; }
+.setup-prod-card-img { width:100%; aspect-ratio:1/1; background:var(--paper); display:flex; align-items:center; justify-content:center; font-size:24px; }
+.setup-prod-card-name { padding:8px 10px 10px; font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--noir); }
+.setup-prod-add { border:1px dashed rgba(10,10,10,.18); background:var(--warm-white); cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; aspect-ratio:1/1; }
+.setup-prod-add-plus { font-size:20px; color:rgba(10,10,10,.2); }
+.setup-prod-add-lbl { font-size:8px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:rgba(10,10,10,.3); }
+/* ok button */
+.setup-ok-btn { margin:20px 20px 0; width:calc(100% - 40px); padding:16px 20px; background:var(--noir); color:#fff; border:none; cursor:pointer; font-family:var(--f-serif); font-size:20px; font-style:italic; font-weight:300; letter-spacing:.06em; display:flex; align-items:center; justify-content:space-between; }
+.setup-draft-btn { margin:8px 20px 0; width:calc(100% - 40px); padding:13px 20px; background:transparent; color:var(--taupe-dark); border:var(--line-light); cursor:pointer; font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+/* Makeup card in setup */
+.setup-mkp-card { margin:14px 20px 0; border:var(--line-light); background:var(--blanc); }
+.setup-mkp-hd { padding:14px 16px; border-bottom:var(--line-light); display:flex; align-items:center; gap:10px; }
+.setup-mkp-emoji { font-size:18px; }
+.setup-mkp-name { font-family:var(--f-serif); font-size:16px; font-style:italic; color:var(--noir); flex:1; }
+.setup-mkp-body { padding:12px 16px; }
+.setup-mkp-desc { font-size:10px; color:var(--taupe-dark); line-height:1.5; margin-bottom:10px; }
+.setup-mkp-dates { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
+.setup-mkp-date { font-size:9px; font-weight:700; letter-spacing:.06em; padding:3px 9px; background:var(--noir); color:#fff; }
+.setup-mkp-actions { padding:10px 16px 12px; border-top:var(--line-light); display:flex; gap:6px; }
+.setup-mkp-ok { flex:1; padding:10px; background:var(--noir); color:#fff; border:none; cursor:pointer; font-family:var(--f-serif); font-size:14px; font-style:italic; font-weight:300; }
+.setup-mkp-edit { padding:10px 14px; background:transparent; color:var(--taupe-dark); border:var(--line-light); cursor:pointer; font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+
+/* ── Design system panel ── */
+.ds-panel { display:none; }
+.ds-panel.on { display:block; }
+.ds-section { background:#1A1A1A; margin-bottom:2px; padding:28px 24px; }
+.ds-section-title { font-size:9px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:rgba(255,255,255,.3); margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,.06); }
+/* Type specimens */
+.type-specimen { margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,.05); }
+.type-meta { font-size:8px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:6px; }
+.type-demo-xl  { font-family:var(--f-serif); font-size:52px; font-weight:300; font-style:italic; color:#fff; line-height:1; }
+.type-demo-lg  { font-family:var(--f-serif); font-size:28px; font-weight:300; font-style:italic; color:#fff; }
+.type-demo-md  { font-family:var(--f-serif); font-size:18px; font-style:italic; color:#fff; }
+.type-demo-lbl { font-size:9px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:rgba(255,255,255,.6); }
+.type-demo-body{ font-size:13px; color:rgba(255,255,255,.55); line-height:1.65; }
+/* Component preview */
+.comp-row { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start; margin-bottom:16px; }
+.comp-label { font-size:8px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.25); margin-bottom:8px; }
+
+@media(max-width:600px) {
+  body { padding: 0 0 80px; }
+  .studio-bar { padding:0 16px; }
+  .studio-meta { display:none; }
+  .screens-row { gap:0; padding-top:52px; }
+  .phone { width:100%; box-shadow:none; }
+  .scroll { height: calc(100dvh - 52px - 44px - 64px); }
+  .ds-banner { padding:64px 0 32px; }
+  .ds-grid { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Studio Bar -->
+<div class="studio-bar">
+  <div class="studio-brand">OnStep — Blanc Luxe</div>
+  <div class="studio-tabs">
+    <div class="studio-tab on"  id="st-system" onclick="showTab('system')">SYSTEM</div>
+    <div class="studio-tab"     id="st-today"  onclick="showTab('today')">TODAY</div>
+    <div class="studio-tab"     id="st-log"    onclick="showTab('log')">LOG</div>
+    <div class="studio-tab"     id="st-box"    onclick="showTab('box')">BOX</div>
+    <div class="studio-tab"     id="st-setup"  onclick="showTab('setup')">SETUP</div>
+  </div>
+  <div class="studio-meta">Chanel.com · Inspired</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     DESIGN SYSTEM
+     ══════════════════════════════════════ -->
+<div class="ds-panel on" id="panel-system" style="width:100%;max-width:900px;padding-top:64px">
+
+  <div style="text-align:center;padding:48px 24px 48px">
+    <div style="font-size:9px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px">DESIGN SYSTEM</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:58px;font-weight:300;font-style:italic;color:#fff;line-height:.95;margin-bottom:12px">Blanc Luxe</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.06em">OnStep v26 · Chanel.com 스타일 가이드</div>
+  </div>
+
+  <!-- Color -->
+  <div class="ds-section">
+    <div class="ds-section-title">COLOR TOKENS</div>
+    <div style="display:flex;flex-wrap:wrap;gap:20px">
+      <div class="swatch">
+        <div class="swatch-block" style="background:#0A0A0A"></div>
+        <div class="swatch-name">Noir</div>
+        <div class="swatch-hex">#0A0A0A</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#FFFFFF;border:1px solid rgba(255,255,255,.15)"></div>
+        <div class="swatch-name">Blanc</div>
+        <div class="swatch-hex">#FFFFFF</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#FAF8F5"></div>
+        <div class="swatch-name">Warm White</div>
+        <div class="swatch-hex">#FAF8F5</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#F4F1ED"></div>
+        <div class="swatch-name">Paper</div>
+        <div class="swatch-hex">#F4F1ED</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#C8BFB5"></div>
+        <div class="swatch-name">Taupe</div>
+        <div class="swatch-hex">#C8BFB5</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#8A7F77"></div>
+        <div class="swatch-name">Taupe Dark</div>
+        <div class="swatch-hex">#8A7F77</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#3A3730"></div>
+        <div class="swatch-name">Ink Light</div>
+        <div class="swatch-hex">#3A3730</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding:14px 16px;border:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.4);line-height:1.7">
+      <span style="color:rgba(255,255,255,.6);font-weight:600">색상 철학</span> — Noir & Blanc이 지배하고, Taupe가 온기를 더한다. 컬러 액센트 사용 금지. 공간 자체가 럭셔리를 표현한다.
+    </div>
+  </div>
+
+  <!-- Typography -->
+  <div class="ds-section">
+    <div class="ds-section-title">TYPOGRAPHY SCALE</div>
+    <div class="type-specimen">
+      <div class="type-meta">DISPLAY — Cormorant Garamond Italic 300 · 52px · Serif</div>
+      <div class="type-demo-xl">오늘의 루틴</div>
+    </div>
+    <div class="type-specimen">
+      <div class="type-meta">HEADING — Cormorant Garamond Italic 400 · 28px</div>
+      <div class="type-demo-lg">morning</div>
+    </div>
+    <div class="type-specimen">
+      <div class="type-meta">TITLE — Cormorant Garamond Italic · 18px</div>
+      <div class="type-demo-md">Daily Glow</div>
+    </div>
+    <div class="type-specimen">
+      <div class="type-meta">LABEL — Inter 700 · 9px · letter-spacing .22em · UPPERCASE</div>
+      <div class="type-demo-lbl">A.M. ROUTINE</div>
+    </div>
+    <div class="type-specimen" style="border:none;margin:0;padding:0">
+      <div class="type-meta">BODY — Inter 400 · 13px · line-height 1.65</div>
+      <div class="type-demo-body">Apply the toner while the skin is still slightly damp for maximum hydration absorption.</div>
+    </div>
+    <div style="margin-top:20px;padding:14px 16px;border:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.4);line-height:1.7">
+      <span style="color:rgba(255,255,255,.6);font-weight:600">타이포그래피 철학</span> — Serif italic이 감성을, Sans-serif가 정보를 담당한다. 라벨은 항상 9px 대문자 letter-spacing .2em 이상.
+    </div>
+  </div>
+
+  <!-- Components -->
+  <div class="ds-section">
+    <div class="ds-section-title">COMPONENT TOKENS</div>
+    <div class="comp-label">BUTTONS</div>
+    <div class="comp-row">
+      <div style="background:#0A0A0A;color:#fff;padding:14px 28px;font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;font-weight:300;letter-spacing:.04em;display:flex;align-items:center;gap:12px">ok → <span style="font-size:20px;font-style:normal">→</span></div>
+      <div style="border:1px solid #0A0A0A;color:#0A0A0A;padding:10px 22px;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase">EDIT</div>
+      <div style="border:1px dashed rgba(255,255,255,.3);color:rgba(255,255,255,.5);padding:10px 22px;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase">+ ADD</div>
+    </div>
+    <div class="comp-label">CARDS</div>
+    <div class="comp-row" style="gap:8px">
+      <div style="border:1px solid rgba(10,10,10,.12);background:#fff;padding:14px 16px;flex:1">
+        <div style="font-size:8px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#8A7F77;margin-bottom:5px">SERUM</div>
+        <div style="font-size:11px;font-weight:600;color:#0A0A0A">No.3 Glowy Serum</div>
+        <div style="font-size:9px;color:#8A7F77;margin-top:2px">Numbuzin</div>
+      </div>
+      <div style="border:1px solid #0A0A0A;background:#fff;padding:14px 16px;flex:1">
+        <div style="font-size:8px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#8A7F77;margin-bottom:5px">SCHEDULED</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:#0A0A0A">Daily Glow</div>
+        <div style="font-size:9px;color:#8A7F77;margin-top:3px">2026.05.06 · 05.08</div>
+      </div>
+    </div>
+    <div class="comp-label" style="margin-top:16px">FORM INPUTS</div>
+    <div style="display:flex;flex-direction:column;gap:12px;max-width:320px">
+      <div style="border-bottom:1.5px solid #0A0A0A;padding:8px 0">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#8A7F77;margin-bottom:4px">PRODUCT NAME</div>
+        <div style="font-size:14px;color:#0A0A0A">AHA/BHA Clarifying Toner</div>
+      </div>
+      <div style="border-bottom:1px solid rgba(10,10,10,.2);padding:8px 0">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#8A7F77;margin-bottom:4px">BRAND</div>
+        <div style="font-size:14px;color:#8A7F77;font-style:italic">브랜드명 입력...</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding:14px 16px;border:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.4);line-height:1.7">
+      <span style="color:rgba(255,255,255,.6);font-weight:600">컴포넌트 철학</span> — border-radius:0 (직각). 버튼은 serif italic ok →, 레이블은 all-caps. 카드 border는 1px solid. 공간이 럭셔리를 만든다.
+    </div>
+  </div>
+
+  <!-- Grid & Spacing -->
+  <div class="ds-section">
+    <div class="ds-section-title">GRID & SPACING</div>
+    <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin-bottom:16px">
+      <div style="background:#0A0A0A;height:4px"></div><div style="background:rgba(255,255,255,.08);height:4px"></div>
+      <div style="background:#0A0A0A;height:8px"></div><div style="background:rgba(255,255,255,.08);height:8px"></div>
+      <div style="background:#0A0A0A;height:12px"></div><div style="background:rgba(255,255,255,.08);height:12px"></div>
+      <div style="background:#0A0A0A;height:16px"></div><div style="background:rgba(255,255,255,.08);height:16px"></div>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,.4);line-height:1.7">
+      Base unit: <span style="color:#fff;font-weight:600">4px</span> · Gutter: <span style="color:#fff;font-weight:600">20px</span> · Grid: <span style="color:#fff;font-weight:600">1px border, 2px gap</span> · Typography uses <span style="color:#fff;font-weight:600">wide letter-spacing (.18–.28em) + all-caps</span> for labels
+    </div>
+  </div>
+
+  <!-- Stitch prompts -->
+  <div class="ds-section">
+    <div class="ds-section-title">STITCH PROMPTS (복사 사용)</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;font-size:11px;color:rgba(255,255,255,.55);line-height:1.8;font-family:monospace">
+        [SYSTEM DESIGN TOKEN]<br>
+        Style: Chanel.com inspired luxury minimalism<br>
+        Background: #FAF8F5 warm white, #F4F1ED paper<br>
+        Primary: #0A0A0A near-black, #FFFFFF white<br>
+        Accent: #C8BFB5 taupe, #8A7F77 taupe-dark<br>
+        Typography display: Cormorant Garamond Italic 300, large-scale<br>
+        Typography UI: Inter 700, 9px, letter-spacing 0.22em, ALL CAPS labels<br>
+        Border-radius: 0 (no rounded corners)<br>
+        Borders: 1px solid #0A0A0A (strong) or 1px solid rgba(10,10,10,.12) (subtle)<br>
+        Spacing: 4px base unit, 20px gutters<br>
+        Philosophy: Generous white space, restraint over excess, product speaks for itself<br>
+        No color accents — black/white/warm neutral only
+      </div>
+    </div>
+  </div>
+
+</div><!-- /panel-system -->
+
+<!-- ══════════════════════════════════════
+     4 SCREEN MOCKUPS
+     ══════════════════════════════════════ -->
+<div class="screens-row" id="screens-row">
+
+  <!-- TODAY -->
+  <div class="phone" id="phone-today">
+    <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+    <div class="scroll today-bg">
+      <!-- AppBar -->
+      <div class="lx-appbar">
+        <div class="lx-appbar-icon">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="#0A0A0A"><rect y="0" width="16" height="1.5"/><rect y="5" width="11" height="1.5"/><rect y="10" width="16" height="1.5"/></svg>
+        </div>
+        <div class="lx-appbar-title">OnStep</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8A7F77">AM</div>
+          <div class="lx-appbar-icon" style="width:28px;height:28px;border-radius:50%;background:#0A0A0A;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff">W</div>
+        </div>
+      </div>
+
+      <!-- Hero -->
+      <div class="today-hero">
+        <div class="today-watermark">12</div>
+        <div class="today-hero-eyebrow">A.M. ROUTINE · SESSION 12</div>
+        <div class="today-hero-title">Good<br>Morning</div>
+        <div class="today-hero-date">2026.05.04 · Monday</div>
+      </div>
+
+      <!-- Progress -->
+      <div class="today-prog-wrap">
+        <div class="today-prog-meta">
+          <div class="lx-sec-lbl">PROGRESS</div>
+          <div class="today-prog-pct">3 / 5</div>
+        </div>
+        <div class="today-prog-track">
+          <div class="today-prog-fill" style="width:60%"></div>
+        </div>
+      </div>
+
+      <!-- Cycle -->
+      <div class="today-cycle">
+        <div class="today-cycle-inner">
+          <div class="today-cycle-left">
+            <div class="today-cycle-step">Step 01</div>
+            <div class="today-cycle-meta">A.M. INTENSIVE CARE</div>
+          </div>
+          <div class="today-cycle-right">
+            <div class="lx-badge">DAY 25</div>
+            <div class="today-cycle-day" style="margin-top:6px">5 days remaining</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Morning Flow -->
+      <div class="today-section">
+        <div class="today-section-hd">
+          <div class="today-section-title">morning</div>
+          <div class="lx-sec-lbl">08:00</div>
+        </div>
+        <div class="today-prod-scroll">
+          <div class="today-prod-card done">
+            <div class="today-prod-img" style="position:relative">
+              <span>💧</span>
+              <div style="position:absolute;inset:0;background:rgba(10,10,10,.55);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff">✓</div>
+            </div>
+            <div class="today-prod-info">
+              <div class="today-prod-cat">Toner</div>
+              <div class="today-prod-name">AHA/BHA Clarifying</div>
+              <div class="today-prod-brand">COSRX</div>
+            </div>
+          </div>
+          <div class="today-prod-card done">
+            <div class="today-prod-img" style="position:relative">
+              <span>🔬</span>
+              <div style="position:absolute;inset:0;background:rgba(10,10,10,.55);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff">✓</div>
+            </div>
+            <div class="today-prod-info">
+              <div class="today-prod-cat">Serum</div>
+              <div class="today-prod-name">Super Glowy Serum</div>
+              <div class="today-prod-brand">Numbuzin</div>
+            </div>
+          </div>
+          <div class="today-prod-card done">
+            <div class="today-prod-img" style="position:relative">
+              <span>🧪</span>
+              <div style="position:absolute;inset:0;background:rgba(10,10,10,.55);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff">✓</div>
+            </div>
+            <div class="today-prod-info">
+              <div class="today-prod-cat">Ampoule</div>
+              <div class="today-prod-name">First Treatment EX</div>
+              <div class="today-prod-brand">MISSHA</div>
+            </div>
+          </div>
+          <div class="today-prod-card">
+            <div class="today-prod-img"><span>🫙</span></div>
+            <div class="today-prod-info">
+              <div class="today-prod-cat">Cream</div>
+              <div class="today-prod-name">Water Sleeping Mask</div>
+              <div class="today-prod-brand">LANEIGE</div>
+            </div>
+          </div>
+          <div class="today-prod-card">
+            <div class="today-prod-img"><span>🌫️</span></div>
+            <div class="today-prod-info">
+              <div class="today-prod-cat">Mist</div>
+              <div class="today-prod-name">Dewy Mist</div>
+              <div class="today-prod-brand">Tatcha</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tip -->
+      <div class="today-tip">
+        <div class="today-tip-lbl">Expert Tip</div>
+        <div class="today-tip-text">Apply the toner while the skin is still slightly damp for maximum hydration absorption.</div>
+      </div>
+
+      <!-- CTA -->
+      <div class="today-cta">
+        <button class="today-cta-btn">
+          <span>Check Routine</span>
+          <span class="today-cta-arrow">→</span>
+        </button>
+      </div>
+
+      <!-- MOTD -->
+      <div style="padding:22px 20px 0"><div class="lx-hr"></div></div>
+      <div class="today-motd">
+        <div class="today-section-hd">
+          <div class="today-section-title">makeup</div>
+          <a class="today-section-link" href="log.html?tab=library">Edit →</a>
+        </div>
+        <div class="today-motd-hd">
+          <span class="today-motd-emoji">✨</span>
+          <span class="today-motd-name">Daily Glow</span>
+          <span class="lx-badge filled">TODAY</span>
+        </div>
+        <div class="today-motd-desc">Natural dewy finish perfect for everyday wear.</div>
+        <div class="today-prod-scroll" style="gap:8px">
+          <div class="today-prod-card" style="width:100px">
+            <div class="today-prod-img" style="height:90px"><span>◎</span></div>
+            <div class="today-prod-info">
+              <div class="today-prod-cat">Base</div>
+              <div class="today-prod-name">Skin Tint SPF30</div>
+            </div>
+          </div>
+          <div class="today-prod-card" style="width:100px">
+            <div class="today-prod-img" style="height:90px"><span>◌</span></div>
+            <div class="today-prod-info">
+              <div class="today-prod-cat">Cheek</div>
+              <div class="today-prod-name">Soft Pinch Blush</div>
+            </div>
+          </div>
+          <div class="today-prod-card" style="width:100px">
+            <div class="today-prod-img" style="height:90px"><span>◈</span></div>
+            <div class="today-prod-info">
+              <div class="today-prod-cat">Lip</div>
+              <div class="today-prod-name">Lip Glow Oil</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OOTD -->
+      <div class="today-ootd" style="padding-bottom:20px">
+        <div class="today-section-hd" style="margin-top:22px">
+          <div class="today-section-title">ootd</div>
+          <a class="today-section-link" href="log.html?tab=library">Edit →</a>
+        </div>
+        <div class="today-ootd-photo">
+          <span class="today-ootd-icon">◈</span>
+          <span class="today-ootd-lbl">오늘의 룩 기록하기</span>
+        </div>
+      </div>
+
+      <!-- Bottom Nav -->
+      <div class="lx-bnav">
+        <a class="lx-nav-item active" href="today.html">
+          <div class="lx-nav-icon">◎</div><div class="lx-nav-lbl">Today</div>
+        </a>
+        <a class="lx-nav-item" href="log.html">
+          <div class="lx-nav-icon">◈</div><div class="lx-nav-lbl">Log</div>
+        </a>
+        <a class="lx-nav-item" href="box.html">
+          <div class="lx-nav-icon">◫</div><div class="lx-nav-lbl">Box</div>
+        </a>
+        <a class="lx-nav-item" href="setup.html">
+          <div class="lx-nav-icon">✦</div><div class="lx-nav-lbl">Setup</div>
+        </a>
+      </div>
+    </div>
+  </div><!-- /today -->
+
+  <!-- LOG -->
+  <div class="phone" id="phone-log">
+    <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+    <div class="scroll today-bg">
+      <div class="lx-appbar">
+        <div class="lx-appbar-icon">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="#0A0A0A"><rect y="0" width="16" height="1.5"/><rect y="5" width="11" height="1.5"/><rect y="10" width="16" height="1.5"/></svg>
+        </div>
+        <div class="lx-appbar-title" style="font-size:14px;letter-spacing:.18em">Log</div>
+        <div class="lx-appbar-icon" style="font-size:18px;font-style:italic;font-family:'Cormorant Garamond',serif;border:none;color:#8A7F77;font-weight:300">✦</div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="lx-tabs">
+        <div class="lx-tab">Journal</div>
+        <div class="lx-tab">Muse</div>
+        <div class="lx-tab">Scene</div>
+        <div class="lx-tab">Lookbook</div>
+        <div class="lx-tab active">Library</div>
+      </div>
+
+      <!-- Library tab content -->
+      <div style="padding:16px 20px 0;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="lx-sec-lbl">MAKEUP THEMES</div>
+          <div style="font-size:11px;color:#8A7F77;margin-top:2px">5 themes</div>
+        </div>
+        <div style="padding:8px 16px;background:#0A0A0A;color:#fff;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer">+ 테마 추가</div>
+      </div>
+
+      <div class="log-lib-card">
+        <div class="log-lib-hd">
+          <span class="log-lib-emoji">✨</span>
+          <span class="log-lib-name">Daily Glow</span>
+          <span class="lx-badge filled">SCHEDULED</span>
+        </div>
+        <div class="log-lib-body">
+          <div class="log-lib-desc">Natural dewy finish perfect for everyday wear.</div>
+          <div class="log-lib-items">
+            <div class="log-lib-item">◎</div>
+            <div class="log-lib-item">◌</div>
+            <div class="log-lib-item">▸</div>
+            <div class="log-lib-item">◈</div>
+            <div class="log-lib-item">✦</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">
+            <span style="font-size:9px;font-weight:700;background:#0A0A0A;color:#fff;padding:3px 8px;letter-spacing:.04em">05/06</span>
+            <span style="font-size:9px;font-weight:700;background:#0A0A0A;color:#fff;padding:3px 8px;letter-spacing:.04em">05/08</span>
+            <span style="font-size:9px;font-weight:700;border:1px dashed rgba(10,10,10,.2);color:#8A7F77;padding:3px 9px;cursor:pointer">+ 날짜</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="log-lib-card">
+        <div class="log-lib-hd">
+          <span class="log-lib-emoji">🖤</span>
+          <span class="log-lib-name">Sleek & Sharp</span>
+          <span class="lx-badge">INSPO</span>
+        </div>
+        <div class="log-lib-body">
+          <div class="log-lib-desc">Polished editorial look for days you want to command the room.</div>
+          <div class="log-lib-items">
+            <div class="log-lib-item">◎</div>
+            <div class="log-lib-item">▪</div>
+            <div class="log-lib-item">▸</div>
+            <div class="log-lib-item">◈</div>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:6px">
+            <span style="font-size:9px;font-weight:700;border:1px dashed rgba(10,10,10,.2);color:#8A7F77;padding:3px 9px;cursor:pointer">+ 날짜 추가</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px 20px 0;display:flex;align-items:center;justify-content:space-between;margin-top:8px;border-top:1px solid rgba(10,10,10,.08)">
+        <div>
+          <div class="lx-sec-lbl">LOOK SCHEDULE</div>
+          <div style="font-size:11px;color:#8A7F77;margin-top:2px">3 looks</div>
+        </div>
+        <div style="padding:8px 16px;background:#0A0A0A;color:#fff;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer">+ 룩 추가</div>
+      </div>
+
+      <div class="log-lib-card" style="margin-bottom:24px">
+        <div class="log-lib-hd">
+          <span class="log-lib-emoji">☀️</span>
+          <span class="log-lib-name">Weekend Fresh</span>
+          <span class="lx-badge filled">05/10</span>
+        </div>
+        <div class="log-lib-body">
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+            <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(10,10,10,.12);padding:3px 7px;color:#8A7F77">Casual</span>
+            <span style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(10,10,10,.12);padding:3px 7px;color:#8A7F77">Daily</span>
+          </div>
+          <div class="log-lib-items">
+            <div class="log-lib-item">◫</div>
+            <div class="log-lib-item">◈</div>
+            <div class="log-lib-item">◆</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Nav -->
+      <div class="lx-bnav">
+        <a class="lx-nav-item" href="today.html">
+          <div class="lx-nav-icon">◎</div><div class="lx-nav-lbl">Today</div>
+        </a>
+        <a class="lx-nav-item active" href="log.html">
+          <div class="lx-nav-icon">◈</div><div class="lx-nav-lbl">Log</div>
+        </a>
+        <a class="lx-nav-item" href="box.html">
+          <div class="lx-nav-icon">◫</div><div class="lx-nav-lbl">Box</div>
+        </a>
+        <a class="lx-nav-item" href="setup.html">
+          <div class="lx-nav-icon">✦</div><div class="lx-nav-lbl">Setup</div>
+        </a>
+      </div>
+    </div>
+  </div><!-- /log -->
+
+  <!-- BOX -->
+  <div class="phone" id="phone-box">
+    <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+    <div class="scroll today-bg">
+      <div class="lx-appbar">
+        <div class="lx-appbar-icon">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="#0A0A0A"><rect y="0" width="16" height="1.5"/><rect y="5" width="11" height="1.5"/><rect y="10" width="16" height="1.5"/></svg>
+        </div>
+        <div class="lx-appbar-title" style="font-size:14px;letter-spacing:.18em">Box</div>
+        <div class="lx-appbar-icon" style="font-size:18px;border:none;cursor:pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+      </div>
+
+      <!-- Domain tabs -->
+      <div class="box-domain-tabs">
+        <div class="box-domain-tab active">BEAUTY</div>
+        <div class="box-domain-tab">FASHION</div>
+        <div class="box-domain-tab">ACC</div>
+      </div>
+
+      <!-- Hero -->
+      <div class="box-hero">
+        <div>
+          <div class="lx-sec-lbl" style="margin-bottom:6px">INVENTORY</div>
+          <div class="box-hero-title">Beauty</div>
+        </div>
+        <div class="box-hero-count">6 items</div>
+      </div>
+
+      <!-- Cat filter -->
+      <div class="box-cats">
+        <div class="box-cat-chip active">All</div>
+        <div class="box-cat-chip">Toner</div>
+        <div class="box-cat-chip">Serum</div>
+        <div class="box-cat-chip">Ampoule</div>
+        <div class="box-cat-chip">Cream</div>
+        <div class="box-cat-chip">Suncare</div>
+      </div>
+
+      <!-- Grid -->
+      <div class="box-grid">
+        <div class="box-product-card">
+          <div class="box-prod-img">
+            💧
+            <div class="box-prod-expiry-bar" style="width:75%"></div>
+          </div>
+          <div class="box-prod-info">
+            <div class="box-prod-cat">Toner</div>
+            <div class="box-prod-name">AHA BHA Clarifying Toner</div>
+            <div class="box-prod-brand">COSRX</div>
+            <div class="box-prod-meta">
+              <span class="box-prod-qty">1/1</span>
+              <span class="box-prod-uses">3 uses</span>
+            </div>
+          </div>
+        </div>
+        <div class="box-product-card">
+          <div class="box-prod-img">
+            🔬
+            <div class="box-prod-expiry-bar warn" style="width:20%"></div>
+          </div>
+          <div class="box-prod-info">
+            <div class="box-prod-cat">Serum</div>
+            <div class="box-prod-name">30 Days Miracle Serum</div>
+            <div class="box-prod-brand">Some By Mi</div>
+            <div class="box-prod-meta">
+              <span class="box-prod-qty">1/2</span>
+              <span class="box-prod-uses">7 uses</span>
+            </div>
+          </div>
+        </div>
+        <div class="box-product-card">
+          <div class="box-prod-img">☀️</div>
+          <div class="box-prod-info">
+            <div class="box-prod-cat">Suncare</div>
+            <div class="box-prod-name">Perfect UV Sunscreen</div>
+            <div class="box-prod-brand">Anessa</div>
+            <div class="box-prod-meta">
+              <span class="box-prod-qty">1/1</span>
+              <span class="box-prod-uses">5 uses</span>
+            </div>
+          </div>
+        </div>
+        <div class="box-product-card">
+          <div class="box-prod-img">◈</div>
+          <div class="box-prod-info">
+            <div class="box-prod-cat">Lip</div>
+            <div class="box-prod-name">Satin Lip Pencil</div>
+            <div class="box-prod-brand">NARS</div>
+            <div class="box-prod-meta">
+              <span class="box-prod-qty">1/1</span>
+              <span class="box-prod-uses">2 uses</span>
+            </div>
+          </div>
+        </div>
+        <div class="box-product-card" style="border:1px dashed rgba(10,10,10,.15);background:var(--warm-white);aspect-ratio:unset">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:8px">
+            <div style="font-size:24px;opacity:.2">+</div>
+            <div style="font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#C8BFB5">REGISTER</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Nav -->
+      <div class="lx-bnav">
+        <a class="lx-nav-item" href="today.html">
+          <div class="lx-nav-icon">◎</div><div class="lx-nav-lbl">Today</div>
+        </a>
+        <a class="lx-nav-item" href="log.html">
+          <div class="lx-nav-icon">◈</div><div class="lx-nav-lbl">Log</div>
+        </a>
+        <a class="lx-nav-item active" href="box.html">
+          <div class="lx-nav-icon">◫</div><div class="lx-nav-lbl">Box</div>
+        </a>
+        <a class="lx-nav-item" href="setup.html">
+          <div class="lx-nav-icon">✦</div><div class="lx-nav-lbl">Setup</div>
+        </a>
+      </div>
+    </div>
+  </div><!-- /box -->
+
+  <!-- SETUP -->
+  <div class="phone" id="phone-setup">
+    <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+    <div class="scroll today-bg">
+      <div class="lx-appbar">
+        <div class="lx-appbar-icon">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="#0A0A0A"><rect y="0" width="16" height="1.5"/><rect y="5" width="11" height="1.5"/><rect y="10" width="16" height="1.5"/></svg>
+        </div>
+        <div class="lx-appbar-label">SETUP</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;font-weight:300;color:#8A7F77;cursor:pointer">Edit</div>
+      </div>
+
+      <!-- CT Tabs -->
+      <div class="setup-ct-tabs">
+        <div class="setup-ct-tab active">집중케어</div>
+        <div class="setup-ct-tab">메이크업</div>
+        <div class="setup-ct-tab">룩북</div>
+      </div>
+
+      <!-- Session block -->
+      <div class="setup-session">
+        <div class="setup-sess-watermark">12</div>
+        <div class="setup-sess-title">12th<br>Session</div>
+        <div class="setup-sess-period">2026.04.10 — 2026.04.20</div>
+      </div>
+
+      <!-- Baseline -->
+      <div class="setup-baseline">
+        <div class="setup-baseline-lbl">BASELINE · 시작 전 피부 상태</div>
+        <div class="setup-baseline-photo">
+          <span class="setup-baseline-icon">📷</span>
+          <span class="setup-baseline-text">Before 사진 추가</span>
+        </div>
+      </div>
+
+      <!-- Morning -->
+      <div class="setup-routine">
+        <div class="setup-routine-hd">
+          <div class="setup-routine-name">morning</div>
+          <div class="lx-sec-lbl">A.M. ROUTINE</div>
+        </div>
+        <div class="setup-step-tabs">
+          <div class="setup-step-tab active">STEP 01</div>
+          <div class="setup-step-tab">STEP 02</div>
+        </div>
+        <div class="setup-time">
+          <div class="setup-time-val">08:00</div>
+          <div class="setup-time-ampm">AM</div>
+        </div>
+        <div class="setup-prod-grid">
+          <div class="setup-prod-card">
+            <div class="setup-prod-card-img"><span>💧</span></div>
+            <div class="setup-prod-card-name">AHA/BHA Toner</div>
+          </div>
+          <div class="setup-prod-card">
+            <div class="setup-prod-card-img"><span>🔬</span></div>
+            <div class="setup-prod-card-name">Glowy Serum</div>
+          </div>
+          <div class="setup-prod-card">
+            <div class="setup-prod-card-img"><span>🧪</span></div>
+            <div class="setup-prod-card-name">Treatment EX</div>
+          </div>
+          <div class="setup-prod-add">
+            <div class="setup-prod-add-plus">+</div>
+            <div class="setup-prod-add-lbl">BOX에서 추가</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ok button -->
+      <button class="setup-ok-btn">
+        <span>ok — Activate</span>
+        <span style="font-style:normal;font-size:20px">→</span>
+      </button>
+      <button class="setup-draft-btn">임시저장</button>
+
+      <!-- History -->
+      <div style="padding:24px 20px 8px;border-top:1px solid rgba(10,10,10,.1);margin-top:20px">
+        <div class="lx-sec-lbl">HISTORY</div>
+      </div>
+      <div style="padding:0 20px">
+        <div style="display:flex;align-items:center;padding:12px 0;border-bottom:1px solid rgba(10,10,10,.08);gap:0">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;font-style:italic;color:rgba(10,10,10,.12);min-width:60px;line-height:1">12</div>
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:600;color:#0A0A0A">2026.04.10 – 2026.04.20</div>
+            <div style="font-size:10px;color:#8A7F77;margin-top:2px">12th session · routine</div>
+          </div>
+          <div style="color:#C8BFB5;font-size:14px">›</div>
+        </div>
+        <div style="display:flex;align-items:center;padding:12px 0;border-bottom:1px solid rgba(10,10,10,.06);gap:0">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;font-style:italic;color:rgba(10,10,10,.07);min-width:60px;line-height:1">11</div>
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:600;color:#8A7F77">2026.03.25 – 2026.04.07</div>
+            <div style="font-size:10px;color:#C8BFB5;margin-top:2px">11th session · routine</div>
+          </div>
+          <div style="color:#C8BFB5;font-size:14px">›</div>
+        </div>
+      </div>
+
+      <div style="height:24px"></div>
+
+      <!-- Bottom Nav -->
+      <div class="lx-bnav">
+        <a class="lx-nav-item" href="today.html">
+          <div class="lx-nav-icon">◎</div><div class="lx-nav-lbl">Today</div>
+        </a>
+        <a class="lx-nav-item" href="log.html">
+          <div class="lx-nav-icon">◈</div><div class="lx-nav-lbl">Log</div>
+        </a>
+        <a class="lx-nav-item" href="box.html">
+          <div class="lx-nav-icon">◫</div><div class="lx-nav-lbl">Box</div>
+        </a>
+        <a class="lx-nav-item active" href="setup.html">
+          <div class="lx-nav-icon">✦</div><div class="lx-nav-lbl">Setup</div>
+        </a>
+      </div>
+    </div>
+  </div><!-- /setup -->
+
+</div><!-- /screens-row -->
+
+<script>
+function showTab(tab) {
+  // Studio tabs
+  ['system','today','log','box','setup'].forEach(t => {
+    document.getElementById(`st-${t}`)?.classList.toggle('on', t === tab);
+  });
+
+  // Design system panel
+  const sys = document.getElementById('panel-system');
+  if (sys) sys.classList.toggle('on', tab === 'system');
+
+  // Screens row
+  const row = document.getElementById('screens-row');
+  if (row) row.classList.toggle('on', tab !== 'system');
+
+  // Individual phones
+  ['today','log','box','setup'].forEach(t => {
+    const ph = document.getElementById(`phone-${t}`);
+    if (ph) ph.classList.toggle('on', t === tab);
+  });
+}
+</script>
+</body>
+</html>

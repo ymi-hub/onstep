@@ -1,0 +1,2308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>OnStep · Box</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="OnStep">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FFFFFF">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════
+   SERENE RITUALS — Box / Inventory
+   ════════════════════════════════════ */
+:root {
+  --bg:#FFFFFF; --surface:#F5F5F3; --surface-low:#EFEFED;
+  --surface-mid:#E8E8E6; --surface-high:#DDDDD9; --surface-inv:#0A0A0A;
+  --ink:#0A0A0A; --sub:#444444; --mist:#999999;
+  --lime:#C5FF00; --lime-dark:#A8DB00; --lime-fg:#0A0A0A;
+  --border:rgba(10,10,10,.1); --border-md:rgba(10,10,10,.18);
+  --shadow:0 2px 16px rgba(0,0,0,.07);
+  --gutter:16px; --margin:16px;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:9999px;
+  --green:#2d6a4f; --amber:#b45309; --error:#ba1a1a;
+  --xs:4px; --sm:8px; --md:16px; --lg:24px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{
+  background:#EBEBEB; display:flex; justify-content:center; align-items:flex-start;
+  min-height:100vh; padding:24px 16px 48px;
+  font-family:'Inter',sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased;
+}
+.phone{
+  width:390px; background:#FFFFFF; border-radius:48px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.6) inset, 0 40px 100px rgba(0,0,0,.22);
+  overflow:hidden; position:relative;
+}
+.notch{height:44px;background:#FFFFFF;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
+.notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1;}
+.scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:#FFFFFF;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* ── Appbar ── */
+.appbar{
+  padding:12px 16px; display:flex; align-items:center;
+  justify-content:space-between; background:rgba(255,255,255,.92);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  position:sticky; top:0; z-index:10; border-bottom:1px solid var(--border);
+}
+.appbar-menu{width:22px;display:flex;flex-direction:column;gap:5px;cursor:pointer;}
+.appbar-menu span{height:1.5px;background:var(--ink);border-radius:2px;}
+.appbar-menu span:nth-child(2){width:68%;}
+.appbar-title{
+  font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700;
+  letter-spacing:.02em; color:var(--ink);
+  display:flex; align-items:center; gap:8px;
+}
+.appbar-logo{width:24px;height:24px;border-radius:var(--r-sm);object-fit:cover;filter:grayscale(100%);}
+.appbar-right{display:flex;align-items:center;gap:10px;}
+#auth-avatar{
+  width:32px;height:32px;border-radius:9999px;background:var(--surface-mid);
+  border:1.5px solid var(--border);overflow:hidden;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ── Page hero ── */
+.page-hero{padding:20px 16px 6px;}
+.page-hero-label{
+  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:4px;
+}
+.page-hero-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:6px;}
+.page-hero-title{
+  font-family:'Space Grotesk',sans-serif; font-size:60px; font-weight:800;
+  color:var(--ink); line-height:.9; letter-spacing:-.02em;
+}
+.page-hero-title::after{content:'';display:block;width:40px;height:4px;background:var(--lime);border-radius:2px;margin-top:8px;}
+.page-hero-count{
+  font-family:'Inter',sans-serif; font-size:11px; font-weight:600;
+  color:var(--mist); padding-bottom:6px; letter-spacing:.04em;
+}
+.page-hero-sub{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding-bottom:18px;}
+
+/* ── Domain tab bar ── */
+.domain-tabs{
+  display:flex; padding:0 16px 0;
+  border-bottom:1px solid var(--border);
+  gap:0; overflow-x:auto; scrollbar-width:none;
+  position:sticky; top:49px; z-index:8;
+  background:rgba(255,255,255,.94); backdrop-filter:blur(16px);
+}
+.domain-tabs::-webkit-scrollbar{display:none;}
+.domain-tab{
+  flex:1; text-align:center; padding:11px 14px 10px;
+  font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700;
+  letter-spacing:.02em; text-transform:uppercase; color:var(--mist);
+  cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; flex-shrink:0;
+  transition:all .18s;
+}
+.domain-tab.active{color:var(--ink);border-bottom-color:var(--lime);}
+.domain-tab.active::before{content:'#';}
+
+/* ── Category chips ── */
+.cat-chips-row{
+  display:flex; gap:6px; padding:12px var(--gutter) 10px;
+  overflow-x:auto; scrollbar-width:none;
+}
+.cat-chips-row::-webkit-scrollbar{display:none;}
+.cat-chip{
+  flex-shrink:0; padding:5px 12px; border-radius:var(--r-full);
+  border:1.5px solid var(--border); background:transparent;
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+  color:var(--sub); cursor:pointer; transition:all .18s;
+  white-space:nowrap;
+}
+.cat-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+/* ── Magazine editorial grid ── */
+.asset-grid{display:flex;flex-direction:column;padding:0 0 80px;}
+.mag-hero-card{padding:16px 16px 0;cursor:pointer;}
+.mag-hero-img{
+  width:100%;height:260px;border-radius:var(--r-xl);
+  background:var(--surface-mid);background-size:cover;background-position:center;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.mag-badge{
+  position:absolute;top:14px;left:14px;background:#fff;color:var(--ink);
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 12px;border-radius:var(--r-full);box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+.mag-hero-info{padding:12px 0 4px;}
+.mag-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0;}
+.mag-small-card{cursor:pointer;}
+.mag-small-img{
+  width:100%;aspect-ratio:1/1;border-radius:var(--r-lg);
+  background:var(--surface-mid);background-size:cover;background-position:center;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.mag-small-info{padding:8px 0 0;}
+.mag-brand{font-family:'Georgia',serif;font-size:14px;font-style:italic;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mag-name{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--ink);margin-bottom:8px;line-height:1.3;}
+.mag-stock-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:8px;margin-top:2px;}
+.mag-stock-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lime-dark);}
+.mag-stock-val{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--mist);}
+/* Promo card */
+.promo-card{
+  margin:14px 16px 6px;border:2px solid var(--lime);border-radius:var(--r-lg);
+  padding:12px 14px;display:flex;align-items:center;gap:12px;background:#fff;
+}
+.promo-avatar{width:44px;height:44px;background:var(--lime);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.promo-text{flex:1;font-family:'Inter',sans-serif;font-style:italic;font-size:13px;color:var(--ink);line-height:1.4;}
+.promo-icon{font-size:22px;flex-shrink:0;}
+
+/* Product photo */
+.ac-photo{
+  width:100%; aspect-ratio:2/3; background:var(--surface-mid);
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px; position:relative; overflow:hidden;
+  background-size:cover; background-position:center;
+}
+.ac-cat-chip{
+  position:absolute; bottom:8px; left:8px;
+  background:rgba(26,28,28,.72); color:#fff; border-radius:var(--r-sm);
+  font-family:'Inter',sans-serif; font-size:7px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; padding:3px 7px;
+  backdrop-filter:blur(6px);
+}
+.ac-season-chip{
+  position:absolute; top:8px; right:8px;
+  background:rgba(255,255,255,.82); color:var(--ink); border-radius:var(--r-sm);
+  font-family:'Inter',sans-serif; font-size:7px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; padding:2px 6px;
+}
+
+/* Info below photo */
+.ac-info{padding:10px 12px 12px;}
+.ac-brand{
+  font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--mist); margin-bottom:2px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.ac-name{
+  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:.04em; text-transform:uppercase; color:var(--ink);
+  margin-bottom:6px; line-height:1.3;
+  overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+}
+/* Mini expiry bar (beauty only) */
+.ac-expiry-bar{height:3px;background:var(--surface-high);border-radius:2px;overflow:hidden;margin-top:2px;}
+.ac-expiry-fill{height:100%;border-radius:2px;transition:width .4s;}
+.ac-expiry-fill.fresh{background:var(--lime);}
+.ac-expiry-fill.mid{background:var(--amber);}
+.ac-expiry-fill.low{background:var(--error);}
+.ac-expiry-label{
+  font-family:'Inter',sans-serif; font-size:8px; color:var(--mist);
+  margin-top:3px;
+}
+
+/* Empty state */
+.empty-state{
+  grid-column:1/-1; text-align:center; padding:40px 20px;
+  border:1.5px dashed var(--border-md); border-radius:var(--r-lg);
+}
+.empty-icon{font-size:28px;opacity:.3;margin-bottom:10px;}
+.empty-label{
+  font-family:'Space Grotesk',sans-serif; font-size:15px;
+  color:var(--mist); line-height:1.55;
+}
+.empty-hint{
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--border-md); margin-top:8px;
+}
+
+/* ── FAB add button ── */
+.fab{
+  position:fixed; bottom:88px; right:28px; z-index:40;
+  width:48px; height:48px; border-radius:9999px;
+  background:var(--lime); color:var(--ink);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:700; cursor:pointer; border:none;
+  box-shadow:0 4px 20px rgba(197,255,0,.4);
+  transition:transform .18s;
+}
+.fab:active{transform:scale(.92);}
+
+/* ── Bottom nav ── */
+/* ── Space Map ── */
+.space-map-wrap{display:flex;flex-direction:column;gap:12px;padding:12px var(--gutter) 16px;display:none;}
+.space-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;}
+.space-group-hd{display:flex;align-items:center;gap:12px;padding:14px 16px;}
+.space-group-photo{
+  width:44px;height:44px;border-radius:var(--r-sm);
+  background:var(--surface-mid);background-size:cover;background-position:center;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.space-group-name{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink);flex:1;}
+.space-group-count{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);}
+.space-items-row{
+  display:flex;gap:10px;padding:0 14px 14px;
+  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.space-items-row::-webkit-scrollbar{display:none;}
+.space-asset-thumb{flex-shrink:0;width:58px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.space-asset-img{
+  width:58px;height:70px;border-radius:var(--r-sm);
+  background:var(--surface-mid);background-size:cover;background-position:center;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  border:1px solid var(--border);filter:grayscale(15%);
+}
+.space-asset-name{
+  font-family:'Inter',sans-serif;font-size:8px;font-weight:600;letter-spacing:.06em;
+  color:var(--sub);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:58px;
+}
+.space-divider{width:1px;height:100%;background:var(--border);flex-shrink:0;}
+
+.bottom-nav{
+  background:#0A0A0A; border-top:none;
+  display:flex; padding:10px 0 20px;
+  position:sticky; bottom:0; z-index:10;
+}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;text-decoration:none;}
+.nav-icon{font-size:18px;height:22px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);}
+.nav-label{
+  font-family:'Inter',sans-serif; font-size:8px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.3);
+}
+.nav-item.active .nav-label{color:#C5FF00;}
+.nav-item.active .nav-icon{color:#C5FF00;}
+.nav-item.active .nav-icon::after{display:none;}
+
+/* ════════════════════════════════════
+   BOTTOM SHEET SYSTEM
+   ════════════════════════════════════ */
+.sheet-overlay{
+  position:absolute; inset:0; z-index:50;
+  background:rgba(0,0,0,.32); opacity:0; pointer-events:none;
+  transition:opacity .28s;
+}
+.sheet-overlay.show{opacity:1;pointer-events:all;}
+
+.bottom-sheet{
+  position:absolute; bottom:0; left:0; right:0; z-index:51;
+  background:#FFFFFF; border-radius:var(--r-xl) var(--r-xl) 0 0;
+  transform:translateY(100%);
+  transition:transform .36s cubic-bezier(.4,0,.2,1);
+  max-height:90%; display:flex; flex-direction:column;
+}
+.bottom-sheet.open{transform:translateY(0);}
+.sheet-handle{
+  width:36px;height:4px;background:var(--border-md);border-radius:2px;
+  margin:10px auto 0;flex-shrink:0;
+}
+.sheet-inner{overflow-y:auto;scrollbar-width:none;flex:1;padding-bottom:32px;}
+.sheet-inner::-webkit-scrollbar{display:none;}
+
+/* Sheet header */
+.sheet-hd{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 20px 14px; border-bottom:1px solid var(--border); flex-shrink:0;
+}
+.sheet-hd-title{
+  font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700;
+  color:var(--ink); flex:1;
+}
+.sheet-close-btn{
+  width:28px;height:28px;border-radius:var(--r-sm);background:var(--surface-mid);
+  border:none;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:12px;color:var(--mist);flex-shrink:0;
+}
+
+/* ── Detail sheet ── */
+.detail-hero-photo{
+  width:100%; height:240px; background:var(--surface-mid);
+  display:flex;align-items:center;justify-content:center;font-size:60px;
+  background-size:cover;background-position:center;position:relative;cursor:pointer;
+}
+.detail-hero-edit{
+  position:absolute;bottom:12px;right:12px;
+  background:rgba(0,0,0,.55);color:#fff;border-radius:var(--r-sm);
+  padding:5px 10px; font-family:'Inter',sans-serif;
+  font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+}
+.detail-breadcrumb{
+  display:flex; align-items:center; gap:5px;
+  padding:12px 20px 0;
+}
+.detail-bc-item{
+  font-family:'Inter',sans-serif; font-size:8px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--mist);
+}
+.detail-bc-sep{font-size:8px;color:var(--border-md);}
+.detail-main-info{padding:10px 20px 16px;}
+.detail-brand{
+  font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:500;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--mist); margin-bottom:3px;
+}
+.detail-name{
+  font-family:'Inter',sans-serif; font-size:17px; font-weight:700;
+  letter-spacing:.02em; text-transform:uppercase; color:var(--ink); line-height:1.2;
+}
+
+/* Expiry section */
+.detail-section{padding:14px 20px; border-top:1px solid var(--border);}
+.detail-section-label{
+  font-family:'Inter',sans-serif; font-size:8px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:10px;
+}
+.expiry-bar-full{
+  height:4px; background:var(--surface-high); border-radius:2px; overflow:hidden; margin-bottom:8px;
+}
+.expiry-bar-fill{height:100%;border-radius:2px;transition:width .5s;}
+.expiry-bar-fill.fresh{background:var(--lime);}
+.expiry-bar-fill.mid{background:var(--amber);}
+.expiry-bar-fill.low{background:var(--error);}
+.expiry-meta-row{display:flex;justify-content:space-between;align-items:center;}
+.expiry-meta-left{
+  font-family:'Inter',sans-serif; font-size:11px; font-weight:600; color:var(--ink);
+}
+.expiry-meta-right{
+  font-family:'Inter',sans-serif; font-size:10px; color:var(--mist);
+}
+
+/* Qty bar */
+.qty-row{display:flex;gap:4px;margin-top:10px;}
+.qty-pip{
+  flex:1; height:5px; background:var(--surface-high); border-radius:2px;
+  transition:background .3s;
+}
+.qty-pip.filled{background:var(--lime);}
+.qty-label{
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:600;
+  color:var(--mist); margin-top:5px;
+}
+
+/* Price + link row */
+.detail-price-row{display:flex;align-items:center;gap:10px;margin-top:12px;}
+.detail-price{
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:700;
+  color:var(--ink); flex:1;
+}
+.detail-link-btn{
+  padding:7px 14px; border:1.5px solid var(--border-md); border-radius:var(--r-full);
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--sub);
+  cursor:pointer; background:transparent; text-decoration:none;
+  display:flex;align-items:center;gap:4px;
+}
+
+/* Storage location section */
+.storage-location-photo{
+  width:100%; height:160px; background:var(--surface-mid);
+  display:flex; align-items:center; justify-content:center;
+  font-size:28px; border-radius:var(--r-md);
+  background-size:cover; background-position:center;
+  cursor:pointer; margin-bottom:8px; position:relative; overflow:hidden;
+}
+.storage-edit-hint{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.28); opacity:0; transition:opacity .2s;
+}
+.storage-location-photo:active .storage-edit-hint{opacity:1;}
+.storage-edit-hint span{
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:#fff;
+}
+.storage-name-input{
+  width:100%; padding:10px 12px;
+  border:1.5px solid var(--border); border-radius:var(--r-md);
+  font-family:'Inter',sans-serif; font-size:13px; color:var(--ink);
+  background:transparent; outline:none; transition:border-color .2s;
+}
+.storage-name-input:focus{border-color:var(--ink);}
+.storage-name-input::placeholder{color:var(--border-md);}
+.storage-shared-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.storage-shared-chip{
+  padding:5px 10px; border-radius:var(--r-full);
+  border:1.5px solid var(--border); background:var(--surface-low);
+  font-family:'Inter',sans-serif; font-size:9px; font-weight:600;
+  letter-spacing:.06em; color:var(--sub); cursor:pointer;
+  transition:all .18s;
+}
+.storage-shared-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+/* Edit / Delete row */
+.detail-action-row{display:flex;gap:8px;padding:16px 20px 8px;border-top:1px solid var(--border);}
+.detail-edit-btn{
+  flex:1; padding:13px; background:var(--ink); color:#fff; border:none;
+  border-radius:var(--r-md); font-family:'Inter',sans-serif;
+  font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  cursor:pointer; transition:opacity .2s;
+}
+.detail-edit-btn:active{opacity:.75;}
+.detail-del-btn{
+  width:44px; padding:13px; background:var(--surface-low); border:1.5px solid var(--border);
+  border-radius:var(--r-md); font-size:14px; cursor:pointer; transition:background .2s;
+}
+.detail-del-btn:active{background:var(--surface-mid);}
+
+/* ════════════════════════════════════
+   ADD SHEET — multi-step
+   ════════════════════════════════════ */
+.add-step{padding:0 20px;}
+.add-step-title{
+  font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:400;
+  color:var(--ink); padding:18px 0 14px;
+}
+
+/* Domain picker */
+.domain-pick-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.domain-pick-card{
+  padding:20px 0 18px; border:1.5px solid var(--border); border-radius:var(--r-lg);
+  text-align:center; cursor:pointer; transition:all .18s;
+}
+.domain-pick-card:active{background:var(--surface-low);}
+.domain-pick-card.selected{border-color:var(--ink);background:var(--ink);}
+.dpc-icon{font-size:24px;margin-bottom:6px;}
+.dpc-label{
+  font-family:'Inter',sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink); margin-bottom:2px;
+}
+.dpc-sub{font-family:'Inter',sans-serif; font-size:9px; color:var(--mist);}
+.domain-pick-card.selected .dpc-label,.domain-pick-card.selected .dpc-sub{color:#fff;}
+.domain-pick-card.selected .dpc-icon{filter:invert(1);}
+
+/* Type sub-tabs (SKINCARE / MAKEUP) */
+.type-tabs{display:flex;gap:6px;margin-bottom:12px;}
+.type-tab{
+  flex:1;padding:8px 0;border:1.5px solid var(--border);border-radius:var(--r-md);
+  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--mist);
+  text-align:center;cursor:pointer;transition:all .18s;
+}
+.type-tab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+/* Category chips in add flow */
+.add-cat-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+.add-cat-chip{
+  padding:6px 14px;border-radius:var(--r-full);border:1.5px solid var(--border);
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--sub);
+  cursor:pointer;transition:all .18s;
+}
+.add-cat-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+/* Form fields */
+.form-row{display:flex;gap:8px;margin-bottom:10px;}
+.form-label{
+  font-family:'Inter',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--mist);
+  margin-bottom:5px;
+}
+.form-input{
+  width:100%;padding:11px 13px;
+  border:1.5px solid var(--border);border-radius:var(--r-md);
+  font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);
+  background:var(--surface);outline:none;transition:border-color .2s;
+}
+.form-input:focus{border-color:var(--ink);}
+.form-input::placeholder{color:var(--border-md);}
+.form-input.half{flex:0 0 calc(50% - 4px);}
+.form-input.third{flex:0 0 calc(33% - 6px);}
+.form-group{margin-bottom:14px;}
+
+/* Photo upload block */
+.photo-upload-block{
+  width:100%;height:130px;background:var(--surface-mid);border-radius:var(--r-md);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;cursor:pointer;margin-bottom:14px;position:relative;overflow:hidden;
+  border:1.5px dashed var(--border-md);transition:border-color .2s;
+  background-size:cover;background-position:center;
+}
+.photo-upload-block.has-img{border:none;}
+.photo-upload-block:active{border-color:var(--ink);}
+.photo-upload-icon{font-size:24px;color:var(--border-md);}
+.photo-upload-label{
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--border-md);
+}
+.photo-upload-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.3);
+  display:flex;align-items:center;justify-content:center;opacity:0;
+}
+.photo-upload-block.has-img:hover .photo-upload-overlay,
+.photo-upload-block.has-img:active .photo-upload-overlay{opacity:1;}
+
+/* Storage location picker in add flow */
+.storage-existing-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.storage-loc-chip{
+  padding:6px 12px;border-radius:var(--r-full);border:1.5px solid var(--border);
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.06em;color:var(--sub);cursor:pointer;transition:all .18s;
+  display:flex;align-items:center;gap:5px;
+}
+.storage-loc-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.storage-loc-thumb{
+  width:16px;height:16px;border-radius:var(--r-sm);background:var(--surface-high);
+  background-size:cover;background-position:center;flex-shrink:0;overflow:hidden;
+}
+.or-divider{
+  display:flex;align-items:center;gap:8px;margin:10px 0;
+}
+.or-line{flex:1;height:1px;background:var(--border);}
+.or-text{
+  font-family:'Inter',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--border-md);
+}
+
+/* Save button */
+.sheet-save-btn{
+  width:100%;padding:15px;background:var(--ink);color:#fff;border:none;
+  border-radius:var(--r-md);font-family:'Inter',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  cursor:pointer;transition:opacity .2s;margin-top:6px;
+}
+.sheet-save-btn:active{opacity:.75;}
+.sheet-back-btn{
+  padding:8px 0;background:none;border:none;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--mist);
+  display:flex;align-items:center;gap:4px;margin-bottom:4px;
+}
+
+/* Season picker */
+.season-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.season-chip{
+  padding:5px 12px;border-radius:var(--r-full);border:1.5px solid var(--border);
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;
+  transition:all .18s;
+}
+.season-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+/* ── Detail editable fields ── */
+.det-row{display:flex;gap:8px;}
+.det-field-group{flex:1;margin-bottom:10px;}
+.det-field-label{
+  font-family:'Inter',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:4px;
+}
+.det-input{
+  width:100%;padding:9px 12px;
+  border:1.5px solid var(--border);border-radius:var(--r-md);
+  font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);
+  background:var(--surface-low);outline:none;transition:border-color .2s;
+}
+.det-input:focus{border-color:var(--ink);background:var(--surface);}
+.det-input::placeholder{color:var(--border-md);}
+.det-input-brand{font-family:'Space Grotesk',sans-serif;font-size:15px;}
+.det-input-name{font-weight:700;font-size:14px;letter-spacing:.02em;text-transform:uppercase;}
+.det-cat-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.det-cat-chip{
+  padding:5px 12px;border-radius:var(--r-full);border:1.5px solid var(--border);
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;transition:all .18s;
+}
+.det-cat-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.det-type-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.det-type-tab{
+  flex:1;padding:7px 0;border:1.5px solid var(--border);border-radius:var(--r-md);
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--mist);
+  text-align:center;cursor:pointer;transition:all .18s;
+}
+.det-type-tab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.det-season-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.det-season-chip{
+  padding:5px 12px;border-radius:var(--r-full);border:1.5px solid var(--border);
+  font-family:'Inter',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;transition:all .18s;
+}
+.det-season-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+@media(max-width:430px){
+  body{background:var(--bg);padding:0;align-items:stretch;}
+  .phone{width:100%;border-radius:0;box-shadow:none;}
+  .notch{height:calc(env(safe-area-inset-top,0px)+10px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0;}
+  .notch-bar{display:none;}
+  .scroll{height:calc(100dvh - env(safe-area-inset-top,0px) - 10px);}
+  .bottom-nav{padding-bottom:calc(env(safe-area-inset-bottom,0px)+10px);}
+}
+
+/* ════════════════════════════════════
+   FULL PAGE ADD FORM (Beauty)
+   ════════════════════════════════════ */
+.add-page{
+  position:absolute; inset:0; z-index:60;
+  background:#FFFFFF;
+  transform:translateY(100%);
+  transition:transform .38s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.add-page.open{ transform:translateY(0); }
+
+.add-page-bar{
+  position:absolute; top:0; left:0; right:0;
+  height:65px; background:rgba(255,255,255,.92);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:flex-end; justify-content:space-between;
+  padding:0 16px 12px; z-index:10;
+}
+.add-page-back{
+  width:36px; height:36px; border:none; background:none;
+  cursor:pointer; color:var(--ink);
+  display:flex; align-items:center; justify-content:center; padding:0;
+}
+
+.add-page-scroll{
+  height:100%; overflow-y:auto; scrollbar-width:none;
+  padding:79px 16px 96px;
+  display:flex; flex-direction:column; gap:48px;
+}
+.add-page-scroll::-webkit-scrollbar{ display:none; }
+
+/* ── Header ── */
+.add-page-title{
+  font-family:'Inter',sans-serif; font-size:32px; font-weight:600;
+  letter-spacing:-0.96px; color:#0C1014; line-height:38px; margin-bottom:4px;
+}
+.add-page-subtitle{
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:400;
+  color:#44474A; line-height:20px;
+}
+
+/* ── Product Image ── */
+.add-img-block{
+  width:100%; height:201px;
+  background:rgba(255,255,255,.8); border:1px solid #E9ECEF;
+  border-radius:var(--r-md); backdrop-filter:blur(10px);
+  cursor:pointer; overflow:hidden; position:relative;
+  background-size:cover; background-position:center;
+}
+.add-img-overlay{
+  position:absolute; inset:1px;
+  background:rgba(0,0,0,.05);
+  display:flex; align-items:center; justify-content:center;
+}
+.add-img-inner{
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  pointer-events:none; transition:opacity .2s;
+}
+.add-img-block.has-img .add-img-inner{ opacity:0; }
+.add-img-icon{
+  width:28px; height:25px; background:#0C1014;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 5h-2.83L15 3H9L6.83 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 5h-2.83L15 3H9L6.83 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.add-img-label{
+  font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:1.2px; text-transform:uppercase; color:#1A1C1C;
+}
+
+/* ── Form field base ── */
+.add-field-row{
+  display:flex; justify-content:space-between; align-items:flex-start;
+  margin-bottom:4px;
+}
+.add-field-label{
+  font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:0.6px; text-transform:uppercase; color:#44474A;
+}
+.add-field-hint{
+  font-family:'Inter',sans-serif; font-size:12px; font-weight:400;
+  letter-spacing:0.24px; color:rgba(12,16,20,.4);
+}
+/* underline input */
+.add-underline-input{
+  width:100%; border:none; border-bottom:1px solid #6B7280;
+  background:#FFFFFF; outline:none;
+  font-family:'Inter',sans-serif; font-size:16px; color:#0C1014;
+  padding:10px 12px; height:40px; transition:border-color .2s;
+}
+.add-underline-input:focus{ border-bottom-color:#0C1014; }
+.add-underline-input::placeholder{ color:#6B7280; }
+/* large date input (18px, height 41px) */
+.add-date-input{
+  flex:1; border:none; border-bottom:1px solid #6B7280;
+  background:#FFFFFF; outline:none;
+  font-family:'Inter',sans-serif; font-size:18px; color:#1A1C1C;
+  padding:6px 12px; height:41px;
+}
+/* bordered box input (SOURCE) */
+.add-box-input{
+  width:100%; border:1px solid #C5C6CA;
+  background:transparent; outline:none;
+  font-family:'Inter',sans-serif; font-size:18px; color:#0C1014;
+  padding:11px 12px; height:48px; transition:border-color .2s;
+}
+.add-box-input:focus{ border-color:#0C1014; }
+.add-box-input::placeholder{ color:#6B7280; }
+
+/* ── Section title ── */
+.add-section-title{
+  font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:800;
+  color:#1A1C1C; line-height:38px; letter-spacing:-.02em;
+}
+/* border-top divider below section title */
+.add-hborder{
+  border-top:1px solid #C5C6CA;
+  display:flex; flex-direction:column; gap:48px;
+  padding-top:25px; margin-top:16px;
+}
+
+/* ── Category header row ── */
+.add-cat-header{
+  display:flex; justify-content:space-between; align-items:center;
+  border-bottom:1px solid #C5C6CA; padding:0 0 4px;
+}
+.add-cat-header-label{
+  font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:0.6px; text-transform:uppercase; color:#44474A;
+}
+.add-type-tabs{ display:flex; gap:16px; }
+.add-type-tab{
+  font-family:'Inter',sans-serif; font-size:24px; font-weight:600;
+  letter-spacing:-0.48px; color:#44474A;
+  cursor:pointer; opacity:.4; transition:opacity .2s;
+  white-space:nowrap;
+}
+.add-type-tab.active{
+  opacity:1; color:#000000;
+  text-decoration:underline; text-underline-offset:3px;
+}
+
+/* ── Category pills ── */
+.add-cat-chips-wrap{ display:flex; flex-wrap:wrap; gap:8px; }
+.add-cat-pill{
+  height:22px; padding:0 16px;
+  border:1px solid #C5C6CA; background:transparent;
+  font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:0.6px; text-transform:uppercase;
+  color:#44474A; cursor:pointer;
+  display:flex; align-items:center; transition:all .15s;
+}
+.add-cat-pill.active{ background:#000000; border-color:#000000; color:#FFFFFF; }
+
+/* ── Stock input row ── */
+.add-stock-input-row{
+  height:41px; border-bottom:1px solid #6B7280;
+  display:flex; align-items:center; background:#FFFFFF; position:relative;
+}
+.add-stock-display{
+  flex:1; font-family:'Inter',sans-serif; font-size:16px; color:#6B7280;
+  padding:0 12px; user-select:none;
+}
+.add-stock-btns{ display:flex; flex-shrink:0; }
+.add-stock-btn{
+  width:32px; height:41px; border:none; background:transparent;
+  font-size:18px; color:rgba(12,16,20,.4);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:color .15s;
+}
+.add-stock-btn:active{ color:#0C1014; }
+
+/* ── Price input with ₩ prefix ── */
+.add-price-wrap{
+  height:41px; border-bottom:1px solid #6B7280;
+  display:flex; align-items:center; background:#FFFFFF; isolation:isolate;
+}
+.add-price-prefix{
+  font-family:'Inter',sans-serif; font-size:16px; color:#44474A;
+  padding:0 4px 0 24px; flex-shrink:0;
+}
+.add-price-input{
+  flex:1; border:none; background:transparent; outline:none;
+  font-family:'Inter',sans-serif; font-size:16px; color:#0C1014;
+  padding:0 12px 0 4px; height:100%;
+}
+.add-price-input::placeholder{ color:#6B7280; }
+
+/* ── Notes textarea ── */
+.add-notes{
+  width:100%; height:106px;
+  background:#F3F3F4; border:1px solid #C5C6CA; border-radius:var(--r-md);
+  padding:16px 16px 64px;
+  font-family:'Inter',sans-serif; font-size:16px; color:#0C1014;
+  line-height:24px; outline:none; resize:none; transition:border-color .2s;
+}
+.add-notes:focus{ border-color:#0C1014; }
+.add-notes::placeholder{ color:#6B7280; }
+
+/* ── 3-Step form ── */
+.add-step-block{border-bottom:1px solid var(--border);padding:20px var(--gutter) 24px;}
+.add-step-block:last-of-type{border-bottom:none;}
+.add-step-num-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.add-step-num{width:24px;height:24px;border-radius:var(--r-sm);background:var(--ink);color:#fff;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.add-step-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);}
+.add-domain-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.add-domain-btn{padding:10px 0;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);background:transparent;cursor:pointer;transition:all .15s;}
+.add-domain-btn.active{border-color:var(--ink);background:var(--ink);color:#fff;}
+.add-domain-btn:not(.active):hover{border-color:var(--ink);color:var(--ink);}
+.add-photo-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:6px;}
+.add-required-star{color:var(--error);}
+.add-photo-block{height:90px;background:var(--surface-low);border:1.5px dashed var(--border-md);border-radius:var(--r-md);cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background-size:cover;background-position:center;transition:border-color .2s;}
+.add-photo-block:hover{border-color:var(--ink);}
+.add-photo-block.has-img .add-photo-inner{opacity:0;}
+.add-photo-block.storage-ok{border-color:var(--green);border-style:solid;}
+.add-photo-inner{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.add-photo-hint{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mist);}
+.add-common-field{margin-bottom:20px;}
+.add-scene-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.add-scene-tag{padding:5px 12px;border:1.5px solid var(--border);border-radius:var(--r-full);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--sub);background:transparent;cursor:pointer;transition:all .15s;}
+.add-scene-tag.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+/* ── Action buttons ── */
+.add-actions{ display:flex; flex-direction:column; gap:16px; padding:24px var(--gutter) 40px; }
+.add-submit-btn{
+  width:100%; height:56px; background:var(--ink); color:#FFFFFF;
+  border:none; border-radius:var(--r-md);
+  font-family:'Inter',sans-serif; font-size:16px; font-weight:600;
+  cursor:pointer; transition:opacity .2s;
+}
+.add-submit-btn:active{ opacity:.75; }
+.add-submit-btn:disabled{ cursor:default; }
+.add-cancel-btn{
+  width:100%; height:56px; background:#FFFFFF; color:#0C1014;
+  border:1px solid #C5C6CA; border-radius:var(--r-md);
+  font-family:'Inter',sans-serif; font-size:16px; font-weight:400;
+  cursor:pointer;
+}
+.add-cancel-btn:active{ background:var(--surface-low); }
+
+/* ── Error / shake ── */
+.add-underline-input.input-error{
+  border-bottom-color:#ba1a1a; animation:shake-x .3s ease;
+}
+.add-underline-input.input-error::placeholder{ color:#ba1a1a; }
+@keyframes shake-x{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)} 40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)} 80%{transform:translateX(4px)}
+}
+
+/* ══════════════════════════════════════
+   SELECT CATEGORY modal (bottom sheet)
+   ══════════════════════════════════════ */
+.cat-select-overlay{
+  position:absolute; inset:0; z-index:80;
+  background:rgba(0,0,0,.35);
+  display:flex; align-items:flex-end;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.cat-select-overlay.open{ opacity:1; pointer-events:auto; }
+.cat-select-sheet{
+  width:100%; background:#F5F5F5; border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:28px 20px 24px;
+  transform:translateY(100%); transition:transform .3s cubic-bezier(.4,0,.2,1);
+  display:flex; flex-direction:column; gap:20px; max-height:82%;
+}
+.cat-select-overlay.open .cat-select-sheet{ transform:translateY(0); }
+.cat-select-title{
+  font-family:'Space Grotesk',sans-serif; font-size:34px; font-weight:800;
+  letter-spacing:-.02em; color:#0C1014; text-align:left; line-height:1;
+}
+.cat-search-wrap{
+  display:flex; align-items:center; gap:8px;
+  background:#EBEBEB; border:1px solid #D8D8D8; border-radius:var(--r-md);
+  padding:10px 12px;
+}
+.cat-search-icon{ width:16px; height:16px; flex-shrink:0; opacity:.45; }
+.cat-search-input{
+  flex:1; border:none; background:transparent; outline:none;
+  font-family:'Inter',sans-serif; font-size:14px; color:#0C1014;
+}
+.cat-search-input::placeholder{ color:#9E9E9E; }
+.cat-list{ overflow-y:auto; flex:1; display:flex; flex-direction:column; }
+.cat-row{
+  display:flex; align-items:center; gap:12px;
+  padding:14px 0; border-bottom:1px solid #E5E5E5;
+}
+.cat-row:last-child{ border-bottom:none; }
+.cat-radio{
+  width:22px; height:22px; border-radius:var(--r-full);
+  border:2px solid #BDBDBD; flex-shrink:0; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .15s;
+}
+.cat-radio.selected{ border-color:#0C1014; }
+.cat-radio.selected::after{
+  content:''; width:10px; height:10px; border-radius:var(--r-full); background:#0C1014;
+}
+.cat-row-name{
+  flex:1; font-family:'Inter',sans-serif; font-size:16px; font-weight:400;
+  color:#1A1C1C; cursor:pointer;
+}
+.cat-row-name.selected{ font-weight:600; color:#0C1014; }
+.cat-row-name.editing{
+  border:none; border-bottom:1px solid #6B7280; outline:none;
+  background:transparent; padding:0; font-size:16px; font-weight:400;
+}
+.cat-row-actions{ display:flex; gap:10px; flex-shrink:0; }
+.cat-row-btn{
+  background:none; border:none; cursor:pointer; padding:2px;
+  color:#BDBDBD; transition:color .15s;
+}
+.cat-row-btn:hover{ color:#44474A; }
+.cat-add-new{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:14px; border:1.5px dashed #C5C6CA; border-radius:var(--r-md);
+  cursor:pointer; background:transparent; width:100%;
+  font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:#44474A;
+  transition:background .15s;
+}
+.cat-add-new:hover{ background:#EBEBEB; }
+.cat-modal-actions{ display:flex; gap:12px; }
+.cat-cancel-btn{
+  flex:1; height:54px; border:1.5px solid #C5C6CA; border-radius:var(--r-md);
+  background:#FFFFFF; font-family:'Space Grotesk',sans-serif; font-size:14px;
+  font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:#0C1014; cursor:pointer;
+}
+.cat-apply-btn{
+  flex:1; height:54px; border:none; border-radius:var(--r-md);
+  background:var(--ink); color:#FFFFFF;
+  font-family:'Space Grotesk',sans-serif; font-size:14px;
+  font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  cursor:pointer; transition:opacity .15s;
+}
+.cat-apply-btn:active{ opacity:.75; }
+
+/* ══════════════════════════════════════
+   NEW CATEGORY dialog (center)
+   ══════════════════════════════════════ */
+.cat-new-overlay{
+  position:absolute; inset:0; z-index:90;
+  background:rgba(0,0,0,.45);
+  display:flex; align-items:center; justify-content:center;
+  padding:24px;
+  opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.cat-new-overlay.open{ opacity:1; pointer-events:auto; }
+.cat-new-dialog{
+  width:100%; background:#FFFFFF; border-radius:var(--r-xl);
+  padding:28px 24px 24px; position:relative;
+  transform:scale(.94); transition:transform .25s cubic-bezier(.4,0,.2,1);
+}
+.cat-new-overlay.open .cat-new-dialog{ transform:scale(1); }
+.cat-new-close{
+  position:absolute; top:16px; right:16px;
+  width:28px; height:28px; background:none; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  color:#9E9E9E; font-size:18px;
+}
+.cat-new-title{
+  font-family:'Space Grotesk',sans-serif; font-size:30px; font-weight:800;
+  letter-spacing:-.02em; color:#0C1014; margin-bottom:4px;
+}
+.cat-new-sub{
+  font-family:'Inter',sans-serif; font-size:12px; letter-spacing:.15em;
+  color:#9E9E9E; margin-bottom:20px;
+}
+.cat-new-input{
+  width:100%; border:none; border-bottom:1px solid #9E9E9E;
+  padding:10px 0; font-family:'Inter',sans-serif; font-size:18px;
+  color:#0C1014; outline:none; background:transparent;
+  margin-bottom:8px;
+}
+.cat-new-input::placeholder{ color:#C5C6CA; }
+.cat-new-hint{
+  font-family:'Inter',sans-serif; font-size:12px; color:#9E9E9E;
+  margin-bottom:24px;
+}
+.cat-new-add-btn{
+  width:100%; height:54px; background:var(--ink); color:#FFFFFF;
+  border:none; border-radius:var(--r-md); font-family:'Space Grotesk',sans-serif;
+  font-size:16px; font-weight:700; cursor:pointer;
+  margin-bottom:12px; transition:opacity .15s;
+}
+.cat-new-add-btn:active{ opacity:.75; }
+.cat-new-cancel-btn{
+  width:100%; height:54px; background:#FFFFFF; color:#0C1014;
+  border:1px solid #C5C6CA; border-radius:var(--r-md);
+  font-family:'Inter',sans-serif; font-size:16px; font-weight:400; cursor:pointer;
+}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div class="notch-bar"></div></div>
+  <div class="scroll" id="main-scroll">
+
+    <!-- Appbar -->
+    <div class="appbar">
+      <div style="cursor:pointer;color:var(--ink);display:flex;align-items:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </div>
+      <div class="appbar-title">OnStep</div>
+      <div id="auth-avatar" onclick="handleAuthClick()" title="로그인하여 동기화"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg></div>
+    </div>
+
+    <!-- Page hero -->
+    <div class="page-hero">
+      <div class="page-hero-label">Inventory</div>
+      <div class="page-hero-row">
+        <div class="page-hero-title">Box</div>
+        <div class="page-hero-count" id="hero-count">0 assets</div>
+      </div>
+      <div class="page-hero-sub">화장대와 옷장 자산 관리</div>
+    </div>
+
+    <!-- Domain tabs -->
+    <div class="domain-tabs">
+      <div class="domain-tab active" id="dtab-beauty"  onclick="setDomain('beauty')">Beauty</div>
+      <div class="domain-tab"        id="dtab-fashion" onclick="setDomain('fashion')">Fashion</div>
+      <div class="domain-tab"        id="dtab-space"   onclick="setDomain('space')">Acc</div>
+    </div>
+
+    <!-- AI promo card -->
+    <div class="promo-card">
+      <div class="promo-avatar">🤖</div>
+      <div class="promo-text">500+ items managed<br>looking sharp!</div>
+      <div class="promo-icon">👾</div>
+    </div>
+
+    <!-- Category chips (hidden) -->
+    <div class="cat-chips-row" id="cat-chips-row" style="display:none"></div>
+
+    <!-- Asset grid -->
+    <div class="asset-grid" id="asset-grid"></div>
+
+    <!-- Space Map (shown when domain='space') -->
+    <div class="space-map-wrap" id="space-map"></div>
+
+    <!-- Bottom nav -->
+    <div class="bottom-nav">
+      <a class="nav-item" href="today.html"><div class="nav-icon">◎</div><div class="nav-label">Today</div></a>
+      <a class="nav-item" href="log.html"><div class="nav-icon">◈</div><div class="nav-label">Log</div></a>
+      <a class="nav-item active" href="box.html"><div class="nav-icon">◫</div><div class="nav-label">Box</div></a>
+      <a class="nav-item" href="setup.html"><div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div></a>
+    </div>
+
+  </div><!-- /scroll -->
+
+  <!-- FAB -->
+  <button class="fab" onclick="openAdd()">＋</button>
+
+  <!-- ── Detail Sheet ── -->
+  <div class="sheet-overlay" id="detail-overlay" onclick="closeDetail()"></div>
+  <div class="bottom-sheet" id="detail-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hd">
+      <div class="sheet-hd-title" id="detail-sheet-title">Asset</div>
+      <button class="sheet-close-btn" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="sheet-inner" id="detail-inner"></div>
+  </div>
+
+  <!-- ── Full Page Add Form (3-Step) ── -->
+  <div class="add-page" id="add-page">
+
+    <!-- Top app bar -->
+    <div class="add-page-bar">
+      <button class="add-page-back" onclick="closeAdd()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <span id="add-page-bar-title" style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#44474A">제품 등록</span>
+      <div style="width:36px"></div>
+    </div>
+
+    <div class="add-page-scroll">
+
+      <!-- STEP 1: Domain selection -->
+      <div class="add-step-block">
+        <div class="add-step-num-row">
+          <span class="add-step-num">1</span>
+          <span class="add-step-label">분류 선택</span>
+        </div>
+        <div class="add-domain-row">
+          <button class="add-domain-btn active" id="domain-btn-beauty" onclick="pickDomain('beauty')">BEAUTY</button>
+          <button class="add-domain-btn" id="domain-btn-fashion" onclick="pickDomain('fashion')">FASHION</button>
+          <button class="add-domain-btn" id="domain-btn-acc" onclick="pickDomain('acc')">ACC</button>
+        </div>
+        <!-- Sub-category (changes based on domain) -->
+        <div class="add-cat-chips-wrap" id="add-cat-chips-wrap" style="margin-top:10px"></div>
+      </div>
+
+      <!-- STEP 2: Common fields -->
+      <div class="add-step-block">
+        <div class="add-step-num-row">
+          <span class="add-step-num">2</span>
+          <span class="add-step-label">공통 정보</span>
+        </div>
+
+        <!-- Object Photo + Storage Photo side by side -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+          <div>
+            <div class="add-photo-label">Object Photo</div>
+            <div class="add-photo-block" id="add-img-block" onclick="pickAddPhoto('object')" title="제품 사진">
+              <div class="add-photo-inner" id="add-img-inner">
+                <div class="add-img-icon"></div>
+                <div class="add-photo-hint">제품 사진</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="add-photo-label">Storage Photo <span class="add-required-star">★</span></div>
+            <div class="add-photo-block" id="add-storage-block" onclick="pickAddPhoto('storage')" title="보관 장소 사진 (필수)">
+              <div class="add-photo-inner" id="add-storage-inner">
+                <div class="add-img-icon"></div>
+                <div class="add-photo-hint">보관 장소</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="add-storage-error" style="display:none;font-family:'Inter',sans-serif;font-size:10px;color:var(--error);margin:-8px 0 12px;font-weight:600;letter-spacing:.04em">★ Storage Photo는 필수입니다</div>
+
+        <!-- Location Name -->
+        <div class="add-common-field">
+          <div class="add-field-label">LOCATION</div>
+          <input class="add-underline-input" id="add-location" placeholder="예: 안방 화장대 2번 서랍" />
+        </div>
+
+        <!-- Brand -->
+        <div class="add-common-field">
+          <div class="add-field-label">BRAND</div>
+          <input class="add-underline-input" id="add-brand" placeholder="브랜드명" />
+        </div>
+
+        <!-- Product Name (required) -->
+        <div class="add-common-field">
+          <div class="add-field-label">PRODUCT NAME <span class="add-required-star">★</span></div>
+          <input class="add-underline-input" id="add-name" placeholder="제품명" />
+        </div>
+
+        <!-- Purchase Date -->
+        <div class="add-common-field">
+          <div class="add-field-label">PURCHASE DATE</div>
+          <input class="add-date-input" id="add-purchase-date" type="date" style="width:100%;border:none;border-bottom:1px solid #6b7280;padding:8px 0;background:transparent;font-family:'Inter',sans-serif;font-size:13px" />
+        </div>
+      </div>
+
+      <!-- STEP 3: Domain-specific fields -->
+      <div class="add-step-block">
+        <div class="add-step-num-row">
+          <span class="add-step-num">3</span>
+          <span class="add-step-label" id="step3-label">분류별 세부 정보</span>
+        </div>
+
+        <!-- BEAUTY fields -->
+        <div id="step3-beauty">
+          <div class="add-common-field">
+            <div class="add-field-label">TOTAL QTY</div>
+            <div class="add-stock-input-row">
+              <button class="add-stock-btn" onclick="adjustQty('total',-1)">−</button>
+              <span class="add-stock-display" id="add-qty-total-display">1</span>
+              <button class="add-stock-btn" onclick="adjustQty('total',1)">+</button>
+            </div>
+          </div>
+          <div class="add-common-field">
+            <div class="add-field-label">CURRENT QTY</div>
+            <div class="add-stock-input-row">
+              <button class="add-stock-btn" onclick="adjustQty('cur',-1)">−</button>
+              <span class="add-stock-display" id="add-qty-display">1 / 1</span>
+              <button class="add-stock-btn" onclick="adjustQty('cur',1)">+</button>
+            </div>
+          </div>
+          <div class="add-common-field">
+            <div class="add-field-label">OPEN DATE</div>
+            <input class="add-date-input" id="add-open-date" type="date" style="width:100%;border:none;border-bottom:1px solid #6b7280;padding:8px 0;background:transparent;font-family:'Inter',sans-serif;font-size:13px" />
+          </div>
+          <div class="add-common-field">
+            <div class="add-field-label">EXPIRY DATE</div>
+            <input class="add-date-input" id="add-expiry" type="date" style="width:100%;border:none;border-bottom:1px solid #6b7280;padding:8px 0;background:transparent;font-family:'Inter',sans-serif;font-size:13px" />
+          </div>
+        </div>
+
+        <!-- FASHION fields -->
+        <div id="step3-fashion" style="display:none">
+          <div class="add-common-field">
+            <div class="add-field-label">SCENE TAGS</div>
+            <div class="add-scene-tags" id="add-scene-tags">
+              <button class="add-scene-tag" data-tag="출근" onclick="toggleSceneTag(this)">출근</button>
+              <button class="add-scene-tag" data-tag="결혼식" onclick="toggleSceneTag(this)">결혼식</button>
+              <button class="add-scene-tag" data-tag="운동" onclick="toggleSceneTag(this)">운동</button>
+              <button class="add-scene-tag" data-tag="캐주얼" onclick="toggleSceneTag(this)">캐주얼</button>
+              <button class="add-scene-tag" data-tag="데이트" onclick="toggleSceneTag(this)">데이트</button>
+              <button class="add-scene-tag" data-tag="여행" onclick="toggleSceneTag(this)">여행</button>
+            </div>
+          </div>
+          <div class="add-common-field">
+            <div class="add-field-label">MATERIAL</div>
+            <input class="add-underline-input" id="add-material" placeholder="예: 코튼, 린넨, 울" />
+          </div>
+          <div class="add-common-field">
+            <div class="add-field-label">CARE GUIDE</div>
+            <input class="add-underline-input" id="add-care-guide" placeholder="예: 손세탁, 드라이 클리닝" />
+          </div>
+        </div>
+
+        <!-- ACC fields -->
+        <div id="step3-acc" style="display:none">
+          <div class="add-common-field">
+            <div class="add-field-label">MATERIAL TYPE</div>
+            <div class="add-scene-tags" id="add-material-tags">
+              <button class="add-scene-tag" data-tag="금" onclick="toggleMaterialTag(this)">금</button>
+              <button class="add-scene-tag" data-tag="은" onclick="toggleMaterialTag(this)">은</button>
+              <button class="add-scene-tag" data-tag="가죽" onclick="toggleMaterialTag(this)">가죽</button>
+              <button class="add-scene-tag" data-tag="패브릭" onclick="toggleMaterialTag(this)">패브릭</button>
+              <button class="add-scene-tag" data-tag="플라스틱" onclick="toggleMaterialTag(this)">플라스틱</button>
+              <button class="add-scene-tag" data-tag="기타" onclick="toggleMaterialTag(this)">기타</button>
+            </div>
+          </div>
+          <div class="add-common-field">
+            <div class="add-field-label">SPECIAL NOTE</div>
+            <textarea class="add-notes" id="add-special-note" placeholder="보존 상태, 수선 이력 등…" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="add-actions">
+        <button class="add-submit-btn" id="add-submit-btn" onclick="saveAsset()">Register Product</button>
+        <button class="add-cancel-btn" onclick="closeAdd()">Cancel</button>
+      </div>
+
+    </div><!-- /add-page-scroll -->
+  </div><!-- /add-page -->
+
+  <!-- SELECT CATEGORY bottom sheet -->
+  <div class="cat-select-overlay" id="cat-select-overlay" onclick="handleCatOverlayClick(event)">
+    <div class="cat-select-sheet" id="cat-select-sheet">
+      <div class="cat-select-title">SELECT CATEGORY</div>
+      <div class="cat-search-wrap">
+        <svg class="cat-search-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input class="cat-search-input" id="cat-search-input" placeholder="Search categories..." oninput="filterCatList()" />
+      </div>
+      <div class="cat-list" id="cat-list"></div>
+      <button class="cat-add-new" onclick="openNewCat()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        ADD NEW CATEGORY
+      </button>
+      <div class="cat-modal-actions">
+        <button class="cat-cancel-btn" onclick="closeCatSelect()">CANCEL</button>
+        <button class="cat-apply-btn" onclick="applyCatSelect()">APPLY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW CATEGORY dialog -->
+  <div class="cat-new-overlay" id="cat-new-overlay">
+    <div class="cat-new-dialog">
+      <button class="cat-new-close" onclick="closeNewCat()">✕</button>
+      <div class="cat-new-title">NEW CATEGORY</div>
+      <div class="cat-new-sub">카 테 고 리 &nbsp; 추 가</div>
+      <input class="cat-new-input" id="cat-new-input" placeholder="Enter category name..." maxlength="30"
+             onkeydown="if(event.key==='Enter')submitNewCat()" />
+      <div class="cat-new-hint">새 카테고리 이름을 입력하세요</div>
+      <button class="cat-new-add-btn" onclick="submitNewCat()">추가</button>
+      <button class="cat-new-cancel-btn" onclick="closeNewCat()">취소</button>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+// ── Firebase ──────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:"AIzaSyBdKnyU8t0XrQsT_EhKS2nk9zOKwjxoquk",
+  authDomain:"onstep-lifeos.firebaseapp.com",
+  projectId:"onstep-lifeos",
+  storageBucket:"onstep-lifeos.firebasestorage.app",
+  messagingSenderId:"333501649998",
+  appId:"1:333501649998:web:4eebd8b84a32ea8a581f1f"
+});
+const fbAuth = firebase.auth();
+let currentUser = null;
+firebase.auth().onAuthStateChanged(u => { currentUser = u; updateAuthAvatar(u); });
+function updateAuthAvatar(u) {
+  const el = document.getElementById('auth-avatar');
+  if (!el) return;
+  if (u) {
+    el.innerHTML = u.photoURL
+      ? `<img src="${u.photoURL}" style="width:100%;height:100%;object-fit:cover;filter:grayscale(20%)">`
+      : `<span style="font-size:11px;color:#fff;font-weight:700">${(u.displayName||u.email||'?')[0].toUpperCase()}</span>`;
+    el.style.background='#1A1C1C'; el.style.borderColor='#1A1C1C';
+  } else { el.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>'; el.style.background=''; el.style.borderColor=''; }
+}
+function handleAuthClick() {
+  if (currentUser) { if(confirm(`${currentUser.displayName||currentUser.email}\n로그아웃?`)) fbAuth.signOut(); }
+  else fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>alert(e.message));
+}
+
+// ── Data keys ─────────────────────────────────────────────────
+const ASSETS_KEY = 'onstep_box_assets';
+const LOCS_KEY   = 'onstep_box_locations';
+
+// ── Category config ───────────────────────────────────────────
+let BEAUTY_CATS = {
+  skincare: ['toner','booster','serum','ampoule','cream','suncare','cleanser','mist','mask','essence'],
+  makeup:   ['base','foundation','cushion','lip','eyeshadow','cheek','eyeliner','mascara','nail','highlighter']
+};
+const FASHION_CATS = ['top','bottom','outer','shoes','bag','acc'];
+const CAT_LABELS = {
+  toner:'Toner', booster:'Booster', serum:'Serum', ampoule:'Ampoule',
+  cream:'Cream', suncare:'Suncare', cleanser:'Cleanser', mist:'Mist',
+  mask:'Mask', essence:'Essence',
+  base:'Base', foundation:'Foundation', cushion:'Cushion', lip:'Lip',
+  eyeshadow:'Eyeshadow', cheek:'Cheek', eyeliner:'Eyeliner', mascara:'Mascara',
+  nail:'Nail', highlighter:'Highlighter',
+  top:'Top', bottom:'Bottom', outer:'Outer', shoes:'Shoes', bag:'Bag', acc:'Acc',
+  jewelry:'Jewelry', watch:'Watch', belt:'Belt', sunglasses:'Sunglasses', hat:'Hat', other:'Other'
+};
+const CAT_ICONS = {
+  toner:'💧', booster:'✦', serum:'🔬', ampoule:'◎', cream:'🫙', suncare:'☀️',
+  cleanser:'🧴', mist:'◌', mask:'◻', essence:'✨',
+  base:'◎', foundation:'◻', cushion:'◌', lip:'◈', eyeshadow:'▪', cheek:'◍',
+  eyeliner:'▸', mascara:'◂', nail:'◆', highlighter:'✦',
+  top:'◻', bottom:'◼', outer:'◈', shoes:'◎', bag:'◫', acc:'◆'
+};
+const DOMAIN_ICONS = { beauty:'◈', fashion:'◻' };
+
+// ── State ─────────────────────────────────────────────────────
+let curDomain   = 'beauty';
+let curCat      = 'all';
+let addState    = { domain:'beauty', type:'skincare', catKey:null, productImgData:null, storageImgData:null, qtyTotal:1, qtyCurrent:1, sceneTags:[], materialType:null };
+
+// ── Storage ───────────────────────────────────────────────────
+function getAssets()  { return JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]'); }
+function getLocs()    { return JSON.parse(localStorage.getItem(LOCS_KEY)   || '[]'); }
+function saveAssets(a){ localStorage.setItem(ASSETS_KEY, JSON.stringify(a)); }
+function saveLocs(l)  { localStorage.setItem(LOCS_KEY,   JSON.stringify(l)); }
+
+// ── Sample data ───────────────────────────────────────────────
+function initSampleData() {
+  if (getAssets().length) return;
+  const today = new Date();
+  const addD  = (n) => { const d=new Date(today); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
+  const locs  = [
+    { key:'loc-1', name:'안방 화장대', imgData:null },
+    { key:'loc-2', name:'욕실 선반',   imgData:null },
+  ];
+  saveLocs(locs);
+  const assets = [
+    { id:1, domain:'beauty', type:'skincare', catKey:'toner',    brand:'COSRX',   name:'AHA BHA Clarifying Toner', imgData:null, price:'₩18,000', purchaseUrl:'', expiryDate:addD(180), qtyTotal:1, qtyCurrent:1, useCount:3, lastUsed:addD(-1), addedDate:addD(-10), season:null, locKey:'loc-1' },
+    { id:2, domain:'beauty', type:'skincare', catKey:'serum',    brand:'Some By Mi',name:'30 Days Miracle Serum',  imgData:null, price:'₩22,000', purchaseUrl:'', expiryDate:addD(25),  qtyTotal:2, qtyCurrent:1, useCount:7, lastUsed:addD(-2), addedDate:addD(-30), season:null, locKey:'loc-1' },
+    { id:3, domain:'beauty', type:'skincare', catKey:'suncare',  brand:'Anessa',  name:'Perfect UV Sunscreen',     imgData:null, price:'₩36,000', purchaseUrl:'', expiryDate:addD(90),  qtyTotal:1, qtyCurrent:1, useCount:5, lastUsed:addD(-1), addedDate:addD(-5),  season:null, locKey:'loc-2' },
+    { id:4, domain:'beauty', type:'makeup',   catKey:'lip',      brand:'NARS',    name:'Satin Lip Pencil',         imgData:null, price:'₩32,000', purchaseUrl:'', expiryDate:addD(365), qtyTotal:1, qtyCurrent:1, useCount:2, lastUsed:addD(-5), addedDate:addD(-60), season:null, locKey:'loc-1' },
+    { id:5, domain:'fashion',type:null,       catKey:'outer',    brand:'ZARA',    name:'Wool Blend Coat',          imgData:null, price:'₩129,000',purchaseUrl:'', expiryDate:null,      qtyTotal:1, qtyCurrent:1, useCount:1, lastUsed:addD(-14),addedDate:addD(-90), season:'winter', locKey:'loc-1' },
+    { id:6, domain:'fashion',type:null,       catKey:'top',      brand:'COS',     name:'Relaxed Linen Shirt',      imgData:null, price:'₩59,000', purchaseUrl:'', expiryDate:null,      qtyTotal:1, qtyCurrent:1, useCount:4, lastUsed:addD(-3), addedDate:addD(-45), season:'all',   locKey:'loc-1' },
+  ];
+  saveAssets(assets);
+}
+
+// ── Domain tabs ───────────────────────────────────────────────
+function setDomain(d) {
+  curDomain = d; curCat = 'all';
+  ['beauty','fashion','space'].forEach(x => {
+    document.getElementById(`dtab-${x}`)?.classList.toggle('active', x===d);
+  });
+  const catRow   = document.getElementById('cat-chips-row');
+  const grid     = document.getElementById('asset-grid');
+  const spaceMap = document.getElementById('space-map');
+  if (d === 'space') {
+    if (catRow)   catRow.style.display   = 'none';
+    if (grid)     grid.style.display     = 'none';
+    if (spaceMap) spaceMap.style.display = 'flex';
+    renderSpaceMap();
+  } else {
+    if (catRow)   catRow.style.display   = 'none';
+    if (grid)     grid.style.display     = '';
+    if (spaceMap) spaceMap.style.display = 'none';
+    renderCatChips();
+    renderGrid();
+  }
+}
+
+function renderSpaceMap() {
+  const assets = getAssets();
+  const locs   = JSON.parse(localStorage.getItem('onstep_box_locations') || '[]');
+  const map    = document.getElementById('space-map');
+  if (!map) return;
+
+  const grouped = {};
+  assets.forEach(a => {
+    const key = a.locKey || '_unassigned';
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(a);
+  });
+
+  if (!Object.keys(grouped).length) {
+    map.innerHTML = `<div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:24px;text-align:center">등록된 자산이 없습니다</div>`;
+    return;
+  }
+
+  map.innerHTML = Object.entries(grouped).map(([locKey, items]) => {
+    const loc      = locs.find(l => l.key === locKey);
+    const locName  = loc?.name || (locKey === '_unassigned' ? '위치 미지정' : locKey);
+    const locPhoto = loc?.imgData || '';
+    const photoStyle = locPhoto ? `background-image:url('${locPhoto}');background-size:cover;background-position:center;` : '';
+    const thumbsHtml = items.slice(0, 12).map(a => {
+      const imgStyle = a.imgData ? `background-image:url('${a.imgData}');background-size:cover;background-position:center;` : '';
+      const icon = a.domain === 'beauty' ? '💄' : '👗';
+      return `<div class="space-asset-thumb" onclick="openDetail(${a.id})">
+        <div class="space-asset-img" style="${imgStyle}">${!a.imgData ? `<span>${icon}</span>` : ''}</div>
+        <div class="space-asset-name">${(a.name||'').substring(0,7)}</div>
+      </div>`;
+    }).join('');
+    return `<div class="space-group">
+      <div class="space-group-hd">
+        <div class="space-group-photo" style="${photoStyle}">${!locPhoto ? '📦' : ''}</div>
+        <div class="space-group-name">${locName}</div>
+        <div class="space-group-count">${items.length}개</div>
+      </div>
+      <div class="space-items-row">${thumbsHtml || '<span style="font-family:\'Inter\',sans-serif;font-size:11px;color:var(--mist);">아이템 없음</span>'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Category chips ────────────────────────────────────────────
+function renderCatChips() {
+  const row = document.getElementById('cat-chips-row');
+  const assets = getFilteredAssets(curDomain, 'all');
+  const cats   = ['all', ...new Set(assets.map(a=>a.catKey))].filter(Boolean);
+  row.innerHTML = cats.map(c => `
+    <div class="cat-chip${c===curCat?' active':''}" onclick="setCat('${c}')">
+      ${c==='all' ? 'All' : (CAT_LABELS[c]||c).toUpperCase()}
+    </div>`).join('');
+}
+
+function setCat(c) {
+  curCat = c;
+  renderCatChips();
+  renderGrid();
+}
+
+// ── Asset grid ────────────────────────────────────────────────
+function getFilteredAssets(domain, cat) {
+  let a = getAssets();
+  if (domain !== 'all') a = a.filter(x => x.domain === domain);
+  if (cat !== 'all')    a = a.filter(x => x.catKey  === cat);
+  return a;
+}
+
+function getExpiryInfo(asset) {
+  if (!asset.expiryDate) return null;
+  const today   = new Date(); today.setHours(0,0,0,0);
+  const expDate = new Date(asset.expiryDate); expDate.setHours(0,0,0,0);
+  const addDate = asset.addedDate ? new Date(asset.addedDate) : new Date(today);
+  const total   = Math.max(1, Math.round((expDate - addDate) / 86400000));
+  const rem     = Math.round((expDate - today) / 86400000);
+  const pct     = Math.max(0, Math.min(100, Math.round(rem / total * 100)));
+  const cls     = pct > 40 ? 'fresh' : pct > 15 ? 'mid' : 'low';
+  return { pct, rem, cls, label: rem > 0 ? `${rem}d left` : 'Expired' };
+}
+
+function _magCard(a, isHero, isFirst) {
+  const bg   = a.imgData ? `background-image:url(${a.imgData})` : '';
+  const icon = CAT_ICONS[a.catKey] || (a.domain==='beauty'?'◈':'◻');
+  const qty  = a.qty || 5;
+  const left = Math.max(0, qty - (a.qtyUsed||0));
+  if (isHero) {
+    const badge = isFirst ? `<div class="mag-badge">NEW ARRIVAL</div>` : '';
+    return `<div class="mag-hero-card" onclick="openDetail(${a.id})">
+      <div class="mag-hero-img" style="${bg}">${a.imgData?'':
+        `<span style="font-size:48px;opacity:.15">${icon}</span>`}${badge}</div>
+      <div class="mag-hero-info">
+        <div class="mag-brand">${a.brand||''}</div>
+        <div class="mag-name">${a.name}</div>
+        <div class="mag-stock-row">
+          <span class="mag-stock-label">REMAINING</span>
+          <span class="mag-stock-val">${left} / ${qty} UNITS</span>
+        </div>
+      </div></div>`;
+  }
+  return `<div class="mag-small-card" onclick="openDetail(${a.id})">
+    <div class="mag-small-img" style="${bg}">${a.imgData?'':
+      `<span style="font-size:24px;opacity:.15">${icon}</span>`}</div>
+    <div class="mag-small-info">
+      <div class="mag-brand">${a.brand||''}</div>
+      <div class="mag-name" style="font-size:12px">${a.name}</div>
+      <div class="mag-stock-row">
+        <span class="mag-stock-label">REMAINING</span>
+        <span class="mag-stock-val">${left}/${qty}</span>
+      </div>
+    </div></div>`;
+}
+
+function renderGrid() {
+  const assets = getFilteredAssets(curDomain, curCat);
+  const grid   = document.getElementById('asset-grid');
+  const count  = document.getElementById('hero-count');
+  const total  = getAssets().length;
+  if (count) count.textContent = `${total} asset${total===1?'':'s'}`;
+
+  if (!assets.length) {
+    grid.innerHTML = `<div class="empty-state" style="margin:16px">
+      <div class="empty-icon">${curDomain==='beauty'?'◈':'◻'}</div>
+      <div class="empty-label">"아직 등록된 자산이 없습니다."</div>
+      <div class="empty-hint">+ 버튼으로 추가해보세요</div>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+  let i = 0;
+  while (i < assets.length) {
+    html += _magCard(assets[i], true, i===0);
+    i++;
+    if (i < assets.length) {
+      const c1 = _magCard(assets[i], false, false); i++;
+      const c2 = i < assets.length ? _magCard(assets[i], false, false) : '';
+      if (c2) i++;
+      html += `<div class="mag-2col">${c1}${c2}</div>`;
+    }
+  }
+  grid.innerHTML = html;
+}
+
+// ── Detail sheet (fully editable) ────────────────────────────
+let detailAssetId = null;
+
+function openDetail(id) {
+  const assets = getAssets();
+  const asset  = assets.find(a => a.id === id);
+  if (!asset) return;
+  detailAssetId = id;
+
+  const locs      = getLocs();
+  const loc       = locs.find(l => l.key === asset.locKey);
+  const expInfo   = getExpiryInfo(asset);
+  const isBeauty  = asset.domain === 'beauty';
+  const sharedCount = assets.filter(a2 => a2.id !== id && a2.locKey === asset.locKey).length;
+
+  // ── Category editor ──
+  const catOpts = isBeauty ? (BEAUTY_CATS[asset.type] || []) : FASHION_CATS;
+  const typeTabsHtml = isBeauty ? `
+    <div class="det-type-tabs">
+      <div class="det-type-tab${asset.type==='skincare'?' active':''}"
+           onclick="detUpdateType(${id},'skincare')">SKINCARE</div>
+      <div class="det-type-tab${asset.type==='makeup'?' active':''}"
+           onclick="detUpdateType(${id},'makeup')">MAKEUP</div>
+    </div>` : '';
+  const catChipsHtml = catOpts.map(c =>
+    `<div class="det-cat-chip${asset.catKey===c?' active':''}"
+          onclick="detUpdateCat(${id},'${c}')">
+       ${(CAT_LABELS[c]||c).toUpperCase()}
+     </div>`).join('');
+
+  // ── Expiry bar (visual only) ──
+  const expiryBarHtml = expInfo ? `
+    <div class="expiry-bar-full">
+      <div class="expiry-bar-fill ${expInfo.cls}" style="width:${expInfo.pct}%"></div>
+    </div>
+    <div class="expiry-meta-row" style="margin-bottom:10px">
+      <div class="expiry-meta-left">${expInfo.label}</div>
+      <div class="expiry-meta-right">${expInfo.pct}% · ${asset.expiryDate}</div>
+    </div>` : '';
+
+  // ── Qty pips (visual only) ──
+  const qtyPipsHtml = (asset.qtyTotal > 0) ? (() => {
+    const pips   = Math.min(asset.qtyTotal, 10);
+    const filled = Math.round((asset.qtyCurrent / asset.qtyTotal) * pips);
+    return `<div class="qty-row">${Array.from({length:pips},(_,i)=>
+      `<div class="qty-pip${i<filled?' filled':''}"></div>`).join('')}</div>`;
+  })() : '';
+
+  // ── Beauty fields ──
+  const beautyHtml = isBeauty ? `
+    <div class="detail-section">
+      <div class="detail-section-label">사용기한 · 잔량</div>
+      ${expiryBarHtml}
+      <div class="det-row">
+        <div class="det-field-group">
+          <div class="det-field-label">사용기한</div>
+          <input class="det-input" id="det-expiry" type="date" value="${asset.expiryDate||''}" />
+        </div>
+      </div>
+      ${qtyPipsHtml}
+      <div class="det-row" style="margin-top:8px">
+        <div class="det-field-group">
+          <div class="det-field-label">현재 잔량</div>
+          <input class="det-input" id="det-qty-c" type="number" value="${asset.qtyCurrent||1}" min="0" />
+        </div>
+        <div class="det-field-group">
+          <div class="det-field-label">총 수량</div>
+          <input class="det-input" id="det-qty-t" type="number" value="${asset.qtyTotal||1}" min="1" />
+        </div>
+      </div>
+    </div>` : '';
+
+  // ── Season chips (fashion) ──
+  const SEASONS = ['all','spring','summer','fall','winter'];
+  const seasonHtml = !isBeauty ? `
+    <div class="detail-section">
+      <div class="detail-section-label">시즌</div>
+      <div class="det-season-chips">
+        ${SEASONS.map(s =>
+          `<div class="det-season-chip${asset.season===s?' active':''}"
+                onclick="detUpdateSeason(${id},'${s}')">${s.toUpperCase()}</div>`).join('')}
+      </div>
+    </div>` : '';
+
+  // ── Other locations ──
+  const otherLocs = locs.filter(l => l.key !== asset.locKey);
+  const otherLocsHtml = otherLocs.length ? `
+    <div style="margin-top:10px">
+      <div class="det-field-label" style="margin-bottom:6px">다른 장소로 이동</div>
+      <div class="storage-shared-row">
+        ${otherLocs.map(l => `
+          <div class="storage-shared-chip" onclick="detSwitchLoc(${id},'${l.key}')">
+            ${l.name || '(unnamed)'}
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const locPhotoBg = loc?.imgData ? `background-image:url(${loc.imgData})` : '';
+
+  // ── Build inner HTML ──
+  const inner = document.getElementById('detail-inner');
+  document.getElementById('detail-sheet-title').textContent = asset.name;
+  inner.innerHTML = `
+    <!-- Product photo -->
+    <div class="detail-hero-photo" id="detail-hero-photo"
+         style="${asset.imgData?`background-image:url(${asset.imgData})`:''}"
+         onclick="tapDetailPhoto(${id})">
+      ${asset.imgData?'':`<span style="font-size:60px;opacity:.2">${CAT_ICONS[asset.catKey]||'◈'}</span>`}
+      <div class="detail-hero-edit">사진 변경</div>
+    </div>
+
+    <!-- Category -->
+    <div class="detail-section" style="padding-top:14px">
+      <div class="detail-section-label">카테고리</div>
+      ${typeTabsHtml}
+      <div class="det-cat-chips" id="det-cat-chips">${catChipsHtml}</div>
+    </div>
+
+    <!-- Brand + Name -->
+    <div class="detail-section">
+      <div class="det-field-group">
+        <div class="det-field-label">브랜드</div>
+        <input class="det-input det-input-brand" id="det-brand"
+               value="${asset.brand||''}" placeholder="브랜드명" />
+      </div>
+      <div class="det-field-group">
+        <div class="det-field-label">제품명</div>
+        <input class="det-input det-input-name" id="det-name"
+               value="${asset.name||''}" placeholder="제품명" />
+      </div>
+    </div>
+
+    <!-- Beauty: expiry + qty -->
+    ${beautyHtml}
+
+    <!-- Fashion: season -->
+    ${seasonHtml}
+
+    <!-- Price + URL -->
+    <div class="detail-section">
+      <div class="detail-section-label">구매 정보</div>
+      <div class="det-row">
+        <div class="det-field-group">
+          <div class="det-field-label">가격</div>
+          <input class="det-input" id="det-price" value="${asset.price||''}" placeholder="₩ 가격" />
+        </div>
+      </div>
+      <div class="det-field-group" style="margin-top:2px">
+        <div class="det-field-label">구매처 URL</div>
+        <input class="det-input" id="det-url" value="${asset.purchaseUrl||''}" placeholder="https://..." />
+      </div>
+    </div>
+
+    <!-- Usage stats (루틴 연동) -->
+    ${(asset.useCount||0) > 0 ? `
+    <div class="detail-section" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px">
+      <div>
+        <div class="detail-section-label" style="margin-bottom:2px">루틴 사용 기록</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--ink)">${asset.useCount} times</div>
+      </div>
+      ${asset.lastUsed ? `<div style="font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);text-align:right">마지막 사용<br><span style="color:var(--ink);font-weight:600">${asset.lastUsed}</span></div>` : ''}
+    </div>` : ''}
+
+    <!-- Source + Notes -->
+    <div class="detail-section">
+      <div class="detail-section-label">메모</div>
+      <div class="det-field-group">
+        <div class="det-field-label">구매처</div>
+        <input class="det-input" id="det-source" value="${asset.source||''}" placeholder="올리브영, 쿠팡 등" />
+      </div>
+      <div class="det-field-group" style="margin-top:2px">
+        <div class="det-field-label">노트</div>
+        <textarea class="det-input" id="det-notes" rows="3"
+          style="resize:none;padding-top:8px;line-height:1.5"
+          placeholder="메모를 입력하세요">${asset.notes||''}</textarea>
+      </div>
+    </div>
+
+    <!-- Storage location -->
+    <div class="detail-section">
+      <div class="detail-section-label">보관 장소${sharedCount>0?` · ${sharedCount}개 제품 공유`:''}</div>
+      <div class="storage-location-photo" id="detail-storage-photo"
+           style="${locPhotoBg}" onclick="tapDetailStorage(${id})">
+        ${loc?.imgData?'':`<span style="font-size:24px;opacity:.3">📷</span>`}
+        <div class="storage-edit-hint"><span>사진 변경</span></div>
+      </div>
+      <input class="storage-name-input" id="detail-loc-name"
+             value="${loc?.name||''}"
+             placeholder="보관 장소 이름 (예: 안방 화장대)" />
+      ${otherLocsHtml}
+    </div>
+
+    <!-- Actions -->
+    <div class="detail-action-row">
+      <button class="detail-edit-btn" id="det-save-btn" onclick="saveDetailChanges(${id})">저장하기</button>
+      <button class="detail-del-btn" onclick="deleteAsset(${id})" title="삭제">🗑</button>
+    </div>`;
+
+  document.getElementById('detail-overlay').classList.add('show');
+  document.getElementById('detail-sheet').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('show');
+  document.getElementById('detail-sheet').classList.remove('open');
+}
+
+// ── Detail field updaters (instant, no save needed) ──────────
+function detUpdateType(id, type) {
+  const assets = getAssets();
+  const asset  = assets.find(a => a.id === id);
+  if (!asset) return;
+  asset.type   = type;
+  asset.catKey = BEAUTY_CATS[type][0];
+  saveAssets(assets);
+  document.querySelectorAll('.det-type-tab').forEach(t =>
+    t.classList.toggle('active', t.textContent.toLowerCase().trim() === type));
+  const chipsEl = document.getElementById('det-cat-chips');
+  if (chipsEl) chipsEl.innerHTML = BEAUTY_CATS[type].map(c =>
+    `<div class="det-cat-chip${asset.catKey===c?' active':''}"
+          onclick="detUpdateCat(${id},'${c}')">${(CAT_LABELS[c]||c).toUpperCase()}</div>`).join('');
+  renderGrid();
+}
+
+function detUpdateCat(id, catKey) {
+  const assets = getAssets();
+  const asset  = assets.find(a => a.id === id);
+  if (!asset) return;
+  asset.catKey = catKey;
+  saveAssets(assets);
+  document.querySelectorAll('.det-cat-chip').forEach(c =>
+    c.classList.toggle('active', c.onclick?.toString().includes(`'${catKey}'`)));
+  renderGrid();
+}
+
+function detUpdateSeason(id, season) {
+  const assets = getAssets();
+  const asset  = assets.find(a => a.id === id);
+  if (!asset) return;
+  asset.season = season;
+  saveAssets(assets);
+  document.querySelectorAll('.det-season-chip').forEach(c =>
+    c.classList.toggle('active', c.onclick?.toString().includes(`'${season}'`)));
+  renderGrid();
+}
+
+function detSwitchLoc(id, locKey) {
+  const assets = getAssets();
+  const asset  = assets.find(a => a.id === id);
+  if (!asset) return;
+  asset.locKey = locKey;
+  saveAssets(assets);
+  const locs = getLocs();
+  const loc  = locs.find(l => l.key === locKey);
+  const nameEl  = document.getElementById('detail-loc-name');
+  const photoEl = document.getElementById('detail-storage-photo');
+  if (nameEl)  nameEl.value = loc?.name || '';
+  if (photoEl) {
+    photoEl.style.backgroundImage = loc?.imgData ? `url(${loc.imgData})` : '';
+    photoEl.innerHTML = loc?.imgData
+      ? '<div class="storage-edit-hint"><span>사진 변경</span></div>'
+      : '<span style="font-size:24px;opacity:.3">📷</span><div class="storage-edit-hint"><span>사진 변경</span></div>';
+  }
+  document.querySelectorAll('.storage-shared-chip').forEach(c =>
+    c.classList.toggle('active', c.onclick?.toString().includes(`'${locKey}'`)));
+}
+
+// ── Save all editable fields ──────────────────────────────────
+function saveDetailChanges(id) {
+  const assets = getAssets();
+  const asset  = assets.find(a => a.id === id);
+  if (!asset) return;
+
+  const v = id => document.getElementById(id)?.value.trim() ?? '';
+  asset.brand        = v('det-brand');
+  asset.name         = v('det-name') || asset.name;
+  asset.price        = v('det-price');
+  asset.purchaseUrl  = v('det-url');
+  asset.source       = v('det-source');
+  asset.notes        = document.getElementById('det-notes')?.value.trim() ?? '';
+
+  if (asset.domain === 'beauty') {
+    asset.expiryDate = v('det-expiry') || null;
+    asset.qtyCurrent = parseInt(document.getElementById('det-qty-c')?.value) || asset.qtyCurrent;
+    asset.qtyTotal   = parseInt(document.getElementById('det-qty-t')?.value) || asset.qtyTotal;
+  }
+
+  // Storage location name
+  const locName = v('detail-loc-name');
+  const locs    = getLocs();
+  if (asset.locKey) {
+    const loc = locs.find(l => l.key === asset.locKey);
+    if (loc) { loc.name = locName; saveLocs(locs); }
+  } else if (locName) {
+    const key = `loc-${Date.now()}`;
+    locs.push({ key, name: locName, imgData: null });
+    saveLocs(locs);
+    asset.locKey = key;
+  }
+
+  saveAssets(assets);
+  document.getElementById('detail-sheet-title').textContent = asset.name;
+
+  const btn = document.getElementById('det-save-btn');
+  if (btn) {
+    btn.textContent = '저장됨 ✓';
+    btn.style.background = 'var(--green)';
+    setTimeout(() => { btn.textContent = '저장하기'; btn.style.background = ''; }, 1600);
+  }
+  renderCatChips();
+  renderGrid();
+}
+
+// ── Photo taps ────────────────────────────────────────────────
+function tapDetailPhoto(id) {
+  pickPhoto(data => {
+    const assets = getAssets();
+    const a = assets.find(x => x.id === id);
+    if (!a) return;
+    a.imgData = data;
+    saveAssets(assets);
+    const el = document.getElementById('detail-hero-photo');
+    if (el) { el.style.backgroundImage=`url(${data})`; el.innerHTML='<div class="detail-hero-edit">사진 변경</div>'; }
+    renderGrid();
+  });
+}
+
+function tapDetailStorage(id) {
+  const assets = getAssets();
+  const asset  = assets.find(a => a.id === id);
+  if (!asset) return;
+  pickPhoto(data => {
+    const locs = getLocs();
+    let loc = locs.find(l => l.key === asset.locKey);
+    if (!loc) {
+      const key = `loc-${Date.now()}`;
+      loc = { key, name: '', imgData: data };
+      locs.push(loc);
+      asset.locKey = key;
+      saveAssets(assets);
+    } else {
+      loc.imgData = data;
+    }
+    saveLocs(locs);
+    const el = document.getElementById('detail-storage-photo');
+    if (el) { el.style.backgroundImage=`url(${data})`; el.innerHTML='<div class="storage-edit-hint"><span>사진 변경</span></div>'; }
+  });
+}
+
+function deleteAsset(id) {
+  if (!confirm('이 자산을 삭제할까요?')) return;
+  const assets = getAssets().filter(a => a.id !== id);
+  saveAssets(assets);
+  closeDetail();
+  renderCatChips();
+  renderGrid();
+}
+
+// ── Add page ──────────────────────────────────────────────────
+function openAdd() {
+  addState = { domain:'beauty', type:'skincare', catKey:null, productImgData:null, storageImgData:null, qtyTotal:1, qtyCurrent:1, sceneTags:[], materialType:null };
+  resetAddForm();
+  document.getElementById('add-page').classList.add('open');
+  document.getElementById('main-scroll').style.overflow = 'hidden';
+  // 스크롤 맨 위로 리셋
+  requestAnimationFrame(() => {
+    const scroll = document.querySelector('.add-page-scroll');
+    if (scroll) scroll.scrollTop = 0;
+  });
+}
+
+function closeAdd() {
+  document.getElementById('add-page').classList.remove('open');
+  document.getElementById('main-scroll').style.overflow = '';
+}
+
+function resetAddForm() {
+  ['add-brand','add-name','add-notes','add-location','add-material','add-care-guide','add-special-note'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.classList.remove('input-error'); }
+  });
+  ['add-expiry','add-purchase-date','add-open-date'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = new Date().toISOString().slice(0,10); }
+  );
+  document.getElementById('add-purchase-date') && (document.getElementById('add-purchase-date').value = new Date().toISOString().slice(0,10));
+  document.getElementById('add-open-date') && (document.getElementById('add-open-date').value = '');
+  document.getElementById('add-expiry') && (document.getElementById('add-expiry').value = '');
+  // Object photo 초기화
+  const imgBlock = document.getElementById('add-img-block');
+  if (imgBlock) {
+    imgBlock.style.backgroundImage = '';
+    imgBlock.classList.remove('has-img','storage-ok');
+    const inner = imgBlock.querySelector('.add-photo-inner');
+    if (inner) inner.style.opacity = '';
+  }
+  // Storage photo 초기화
+  const storBlock = document.getElementById('add-storage-block');
+  if (storBlock) {
+    storBlock.style.backgroundImage = '';
+    storBlock.classList.remove('has-img','storage-ok');
+    const inner = storBlock.querySelector('.add-photo-inner');
+    if (inner) inner.style.opacity = '';
+  }
+  document.getElementById('add-storage-error') && (document.getElementById('add-storage-error').style.display = 'none');
+  // Domain 초기화
+  addState.domain = 'beauty';
+  addState.type = 'skincare';
+  addState.catKey = null;
+  addState.qtyTotal = 1;
+  addState.qtyCurrent = 1;
+  addState.storageImgData = null;
+  addState.productImgData = null;
+  addState.sceneTags = [];
+  addState.materialType = null;
+  pickDomain('beauty');
+  updateQtyDisplay();
+  // scene tags 초기화
+  document.querySelectorAll('.add-scene-tag').forEach(el => el.classList.remove('active'));
+  // 저장 버튼 초기화
+  const btn = document.getElementById('add-submit-btn');
+  if (btn) { btn.textContent = 'Register Product'; btn.disabled = false; btn.style.background = ''; }
+}
+
+function pickDomain(domain) {
+  addState.domain = domain;
+  ['beauty','fashion','acc'].forEach(d => {
+    document.getElementById(`domain-btn-${d}`)?.classList.toggle('active', d === domain);
+  });
+  document.getElementById('step3-beauty').style.display = domain === 'beauty' ? '' : 'none';
+  document.getElementById('step3-fashion').style.display = domain === 'fashion' ? '' : 'none';
+  document.getElementById('step3-acc').style.display = domain === 'acc' ? '' : 'none';
+  const label = { beauty:'뷰티 세부 정보', fashion:'패션 세부 정보', acc:'액세서리 세부 정보' };
+  document.getElementById('step3-label') && (document.getElementById('step3-label').textContent = label[domain]);
+  document.getElementById('add-page-bar-title') && (document.getElementById('add-page-bar-title').textContent = domain.toUpperCase());
+  // sub-category chips
+  addState.type = domain === 'beauty' ? 'skincare' : domain;
+  addState.catKey = null;
+  renderNewCatChips();
+}
+
+function pickType(type) {
+  addState.type = type; addState.catKey = null;
+  renderNewCatChips();
+}
+
+function renderNewCatChips() {
+  const wrap = document.getElementById('add-cat-chips-wrap');
+  if (!wrap) return;
+  const domain = addState.domain || 'beauty';
+  let cats = [];
+  if (domain === 'beauty') {
+    cats = BEAUTY_CATS[addState.type] || [];
+  } else if (domain === 'fashion') {
+    cats = FASHION_CATS;
+  } else if (domain === 'acc') {
+    cats = ['jewelry','watch','belt','sunglasses','hat','other'];
+  }
+  wrap.innerHTML = cats.map(c => `
+    <div class="add-cat-pill${addState.catKey===c?' active':''}" onclick="pickCat('${c}')">
+      ${(CAT_LABELS[c]||c).toUpperCase()}
+    </div>`).join('');
+  if (!addState.catKey && cats.length) { addState.catKey = cats[0]; renderNewCatChips(); }
+}
+
+function pickCat(c) {
+  addState.catKey = c;
+  document.querySelectorAll('.add-cat-pill').forEach(el =>
+    el.classList.toggle('active', el.textContent.trim() === (CAT_LABELS[c]||c).toUpperCase())
+  );
+}
+
+function toggleSceneTag(btn) {
+  btn.classList.toggle('active');
+}
+
+function toggleMaterialTag(btn) {
+  document.querySelectorAll('#add-material-tags .add-scene-tag').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Category select modal ─────────────────────────────────────
+let catSelectPending = null; // catKey being selected in modal
+
+function openCatSelect() {
+  catSelectPending = addState.catKey;
+  document.getElementById('cat-search-input').value = '';
+  renderCatList();
+  document.getElementById('cat-select-overlay').classList.add('open');
+}
+
+function closeCatSelect() {
+  document.getElementById('cat-select-overlay').classList.remove('open');
+}
+
+function handleCatOverlayClick(e) {
+  if (e.target === document.getElementById('cat-select-overlay')) closeCatSelect();
+}
+
+function applyCatSelect() {
+  if (catSelectPending) {
+    addState.catKey = catSelectPending;
+    renderNewCatChips();
+  }
+  closeCatSelect();
+}
+
+function filterCatList() {
+  renderCatList();
+}
+
+function renderCatList() {
+  const q = (document.getElementById('cat-search-input')?.value || '').toLowerCase();
+  const cats = BEAUTY_CATS[addState.type] || [];
+  const filtered = cats.filter(c => {
+    const label = (CAT_LABELS[c] || c).toLowerCase();
+    return !q || label.includes(q);
+  });
+  const el = document.getElementById('cat-list');
+  if (!el) return;
+  el.innerHTML = filtered.map(c => {
+    const label = CAT_LABELS[c] || c;
+    const sel = catSelectPending === c;
+    return `
+    <div class="cat-row" onclick="selectCatRow('${c}')">
+      <div class="cat-radio${sel?' selected':''}" id="catradio-${c}"></div>
+      <span class="cat-row-name${sel?' selected':''}" id="catname-${c}">${label}</span>
+      <div class="cat-row-actions">
+        <button class="cat-row-btn" onclick="event.stopPropagation();startEditCat('${c}')" title="이름 수정">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        </button>
+        <button class="cat-row-btn" onclick="event.stopPropagation();deleteCatRow('${c}')" title="삭제">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectCatRow(c) {
+  catSelectPending = c;
+  renderCatList();
+}
+
+function startEditCat(c) {
+  const nameEl = document.getElementById(`catname-${c}`);
+  if (!nameEl) return;
+  const oldLabel = CAT_LABELS[c] || c;
+  nameEl.outerHTML = `<input class="cat-row-name editing" id="catname-${c}"
+    value="${oldLabel}"
+    onblur="commitEditCat('${c}',this.value)"
+    onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+    onclick="event.stopPropagation()" />`;
+  requestAnimationFrame(() => document.getElementById(`catname-${c}`)?.focus());
+}
+
+function commitEditCat(c, newLabel) {
+  const trimmed = newLabel.trim();
+  if (trimmed && trimmed !== (CAT_LABELS[c] || c)) {
+    CAT_LABELS[c] = trimmed;
+  }
+  renderCatList();
+}
+
+function deleteCatRow(c) {
+  const type = addState.type;
+  BEAUTY_CATS[type] = (BEAUTY_CATS[type] || []).filter(x => x !== c);
+  if (catSelectPending === c) catSelectPending = null;
+  if (addState.catKey === c) { addState.catKey = null; renderNewCatChips(); }
+  renderCatList();
+}
+
+// ── New Category dialog ───────────────────────────────────────
+function openNewCat() {
+  document.getElementById('cat-new-input').value = '';
+  document.getElementById('cat-new-overlay').classList.add('open');
+  requestAnimationFrame(() => document.getElementById('cat-new-input')?.focus());
+}
+
+function closeNewCat() {
+  document.getElementById('cat-new-overlay').classList.remove('open');
+}
+
+function submitNewCat() {
+  const raw = document.getElementById('cat-new-input').value.trim();
+  if (!raw) return;
+  const key = raw.toLowerCase().replace(/\s+/g, '_');
+  const type = addState.type;
+  if (!(BEAUTY_CATS[type] || []).includes(key)) {
+    BEAUTY_CATS[type] = [...(BEAUTY_CATS[type] || []), key];
+    CAT_LABELS[key] = raw;
+  }
+  catSelectPending = key;
+  closeNewCat();
+  renderCatList();
+}
+
+// target: 'cur' = qtyCurrent, 'tot' = qtyTotal
+function adjustQty(target, delta) {
+  if (target === 'tot') {
+    const next = addState.qtyTotal + delta;
+    if (next < 1) return;
+    addState.qtyTotal = next;
+    // qtyCurrent는 qtyTotal 이하여야 함
+    if (addState.qtyCurrent > addState.qtyTotal) addState.qtyCurrent = addState.qtyTotal;
+  } else {
+    const next = addState.qtyCurrent + delta;
+    if (next < 0 || next > addState.qtyTotal) return;
+    addState.qtyCurrent = next;
+  }
+  updateQtyDisplay();
+}
+
+function updateQtyDisplay() {
+  const cur = document.getElementById('add-qty-display');
+  if (cur) cur.textContent = `${addState.qtyCurrent} / ${addState.qtyTotal}`;
+}
+
+function pickAddPhoto(photoType) {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width  = Math.round(img.width  * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        const compressed = canvas.toDataURL('image/jpeg', 0.75);
+        const blockId = photoType === 'storage' ? 'add-storage-block' : 'add-img-block';
+        if (photoType === 'storage') {
+          addState.storageImgData = compressed;
+          document.getElementById('add-storage-error') && (document.getElementById('add-storage-error').style.display = 'none');
+        } else {
+          addState.productImgData = compressed;
+        }
+        const el = document.getElementById(blockId);
+        if (el) {
+          el.style.backgroundImage = `url(${compressed})`;
+          el.classList.add('has-img');
+          if (photoType === 'storage') el.classList.add('storage-ok');
+          const inner = el.querySelector('.add-photo-inner');
+          if (inner) inner.style.opacity = '0';
+        }
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function saveAsset() {
+  // ── 필수 필드 검증
+  const nameEl = document.getElementById('add-name');
+  const name = nameEl?.value.trim();
+  if (!name) {
+    nameEl?.classList.add('input-error'); nameEl?.focus(); return;
+  }
+  nameEl?.classList.remove('input-error');
+
+  // Storage Photo 필수 검증
+  if (!addState.storageImgData) {
+    const errEl = document.getElementById('add-storage-error');
+    if (errEl) errEl.style.display = 'block';
+    document.getElementById('add-storage-block')?.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+
+  // ── 값 수집
+  const domain = addState.domain || 'beauty';
+  const brand = document.getElementById('add-brand')?.value.trim() || '';
+  const locKey = document.getElementById('add-location')?.value.trim() || '';
+  const purchaseDate = document.getElementById('add-purchase-date')?.value || new Date().toISOString().slice(0,10);
+  const catKey = addState.catKey || (domain === 'beauty' ? (BEAUTY_CATS[addState.type]||[])[0] : FASHION_CATS[0]) || domain;
+
+  const asset = {
+    id: (getAssets().reduce((m,a) => Math.max(m, a.id||0), 0)) + 1,
+    domain,
+    type: addState.type || domain,
+    catKey,
+    brand,
+    name,
+    imgData: addState.productImgData || null,
+    storageImgData: addState.storageImgData,
+    locKey,
+    purchaseDate,
+    addedDate: purchaseDate,
+    qtyTotal: addState.qtyTotal,
+    qtyCurrent: addState.qtyCurrent,
+    useCount: 0,
+    lastUsed: null,
+  };
+
+  // Domain-specific fields
+  if (domain === 'beauty') {
+    asset.openDate = document.getElementById('add-open-date')?.value || null;
+    asset.expiryDate = document.getElementById('add-expiry')?.value || null;
+  } else if (domain === 'fashion') {
+    asset.sceneTags = Array.from(document.querySelectorAll('#add-scene-tags .add-scene-tag.active')).map(el => el.dataset.tag);
+    asset.material = document.getElementById('add-material')?.value.trim() || '';
+    asset.careGuide = document.getElementById('add-care-guide')?.value.trim() || '';
+  } else if (domain === 'acc') {
+    const matEl = document.querySelector('#add-material-tags .add-scene-tag.active');
+    asset.materialType = matEl ? matEl.dataset.tag : '';
+    asset.specialNote = document.getElementById('add-special-note')?.value.trim() || '';
+  }
+
+  const assets = getAssets();
+  assets.push(asset);
+  saveAssets(assets);
+
+  const btn = document.getElementById('add-submit-btn');
+  if (btn) { btn.textContent = 'Added ✓'; btn.style.background = '#2d6a4f'; btn.disabled = true; }
+  setTimeout(() => {
+    closeAdd();
+    renderCatChips();
+    renderGrid();
+    setDomain(domain);
+    setCat(catKey);
+  }, 600);
+}
+
+// ── Shared photo picker util ──────────────────────────────────
+function pickPhoto(cb) {
+  const input = document.createElement('input');
+  input.type='file'; input.accept='image/*';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => cb(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+// ── Init ──────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  initSampleData();
+  setDomain('beauty');
+});
+</script>
+</body>
+</html>

@@ -35,3 +35,7 @@ desktop.ini
 # ── Logs ────────────────────────────────
 *.log
 npm-debug.log*
+
+# Claude & Firebase cache
+.claude/
+.firebase/

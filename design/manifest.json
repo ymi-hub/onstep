@@ -1,0 +1,14 @@
+{
+  "name": "OnStep",
+  "short_name": "OnStep",
+  "description": "Life OS — 스킨케어 루틴 & 케어 플랜",
+  "start_url": "/skincare.html",
+  "display": "standalone",
+  "background_color": "#F4F5F7",
+  "theme_color": "#F4F5F7",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "favicon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "favicon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

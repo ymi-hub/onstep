@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>OnStep · Today</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="OnStep">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FFFFFF">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FFFFFF; --surface:#F5F5F3; --surface-low:#EFEFED;
+  --surface-mid:#E8E8E6; --surface-high:#DDDDD9; --surface-inv:#0A0A0A;
+  --ink:#0A0A0A; --sub:#444444; --mist:#999999;
+  --lime:#C5FF00; --lime-dark:#A8DB00; --lime-fg:#0A0A0A;
+  --border:rgba(10,10,10,.1); --border-md:rgba(10,10,10,.18);
+  --shadow:0 2px 16px rgba(0,0,0,.07);
+  --gutter:16px; --margin:16px;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:9999px;
+  --green:#2d6a4f; --amber:#b45309; --error:#ba1a1a;
+  --xs:4px; --sm:8px; --md:16px; --lg:24px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 16px 48px;font-family:'Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.phone{width:390px;background:#FFFFFF;border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative}
+.notch{height:44px;background:#FFFFFF;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
+.scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:#FFFFFF}
+.scroll::-webkit-scrollbar{display:none}
+
+/* Appbar */
+.appbar{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border)}
+.appbar-menu{width:22px;display:flex;flex-direction:column;gap:5px;cursor:pointer}
+.appbar-menu span{height:1.5px;background:var(--ink);border-radius:2px}
+.appbar-menu span:nth-child(2){width:68%}
+.appbar-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink);display:flex;align-items:center;gap:8px}
+.appbar-logo{width:24px;height:24px;border-radius:var(--r-sm);object-fit:cover;filter:grayscale(100%)}
+#auth-avatar{width:32px;height:32px;border-radius:9999px;background:var(--surface-mid);border:1.5px solid var(--border);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* Page title */
+.page-title-wrap{padding:20px 16px 4px}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:60px;font-weight:800;color:var(--ink);line-height:.9;letter-spacing:-.02em}
+.page-title::after{content:'';display:block;width:40px;height:4px;background:var(--lime);border-radius:2px;margin-top:8px}
+
+/* Hash section header */
+.hash-row{display:flex;align-items:flex-end;justify-content:space-between;padding:20px 16px 10px}
+.hash-label{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
+.hash-edit{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);text-decoration:none;padding-bottom:3px}
+.hash-edit:hover{color:var(--ink)}
+
+/* Flow session block */
+.flow-session{padding:0 16px 0}
+.flow-session-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);margin-bottom:2px}
+.flow-session-period{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--mist);margin-bottom:12px}
+
+/* Session progress card */
+.flow-progress-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;margin:0 16px 0;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.flow-progress-row{display:flex;align-items:center;justify-content:space-between}
+.flow-progress-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.flow-progress-day{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--mist)}
+.flow-dots{display:flex;align-items:center;justify-content:space-between}
+.flow-dot{width:8px;height:8px;border-radius:var(--r-full);background:transparent;border:1.5px solid var(--border-md);flex-shrink:0;transition:all .3s;position:relative}
+.flow-dot.filled{background:var(--lime);border-color:var(--lime)}
+.flow-dot.today{width:18px;height:18px;background:var(--lime);border:3px solid #FFFFFF;border-radius:var(--r-full);box-shadow:0 0 0 2px var(--lime)}
+
+/* Flow step section */
+.flow-step-card{margin:14px 16px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow)}
+.flow-step-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px}
+.flow-step-hd-left{display:flex;align-items:center;gap:10px}
+.flow-step-badge{background:var(--ink);padding:5px 12px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center}
+.flow-step-badge-icon{color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
+.flow-step-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--ink)}
+.flow-step-count{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--mist)}
+
+/* Horizontal product carousel — 1 item full-width at a time */
+.flow-prod-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.flow-prod-strip::-webkit-scrollbar{display:none}
+.flow-prod-item{flex-shrink:0;width:100%;scroll-snap-align:start;padding:0 16px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.flow-prod-img{width:100%;aspect-ratio:1/1;background:var(--surface-mid);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:var(--r-lg)}
+.flow-prod-emoji{font-size:72px;opacity:.3;pointer-events:none}
+.flow-prod-check{position:absolute;inset:0;background:rgba(12,16,20,.75);display:flex;align-items:center;justify-content:center;color:#fff;font-size:56px;opacity:0;transition:opacity .2s;pointer-events:none;border-radius:var(--r-lg)}
+.flow-prod-item.done .flow-prod-check{opacity:1}
+.flow-prod-info{padding:12px 0 0}
+.flow-prod-name{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--ink);line-height:1.2}
+.flow-prod-brand{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-top:4px}
+/* Scroll dots */
+.flow-prod-dots{display:flex;justify-content:center;gap:6px;padding:4px 0 16px}
+.flow-prod-dot{width:6px;height:6px;border-radius:var(--r-full);background:var(--border-md);transition:background .2s,width .2s;flex-shrink:0}
+.flow-prod-dot.active{background:var(--lime);width:16px;border-radius:var(--r-full)}
+
+.flow-step-body{padding:0 16px 20px;display:flex;flex-direction:column;gap:12px}
+.flow-step-tag{display:none}
+.flow-expert-tip{background:var(--surface-low);border-left:3px solid var(--lime);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:14px;display:flex;flex-direction:column;gap:4px}
+.flow-tip-header{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);display:flex;align-items:center;gap:6px}
+.flow-tip-text{font-family:'Inter',sans-serif;font-size:13px;color:var(--sub);line-height:1.5}
+.flow-edit-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none;align-self:flex-start}
+.flow-edit-link:hover{color:var(--ink)}
+
+/* CTA button */
+.flow-cta-wrap{padding:14px 16px 0}
+.flow-cta-btn{width:100%;background:#0A0A0A;color:#ffffff;border:none;padding:20px 0;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:background .28s,transform .15s;border-radius:var(--r-md)}
+.flow-cta-btn:active{transform:scale(.98)}
+.flow-cta-btn.done{background:var(--green)}
+.flow-cta-arrow{font-size:15px;color:#fff}
+@keyframes btn-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.flow-cta-btn.shake{animation:btn-shake .35s ease}
+
+/* Routine Tracker section */
+.allday-section{padding:28px 16px 0;display:flex;flex-direction:column;gap:8px}
+.allday-section-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
+.allday-hd-left{display:flex;flex-direction:column;gap:2px}
+.allday-top-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
+.allday-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
+.allday-top-edit{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none;padding-top:2px}
+.allday-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer;transition:opacity .2s;box-shadow:var(--shadow)}
+.allday-item.done{opacity:.5}
+.allday-item-left{display:flex;align-items:center;gap:12px}
+.allday-dot{width:22px;height:22px;border-radius:var(--r-full);border:2px solid var(--border-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative}
+.allday-dot-inner{width:10px;height:10px;background:var(--lime);border-radius:var(--r-full);opacity:0;transition:opacity .2s}
+.allday-item.done .allday-dot{border-color:var(--lime);background:var(--lime)}
+.allday-item.done .allday-dot-inner{opacity:1;background:#0A0A0A}
+.allday-item-name{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--ink)}
+.allday-item.done .allday-item-name{color:var(--mist)}
+.allday-item-meta{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--mist)}
+.allday-empty{padding:16px 0;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist)}
+
+/* Legacy allday-card (unused, kept for compat) */
+.allday-card{display:none}
+
+/* MOTD section */
+.motd-section{padding:28px 16px 0;display:flex;flex-direction:column;gap:16px}
+.motd-section-hd{display:flex;align-items:center;justify-content:space-between}
+.motd-section-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
+.motd-section-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none}
+/* Left text + right image strip */
+.motd-body{position:relative;height:186px;overflow:hidden}
+.motd-text-col{position:absolute;left:0;top:0;bottom:0;width:218px;display:flex;flex-direction:column;justify-content:flex-start;padding-right:62px;gap:8px}
+.motd-theme-name{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1}
+.motd-theme-desc{font-family:'Inter',sans-serif;font-size:14px;color:#44474a;line-height:1.5}
+.motd-img-strip{position:absolute;left:235px;top:0;bottom:0;display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-right:4px}
+.motd-img-strip::-webkit-scrollbar{display:none}
+.motd-img-card{flex-shrink:0;width:140px;height:186px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:8px;cursor:pointer;transition:opacity .2s;box-shadow:var(--shadow)}
+.motd-img-card.checked{opacity:.45}
+.motd-img-photo{width:100%;height:168px;background:var(--surface-mid);background-size:cover;background-position:center;border-radius:var(--r-md)}
+/* Bottom chip row */
+.motd-chips-row{display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;padding:8px 0}
+.motd-chips-row::-webkit-scrollbar{display:none}
+.motd-chip-card{flex-shrink:0;width:140px;height:192px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:0;transition:opacity .2s;box-shadow:var(--shadow)}
+.motd-chip-card.checked{opacity:.45}
+.motd-chip-img{width:100%;height:122px;background:var(--surface-mid);background-size:cover;background-position:center;border-radius:var(--r-md)}
+.motd-chip-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ink);padding:8px 0 0;line-height:1.25}
+.motd-chip-note{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);line-height:1.5}
+
+/* MOTD new theme header */
+.motd-theme-hd-row{display:flex;align-items:flex-start;gap:12px;padding:0 0 14px}
+.motd-theme-emoji-lg{font-size:28px;line-height:1;flex-shrink:0;padding-top:2px}
+.motd-theme-name-lg{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink);line-height:1.1;margin-bottom:4px}
+.motd-theme-desc-sm{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);line-height:1.5}
+
+/* OOTD section */
+.ootd-section{padding:0 16px}
+.ootd-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ootd-section-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
+.ootd-section-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none}
+.ootd-photo-card{border-radius:var(--r-xl);overflow:hidden;cursor:pointer;position:relative;height:256px;background:var(--surface-mid);background-size:cover;background-position:center}
+.ootd-photo-img{width:100%;height:100%;background:var(--surface-mid);background-size:cover;background-position:center;position:relative;display:flex;align-items:center;justify-content:center}
+.ootd-placeholder-icon{font-size:40px;opacity:.3}
+.ootd-check-btn{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:0;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer;z-index:2;transition:background .2s}
+.ootd-check-btn.logged{background:rgba(0,0,0,.6)}
+.ootd-overlay{position:absolute;bottom:0;left:0;right:0;padding:60px 16px 16px;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 50%,transparent 100%);pointer-events:none}
+.ootd-weather{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;color:rgba(255,255,255,.8);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.ootd-caption-text{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:#fff;line-height:1.25}
+
+/* OOTD Log card */
+.ootd-log-section{padding:16px 16px 20px}
+.ootd-log-card{background:var(--surface);border:2px dashed var(--border-md);border-radius:var(--r-lg);padding:40px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:background .2s}
+.ootd-log-card:active{background:var(--surface-low)}
+.ootd-log-icon{width:33px;height:30px;opacity:.25;display:flex;align-items:center;justify-content:center;font-size:24px}
+.ootd-log-text{font-family:'Inter',sans-serif;font-size:14px;color:var(--mist)}
+
+/* OOTD Record Sheet */
+.ootd-rec-sheet{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+.ootd-rec-sheet.open{opacity:1;pointer-events:auto}
+.ootd-rec-inner{background:#fff;border-radius:24px 24px 0 0;width:100%;padding:24px 20px 36px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.ootd-rec-sheet.open .ootd-rec-inner{transform:translateY(0)}
+.ootd-rec-handle{width:32px;height:4px;background:var(--border-md);border-radius:var(--r-full);margin:0 auto 20px}
+.ootd-rec-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:#0C1014;margin-bottom:16px}
+.ootd-rec-photo-area{width:100%;height:180px;background:var(--surface-low);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:16px;overflow:hidden;background-size:cover;background-position:center;position:relative}
+.ootd-rec-photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.ootd-rec-photo-icon{font-size:32px;opacity:.35}
+.ootd-rec-photo-hint{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist)}
+.ootd-rec-note{width:100%;border:1.5px solid var(--border-md);border-radius:var(--r-md);padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;color:#0C1014;resize:none;height:80px;outline:none;box-sizing:border-box;margin-bottom:16px}
+.ootd-rec-note:focus{border-color:#0C1014}
+.ootd-rec-note::placeholder{color:#bbb}
+.ootd-rec-save{width:100%;height:52px;background:#0A0A0A;color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.02em}
+/* OOTD log card — logged state */
+.ootd-log-card-logged{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;transition:background .2s;box-shadow:var(--shadow)}
+.ootd-log-card-logged:active{background:var(--surface-low)}
+.ootd-log-thumb{width:56px;height:56px;border-radius:var(--r-md);background:var(--surface-mid);background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.4}
+.ootd-log-info{flex:1;min-width:0}
+.ootd-log-note-txt{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.ootd-log-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4caf78;margin-top:3px}
+
+/* Bottom nav */
+.bottom-nav{background:#0A0A0A;border-top:none;display:flex;padding:10px 0 20px}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0;text-decoration:none}
+.nav-icon{font-size:20px;height:24px;display:flex;align-items:center;justify-content:center;position:relative;color:rgba(255,255,255,.4)}
+.nav-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.nav-item.active .nav-label{color:var(--lime)}
+.nav-item.active .nav-icon{color:var(--lime)}
+.nav-item.active .nav-icon::after{content:'';display:block;width:16px;height:2px;background:var(--lime);position:absolute;bottom:-4px;border-radius:var(--r-full)}
+
+@media(max-width:430px){
+  body{background:#FFFFFF;padding:0;align-items:stretch}
+  .phone{width:100%;border-radius:0;box-shadow:none}
+  .notch{height:calc(env(safe-area-inset-top,0px) + 10px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
+  .notch-bar{display:none}
+  .scroll{height:calc(100dvh - env(safe-area-inset-top,0px) - 10px)}
+  .bottom-nav{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 10px)}
+}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"><div class="notch-bar"></div></div>
+  <div class="scroll">
+
+    <div class="appbar">
+      <div class="appbar-menu"><span></span><span></span><span></span></div>
+      <div class="appbar-title"><img src="logo.png" alt="OnStep" class="appbar-logo">OnStep</div>
+      <div id="auth-avatar" onclick="handleAuthClick()" title="로그인하여 동기화">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
+      </div>
+    </div>
+
+    <div class="page-title-wrap">
+      <h1 class="page-title">Today</h1>
+    </div>
+
+    <!-- #FLOW header -->
+    <div class="hash-row">
+      <div class="hash-label"># Flow</div>
+    </div>
+
+    <!-- Session name + period -->
+    <div class="flow-session" style="padding:0 var(--margin) 12px">
+      <div class="flow-session-name" id="flow-session-name">1ST SESSION</div>
+      <div class="flow-session-period" id="flow-session-period"></div>
+    </div>
+
+    <!-- Session progress card -->
+    <div class="flow-progress-card" id="flow-progress-card">
+      <div class="flow-progress-row">
+        <div class="flow-progress-label">DAILY SESSION</div>
+        <div class="flow-progress-day" id="flow-progress-day">1/10 day</div>
+      </div>
+      <div class="flow-dots" id="flow-dots"></div>
+    </div>
+
+    <!-- Skincare step section -->
+    <div class="flow-step-card" id="flow-step-card">
+      <div class="flow-step-hd">
+        <div class="flow-step-hd-left">
+          <div class="flow-step-badge">
+            <div class="flow-step-badge-icon" id="flow-step-badge-icon">STEP 1</div>
+          </div>
+          <div class="flow-step-name" id="flow-step-name">Morning Routine</div>
+        </div>
+        <span class="flow-step-count" id="flow-step-count"></span>
+      </div>
+      <div class="flow-prod-strip" id="flow-prod-strip"></div>
+      <div class="flow-prod-dots" id="flow-prod-dots"></div>
+      <div class="flow-step-body">
+        <div class="flow-expert-tip" id="flow-expert-tip" style="display:none">
+          <div class="flow-tip-header">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+            EXPERT TIP
+          </div>
+          <div class="flow-tip-text" id="flow-tip-text"></div>
+        </div>
+        <a class="flow-edit-link" href="setup.html">Edit routine →</a>
+      </div>
+    </div>
+
+    <!-- CHECK ROUTINE CTA -->
+    <div class="flow-cta-wrap">
+      <button class="flow-cta-btn" id="main-check-btn" onclick="handleMainRoutineBtn()">
+        <span id="cta-label">CHECK ROUTINE</span>
+        <svg id="cta-arrow" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Routine Tracker -->
+    <div class="allday-section">
+      <div class="allday-section-hd">
+        <div class="allday-hd-left">
+          <div class="allday-top-label">ALL DAY</div>
+          <div class="allday-title">Routine Tracker</div>
+        </div>
+        <a class="allday-top-edit" href="setup.html">Edit →</a>
+      </div>
+      <div id="allday-items"></div>
+    </div>
+
+    <!-- #MOTD section -->
+    <div class="motd-section">
+      <div class="motd-section-hd">
+        <div class="motd-section-title">#MOTD</div>
+        <a class="motd-section-link" href="log.html?tab=library">Edit →</a>
+      </div>
+      <div id="motd-theme-block"></div>
+    </div>
+
+    <!-- #OOTD section -->
+    <div class="ootd-section" style="padding-top:40px">
+      <div class="ootd-section-hd">
+        <div class="ootd-section-title">#OOTD</div>
+        <a class="ootd-section-link" href="log.html?tab=library">Edit →</a>
+      </div>
+      <div class="ootd-photo-card" id="ootd-photo-card" onclick="pickOOTDPhoto()">
+        <div id="ootd-placeholder" style="font-size:40px;opacity:.3;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">👗</div>
+        <button class="ootd-check-btn" id="ootd-check-btn" onclick="event.stopPropagation();logTodayOOTD()">
+          <svg width="14" height="10" viewBox="0 0 24 16" fill="currentColor"><path d="M2 8l7 7L22 2"/></svg>
+        </button>
+        <div class="ootd-overlay">
+          <div class="ootd-weather" id="ootd-weather"></div>
+          <div class="ootd-caption-text" id="ootd-caption">Record today's look</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- #OOTD Log -->
+    <div class="ootd-log-section">
+      <div class="ootd-section-hd" style="margin-bottom:8px">
+        <div class="motd-section-title">#OOTD Log</div>
+        <a class="motd-section-link" href="log.html?tab=look">View →</a>
+      </div>
+      <div id="ootd-log-wrap"></div>
+    </div>
+
+    <div style="height:20px"></div>
+
+    <div class="bottom-nav">
+      <a class="nav-item active" href="today.html">
+        <div class="nav-icon">◎</div><div class="nav-label">Today</div>
+      </a>
+      <a class="nav-item" href="log.html">
+        <div class="nav-icon">◈</div><div class="nav-label">Log</div>
+      </a>
+      <a class="nav-item" href="box.html">
+        <div class="nav-icon">◫</div><div class="nav-label">Box</div>
+      </a>
+      <a class="nav-item" href="setup.html">
+        <div class="nav-icon">⊞</div><div class="nav-label">Setup</div>
+      </a>
+    </div>
+
+  <!-- OOTD Record Sheet -->
+  <div class="ootd-rec-sheet" id="ootd-rec-sheet" onclick="if(event.target===this)closeOOTDRecord()">
+    <div class="ootd-rec-inner">
+      <div class="ootd-rec-handle"></div>
+      <div class="ootd-rec-title">오늘의 룩 기록</div>
+      <input type="file" id="ootd-rec-file" accept="image/*" style="display:none" onchange="handleOOTDRecPhoto(this)">
+      <div class="ootd-rec-photo-area" id="ootd-rec-photo-area" onclick="document.getElementById('ootd-rec-file').click()">
+        <div class="ootd-rec-photo-placeholder" id="ootd-rec-photo-placeholder">
+          <div class="ootd-rec-photo-icon">📷</div>
+          <div class="ootd-rec-photo-hint">사진 추가</div>
+        </div>
+      </div>
+      <textarea class="ootd-rec-note" id="ootd-rec-note" placeholder="오늘의 룩 메모…"></textarea>
+      <button class="ootd-rec-save" onclick="saveOOTDRecord()">기록하기 →</button>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyBdKnyU8t0XrQsT_EhKS2nk9zOKwjxoquk",
+  authDomain:"onstep-lifeos.firebaseapp.com",
+  projectId:"onstep-lifeos",
+  storageBucket:"onstep-lifeos.firebasestorage.app",
+  messagingSenderId:"333501649998",
+  appId:"1:333501649998:web:4eebd8b84a32ea8a581f1f"
+});
+const fbAuth = firebase.auth();
+const fbDb   = firebase.firestore();
+let currentUser = null, unsubscribe = null;
+
+firebase.auth().onAuthStateChanged(user => {
+  currentUser = user;
+  updateAuthAvatar(user);
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  if (user) {
+    unsubscribe = fbDb.collection('users').doc(user.uid)
+      .collection('careplan').doc('data')
+      .onSnapshot(snap => {
+        if (!snap.exists) return;
+        const data = snap.data();
+        localStorage.setItem(DB_KEY, JSON.stringify(data));
+        loadPlan(data);
+      }, e => console.warn(e));
+  }
+});
+
+function updateAuthAvatar(user) {
+  const el = document.getElementById('auth-avatar');
+  if (!el) return;
+  if (user) {
+    el.innerHTML = user.photoURL
+      ? `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover">`
+      : `<span style="font-size:11px;color:#fff;font-weight:700">${(user.displayName||user.email||'?')[0].toUpperCase()}</span>`;
+    el.style.background = '#1A1C1C'; el.style.borderColor = '#1A1C1C';
+  } else {
+    el.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>';
+    el.style.background = ''; el.style.borderColor = '';
+  }
+}
+
+function handleAuthClick() {
+  if (currentUser) {
+    if (confirm(`${currentUser.displayName||currentUser.email}\n로그아웃할까요?`)) fbAuth.signOut();
+  } else {
+    fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => alert(e.message));
+  }
+}
+
+const DB_KEY    = 'onstep_care_plan';
+const LOOKS_KEY = 'onstep_looks';
+const MAKEUP_KEY= 'onstep_makeup';
+
+// ── BOX 연동 헬퍼 ──────────────────────────────────────────────
+function getBoxAssets() { return JSON.parse(localStorage.getItem('onstep_box_assets') || '[]'); }
+
+function getBoxImgForProduct(p) {
+  const assets = getBoxAssets();
+  if (p.assetId) {
+    const a = assets.find(a => a.id === p.assetId);
+    if (a?.imgData) return a.imgData;
+  }
+  const a = assets.find(a => a.domain === 'beauty' && (
+    a.name?.toLowerCase() === p.name?.toLowerCase() ||
+    (p.brand && a.brand?.toLowerCase() === p.brand?.toLowerCase() && a.name?.toLowerCase() === p.name?.toLowerCase())
+  ));
+  return a?.imgData || p.imgData || null;
+}
+
+function recordBoxUsage(products) {
+  const today  = getTodayKey();
+  const assets = getBoxAssets();
+  let changed  = false;
+  products.forEach(p => {
+    if (!p.assetId) return;
+    const idx = assets.findIndex(a => a.id === p.assetId);
+    if (idx === -1) return;
+    if (!assets[idx].useCount) assets[idx].useCount = 0;
+    assets[idx].useCount++;
+    assets[idx].lastUsed = today;
+    changed = true;
+  });
+  if (changed) localStorage.setItem('onstep_box_assets', JSON.stringify(assets));
+}
+
+const CAT_LABEL = {
+  cleanser:'Cleanser',toner:'Toner',serum:'Serum',ampoule:'Ampoule',
+  booster:'Booster',essence:'Essence',cream:'Cream',mask:'Mask',
+  mist:'Mist',oil:'Oil',sunscreen:'Sunscreen'
+};
+
+function getTimePeriod() {
+  const h = new Date().getHours();
+  if (h>=5&&h<12) return 'am';
+  if (h>=12&&h<17) return 'pm';
+  if (h>=17&&h<21) return 'eve';
+  return 'night';
+}
+function getTodayKey()      { return new Date().toISOString().slice(0,10); }
+function calcCurrentDay(s)  { return s ? Math.max(1,Math.floor((new Date()-new Date(s))/86400000)+1) : 1; }
+function calcTotalDays(s,e) { return (s&&e) ? Math.floor((new Date(e)-new Date(s))/86400000)+1 : 10; }
+function getSuffix(n)       { const a=['th','st','nd','rd'],v=n%100; return a[(v-20)%10]||a[v]||a[0]; }
+
+function initSampleData() {
+  if (localStorage.getItem(DB_KEY)) return;
+  const today = new Date(), end = new Date(today);
+  end.setDate(end.getDate()+9);
+  const fmt = d => d.toISOString().slice(0,10);
+  localStorage.setItem(DB_KEY, JSON.stringify({
+    session:12, periodStart:'2026-04-10', periodEnd:'2026-04-20',
+    morning:{
+      active:1,
+      routines:[
+        { id:1, products:[
+          {id:1001, icon:'💧', catKey:'toner',   name:'AHA/BHA Clarifying Toner',   brand:'COSRX',       imgData:null},
+          {id:1002, icon:'🔬', catKey:'serum',   name:'No.3 Super Glowy Serum',      brand:'Numbuzin',    imgData:null},
+          {id:1003, icon:'🧪', catKey:'ampoule', name:'First Treatment Essence EX',  brand:'MISSHA',      imgData:null},
+          {id:1004, icon:'🫙', catKey:'cream',   name:'Water Sleeping Mask',         brand:'LANEIGE',     imgData:null},
+          {id:1005, icon:'🌫️', catKey:'mist',    name:'Dewy Mist',                   brand:'Tatcha',      imgData:null}
+        ], tip:'Apply the toner while the skin is still slightly damp for maximum hydration absorption.' },
+        { id:2, products:[
+          {id:1011, icon:'⚡', catKey:'booster', name:'Enriched Firming Serum',      brand:'Sulwhasoo',   imgData:null},
+          {id:1012, icon:'🔬', catKey:'serum',   name:'Retinol Active Serum',        brand:'IOPE',        imgData:null},
+          {id:1013, icon:'🫙', catKey:'cream',   name:'Cicapair Tiger Grass Cream',  brand:'Dr.Jart+',    imgData:null}
+        ], tip:'Alternating with retinol on Step 2 days enhances cell turnover without irritation.' }
+      ]
+    },
+    nightly:{
+      active:1,
+      routines:[
+        { id:1, products:[
+          {id:2001, icon:'🎭', catKey:'pack',    name:'Clean It Zero Original',       brand:'Banila Co',   imgData:null},
+          {id:2002, icon:'💧', catKey:'toner',   name:'Birch Juice Moisturizing Toner',brand:'Round Lab',  imgData:null},
+          {id:2003, icon:'🔬', catKey:'serum',   name:'Propolis Synergy Serum',       brand:'By Wishtrend',imgData:null},
+          {id:2004, icon:'🫙', catKey:'cream',   name:'Hydra Plump Sleeping Cream',   brand:'BELIF',       imgData:null},
+          {id:2005, icon:'🧪', catKey:'ampoule', name:'Retinol Eye Cream',            brand:'RoC',         imgData:null}
+        ], tip:'Double cleansing is essential at night to remove pollutants and SPF effectively.' },
+        { id:2, products:[], tip:'' }
+      ]
+    }
+  }));
+  if (!localStorage.getItem(MAKEUP_KEY)) {
+    localStorage.setItem(MAKEUP_KEY, JSON.stringify({
+      activeTheme:1,
+      themes:[
+        { id:1, name:'Glazed Skin Routine',
+          description:'Inner glow with sheer coverage and dewy finish. Perfect for morning light.',
+          steps:[
+            {cat:'Base', name:'Skin Tint SPF30', note:'Tap gently', icon:'◎'},
+            {cat:'Cheek',name:'Peach Blush',     note:'Duo-chrome', icon:'◌'},
+            {cat:'Lip',  name:'Nude Gloss',       note:'Hydrating',  icon:'◈'},
+            {cat:'Eye',  name:'Brown Liner',      note:'Tight line', icon:'▸'}
+          ]
+        },
+        { id:2, name:'Effortless Matte',
+          description:'Long-wear formula meets editorial edge. Blurred skin + bold brow.',
+          steps:[
+            {cat:'Base', name:'Matte Foundation', note:'Buildable', icon:'◎'},
+            {cat:'Eye',  name:'Taupe Shadow',      note:'Smudge',    icon:'▪'},
+            {cat:'Lip',  name:'Mauve Lip',         note:'Stain',     icon:'◈'}
+          ]
+        }
+      ]
+    }));
+  }
+  if (!localStorage.getItem('onstep_makeup_themes')) {
+    localStorage.setItem('onstep_makeup_themes', JSON.stringify({ themes: [
+      {
+        id:1, name:'Daily Glow', emoji:'✨',
+        description:'Natural dewy finish perfect for everyday wear.',
+        products:[
+          {id:1,step:'Base',  name:'Skin Tint SPF30',               brand:'ILIA Beauty',    icon:'◎',imgData:null},
+          {id:2,step:'Cheek', name:'Soft Pinch Liquid Blush',        brand:'RARE BEAUTY',    icon:'◌',imgData:null},
+          {id:3,step:'Eye',   name:'Gimme Brow+ Gel',                brand:'Benefit',        icon:'▸',imgData:null},
+          {id:4,step:'Lip',   name:'Lip Glow Oil',                   brand:'Dior',           icon:'◈',imgData:null},
+          {id:5,step:'Finish',name:'All Nighter Setting Spray',      brand:'Urban Decay',    icon:'✦',imgData:null}
+        ],
+        scheduledDates:['2026-04-29','2026-05-01','2026-05-06','2026-05-08']
+      },
+      {
+        id:2, name:'Sleek & Sharp', emoji:'🖤',
+        description:'Polished editorial look for days you want to command the room.',
+        products:[
+          {id:1,step:'Base',  name:'Luminous Silk Foundation',       brand:'Giorgio Armani', icon:'◎',imgData:null},
+          {id:2,step:'Eye',   name:'Naked3 Palette',                 brand:'Urban Decay',    icon:'▪',imgData:null},
+          {id:3,step:'Liner', name:'Calligraphie Liner',             brand:'Lancôme',        icon:'▸',imgData:null},
+          {id:4,step:'Lip',   name:'Matte Revolution Lipstick',      brand:'Charlotte Tilbury',icon:'◈',imgData:null}
+        ],
+        scheduledDates:['2026-04-30','2026-05-02','2026-05-07']
+      },
+      {
+        id:3, name:'Office Minimal', emoji:'💼',
+        description:'Understated confidence for the boardroom. Clean, precise, professional.',
+        products:[
+          {id:1,step:'Base',   name:'BB Cream SPF50+',               brand:'Dr.Jart+',       icon:'◎',imgData:null},
+          {id:2,step:'Conceal',name:'Radiant Creamy Concealer',      brand:'NARS',           icon:'◌',imgData:null},
+          {id:3,step:'Brow',   name:'Micro Precision Pen',           brand:'Anastasia BH',   icon:'▸',imgData:null},
+          {id:4,step:'Lip',    name:'Ink Velvet Tint',               brand:'Peripera',       icon:'◈',imgData:null}
+        ],
+        scheduledDates:[]
+      },
+      {
+        id:4, name:'Weekend Fresh', emoji:'☀️',
+        description:'Quick 5-min routine for relaxed days. SPF is your best friend.',
+        products:[
+          {id:1,step:'Base',  name:'Tinted Moisturizer SPF30',       brand:'Laura Mercier',  icon:'◎',imgData:null},
+          {id:2,step:'Color', name:'Multi-Stick (Cheek+Lip)',         brand:'ILIA Beauty',    icon:'◌',imgData:null},
+          {id:3,step:'Lip',   name:'Almost Lipstick in Black Honey',  brand:'Clinique',       icon:'◈',imgData:null}
+        ],
+        scheduledDates:[]
+      },
+      {
+        id:5, name:'Glazed Donut', emoji:'🍩',
+        description:'K-beauty glass skin moment — sheer, dewy, luminous all day.',
+        products:[
+          {id:1,step:'Prep',  name:'Pore Minimizing Blur Stick',     brand:'Milk Makeup',    icon:'◎',imgData:null},
+          {id:2,step:'Base',  name:'Essential Finisher Cushion',      brand:'Sulwhasoo',      icon:'◌',imgData:null},
+          {id:3,step:'Glow',  name:'Gloss Bomb Universal Lip Luminizer',brand:'Fenty Beauty', icon:'✦',imgData:null},
+          {id:4,step:'Lip',   name:'Juicy Lasting Tint Cherry',       brand:'Rom&nd',         icon:'◈',imgData:null},
+          {id:5,step:'Lash',  name:'Unlocked Tubing Mascara',         brand:'Hourglass',      icon:'▸',imgData:null}
+        ],
+        scheduledDates:[]
+      }
+    ]}));
+  }
+}
+
+function getActiveCycleRoutine(slotData, plan) {
+  if (!slotData?.routines) return 1;
+  const r2 = slotData.routines.find(r=>r.id===2);
+  if (!r2?.products?.length) return 1;
+  if (!plan?.periodStart) return 1;
+  const diff = Math.floor((new Date() - new Date(plan.periodStart)) / 86400000);
+  return diff % 2 === 0 ? 1 : 2;
+}
+
+// ── Session header ───────────────────────────────────────────
+function renderFlowSession(plan) {
+  if (!plan) { buildDots(1,10); return; }
+  const n = Number(plan.session||1);
+  document.getElementById('flow-session-name').textContent = `${n}${getSuffix(n).toUpperCase()} SESSION`;
+  if (plan.periodStart && plan.periodEnd) {
+    document.getElementById('flow-session-period').textContent =
+      `${plan.periodStart.replace(/-/g,'.')}~${plan.periodEnd.replace(/-/g,'.')}`;
+  }
+  const cur   = calcCurrentDay(plan.periodStart);
+  const total = calcTotalDays(plan.periodStart, plan.periodEnd);
+  document.getElementById('flow-progress-day').textContent = `${cur}/${total} day`;
+  buildDots(cur, total);
+}
+
+function buildDots(cur, total) {
+  const row = document.getElementById('flow-dots');
+  row.innerHTML = '';
+  const n = Math.min(10, total);
+  for (let i=1; i<=n; i++) {
+    const d = document.createElement('div');
+    d.className = 'flow-dot' + (i<cur?' filled':i===cur?' today':'');
+    row.appendChild(d);
+  }
+}
+
+// ── Flow hero step ────────────────────────────────────────────
+function renderFlowHeroStep(plan) {
+  const period   = getTimePeriod();
+  const slot     = (period==='am') ? 'morning' : 'nightly';
+  const slotData = plan?.[slot];
+  const activeId = getActiveCycleRoutine(slotData, plan);
+  const routine  = slotData?.routines?.find(r=>r.id===activeId);
+  const products = routine?.products || [];
+  const tip      = routine?.tip || '';
+
+  const today    = getTodayKey();
+  const doneKey  = `onstep_flow_done_${today}_${slot}`;
+  const doneSet  = new Set(JSON.parse(localStorage.getItem(doneKey)||'[]'));
+
+  // Header
+  const badgeEl  = document.getElementById('flow-step-badge-icon');
+  const nameEl   = document.getElementById('flow-step-name');
+  const countEl  = document.getElementById('flow-step-count');
+  if (badgeEl) badgeEl.textContent = `STEP ${activeId}`;
+  if (nameEl)  nameEl.textContent  = slot==='morning' ? 'Morning' : 'Night';
+  if (countEl) countEl.textContent = products.length ? `1 / ${products.length}` : '';
+
+  // Product carousel
+  const strip    = document.getElementById('flow-prod-strip');
+  const dotsEl   = document.getElementById('flow-prod-dots');
+  if (strip) {
+    if (!products.length) {
+      strip.innerHTML = `<div style="padding:16px;font-family:'Inter',sans-serif;font-size:14px;color:var(--mist)">루틴을 설정해주세요</div>`;
+      if (dotsEl) dotsEl.innerHTML = '';
+    } else {
+      strip.innerHTML = products.map(p => {
+        const isDone = doneSet.has(p.name);
+        const imgSrc = getBoxImgForProduct(p);
+        return `
+          <div class="flow-prod-item${isDone?' done':''}" onclick="toggleProdDone(${JSON.stringify(p.name)},'${slot}')">
+            <div class="flow-prod-img"${imgSrc?` style="background-image:url(${imgSrc})"`:''}>
+              ${!imgSrc ? `<span class="flow-prod-emoji">${p.icon||'✨'}</span>` : ''}
+              <div class="flow-prod-check">✓</div>
+            </div>
+            <div class="flow-prod-info">
+              <div class="flow-prod-name">${p.name}</div>
+              ${p.brand ? `<div class="flow-prod-brand">${p.brand}</div>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+
+      // Dots
+      if (dotsEl) {
+        dotsEl.innerHTML = products.map((_,i) =>
+          `<div class="flow-prod-dot${i===0?' active':''}"></div>`
+        ).join('');
+      }
+
+      // Update dots on scroll
+      strip.onscroll = () => {
+        const idx = Math.round(strip.scrollLeft / strip.offsetWidth);
+        dotsEl?.querySelectorAll('.flow-prod-dot').forEach((d,i) =>
+          d.classList.toggle('active', i===idx)
+        );
+        if (countEl) {
+          const doneCount = [...doneSet].length;
+          countEl.textContent = `${idx+1} / ${products.length}`;
+        }
+      };
+    }
+  }
+
+  // Expert tip
+  const tipArea = document.getElementById('flow-expert-tip');
+  const tipText = document.getElementById('flow-tip-text');
+  if (tipArea && tipText) {
+    if (tip) { tipText.textContent = tip; tipArea.style.display = ''; }
+    else tipArea.style.display = 'none';
+  }
+
+  updateCTABtn(doneSet.size, products.length);
+}
+
+function toggleProdDone(name, slot) {
+  const today    = getTodayKey();
+  const doneKey  = `onstep_flow_done_${today}_${slot}`;
+  const doneList = JSON.parse(localStorage.getItem(doneKey)||'[]');
+  const adding   = doneList.indexOf(name) === -1;
+  if (adding) doneList.push(name);
+  else doneList.splice(doneList.indexOf(name), 1);
+  localStorage.setItem(doneKey, JSON.stringify(doneList));
+  // 체크 시 BOX useCount +1
+  if (adding) {
+    const plan = JSON.parse(localStorage.getItem(DB_KEY)||'null');
+    const slotData = plan?.[slot];
+    const activeId = getActiveCycleRoutine(slotData, plan);
+    const prod = slotData?.routines?.find(r=>r.id===activeId)?.products?.find(p=>p.name===name);
+    if (prod) recordBoxUsage([prod]);
+  }
+  const plan = JSON.parse(localStorage.getItem(DB_KEY)||'null');
+  renderFlowHeroStep(plan);
+}
+
+function updateCTABtn(done, total) {
+  const btn    = document.getElementById('main-check-btn');
+  const label  = document.getElementById('cta-label');
+  const arrow  = document.getElementById('cta-arrow');
+  if (!btn) return;
+  const arrowSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+  if (total===0)            { label.textContent='CHECK ROUTINE'; if(arrow)arrow.innerHTML=arrowSvg; btn.classList.remove('done'); }
+  else if (done>=total)     { label.textContent='Log It — Complete ✓'; if(arrow)arrow.innerHTML=''; btn.classList.add('done'); }
+  else if (done>0)          { label.textContent=`${done}/${total} · CHECK ROUTINE`; if(arrow)arrow.innerHTML=arrowSvg; btn.classList.remove('done'); }
+  else                      { label.textContent='CHECK ROUTINE'; if(arrow)arrow.innerHTML=arrowSvg; btn.classList.remove('done'); }
+}
+
+function handleMainRoutineBtn() {
+  const plan = JSON.parse(localStorage.getItem(DB_KEY)||'null');
+  if (!plan) return;
+  const period   = getTimePeriod();
+  const slot     = period==='am' ? 'morning' : 'nightly';
+  const slotData = plan[slot];
+  const activeId = getActiveCycleRoutine(slotData, plan);
+  const products = slotData?.routines?.find(r=>r.id===activeId)?.products||[];
+  if (!products.length) return;
+
+  const today   = getTodayKey();
+  const doneKey = `onstep_flow_done_${today}_${slot}`;
+  const doneList= JSON.parse(localStorage.getItem(doneKey)||'[]');
+  if (doneList.length >= products.length) return;
+
+  // Mark all remaining products done at once
+  products.forEach(p => { if (!doneList.includes(p.name)) doneList.push(p.name); });
+  localStorage.setItem(doneKey, JSON.stringify(doneList));
+  recordBoxUsage(products);
+  renderFlowHeroStep(plan);
+}
+
+// ── ALL DAY / Routine Tracker ─────────────────────────────────
+function renderAllDay() {
+  const plan     = JSON.parse(localStorage.getItem(DB_KEY)||'{}');
+  const items    = plan.exercise?.items||[];
+  const checksKey= `onstep_ex_checks_${getTodayKey()}`;
+  const checks   = JSON.parse(localStorage.getItem(checksKey)||'{}');
+  const listEl   = document.getElementById('allday-items');
+  if (!listEl) return;
+
+  if (!items.length) {
+    listEl.innerHTML = '<div class="allday-empty">"Setup에서 데일리 루틴을 등록하세요."</div>';
+    return;
+  }
+  listEl.innerHTML = items.map(it => {
+    const done = !!checks[it.id];
+    const meta = [
+      it.time     ? it.time            : '',
+      it.sets     ? `${it.sets}세트`   : '',
+      it.reps     ? `× ${it.reps}회`   : '',
+      it.duration ? `${it.duration}분` : ''
+    ].filter(Boolean).join('  ');
+    return `<div class="allday-item${done?' done':''}" onclick="toggleAllDay('${it.id}')">
+      <div class="allday-item-left">
+        <div class="allday-dot"><div class="allday-dot-inner"></div></div>
+        <div class="allday-item-name">${it.name}</div>
+      </div>
+      ${meta?`<div class="allday-item-meta">${meta}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function toggleAllDay(id) {
+  const k = `onstep_ex_checks_${getTodayKey()}`;
+  const c = JSON.parse(localStorage.getItem(k)||'{}');
+  c[id] = !c[id];
+  localStorage.setItem(k, JSON.stringify(c));
+  renderAllDay();
+}
+
+// ── MOTD ─────────────────────────────────────────────────────
+function getTodaysScheduledTheme(plan) {
+  const data = JSON.parse(localStorage.getItem('onstep_makeup_themes') || 'null')
+             || JSON.parse(localStorage.getItem(MAKEUP_KEY) || 'null');
+  const themes = data?.themes || [];
+  if (!themes.length) return null;
+  const today = getTodayKey();
+  return themes.find(t => (t.scheduledDates||[]).includes(today)) || null;
+}
+
+function renderTodayMakeup() {
+  const plan  = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
+  const block = document.getElementById('motd-theme-block');
+  if (!block) return;
+
+  const theme = getTodaysScheduledTheme(plan);
+  if (!theme) {
+    block.innerHTML = `<div style="padding:8px 0 16px;font-family:'Inter',sans-serif;font-size:14px;color:var(--mist)">오늘 지정된 메이크업 테마가 없습니다</div>`;
+    return;
+  }
+
+  const today = getTodayKey();
+  const doneKey = `onstep_motd_done_${today}`;
+  const doneSet = new Set(JSON.parse(localStorage.getItem(doneKey) || '[]'));
+  const products = theme.products || [];
+
+  // Build carousel cards
+  const cards = products.map(p => {
+    const isDone = doneSet.has(p.name);
+    const imgSrc = getBoxImgForProduct(p);
+    return `
+      <div class="flow-prod-item${isDone ? ' done' : ''}" onclick="toggleMotdDone(${JSON.stringify(p.name)})">
+        <div class="flow-prod-img"${imgSrc ? ` style="background-image:url(${imgSrc})"` : ''}>
+          ${!imgSrc ? `<span class="flow-prod-emoji">${p.icon || '✦'}</span>` : ''}
+          <div class="flow-prod-check">✓</div>
+        </div>
+        <div class="flow-prod-info">
+          <div style="font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:3px">${p.step}</div>
+          <div class="flow-prod-name">${p.name}</div>
+          ${p.brand ? `<div class="flow-prod-brand">${p.brand}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  const dots = products.map((_,i) =>
+    `<div class="flow-prod-dot${i===0?' active':''}"></div>`
+  ).join('');
+
+  block.innerHTML = `
+    <div class="motd-theme-hd-row">
+      <span class="motd-theme-emoji-lg">${theme.emoji || '✦'}</span>
+      <div>
+        <div class="motd-theme-name-lg" id="motd-theme-name">${theme.name}</div>
+        <div class="motd-theme-desc-sm" id="motd-theme-desc">${theme.description}</div>
+      </div>
+    </div>
+    <div class="flow-prod-strip" id="motd-prod-strip">${cards}</div>
+    <div class="flow-prod-dots" id="motd-prod-dots">${dots}</div>`;
+
+  // Attach scroll listener for dots
+  const strip = document.getElementById('motd-prod-strip');
+  if (strip) {
+    strip.onscroll = () => {
+      const idx = Math.round(strip.scrollLeft / strip.offsetWidth);
+      document.getElementById('motd-prod-dots')?.querySelectorAll('.flow-prod-dot').forEach((d,i) =>
+        d.classList.toggle('active', i === idx)
+      );
+    };
+  }
+}
+
+function toggleMotdDone(name) {
+  const today  = getTodayKey();
+  const doneKey = `onstep_motd_done_${today}`;
+  const doneList = JSON.parse(localStorage.getItem(doneKey) || '[]');
+  const idx = doneList.indexOf(name);
+  if (idx === -1) doneList.push(name);
+  else doneList.splice(idx, 1);
+  localStorage.setItem(doneKey, JSON.stringify(doneList));
+  renderTodayMakeup();
+}
+
+// ── OOTD ─────────────────────────────────────────────────────
+function renderTodayOOTD() {
+  const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
+  const look  = looks.find(l=>l.date===getTodayKey())||null;
+  const card  = document.getElementById('ootd-photo-card');
+  const ph    = document.getElementById('ootd-placeholder');
+  const cap   = document.getElementById('ootd-caption');
+  const chk   = document.getElementById('ootd-check-btn');
+  const photo = look?.mainPhoto || look?.slots?.top?.imgData || look?.slots?.outer?.imgData;
+  if (card) {
+    card.style.backgroundImage = photo ? `url(${photo})` : '';
+    if (ph) ph.style.display = photo ? 'none' : '';
+  }
+  if (look?.note && cap) cap.textContent = look.note;
+  if (chk) chk.classList.toggle('logged', !!look?.logged);
+  renderOOTDLogCard();
+}
+
+function renderOOTDLogCard() {
+  const wrap = document.getElementById('ootd-log-wrap');
+  if (!wrap) return;
+  const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
+  const look  = looks.find(l=>l.date===getTodayKey())||null;
+  if (look?.logged) {
+    const thumb = look.mainPhoto
+      ? `style="background-image:url(${look.mainPhoto});background-size:cover;background-position:center"`
+      : '';
+    const note = look.note
+      ? `<div class="ootd-log-note-txt">"${look.note}"</div>`
+      : `<div class="ootd-log-note-txt" style="color:var(--mist)">오늘의 룩 기록됨</div>`;
+    wrap.innerHTML = `<div class="ootd-log-card-logged" onclick="openOOTDRecord()">
+      <div class="ootd-log-thumb" ${thumb}>${!look.mainPhoto?'📷':''}</div>
+      <div class="ootd-log-info">${note}<div class="ootd-log-badge">Logged ✓</div></div>
+    </div>`;
+  } else {
+    wrap.innerHTML = `<div class="ootd-log-card" onclick="openOOTDRecord()">
+      <div class="ootd-log-icon">📷</div>
+      <div class="ootd-log-text">Record your final look</div>
+    </div>`;
+  }
+}
+
+function openOOTDRecord() {
+  const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
+  const look  = looks.find(l=>l.date===getTodayKey())||null;
+  const area  = document.getElementById('ootd-rec-photo-area');
+  const ph    = document.getElementById('ootd-rec-photo-placeholder');
+  const note  = document.getElementById('ootd-rec-note');
+  if (area && look?.mainPhoto) {
+    area.style.backgroundImage = `url(${look.mainPhoto})`;
+    if (ph) ph.style.display = 'none';
+  } else if (area) {
+    area.style.backgroundImage = '';
+    if (ph) ph.style.display = 'flex';
+  }
+  if (note) note.value = look?.note || '';
+  document.getElementById('ootd-rec-sheet')?.classList.add('open');
+}
+
+function closeOOTDRecord() {
+  document.getElementById('ootd-rec-sheet')?.classList.remove('open');
+}
+
+function handleOOTDRecPhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const area = document.getElementById('ootd-rec-photo-area');
+    const ph   = document.getElementById('ootd-rec-photo-placeholder');
+    if (area) { area.style.backgroundImage = `url(${ev.target.result})`; area._pendingPhoto = ev.target.result; }
+    if (ph) ph.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveOOTDRecord() {
+  const area  = document.getElementById('ootd-rec-photo-area');
+  const note  = document.getElementById('ootd-rec-note')?.value.trim() || '';
+  const photo = area?._pendingPhoto || null;
+  const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
+  const today = getTodayKey();
+  let look = looks.find(l=>l.date===today);
+  if (!look) { look={date:today,mainPhoto:null,note:'',logged:false}; looks.push(look); }
+  if (photo) look.mainPhoto = photo;
+  look.note = note;
+  look.logged = true;
+  look.loggedAt = new Date().toISOString();
+  const plan = JSON.parse(localStorage.getItem(DB_KEY)||'null');
+  if (plan) {
+    const period = getTimePeriod();
+    const slot   = period==='am'?'morning':'nightly';
+    const curDay = calcCurrentDay(plan.periodStart);
+    const doneKey  = `onstep_flow_done_${today}_${slot}`;
+    const doneList = JSON.parse(localStorage.getItem(doneKey)||'[]');
+    look.flowMeta = {
+      sessionN: plan.session||1, sessionDay: curDay,
+      dayInCycle: Math.floor((new Date()-new Date(plan.periodStart))/86400000)%2+1,
+      step: getActiveCycleRoutine(plan[slot],plan), slot,
+      products: doneList
+    };
+  }
+  localStorage.setItem(LOOKS_KEY, JSON.stringify(looks));
+  if (area) area._pendingPhoto = null;
+  closeOOTDRecord();
+  renderTodayOOTD();
+}
+
+function pickOOTDPhoto() {
+  const input = document.createElement('input');
+  input.type='file'; input.accept='image/*';
+  input.onchange = e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
+      const today = getTodayKey();
+      let look = looks.find(l=>l.date===today);
+      if (!look) { look={date:today,mainPhoto:null,note:'',logged:false}; looks.push(look); }
+      look.mainPhoto = ev.target.result;
+      localStorage.setItem(LOOKS_KEY, JSON.stringify(looks));
+      renderTodayOOTD();
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function logTodayOOTD() {
+  openOOTDRecord();
+}
+
+// ── Weather overlay ───────────────────────────────────────────
+function initWeather() {
+  const h = new Date().getHours();
+  const list = [
+    {icon:'🌙',temp:18,cond:'Clear night'},
+    {icon:'🌅',temp:20,cond:'Clear morning'},
+    {icon:'☀️',temp:25,cond:'Sunny'},
+    {icon:'🌤',temp:23,cond:'Light Breeze'},
+    {icon:'☁️',temp:19,cond:'Overcast'},
+    {icon:'🌦',temp:17,cond:'Light rain'}
+  ];
+  let w;
+  try { const d=JSON.parse(localStorage.getItem('onstep_weather')||''); if(Date.now()-d.ts<3600000)w=d; } catch(e){}
+  if (!w) {
+    w={...list[h<6?0:h<9?1:h<15?2:h<18?3:h<20?4:0], ts:Date.now()};
+    localStorage.setItem('onstep_weather', JSON.stringify(w));
+  }
+  const el = document.getElementById('ootd-weather');
+  if (el) el.textContent = `${w.icon} ${w.temp}°C · ${w.cond}`;
+}
+
+// ── Load plan ─────────────────────────────────────────────────
+function loadPlan(plan) {
+  renderFlowSession(plan);
+  renderFlowHeroStep(plan);
+}
+
+window.addEventListener('load', () => {
+  initSampleData();
+  const plan = JSON.parse(localStorage.getItem(DB_KEY)||'null');
+  loadPlan(plan);
+  renderAllDay();
+  renderTodayOOTD();
+  renderTodayMakeup();
+  initWeather();
+});
+</script>
+</body>
+</html>
