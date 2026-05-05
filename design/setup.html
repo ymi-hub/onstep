@@ -44,6 +44,9 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
   .scroll{height:calc(100dvh - env(safe-area-inset-top,0px) - 12px)}
   .modal{width:100%}
   .toast{bottom:calc(env(safe-area-inset-bottom,0px) + 80px)}
+  .bottom-nav{border-top:none;}
+  .panel-bnav{border-top:none;}
+  .nav-item{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);}
 }
 
 /* ── AppBar ── */
@@ -231,13 +234,13 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .history-arrow{color:var(--mist);font-size:14px;flex-shrink:0;font-weight:300}
 
 /* Bottom nav */
-.bottom-nav{background:#0A0A0A;border-top:none;display:flex;padding:10px 0 20px}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;text-decoration:none}
-.nav-icon{font-size:18px;height:22px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);}
-.nav-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3)}
-.nav-item.active .nav-label{color:#C5FF00}
-.nav-item.active .nav-icon{color:#C5FF00}
-.nav-item.active .nav-icon::after{display:none}
+.bottom-nav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;padding:12px 6px 20px;text-decoration:none;border-radius:20px 20px 0 0;}
+.nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#AAAAAA;}
+.nav-label{font-family:'Space Grotesk','Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#AAAAAA;}
+.nav-item.active{background:#0A0A0A;}
+.nav-item.active .nav-icon{color:#FFFFFF;}
+.nav-item.active .nav-label{color:#FFFFFF;}
 
 /* ══════════════════════════════════════
    SESSION ARCHIVE overlay
@@ -621,10 +624,11 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .panel-appbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-shrink:0}
 .panel-back{background:none;border:none;cursor:pointer;font-size:20px;font-weight:600;color:var(--ink);padding:0;line-height:1;display:flex;align-items:center}
 .panel-appbar-center{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink)}
-.panel-appbar-action{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);background:none;border:none;cursor:pointer;padding:0}
+.panel-appbar-action{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lime-fg);background:var(--lime);border:none;cursor:pointer;padding:7px 16px;border-radius:9999px;transition:opacity .15s;}
+.panel-appbar-action:active{opacity:.8}
 .panel-body{flex:1;overflow-y:auto;scrollbar-width:none}
 .panel-body::-webkit-scrollbar{display:none}
-.panel-bnav{background:#0A0A0A;border-top:none;display:flex;padding:10px 0 20px;flex-shrink:0}
+.panel-bnav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -731,16 +735,20 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
     <!-- Bottom nav -->
     <div class="bottom-nav">
       <a class="nav-item" href="today.html">
-        <div class="nav-icon">◎</div><div class="nav-label">Today</div>
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="nav-label">Today</div>
       </a>
       <a class="nav-item" href="log.html">
-        <div class="nav-icon">◈</div><div class="nav-label">Log</div>
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="nav-label">Log</div>
       </a>
       <a class="nav-item" href="box.html">
-        <div class="nav-icon">◫</div><div class="nav-label">Box</div>
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
+        <div class="nav-label">Box</div>
       </a>
       <a class="nav-item active" href="setup.html">
-        <div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div>
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="nav-label">Setup</div>
       </a>
     </div>
   </div><!-- /scroll -->
@@ -750,7 +758,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
     <div class="panel-appbar">
       <button class="panel-back" onclick="closeSetupPanel()" style="font-size:18px;font-weight:400">✕</button>
       <div style="background:var(--lime);color:var(--ink);font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:var(--r-full)">EDIT MODE</div>
-      <button class="panel-appbar-action" onclick="openEditSheet()">SAVE</button>
+      <div style="width:40px"></div>
     </div>
     <div class="panel-body" id="routine-panel-body">
 
@@ -791,16 +799,6 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         </button>
         <div class="prod-list-dropdown" id="morning-list-dropdown">
           <div class="prod-list-inner" id="morning-list-inner"></div>
-        </div>
-        <div class="routine-inputs">
-          <div>
-            <label class="routine-input-label">ROUTINE DESCRIPTION</label>
-            <textarea class="routine-input-field" rows="3" placeholder="Describe your morning routine focus and intent..."></textarea>
-          </div>
-          <div>
-            <label class="routine-input-label">EXECUTION TIPS</label>
-            <textarea class="routine-input-field" rows="3" placeholder="Key techniques, timing, and application notes..."></textarea>
-          </div>
         </div>
         <div class="tip-card">
           <div class="tip-card-hd">
@@ -857,7 +855,15 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         </div>
       </div>
 
-      <!-- Hidden: publish/draft (accessible via SAVE in appbar) -->
+      <!-- Save CTA -->
+      <div class="routine-actions">
+        <button class="publish-btn" onclick="saveRoutineChanges()" style="background:var(--lime);color:var(--lime-fg);letter-spacing:.06em;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px">
+          SAVE ROUTINE
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Hidden: publish/draft -->
       <div style="display:none">
         <button id="publish-btn" onclick="activateContent('routine')"></button>
       </div>
@@ -883,30 +889,10 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 
     </div><!-- /panel-body -->
     <div class="panel-bnav">
-      <a class="nav-item" href="today.html">
-        <div class="nav-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        </div>
-        <div class="nav-label">HOME</div>
-      </a>
-      <a class="nav-item active" href="setup.html">
-        <div class="nav-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-        </div>
-        <div class="nav-label">ROUTINES</div>
-      </a>
-      <a class="nav-item" href="log.html">
-        <div class="nav-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-        </div>
-        <div class="nav-label">LIBRARY</div>
-      </a>
-      <a class="nav-item" href="#">
-        <div class="nav-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
-        </div>
-        <div class="nav-label">PROFILE</div>
-      </a>
+      <a class="nav-item" href="today.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="nav-label">Today</div></a>
+      <a class="nav-item" href="log.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="nav-label">Log</div></a>
+      <a class="nav-item" href="box.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div><div class="nav-label">Box</div></a>
+      <a class="nav-item active" href="setup.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="nav-label">Setup</div></a>
     </div>
   </div><!-- /setup-panel-routine -->
 
@@ -931,10 +917,10 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       </div>
     </div>
     <div class="panel-bnav">
-      <a class="nav-item" href="today.html"><div class="nav-icon">◎</div><div class="nav-label">Today</div></a>
-      <a class="nav-item" href="log.html"><div class="nav-icon">◈</div><div class="nav-label">Log</div></a>
-      <a class="nav-item" href="box.html"><div class="nav-icon">◫</div><div class="nav-label">Box</div></a>
-      <a class="nav-item active" href="setup.html"><div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div></a>
+      <a class="nav-item" href="today.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="nav-label">Today</div></a>
+      <a class="nav-item" href="log.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="nav-label">Log</div></a>
+      <a class="nav-item" href="box.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div><div class="nav-label">Box</div></a>
+      <a class="nav-item active" href="setup.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="nav-label">Setup</div></a>
     </div>
   </div><!-- /setup-panel-care -->
 
@@ -959,10 +945,10 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       </div>
     </div>
     <div class="panel-bnav">
-      <a class="nav-item" href="today.html"><div class="nav-icon">◎</div><div class="nav-label">Today</div></a>
-      <a class="nav-item" href="log.html"><div class="nav-icon">◈</div><div class="nav-label">Log</div></a>
-      <a class="nav-item" href="box.html"><div class="nav-icon">◫</div><div class="nav-label">Box</div></a>
-      <a class="nav-item active" href="setup.html"><div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div></a>
+      <a class="nav-item" href="today.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="nav-label">Today</div></a>
+      <a class="nav-item" href="log.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="nav-label">Log</div></a>
+      <a class="nav-item" href="box.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div><div class="nav-label">Box</div></a>
+      <a class="nav-item active" href="setup.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="nav-label">Setup</div></a>
     </div>
   </div><!-- /setup-panel-makeup -->
 
@@ -987,10 +973,10 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       </div>
     </div>
     <div class="panel-bnav">
-      <a class="nav-item" href="today.html"><div class="nav-icon">◎</div><div class="nav-label">Today</div></a>
-      <a class="nav-item" href="log.html"><div class="nav-icon">◈</div><div class="nav-label">Log</div></a>
-      <a class="nav-item" href="box.html"><div class="nav-icon">◫</div><div class="nav-label">Box</div></a>
-      <a class="nav-item active" href="setup.html"><div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div></a>
+      <a class="nav-item" href="today.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="nav-label">Today</div></a>
+      <a class="nav-item" href="log.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="nav-label">Log</div></a>
+      <a class="nav-item" href="box.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div><div class="nav-label">Box</div></a>
+      <a class="nav-item active" href="setup.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="nav-label">Setup</div></a>
     </div>
   </div><!-- /setup-panel-look -->
 
@@ -1403,8 +1389,21 @@ window.addEventListener('load', () => {
   const raw = localStorage.getItem(DB_KEY);
   if (raw) applyPlanData(JSON.parse(raw));
   else {
-    saveThemesToStorage();  // save sample data on first load
+    saveThemesToStorage();
     renderAll();
+  }
+  // URL 파라미터로 패널 자동 오픈 (today.html의 "Edit routine →" 클릭 시)
+  const params = new URLSearchParams(location.search);
+  const panel = params.get('panel');
+  const slot  = params.get('slot');
+  if (panel) {
+    openSetupPanel(panel);
+    if (slot) {
+      setTimeout(() => {
+        const el = document.getElementById(`${slot}-grid`);
+        if (el) el.closest('.routine-section')?.scrollIntoView({ behavior:'smooth', block:'start' });
+      }, 400);
+    }
   }
 });
 
@@ -1716,6 +1715,20 @@ function startNewSession() {
 }
 
 // ── Edit Sheet ────────────────────────────────────────────────
+async function saveRoutineChanges() {
+  ['morning','nightly'].forEach(slot => {
+    const tipEl = document.getElementById(`${slot}-tip`);
+    if (tipEl) {
+      const cur = state[slot]?.routines?.find(r => r.id === state[slot].active);
+      if (cur) cur.tip = tipEl.value;
+    }
+  });
+  // localStorage에 먼저 동기적으로 저장, Firestore 쓰기 완료까지 대기
+  await persistPlan(true);
+  showToast('✓ 루틴이 저장됐습니다');
+  setTimeout(() => { location.href = 'today.html'; }, 700);
+}
+
 function openEditSheet() {
   document.getElementById('edit-session-num').value = state.session || '';
   document.getElementById('edit-period-start').value = state.periodStart || '';
@@ -1773,7 +1786,8 @@ function persistPlan(published = false) {
     savedAt:      new Date().toISOString(),
   };
   localStorage.setItem(DB_KEY, JSON.stringify(plan));
-  if (currentUser) saveToCloud(plan);
+  if (currentUser) return saveToCloud(plan);
+  return Promise.resolve();
 }
 
 // ── Product Modal ─────────────────────────────────────────────
