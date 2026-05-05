@@ -1394,6 +1394,8 @@ window.addEventListener('load', () => {
   const raw = localStorage.getItem(DB_KEY);
   if (raw) applyPlanData(JSON.parse(raw));
   else {
+    // 샘플 데이터에도 today 로직으로 active step 동기화
+    ['morning','nightly'].forEach(slot => { state[slot].active = computeTodayStep(slot); });
     saveThemesToStorage();
     renderAll();
   }
@@ -1439,6 +1441,8 @@ function applyPlanData(saved) {
       delete t.scheduledDays;
     });
   }
+  // today.html과 동일 로직으로 active step 초기화
+  ['morning','nightly'].forEach(slot => { state[slot].active = computeTodayStep(slot); });
   saveThemesToStorage();
   renderAll();
 }
@@ -1446,6 +1450,15 @@ function applyPlanData(saved) {
 function getSetupTimePeriod() {
   const h = new Date().getHours();
   return (h >= 5 && h < 12) ? 'morning' : 'nightly';
+}
+
+// today.html의 getActiveCycleRoutine과 동일 — Step1만 있으면 1, 둘 다 있으면 격일 교대
+function computeTodayStep(slot) {
+  const r2 = state[slot].routines.find(r => r.id === 2);
+  if (!r2?.products?.length) return 1;
+  if (!state.periodStart) return 1;
+  const diff = Math.floor((new Date() - new Date(state.periodStart)) / 86400000);
+  return diff % 2 === 0 ? 1 : 2;
 }
 
 function renderAll() {

@@ -280,18 +280,17 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       </div>
       <div class="flow-prod-strip" id="flow-prod-strip"></div>
       <div class="flow-prod-dots" id="flow-prod-dots"></div>
+      <!-- EXPERT TIP — Edit routine → 상단, 내용 있을 때만 노출 -->
+      <div class="flow-expert-tip" id="flow-expert-tip" style="display:none;margin:14px 16px 0">
+        <div class="flow-tip-header">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+          EXPERT TIP
+        </div>
+        <div class="flow-tip-text" id="flow-tip-text"></div>
+      </div>
       <div class="flow-step-body">
         <a class="flow-edit-link" href="javascript:void(0)" onclick="goToRoutineSetup()">Edit routine →</a>
       </div>
-    </div>
-
-    <!-- EXPERT TIP — 내용 있을 때만 노출, CHECK ROUTINE 상단 -->
-    <div class="flow-expert-tip" id="flow-expert-tip" style="display:none;margin:14px 16px 0">
-      <div class="flow-tip-header">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-        EXPERT TIP
-      </div>
-      <div class="flow-tip-text" id="flow-tip-text"></div>
     </div>
 
     <!-- CHECK ROUTINE CTA -->
