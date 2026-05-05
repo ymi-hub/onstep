@@ -776,7 +776,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       <div class="routine-section">
         <div class="rs-hd">
           <div class="rs-hd-left"><span class="rs-name">MORNING</span></div>
-          <span class="rs-badge">A.M. ROUTINE</span>
+          <span class="rs-badge" id="morning-active-badge">A.M. ROUTINE</span>
         </div>
         <div class="step-tabs">
           <button class="step-tab active" id="mstep-1" onclick="pickStep('morning',1)">STEP 1</button>
@@ -815,7 +815,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       <div class="routine-section">
         <div class="rs-hd">
           <div class="rs-hd-left"><span class="rs-name">NIGHT</span></div>
-          <span class="rs-badge">P.M. ROUTINE</span>
+          <span class="rs-badge" id="nightly-active-badge">P.M. ROUTINE</span>
         </div>
         <div class="step-tabs">
           <button class="step-tab active" id="nstep-1" onclick="pickStep('nightly',1)">STEP 1</button>
@@ -1224,7 +1224,12 @@ async function loadFromCloud(uid) {
   try {
     const snap = await fbDb.collection('users').doc(uid).collection('careplan').doc('data').get();
     if (!snap.exists) return;
-    applyPlanData(snap.data());
+    const data = snap.data();
+    // 로컬 데이터가 더 최신이면 클라우드 데이터로 덮어쓰지 않음
+    const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+    const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
+    const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
+    if (cloudTs >= localTs) applyPlanData(data);
   } catch(e) { console.warn('Cloud load:', e); }
 }
 
@@ -1438,6 +1443,11 @@ function applyPlanData(saved) {
   renderAll();
 }
 
+function getSetupTimePeriod() {
+  const h = new Date().getHours();
+  return (h >= 5 && h < 12) ? 'morning' : 'nightly';
+}
+
 function renderAll() {
   updateHero();
   updateTimeDisplay('morning', state.morningTime);
@@ -1448,6 +1458,12 @@ function renderAll() {
   renderHistory();
   renderMakeupThemes();
   updateHubCounts();
+  // 현재 활성 시간대 배지 표시
+  const activeSlot = getSetupTimePeriod();
+  const mBadge = document.getElementById('morning-active-badge');
+  const nBadge = document.getElementById('nightly-active-badge');
+  if (mBadge) mBadge.textContent = activeSlot === 'morning' ? '🟢 ACTIVE NOW' : 'A.M. ROUTINE';
+  if (nBadge) nBadge.textContent = activeSlot === 'nightly' ? '🟢 ACTIVE NOW' : 'P.M. ROUTINE';
 }
 
 // ── Hub Panel navigation ──────────────────────────────────────
@@ -1567,6 +1583,11 @@ function renderGrid(slot) {
   const activeId = state[slot].active;
   const routine  = state[slot].routines.find(r => r.id === activeId);
   const products = routine?.products || [];
+
+  // step 탭 UI를 state.active와 동기화
+  const pfx = slot === 'morning' ? 'm' : 'n';
+  document.getElementById(`${pfx}step-1`)?.classList.toggle('active', activeId === 1);
+  document.getElementById(`${pfx}step-2`)?.classList.toggle('active', activeId === 2);
 
   const tipEl = document.getElementById(`${slot}-tip`);
   if (tipEl) tipEl.value = routine?.tip || '';
