@@ -408,6 +408,7 @@ firebase.auth().onAuthStateChanged(user => {
   updateAuthAvatar(user);
   if (unsubscribe) { unsubscribe(); unsubscribe = null; }
   if (user) {
+    loadExtraFromCloud(user.uid);
     unsubscribe = fbDb.collection('users').doc(user.uid)
       .collection('careplan').doc('data')
       .onSnapshot(snap => {
@@ -450,6 +451,23 @@ function handleAuthClick() {
 const DB_KEY    = 'onstep_care_plan';
 const LOOKS_KEY = 'onstep_looks';
 const MAKEUP_KEY= 'onstep_makeup';
+
+async function saveLogsToCloud() {
+  if (!currentUser) return;
+  try {
+    const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
+    await fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
+      .set({ looks, savedAt: new Date().toISOString() }, { merge: true });
+  } catch(e) { console.warn('Looks cloud save:', e); }
+}
+async function loadExtraFromCloud(uid) {
+  try {
+    const snap = await fbDb.collection('users').doc(uid).collection('extra').doc('data').get();
+    if (!snap.exists) return;
+    const d = snap.data();
+    if (d.looks) { localStorage.setItem(LOOKS_KEY, JSON.stringify(d.looks)); renderTodayOOTD(); }
+  } catch(e) { console.warn('Extra cloud load:', e); }
+}
 
 // ── BOX 연동 헬퍼 ──────────────────────────────────────────────
 function getBoxAssets() { return JSON.parse(localStorage.getItem('onstep_box_assets') || '[]'); }
@@ -1021,6 +1039,7 @@ function saveOOTDRecord() {
     };
   }
   localStorage.setItem(LOOKS_KEY, JSON.stringify(looks));
+  saveLogsToCloud();
   if (area) area._pendingPhoto = null;
   closeOOTDRecord();
   renderTodayOOTD();
@@ -1039,6 +1058,7 @@ function pickOOTDPhoto() {
       if (!look) { look={date:today,mainPhoto:null,note:'',logged:false}; looks.push(look); }
       look.mainPhoto = ev.target.result;
       localStorage.setItem(LOOKS_KEY, JSON.stringify(looks));
+      saveLogsToCloud();
       renderTodayOOTD();
     };
     reader.readAsDataURL(file);

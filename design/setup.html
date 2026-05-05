@@ -1222,15 +1222,43 @@ function updateArchiveAvatar(user) {
 
 async function loadFromCloud(uid) {
   try {
+    // 1) 케어플랜 (루틴·메이크업·룩 스케줄)
     const snap = await fbDb.collection('users').doc(uid).collection('careplan').doc('data').get();
-    if (!snap.exists) return;
-    const data = snap.data();
-    // 로컬 데이터가 더 최신이면 클라우드 데이터로 덮어쓰지 않음
-    const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-    const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
-    const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
-    if (cloudTs >= localTs) applyPlanData(data);
+    if (snap.exists) {
+      const data = snap.data();
+      const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+      const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
+      const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
+      if (cloudTs >= localTs) applyPlanData(data);
+    }
+    // 2) 테마·포트폴리오 (extra/data)
+    const extraSnap = await fbDb.collection('users').doc(uid).collection('extra').doc('data').get();
+    if (extraSnap.exists) {
+      const d = extraSnap.data();
+      if (d.careThemes) localStorage.setItem('onstep_care_themes',        JSON.stringify(d.careThemes));
+      if (d.lookThemes) localStorage.setItem('onstep_look_themes',        JSON.stringify(d.lookThemes));
+      if (d.portfolio)  localStorage.setItem('onstep_planned_portfolio',  JSON.stringify(d.portfolio));
+      updateHubCounts();
+    }
+    // 3) 박스 자산
+    const boxSnap = await fbDb.collection('users').doc(uid).collection('box').doc('data').get();
+    if (boxSnap.exists) {
+      const b = boxSnap.data();
+      if (b.assets)    localStorage.setItem('onstep_box_assets',    JSON.stringify(b.assets));
+      if (b.locations) localStorage.setItem('onstep_box_locations', JSON.stringify(b.locations));
+    }
   } catch(e) { console.warn('Cloud load:', e); }
+}
+
+async function saveThemesToFirestore() {
+  if (!currentUser) return;
+  try {
+    const care      = JSON.parse(localStorage.getItem('onstep_care_themes')       || '[]');
+    const looks     = JSON.parse(localStorage.getItem('onstep_look_themes')       || '[]');
+    const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio') || '[]');
+    await fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
+      .set({ careThemes: care, lookThemes: looks, portfolio, savedAt: new Date().toISOString() }, { merge: true });
+  } catch(e) { console.warn('Themes cloud save:', e); }
 }
 
 async function saveToCloud(plan) {
@@ -2273,6 +2301,7 @@ function addToLogPortfolio(entry) {
   const list = JSON.parse(localStorage.getItem(KEY) || '[]');
   list.unshift(entry);
   localStorage.setItem(KEY, JSON.stringify(list));
+  saveThemesToFirestore();
 }
 
 // ── Makeup List (메이크업 패널) ───────────────────────────────
@@ -2416,6 +2445,7 @@ function deleteCtContent(type, id) {
     renderCtLookList();
   }
   updateHubCounts();
+  saveThemesToFirestore();
   showToast('삭제됐습니다');
 }
 
@@ -2656,6 +2686,7 @@ function saveCtContent(draft = false) {
     renderCtLookList();
   }
   updateHubCounts();
+  saveThemesToFirestore();
   closeCtSheet();
   showToast(draft ? '임시저장 완료' : `✓ "${name}" 설계 완료 — LOG 포트폴리오에 등록됩니다`);
 }

@@ -382,8 +382,13 @@ firebase.initializeApp({
   appId: "1:333501649998:web:4eebd8b84a32ea8a581f1f"
 });
 const fbAuth = firebase.auth();
+const fbDb   = firebase.firestore();
 let currentUser = null;
-firebase.auth().onAuthStateChanged(user => { currentUser = user; updateAuthAvatar(user); });
+firebase.auth().onAuthStateChanged(user => {
+  currentUser = user;
+  updateAuthAvatar(user);
+  if (user) loadExtraFromCloud(user.uid);
+});
 
 function updateAuthAvatar(user) {
   const el = document.getElementById('auth-avatar');
@@ -406,6 +411,26 @@ function handleAuthClick() {
     fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
       .catch(e => alert('로그인 오류: ' + e.message));
   }
+}
+
+// ── Cloud sync ────────────────────────────────────────────────
+async function savePortfolioToCloud() {
+  if (!currentUser) return;
+  try {
+    const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio')||'[]');
+    await fbDb.collection('users').doc(currentUser.uid)
+      .collection('extra').doc('data')
+      .set({ portfolio, savedAt: new Date().toISOString() }, { merge: true });
+  } catch(e) { console.warn('Portfolio cloud save:', e); }
+}
+async function loadExtraFromCloud(uid) {
+  try {
+    const snap = await fbDb.collection('users').doc(uid).collection('extra').doc('data').get();
+    if (!snap.exists) return;
+    const d = snap.data();
+    if (d.portfolio) localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
+    loadData();
+  } catch(e) { console.warn('Extra cloud load:', e); }
 }
 
 // ── Sample data ───────────────────────────────────────────────
@@ -648,6 +673,7 @@ function reactivateItem(id) {
   const portfolio = JSON.parse(localStorage.getItem(KEY)||'[]');
   portfolio.unshift({...item, id:Date.now(), activatedAt:new Date().toISOString()});
   localStorage.setItem(KEY, JSON.stringify(portfolio));
+  savePortfolioToCloud();
   closeDetail();
   showToast(`✓ "${item.title||item.name}" — Today에 반영됩니다`);
   loadData();

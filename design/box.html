@@ -1320,8 +1320,13 @@ firebase.initializeApp({
   appId:"1:333501649998:web:4eebd8b84a32ea8a581f1f"
 });
 const fbAuth = firebase.auth();
+const fbDb   = firebase.firestore();
 let currentUser = null;
-firebase.auth().onAuthStateChanged(u => { currentUser = u; updateAuthAvatar(u); });
+firebase.auth().onAuthStateChanged(u => {
+  currentUser = u;
+  updateAuthAvatar(u);
+  if (u) loadBoxFromCloud(u.uid);
+});
 function updateAuthAvatar(u) {
   const el = document.getElementById('auth-avatar');
   if (!el) return;
@@ -1335,6 +1340,28 @@ function updateAuthAvatar(u) {
 function handleAuthClick() {
   if (currentUser) { if(confirm(`${currentUser.displayName||currentUser.email}\n로그아웃?`)) fbAuth.signOut(); }
   else fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>alert(e.message));
+}
+
+// ── Cloud sync ────────────────────────────────────────────────
+async function saveBoxToCloud() {
+  if (!currentUser) return;
+  try {
+    const assets = JSON.parse(localStorage.getItem(ASSETS_KEY)||'[]');
+    const locs   = JSON.parse(localStorage.getItem(LOCS_KEY)||'[]');
+    await fbDb.collection('users').doc(currentUser.uid)
+      .collection('box').doc('data')
+      .set({ assets, locations: locs, savedAt: new Date().toISOString() });
+  } catch(e) { console.warn('Box cloud save:', e); }
+}
+async function loadBoxFromCloud(uid) {
+  try {
+    const snap = await fbDb.collection('users').doc(uid).collection('box').doc('data').get();
+    if (!snap.exists) return;
+    const d = snap.data();
+    if (d.assets)    localStorage.setItem(ASSETS_KEY, JSON.stringify(d.assets));
+    if (d.locations) localStorage.setItem(LOCS_KEY,   JSON.stringify(d.locations));
+    setDomain(currentDomain || 'beauty');
+  } catch(e) { console.warn('Box cloud load:', e); }
 }
 
 // ── Data keys ─────────────────────────────────────────────────
@@ -1374,8 +1401,8 @@ let addState    = { domain:'beauty', type:'skincare', catKey:null, productImgDat
 // ── Storage ───────────────────────────────────────────────────
 function getAssets()  { return JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]'); }
 function getLocs()    { return JSON.parse(localStorage.getItem(LOCS_KEY)   || '[]'); }
-function saveAssets(a){ localStorage.setItem(ASSETS_KEY, JSON.stringify(a)); }
-function saveLocs(l)  { localStorage.setItem(LOCS_KEY,   JSON.stringify(l)); }
+function saveAssets(a){ localStorage.setItem(ASSETS_KEY, JSON.stringify(a)); saveBoxToCloud(); }
+function saveLocs(l)  { localStorage.setItem(LOCS_KEY,   JSON.stringify(l)); saveBoxToCloud(); }
 
 // ── Sample data ───────────────────────────────────────────────
 function initSampleData() {
