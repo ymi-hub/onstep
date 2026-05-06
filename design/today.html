@@ -49,11 +49,12 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 /* Page title */
 .page-title-wrap{padding:20px 16px 4px}
 .page-title{font-family:'Space Grotesk',sans-serif;font-size:60px;font-weight:800;color:var(--ink);line-height:.9;letter-spacing:-.02em}
-.page-title::after{content:'';display:block;width:40px;height:4px;background:var(--lime);border-radius:2px;margin-top:8px}
+.page-title::after{display:none}
 
 /* Hash section header */
-.hash-row{display:flex;align-items:flex-end;justify-content:space-between;padding:20px 16px 10px}
-.hash-label{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
+.hash-row{display:flex;align-items:baseline;justify-content:space-between;padding:24px 16px 10px}
+.hash-label{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
+.hash-sub{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
 .hash-edit{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);text-decoration:none;padding-bottom:3px}
 .hash-edit:hover{color:var(--ink)}
 
@@ -73,7 +74,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .flow-dot.today{width:18px;height:18px;background:var(--lime);border:3px solid #FFFFFF;border-radius:var(--r-full);box-shadow:0 0 0 2px var(--lime)}
 
 /* Flow step section */
-.flow-step-card{margin:14px 16px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow)}
+.flow-step-card{margin:0 16px;background:var(--surface-low);border:none;box-shadow:none;border-radius:var(--r-xl);overflow:hidden}
 .flow-step-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px}
 .flow-step-hd-left{display:flex;align-items:center;gap:10px}
 .flow-step-badge{background:var(--ink);padding:5px 12px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center}
@@ -132,6 +133,11 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .allday-item.done .allday-item-name{color:var(--mist)}
 .allday-item-meta{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--mist)}
 .allday-empty{padding:16px 0;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist)}
+.allday-item-right{display:flex;align-items:center;gap:6px}
+.allday-item-time{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--mist);letter-spacing:.04em}
+.allday-alarm-icon{font-size:13px;opacity:.4;line-height:1}
+.allday-alarm-icon.ringing{opacity:1;animation:alarmring .4s ease infinite alternate}
+@keyframes alarmring{0%{transform:rotate(-12deg)}100%{transform:rotate(12deg)}}
 
 /* Legacy allday-card (unused, kept for compat) */
 .allday-card{display:none}
@@ -228,6 +234,52 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
   .bottom-nav{border-top:none;}
   .nav-item{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);}
 }
+
+/* Session row */
+.page-session-row{display:flex;align-items:center;gap:10px;padding:8px 16px 0}
+.page-session-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
+.page-session-dots{display:flex;gap:5px;align-items:center}
+.page-sdot{width:7px;height:7px;border-radius:var(--r-full);background:var(--border-md)}
+.page-sdot.filled{background:var(--lime)}
+.page-sdot.today{width:18px;border-radius:var(--r-full);background:var(--lime)}
+/* Editorial sections */
+.editorial-section{padding:32px 16px 0}
+.editorial-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.editorial-hd-tag{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
+.editorial-hd-sub{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--mist);letter-spacing:.02em;text-decoration:none}
+.editorial-hero{position:relative;width:100%;aspect-ratio:4/3;background:var(--surface-mid);border-radius:var(--r-xl);overflow:hidden;cursor:pointer;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center}
+.editorial-badge{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,.65);color:#fff;font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-sm)}
+.editorial-gear{position:absolute;top:12px;right:12px;width:30px;height:30px;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;text-decoration:none}
+.editorial-prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.ed-prod-card{cursor:pointer;transition:opacity .2s}
+.ed-prod-card.done{opacity:.45}
+.ed-prod-img{width:100%;aspect-ratio:1/1;background:var(--surface-mid);border-radius:var(--r-lg);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.ed-prod-check{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;opacity:0;transition:opacity .2s;border-radius:var(--r-lg)}
+.ed-prod-card.done .ed-prod-check{opacity:1}
+.ed-prod-cat{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-top:8px}
+.ed-prod-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px}
+.editorial-empty{padding:28px 20px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);border:1.5px dashed var(--border-md);border-radius:var(--r-xl);line-height:1.6}
+/* Record look row */
+.record-look-row{margin-top:14px;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);padding:16px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#fff;transition:background .2s}
+.record-look-row:active{background:var(--surface-low)}
+.record-look-icon{width:36px;height:36px;background:var(--surface-mid);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.record-look-text{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);flex:1}
+.record-look-plus{width:30px;height:30px;background:var(--lime);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;color:var(--ink);flex-shrink:0;font-weight:300}
+.record-logged-card{border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;display:flex;align-items:center;gap:12px;margin-top:14px;cursor:pointer;background:#fff;box-shadow:var(--shadow)}
+.record-logged-thumb{width:52px;height:52px;border-radius:var(--r-md);background:var(--surface-mid);background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;opacity:.4}
+.record-logged-info{flex:1;min-width:0}
+.record-logged-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record-logged-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:#4caf78;margin-top:3px}
+/* Allday redesign */
+.allday-top-label{display:none}
+.allday-section{padding:28px 0 0;display:flex;flex-direction:column;gap:0}
+.allday-section-hd{padding:0 16px;margin-bottom:12px;gap:0}
+.allday-title{font-size:22px}
+.allday-top-edit{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.allday-item{border-radius:0;border:none;border-bottom:1px solid var(--border);box-shadow:none;padding:13px 16px}
+.allday-item:first-of-type{border-top:1px solid var(--border)}
+.allday-item-chip{background:var(--surface-low);padding:3px 10px;border-radius:var(--r-full);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:var(--sub);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -246,16 +298,15 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
     <div class="page-title-wrap">
       <h1 class="page-title">Today</h1>
     </div>
+    <div class="page-session-row">
+      <span class="page-session-label" id="page-session-label">SESSION</span>
+      <div class="page-session-dots" id="page-session-dots"></div>
+    </div>
 
     <!-- #FLOW header -->
     <div class="hash-row">
-      <div class="hash-label"># Flow</div>
-    </div>
-
-    <!-- Session name + period -->
-    <div class="flow-session" style="padding:0 var(--margin) 12px">
-      <div class="flow-session-name" id="flow-session-name">1ST SESSION</div>
-      <div class="flow-session-period" id="flow-session-period"></div>
+      <div class="hash-label">#Flow</div>
+      <div class="hash-sub" id="flow-slot-label">MORNING RITUAL</div>
     </div>
 
     <!-- Session progress card -->
@@ -308,44 +359,27 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
           <div class="allday-top-label">ALL DAY</div>
           <div class="allday-title">Routine Tracker</div>
         </div>
-        <a class="allday-top-edit" href="setup.html">Edit →</a>
+        <a class="allday-top-edit" href="setup.html?panel=tracker">Edit →</a>
       </div>
       <div id="allday-items"></div>
     </div>
 
     <!-- #MOTD section -->
-    <div class="motd-section">
-      <div class="motd-section-hd">
-        <div class="motd-section-title">#MOTD</div>
-        <a class="motd-section-link" href="log.html?tab=library">Edit →</a>
+    <div class="editorial-section">
+      <div class="editorial-hd">
+        <div class="editorial-hd-tag">#MOTD</div>
+        <a class="editorial-hd-sub" href="log.html?tab=library" id="motd-hd-sub">Edit →</a>
       </div>
       <div id="motd-theme-block"></div>
     </div>
 
     <!-- #OOTD section -->
-    <div class="ootd-section" style="padding-top:40px">
-      <div class="ootd-section-hd">
-        <div class="ootd-section-title">#OOTD</div>
-        <a class="ootd-section-link" href="log.html?tab=library">Edit →</a>
+    <div class="editorial-section" style="padding-bottom:0">
+      <div class="editorial-hd">
+        <div class="editorial-hd-tag">#OOTD</div>
+        <a class="editorial-hd-sub" href="log.html?tab=library" id="ootd-hd-sub">Edit →</a>
       </div>
-      <div class="ootd-photo-card" id="ootd-photo-card" onclick="pickOOTDPhoto()">
-        <div id="ootd-placeholder" style="font-size:40px;opacity:.3;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">👗</div>
-        <button type="button" class="ootd-check-btn" id="ootd-check-btn" title="오늘의 룩 기록" onclick="event.stopPropagation();logTodayOOTD()">
-          <svg width="14" height="10" viewBox="0 0 24 16" fill="currentColor"><path d="M2 8l7 7L22 2"/></svg>
-        </button>
-        <div class="ootd-overlay">
-          <div class="ootd-weather" id="ootd-weather"></div>
-          <div class="ootd-caption-text" id="ootd-caption">Record today's look</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- #OOTD Log -->
-    <div class="ootd-log-section">
-      <div class="ootd-section-hd" style="margin-bottom:8px">
-        <div class="motd-section-title">#OOTD Log</div>
-        <a class="motd-section-link" href="log.html?tab=look">View →</a>
-      </div>
+      <div id="ootd-editorial-block"></div>
       <div id="ootd-log-wrap"></div>
     </div>
 
@@ -656,15 +690,25 @@ function getActiveCycleRoutine(slotData, plan) {
 function renderFlowSession(plan) {
   if (!plan) { buildDots(1,10); return; }
   const n = Number(plan.session||1);
-  document.getElementById('flow-session-name').textContent = `${n}${getSuffix(n).toUpperCase()} SESSION`;
-  if (plan.periodStart && plan.periodEnd) {
-    document.getElementById('flow-session-period').textContent =
-      `${plan.periodStart.replace(/-/g,'.')}~${plan.periodEnd.replace(/-/g,'.')}`;
-  }
   const cur   = calcCurrentDay(plan.periodStart);
   const total = calcTotalDays(plan.periodStart, plan.periodEnd);
   document.getElementById('flow-progress-day').textContent = `${cur}/${total} day`;
   buildDots(cur, total);
+  // Page-level session row
+  const sessionLabel = document.getElementById('page-session-label');
+  if (sessionLabel) sessionLabel.textContent = `SESSION ${cur}/${total}`;
+  const dotsEl2 = document.getElementById('page-session-dots');
+  if (dotsEl2) {
+    dotsEl2.innerHTML = Array.from({length:Math.min(10,total)},(_,i)=>{
+      const idx=i+1;
+      const cls=idx<cur?'page-sdot filled':idx===cur?'page-sdot today':'page-sdot';
+      return `<div class="${cls}"></div>`;
+    }).join('');
+  }
+  // Update flow slot label
+  const slotLbl = document.getElementById('flow-slot-label');
+  const period = getTimePeriod();
+  if (slotLbl) slotLbl.textContent = period==='am'?'MORNING RITUAL':'NIGHT RITUAL';
 }
 
 function buildDots(cur, total) {
@@ -831,18 +875,14 @@ function renderAllDay() {
   }
   listEl.innerHTML = items.map(it => {
     const done = !!checks[it.id];
-    const meta = [
-      it.time     ? it.time            : '',
-      it.sets     ? `${it.sets}세트`   : '',
-      it.reps     ? `× ${it.reps}회`   : '',
-      it.duration ? `${it.duration}분` : ''
-    ].filter(Boolean).join('  ');
+    const timeDisp = it.time ? fmtAllDayTime(it.time) : '';
+    const chipContent = timeDisp || (it.alarm ? '🔔' : '');
     return `<div class="allday-item${done?' done':''}" onclick="toggleAllDay('${it.id}')">
       <div class="allday-item-left">
         <div class="allday-dot"><div class="allday-dot-inner"></div></div>
         <div class="allday-item-name">${it.name}</div>
       </div>
-      ${meta?`<div class="allday-item-meta">${meta}</div>`:''}
+      ${chipContent ? `<div class="allday-item-chip" id="allday-chip-${it.id}">${it.alarm?`<span id="allday-alarm-${it.id}">${timeDisp||'🔔'}</span>`:timeDisp}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -854,6 +894,56 @@ function toggleAllDay(id) {
   localStorage.setItem(k, JSON.stringify(c));
   renderAllDay();
 }
+
+function fmtAllDayTime(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  const ap = h >= 12 ? 'PM' : 'AM';
+  const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
+}
+
+// ── Tracker Alarms ────────────────────────────────────────────
+function checkTrackerAlarms() {
+  const plan  = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+  const items = plan.exercise?.items || [];
+  if (!items.some(it => it.alarm)) return;
+
+  const now  = new Date();
+  const hh   = String(now.getHours()).padStart(2,'0');
+  const mm   = String(now.getMinutes()).padStart(2,'0');
+  const cur  = `${hh}:${mm}`;
+
+  items.forEach(it => {
+    if (!it.alarm || it.time !== cur) return;
+    const nKey = `onstep_alarm_fired_${it.id}_${cur}_${getTodayKey()}`;
+    if (localStorage.getItem(nKey)) return;
+    localStorage.setItem(nKey, '1');
+
+    // Ring animation
+    const iconEl = document.getElementById(`allday-alarm-${it.id}`);
+    if (iconEl) { iconEl.classList.add('ringing'); setTimeout(() => iconEl.classList.remove('ringing'), 5000); }
+
+    // Web Notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(`⏰ ${it.name}`, { body: `OnStep · ${fmtAllDayTime(it.time)} 알림`, icon: 'favicon.png' });
+      } catch(e) {}
+    }
+  });
+}
+
+// Request notification permission once and start alarm interval
+(function initAlarms() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    const plan = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+    if ((plan.exercise?.items || []).some(it => it.alarm)) {
+      Notification.requestPermission();
+    }
+  }
+  setInterval(checkTrackerAlarms, 30000);
+  checkTrackerAlarms(); // run immediately on load
+})();
 
 // ── MOTD ─────────────────────────────────────────────────────
 function getTodaysScheduledTheme(plan) {
@@ -869,61 +959,37 @@ function renderTodayMakeup() {
   const plan  = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
   const block = document.getElementById('motd-theme-block');
   if (!block) return;
-
   const theme = getTodaysScheduledTheme(plan);
+  const hdSub = document.getElementById('motd-hd-sub');
+  if (hdSub) hdSub.textContent = theme ? theme.name : 'Edit →';
   if (!theme) {
-    block.innerHTML = `<div style="padding:8px 0 16px;font-family:'Inter',sans-serif;font-size:14px;color:var(--mist)">오늘 지정된 메이크업 테마가 없습니다</div>`;
+    block.innerHTML = `<div class="editorial-empty">오늘 지정된 메이크업 테마가 없습니다.<br><a href="log.html?tab=library" style="color:var(--ink);font-weight:600">라이브러리에서 등록 →</a></div>`;
     return;
   }
-
   const today = getTodayKey();
-  const doneKey = `onstep_motd_done_${today}`;
-  const doneSet = new Set(JSON.parse(localStorage.getItem(doneKey) || '[]'));
+  const doneSet = new Set(JSON.parse(localStorage.getItem(`onstep_motd_done_${today}`) || '[]'));
   const products = theme.products || [];
-
-  // Build carousel cards
-  const cards = products.map(p => {
+  const heroImg = theme.baselineImg || '';
+  const grid = products.slice(0, 4).map(p => {
     const isDone = doneSet.has(p.name);
-    const imgSrc = getBoxImgForProduct(p);
-    return `
-      <div class="flow-prod-item${isDone ? ' done' : ''}" onclick="toggleMotdDone(${JSON.stringify(p.name)})">
-        <div class="flow-prod-img"${imgSrc ? ` style="background-image:url(${imgSrc})"` : ''}>
-          ${!imgSrc ? `<span class="flow-prod-emoji">${p.icon || '✦'}</span>` : ''}
-          <div class="flow-prod-check">✓</div>
-        </div>
-        <div class="flow-prod-info">
-          <div style="font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:3px">${p.step}</div>
-          <div class="flow-prod-name">${p.name}</div>
-          ${p.brand ? `<div class="flow-prod-brand">${p.brand}</div>` : ''}
-        </div>
-      </div>`;
-  }).join('');
-
-  const dots = products.map((_,i) =>
-    `<div class="flow-prod-dot${i===0?' active':''}"></div>`
-  ).join('');
-
-  block.innerHTML = `
-    <div class="motd-theme-hd-row">
-      <span class="motd-theme-emoji-lg">${theme.emoji || '✦'}</span>
-      <div>
-        <div class="motd-theme-name-lg" id="motd-theme-name">${theme.name}</div>
-        <div class="motd-theme-desc-sm" id="motd-theme-desc">${theme.description}</div>
+    const img = getBoxImgForProduct(p);
+    return `<div class="ed-prod-card${isDone?' done':''}" onclick="toggleMotdDone(${JSON.stringify(p.name)})">
+      <div class="ed-prod-img"${img?` style="background-image:url(${img})"`:''}>
+        ${!img?`<span style="font-size:28px;opacity:.25">${p.icon||'✦'}</span>`:''}
+        <div class="ed-prod-check">✓</div>
       </div>
+      <div class="ed-prod-cat">${(p.step||'').toUpperCase()}</div>
+      <div class="ed-prod-name">${p.name}</div>
+      ${p.brand?`<div class="ed-prod-brand">${p.brand}</div>`:''}
+    </div>`;
+  }).join('');
+  block.innerHTML = `
+    <div class="editorial-hero"${heroImg?` style="background-image:url(${heroImg})"`:''}>
+      ${!heroImg?`<span style="font-size:44px;opacity:.2">💄</span>`:''}
+      <div class="editorial-badge">EDITORIAL CHOICE</div>
+      <a class="editorial-gear" href="log.html?tab=library" onclick="event.stopPropagation()">⚙</a>
     </div>
-    <div class="flow-prod-strip" id="motd-prod-strip">${cards}</div>
-    <div class="flow-prod-dots" id="motd-prod-dots">${dots}</div>`;
-
-  // Attach scroll listener for dots
-  const strip = document.getElementById('motd-prod-strip');
-  if (strip) {
-    strip.onscroll = () => {
-      const idx = Math.round(strip.scrollLeft / strip.offsetWidth);
-      document.getElementById('motd-prod-dots')?.querySelectorAll('.flow-prod-dot').forEach((d,i) =>
-        d.classList.toggle('active', i === idx)
-      );
-    };
-  }
+    <div class="editorial-prod-grid">${grid}</div>`;
 }
 
 function toggleMotdDone(name) {
@@ -938,20 +1004,38 @@ function toggleMotdDone(name) {
 }
 
 // ── OOTD ─────────────────────────────────────────────────────
+function getTodaysScheduledLook() {
+  const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+  const today = getTodayKey();
+  return looks.find(t => (t.scheduledDates||[]).includes(today)) || null;
+}
+
 function renderTodayOOTD() {
-  const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
-  const look  = looks.find(l=>l.date===getTodayKey())||null;
-  const card  = document.getElementById('ootd-photo-card');
-  const ph    = document.getElementById('ootd-placeholder');
-  const cap   = document.getElementById('ootd-caption');
-  const chk   = document.getElementById('ootd-check-btn');
-  const photo = look?.mainPhoto || look?.slots?.top?.imgData || look?.slots?.outer?.imgData;
-  if (card) {
-    card.style.backgroundImage = photo ? `url(${photo})` : '';
-    if (ph) ph.style.display = photo ? 'none' : '';
-  }
-  if (look?.note && cap) cap.textContent = look.note;
-  if (chk) chk.classList.toggle('logged', !!look?.logged);
+  const block = document.getElementById('ootd-editorial-block');
+  const hdSub = document.getElementById('ootd-hd-sub');
+  if (!block) return;
+  const lookTheme = getTodaysScheduledLook();
+  if (hdSub) hdSub.textContent = lookTheme ? (lookTheme.name || 'Edit →') : 'Edit →';
+  const heroImg = lookTheme?.baselineImg || '';
+  const items = lookTheme?.products || lookTheme?.items || [];
+  const grid = items.slice(0,4).map(p => {
+    const img = p.imgData || getBoxImgForProduct(p) || '';
+    return `<div class="ed-prod-card">
+      <div class="ed-prod-img"${img?` style="background-image:url(${img})"`:''}>
+        ${!img?`<span style="font-size:28px;opacity:.25">👗</span>`:''}
+      </div>
+      <div class="ed-prod-cat">${(p.category||p.step||'').toUpperCase()}</div>
+      <div class="ed-prod-name">${p.name||''}</div>
+      ${p.brand?`<div class="ed-prod-brand">${p.brand}</div>`:''}
+    </div>`;
+  }).join('');
+  block.innerHTML = `
+    <div class="editorial-hero"${heroImg?` style="background-image:url(${heroImg})"`:''}>
+      ${!heroImg?`<span style="font-size:44px;opacity:.2">👗</span>`:''}
+      <div class="editorial-badge">EDITORIAL CHOICE</div>
+      <a class="editorial-gear" href="log.html?tab=library" onclick="event.stopPropagation()">⚙</a>
+    </div>
+    ${grid?`<div class="editorial-prod-grid">${grid}</div>`:''}`;
   renderOOTDLogCard();
 }
 
@@ -964,17 +1048,18 @@ function renderOOTDLogCard() {
     const thumb = look.mainPhoto
       ? `style="background-image:url(${look.mainPhoto});background-size:cover;background-position:center"`
       : '';
-    const note = look.note
-      ? `<div class="ootd-log-note-txt">"${look.note}"</div>`
-      : `<div class="ootd-log-note-txt" style="color:var(--mist)">오늘의 룩 기록됨</div>`;
-    wrap.innerHTML = `<div class="ootd-log-card-logged" onclick="openOOTDRecord()">
-      <div class="ootd-log-thumb" ${thumb}>${!look.mainPhoto?'📷':''}</div>
-      <div class="ootd-log-info">${note}<div class="ootd-log-badge">Logged ✓</div></div>
+    wrap.innerHTML = `<div class="record-logged-card" onclick="openOOTDRecord()">
+      <div class="record-logged-thumb" ${thumb}>${!look.mainPhoto?'📷':''}</div>
+      <div class="record-logged-info">
+        <div class="record-logged-name">"${look.note||'오늘의 룩'}"</div>
+        <div class="record-logged-badge">Logged ✓</div>
+      </div>
     </div>`;
   } else {
-    wrap.innerHTML = `<div class="ootd-log-card" onclick="openOOTDRecord()">
-      <div class="ootd-log-icon">📷</div>
-      <div class="ootd-log-text">Record your final look</div>
+    wrap.innerHTML = `<div class="record-look-row" onclick="openOOTDRecord()">
+      <div class="record-look-icon">📷</div>
+      <div class="record-look-text">Record your final look</div>
+      <div class="record-look-plus">+</div>
     </div>`;
   }
 }

@@ -585,6 +585,34 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 24px;border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:500}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ══ Tracker Panel ══ */
+.tracker-hero{padding:28px 16px 20px;border-bottom:1px solid var(--border);position:relative}
+.tracker-hero-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px}
+.tracker-hero-title{font-family:'Space Grotesk',sans-serif;font-size:48px;font-weight:800;color:var(--ink);line-height:.95;letter-spacing:-.02em;text-transform:uppercase}
+.tracker-hero-sub{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);margin-top:12px;line-height:1.5}
+.tracker-add-section{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.tracker-add-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:12px}
+.tracker-add-form{display:flex;flex-direction:column;gap:10px}
+.tracker-add-name{width:100%;padding:12px 14px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);background:#fff;outline:none;transition:border-color .18s}
+.tracker-add-name:focus{border-color:var(--ink)}
+.tracker-add-row{display:flex;align-items:center;gap:10px}
+.tracker-time-input{flex:1;padding:12px 14px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ink);background:#fff;outline:none;transition:border-color .18s}
+.tracker-time-input:focus{border-color:var(--ink)}
+.tracker-add-btn{padding:12px 20px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:opacity .18s}
+.tracker-add-btn:active{opacity:.8}
+.tracker-list-section{padding:20px 16px 32px}
+.tracker-list-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:12px}
+.tracker-item{display:flex;align-items:center;gap:12px;padding:14px 14px;background:#fff;border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:8px;box-shadow:var(--shadow)}
+.tracker-item-icon{font-size:16px;line-height:1;flex-shrink:0;opacity:.25}
+.tracker-item-info{flex:1;min-width:0}
+.tracker-item-name{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tracker-item-time{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--mist);margin-top:2px}
+.tracker-alarm-btn{background:none;border:none;cursor:pointer;padding:6px;border-radius:var(--r-sm);font-size:17px;opacity:.25;transition:opacity .2s}
+.tracker-alarm-btn.active{opacity:1}
+.tracker-del-btn{background:none;border:none;cursor:pointer;padding:6px;border-radius:var(--r-sm);font-size:13px;color:var(--mist);opacity:.4;transition:opacity .2s,color .2s}
+.tracker-del-btn:hover{opacity:1;color:var(--error)}
+.tracker-empty{padding:36px 16px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);line-height:1.6;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);background:var(--surface-low)}
+
 /* ══ Setup Hub ══ */
 .hub-header{padding:28px 16px 20px;border-bottom:1px solid var(--border)}
 .hub-header-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:4px}
@@ -664,6 +692,15 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
             <div class="hub-gc-sub">DAILY CALIBRATIONS</div>
           </div>
           <div class="hub-gc-cta">View Steps →</div>
+        </div>
+        <div class="hub-gc" onclick="openSetupPanel('tracker')">
+          <div class="hub-gc-img" style="background:linear-gradient(135deg,#f5ffe0 0%,#dcff80 100%);display:flex;align-items:center;justify-content:center;font-size:52px;line-height:1">⏰</div>
+          <div class="hub-gc-body">
+            <div class="hub-gc-badge">#DAILY</div>
+            <div class="hub-gc-title">ROUTINE TRACKER</div>
+            <div class="hub-gc-sub">HABIT ALARMS</div>
+          </div>
+          <div class="hub-gc-cta">Set Alarms →</div>
         </div>
         <div class="hub-gc" onclick="openSetupPanel('look')">
           <div class="hub-gc-img"></div>
@@ -979,6 +1016,48 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       <a class="nav-item active" href="setup.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="nav-label">Setup</div></a>
     </div>
   </div><!-- /setup-panel-look -->
+
+  <!-- ══ SUB-PANEL: ROUTINE TRACKER ══ -->
+  <div class="setup-panel" id="setup-panel-tracker">
+    <div class="panel-appbar">
+      <button class="panel-back" onclick="closeSetupPanel()" style="font-size:18px;font-weight:400">✕</button>
+      <div style="background:var(--lime);color:var(--ink);font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:var(--r-full)">EDIT MODE</div>
+      <div style="width:44px"></div>
+    </div>
+    <div class="panel-body">
+      <!-- Hero -->
+      <div class="tracker-hero">
+        <div style="position:absolute;top:18px;right:18px;font-size:36px;opacity:.06;transform:rotate(10deg);line-height:1">⏰</div>
+        <div class="tracker-hero-label">ALL DAY TRACKING</div>
+        <div class="tracker-hero-title">ROUTINE<br>TRACKER</div>
+        <div class="tracker-hero-sub">습관 트래킹 · 타임 알림 · 데일리 체크</div>
+      </div>
+      <!-- Add Form -->
+      <div class="tracker-add-section">
+        <div class="tracker-add-label">NEW HABIT</div>
+        <div class="tracker-add-form">
+          <input class="tracker-add-name" id="tracker-new-name" type="text" placeholder="습관 이름 (예: 모닝 워터 한 잔)" maxlength="40"
+            onkeydown="if(event.key==='Enter')addTrackerItem()">
+          <div class="tracker-add-row">
+            <input class="tracker-time-input" id="tracker-new-time" type="time" value="08:00">
+            <button class="tracker-add-btn" onclick="addTrackerItem()">+ ADD</button>
+          </div>
+        </div>
+      </div>
+      <!-- Save + List -->
+      <div class="tracker-list-section">
+        <button onclick="saveTrackerItems()" style="width:100%;padding:14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-bottom:20px">SAVE TO TODAY</button>
+        <div class="tracker-list-label">DAILY HABITS</div>
+        <div id="tracker-list"></div>
+      </div>
+    </div>
+    <div class="panel-bnav">
+      <a class="nav-item" href="today.html"><div class="nav-icon">◎</div><div class="nav-label">Today</div></a>
+      <a class="nav-item" href="log.html"><div class="nav-icon">◈</div><div class="nav-label">Log</div></a>
+      <a class="nav-item" href="box.html"><div class="nav-icon">◫</div><div class="nav-label">Box</div></a>
+      <a class="nav-item active" href="setup.html"><div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div></a>
+    </div>
+  </div><!-- /setup-panel-tracker -->
 
   <!-- SESSION ARCHIVE Overlay -->
   <div class="archive-overlay" id="archive-overlay">
@@ -1516,9 +1595,10 @@ function openSetupPanel(type) {
   _currentPanel = type;
   const panel = document.getElementById(`setup-panel-${type}`);
   if (panel) panel.classList.add('open');
-  if (type === 'care')   renderCtCareList();
-  if (type === 'makeup') renderCtMkpList();
-  if (type === 'look')   renderCtLookList();
+  if (type === 'care')    renderCtCareList();
+  if (type === 'makeup')  renderCtMkpList();
+  if (type === 'look')    renderCtLookList();
+  if (type === 'tracker') { loadTrackerItems(); renderTrackerList(); }
 }
 function closeSetupPanel() {
   if (_currentPanel) {
@@ -2350,19 +2430,24 @@ function renderCtMkpList() {
 }
 
 function activateMkpTheme(themeId) {
-  const data = JSON.parse(localStorage.getItem('onstep_makeup_themes') || 'null');
-  const t = (data?.themes || makeupSchedule?.themes || []).find(x => x.id === themeId);
+  const stored = JSON.parse(localStorage.getItem('onstep_makeup_themes') || 'null');
+  const allThemes = stored?.themes || makeupSchedule?.themes || [];
+  const t = allThemes.find(x => x.id === themeId);
   if (!t) return;
   const today = new Date().toISOString().slice(0,10);
-  if (!(t.scheduledDates||[]).includes(today)) {
-    const updated = data || { themes: makeupSchedule?.themes || [] };
-    const idx = updated.themes.findIndex(x => x.id === themeId);
-    if (idx !== -1) { updated.themes[idx].scheduledDates = [today, ...(updated.themes[idx].scheduledDates||[])]; }
-    localStorage.setItem('onstep_makeup_themes', JSON.stringify(updated));
+  // 항상 localStorage 업데이트 (중복 체크 후 today 날짜 보장)
+  const updated = stored || { themes: makeupSchedule?.themes || [] };
+  const idx = updated.themes.findIndex(x => x.id === themeId);
+  if (idx !== -1) {
+    const dates = updated.themes[idx].scheduledDates || [];
+    if (!dates.includes(today)) dates.unshift(today);
+    updated.themes[idx].scheduledDates = dates;
   }
+  localStorage.setItem('onstep_makeup_themes', JSON.stringify(updated));
+  if (makeupSchedule) makeupSchedule.themes = updated.themes;
   const entry = { id: Date.now(), type:'makeup', title:t.name, emoji:t.emoji, baselineImg:t.baselineImg||null, activatedAt: new Date().toISOString() };
   addToLogPortfolio(entry);
-  showToast(`✓ "${t.name}" — Today MOTD에 반영됩니다`);
+  showToast(`✓ "${t.name}" — Today #MOTD에 반영됩니다`);
   renderCtMkpList();
 }
 
@@ -2417,14 +2502,30 @@ function activateLook(lookId) {
   const t = looks.find(x => x.id === lookId);
   if (!t) return;
   const today = new Date().toISOString().slice(0,10);
-  if (!(t.scheduledDates||[]).includes(today)) {
-    const idx = looks.findIndex(x => x.id === lookId);
-    if (idx !== -1) { looks[idx].scheduledDates = [today, ...(looks[idx].scheduledDates||[])]; }
-    localStorage.setItem('onstep_look_themes', JSON.stringify(looks));
+  // 1) look_themes scheduledDates 업데이트
+  const idx = looks.findIndex(x => x.id === lookId);
+  if (idx !== -1) {
+    const dates = looks[idx].scheduledDates || [];
+    if (!dates.includes(today)) dates.unshift(today);
+    looks[idx].scheduledDates = dates;
   }
+  localStorage.setItem('onstep_look_themes', JSON.stringify(looks));
+  // 2) onstep_looks (today.html이 읽는 키)에 오늘 룩 기록 — 키 불일치 해소
+  const dailyLooks = JSON.parse(localStorage.getItem('onstep_looks') || '[]');
+  let todayLook = dailyLooks.find(l => l.date === today);
+  if (!todayLook) {
+    todayLook = { date: today, mainPhoto: t.baselineImg || null, note: t.name, logged: false, lookThemeId: lookId };
+    dailyLooks.push(todayLook);
+  } else {
+    todayLook.lookThemeId = lookId;
+    todayLook.note = t.name;
+    if (!todayLook.mainPhoto && t.baselineImg) todayLook.mainPhoto = t.baselineImg;
+  }
+  localStorage.setItem('onstep_looks', JSON.stringify(dailyLooks));
+  // 3) log portfolio 등록
   const entry = { id: Date.now(), type:'look', title:t.name, emoji:t.emoji, baselineImg:t.baselineImg||null, activatedAt: new Date().toISOString() };
   addToLogPortfolio(entry);
-  showToast(`✓ "${t.name}" — Today OOTD에 반영됩니다`);
+  showToast(`✓ "${t.name}" — Today #OOTD에 반영됩니다`);
   renderCtLookList();
 }
 
@@ -2714,6 +2815,80 @@ function exportData() {
   const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = 'onstep-backup.json'; a.click();
+}
+
+// ── Routine Tracker ───────────────────────────────────────────
+let trackerItems = [];
+
+function loadTrackerItems() {
+  const plan = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+  trackerItems = (plan.exercise?.items || []).map(it => ({
+    id: it.id ?? Date.now() + Math.random(),
+    name: it.name || '',
+    time: it.time || '',
+    alarm: !!it.alarm
+  }));
+}
+
+function saveTrackerItems() {
+  const plan = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+  if (!plan.exercise) plan.exercise = {};
+  plan.exercise.items = trackerItems;
+  localStorage.setItem(DB_KEY, JSON.stringify(plan));
+  showToast('✓ Routine Tracker 저장됐습니다 — Today에 반영됩니다');
+}
+
+function addTrackerItem() {
+  const nameEl = document.getElementById('tracker-new-name');
+  const timeEl = document.getElementById('tracker-new-time');
+  const name = nameEl.value.trim();
+  if (!name) { nameEl.focus(); return; }
+  trackerItems.push({ id: Date.now(), name, time: timeEl.value || '', alarm: false });
+  nameEl.value = '';
+  timeEl.value = '08:00';
+  renderTrackerList();
+}
+
+function deleteTrackerItem(id) {
+  trackerItems = trackerItems.filter(it => it.id !== id);
+  renderTrackerList();
+}
+
+function toggleTrackerAlarm(id) {
+  const item = trackerItems.find(it => it.id === id);
+  if (!item) return;
+  item.alarm = !item.alarm;
+  renderTrackerList();
+  if (item.alarm && 'Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function fmtTime12h(t) {
+  if (!t) return '—';
+  const [h, m] = t.split(':').map(Number);
+  const ap = h >= 12 ? 'PM' : 'AM';
+  const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
+}
+
+function renderTrackerList() {
+  const el = document.getElementById('tracker-list');
+  if (!el) return;
+  if (!trackerItems.length) {
+    el.innerHTML = '<div class="tracker-empty">등록된 습관이 없습니다.<br>위에서 새 습관을 추가해 보세요.</div>';
+    return;
+  }
+  el.innerHTML = trackerItems.map(it => `
+    <div class="tracker-item">
+      <div class="tracker-item-icon">◎</div>
+      <div class="tracker-item-info">
+        <div class="tracker-item-name">${it.name}</div>
+        <div class="tracker-item-time">${fmtTime12h(it.time)}</div>
+      </div>
+      <button class="tracker-alarm-btn${it.alarm ? ' active' : ''}" onclick="toggleTrackerAlarm(${it.id})" title="${it.alarm ? '알림 끄기' : '알림 켜기'}">🔔</button>
+      <button class="tracker-del-btn" onclick="deleteTrackerItem(${it.id})">✕</button>
+    </div>`).join('');
 }
 </script>
 </body>

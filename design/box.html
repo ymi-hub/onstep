@@ -15,7 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <style>
 /* ════════════════════════════════════
    SERENE RITUALS — Box / Inventory
@@ -666,6 +666,45 @@ body{
   color:#44474A; line-height:20px;
 }
 
+/* ── Newsreader italic section titles ── */
+.add-newsreader-title{
+  font-family:'Newsreader',Georgia,serif; font-style:italic; font-weight:400;
+  font-size:32px; line-height:38px; color:#1A1C1C;
+}
+.add-newsreader-sub{
+  font-family:'Newsreader',Georgia,serif; font-style:normal; font-weight:400;
+  font-size:24px; line-height:31px; letter-spacing:-0.48px; color:#1A1C1C;
+}
+
+/* ── Segmented domain tab (BEAUTY/FASHION/ACC) ── */
+.add-domain-seg{
+  display:flex; flex-direction:row; justify-content:center; align-items:flex-start;
+  padding:4px; border:1px solid #C5C6CA; width:100%;
+}
+.add-domain-seg-btn{
+  flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;
+  padding:12px 0; height:36px;
+  font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:1.2px; text-transform:uppercase; text-align:center;
+  color:#44474A; background:transparent; border:none; cursor:pointer;
+  transition:all .15s;
+}
+.add-domain-seg-btn.active{
+  background:#000000; color:#FFFFFF;
+}
+
+/* Override add-type-tab for classification (Skincare/Makeup) */
+.add-class-tab{
+  font-family:'Inter',sans-serif; font-size:20px; font-weight:600;
+  letter-spacing:-0.48px; color:#44474A;
+  cursor:pointer; opacity:.4; transition:opacity .2s;
+  white-space:nowrap; background:none; border:none; padding:0;
+}
+.add-class-tab.active{
+  opacity:1; color:#000000;
+  text-decoration:underline; text-underline-offset:3px;
+}
+
 /* ── Product Image ── */
 .add-img-block{
   width:100%; height:201px;
@@ -1102,7 +1141,7 @@ body{
     <div class="sheet-inner" id="detail-inner"></div>
   </div>
 
-  <!-- ── Full Page Add Form (3-Step) ── -->
+  <!-- ── Full Page Add Form ── -->
   <div class="add-page" id="add-page">
 
     <!-- Top app bar -->
@@ -1110,164 +1149,221 @@ body{
       <button class="add-page-back" onclick="closeAdd()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       </button>
-      <span id="add-page-bar-title" style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#44474A">제품 등록</span>
+      <span id="add-page-bar-title" style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#44474A">ADD PRODUCT</span>
       <div style="width:36px"></div>
     </div>
 
     <div class="add-page-scroll">
 
-      <!-- STEP 1: Domain selection -->
-      <div class="add-step-block">
-        <div class="add-step-num-row">
-          <span class="add-step-num">1</span>
-          <span class="add-step-label">분류 선택</span>
-        </div>
-        <div class="add-domain-row">
-          <button class="add-domain-btn active" id="domain-btn-beauty" onclick="pickDomain('beauty')">BEAUTY</button>
-          <button class="add-domain-btn" id="domain-btn-fashion" onclick="pickDomain('fashion')">FASHION</button>
-          <button class="add-domain-btn" id="domain-btn-acc" onclick="pickDomain('acc')">ACC</button>
-        </div>
-        <!-- Sub-category (changes based on domain) -->
-        <div class="add-cat-chips-wrap" id="add-cat-chips-wrap" style="margin-top:10px"></div>
+      <!-- Header -->
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div class="add-page-title">ADD PRODUCT</div>
+        <div class="add-page-subtitle">Fill in the details to register your inventory.</div>
       </div>
 
-      <!-- STEP 2: Common fields -->
-      <div class="add-step-block">
-        <div class="add-step-num-row">
-          <span class="add-step-num">2</span>
-          <span class="add-step-label">공통 정보</span>
-        </div>
-
-        <!-- Object Photo + Storage Photo side by side -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-          <div>
-            <div class="add-photo-label">Object Photo</div>
-            <div class="add-photo-block" id="add-img-block" onclick="pickAddPhoto('object')" title="제품 사진">
-              <div class="add-photo-inner" id="add-img-inner">
-                <div class="add-img-icon"></div>
-                <div class="add-photo-hint">제품 사진</div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div class="add-photo-label">Storage Photo <span class="add-required-star">★</span></div>
-            <div class="add-photo-block" id="add-storage-block" onclick="pickAddPhoto('storage')" title="보관 장소 사진 (필수)">
-              <div class="add-photo-inner" id="add-storage-inner">
-                <div class="add-img-icon"></div>
-                <div class="add-photo-hint">보관 장소</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div id="add-storage-error" style="display:none;font-family:'Inter',sans-serif;font-size:10px;color:var(--error);margin:-8px 0 12px;font-weight:600;letter-spacing:.04em">★ Storage Photo는 필수입니다</div>
-
-        <!-- Location Name -->
-        <div class="add-common-field">
-          <div class="add-field-label">LOCATION</div>
-          <input class="add-underline-input" id="add-location" placeholder="예: 안방 화장대 2번 서랍" />
-        </div>
-
-        <!-- Brand -->
-        <div class="add-common-field">
-          <div class="add-field-label">BRAND</div>
-          <input class="add-underline-input" id="add-brand" placeholder="브랜드명" />
-        </div>
-
-        <!-- Product Name (required) -->
-        <div class="add-common-field">
-          <div class="add-field-label">PRODUCT NAME <span class="add-required-star">★</span></div>
-          <input class="add-underline-input" id="add-name" placeholder="제품명" />
-        </div>
-
-        <!-- Purchase Date -->
-        <div class="add-common-field">
-          <div class="add-field-label">PURCHASE DATE</div>
-          <input class="add-date-input" id="add-purchase-date" type="date" style="width:100%;border:none;border-bottom:1px solid #6b7280;padding:8px 0;background:transparent;font-family:'Inter',sans-serif;font-size:13px" />
-        </div>
-      </div>
-
-      <!-- STEP 3: Domain-specific fields -->
-      <div class="add-step-block">
-        <div class="add-step-num-row">
-          <span class="add-step-num">3</span>
-          <span class="add-step-label" id="step3-label">분류별 세부 정보</span>
-        </div>
-
-        <!-- BEAUTY fields -->
-        <div id="step3-beauty">
-          <div class="add-common-field">
-            <div class="add-field-label">TOTAL QTY</div>
-            <div class="add-stock-input-row">
-              <button class="add-stock-btn" onclick="adjustQty('total',-1)">−</button>
-              <span class="add-stock-display" id="add-qty-total-display">1</span>
-              <button class="add-stock-btn" onclick="adjustQty('total',1)">+</button>
-            </div>
-          </div>
-          <div class="add-common-field">
-            <div class="add-field-label">CURRENT QTY</div>
-            <div class="add-stock-input-row">
-              <button class="add-stock-btn" onclick="adjustQty('cur',-1)">−</button>
-              <span class="add-stock-display" id="add-qty-display">1 / 1</span>
-              <button class="add-stock-btn" onclick="adjustQty('cur',1)">+</button>
-            </div>
-          </div>
-          <div class="add-common-field">
-            <div class="add-field-label">OPEN DATE</div>
-            <input class="add-date-input" id="add-open-date" type="date" style="width:100%;border:none;border-bottom:1px solid #6b7280;padding:8px 0;background:transparent;font-family:'Inter',sans-serif;font-size:13px" />
-          </div>
-          <div class="add-common-field">
-            <div class="add-field-label">EXPIRY DATE</div>
-            <input class="add-date-input" id="add-expiry" type="date" style="width:100%;border:none;border-bottom:1px solid #6b7280;padding:8px 0;background:transparent;font-family:'Inter',sans-serif;font-size:13px" />
-          </div>
-        </div>
-
-        <!-- FASHION fields -->
-        <div id="step3-fashion" style="display:none">
-          <div class="add-common-field">
-            <div class="add-field-label">SCENE TAGS</div>
-            <div class="add-scene-tags" id="add-scene-tags">
-              <button class="add-scene-tag" data-tag="출근" onclick="toggleSceneTag(this)">출근</button>
-              <button class="add-scene-tag" data-tag="결혼식" onclick="toggleSceneTag(this)">결혼식</button>
-              <button class="add-scene-tag" data-tag="운동" onclick="toggleSceneTag(this)">운동</button>
-              <button class="add-scene-tag" data-tag="캐주얼" onclick="toggleSceneTag(this)">캐주얼</button>
-              <button class="add-scene-tag" data-tag="데이트" onclick="toggleSceneTag(this)">데이트</button>
-              <button class="add-scene-tag" data-tag="여행" onclick="toggleSceneTag(this)">여행</button>
-            </div>
-          </div>
-          <div class="add-common-field">
-            <div class="add-field-label">MATERIAL</div>
-            <input class="add-underline-input" id="add-material" placeholder="예: 코튼, 린넨, 울" />
-          </div>
-          <div class="add-common-field">
-            <div class="add-field-label">CARE GUIDE</div>
-            <input class="add-underline-input" id="add-care-guide" placeholder="예: 손세탁, 드라이 클리닝" />
-          </div>
-        </div>
-
-        <!-- ACC fields -->
-        <div id="step3-acc" style="display:none">
-          <div class="add-common-field">
-            <div class="add-field-label">MATERIAL TYPE</div>
-            <div class="add-scene-tags" id="add-material-tags">
-              <button class="add-scene-tag" data-tag="금" onclick="toggleMaterialTag(this)">금</button>
-              <button class="add-scene-tag" data-tag="은" onclick="toggleMaterialTag(this)">은</button>
-              <button class="add-scene-tag" data-tag="가죽" onclick="toggleMaterialTag(this)">가죽</button>
-              <button class="add-scene-tag" data-tag="패브릭" onclick="toggleMaterialTag(this)">패브릭</button>
-              <button class="add-scene-tag" data-tag="플라스틱" onclick="toggleMaterialTag(this)">플라스틱</button>
-              <button class="add-scene-tag" data-tag="기타" onclick="toggleMaterialTag(this)">기타</button>
-            </div>
-          </div>
-          <div class="add-common-field">
-            <div class="add-field-label">SPECIAL NOTE</div>
-            <textarea class="add-notes" id="add-special-note" placeholder="보존 상태, 수선 이력 등…" rows="3"></textarea>
+      <!-- Product Image (full-width, Figma: 201px height, border-radius 8px) -->
+      <div class="add-img-block" id="add-img-block" onclick="pickAddPhoto('object')" style="height:201px;border-radius:8px;border:1px solid #E9ECEF;background:rgba(255,255,255,.8)">
+        <div class="add-img-overlay" style="background:rgba(0,0,0,.05)">
+          <div class="add-img-inner" id="add-img-inner">
+            <div class="add-img-icon"></div>
+            <div class="add-img-label">ADD PRODUCT IMAGE</div>
           </div>
         </div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="add-actions">
-        <button class="add-submit-btn" id="add-submit-btn" onclick="saveAsset()">Register Product</button>
-        <button class="add-cancel-btn" onclick="closeAdd()">Cancel</button>
+      <!-- Purchase History section -->
+      <div style="display:flex;flex-direction:column;gap:0">
+        <!-- Heading: Newsreader italic -->
+        <div style="display:flex;flex-direction:column;gap:0;margin-bottom:0">
+          <div class="add-newsreader-title">Purchase history</div>
+        </div>
+        <!-- HorizontalBorder + fields -->
+        <div style="border-top:1px solid #C5C6CA;display:flex;flex-direction:column;gap:0;padding-top:25px;margin-top:8px">
+
+          <!-- DATE OF PURCHASE -->
+          <div style="margin-bottom:24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0">
+              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">DATE OF PURCHASE</div>
+              <button style="background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;color:#44474A;padding:0" onclick="document.getElementById('add-expiry').focus()">Set Expiry →</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;margin-top:8px">
+              <input id="add-purchase-date" type="date" style="flex:1;border:none;border-bottom:1px solid #6B7280;padding:4px 0;background:transparent;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;outline:none" />
+            </div>
+          </div>
+
+          <!-- SOURCE (bordered box) -->
+          <div style="margin-bottom:8px">
+            <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">SOURCE</div>
+            <input id="add-source" style="width:100%;border:1px solid #C5C6CA;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#0C1014;padding:11px 12px;height:48px;transition:border-color .2s" placeholder="롯데백화점 본점" />
+          </div>
+
+          <!-- BRAND NAME (underline) -->
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+            <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">BRAND NAME</div>
+            <input id="add-brand" class="add-underline-input" placeholder="브랜드명" style="border-bottom:1px solid #C5C6CA;height:42px;padding:8px 0 4px 10px;font-size:18px" />
+          </div>
+
+          <!-- PRODUCT NAME (underline) -->
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+            <div style="display:flex;justify-content:space-between">
+              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PRODUCT NAME</div>
+              <div style="font-family:'Inter',sans-serif;font-size:10px;color:#44474A;opacity:.7">*필수</div>
+            </div>
+            <input id="add-name" class="add-underline-input" placeholder="제품명" style="border-bottom:1px solid #C5C6CA;height:42px;padding:8px 0 4px 10px;font-size:18px" />
+          </div>
+        </div>
+      </div>
+
+      <!-- BEAUTY / FASHION / ACC segmented control -->
+      <div class="add-domain-seg">
+        <button class="add-domain-seg-btn active" id="domain-tab-beauty" onclick="pickDomain('beauty')">BEAUTY</button>
+        <button class="add-domain-seg-btn" id="domain-tab-fashion" onclick="pickDomain('fashion')">FASHION</button>
+        <button class="add-domain-seg-btn" id="domain-tab-acc" onclick="pickDomain('acc')">ACC</button>
+      </div>
+
+      <!-- PRIMARY CLASSIFICATION: Skincare / Makeup -->
+      <div id="ap-class-row" style="display:flex;flex-direction:column;gap:24px;padding-top:16px">
+        <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;padding:0 0 4px;border-bottom:1px solid #C5C6CA">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PRIMARY CLASSIFICATION</div>
+          <div style="display:flex;gap:16px">
+            <button class="add-class-tab active" id="class-tab-skincare" onclick="pickType('skincare')">Skincare</button>
+            <button class="add-class-tab" id="class-tab-makeup" onclick="pickType('makeup')">Makeup</button>
+          </div>
+        </div>
+
+        <!-- Sub-category pills -->
+        <div style="position:relative">
+          <div class="add-cat-chips-wrap" id="add-cat-chips-wrap"></div>
+        </div>
+      </div>
+
+      <!-- FASHION fields -->
+      <div id="step3-fashion" style="display:none;border-top:1px solid #C5C6CA;padding-top:20px;margin-top:4px">
+        <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">SCENE TAGS</div>
+        <div class="add-scene-tags" id="add-scene-tags">
+          <button class="add-scene-tag" data-tag="출근" onclick="toggleSceneTag(this)">출근</button>
+          <button class="add-scene-tag" data-tag="결혼식" onclick="toggleSceneTag(this)">결혼식</button>
+          <button class="add-scene-tag" data-tag="운동" onclick="toggleSceneTag(this)">운동</button>
+          <button class="add-scene-tag" data-tag="캐주얼" onclick="toggleSceneTag(this)">캐주얼</button>
+          <button class="add-scene-tag" data-tag="데이트" onclick="toggleSceneTag(this)">데이트</button>
+          <button class="add-scene-tag" data-tag="여행" onclick="toggleSceneTag(this)">여행</button>
+        </div>
+        <div style="margin-top:16px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">MATERIAL</div>
+          <input class="add-underline-input" id="add-material" placeholder="예: 코튼, 린넨, 울" style="border-bottom:1px solid #C5C6CA" />
+        </div>
+        <div style="margin-top:16px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">CARE GUIDE</div>
+          <input class="add-underline-input" id="add-care-guide" placeholder="예: 손세탁, 드라이 클리닝" style="border-bottom:1px solid #C5C6CA" />
+        </div>
+      </div>
+
+      <!-- ACC fields -->
+      <div id="step3-acc" style="display:none;border-top:1px solid #C5C6CA;padding-top:20px;margin-top:4px">
+        <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">MATERIAL TYPE</div>
+        <div class="add-scene-tags" id="add-material-tags">
+          <button class="add-scene-tag" data-tag="금" onclick="toggleMaterialTag(this)">금</button>
+          <button class="add-scene-tag" data-tag="은" onclick="toggleMaterialTag(this)">은</button>
+          <button class="add-scene-tag" data-tag="가죽" onclick="toggleMaterialTag(this)">가죽</button>
+          <button class="add-scene-tag" data-tag="패브릭" onclick="toggleMaterialTag(this)">패브릭</button>
+          <button class="add-scene-tag" data-tag="플라스틱" onclick="toggleMaterialTag(this)">플라스틱</button>
+          <button class="add-scene-tag" data-tag="기타" onclick="toggleMaterialTag(this)">기타</button>
+        </div>
+        <div style="margin-top:16px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">SPECIAL NOTE</div>
+          <textarea class="add-notes" id="add-special-note" placeholder="보존 상태, 수선 이력 등…" rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- Separator -->
+      <div style="border-top:1px solid rgba(197,198,202,.3)"></div>
+
+      <!-- STOCK + EXPIRY (beauty only) -->
+      <div id="step3-beauty" style="display:flex;flex-direction:column;gap:0;padding-top:20px">
+
+        <!-- STOCK QUANTITY -->
+        <div style="margin-bottom:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">STOCK QUANTITY</div>
+          </div>
+          <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px;gap:4px">
+            <div style="flex:1;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C" id="add-qty-display">1 / 1</div>
+            <button onclick="adjustStock(-1)" style="width:32px;height:32px;border:none;background:transparent;font-size:18px;color:rgba(12,16,20,.4);cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+            <button onclick="adjustStock(1)" style="width:32px;height:32px;border:none;background:transparent;font-size:18px;color:rgba(12,16,20,.4);cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+          </div>
+        </div>
+
+        <!-- EXPIRATION DATE -->
+        <div style="margin-bottom:0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">EXPIRATION DATE</div>
+            <svg width="18" height="20" viewBox="0 0 24 24" fill="#44474A"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>
+          </div>
+          <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px">
+            <input id="add-expiry" type="date" style="flex:1;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;outline:none;padding:4px 0" />
+          </div>
+        </div>
+      </div>
+
+      <!-- PRICE -->
+      <div style="padding-top:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PRICE</div>
+        </div>
+        <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px;gap:8px">
+          <span style="font-family:'Inter',sans-serif;font-size:18px;color:#44474A">₩</span>
+          <input id="add-price" type="number" style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" placeholder="0" />
+        </div>
+      </div>
+
+      <!-- SOURCE URL -->
+      <div style="padding-top:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">SOURCE</div>
+          <svg width="20" height="10" viewBox="0 0 24 12" fill="#44474A"><path d="M3.9 6c0-1.71 1.39-3.1 3.1-3.1h4V1H7C4.24 1 2 3.24 2 6s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 7h8V5H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V11h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px">
+          <input id="add-purchase-url" style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" placeholder="aesop.com" />
+        </div>
+      </div>
+
+      <!-- STORAGE VIEW section -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="add-newsreader-sub">Storage View</div>
+
+        <!-- Storage image box (Figma: #F9F9F9 bg, #C5C6CA border) -->
+        <div style="border:1px solid #C5C6CA;background:#F9F9F9;overflow:hidden;cursor:pointer" onclick="pickAddPhoto('storage')">
+          <!-- Image area (192px) -->
+          <div id="add-storage-block" style="width:100%;height:192px;background:#DADADA;position:relative;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden">
+            <div id="add-storage-inner" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="add-img-icon"></div>
+              <div class="add-img-label">ADD STORAGE PHOTO</div>
+            </div>
+            <button style="position:absolute;top:8px;right:8px;width:18.5px;height:18.5px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0" onclick="event.stopPropagation();pickAddPhoto('storage')">
+              <svg width="10.5" height="10.5" viewBox="0 0 24 24" fill="#000000"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            </button>
+          </div>
+          <!-- Location info row -->
+          <div style="display:flex;flex-direction:row;align-items:center;padding:16px;gap:16px">
+            <svg width="18" height="22" viewBox="0 0 24 24" fill="#44474A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">CURRENT LOCATION <span style="font-size:10px;font-weight:600;color:#44474A;opacity:.7;text-transform:lowercase;letter-spacing:.02em">현재 위치</span></div>
+              <div id="ap-location-name" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:400;color:#1A1C1C">안방 드레스룸 A-1</div>
+            </div>
+          </div>
+        </div>
+        <div id="add-storage-error" style="display:none;font-family:'Inter',sans-serif;font-size:10px;color:var(--error);font-weight:600;letter-spacing:.04em">★ Storage Photo를 추가하세요</div>
+
+        <!-- Location text input -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">위치 입력</div>
+          <input class="add-underline-input" id="add-location" placeholder="예: 안방 드레스룸 A-1" oninput="apUpdateLocation()" style="border-bottom:1px solid #C5C6CA;font-size:16px" />
+        </div>
+      </div>
+
+      <!-- SAVE CHANGES button (Figma: black bg, 44px height, letter-spacing 1.2px) -->
+      <div style="padding:48px 0 0">
+        <button id="add-submit-btn" onclick="saveAsset()" style="display:flex;flex-direction:row;justify-content:center;align-items:center;padding:16px 0;width:100%;height:44px;background:#000000;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#FFFFFF;transition:opacity .2s">SAVE CHANGES</button>
       </div>
 
     </div><!-- /add-page-scroll -->
@@ -1967,34 +2063,34 @@ function closeAdd() {
 }
 
 function resetAddForm() {
-  ['add-brand','add-name','add-notes','add-location','add-material','add-care-guide','add-special-note'].forEach(id => {
+  ['add-brand','add-name','add-source','add-location','add-material','add-care-guide','add-special-note','add-purchase-url'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.value = ''; el.classList.remove('input-error'); }
   });
-  ['add-expiry','add-purchase-date','add-open-date'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = new Date().toISOString().slice(0,10); }
-  );
+  const priceEl = document.getElementById('add-price');
+  if (priceEl) priceEl.value = '';
   document.getElementById('add-purchase-date') && (document.getElementById('add-purchase-date').value = new Date().toISOString().slice(0,10));
-  document.getElementById('add-open-date') && (document.getElementById('add-open-date').value = '');
   document.getElementById('add-expiry') && (document.getElementById('add-expiry').value = '');
   // Object photo 초기화
   const imgBlock = document.getElementById('add-img-block');
   if (imgBlock) {
     imgBlock.style.backgroundImage = '';
-    imgBlock.classList.remove('has-img','storage-ok');
-    const inner = imgBlock.querySelector('.add-photo-inner');
+    const inner = document.getElementById('add-img-inner');
     if (inner) inner.style.opacity = '';
   }
   // Storage photo 초기화
   const storBlock = document.getElementById('add-storage-block');
   if (storBlock) {
     storBlock.style.backgroundImage = '';
-    storBlock.classList.remove('has-img','storage-ok');
-    const inner = storBlock.querySelector('.add-photo-inner');
-    if (inner) inner.style.opacity = '';
+    const inner = document.getElementById('add-storage-inner');
+    if (inner) inner.style.display = '';
+    const badge = document.getElementById('ap-location-badge');
+    if (badge) badge.style.display = 'none';
+    const nameEl = document.getElementById('ap-location-name');
+    if (nameEl) nameEl.textContent = '위치 미지정';
   }
   document.getElementById('add-storage-error') && (document.getElementById('add-storage-error').style.display = 'none');
-  // Domain 초기화
+  // State 초기화
   addState.domain = 'beauty';
   addState.type = 'skincare';
   addState.catKey = null;
@@ -2005,26 +2101,25 @@ function resetAddForm() {
   addState.sceneTags = [];
   addState.materialType = null;
   pickDomain('beauty');
+  pickType('skincare');
   updateQtyDisplay();
-  // scene tags 초기화
   document.querySelectorAll('.add-scene-tag').forEach(el => el.classList.remove('active'));
-  // 저장 버튼 초기화
   const btn = document.getElementById('add-submit-btn');
-  if (btn) { btn.textContent = 'Register Product'; btn.disabled = false; btn.style.background = ''; }
+  if (btn) { btn.textContent = 'SAVE CHANGES'; btn.disabled = false; btn.style.background = ''; }
 }
 
 function pickDomain(domain) {
   addState.domain = domain;
   ['beauty','fashion','acc'].forEach(d => {
-    document.getElementById(`domain-btn-${d}`)?.classList.toggle('active', d === domain);
+    document.getElementById(`domain-tab-${d}`)?.classList.toggle('active', d === domain);
   });
-  document.getElementById('step3-beauty').style.display = domain === 'beauty' ? '' : 'none';
+  const classRow = document.getElementById('ap-class-row');
+  if (classRow) classRow.style.display = domain === 'beauty' ? '' : 'none';
+  const beautyFields = document.getElementById('step3-beauty');
+  if (beautyFields) beautyFields.style.display = domain === 'beauty' ? '' : 'none';
   document.getElementById('step3-fashion').style.display = domain === 'fashion' ? '' : 'none';
   document.getElementById('step3-acc').style.display = domain === 'acc' ? '' : 'none';
-  const label = { beauty:'뷰티 세부 정보', fashion:'패션 세부 정보', acc:'액세서리 세부 정보' };
-  document.getElementById('step3-label') && (document.getElementById('step3-label').textContent = label[domain]);
   document.getElementById('add-page-bar-title') && (document.getElementById('add-page-bar-title').textContent = domain.toUpperCase());
-  // sub-category chips
   addState.type = domain === 'beauty' ? 'skincare' : domain;
   addState.catKey = null;
   renderNewCatChips();
@@ -2032,6 +2127,9 @@ function pickDomain(domain) {
 
 function pickType(type) {
   addState.type = type; addState.catKey = null;
+  ['skincare','makeup'].forEach(t => {
+    document.getElementById(`class-tab-${t}`)?.classList.toggle('active', t === type);
+  });
   renderNewCatChips();
 }
 
@@ -2223,20 +2321,24 @@ function pickAddPhoto(photoType) {
         canvas.height = Math.round(img.height * scale);
         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
         const compressed = canvas.toDataURL('image/jpeg', 0.75);
-        const blockId = photoType === 'storage' ? 'add-storage-block' : 'add-img-block';
         if (photoType === 'storage') {
           addState.storageImgData = compressed;
           document.getElementById('add-storage-error') && (document.getElementById('add-storage-error').style.display = 'none');
+          const storEl = document.getElementById('add-storage-block');
+          if (storEl) {
+            storEl.style.backgroundImage = `url(${compressed})`;
+            const inner = document.getElementById('add-storage-inner');
+            if (inner) inner.style.display = 'none';
+            apUpdateLocation();
+          }
         } else {
           addState.productImgData = compressed;
-        }
-        const el = document.getElementById(blockId);
-        if (el) {
-          el.style.backgroundImage = `url(${compressed})`;
-          el.classList.add('has-img');
-          if (photoType === 'storage') el.classList.add('storage-ok');
-          const inner = el.querySelector('.add-photo-inner');
-          if (inner) inner.style.opacity = '0';
+          const el = document.getElementById('add-img-block');
+          if (el) {
+            el.style.backgroundImage = `url(${compressed})`;
+            const inner = document.getElementById('add-img-inner');
+            if (inner) inner.style.opacity = '0';
+          }
         }
       };
       img.src = ev.target.result;
@@ -2246,8 +2348,27 @@ function pickAddPhoto(photoType) {
   input.click();
 }
 
+function adjustStock(delta) {
+  const next = addState.qtyTotal + delta;
+  if (next < 1) return;
+  addState.qtyTotal = next;
+  addState.qtyCurrent = next;
+  updateQtyDisplay();
+}
+
+function apUpdateLocation() {
+  const val = document.getElementById('add-location')?.value.trim() || '';
+  const badge = document.getElementById('ap-location-badge');
+  const nameEl = document.getElementById('ap-location-name');
+  if (addState.storageImgData) {
+    if (badge) badge.style.display = '';
+    if (nameEl) nameEl.textContent = val || '위치 미지정';
+  } else {
+    if (badge) badge.style.display = 'none';
+  }
+}
+
 function saveAsset() {
-  // ── 필수 필드 검증
   const nameEl = document.getElementById('add-name');
   const name = nameEl?.value.trim();
   if (!name) {
@@ -2255,19 +2376,14 @@ function saveAsset() {
   }
   nameEl?.classList.remove('input-error');
 
-  // Storage Photo 필수 검증
-  if (!addState.storageImgData) {
-    const errEl = document.getElementById('add-storage-error');
-    if (errEl) errEl.style.display = 'block';
-    document.getElementById('add-storage-block')?.scrollIntoView({ behavior:'smooth', block:'center' });
-    return;
-  }
-
-  // ── 값 수집
   const domain = addState.domain || 'beauty';
   const brand = document.getElementById('add-brand')?.value.trim() || '';
+  const source = document.getElementById('add-source')?.value.trim() || '';
   const locKey = document.getElementById('add-location')?.value.trim() || '';
   const purchaseDate = document.getElementById('add-purchase-date')?.value || new Date().toISOString().slice(0,10);
+  const priceRaw = document.getElementById('add-price')?.value || '';
+  const price = priceRaw ? `₩${Number(priceRaw).toLocaleString()}` : '';
+  const purchaseUrl = document.getElementById('add-purchase-url')?.value.trim() || '';
   const catKey = addState.catKey || (domain === 'beauty' ? (BEAUTY_CATS[addState.type]||[])[0] : FASHION_CATS[0]) || domain;
 
   const asset = {
@@ -2277,8 +2393,11 @@ function saveAsset() {
     catKey,
     brand,
     name,
+    source,
+    price,
+    purchaseUrl,
     imgData: addState.productImgData || null,
-    storageImgData: addState.storageImgData,
+    storageImgData: addState.storageImgData || null,
     locKey,
     purchaseDate,
     addedDate: purchaseDate,
@@ -2288,9 +2407,7 @@ function saveAsset() {
     lastUsed: null,
   };
 
-  // Domain-specific fields
   if (domain === 'beauty') {
-    asset.openDate = document.getElementById('add-open-date')?.value || null;
     asset.expiryDate = document.getElementById('add-expiry')?.value || null;
   } else if (domain === 'fashion') {
     asset.sceneTags = Array.from(document.querySelectorAll('#add-scene-tags .add-scene-tag.active')).map(el => el.dataset.tag);
@@ -2307,7 +2424,7 @@ function saveAsset() {
   saveAssets(assets);
 
   const btn = document.getElementById('add-submit-btn');
-  if (btn) { btn.textContent = 'Added ✓'; btn.style.background = '#2d6a4f'; btn.disabled = true; }
+  if (btn) { btn.textContent = 'Saved ✓'; btn.style.background = '#2d6a4f'; btn.disabled = true; }
   setTimeout(() => {
     closeAdd();
     renderCatChips();
