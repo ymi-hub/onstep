@@ -266,38 +266,52 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .archive-hd-title{font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.01em;margin-bottom:10px}
 .archive-hd-line{width:28px;height:2px;background:var(--ink)}
 
-/* Archive session entries */
-.ae-wrap{padding:0 20px}
-.archive-entry{padding:24px 0;border-top:1px solid var(--border)}
-.ae-hd{display:flex;align-items:center;gap:0;cursor:pointer;user-select:none}
-.ae-num{
-  font-family:'Space Grotesk',sans-serif;font-size:72px;font-weight:800;
-  color:#DADADA;min-width:80px;line-height:.88;flex-shrink:0;
-}
-.ae-info{flex:1;min-width:0;padding-right:8px}
-.ae-title{
-  font-family:'Inter',sans-serif;font-size:18px;font-weight:700;
-  color:var(--ink);letter-spacing:-.01em;line-height:1.2;
-}
-.ae-dates{font-family:'Inter',sans-serif;font-size:12px;color:var(--sub);margin-top:5px;line-height:1.5}
-.ae-actions{display:flex;align-items:center;gap:2px;flex-shrink:0}
-.ae-edit-btn,.ae-nav-btn{
-  width:30px;height:30px;border:none;background:transparent;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  color:var(--mist);transition:color .15s;
-}
-.ae-nav-btn{color:var(--ink);font-size:18px;font-weight:300}
-.ae-body{display:none;padding-top:16px}
-.ae-body.open{display:block}
-.ae-slot-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px}
-.ae-prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.ae-prod-img{
-  width:100%;aspect-ratio:1/1;background:var(--surface-mid);border-radius:var(--r-sm);
-  overflow:hidden;background-size:cover;background-position:center;
-  display:flex;align-items:center;justify-content:center;font-size:22px;
-  filter:grayscale(20%);
-}
-.ae-prod-name{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);margin-top:6px;padding:0 2px}
+/* Archive — search bar */
+.archive-search-bar{padding:10px 16px 10px;position:sticky;top:0;background:#fff;z-index:2;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.archive-search-wrap{position:relative;flex:1}
+.archive-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mist);pointer-events:none}
+.archive-search-input{width:100%;padding:9px 12px 9px 32px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:13px;background:var(--surface-low);outline:none;color:var(--ink);transition:border-color .18s;box-sizing:border-box}
+.archive-search-input:focus{border-color:var(--ink)}
+.archive-count-badge{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mist);white-space:nowrap;flex-shrink:0}
+
+/* Archive — year group header */
+.ae-year-hd{padding:14px 16px 6px;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);position:sticky;top:53px;background:#fff;z-index:1;border-bottom:1px solid var(--border)}
+
+/* Archive — compact rows */
+.ae-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;transition:background .12s}
+.ae-row:active{background:var(--surface-low)}
+.ae-row.current{background:#FAFFFE}
+.ae-session-num{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:800;letter-spacing:.04em;color:#C8C8C8;min-width:30px;text-align:right;flex-shrink:0}
+.ae-row.current .ae-session-num{color:var(--ink)}
+.ae-row-info{flex:1;min-width:0}
+.ae-row-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ae-now-pill{font-family:'Inter',sans-serif;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--lime);padding:2px 7px;border-radius:9999px;flex-shrink:0}
+.ae-row-dates{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ae-row-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.ae-tag{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:9999px;background:var(--surface-mid);color:var(--sub);white-space:nowrap}
+.ae-row.current .ae-tag{background:var(--ink);color:#fff}
+.ae-chevron{color:var(--mist);font-size:16px;line-height:1;transition:transform .2s;flex-shrink:0}
+.ae-row.expanded .ae-chevron{transform:rotate(90deg)}
+
+/* Archive — row detail (accordion) */
+.ae-detail{display:none;border-bottom:2px solid var(--border);background:var(--surface-low)}
+.ae-detail.open{display:block}
+.ae-detail-inner{padding:16px 16px 20px}
+.ae-slot-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px;margin-top:14px}
+.ae-slot-label:first-child{margin-top:0}
+.ae-prod-grid{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.ae-prod-grid::-webkit-scrollbar{display:none}
+.ae-prod-item{flex-shrink:0;width:72px}
+.ae-prod-img{width:72px;height:72px;background:var(--surface-mid);border-radius:var(--r-sm);overflow:hidden;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:18px}
+.ae-prod-name{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;color:var(--ink);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:72px}
+.ae-detail-empty{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:8px 0}
+.ae-detail-actions{display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.ae-detail-btn{flex:1;padding:10px;border:1.5px solid var(--border-md);border-radius:var(--r-md);background:#fff;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);cursor:pointer;transition:opacity .15s}
+.ae-detail-btn:active{opacity:.7}
+.ae-detail-btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* Archive — no results */
+.ae-no-results{padding:40px 20px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);line-height:1.6}
 
 /* ── Look / Makeup Schedule sections ── */
 .sched-section{padding:0 20px 24px;border-top:1px solid var(--border)}
@@ -1187,7 +1201,14 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         <div class="archive-hd-title">회차 일정 관리</div>
         <div class="archive-hd-line"></div>
       </div>
-      <div class="ae-wrap" id="archive-entries"></div>
+      <div class="archive-search-bar">
+        <div class="archive-search-wrap">
+          <svg class="archive-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="archive-search-input" type="text" id="archive-search" placeholder="세션 번호 · 날짜 검색…" oninput="filterArchive(this.value)" autocomplete="off">
+        </div>
+        <span class="archive-count-badge" id="archive-count-badge"></span>
+      </div>
+      <div id="archive-entries"></div>
     </div>
     <div class="archive-new-btn-wrap">
       <button class="archive-new-btn" onclick="startNewSession()">새 세션 시작하기</button>
@@ -1939,54 +1960,117 @@ function closeArchive() {
   document.getElementById('archive-overlay').classList.remove('open');
 }
 
+let _archiveAll = [];
+
 function renderArchiveEntries() {
-  const el = document.getElementById('archive-entries');
-  if (!el) return;
-  const all = [
-    { session: state.session, periodStart: state.periodStart, periodEnd: state.periodEnd, morning: state.morning, nightly: state.nightly },
-    ...(state.history || [])
+  _archiveAll = [
+    { session: state.session, periodStart: state.periodStart, periodEnd: state.periodEnd, morning: state.morning, nightly: state.nightly, isCurrent: true },
+    ...(state.history || []).map(s => ({ ...s, isCurrent: false }))
   ].filter(s => s.session).sort((a,b) => b.session - a.session);
 
-  el.innerHTML = all.map((s, i) => {
-    const n = s.session;
-    const sfx = getSuffix(n).toUpperCase();
-    const mProds = (s.morning?.routines?.[0]?.products || []).slice(0,4);
-    const nProds = (s.nightly?.routines?.[0]?.products || []).slice(0,4);
-    const hasMorning = mProds.length > 0;
-    const hasNight   = nProds.length > 0;
-    const prodCard = p => `
-      <div>
-        <div class="ae-prod-img" ${p.imgData ? `style="background-image:url(${p.imgData})"` : ''}>
-          ${!p.imgData ? `<span style="opacity:.2">${p.icon||'✦'}</span>` : ''}
-        </div>
-        <div class="ae-prod-name">${p.name}</div>
-      </div>`;
-    return `
-    <div class="archive-entry">
-      <div class="ae-hd" onclick="toggleAeBody(${i})">
-        <div class="ae-num">${String(n).padStart(2,'0')}</div>
-        <div class="ae-info">
-          <div class="ae-title">${n}${sfx}<br>SESSION</div>
-          <div class="ae-dates">${(s.periodStart||'').replace(/-/g,'.')} -<br>${(s.periodEnd||'').replace(/-/g,'.')} 루틴</div>
-        </div>
-        <div class="ae-actions">
-          <button class="ae-edit-btn" onclick="event.stopPropagation();openEditSheetForSession(${i})" title="편집">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-          </button>
-          <button class="ae-nav-btn">›</button>
-        </div>
-      </div>
-      <div class="ae-body" id="ae-body-${i}">
-        ${hasMorning ? `<div class="ae-slot-label">MORNING</div><div class="ae-prod-grid">${mProds.map(prodCard).join('')}</div>` : ''}
-        ${hasNight   ? `<div class="ae-slot-label">NIGHT</div><div class="ae-prod-grid">${nProds.map(prodCard).join('')}</div>` : ''}
-        ${!hasMorning && !hasNight ? `<div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:8px 0">등록된 제품이 없습니다</div>` : ''}
-      </div>
-    </div>`;
-  }).join('');
+  const searchEl = document.getElementById('archive-search');
+  if (searchEl) searchEl.value = '';
+  renderArchiveList(_archiveAll);
 }
 
-function toggleAeBody(i) {
-  document.getElementById(`ae-body-${i}`)?.classList.toggle('open');
+function filterArchive(q) {
+  const term = (q||'').trim().toLowerCase();
+  if (!term) { renderArchiveList(_archiveAll); return; }
+  const filtered = _archiveAll.filter(s => {
+    const n = String(s.session);
+    const start = (s.periodStart||'').replace(/-/g,'.');
+    const end   = (s.periodEnd||'').replace(/-/g,'.');
+    return n.includes(term) || start.includes(term) || end.includes(term);
+  });
+  renderArchiveList(filtered);
+}
+
+function renderArchiveList(sessions) {
+  const el = document.getElementById('archive-entries');
+  const badge = document.getElementById('archive-count-badge');
+  if (!el) return;
+  if (badge) badge.textContent = `${sessions.length} / ${_archiveAll.length}`;
+
+  if (!sessions.length) {
+    el.innerHTML = '<div class="ae-no-results">검색 결과가 없습니다</div>';
+    return;
+  }
+
+  const fmtDate = d => (d||'').replace(/-/g,'.');
+  const getYear = d => (d||'').slice(0,4) || '—';
+  const prodCard = p => `
+    <div class="ae-prod-item">
+      <div class="ae-prod-img" ${p.imgData ? `style="background-image:url(${p.imgData})"` : ''}>
+        ${!p.imgData ? `<span style="opacity:.25">${p.icon||'✦'}</span>` : ''}
+      </div>
+      <div class="ae-prod-name">${p.name}</div>
+    </div>`;
+
+  let html = '';
+  let lastYear = null;
+
+  sessions.forEach(s => {
+    const n   = s.session;
+    const sfx = getSuffix(n).toUpperCase();
+    const yr  = getYear(s.periodStart);
+    const mProds = (s.morning?.routines?.[0]?.products || []);
+    const nProds = (s.nightly?.routines?.[0]?.products || []);
+    const mCnt = mProds.length, nCnt = nProds.length;
+
+    if (yr !== lastYear) {
+      html += `<div class="ae-year-hd">${yr}</div>`;
+      lastYear = yr;
+    }
+
+    const tags = [];
+    if (mCnt) tags.push(`☀ ${mCnt}`);
+    if (nCnt) tags.push(`🌙 ${nCnt}`);
+    const tagsHtml = tags.map(t => `<span class="ae-tag">${t}</span>`).join('');
+
+    html += `
+    <div class="ae-row${s.isCurrent?' current':''}" id="ae-row-${n}" onclick="toggleAeRow(${n})">
+      <div class="ae-session-num">#${String(n).padStart(2,'0')}</div>
+      <div class="ae-row-info">
+        <div class="ae-row-title">
+          ${n}${sfx} SESSION
+          ${s.isCurrent ? '<span class="ae-now-pill">NOW</span>' : ''}
+        </div>
+        <div class="ae-row-dates">${fmtDate(s.periodStart)} – ${fmtDate(s.periodEnd)}</div>
+      </div>
+      <div class="ae-row-right">
+        ${tagsHtml}
+        <span class="ae-chevron">›</span>
+      </div>
+    </div>
+    <div class="ae-detail" id="ae-detail-${n}">
+      <div class="ae-detail-inner">
+        ${mCnt ? `<div class="ae-slot-label">MORNING · ${mCnt} STEPS</div><div class="ae-prod-grid">${mProds.map(prodCard).join('')}</div>` : ''}
+        ${nCnt ? `<div class="ae-slot-label">NIGHT · ${nCnt} STEPS</div><div class="ae-prod-grid">${nProds.map(prodCard).join('')}</div>` : ''}
+        ${!mCnt && !nCnt ? '<div class="ae-detail-empty">등록된 제품이 없습니다</div>' : ''}
+        <div class="ae-detail-actions">
+          <button class="ae-detail-btn" onclick="event.stopPropagation()">공유 →</button>
+          ${s.isCurrent ? `<button class="ae-detail-btn primary" onclick="event.stopPropagation();closeArchive();openEditSheet()">편집</button>` : ''}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+function toggleAeRow(n) {
+  const row    = document.getElementById(`ae-row-${n}`);
+  const detail = document.getElementById(`ae-detail-${n}`);
+  if (!detail) return;
+  const isOpen = detail.classList.contains('open');
+  // 모두 닫기
+  document.querySelectorAll('.ae-detail.open').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.ae-row.expanded').forEach(r => r.classList.remove('expanded'));
+  if (!isOpen) {
+    detail.classList.add('open');
+    row?.classList.add('expanded');
+    detail.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
 }
 
 function startNewSession() {
