@@ -3153,9 +3153,16 @@ function exportData() {
 }
 
 // ── Routine Tracker ───────────────────────────────────────────
+const TRACKER_KEY = 'onstep_tracker_items';
 let trackerItems = [];
 
 function loadTrackerItems() {
+  const raw = localStorage.getItem(TRACKER_KEY);
+  if (raw) {
+    trackerItems = JSON.parse(raw);
+    return;
+  }
+  // 이전 버전 마이그레이션: onstep_care_plan.exercise.items → 별도 키
   const plan = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
   trackerItems = (plan.exercise?.items || []).map(it => ({
     id: it.id ?? Date.now() + Math.random(),
@@ -3163,14 +3170,12 @@ function loadTrackerItems() {
     time: it.time || '',
     alarm: !!it.alarm
   }));
+  if (trackerItems.length) localStorage.setItem(TRACKER_KEY, JSON.stringify(trackerItems));
 }
 
 function saveTrackerItems() {
   try {
-    const plan = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-    if (!plan.exercise) plan.exercise = {};
-    plan.exercise.items = trackerItems;
-    localStorage.setItem(DB_KEY, JSON.stringify(plan));
+    localStorage.setItem(TRACKER_KEY, JSON.stringify(trackerItems));
     showToast('✓ Routine Tracker 저장됐습니다 — Today에 반영됩니다');
   } catch(e) {
     showToast('⚠️ 저장 실패 — 저장공간이 부족합니다');

@@ -907,9 +907,9 @@ function handleMainRoutineBtn() {
 }
 
 // ── ALL DAY / Routine Tracker ─────────────────────────────────
+const TRACKER_KEY = 'onstep_tracker_items';
 function renderAllDay() {
-  const plan     = JSON.parse(localStorage.getItem(DB_KEY)||'{}');
-  const items    = plan.exercise?.items||[];
+  const items    = JSON.parse(localStorage.getItem(TRACKER_KEY)||'[]');
   const checksKey= `onstep_ex_checks_${getTodayKey()}`;
   const checks   = JSON.parse(localStorage.getItem(checksKey)||'{}');
   const listEl   = document.getElementById('allday-items');
@@ -951,8 +951,7 @@ function fmtAllDayTime(t) {
 
 // ── Tracker Alarms ────────────────────────────────────────────
 function checkTrackerAlarms() {
-  const plan  = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-  const items = plan.exercise?.items || [];
+  const items = JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]');
   if (!items.some(it => it.alarm)) return;
 
   const now  = new Date();
@@ -982,8 +981,7 @@ function checkTrackerAlarms() {
 // Request notification permission once and start alarm interval
 (function initAlarms() {
   if ('Notification' in window && Notification.permission === 'default') {
-    const plan = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-    if ((plan.exercise?.items || []).some(it => it.alarm)) {
+    if (JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]').some(it => it.alarm)) {
       Notification.requestPermission();
     }
   }
