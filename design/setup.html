@@ -234,7 +234,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .history-arrow{color:var(--mist);font-size:14px;flex-shrink:0;font-weight:300}
 
 /* Bottom nav */
-.bottom-nav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);}
+.bottom-nav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);flex-shrink:0;}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;padding:12px 6px 20px;text-decoration:none;border-radius:20px 20px 0 0;}
 .nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#AAAAAA;}
 .nav-label{font-family:'Space Grotesk','Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#AAAAAA;}
@@ -463,6 +463,57 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .box-result-check{color:var(--ink);font-size:13px;font-weight:700;opacity:0;transition:opacity .15s}
 .box-result-row.selected .box-result-check{opacity:1}
 .box-divider{height:1px;background:var(--border);margin:14px 0 10px}
+
+/* BOX 가져오기 버튼 */
+.box-from-btn{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-low);border:1.5px solid var(--border-md);border-radius:var(--r-sm);cursor:pointer;text-align:left;transition:border-color .2s}
+.box-from-btn:hover{border-color:var(--ink)}
+.box-from-btn.has-sel{border-color:var(--ink);background:var(--surface)}
+.box-from-icon{font-size:20px;flex-shrink:0;line-height:1}
+.box-from-info{flex:1;min-width:0}
+.box-from-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--ink);letter-spacing:.02em}
+.box-from-sub{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.box-from-arrow{font-size:18px;color:var(--mist);flex-shrink:0}
+
+/* 카테고리 편집/추가 */
+.cat-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cat-edit-toggle{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);background:var(--surface-low);border:1px solid var(--border);border-radius:var(--r-sm);padding:4px 9px;cursor:pointer}
+.cat-add-toggle{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lime-fg);background:var(--lime);border:none;border-radius:var(--r-sm);padding:4px 9px;cursor:pointer}
+.cat-add-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+.cat-add-inp{flex:1;padding:8px 10px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);outline:none;background:var(--surface-low)}
+.cat-add-inp:focus{border-color:var(--ink)}
+.cat-add-confirm{padding:8px 14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.cat-btn-wrap{position:relative;display:block}
+.cat-del-btn{position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:var(--ink);color:#fff;border:none;border-radius:9999px;font-size:10px;display:none;align-items:center;justify-content:center;cursor:pointer;line-height:1;z-index:2}
+.category-grid.edit-mode .cat-del-btn{display:flex}
+.category-grid.edit-mode .cat-btn{opacity:.85}
+.cat-name-inp{width:100%;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sub);text-align:center;outline:none;padding:0;cursor:text;min-width:0}
+.cat-btn.selected .cat-name-inp{color:var(--ink)}
+
+/* Box Search Full Panel */
+.bp-overlay{position:fixed;inset:0;background:#fff;z-index:500;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.bp-overlay.open{transform:translateX(0)}
+.bp-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;border-bottom:1px solid var(--border);flex-shrink:0;background:#fff}
+.bp-back{background:none;border:none;cursor:pointer;font-size:20px;font-weight:600;color:var(--ink);padding:0;line-height:1}
+.bp-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ink);letter-spacing:.02em}
+.bp-confirm{padding:9px 18px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-full);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;cursor:pointer;opacity:.3;pointer-events:none;transition:opacity .2s}
+.bp-confirm.active{opacity:1;pointer-events:all}
+.bp-search-wrap{padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.bp-search-inp{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none;background:var(--surface-low)}
+.bp-search-inp:focus{border-color:var(--ink)}
+.bp-count{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:6px;letter-spacing:.04em}
+.bp-list{flex:1;overflow-y:auto;scrollbar-width:none}
+.bp-list::-webkit-scrollbar{display:none}
+.bp-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.bp-item:active{background:var(--surface-low)}
+.bp-item.selected{background:#f4ffe0}
+.bp-item-img{width:48px;height:48px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.bp-item-info{flex:1;min-width:0}
+.bp-item-name{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-item-brand{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);margin-top:2px}
+.bp-item-cat{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin-top:3px}
+.bp-item-check{width:22px;height:22px;border-radius:9999px;border:1.5px solid var(--border-md);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink);flex-shrink:0;opacity:0;background:transparent;transition:all .15s}
+.bp-item.selected .bp-item-check{opacity:1;background:var(--lime);border-color:var(--lime-dark)}
+.bp-empty{padding:48px 20px;text-align:center;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);line-height:1.6}
 
 /* ── Content Type Tabs ── */
 .ct-tabs{display:flex;border-bottom:1px solid var(--border);background:rgba(255,255,255,.94);backdrop-filter:blur(16px);position:sticky;top:49px;z-index:9}
@@ -892,14 +943,6 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         </div>
       </div>
 
-      <!-- Save CTA -->
-      <div class="routine-actions">
-        <button class="publish-btn" onclick="saveRoutineChanges()" style="background:var(--lime);color:var(--lime-fg);letter-spacing:.06em;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px">
-          SAVE ROUTINE
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
-      </div>
-
       <!-- Hidden: publish/draft -->
       <div style="display:none">
         <button id="publish-btn" onclick="activateContent('routine')"></button>
@@ -918,6 +961,14 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
           onchange="onBeforePhoto('session',this)">
       </div>
 
+      <!-- Save CTA -->
+      <div class="routine-actions">
+        <button class="publish-btn" onclick="saveRoutineChanges()" style="background:var(--lime);color:var(--lime-fg);letter-spacing:.06em;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px">
+          SAVE ROUTINE
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+
       <!-- History -->
       <div class="history-section">
         <div class="history-label-wrap">PREVIOUS SESSIONS<br>ARCHIVE</div>
@@ -925,11 +976,23 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       </div>
 
     </div><!-- /panel-body -->
-    <div class="panel-bnav">
-      <a class="nav-item" href="today.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="nav-label">Today</div></a>
-      <a class="nav-item" href="log.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="nav-label">Log</div></a>
-      <a class="nav-item" href="box.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div><div class="nav-label">Box</div></a>
-      <a class="nav-item active" href="setup.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="nav-label">Setup</div></a>
+    <div class="bottom-nav">
+      <a class="nav-item" href="today.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="nav-label">Today</div>
+      </a>
+      <a class="nav-item" href="log.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="nav-label">Log</div>
+      </a>
+      <a class="nav-item" href="box.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
+        <div class="nav-label">Box</div>
+      </a>
+      <a class="nav-item active" href="setup.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="nav-label">Setup</div>
+      </a>
     </div>
   </div><!-- /setup-panel-routine -->
 
@@ -953,11 +1016,23 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         </div>
       </div>
     </div>
-    <div class="panel-bnav">
-      <a class="nav-item" href="today.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="nav-label">Today</div></a>
-      <a class="nav-item" href="log.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="nav-label">Log</div></a>
-      <a class="nav-item" href="box.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div><div class="nav-label">Box</div></a>
-      <a class="nav-item active" href="setup.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="nav-label">Setup</div></a>
+    <div class="bottom-nav">
+      <a class="nav-item" href="today.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="nav-label">Today</div>
+      </a>
+      <a class="nav-item" href="log.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="nav-label">Log</div>
+      </a>
+      <a class="nav-item" href="box.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
+        <div class="nav-label">Box</div>
+      </a>
+      <a class="nav-item active" href="setup.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="nav-label">Setup</div>
+      </a>
     </div>
   </div><!-- /setup-panel-care -->
 
@@ -981,11 +1056,23 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         </div>
       </div>
     </div>
-    <div class="panel-bnav">
-      <a class="nav-item" href="today.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="nav-label">Today</div></a>
-      <a class="nav-item" href="log.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="nav-label">Log</div></a>
-      <a class="nav-item" href="box.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div><div class="nav-label">Box</div></a>
-      <a class="nav-item active" href="setup.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="nav-label">Setup</div></a>
+    <div class="bottom-nav">
+      <a class="nav-item" href="today.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="nav-label">Today</div>
+      </a>
+      <a class="nav-item" href="log.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="nav-label">Log</div>
+      </a>
+      <a class="nav-item" href="box.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
+        <div class="nav-label">Box</div>
+      </a>
+      <a class="nav-item active" href="setup.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="nav-label">Setup</div>
+      </a>
     </div>
   </div><!-- /setup-panel-makeup -->
 
@@ -1009,11 +1096,23 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         </div>
       </div>
     </div>
-    <div class="panel-bnav">
-      <a class="nav-item" href="today.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="nav-label">Today</div></a>
-      <a class="nav-item" href="log.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="nav-label">Log</div></a>
-      <a class="nav-item" href="box.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div><div class="nav-label">Box</div></a>
-      <a class="nav-item active" href="setup.html"><div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><div class="nav-label">Setup</div></a>
+    <div class="bottom-nav">
+      <a class="nav-item" href="today.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="nav-label">Today</div>
+      </a>
+      <a class="nav-item" href="log.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="nav-label">Log</div>
+      </a>
+      <a class="nav-item" href="box.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
+        <div class="nav-label">Box</div>
+      </a>
+      <a class="nav-item active" href="setup.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="nav-label">Setup</div>
+      </a>
     </div>
   </div><!-- /setup-panel-look -->
 
@@ -1051,11 +1150,23 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         <div id="tracker-list"></div>
       </div>
     </div>
-    <div class="panel-bnav">
-      <a class="nav-item" href="today.html"><div class="nav-icon">◎</div><div class="nav-label">Today</div></a>
-      <a class="nav-item" href="log.html"><div class="nav-icon">◈</div><div class="nav-label">Log</div></a>
-      <a class="nav-item" href="box.html"><div class="nav-icon">◫</div><div class="nav-label">Box</div></a>
-      <a class="nav-item active" href="setup.html"><div class="nav-icon" style="font-size:17px">⚙</div><div class="nav-label">Setup</div></a>
+    <div class="bottom-nav">
+      <a class="nav-item" href="today.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="nav-label">Today</div>
+      </a>
+      <a class="nav-item" href="log.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="nav-label">Log</div>
+      </a>
+      <a class="nav-item" href="box.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
+        <div class="nav-label">Box</div>
+      </a>
+      <a class="nav-item active" href="setup.html">
+        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div class="nav-label">Setup</div>
+      </a>
     </div>
   </div><!-- /setup-panel-tracker -->
 
@@ -1156,7 +1267,6 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       </div>
       <div class="ct-sheet-ok-wrap">
         <button class="ct-sheet-ok" onclick="saveCtContent()">ok →</button>
-        <button class="ct-sheet-save" onclick="saveCtDraft()">임시저장</button>
       </div>
     </div>
   </div>
@@ -1223,24 +1333,30 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="form-group">
-      <div class="form-label">BOX에서 가져오기 <span style="color:var(--mist);font-size:9px;font-weight:400;letter-spacing:0">(선택 시 자동 채움)</span></div>
-      <div class="box-search-area">
-        <input class="box-search-inp" type="text" id="box-search-inp" placeholder="제품명·브랜드 검색..." oninput="renderBoxSearchResults(this.value)" onfocus="renderBoxSearchResults(this.value)">
-        <div id="box-search-results"></div>
-      </div>
+      <div class="form-label">BOX에서 가져오기</div>
+      <button class="box-from-btn" id="box-from-btn" onclick="openBoxPanel()">
+        <span class="box-from-icon">◫</span>
+        <div class="box-from-info">
+          <div class="box-from-title">BOX 제품 가져오기</div>
+          <div class="box-from-sub" id="box-from-sub">BOX에 등록된 뷰티 제품을 선택하세요</div>
+        </div>
+        <span class="box-from-arrow">›</span>
+      </button>
     </div>
     <div class="box-divider"></div>
     <div class="form-group">
-      <div class="form-label">카테고리</div>
-      <div class="category-grid" id="category-grid">
-        <button class="cat-btn selected" data-cat="toner"   onclick="selectCat(this)"><span class="cat-icon">💧</span><span class="cat-name">TONER</span></button>
-        <button class="cat-btn" data-cat="serum"   onclick="selectCat(this)"><span class="cat-icon">🔬</span><span class="cat-name">SERUM</span></button>
-        <button class="cat-btn" data-cat="ampoule" onclick="selectCat(this)"><span class="cat-icon">🧪</span><span class="cat-name">AMPOULE</span></button>
-        <button class="cat-btn" data-cat="booster" onclick="selectCat(this)"><span class="cat-icon">⚡</span><span class="cat-name">BOOSTER</span></button>
-        <button class="cat-btn" data-cat="cream"   onclick="selectCat(this)"><span class="cat-icon">🫙</span><span class="cat-name">CREAM</span></button>
-        <button class="cat-btn" data-cat="pack"    onclick="selectCat(this)"><span class="cat-icon">🎭</span><span class="cat-name">PACK</span></button>
-        <button class="cat-btn" data-cat="mist"    onclick="selectCat(this)"><span class="cat-icon">🌫️</span><span class="cat-name">MIST</span></button>
-        <button class="cat-btn" data-cat="etc"     onclick="selectCat(this)"><span class="cat-icon">✨</span><span class="cat-name">ETC</span></button>
+      <div class="cat-section-hd">
+        <div class="form-label" style="margin-bottom:0">카테고리</div>
+        <div style="display:flex;gap:6px">
+          <button class="cat-edit-toggle" id="cat-edit-btn" onclick="toggleCatEdit()">EDIT</button>
+          <button class="cat-add-toggle" onclick="toggleCatAddRow()">+ 추가</button>
+        </div>
+      </div>
+      <div class="category-grid" id="category-grid"></div>
+      <div class="cat-add-row" id="cat-add-row" style="display:none">
+        <input class="cat-add-inp" id="cat-add-inp" placeholder="카테고리 이름 입력" maxlength="12"
+          onkeydown="if(event.key==='Enter')addCustomCat()">
+        <button class="cat-add-confirm" onclick="addCustomCat()">확인</button>
       </div>
     </div>
     <div class="form-group">
@@ -1264,6 +1380,21 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       <button class="modal-add-btn" id="modal-confirm-btn" onclick="confirmProduct()">추가하기</button>
     </div>
   </div>
+</div>
+
+<!-- Box Search Full Panel -->
+<div class="bp-overlay" id="bp-overlay">
+  <div class="bp-head">
+    <button class="bp-back" onclick="closeBoxPanel()">←</button>
+    <div class="bp-title">BOX에서 가져오기</div>
+    <button class="bp-confirm" id="bp-confirm" onclick="confirmBoxPanel()">추가하기</button>
+  </div>
+  <div class="bp-search-wrap">
+    <input class="bp-search-inp" id="bp-search-inp" type="text" placeholder="제품명 · 브랜드 검색..."
+      oninput="renderBpList(this.value)" autocomplete="off">
+    <div class="bp-count" id="bp-count"></div>
+  </div>
+  <div class="bp-list" id="bp-list"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1721,7 +1852,14 @@ function renderGrid(slot) {
     if (emptyEl) emptyEl.style.display = 'flex';
   } else {
     if (emptyEl) emptyEl.style.display = 'none';
-    let html = products.map(p => `
+    let html = '';
+    if (products.length < MAX) {
+      html += `<div class="prod-card-add" onclick="openModal('${slot}')">
+        <div class="prod-card-add-plus">+</div>
+        <div class="prod-card-add-label">ADD</div>
+      </div>`;
+    }
+    html += products.map(p => `
       <div class="prod-card" onclick="openModal('${slot}',${p.id})">
         <div class="prod-card-img" ${p.imgData ? `style="background-image:url(${p.imgData})"` : ''}>
           ${!p.imgData ? `<span style="opacity:.2">${p.icon||'✦'}</span>` : ''}
@@ -1729,12 +1867,6 @@ function renderGrid(slot) {
         <div class="prod-card-cat">${(CAT[p.catKey]?.label || p.catKey || '').toUpperCase()}</div>
         <div class="prod-card-name">${p.name}</div>
       </div>`).join('');
-    if (products.length < MAX) {
-      html += `<div class="prod-card-add" onclick="openModal('${slot}')">
-        <div class="prod-card-add-plus">+</div>
-        <div class="prod-card-add-label">ADD</div>
-      </div>`;
-    }
     grid.innerHTML = html;
   }
 
@@ -1939,11 +2071,23 @@ function openModal(slot, editId = null) {
   modal.slot   = slot;
   modal.editId = editId;
   selectedBoxAssetId = null;
+  bpSelectedId = null;
+  catEditMode = false;
+  const grid = document.getElementById('category-grid');
+  if (grid) grid.classList.remove('edit-mode');
+  const catEditBtn = document.getElementById('cat-edit-btn');
+  if (catEditBtn) catEditBtn.textContent = 'EDIT';
+  const catAddRow = document.getElementById('cat-add-row');
+  if (catAddRow) catAddRow.style.display = 'none';
 
-  // BOX search reset
-  const bsi = document.getElementById('box-search-inp');
-  if (bsi) bsi.value = '';
-  renderBoxSearchResults('');
+  // reset Box-from button
+  const fromBtn = document.getElementById('box-from-btn');
+  const subEl   = document.getElementById('box-from-sub');
+  if (fromBtn) fromBtn.classList.remove('has-sel');
+  if (subEl)   subEl.textContent = 'BOX에 등록된 뷰티 제품을 선택하세요';
+
+  // render cat grid
+  renderCatGrid();
 
   if (editId !== null) {
     const p = getActiveProducts(slot).find(x => x.id === editId);
@@ -1955,6 +2099,7 @@ function openModal(slot, editId = null) {
     document.getElementById('product-brand').value = p.brand || '';
     prodImgData = p.imgData || null;
     selectedBoxAssetId = p.assetId || null;
+    bpSelectedId = p.assetId || null;
     if (p.imgData) {
       document.getElementById('prod-img-preview').style.cssText = `background-image:url(${p.imgData});display:block`;
       document.getElementById('prod-img-placeholder').style.display = 'none';
@@ -1963,8 +2108,10 @@ function openModal(slot, editId = null) {
       document.getElementById('prod-img-placeholder').style.display = 'flex';
     }
     selectCatByKey(p.catKey || 'etc');
-    // BOX 검색창에 기존 제품명 표시
-    if (bsi) { bsi.value = p.name || ''; renderBoxSearchResults(p.name || ''); }
+    if (p.name && fromBtn && subEl) {
+      subEl.textContent = `${p.name}${p.brand ? ' · '+p.brand : ''}`;
+      if (p.assetId) fromBtn.classList.add('has-sel');
+    }
   } else {
     document.getElementById('modal-title').textContent = `제품 추가 — STEP ${state[slot]?.active||1}`;
     document.getElementById('modal-confirm-btn').textContent = '추가하기';
@@ -1978,11 +2125,28 @@ function openModal(slot, editId = null) {
     selectCatByKey('toner');
   }
   document.getElementById('modal-overlay').classList.add('open');
-  setTimeout(() => document.getElementById('box-search-inp')?.focus(), 350);
 }
 
-function renderBoxSearchResults(q) {
-  const el = document.getElementById('box-search-results');
+// ── Box Search Panel ─────────────────────────────────────────
+let bpSelectedId = null;
+
+function openBoxPanel() {
+  bpSelectedId = selectedBoxAssetId;
+  const inp = document.getElementById('bp-search-inp');
+  if (inp) inp.value = '';
+  renderBpList('');
+  updateBpConfirm();
+  document.getElementById('bp-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('bp-search-inp')?.focus(), 300);
+}
+
+function closeBoxPanel() {
+  document.getElementById('bp-overlay').classList.remove('open');
+}
+
+function renderBpList(q) {
+  const el = document.getElementById('bp-list');
+  const countEl = document.getElementById('bp-count');
   if (!el) return;
   const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
   const beauty = assets.filter(a => a.domain === 'beauty');
@@ -1990,25 +2154,67 @@ function renderBoxSearchResults(q) {
     ? beauty.filter(a =>
         (a.name||'').toLowerCase().includes(q.toLowerCase()) ||
         (a.brand||'').toLowerCase().includes(q.toLowerCase()))
-    : beauty.slice(0, 8);
+    : beauty;
+  if (countEl) countEl.textContent = `${filtered.length}개 제품`;
   if (!filtered.length) {
-    el.innerHTML = `<div style="padding:10px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);text-align:center">BOX에 등록된 뷰티 제품이 없습니다</div>`;
+    el.innerHTML = `<div class="bp-empty">BOX에 등록된 뷰티 제품이 없습니다.<br>먼저 BOX에서 제품을 추가해주세요.</div>`;
     return;
   }
   el.innerHTML = filtered.map(a => {
-    const isSel = selectedBoxAssetId === a.id;
+    const isSel = bpSelectedId === a.id;
     const imgStyle = a.imgData ? `background-image:url(${a.imgData});background-size:cover;background-position:center` : '';
     const icon = CAT[a.catKey]?.icon || '✨';
-    return `<div class="box-result-row${isSel?' selected':''}" onclick="selectBoxAsset(${a.id})">
-      <div class="box-result-img" style="${imgStyle}">${!a.imgData ? icon : ''}</div>
-      <div class="box-result-info">
-        <div class="box-result-name">${a.name}</div>
-        ${a.brand ? `<div class="box-result-brand">${a.brand}</div>` : ''}
+    return `<div class="bp-item${isSel?' selected':''}" onclick="selectBpItem(${a.id})">
+      <div class="bp-item-img" style="${imgStyle}">${!a.imgData ? icon : ''}</div>
+      <div class="bp-item-info">
+        <div class="bp-item-name">${a.name}</div>
+        ${a.brand ? `<div class="bp-item-brand">${a.brand}</div>` : ''}
+        <div class="bp-item-cat">${(CAT[a.catKey]?.label||a.catKey||'ETC').toUpperCase()}</div>
       </div>
-      <div class="box-result-check">✓</div>
+      <div class="bp-item-check">✓</div>
     </div>`;
   }).join('');
 }
+
+function selectBpItem(id) {
+  bpSelectedId = bpSelectedId === id ? null : id;
+  renderBpList(document.getElementById('bp-search-inp')?.value || '');
+  updateBpConfirm();
+}
+
+function updateBpConfirm() {
+  const btn = document.getElementById('bp-confirm');
+  if (btn) btn.classList.toggle('active', !!bpSelectedId);
+}
+
+function confirmBoxPanel() {
+  if (!bpSelectedId) return;
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const asset = assets.find(a => a.id === bpSelectedId);
+  if (!asset) return;
+  selectedBoxAssetId = bpSelectedId;
+
+  // fill modal fields
+  document.getElementById('product-name').value  = asset.name  || '';
+  document.getElementById('product-brand').value = asset.brand || '';
+  const catKey = asset.catKey && CAT[asset.catKey] ? asset.catKey : 'etc';
+  selectCatByKey(catKey);
+  if (asset.imgData) {
+    prodImgData = asset.imgData;
+    document.getElementById('prod-img-preview').style.cssText = `background-image:url(${asset.imgData});display:block`;
+    document.getElementById('prod-img-placeholder').style.display = 'none';
+  }
+
+  // update "BOX에서 가져오기" button label
+  const subEl = document.getElementById('box-from-sub');
+  if (subEl) subEl.textContent = `${asset.name}${asset.brand ? ' · '+asset.brand : ''}`;
+  const fromBtn = document.getElementById('box-from-btn');
+  if (fromBtn) fromBtn.classList.add('has-sel');
+
+  closeBoxPanel();
+}
+
+function renderBoxSearchResults(q) {} // kept for backward compat
 
 function selectBoxAsset(assetId) {
   const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
@@ -2024,7 +2230,6 @@ function selectBoxAsset(assetId) {
     document.getElementById('prod-img-preview').style.cssText = `background-image:url(${asset.imgData});display:block`;
     document.getElementById('prod-img-placeholder').style.display = 'none';
   }
-  renderBoxSearchResults(document.getElementById('box-search-inp')?.value || '');
 }
 
 function closeModal() {
@@ -2036,15 +2241,131 @@ function handleOverlayClick(e) {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
 }
 
+// ── Category grid rendering & management ─────────────────────
+const CUSTOM_CATS_KEY = 'onstep_custom_cats';
+const CAT_LABELS_KEY  = 'onstep_cat_labels';
+
+function loadCustomCats() {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_CATS_KEY) || '[]'); } catch { return []; }
+}
+function saveCustomCats(arr) {
+  localStorage.setItem(CUSTOM_CATS_KEY, JSON.stringify(arr));
+}
+function loadCatLabels() {
+  try { return JSON.parse(localStorage.getItem(CAT_LABELS_KEY) || '{}'); } catch { return {}; }
+}
+function saveCatLabel(key, label) {
+  const labels = loadCatLabels();
+  labels[key] = label;
+  localStorage.setItem(CAT_LABELS_KEY, JSON.stringify(labels));
+  if (CAT[key]) CAT[key].label = label;
+}
+
+const DEFAULT_CATS = ['toner','serum','ampoule','booster','cream','pack','mist','etc'];
+
+function renderCatGrid() {
+  const grid = document.getElementById('category-grid');
+  if (!grid) return;
+  const customs   = loadCustomCats();
+  const labels    = loadCatLabels();
+  customs.forEach(c => { if (!CAT[c.key]) CAT[c.key] = { label: c.label, icon: c.icon||'⭐' }; });
+
+  // apply saved label overrides to CAT
+  Object.entries(labels).forEach(([k, v]) => { if (CAT[k]) CAT[k].label = v; });
+
+  const all = [
+    ...DEFAULT_CATS.map(k => ({ key: k, icon: CAT[k].icon, label: CAT[k].label, isDefault: true })),
+    ...customs.map(c => ({ key: c.key, label: CAT[c.key]?.label || c.label, icon: c.icon||'⭐', isDefault: false }))
+  ];
+
+  grid.classList.toggle('edit-mode', catEditMode);
+
+  grid.innerHTML = all.map(c => {
+    const isSel = selectedCat === c.key;
+    const nameCell = catEditMode
+      ? `<input class="cat-name-inp" value="${(c.label||'').replace(/"/g,'&quot;')}"
+           onclick="event.stopPropagation()"
+           onblur="updateCatLabel('${c.key}',this.value)"
+           onkeydown="if(event.key==='Enter'){this.blur();event.preventDefault()}">`
+      : `<span class="cat-name">${(c.label||'').toUpperCase()}</span>`;
+    return `<div class="cat-btn-wrap">
+      <button class="cat-btn${isSel?' selected':''}" data-cat="${c.key}"
+        onclick="${catEditMode ? 'event.preventDefault()' : `selectCatKey('${c.key}')`}">
+        <span class="cat-icon">${c.icon}</span>
+        ${nameCell}
+      </button>
+      ${!c.isDefault ? `<button class="cat-del-btn" onclick="deleteCat('${c.key}',event)" title="삭제">×</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function updateCatLabel(key, raw) {
+  const label = raw.trim();
+  if (!label) return;
+  saveCatLabel(key, label);
+  // update custom cats list too
+  const customs = loadCustomCats().map(c => c.key === key ? { ...c, label } : c);
+  saveCustomCats(customs);
+}
+
+let catEditMode = false;
+
+function toggleCatEdit() {
+  catEditMode = !catEditMode;
+  renderCatGrid();
+  const btn = document.getElementById('cat-edit-btn');
+  if (btn) btn.textContent = catEditMode ? 'DONE' : 'EDIT';
+}
+
+function toggleCatAddRow() {
+  const row = document.getElementById('cat-add-row');
+  if (!row) return;
+  const show = row.style.display === 'none' || row.style.display === '';
+  row.style.display = show ? 'flex' : 'none';
+  if (show) setTimeout(() => document.getElementById('cat-add-inp')?.focus(), 50);
+}
+
+function addCustomCat() {
+  const inp = document.getElementById('cat-add-inp');
+  const name = (inp?.value || '').trim();
+  if (!name) return;
+  const key = 'c_' + Date.now();
+  const customs = loadCustomCats();
+  customs.push({ key, label: name, icon: '⭐' });
+  saveCustomCats(customs);
+  CAT[key] = { label: name, icon: '⭐' };
+  if (inp) inp.value = '';
+  const row = document.getElementById('cat-add-row');
+  if (row) row.style.display = 'none';
+  renderCatGrid();
+  selectCatKey(key);
+}
+
+function deleteCat(key, e) {
+  e.stopPropagation();
+  const customs = loadCustomCats().filter(c => c.key !== key);
+  saveCustomCats(customs);
+  delete CAT[key];
+  if (selectedCat === key) selectedCat = 'toner';
+  renderCatGrid();
+}
+
 function selectCat(btn) {
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedCat = btn.dataset.cat;
+  selectCatKey(btn.dataset.cat);
+}
+
+function selectCatKey(key) {
+  selectedCat = CAT[key] ? key : 'etc';
+  document.querySelectorAll('#category-grid .cat-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.cat === selectedCat);
+  });
 }
 
 function selectCatByKey(key) {
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('selected', b.dataset.cat === key));
   selectedCat = CAT[key] ? key : 'etc';
+  document.querySelectorAll('#category-grid .cat-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.cat === selectedCat);
+  });
 }
 
 function confirmProduct() {
@@ -2748,50 +3069,56 @@ function removeCtDate(ds) {
 }
 
 // ── Save CT Content ────────────────────────────────────────────
-function saveCtContent(draft = false) {
+function saveCtContent() {
   const name  = document.getElementById('ct-name').value.trim();
   if (!name) { showToast('이름을 입력해주세요'); document.getElementById('ct-name').focus(); return; }
   const emoji = document.getElementById('ct-emoji').value.trim() || '✦';
   const desc  = document.getElementById('ct-desc').value.trim();
 
-  if (ctSheetState.type === 'care') {
-    const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
-    const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: ctSheetState.items, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
-    if (ctSheetState.editId) {
-      const idx = care.findIndex(x => x.id === ctSheetState.editId);
-      if (idx !== -1) care[idx] = obj; else care.push(obj);
-    } else { care.push(obj); }
-    localStorage.setItem('onstep_care_themes', JSON.stringify(care));
-    if (!draft) addToLogPortfolio({ id: Date.now(), type:'care', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
-    renderCtCareList();
-  } else if (ctSheetState.type === 'makeup') {
-    const stored = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
-    const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, products: ctSheetState.items, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
-    if (ctSheetState.editId) {
-      const idx = stored.themes.findIndex(x => x.id === ctSheetState.editId);
-      if (idx !== -1) stored.themes[idx] = obj; else stored.themes.push(obj);
-    } else { stored.themes.push(obj); }
-    localStorage.setItem('onstep_makeup_themes', JSON.stringify(stored));
-    if (makeupSchedule) makeupSchedule.themes = stored.themes;
-    if (!draft) addToLogPortfolio({ id: Date.now(), type:'makeup', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
-    renderCtMkpList();
-  } else {
-    const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
-    const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: ctSheetState.items, tpo: ctSheetState.tpo, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
-    if (ctSheetState.editId) {
-      const idx = looks.findIndex(x => x.id === ctSheetState.editId);
-      if (idx !== -1) looks[idx] = obj; else looks.push(obj);
-    } else { looks.push(obj); }
-    localStorage.setItem('onstep_look_themes', JSON.stringify(looks));
-    if (!draft) addToLogPortfolio({ id: Date.now(), type:'look', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
-    renderCtLookList();
+  try {
+    // Strip imgData from items (ref by assetId, image loaded from box assets at render time)
+    const cleanItems = ctSheetState.items.map(({assetId, name: n, brand}) => ({assetId, name: n, brand: brand||''}));
+    if (ctSheetState.type === 'care') {
+      const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
+      if (ctSheetState.editId) {
+        const idx = care.findIndex(x => x.id === ctSheetState.editId);
+        if (idx !== -1) care[idx] = obj; else care.push(obj);
+      } else { care.push(obj); }
+      localStorage.setItem('onstep_care_themes', JSON.stringify(care));
+      addToLogPortfolio({ id: Date.now(), type:'care', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
+      renderCtCareList();
+    } else if (ctSheetState.type === 'makeup') {
+      const stored = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
+      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, products: cleanItems, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
+      if (ctSheetState.editId) {
+        const idx = stored.themes.findIndex(x => x.id === ctSheetState.editId);
+        if (idx !== -1) stored.themes[idx] = obj; else stored.themes.push(obj);
+      } else { stored.themes.push(obj); }
+      localStorage.setItem('onstep_makeup_themes', JSON.stringify(stored));
+      if (makeupSchedule) makeupSchedule.themes = stored.themes;
+      addToLogPortfolio({ id: Date.now(), type:'makeup', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
+      renderCtMkpList();
+    } else {
+      const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, tpo: ctSheetState.tpo, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
+      if (ctSheetState.editId) {
+        const idx = looks.findIndex(x => x.id === ctSheetState.editId);
+        if (idx !== -1) looks[idx] = obj; else looks.push(obj);
+      } else { looks.push(obj); }
+      localStorage.setItem('onstep_look_themes', JSON.stringify(looks));
+      addToLogPortfolio({ id: Date.now(), type:'look', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
+      renderCtLookList();
+    }
+    updateHubCounts();
+    saveThemesToFirestore();
+    closeCtSheet();
+    showToast(`✓ "${name}" 저장됨`);
+  } catch(e) {
+    console.error('saveCtContent error:', e);
+    showToast('저장 중 오류가 발생했습니다');
   }
-  updateHubCounts();
-  saveThemesToFirestore();
-  closeCtSheet();
-  showToast(draft ? '임시저장 완료' : `✓ "${name}" 설계 완료 — LOG 포트폴리오에 등록됩니다`);
 }
-function saveCtDraft() { saveCtContent(true); }
 
 function editCtContent(type, id) { openCtSheet(type, id); }
 

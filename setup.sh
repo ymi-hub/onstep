@@ -1,16 +1,17 @@
 #!/bin/bash
-# OnStep — Mac 초기 세팅 스크립트
+# OnStep — Mac 시작 스크립트
 set -e
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
 ok()   { echo -e "${GREEN}✅  $1${NC}"; }
 warn() { echo -e "${YELLOW}⚠️   $1${NC}"; }
 err()  { echo -e "${RED}❌  $1${NC}"; exit 1; }
-step() { echo -e "\n${YELLOW}▶  $1${NC}"; }
+step() { echo -e "\n${CYAN}▶  $1${NC}"; }
 
 echo ""
 echo "  ██████  ███    ██ ███████ ████████ ███████ ██████  "
@@ -25,92 +26,53 @@ echo ""
 # ── 1. Homebrew ─────────────────────────────────────
 step "Homebrew 확인"
 if ! command -v brew &>/dev/null; then
-  warn "Homebrew가 없습니다. 설치 중..."
+  warn "Homebrew 설치 중..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  # Apple Silicon 경로 추가
+  eval "$(/opt/homebrew/bin/brew shellenv)" 2>/dev/null || true
 fi
 ok "Homebrew $(brew --version | head -1)"
 
-# ── 2. Python 3.11+ ─────────────────────────────────
-step "Python 확인"
-if ! command -v python3 &>/dev/null; then
-  warn "Python 설치 중..."
-  brew install python@3.11
+# ── 2. Node.js ──────────────────────────────────────
+step "Node.js 확인"
+if ! command -v node &>/dev/null; then
+  warn "Node.js 설치 중..."
+  brew install node
 fi
-PYTHON_VER=$(python3 --version | awk '{print $2}')
-PYTHON_MAJOR=$(echo "$PYTHON_VER" | cut -d. -f1)
-PYTHON_MINOR=$(echo "$PYTHON_VER" | cut -d. -f2)
-if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 11 ]); then
-  warn "Python 3.11+ 필요. 현재: $PYTHON_VER. 업그레이드 중..."
-  brew install python@3.11
-  export PATH="/opt/homebrew/opt/python@3.11/bin:$PATH"
-fi
-ok "Python $(python3 --version)"
+ok "Node.js $(node --version)  /  npm $(npm --version)"
 
-# ── 3. Flutter ──────────────────────────────────────
-step "Flutter 확인"
-if ! command -v flutter &>/dev/null; then
-  warn "Flutter가 없습니다."
-  echo ""
-  echo "  Flutter 설치 방법 (선택):"
-  echo "  A) brew install --cask flutter   ← 권장"
-  echo "  B) https://flutter.dev/docs/get-started/install/macos"
-  echo ""
-  read -p "  brew로 자동 설치할까요? (y/n): " yn
-  if [[ "$yn" == "y" || "$yn" == "Y" ]]; then
-    brew install --cask flutter
-  else
-    err "Flutter 설치 후 다시 실행해주세요."
-  fi
+# ── 3. Firebase CLI ─────────────────────────────────
+step "Firebase CLI 확인"
+if ! command -v firebase &>/dev/null; then
+  warn "Firebase CLI 설치 중..."
+  npm install -g firebase-tools
 fi
-ok "Flutter $(flutter --version | head -1)"
+ok "Firebase CLI $(firebase --version)"
 
-# ── 4. 백엔드 가상환경 ───────────────────────────────
-step "Python 가상환경 설정"
-if [ ! -d "backend/.venv" ]; then
-  python3 -m venv backend/.venv
-  ok "가상환경 생성 완료"
-fi
-source backend/.venv/bin/activate
-pip install --upgrade pip -q
-pip install -r backend/requirements.txt -q
-ok "백엔드 의존성 설치 완료"
-
-# ── 5. .env 파일 ─────────────────────────────────────
-step ".env 설정"
-if [ ! -f "backend/.env" ]; then
-  cp backend/.env.example backend/.env
-  ok ".env 파일 생성됨 (backend/.env 에서 API 키 설정하세요)"
+# ── 4. Firebase 로그인 ──────────────────────────────
+step "Firebase 로그인 상태 확인"
+if ! firebase projects:list &>/dev/null 2>&1; then
+  warn "로그인이 필요합니다."
+  firebase login
 else
-  ok ".env 파일 이미 존재"
+  ok "Firebase 로그인됨"
 fi
-
-# ── 6. DB 마이그레이션 ──────────────────────────────
-step "데이터베이스 초기화"
-cd backend
-../.venv/bin/alembic upgrade head 2>/dev/null && ok "DB 마이그레이션 완료" || warn "마이그레이션 실패 — 수동으로 확인해주세요"
-cd ..
-
-# ── 7. Flutter 패키지 ───────────────────────────────
-step "Flutter 패키지 설치"
-cd frontend
-flutter pub get -q && ok "Flutter 패키지 설치 완료"
-cd ..
 
 # ── 완료 ────────────────────────────────────────────
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-ok "OnStep 세팅 완료!"
+ok "세팅 완료!"
 echo ""
-echo "  실행 방법:"
+echo -e "  ${CYAN}로컬 미리보기${NC}"
+echo "  firebase serve --only hosting"
+echo "  → http://localhost:5000/today.html"
 echo ""
-echo "  # 백엔드 (터미널 1)"
-echo "  source backend/.venv/bin/activate"
-echo "  cd backend && uvicorn app.main:app --reload"
+echo -e "  ${CYAN}배포${NC}"
+echo "  firebase deploy --only hosting"
+echo "  → https://onstep-lifeos.web.app"
 echo ""
-echo "  # Flutter (터미널 2)"
-echo "  cd frontend && flutter run"
+echo -e "  ${CYAN}또는 dev.sh 실행${NC}  →  ./dev.sh"
 echo ""
-echo "  또는: make dev-backend  /  make dev-flutter"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

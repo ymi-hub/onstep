@@ -15,45 +15,62 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#FFFFFF; --surface:#F5F5F3; --surface-low:#EFEFED;
-  --surface-mid:#E8E8E6; --surface-high:#DDDDD9; --surface-inv:#0A0A0A;
-  --ink:#0A0A0A; --sub:#444444; --mist:#999999;
-  --lime:#C5FF00; --lime-dark:#A8DB00; --lime-fg:#0A0A0A;
-  --border:rgba(10,10,10,.1); --border-md:rgba(10,10,10,.18);
-  --shadow:0 2px 16px rgba(0,0,0,.07);
+  --bg:#F9F9FF; --surface:#F8FAFC; --surface-low:#F1F5F9;
+  --surface-mid:#E2E8F0; --surface-high:#CBD5E1; --surface-inv:#18181B;
+  --ink:#18181B; --sub:#5B5F5E; --mist:#94A3B8;
+  --lime:#C6F432; --lime-dark:#A8DB00; --lime-fg:#18181B; --lime-border:#506600;
+  --border:#F1F5F9; --border-md:rgba(24,24,27,.15);
+  --shadow:0px 1px 2px rgba(0,0,0,.05);
   --gutter:16px; --margin:16px;
   --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:9999px;
   --green:#2d6a4f; --amber:#b45309; --error:#ba1a1a;
   --xs:4px; --sm:8px; --md:16px; --lg:24px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 16px 48px;font-family:'Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
-.phone{width:390px;background:#FFFFFF;border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative}
-.notch{height:44px;background:#FFFFFF;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 16px 48px;font-family:'Plus Jakarta Sans','Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.phone{width:390px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative}
+.notch{height:44px;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
-.scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:#FFFFFF}
+.scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:var(--bg)}
 .scroll::-webkit-scrollbar{display:none}
 
 /* Appbar */
-.appbar{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border)}
+.appbar{padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(249,249,255,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;border-bottom:1px solid rgba(241,245,249,1)}
 .appbar-menu{width:22px;display:flex;flex-direction:column;gap:5px;cursor:pointer}
 .appbar-menu span{height:1.5px;background:var(--ink);border-radius:2px}
 .appbar-menu span:nth-child(2){width:68%}
-.appbar-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink);display:flex;align-items:center;gap:8px}
+.appbar-title{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.01em;color:var(--ink);display:flex;align-items:center;gap:8px}
 .appbar-logo{width:24px;height:24px;border-radius:var(--r-sm);object-fit:cover;filter:grayscale(100%)}
-#auth-avatar{width:32px;height:32px;border-radius:9999px;background:var(--surface-mid);border:1.5px solid var(--border);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#auth-avatar{width:32px;height:32px;border-radius:9999px;background:var(--surface-mid);border:1.5px solid var(--border-md);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
 /* Page title */
-.page-title-wrap{padding:20px 16px 4px}
-.page-title{font-family:'Space Grotesk',sans-serif;font-size:60px;font-weight:800;color:var(--ink);line-height:.9;letter-spacing:-.02em}
+.page-title-wrap{padding:24px 16px 4px}
+.page-title{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:50px;font-weight:800;color:var(--ink);line-height:.9;letter-spacing:-.06em}
 .page-title::after{display:none}
 
+/* ── Weather Row ── */
+.weather-row{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
+.mascot-card{width:96px;height:96px;background:var(--lime);border-radius:20px;border:2px solid var(--lime-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:44px;line-height:1}
+.weather-card{flex:1;height:89px;background:#FFFFFF;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:4px;position:relative;overflow:hidden}
+.weather-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
+.weather-main-text{font-family:'Gaegu','Inter',sans-serif;font-size:22px;color:var(--ink);line-height:1.25}
+.weather-arrow{position:absolute;right:10px;bottom:10px;width:24px;height:24px;opacity:.15;font-size:18px;display:flex;align-items:center;justify-content:center}
+
+/* ── Session Hero ── */
+.session-hero{padding:12px 16px 4px}
+.session-hero-title{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:18px;font-weight:800;color:var(--ink);letter-spacing:.02em;text-transform:uppercase;line-height:1.2}
+.session-hero-date{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--mist);margin-top:3px;margin-bottom:10px}
+.session-hero-dots{display:flex;gap:5px;align-items:center}
+.session-sdot{width:10px;height:10px;border-radius:var(--r-full);background:var(--surface-mid);flex-shrink:0}
+.session-sdot.filled{background:var(--lime)}
+.session-sdot.today{width:20px;border-radius:var(--r-full);background:var(--lime)}
+
 /* Hash section header */
-.hash-row{display:flex;align-items:baseline;justify-content:space-between;padding:24px 16px 10px}
-.hash-label{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
+.hash-row{display:flex;align-items:baseline;justify-content:space-between;padding:16px 16px 8px}
+.hash-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
 .hash-sub{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
 .hash-edit{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);text-decoration:none;padding-bottom:3px}
 .hash-edit:hover{color:var(--ink)}
@@ -63,54 +80,59 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .flow-session-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);margin-bottom:2px}
 .flow-session-period{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--mist);margin-bottom:12px}
 
-/* Session progress card */
-.flow-progress-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;margin:0 16px 0;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+/* Session progress card — 이미지 기준 제거 (session-hero로 대체) */
+.flow-progress-card{display:none}
 .flow-progress-row{display:flex;align-items:center;justify-content:space-between}
 .flow-progress-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
 .flow-progress-day{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--mist)}
 .flow-dots{display:flex;align-items:center;justify-content:space-between}
-.flow-dot{width:8px;height:8px;border-radius:var(--r-full);background:transparent;border:1.5px solid var(--border-md);flex-shrink:0;transition:all .3s;position:relative}
-.flow-dot.filled{background:var(--lime);border-color:var(--lime)}
-.flow-dot.today{width:18px;height:18px;background:var(--lime);border:3px solid #FFFFFF;border-radius:var(--r-full);box-shadow:0 0 0 2px var(--lime)}
+.flow-dot{width:10px;height:10px;border-radius:var(--r-full);background:var(--surface-mid);border:none;flex-shrink:0;transition:all .3s;position:relative}
+.flow-dot.filled{background:var(--lime)}
+.flow-dot.today{width:20px;height:10px;background:var(--lime);border-radius:var(--r-full);box-shadow:0 0 0 2px rgba(198,244,50,.35)}
 
 /* Flow step section */
-.flow-step-card{margin:0 16px;background:var(--surface-low);border:none;box-shadow:none;border-radius:var(--r-xl);overflow:hidden}
-.flow-step-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px}
-.flow-step-hd-left{display:flex;align-items:center;gap:10px}
-.flow-step-badge{background:var(--ink);padding:5px 12px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center}
-.flow-step-badge-icon{color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
-.flow-step-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--ink)}
-.flow-step-count{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--mist)}
+.flow-step-card{margin:0 16px;background:#FFFFFF;border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--r-xl);overflow:hidden}
+.flow-step-hd{display:none} /* 이미지 기준: 헤더 없음, 이미지가 먼저 */
 
-/* Horizontal product carousel — 1 item full-width at a time */
-.flow-prod-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+/* Horizontal product carousel — peek 효과 */
+.flow-prod-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:16px 32px 0 16px}
 .flow-prod-strip::-webkit-scrollbar{display:none}
-.flow-prod-item{flex-shrink:0;width:100%;scroll-snap-align:start;padding:0 16px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.flow-prod-img{width:100%;aspect-ratio:1/1;background:var(--surface-mid);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:var(--r-lg)}
+.flow-prod-item{flex-shrink:0;width:calc(100% - 32px);scroll-snap-align:start;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-right:10px}
+.flow-prod-img{width:100%;aspect-ratio:3/4;background:var(--surface-mid);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:16px}
 .flow-prod-emoji{font-size:72px;opacity:.3;pointer-events:none}
-.flow-prod-check{position:absolute;inset:0;background:rgba(12,16,20,.75);display:flex;align-items:center;justify-content:center;color:#fff;font-size:56px;opacity:0;transition:opacity .2s;pointer-events:none;border-radius:var(--r-lg)}
+.flow-prod-check{position:absolute;inset:0;background:rgba(12,16,20,.75);display:flex;align-items:center;justify-content:center;color:#fff;font-size:56px;opacity:0;transition:opacity .2s;pointer-events:none;border-radius:16px}
 .flow-prod-item.done .flow-prod-check{opacity:1}
-.flow-prod-info{padding:12px 0 0}
-.flow-prod-name{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--ink);line-height:1.2}
-.flow-prod-brand{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-top:4px}
-/* Scroll dots */
-.flow-prod-dots{display:flex;justify-content:center;gap:6px;padding:4px 0 16px}
-.flow-prod-dot{width:6px;height:6px;border-radius:var(--r-full);background:var(--border-md);transition:background .2s,width .2s;flex-shrink:0}
+/* 모닝/나이트 구분 아이콘 — 이미지 좌상단 */
+.flow-slot-badge{position:absolute;top:10px;left:10px;width:28px;height:28px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:2;pointer-events:none}
+.flow-slot-badge.morning{background:rgba(255,255,255,.85);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.flow-slot-badge.night{background:rgba(24,24,27,.7);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.flow-prod-info{padding:10px 0 0}
+.flow-prod-name{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--ink);line-height:1.2}
+.flow-prod-brand{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin-top:3px}
+/* scroll dots */
+.flow-prod-dots{display:flex;justify-content:center;gap:6px;padding:10px 0 4px}
+.flow-prod-dot{width:6px;height:6px;border-radius:var(--r-full);background:var(--surface-high);transition:background .2s,width .2s;flex-shrink:0}
 .flow-prod-dot.active{background:var(--lime);width:16px;border-radius:var(--r-full)}
 
-.flow-step-body{padding:0 16px 20px;display:flex;flex-direction:column;gap:12px}
+/* Step info row — 이미지 기준: 도트 아래에 Step1 + 카운트 */
+.flow-step-info{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 4px}
+.flow-step-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px}
+.flow-step-label-icon{width:16px;height:16px;border-radius:var(--r-full);border:1.5px solid var(--ink);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--ink)}
+.flow-step-count{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--mist)}
+
+.flow-step-body{padding:4px 16px 20px;display:flex;flex-direction:column;gap:12px}
 .flow-step-tag{display:none}
-.flow-expert-tip{background:var(--surface-low);border-left:3px solid var(--lime);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:14px;display:flex;flex-direction:column;gap:4px}
-.flow-tip-header{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);display:flex;align-items:center;gap:6px}
-.flow-tip-text{font-family:'Inter',sans-serif;font-size:13px;color:var(--sub);line-height:1.5}
+.flow-expert-tip{background:#F7FDE8;border-left:3px solid var(--lime);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.flow-tip-header{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);display:flex;align-items:center;gap:6px}
+.flow-tip-text{font-family:'Inter',sans-serif;font-size:13px;color:var(--sub);line-height:1.6}
 .flow-edit-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none;align-self:flex-start}
 .flow-edit-link:hover{color:var(--ink)}
 
 /* CTA button */
 .flow-cta-wrap{padding:14px 16px 0}
-.flow-cta-btn{width:100%;background:#0A0A0A;color:#ffffff;border:none;padding:20px 0;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:background .28s,transform .15s;border-radius:var(--r-md)}
+.flow-cta-btn{width:100%;background:var(--ink);color:#ffffff;border:none;padding:20px 0;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:background .28s,transform .15s;border-radius:var(--r-lg)}
 .flow-cta-btn:active{transform:scale(.98)}
-.flow-cta-btn.done{background:var(--green)}
+.flow-cta-btn.done{background:var(--lime);color:var(--ink)}
 .flow-cta-arrow{font-size:15px;color:#fff}
 @keyframes btn-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 .flow-cta-btn.shake{animation:btn-shake .35s ease}
@@ -122,7 +144,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .allday-top-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
 .allday-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
 .allday-top-edit{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none;padding-top:2px}
-.allday-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer;transition:opacity .2s;box-shadow:var(--shadow)}
+.allday-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer;transition:opacity .2s;box-shadow:var(--shadow)}
 .allday-item.done{opacity:.5}
 .allday-item-left{display:flex;align-items:center;gap:12px}
 .allday-dot{width:22px;height:22px;border-radius:var(--r-full);border:2px solid var(--border-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative}
@@ -216,6 +238,11 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .ootd-log-note-txt{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .ootd-log-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4caf78;margin-top:3px}
 
+/* FAB */
+.fab{position:absolute;right:16px;bottom:90px;width:56px;height:56px;border-radius:var(--r-full);background:var(--lime);border:2px solid var(--lime-border);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(198,244,50,.45);z-index:50;transition:transform .15s}
+.fab:active{transform:scale(.93)}
+.fab svg{width:22px;height:22px;color:var(--lime-border)}
+
 /* Bottom nav */
 .bottom-nav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;padding:12px 6px 20px;text-decoration:none;border-radius:20px 20px 0 0;}
@@ -226,7 +253,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .nav-item.active .nav-label{color:#FFFFFF;}
 
 @media(max-width:430px){
-  body{background:#FFFFFF;padding:0;align-items:stretch}
+  body{background:var(--bg);padding:0;align-items:stretch}
   .phone{width:100%;border-radius:0;box-shadow:none}
   .notch{height:calc(env(safe-area-inset-top,0px) + 10px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
   .notch-bar{display:none}
@@ -235,13 +262,8 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
   .nav-item{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);}
 }
 
-/* Session row */
-.page-session-row{display:flex;align-items:center;gap:10px;padding:8px 16px 0}
-.page-session-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
-.page-session-dots{display:flex;gap:5px;align-items:center}
-.page-sdot{width:7px;height:7px;border-radius:var(--r-full);background:var(--border-md)}
-.page-sdot.filled{background:var(--lime)}
-.page-sdot.today{width:18px;border-radius:var(--r-full);background:var(--lime)}
+/* page-session-row → display:none (session-hero로 대체) */
+.page-session-row{display:none}
 /* Editorial sections */
 .editorial-section{padding:32px 16px 0}
 .editorial-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
@@ -298,9 +320,22 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
     <div class="page-title-wrap">
       <h1 class="page-title">Today</h1>
     </div>
-    <div class="page-session-row">
-      <span class="page-session-label" id="page-session-label">SESSION</span>
-      <div class="page-session-dots" id="page-session-dots"></div>
+
+    <!-- Weather Row -->
+    <div class="weather-row">
+      <div class="mascot-card" id="weather-mascot">🌿</div>
+      <div class="weather-card">
+        <div class="weather-label">Weather</div>
+        <div class="weather-main-text" id="weather-main-text">로딩 중...</div>
+        <div class="weather-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- Session Hero (이미지 기준: 12TH SESSION + 날짜 + 도트) -->
+    <div class="session-hero">
+      <div class="session-hero-title" id="session-hero-title">— SESSION</div>
+      <div class="session-hero-date" id="session-hero-date"></div>
+      <div class="session-hero-dots" id="session-hero-dots"></div>
     </div>
 
     <!-- #FLOW header -->
@@ -309,32 +344,30 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       <div class="hash-sub" id="flow-slot-label">MORNING RITUAL</div>
     </div>
 
-    <!-- Session progress card -->
-    <div class="flow-progress-card" id="flow-progress-card">
-      <div class="flow-progress-row">
-        <div class="flow-progress-label">DAILY SESSION</div>
-        <div class="flow-progress-day" id="flow-progress-day">1/10 day</div>
-      </div>
-      <div class="flow-dots" id="flow-dots"></div>
+    <!-- hidden compat elements (JS 참조용, 화면에 미표시) -->
+    <div style="display:none">
+      <span id="page-session-label"></span>
+      <div id="page-session-dots"></div>
+      <div id="flow-progress-day"></div>
+      <div id="flow-dots"></div>
     </div>
 
-    <!-- Skincare step section -->
+    <!-- Skincare step section — 이미지 기준: 헤더 없음 -->
     <div class="flow-step-card" id="flow-step-card">
-      <div class="flow-step-hd">
-        <div class="flow-step-hd-left">
-          <div class="flow-step-badge">
-            <div class="flow-step-badge-icon" id="flow-step-badge-icon">STEP 1</div>
-          </div>
-          <div class="flow-step-name" id="flow-step-name">Morning Routine</div>
+      <div class="flow-prod-strip" id="flow-prod-strip"></div>
+      <div class="flow-prod-dots" id="flow-prod-dots"></div>
+      <!-- Step info row: Step1 · 1/N -->
+      <div class="flow-step-info">
+        <div class="flow-step-label">
+          <span id="flow-step-badge-icon">Step1</span>
+          <span class="flow-step-label-icon" id="flow-step-name-icon">◈</span>
         </div>
         <span class="flow-step-count" id="flow-step-count"></span>
       </div>
-      <div class="flow-prod-strip" id="flow-prod-strip"></div>
-      <div class="flow-prod-dots" id="flow-prod-dots"></div>
-      <!-- EXPERT TIP — Edit routine → 상단, 내용 있을 때만 노출 -->
-      <div class="flow-expert-tip" id="flow-expert-tip" style="display:none;margin:14px 16px 0">
+      <!-- EXPERT TIP -->
+      <div class="flow-expert-tip" id="flow-expert-tip" style="display:none;margin:0 0 0 0">
         <div class="flow-tip-header">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
           EXPERT TIP
         </div>
         <div class="flow-tip-text" id="flow-tip-text"></div>
@@ -421,6 +454,9 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
     </div>
   </div>
 
+  <!-- FAB -->
+  <div class="fab" onclick="openOOTDRecord()" title="오늘의 룩 기록">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
   </div>
 </div>
 
@@ -688,37 +724,47 @@ function getActiveCycleRoutine(slotData, plan) {
 
 // ── Session header ───────────────────────────────────────────
 function renderFlowSession(plan) {
-  if (!plan) { buildDots(1,10); return; }
-  const n = Number(plan.session||1);
-  const cur   = calcCurrentDay(plan.periodStart);
-  const total = calcTotalDays(plan.periodStart, plan.periodEnd);
-  document.getElementById('flow-progress-day').textContent = `${cur}/${total} day`;
-  buildDots(cur, total);
-  // Page-level session row
-  const sessionLabel = document.getElementById('page-session-label');
-  if (sessionLabel) sessionLabel.textContent = `SESSION ${cur}/${total}`;
-  const dotsEl2 = document.getElementById('page-session-dots');
-  if (dotsEl2) {
-    dotsEl2.innerHTML = Array.from({length:Math.min(10,total)},(_,i)=>{
-      const idx=i+1;
-      const cls=idx<cur?'page-sdot filled':idx===cur?'page-sdot today':'page-sdot';
-      return `<div class="${cls}"></div>`;
-    }).join('');
-  }
-  // Update flow slot label
-  const slotLbl = document.getElementById('flow-slot-label');
   const period = getTimePeriod();
+  const slotLbl = document.getElementById('flow-slot-label');
   if (slotLbl) slotLbl.textContent = period==='am'?'MORNING RITUAL':'NIGHT RITUAL';
+
+  if (!plan) { buildHeroDots(1,10); return; }
+  const n   = Number(plan.session||1);
+  const cur = calcCurrentDay(plan.periodStart);
+  const total = calcTotalDays(plan.periodStart, plan.periodEnd);
+
+  // Session hero title: "12TH SESSION"
+  const titleEl = document.getElementById('session-hero-title');
+  if (titleEl) titleEl.textContent = `${n}${getSuffix(n).toUpperCase()} SESSION`;
+
+  // Session hero date: "2026.4.10-4.20"
+  const dateEl = document.getElementById('session-hero-date');
+  if (dateEl && plan.periodStart) {
+    const fmt = d => d.replace(/-0?/g, '.').replace(/^\./, '');
+    dateEl.textContent = `${fmt(plan.periodStart)} – ${fmt(plan.periodEnd||'')}`;
+  }
+
+  // Session dots
+  buildHeroDots(cur, total);
 }
 
-function buildDots(cur, total) {
-  const row = document.getElementById('flow-dots');
-  row.innerHTML = '';
-  const n = Math.min(10, total);
-  for (let i=1; i<=n; i++) {
-    const d = document.createElement('div');
-    d.className = 'flow-dot' + (i<cur?' filled':i===cur?' today':'');
-    row.appendChild(d);
+function buildHeroDots(cur, total) {
+  const row = document.getElementById('session-hero-dots');
+  if (!row) return;
+  const n = Math.min(total, 14);
+  row.innerHTML = Array.from({length:n},(_,i) => {
+    const d = i+1;
+    const cls = d < cur ? 'session-sdot filled' : d === cur ? 'session-sdot today' : 'session-sdot';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  // keep legacy compat elements updated
+  const legacyDots = document.getElementById('flow-dots');
+  if (legacyDots) {
+    legacyDots.innerHTML = Array.from({length:n},(_,i)=>{
+      const d=i+1; const c=d<cur?'flow-dot filled':d===cur?'flow-dot today':'flow-dot';
+      return `<div class="${c}"></div>`;
+    }).join('');
   }
 }
 
@@ -736,12 +782,10 @@ function renderFlowHeroStep(plan) {
   const doneKey  = `onstep_flow_done_${today}_${slot}`;
   const doneSet  = new Set(JSON.parse(localStorage.getItem(doneKey)||'[]'));
 
-  // Header
+  // Step info row (이미지 기준: "Step1" + "1 / N")
   const badgeEl  = document.getElementById('flow-step-badge-icon');
-  const nameEl   = document.getElementById('flow-step-name');
   const countEl  = document.getElementById('flow-step-count');
-  if (badgeEl) badgeEl.textContent = `STEP ${activeId}`;
-  if (nameEl)  nameEl.textContent  = slot==='morning' ? 'Morning' : 'Night';
+  if (badgeEl) badgeEl.textContent = `Step${activeId}`;
   if (countEl) countEl.textContent = products.length ? `1 / ${products.length}` : '';
 
   // Product carousel
@@ -755,9 +799,13 @@ function renderFlowHeroStep(plan) {
       strip.innerHTML = products.map(p => {
         const isDone = doneSet.has(p.name);
         const imgSrc = getBoxImgForProduct(p);
+        const slotIcon = slot === 'morning'
+          ? `<div class="flow-slot-badge morning">☀️</div>`
+          : `<div class="flow-slot-badge night">🌙</div>`;
         return `
           <div class="flow-prod-item${isDone?' done':''}" onclick="toggleProdDone(${JSON.stringify(p.name)},'${slot}')">
             <div class="flow-prod-img"${imgSrc?` style="background-image:url(${imgSrc})"`:''}>
+              ${slotIcon}
               ${!imgSrc ? `<span class="flow-prod-emoji">${p.icon||'✨'}</span>` : ''}
               <div class="flow-prod-check">✓</div>
             </div>
@@ -777,14 +825,12 @@ function renderFlowHeroStep(plan) {
 
       // Update dots on scroll
       strip.onscroll = () => {
-        const idx = Math.round(strip.scrollLeft / strip.offsetWidth);
+        const itemW = strip.firstElementChild?.offsetWidth || strip.offsetWidth;
+        const idx = Math.round(strip.scrollLeft / itemW);
         dotsEl?.querySelectorAll('.flow-prod-dot').forEach((d,i) =>
           d.classList.toggle('active', i===idx)
         );
-        if (countEl) {
-          const doneCount = [...doneSet].length;
-          countEl.textContent = `${idx+1} / ${products.length}`;
-        }
+        if (countEl) countEl.textContent = `${idx+1} / ${products.length}`;
       };
     }
   }
@@ -1155,25 +1201,92 @@ function logTodayOOTD() {
   openOOTDRecord();
 }
 
-// ── Weather overlay ───────────────────────────────────────────
-function initWeather() {
-  const h = new Date().getHours();
-  const list = [
-    {icon:'🌙',temp:18,cond:'Clear night'},
-    {icon:'🌅',temp:20,cond:'Clear morning'},
-    {icon:'☀️',temp:25,cond:'Sunny'},
-    {icon:'🌤',temp:23,cond:'Light Breeze'},
-    {icon:'☁️',temp:19,cond:'Overcast'},
-    {icon:'🌦',temp:17,cond:'Light rain'}
-  ];
-  let w;
-  try { const d=JSON.parse(localStorage.getItem('onstep_weather')||''); if(Date.now()-d.ts<3600000)w=d; } catch(e){}
-  if (!w) {
-    w={...list[h<6?0:h<9?1:h<15?2:h<18?3:h<20?4:0], ts:Date.now()};
-    localStorage.setItem('onstep_weather', JSON.stringify(w));
+// ── Weather ───────────────────────────────────────────────────
+const WEATHER_API_KEY = ''; // OpenWeatherMap API 키 입력 (https://openweathermap.org/api)
+const WEATHER_CITY    = 'Seoul';
+const WEATHER_CACHE_MS = 30 * 60 * 1000; // 30분 캐시
+
+function getWeatherMascot(code) {
+  if (!code) return '🌿';
+  if (code >= 200 && code < 300) return '⛈️';
+  if (code >= 300 && code < 400) return '🌧️';
+  if (code >= 500 && code < 600) return '🌧️';
+  if (code >= 600 && code < 700) return '❄️';
+  if (code >= 700 && code < 800) return '🌫️';
+  if (code === 800) return '☀️';
+  if (code === 801) return '🌤️';
+  if (code >= 802) return '☁️';
+  return '🌿';
+}
+
+async function initWeather() {
+  let cached;
+  try { const d = JSON.parse(localStorage.getItem('onstep_weather_v2')||''); if (Date.now() - d.ts < WEATHER_CACHE_MS) cached = d; } catch(e) {}
+
+  if (cached) {
+    renderWeather(cached); return;
   }
-  const el = document.getElementById('ootd-weather');
-  if (el) el.textContent = `${w.icon} ${w.temp}°C · ${w.cond}`;
+
+  if (!WEATHER_API_KEY) {
+    // fallback: wttr.in (no key needed)
+    try {
+      const res = await fetch(`https://wttr.in/${WEATHER_CITY}?format=j1`);
+      if (!res.ok) throw new Error('wttr fail');
+      const d = await res.json();
+      const cur = d.current_condition[0];
+      const w = {
+        ts: Date.now(),
+        temp: Math.round(cur.temp_C),
+        feels: Math.round(cur.FeelsLikeC),
+        humidity: cur.humidity,
+        desc: cur.lang_ko?.[0]?.value || cur.weatherDesc[0]?.value || '맑음',
+        code: parseInt(cur.weatherCode),
+      };
+      localStorage.setItem('onstep_weather_v2', JSON.stringify(w));
+      renderWeather(w);
+    } catch(e) {
+      renderWeatherFallback();
+    }
+    return;
+  }
+
+  try {
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${WEATHER_CITY}&appid=${WEATHER_API_KEY}&units=metric&lang=kr`);
+    if (!res.ok) throw new Error('OWM fail');
+    const d = await res.json();
+    const w = {
+      ts: Date.now(),
+      temp: Math.round(d.main.temp),
+      feels: Math.round(d.main.feels_like),
+      humidity: d.main.humidity,
+      desc: d.weather[0]?.description || '맑음',
+      code: d.weather[0]?.id || 800,
+    };
+    localStorage.setItem('onstep_weather_v2', JSON.stringify(w));
+    renderWeather(w);
+  } catch(e) {
+    renderWeatherFallback();
+  }
+}
+
+function renderWeather(w) {
+  const mascot  = document.getElementById('weather-mascot');
+  const mainEl  = document.getElementById('weather-main-text');
+  const h = new Date().getHours();
+  const period = h < 12 ? '아침' : h < 18 ? '오후' : '저녁';
+  if (mascot) mascot.textContent = getWeatherMascot(w.code);
+  if (mainEl) mainEl.textContent = `${period} ${w.temp}° 습도 ${w.humidity}%`;
+  const ootdEl = document.getElementById('ootd-weather');
+  if (ootdEl) ootdEl.textContent = `${getWeatherMascot(w.code)} ${w.temp}° · 습도 ${w.humidity}%`;
+}
+
+function renderWeatherFallback() {
+  const mascot = document.getElementById('weather-mascot');
+  const mainEl = document.getElementById('weather-main-text');
+  const h = new Date().getHours();
+  const period = h < 12 ? '아침' : h < 18 ? '오후' : '저녁';
+  if (mascot) mascot.textContent = '🌿';
+  if (mainEl) mainEl.textContent = `${period} --° 습도 --%`;
 }
 
 // ── Load plan ─────────────────────────────────────────────────
