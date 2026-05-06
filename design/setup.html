@@ -294,21 +294,26 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .ae-row.expanded .ae-chevron{transform:rotate(90deg)}
 
 /* Archive — row detail (accordion) */
-.ae-detail{display:none;border-bottom:2px solid var(--border);background:var(--surface-low)}
+.ae-detail{display:none;border-bottom:1px solid var(--border);background:var(--surface-low)}
 .ae-detail.open{display:block}
-.ae-detail-inner{padding:16px 16px 20px}
-.ae-slot-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px;margin-top:14px}
-.ae-slot-label:first-child{margin-top:0}
-.ae-prod-grid{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
-.ae-prod-grid::-webkit-scrollbar{display:none}
-.ae-prod-item{flex-shrink:0;width:72px}
-.ae-prod-img{width:72px;height:72px;background:var(--surface-mid);border-radius:var(--r-sm);overflow:hidden;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:18px}
-.ae-prod-name{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;color:var(--ink);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:72px}
-.ae-detail-empty{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:8px 0}
-.ae-detail-actions{display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
-.ae-detail-btn{flex:1;padding:10px;border:1.5px solid var(--border-md);border-radius:var(--r-md);background:#fff;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);cursor:pointer;transition:opacity .15s}
-.ae-detail-btn:active{opacity:.7}
-.ae-detail-btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ae-detail-inner{padding:14px 16px 16px}
+.ae-slot-hd{display:flex;align-items:center;gap:6px;margin-bottom:8px;margin-top:14px}
+.ae-slot-hd:first-child{margin-top:0}
+.ae-slot-icon{font-size:12px;line-height:1}
+.ae-slot-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist)}
+.ae-step-list{display:flex;flex-direction:column;gap:1px}
+.ae-step-row{display:flex;align-items:center;gap:10px;padding:9px 10px;background:#fff;border:1px solid var(--border);border-radius:var(--r-sm)}
+.ae-step-row:first-child{border-radius:var(--r-sm) var(--r-sm) 0 0}
+.ae-step-row:last-child{border-radius:0 0 var(--r-sm) var(--r-sm)}
+.ae-step-row:first-child:last-child{border-radius:var(--r-sm)}
+.ae-step-icon{font-size:14px;line-height:1;flex-shrink:0;width:18px;text-align:center}
+.ae-step-info{flex:1;min-width:0}
+.ae-step-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ae-step-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px}
+.ae-step-cat{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:9999px;background:var(--surface-low);color:var(--sub);white-space:nowrap;flex-shrink:0}
+.ae-detail-empty{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:6px 0}
+.ae-detail-edit-btn{width:100%;margin-top:14px;padding:11px;border:none;border-radius:var(--r-md);background:var(--ink);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
+.ae-detail-edit-btn:active{opacity:.7}
 
 /* Archive — no results */
 .ae-no-results{padding:40px 20px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);line-height:1.6}
@@ -1937,7 +1942,7 @@ function toggleProdList(slot) {
 function renderHistory() {
   const el = document.getElementById('history-list');
   if (!el) return;
-  const sessions = (state.history || []).slice().reverse();
+  const sessions = (state.history || []).slice().sort((a,b) => b.session - a.session);
   const fmt = d => (d||'').replace(/-/g,'.');
   el.innerHTML = sessions.map((s, i) => `
     <div class="history-item" onclick="openArchive()">
@@ -1998,21 +2003,32 @@ function renderArchiveList(sessions) {
 
   const fmtDate = d => (d||'').replace(/-/g,'.');
   const getYear = d => (d||'').slice(0,4) || '—';
-  const prodCard = p => `
-    <div class="ae-prod-item">
-      <div class="ae-prod-img" ${p.imgData ? `style="background-image:url(${p.imgData})"` : ''}>
-        ${!p.imgData ? `<span style="opacity:.25">${p.icon||'✦'}</span>` : ''}
+  const CAT_LABEL = { toner:'토너', serum:'세럼', ampoule:'앰플', booster:'부스터', cream:'크림', pack:'팩', mist:'미스트', etc:'기타' };
+
+  const stepRow = p => `
+    <div class="ae-step-row">
+      <span class="ae-step-icon">${p.icon||'✦'}</span>
+      <div class="ae-step-info">
+        <div class="ae-step-name">${p.name}</div>
+        ${p.brand ? `<div class="ae-step-brand">${p.brand}</div>` : ''}
       </div>
-      <div class="ae-prod-name">${p.name}</div>
+      ${p.catKey ? `<span class="ae-step-cat">${CAT_LABEL[p.catKey]||p.catKey}</span>` : ''}
     </div>`;
+
+  const slotBlock = (icon, label, prods) => prods.length ? `
+    <div class="ae-slot-hd">
+      <span class="ae-slot-icon">${icon}</span>
+      <span class="ae-slot-label">${label} · ${prods.length} STEPS</span>
+    </div>
+    <div class="ae-step-list">${prods.map(stepRow).join('')}</div>` : '';
 
   let html = '';
   let lastYear = null;
 
   sessions.forEach(s => {
-    const n   = s.session;
-    const sfx = getSuffix(n).toUpperCase();
-    const yr  = getYear(s.periodStart);
+    const n    = s.session;
+    const sfx  = getSuffix(n).toUpperCase();
+    const yr   = getYear(s.periodStart);
     const mProds = (s.morning?.routines?.[0]?.products || []);
     const nProds = (s.nightly?.routines?.[0]?.products || []);
     const mCnt = mProds.length, nCnt = nProds.length;
@@ -2026,6 +2042,10 @@ function renderArchiveList(sessions) {
     if (mCnt) tags.push(`☀ ${mCnt}`);
     if (nCnt) tags.push(`🌙 ${nCnt}`);
     const tagsHtml = tags.map(t => `<span class="ae-tag">${t}</span>`).join('');
+
+    const detailBody = mCnt || nCnt
+      ? slotBlock('☀️','MORNING', mProds) + slotBlock('🌙','NIGHT', nProds)
+      : '<div class="ae-detail-empty">등록된 제품이 없습니다</div>';
 
     html += `
     <div class="ae-row${s.isCurrent?' current':''}" id="ae-row-${n}" onclick="toggleAeRow(${n})">
@@ -2044,13 +2064,8 @@ function renderArchiveList(sessions) {
     </div>
     <div class="ae-detail" id="ae-detail-${n}">
       <div class="ae-detail-inner">
-        ${mCnt ? `<div class="ae-slot-label">MORNING · ${mCnt} STEPS</div><div class="ae-prod-grid">${mProds.map(prodCard).join('')}</div>` : ''}
-        ${nCnt ? `<div class="ae-slot-label">NIGHT · ${nCnt} STEPS</div><div class="ae-prod-grid">${nProds.map(prodCard).join('')}</div>` : ''}
-        ${!mCnt && !nCnt ? '<div class="ae-detail-empty">등록된 제품이 없습니다</div>' : ''}
-        <div class="ae-detail-actions">
-          <button class="ae-detail-btn" onclick="event.stopPropagation()">공유 →</button>
-          ${s.isCurrent ? `<button class="ae-detail-btn primary" onclick="event.stopPropagation();closeArchive();openEditSheet()">편집</button>` : ''}
-        </div>
+        ${detailBody}
+        ${s.isCurrent ? `<button class="ae-detail-edit-btn" onclick="event.stopPropagation();closeArchive();openEditSheet()">루틴 편집 →</button>` : ''}
       </div>
     </div>`;
   });
