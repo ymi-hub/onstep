@@ -1679,6 +1679,12 @@ function applyPlanData(saved) {
       delete t.scheduledDays;
     });
   }
+  if (saved.exercise) {
+    // preserve tracker items — merge into localStorage without losing local-only data
+    const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+    local.exercise = saved.exercise;
+    localStorage.setItem(DB_KEY, JSON.stringify(local));
+  }
   // today.html과 동일 로직으로 active step 초기화
   ['morning','nightly'].forEach(slot => { state[slot].active = computeTodayStep(slot); });
   saveThemesToStorage();
@@ -2045,6 +2051,7 @@ function saveDraft() {
 }
 
 function persistPlan(published = false) {
+  const existing = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
   const plan = {
     session:      state.session,
     periodStart:  state.periodStart,
@@ -2058,6 +2065,7 @@ function persistPlan(published = false) {
     makeupSchedule,
     published,
     savedAt:      new Date().toISOString(),
+    exercise:     existing.exercise || {},
   };
   localStorage.setItem(DB_KEY, JSON.stringify(plan));
   if (currentUser) return saveToCloud(plan);
@@ -3158,11 +3166,15 @@ function loadTrackerItems() {
 }
 
 function saveTrackerItems() {
-  const plan = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-  if (!plan.exercise) plan.exercise = {};
-  plan.exercise.items = trackerItems;
-  localStorage.setItem(DB_KEY, JSON.stringify(plan));
-  showToast('✓ Routine Tracker 저장됐습니다 — Today에 반영됩니다');
+  try {
+    const plan = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+    if (!plan.exercise) plan.exercise = {};
+    plan.exercise.items = trackerItems;
+    localStorage.setItem(DB_KEY, JSON.stringify(plan));
+    showToast('✓ Routine Tracker 저장됐습니다 — Today에 반영됩니다');
+  } catch(e) {
+    showToast('⚠️ 저장 실패 — 저장공간이 부족합니다');
+  }
 }
 
 function addTrackerItem() {
