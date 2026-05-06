@@ -437,6 +437,49 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .edit-cancel-btn{height:52px;padding:0 20px;background:var(--surface);color:var(--ink);border:1px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer}
 
 /* ══════════════════════════════════════
+   Session Editor Panel (full-screen)
+   ══════════════════════════════════════ */
+.se-panel{position:absolute;inset:0;z-index:220;background:#FFFFFF;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1)}
+.se-panel.open{transform:translateX(0)}
+.se-appbar{display:flex;align-items:center;gap:0;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;background:#fff}
+.se-back{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink);flex-shrink:0;padding:0}
+.se-appbar-title{flex:1;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:.02em;color:var(--ink);text-align:center}
+.se-save-btn{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:none;border:none;cursor:pointer;padding:6px 2px}
+.se-body{flex:1;overflow-y:auto;scrollbar-width:none}
+.se-body::-webkit-scrollbar{display:none}
+.se-section{padding:20px 16px 0}
+.se-section-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:10px}
+.se-date-card{background:var(--surface-low);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:10px;margin-bottom:0}
+.se-field{display:flex;flex-direction:column;gap:5px}
+.se-field label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
+.se-input{width:100%;padding:10px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);background:#fff;outline:none;box-sizing:border-box;transition:border-color .15s}
+.se-input:focus{border-color:var(--ink)}
+.se-date-row{display:flex;gap:8px;align-items:center}
+.se-date-sep{color:var(--mist);font-size:12px;flex-shrink:0}
+.se-slot-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:20px}
+.se-slot-title{display:flex;align-items:center;gap:6px;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--ink)}
+.se-prod-list{display:flex;flex-direction:column;gap:1px;margin-bottom:0}
+.se-prod-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:var(--r-sm)}
+.se-prod-row:first-child{border-radius:var(--r-sm) var(--r-sm) 0 0}
+.se-prod-row:last-child{border-radius:0 0 var(--r-sm) var(--r-sm)}
+.se-prod-row:first-child:last-child{border-radius:var(--r-sm)}
+.se-prod-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.se-prod-info{flex:1;min-width:0}
+.se-prod-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.se-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist)}
+.se-prod-cat{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:9999px;background:var(--surface-low);color:var(--sub);white-space:nowrap;flex-shrink:0}
+.se-remove-btn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--mist);font-size:14px;flex-shrink:0;transition:color .15s}
+.se-remove-btn:hover{color:#E53E3E}
+.se-add-form{background:var(--surface-low);border:1.5px dashed var(--border-md);border-radius:var(--r-sm);padding:12px;margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.se-add-row{display:flex;gap:6px}
+.se-add-input{flex:1;padding:9px 10px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);background:#fff;outline:none;transition:border-color .15s}
+.se-add-input:focus{border-color:var(--ink)}
+.se-add-select{padding:9px 10px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);background:#fff;outline:none;cursor:pointer}
+.se-add-confirm{padding:9px 14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.se-empty{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:12px 0;text-align:center}
+.se-bottom-gap{height:40px}
+
+/* ══════════════════════════════════════
    Product modal (bottom sheet)
    ══════════════════════════════════════ */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:300;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -1348,6 +1391,16 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
     </div>
   </div>
 
+  <!-- ── Session Editor Panel ── -->
+  <div class="se-panel" id="se-panel">
+    <div class="se-appbar">
+      <button class="se-back" onclick="closeSessionEditor()">‹</button>
+      <div class="se-appbar-title" id="se-panel-title">세션 편집</div>
+      <button class="se-save-btn" onclick="saveSessionEditor()">SAVE</button>
+    </div>
+    <div class="se-body" id="se-body"></div>
+  </div>
+
 </div><!-- /phone -->
 
 <!-- Product modal -->
@@ -2065,9 +2118,7 @@ function renderArchiveList(sessions) {
     <div class="ae-detail" id="ae-detail-${n}">
       <div class="ae-detail-inner">
         ${detailBody}
-            <button class="ae-detail-edit-btn" onclick="event.stopPropagation();openEditSheetForSession(${n})">
-          ${s.isCurrent ? '루틴 편집 →' : '일정 편집 →'}
-        </button>
+            <button class="ae-detail-edit-btn" onclick="event.stopPropagation();openSessionEditor(${n})">편집 →</button>
       </div>
     </div>`;
   });
@@ -2179,6 +2230,147 @@ function saveEditSheet() {
 
   closeEditSheet();
   showToast('✓ 세션 정보가 업데이트됐습니다');
+}
+
+// ── Session Editor Panel ──────────────────────────────────────
+let _seEdit = null; // { isCurrent, origN, data: deepclone }
+
+function openSessionEditor(n) {
+  const isCurrent = (n === state.session);
+  let src;
+  if (isCurrent) {
+    src = { session: state.session, periodStart: state.periodStart, periodEnd: state.periodEnd,
+            morning: state.morning, nightly: state.nightly };
+  } else {
+    src = (state.history || []).find(h => h.session === n);
+    if (!src) return;
+  }
+  _seEdit = { isCurrent, origN: n, data: JSON.parse(JSON.stringify(src)) };
+  // routines 구조 보장
+  ['morning','nightly'].forEach(slot => {
+    if (!_seEdit.data[slot]) _seEdit.data[slot] = { routines: [{id:1,products:[],tip:''}] };
+    if (!_seEdit.data[slot].routines) _seEdit.data[slot].routines = [{id:1,products:[],tip:''}];
+    if (!_seEdit.data[slot].routines[0]) _seEdit.data[slot].routines[0] = {id:1,products:[],tip:''};
+    if (!_seEdit.data[slot].routines[0].products) _seEdit.data[slot].routines[0].products = [];
+  });
+  document.getElementById('se-panel-title').textContent = `${n}회차 편집`;
+  renderSeBody();
+  document.getElementById('se-panel').classList.add('open');
+}
+
+function closeSessionEditor() {
+  document.getElementById('se-panel').classList.remove('open');
+  _seEdit = null;
+}
+
+function renderSeBody() {
+  if (!_seEdit) return;
+  const d = _seEdit.data;
+  const CAT_LABEL = { toner:'토너',serum:'세럼',ampoule:'앰플',booster:'부스터',cream:'크림',pack:'팩',mist:'미스트',etc:'기타' };
+  const prodRow = (slot, idx, p) => `
+    <div class="se-prod-row">
+      <span class="se-prod-icon">${p.icon||'✦'}</span>
+      <div class="se-prod-info">
+        <div class="se-prod-name">${p.name}</div>
+        ${p.brand ? `<div class="se-prod-brand">${p.brand}</div>` : ''}
+      </div>
+      ${p.catKey ? `<span class="se-prod-cat">${CAT_LABEL[p.catKey]||p.catKey}</span>` : ''}
+      <button class="se-remove-btn" onclick="seRemoveProd('${slot}',${idx})">✕</button>
+    </div>`;
+  const catOptions = Object.entries(CAT).map(([k,v]) => `<option value="${k}">${v.icon} ${v.label}</option>`).join('');
+  const slotBlock = (icon, label, slot) => {
+    const prods = d[slot].routines[0].products;
+    return `
+    <div class="se-slot-hd">
+      <div class="se-slot-title"><span>${icon}</span>${label}</div>
+    </div>
+    <div class="se-prod-list" id="se-list-${slot}">
+      ${prods.length ? prods.map((p,i) => prodRow(slot,i,p)).join('') : `<div class="se-empty">등록된 제품 없음</div>`}
+    </div>
+    <div class="se-add-form">
+      <div class="se-add-row">
+        <select class="se-add-select" id="se-cat-${slot}">${catOptions}</select>
+        <input class="se-add-input" id="se-name-${slot}" placeholder="제품명" maxlength="40" onkeydown="if(event.key==='Enter')seAddProd('${slot}')">
+      </div>
+      <div class="se-add-row">
+        <input class="se-add-input" id="se-brand-${slot}" placeholder="브랜드 (선택)" maxlength="30" style="flex:1">
+        <button class="se-add-confirm" onclick="seAddProd('${slot}')">+ ADD</button>
+      </div>
+    </div>`;
+  };
+  document.getElementById('se-body').innerHTML = `
+    <div class="se-section">
+      <div class="se-section-label">SESSION INFO</div>
+      <div class="se-date-card">
+        <div class="se-field">
+          <label>SESSION #</label>
+          <input class="se-input" id="se-num" type="number" min="1" max="99" value="${d.session||''}">
+        </div>
+        <div class="se-field">
+          <label>PERIOD</label>
+          <div class="se-date-row">
+            <input class="se-input" id="se-start" type="date" value="${d.periodStart||''}" style="flex:1">
+            <span class="se-date-sep">—</span>
+            <input class="se-input" id="se-end" type="date" value="${d.periodEnd||''}" style="flex:1">
+          </div>
+        </div>
+      </div>
+      ${slotBlock('☀️','MORNING','morning')}
+      ${slotBlock('🌙','NIGHT','nightly')}
+      <div class="se-bottom-gap"></div>
+    </div>`;
+}
+
+function seRemoveProd(slot, idx) {
+  if (!_seEdit) return;
+  _seEdit.data[slot].routines[0].products.splice(idx, 1);
+  renderSeBody();
+}
+
+function seAddProd(slot) {
+  if (!_seEdit) return;
+  const nameEl  = document.getElementById(`se-name-${slot}`);
+  const brandEl = document.getElementById(`se-brand-${slot}`);
+  const catEl   = document.getElementById(`se-cat-${slot}`);
+  const name = nameEl?.value.trim();
+  if (!name) { nameEl?.focus(); return; }
+  const catKey = catEl?.value || 'etc';
+  const catMeta = CAT[catKey] || { icon:'✦' };
+  _seEdit.data[slot].routines[0].products.push({
+    id: Date.now(), catKey, name, brand: brandEl?.value.trim() || '',
+    icon: catMeta.icon, imgData: null
+  });
+  renderSeBody();
+  // 스크롤 유지: 추가한 슬롯 목록으로
+  setTimeout(() => document.getElementById(`se-list-${slot}`)?.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+}
+
+function saveSessionEditor() {
+  if (!_seEdit) return;
+  const newN  = parseInt(document.getElementById('se-num')?.value);
+  const start = document.getElementById('se-start')?.value;
+  const end   = document.getElementById('se-end')?.value;
+  if (!newN || !start || !end) { showToast('회차 번호와 기간을 입력해주세요'); return; }
+  _seEdit.data.session     = newN;
+  _seEdit.data.periodStart = start;
+  _seEdit.data.periodEnd   = end;
+
+  if (_seEdit.isCurrent) {
+    state.session     = newN;
+    state.periodStart = start;
+    state.periodEnd   = end;
+    state.morning     = _seEdit.data.morning;
+    state.nightly     = _seEdit.data.nightly;
+    updateHero();
+    renderAll();
+  } else {
+    const idx = (state.history || []).findIndex(h => h.session === _seEdit.origN);
+    if (idx !== -1) state.history[idx] = _seEdit.data;
+  }
+  persistPlan(state.published || false);
+  renderArchiveEntries();
+  closeSessionEditor();
+  showToast('✓ 저장됐습니다');
 }
 
 // ── Publish / Draft ───────────────────────────────────────────
