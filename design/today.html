@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>OnStep · Today</title>
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="favicon.png">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -15,6 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="shared.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -53,8 +54,8 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 
 /* ── Weather Row ── */
 .weather-row{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
-.mascot-card{width:96px;height:96px;background:var(--lime);border-radius:20px;border:2px solid var(--lime-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:44px;line-height:1}
-.weather-card{flex:1;height:89px;background:#FFFFFF;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:4px;position:relative;overflow:hidden}
+.mascot-card{width:66px;height:66px;background:var(--lime);border-radius:20px;border:2px solid var(--lime-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:44px;line-height:1}
+.weather-card{flex:1;height:69px;background:#FFFFFF;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:4px;position:relative;overflow:hidden}
 .weather-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
 .weather-main-text{font-family:'Gaegu','Inter',sans-serif;font-size:22px;color:var(--ink);line-height:1.25}
 .weather-arrow{position:absolute;right:10px;bottom:10px;width:24px;height:24px;opacity:.15;font-size:18px;display:flex;align-items:center;justify-content:center}
@@ -107,7 +108,7 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 .flow-slot-badge.morning{background:rgba(255,255,255,.85);box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .flow-slot-badge.night{background:rgba(24,24,27,.7);box-shadow:0 1px 4px rgba(0,0,0,.18)}
 .flow-prod-info{padding:10px 0 0}
-.flow-prod-name{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--ink);line-height:1.2}
+.flow-prod-name{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--ink);line-height:1.2}
 .flow-prod-brand{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin-top:3px}
 /* scroll dots */
 .flow-prod-dots{display:flex;justify-content:center;gap:6px;padding:10px 0 4px}
@@ -163,6 +164,8 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 
 /* Legacy allday-card (unused, kept for compat) */
 .allday-card{display:none}
+
+/* Special Care Today — OOTD editorial 구조와 동일 */
 
 /* MOTD section */
 .motd-section{padding:28px 16px 0;display:flex;flex-direction:column;gap:16px}
@@ -229,7 +232,11 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 .ootd-rec-note{width:100%;border:1.5px solid var(--border-md);border-radius:var(--r-md);padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;color:#0C1014;resize:none;height:80px;outline:none;box-sizing:border-box;margin-bottom:16px}
 .ootd-rec-note:focus{border-color:#0C1014}
 .ootd-rec-note::placeholder{color:#bbb}
-.ootd-rec-save{width:100%;height:52px;background:#0A0A0A;color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.02em}
+.ootd-rec-btns{display:flex;gap:8px}
+.ootd-rec-cancel{flex:1;height:52px;background:var(--surface-low);color:var(--ink);border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.04em}
+.ootd-rec-cancel:active{opacity:.8}
+.ootd-rec-save{flex:2;height:52px;background:#0A0A0A;color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.02em}
+.ootd-rec-save:active{opacity:.8}
 /* OOTD log card — logged state */
 .ootd-log-card-logged{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;transition:background .2s;box-shadow:var(--shadow)}
 .ootd-log-card-logged:active{background:var(--surface-low)}
@@ -254,10 +261,10 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 
 @media(max-width:430px){
   body{background:var(--bg);padding:0;align-items:stretch}
-  .phone{width:100%;border-radius:0;box-shadow:none}
-  .notch{height:calc(env(safe-area-inset-top,0px) + 10px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
+  .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
+  .notch{flex-shrink:0;height:calc(env(safe-area-inset-top,0px) + 10px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
   .notch-bar{display:none}
-  .scroll{height:calc(100dvh - env(safe-area-inset-top,0px) - 10px)}
+  .scroll{flex:1;min-height:0;height:auto;}
   .bottom-nav{border-top:none;}
   .nav-item{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);}
 }
@@ -272,16 +279,27 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 .editorial-hero{position:relative;width:100%;aspect-ratio:4/3;background:var(--surface-mid);border-radius:var(--r-xl);overflow:hidden;cursor:pointer;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center}
 .editorial-badge{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,.65);color:#fff;font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-sm)}
 .editorial-gear{position:absolute;top:12px;right:12px;width:30px;height:30px;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;text-decoration:none}
-.editorial-prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.ed-prod-card{cursor:pointer;transition:opacity .2s}
+.editorial-prod-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:8px;margin-top:10px;padding-bottom:2px}
+.editorial-prod-grid::-webkit-scrollbar{display:none}
+.ed-prod-card{flex-shrink:0;width:calc((100% - 16px) / 3.2);scroll-snap-align:start;cursor:pointer;transition:opacity .2s}
 .ed-prod-card.done{opacity:.45}
 .ed-prod-img{width:100%;aspect-ratio:1/1;background:var(--surface-mid);border-radius:var(--r-lg);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
 .ed-prod-check{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;opacity:0;transition:opacity .2s;border-radius:var(--r-lg)}
 .ed-prod-card.done .ed-prod-check{opacity:1}
 .ed-prod-cat{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-top:8px}
 .ed-prod-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ed-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px}
+.ed-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .editorial-empty{padding:28px 20px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);border:1.5px dashed var(--border-md);border-radius:var(--r-xl);line-height:1.6}
+/* Smart Guide 카드 */
+.smart-guide-card{background:var(--surface);border:1.5px solid var(--lime);border-radius:var(--r-xl);padding:16px;margin-bottom:12px;}
+.smart-guide-eyebrow{display:inline-flex;align-items:center;gap:5px;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--lime-fg);background:var(--lime);padding:3px 10px;border-radius:var(--r-full);margin-bottom:10px;}
+.smart-guide-name{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.smart-guide-meta{font-size:11px;color:var(--mist);margin-bottom:12px;}
+.smart-guide-btns{display:flex;gap:8px;}
+.smart-guide-apply{flex:2;height:42px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;}
+.smart-guide-apply:active{opacity:.8;}
+.smart-guide-skip{flex:1;height:42px;background:none;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--mist);cursor:pointer;}
+.smart-guide-skip:active{opacity:.8;}
 /* Record look row */
 .record-look-row{margin-top:14px;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);padding:16px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#fff;transition:background .2s}
 .record-look-row:active{background:var(--surface-low)}
@@ -311,8 +329,8 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 
     <div class="appbar">
       <div class="appbar-menu"><span></span><span></span><span></span></div>
-      <div class="appbar-title"><img src="logo.png" alt="OnStep" class="appbar-logo">OnStep</div>
-      <div id="auth-avatar" onclick="handleAuthClick()" title="로그인하여 동기화">
+      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer"><img src="logo.png" alt="OnStep" class="appbar-logo">OnStep</div>
+      <div id="auth-avatar" data-auth-avatar onclick="handleAuthClick()" title="로그인하여 동기화">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
       </div>
     </div>
@@ -385,6 +403,15 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
       </button>
     </div>
 
+    <!-- Special Care -->
+    <div class="editorial-section" id="care-today-section" style="display:none">
+      <div class="editorial-hd">
+        <div class="editorial-hd-tag">#SPECIAL CARE</div>
+        <a class="editorial-hd-sub" href="setup.html?panel=care">Edit →</a>
+      </div>
+      <div id="care-today-wrap"></div>
+    </div>
+
     <!-- Routine Tracker -->
     <div class="allday-section">
       <div class="allday-section-hd">
@@ -403,6 +430,7 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
         <div class="editorial-hd-tag">#MOTD</div>
         <a class="editorial-hd-sub" href="log.html?tab=library" id="motd-hd-sub">Edit →</a>
       </div>
+      <div id="smart-guide-motd"></div>
       <div id="motd-theme-block"></div>
     </div>
 
@@ -412,30 +440,14 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
         <div class="editorial-hd-tag">#OOTD</div>
         <a class="editorial-hd-sub" href="log.html?tab=library" id="ootd-hd-sub">Edit →</a>
       </div>
+      <div id="smart-guide-ootd"></div>
       <div id="ootd-editorial-block"></div>
       <div id="ootd-log-wrap"></div>
     </div>
 
     <div style="height:20px"></div>
 
-    <div class="bottom-nav">
-      <a class="nav-item active" href="today.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <div class="nav-label">Today</div>
-      </a>
-      <a class="nav-item" href="log.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="nav-label">Log</div>
-      </a>
-      <a class="nav-item" href="box.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
-        <div class="nav-label">Box</div>
-      </a>
-      <a class="nav-item" href="setup.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="nav-label">Setup</div>
-      </a>
-    </div>
+    <div class="app-nav"></div>
 
   <!-- OOTD Record Sheet -->
   <div class="ootd-rec-sheet" id="ootd-rec-sheet" onclick="if(event.target===this)closeOOTDRecord()">
@@ -443,20 +455,18 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
       <div class="ootd-rec-handle"></div>
       <div class="ootd-rec-title">오늘의 룩 기록</div>
       <input type="file" id="ootd-rec-file" accept="image/*" style="display:none" onchange="handleOOTDRecPhoto(this)">
-      <div class="ootd-rec-photo-area" id="ootd-rec-photo-area" onclick="document.getElementById('ootd-rec-file').click()">
+      <div class="ootd-rec-photo-area" id="ootd-rec-photo-area" onclick="showImgPickSheet(d=>_applyOOTDRecPhoto(d),480,0.68)">
         <div class="ootd-rec-photo-placeholder" id="ootd-rec-photo-placeholder">
           <div class="ootd-rec-photo-icon">📷</div>
           <div class="ootd-rec-photo-hint">사진 추가</div>
         </div>
       </div>
       <textarea class="ootd-rec-note" id="ootd-rec-note" placeholder="오늘의 룩 메모…"></textarea>
-      <button class="ootd-rec-save" onclick="saveOOTDRecord()">기록하기 →</button>
+      <div class="ootd-rec-btns">
+        <button type="button" class="ootd-rec-cancel" onclick="closeOOTDRecord()">취소</button>
+        <button type="button" class="ootd-rec-save" onclick="saveOOTDRecord()">저장</button>
+      </div>
     </div>
-  </div>
-
-  <!-- FAB -->
-  <div class="fab" onclick="openOOTDRecord()" title="오늘의 룩 기록">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
   </div>
 </div>
 
@@ -471,20 +481,29 @@ firebase.initializeApp({
 });
 const fbAuth = firebase.auth();
 const fbDb   = firebase.firestore();
-let currentUser = null, unsubscribe = null;
+let currentUser = null, unsubscribe = null, _unsubExtra = null;
 
 firebase.auth().onAuthStateChanged(user => {
   currentUser = user;
-  updateAuthAvatar(user);
-  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  _updateAuthAvatar(user);
+  if (unsubscribe)   { unsubscribe();   unsubscribe   = null; }
+  if (_unsubExtra)   { _unsubExtra();   _unsubExtra   = null; }
   if (user) {
     loadExtraFromCloud(user.uid);
+    // careplan 실시간 동기화
     unsubscribe = fbDb.collection('users').doc(user.uid)
       .collection('careplan').doc('data')
       .onSnapshot(snap => {
-        if (!snap.exists) return;
+        if (!snap.exists) {
+          // Firestore 비어있음 → 로컬 데이터 업로드
+          const local = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
+          if (local && local.savedAt && currentUser) {
+            fbDb.collection('users').doc(currentUser.uid)
+              .collection('careplan').doc('data').set(local).catch(() => {});
+          }
+          return;
+        }
         const data = snap.data();
-        // 로컬 데이터가 더 최신이면 덮어쓰지 않음 (save 직후 navigate 케이스 대비)
         const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
         const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
         const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
@@ -493,30 +512,58 @@ firebase.auth().onAuthStateChanged(user => {
           loadPlan(data);
         }
       }, e => console.warn(e));
+    // extra/data(테마·룩) 실시간 동기화
+    _unsubExtra = fbDb.collection('users').doc(user.uid)
+      .collection('extra').doc('data')
+      .onSnapshot(snap => {
+        if (!snap.exists) return;
+        const d = snap.data();
+        const localTs = parseInt(localStorage.getItem('_onstep_extra_local_ts') || '0');
+        const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
+        if (cloudTs >= localTs - 3000) {
+          if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(d.careThemes));
+          if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(d.makeupContents));
+          if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(d.lookContents));
+          if (d.portfolio)       localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
+          if (d.looks)           localStorage.setItem(LOOKS_KEY, JSON.stringify(d.looks));
+        }
+        renderTodayMakeup();
+        renderTodayOOTD();
+        renderCareToday();
+        renderSmartGuide();
+      }, e => console.warn('extra onSnapshot:', e));
   }
 });
 
-function updateAuthAvatar(user) {
-  const el = document.getElementById('auth-avatar');
-  if (!el) return;
-  if (user) {
-    el.innerHTML = user.photoURL
-      ? `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover">`
-      : `<span style="font-size:11px;color:#fff;font-weight:700">${(user.displayName||user.email||'?')[0].toUpperCase()}</span>`;
-    el.style.background = '#1A1C1C'; el.style.borderColor = '#1A1C1C';
-  } else {
-    el.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>';
-    el.style.background = ''; el.style.borderColor = '';
+window.addEventListener('DOMContentLoaded', () => {
+  initNav('today');
+  initCmsContent();
+  // Setup 변경 시 Today 즉시 업데이트 (BroadcastChannel)
+  if (typeof _onStateChange === 'function') {
+    _onStateChange('schedule', () => { renderTodayMakeup(); renderTodayOOTD(); renderSmartGuide(); });
+    _onStateChange('looks',    () => { renderTodayOOTD(); });
+    _onStateChange('extra',    () => { renderCareToday(); });
   }
-}
+});
 
-function handleAuthClick() {
-  if (currentUser) {
-    if (confirm(`${currentUser.displayName||currentUser.email}\n로그아웃할까요?`)) fbAuth.signOut();
-  } else {
-    fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => alert(e.message));
-  }
-}
+let _lastSyncTs = 0;
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState !== 'visible' || !currentUser) return;
+  const now = Date.now();
+  if (now - _lastSyncTs < 60000) return;
+  _lastSyncTs = now;
+  try {
+    const snap = await fbDb.collection('users').doc(currentUser.uid).collection('careplan').doc('data').get();
+    if (snap.exists) {
+      const data = snap.data();
+      const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+      const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
+      const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
+      if (cloudTs >= localTs) { localStorage.setItem(DB_KEY, JSON.stringify(data)); loadPlan(data); }
+    }
+  } catch(e) {}
+  loadExtraFromCloud(currentUser.uid);
+});
 
 const DB_KEY    = 'onstep_care_plan';
 const LOOKS_KEY = 'onstep_looks';
@@ -533,9 +580,23 @@ async function saveLogsToCloud() {
 async function loadExtraFromCloud(uid) {
   try {
     const snap = await fbDb.collection('users').doc(uid).collection('extra').doc('data').get();
-    if (!snap.exists) return;
+    if (!snap.exists) {
+      renderTodayMakeup(); renderTodayOOTD(); renderCareToday(); renderSmartGuide();
+      return;
+    }
     const d = snap.data();
-    if (d.looks) { localStorage.setItem(LOOKS_KEY, JSON.stringify(d.looks)); renderTodayOOTD(); }
+    const localTs = parseInt(localStorage.getItem('_onstep_extra_local_ts') || '0');
+    const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
+    if (cloudTs >= localTs - 3000) {
+      if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(d.careThemes));
+      if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(d.makeupContents));
+      if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(d.lookContents));
+      if (d.portfolio)       localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
+      if (d.looks)           localStorage.setItem(LOOKS_KEY, JSON.stringify(d.looks));
+    }
+    renderTodayMakeup();
+    renderTodayOOTD();
+    renderCareToday();
   } catch(e) { console.warn('Extra cloud load:', e); }
 }
 
@@ -651,8 +712,8 @@ function initSampleData() {
       ]
     }));
   }
-  if (!localStorage.getItem('onstep_makeup_themes')) {
-    localStorage.setItem('onstep_makeup_themes', JSON.stringify({ themes: [
+  if (!localStorage.getItem('onstep_makeup_contents')) {
+    localStorage.setItem('onstep_makeup_contents', JSON.stringify([
       {
         id:1, name:'Daily Glow', emoji:'✨',
         description:'Natural dewy finish perfect for everyday wear.',
@@ -709,7 +770,7 @@ function initSampleData() {
         ],
         scheduledDates:[]
       }
-    ]}));
+    ].map(t=>({...t,category:'makeup',baselineImg:null,sourceUrl:'',tpo:[],scheduleLog:[],autoEnabled:false,updatedAt:new Date().toISOString()}))));
   }
 }
 
@@ -906,6 +967,43 @@ function handleMainRoutineBtn() {
   renderFlowHeroStep(plan);
 }
 
+// ── Special Care Today ────────────────────────────────────────
+function renderCareToday() {
+  const section = document.getElementById('care-today-section');
+  const wrap    = document.getElementById('care-today-wrap');
+  if (!wrap || !section) return;
+  const today = new Date().toISOString().slice(0,10);
+  const care  = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+  const active = care.filter(t => {
+    const p = t.scheduledPeriod;
+    if (p && p.start) return today >= p.start && today <= (p.end || p.start);
+    return (t.scheduledDates||[]).includes(today);
+  });
+  if (!active.length) { section.style.display = 'none'; wrap.innerHTML = ''; return; }
+  section.style.display = '';
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  wrap.innerHTML = active.map(t => {
+    const heroImg = t.baselineImg || '';
+    const grid = (t.items||[]).slice(0, 8).map(p => {
+      const asset = assets.find(a => a.id === p.assetId);
+      const img = asset?.imgData || p.imgData || '';
+      return `<div class="ed-prod-card">
+        <div class="ed-prod-img"${img ? ` style="background-image:url(${img})"` : ''}>
+          ${!img ? `<span style="font-size:28px;opacity:.25">${t.emoji||'✦'}</span>` : ''}
+        </div>
+        <div class="ed-prod-cat">CARE</div>
+        <div class="ed-prod-name">${p.name||''}</div>
+        ${p.brand ? `<div class="ed-prod-brand">${p.brand}</div>` : ''}
+      </div>`;
+    }).join('');
+    return `<div class="editorial-hero"${heroImg ? ` style="background-image:url(${heroImg})"` : ''}>
+        ${!heroImg ? `<span style="font-size:44px;opacity:.2">${t.emoji||'✦'}</span>` : ''}
+        <div class="editorial-badge">${t.emoji||'✦'} ${t.name}</div>
+      </div>
+      ${grid ? `<div class="editorial-prod-grid">${grid}</div>` : ''}`;
+  }).join('');
+}
+
 // ── ALL DAY / Routine Tracker ─────────────────────────────────
 const TRACKER_KEY = 'onstep_tracker_items';
 function renderAllDay() {
@@ -989,14 +1087,48 @@ function checkTrackerAlarms() {
   checkTrackerAlarms(); // run immediately on load
 })();
 
+// ── v2 마이그레이션: 3개 저장소 → 2개 통합 ──────────────────
+(function _migrateV2() {
+  if (localStorage.getItem('_onstep_migrated_v2')) return;
+  const mk=[], lk=[];
+  try {
+    JSON.parse(localStorage.getItem('onstep_muse_items')||'[]').forEach(m=>{
+      const isL=m.schedule_type==='OOTD'||(m.category_tags||[]).some(t=>['look','fashion','ootd','outfit'].includes((t||'').toLowerCase()));
+      (isL?lk:mk).push({id:m.id,category:isL?'lookbook':'makeup',name:m.note||'',emoji:'✦',description:'',baselineImg:m.image_data||null,sourceUrl:m.image_url||'',products:m.products||[],tpo:[],scheduledDates:m.scheduled_date?[m.scheduled_date]:[],scheduleLog:m.scheduleLog||[],autoEnabled:m.autoEnabled||false,updatedAt:new Date().toISOString()});
+    });
+  } catch(e){}
+  try {
+    (JSON.parse(localStorage.getItem('onstep_makeup_themes')||'{"themes":[]}').themes||[]).forEach(t=>{
+      if(!mk.find(c=>c.id===t.id)) mk.push({id:t.id,category:'makeup',name:t.name||'',emoji:t.emoji||'✦',description:t.description||'',baselineImg:t.baselineImg||null,sourceUrl:'',products:t.products||[],tpo:[],scheduledDates:t.scheduledDates||[],scheduleLog:[],autoEnabled:false,updatedAt:t.updatedAt||new Date().toISOString()});
+    });
+  } catch(e){}
+  try {
+    JSON.parse(localStorage.getItem('onstep_look_themes')||'[]').forEach(t=>{
+      if(!lk.find(c=>c.id===t.id)) lk.push({id:t.id,category:'lookbook',name:t.name||'',emoji:t.emoji||'✦',description:t.description||'',baselineImg:t.baselineImg||null,sourceUrl:'',products:t.products||t.items||[],tpo:t.tpo||[],scheduledDates:t.scheduledDates||[],scheduleLog:[],autoEnabled:false,updatedAt:t.updatedAt||new Date().toISOString()});
+    });
+  } catch(e){}
+  try {
+    if(mk.length) localStorage.setItem('onstep_makeup_contents',JSON.stringify(mk));
+    if(lk.length) localStorage.setItem('onstep_look_contents',JSON.stringify(lk));
+  } catch(e){}
+  localStorage.removeItem('onstep_muse_items');
+  localStorage.removeItem('onstep_makeup_themes');
+  localStorage.removeItem('onstep_look_themes');
+  localStorage.setItem('_onstep_migrated_v2','1');
+})();
+
 // ── MOTD ─────────────────────────────────────────────────────
 function getTodaysScheduledTheme(plan) {
-  const data = JSON.parse(localStorage.getItem('onstep_makeup_themes') || 'null')
-             || JSON.parse(localStorage.getItem(MAKEUP_KEY) || 'null');
-  const themes = data?.themes || [];
-  if (!themes.length) return null;
+  const items = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
+  if (!items.length) return null;
   const today = getTodayKey();
-  return themes.find(t => (t.scheduledDates||[]).includes(today)) || null;
+  const matches = items.filter(t => (t.scheduledDates||[]).includes(today));
+  if (!matches.length) return null;
+  return matches.reduce((best, t) => {
+    const tTs = t.updatedAt ? new Date(t.updatedAt).getTime() : (t.id || 0);
+    const bTs = best.updatedAt ? new Date(best.updatedAt).getTime() : (best.id || 0);
+    return tTs > bTs ? t : best;
+  });
 }
 
 function renderTodayMakeup() {
@@ -1004,8 +1136,6 @@ function renderTodayMakeup() {
   const block = document.getElementById('motd-theme-block');
   if (!block) return;
   const theme = getTodaysScheduledTheme(plan);
-  const hdSub = document.getElementById('motd-hd-sub');
-  if (hdSub) hdSub.textContent = theme ? theme.name : 'Edit →';
   if (!theme) {
     block.innerHTML = `<div class="editorial-empty">오늘 지정된 메이크업 테마가 없습니다.<br><a href="log.html?tab=library" style="color:var(--ink);font-weight:600">라이브러리에서 등록 →</a></div>`;
     return;
@@ -1014,7 +1144,7 @@ function renderTodayMakeup() {
   const doneSet = new Set(JSON.parse(localStorage.getItem(`onstep_motd_done_${today}`) || '[]'));
   const products = theme.products || [];
   const heroImg = theme.baselineImg || '';
-  const grid = products.slice(0, 4).map(p => {
+  const grid = products.map(p => {
     const isDone = doneSet.has(p.name);
     const img = getBoxImgForProduct(p);
     return `<div class="ed-prod-card${isDone?' done':''}" onclick="toggleMotdDone(${JSON.stringify(p.name)})">
@@ -1049,20 +1179,178 @@ function toggleMotdDone(name) {
 
 // ── OOTD ─────────────────────────────────────────────────────
 function getTodaysScheduledLook() {
-  const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+  const items = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
   const today = getTodayKey();
-  return looks.find(t => (t.scheduledDates||[]).includes(today)) || null;
+  const matches = items.filter(t => (t.scheduledDates||[]).includes(today));
+  if (!matches.length) return null;
+  return matches.reduce((best, t) => {
+    const tTs = t.updatedAt ? new Date(t.updatedAt).getTime() : (t.id || 0);
+    const bTs = best.updatedAt ? new Date(best.updatedAt).getTime() : (best.id || 0);
+    return tTs > bTs ? t : best;
+  });
+}
+
+// ── Smart Guide (자동 노출) ─────────────────────────────────
+const _SMART_DISMISS = 'onstep_smart_dismissed';
+
+function _getSmartDismissed() {
+  const today = getTodayKey();
+  return (JSON.parse(sessionStorage.getItem(_SMART_DISMISS) || '{}')[today]) || [];
+}
+function _addSmartDismiss(museId) {
+  const today = getTodayKey();
+  const raw = JSON.parse(sessionStorage.getItem(_SMART_DISMISS) || '{}');
+  if (!raw[today]) raw[today] = [];
+  if (!raw[today].includes(museId)) raw[today].push(museId);
+  sessionStorage.setItem(_SMART_DISMISS, JSON.stringify(raw));
+}
+
+function _getBestAutoMuse(type) {
+  const key = type === 'MOTD' ? 'onstep_makeup_contents' : 'onstep_look_contents';
+  const items = JSON.parse(localStorage.getItem(key) || '[]');
+  const todayDow = new Date().getDay();
+  const dismissed = _getSmartDismissed();
+  const candidates = items.filter(m => m.autoEnabled && !dismissed.includes(m.id));
+  if (!candidates.length) return null;
+  return candidates.map(m => {
+    const log = m.scheduleLog || [];
+    const score = log.filter(e => new Date(e.date + 'T00:00:00').getDay() === todayDow).length;
+    return { m, score };
+  }).sort((a, b) => b.score - a.score)[0].m;
+}
+
+function renderSmartGuide() {
+  _renderSmartGuideFor('MOTD', 'smart-guide-motd');
+  _renderSmartGuideFor('OOTD', 'smart-guide-ootd');
+}
+
+function _getBestAutoLook() {
+  const looks = JSON.parse(localStorage.getItem('onstep_looks') || '[]');
+  const todayDow = new Date().getDay();
+  const dismissed = _getSmartDismissed();
+  const candidates = looks.filter(l =>
+    l.autoEnabled && !dismissed.includes('look_' + l.date)
+  );
+  if (!candidates.length) return null;
+  return candidates.map(l => {
+    const log = l.scheduleLog || [];
+    const score = log.filter(e => new Date(e.date + 'T00:00:00').getDay() === todayDow).length;
+    return { l, score };
+  }).sort((a, b) => b.score - a.score)[0].l;
+}
+
+function _renderSmartGuideFor(type, elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const hasToday = type === 'MOTD' ? !!getTodaysScheduledTheme(null) : !!getTodaysScheduledLook();
+  if (hasToday) { el.innerHTML = ''; return; }
+  const todayDow = new Date().getDay();
+  const dowNames = ['일','월','화','수','목','금','토'];
+  const muse = _getBestAutoMuse(type);
+  if (muse) {
+    const log = muse.scheduleLog || [];
+    const dowCount = log.filter(e => new Date(e.date + 'T00:00:00').getDay() === todayDow).length;
+    const patternTxt = dowCount >= 2 ? `${dowNames[todayDow]}요일 패턴 ${dowCount}회` : `총 ${log.length}회 등록 패턴`;
+    const name = (muse.note || '').slice(0, 28) || '(제목 없음)';
+    el.innerHTML = `<div class="smart-guide-card">
+      <div class="smart-guide-eyebrow">⚡ SMART ${type}</div>
+      <div class="smart-guide-name">${name}</div>
+      <div class="smart-guide-meta">${patternTxt} · ${type === 'MOTD' ? '메이크업 가이드' : '룩 가이드'}</div>
+      <div class="smart-guide-btns">
+        <button type="button" class="smart-guide-apply" onclick="applySmartGuide(${muse.id},'${type}','${elId}')">오늘 가이드로 적용</button>
+        <button type="button" class="smart-guide-skip" onclick="skipSmartGuide(${muse.id},'${elId}')">건너뛰기</button>
+      </div>
+    </div>`;
+    return;
+  }
+  if (type === 'OOTD') {
+    const look = _getBestAutoLook();
+    if (look) {
+      const log = look.scheduleLog || [];
+      const dowCount = log.filter(e => new Date(e.date + 'T00:00:00').getDay() === todayDow).length;
+      const patternTxt = dowCount >= 2 ? `${dowNames[todayDow]}요일 패턴 ${dowCount}회` : `총 ${log.length}회 예약 패턴`;
+      const name = (look.note || look.date || '').slice(0, 28) || '(제목 없음)';
+      el.innerHTML = `<div class="smart-guide-card">
+        <div class="smart-guide-eyebrow">⚡ SMART OOTD</div>
+        <div class="smart-guide-name">${name}</div>
+        <div class="smart-guide-meta">${patternTxt} · 룩 히스토리 기반</div>
+        <div class="smart-guide-btns">
+          <button type="button" class="smart-guide-apply" onclick="applySmartLook('${look.date}','${elId}')">오늘 가이드로 적용</button>
+          <button type="button" class="smart-guide-skip" onclick="skipSmartLook('${look.date}','${elId}')">건너뛰기</button>
+        </div>
+      </div>`;
+      return;
+    }
+  }
+  el.innerHTML = '';
+}
+
+function applySmartGuide(contentId, type, elId) {
+  const key = type === 'MOTD' ? 'onstep_makeup_contents' : 'onstep_look_contents';
+  const items = JSON.parse(localStorage.getItem(key) || '[]');
+  const idx = items.findIndex(m => m.id === contentId);
+  if (idx === -1) return;
+  const today = getTodayKey();
+  if (!items[idx].scheduleLog) items[idx].scheduleLog = [];
+  if (!items[idx].scheduleLog.find(e => e.date === today)) items[idx].scheduleLog.push({ date: today, type });
+  if (!items[idx].scheduledDates) items[idx].scheduledDates = [];
+  if (!items[idx].scheduledDates.includes(today)) items[idx].scheduledDates.push(today);
+  items[idx].updatedAt = new Date().toISOString();
+  try { localStorage.setItem(key, JSON.stringify(items)); } catch(e) { showToast('저장 공간 부족'); return; }
+  _addSmartDismiss(contentId);
+  document.getElementById(elId).innerHTML = '';
+  type === 'MOTD' ? renderTodayMakeup() : renderTodayOOTD();
+  showToast(`⚡ ${type} 가이드로 적용됐습니다`);
+}
+
+function skipSmartGuide(museId, elId) {
+  _addSmartDismiss(museId);
+  const el = document.getElementById(elId);
+  if (el) el.innerHTML = '';
+}
+
+function applySmartLook(histId, elId) {
+  const looks = JSON.parse(localStorage.getItem('onstep_looks') || '[]');
+  const look = looks.find(l => l.date === histId);
+  if (!look) return;
+  const today = getTodayKey();
+  if (!look.scheduleLog) look.scheduleLog = [];
+  if (!look.scheduleLog.find(e => e.date === today)) look.scheduleLog.push({ date: today });
+  if (look.lookThemeId) {
+    const lt = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+    const li = lt.findIndex(t => t.id === look.lookThemeId);
+    if (li !== -1) {
+      if (!lt[li].scheduledDates) lt[li].scheduledDates = [];
+      if (!lt[li].scheduledDates.includes(today)) lt[li].scheduledDates.push(today);
+      lt[li].updatedAt = new Date().toISOString();
+      localStorage.setItem('onstep_look_themes', JSON.stringify(lt));
+    }
+  }
+  const todayIdx = looks.findIndex(l => l.date === today);
+  if (todayIdx === -1) {
+    looks.push({ date: today, mainPhoto: look.mainPhoto || null, note: look.note, logged: false, lookThemeId: look.lookThemeId || null });
+  }
+  localStorage.setItem('onstep_looks', JSON.stringify(looks));
+  _addSmartDismiss('look_' + histId);
+  const el = document.getElementById(elId);
+  if (el) el.innerHTML = '';
+  renderTodayOOTD();
+  showToast('⚡ 룩 히스토리가 오늘 OOTD로 적용됐습니다');
+}
+
+function skipSmartLook(histId, elId) {
+  _addSmartDismiss('look_' + histId);
+  const el = document.getElementById(elId);
+  if (el) el.innerHTML = '';
 }
 
 function renderTodayOOTD() {
   const block = document.getElementById('ootd-editorial-block');
-  const hdSub = document.getElementById('ootd-hd-sub');
   if (!block) return;
   const lookTheme = getTodaysScheduledLook();
-  if (hdSub) hdSub.textContent = lookTheme ? (lookTheme.name || 'Edit →') : 'Edit →';
   const heroImg = lookTheme?.baselineImg || '';
   const items = lookTheme?.products || lookTheme?.items || [];
-  const grid = items.slice(0,4).map(p => {
+  const grid = items.map(p => {
     const img = p.imgData || getBoxImgForProduct(p) || '';
     return `<div class="ed-prod-card">
       <div class="ed-prod-img"${img?` style="background-image:url(${img})"`:''}>
@@ -1129,16 +1417,15 @@ function closeOOTDRecord() {
   document.getElementById('ootd-rec-sheet')?.classList.remove('open');
 }
 
+function _applyOOTDRecPhoto(compressed) {
+  const area = document.getElementById('ootd-rec-photo-area');
+  const ph   = document.getElementById('ootd-rec-photo-placeholder');
+  if (area) { area.style.backgroundImage = `url(${compressed})`; area._pendingPhoto = compressed; }
+  if (ph) ph.style.display = 'none';
+}
 function handleOOTDRecPhoto(input) {
   const file = input.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const area = document.getElementById('ootd-rec-photo-area');
-    const ph   = document.getElementById('ootd-rec-photo-placeholder');
-    if (area) { area.style.backgroundImage = `url(${ev.target.result})`; area._pendingPhoto = ev.target.result; }
-    if (ph) ph.style.display = 'none';
-  };
-  reader.readAsDataURL(file);
+  _compressFile(file, 480, 0.68, _applyOOTDRecPhoto);
 }
 
 function saveOOTDRecord() {
@@ -1175,24 +1462,16 @@ function saveOOTDRecord() {
 }
 
 function pickOOTDPhoto() {
-  const input = document.createElement('input');
-  input.type='file'; input.accept='image/*';
-  input.onchange = e => {
-    const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
-      const today = getTodayKey();
-      let look = looks.find(l=>l.date===today);
-      if (!look) { look={date:today,mainPhoto:null,note:'',logged:false}; looks.push(look); }
-      look.mainPhoto = ev.target.result;
-      localStorage.setItem(LOOKS_KEY, JSON.stringify(looks));
-      saveLogsToCloud();
-      renderTodayOOTD();
-    };
-    reader.readAsDataURL(file);
-  };
-  input.click();
+  showImgPickSheet(compressed => {
+    const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
+    const today = getTodayKey();
+    let look = looks.find(l=>l.date===today);
+    if (!look) { look={date:today,mainPhoto:null,note:'',logged:false}; looks.push(look); }
+    look.mainPhoto = compressed;
+    localStorage.setItem(LOOKS_KEY, JSON.stringify(looks));
+    saveLogsToCloud();
+    renderTodayOOTD();
+  }, 480, 0.68);
 }
 
 function logTodayOOTD() {
@@ -1297,10 +1576,19 @@ window.addEventListener('load', () => {
   initSampleData();
   const plan = JSON.parse(localStorage.getItem(DB_KEY)||'null');
   loadPlan(plan);
+  renderCareToday();
   renderAllDay();
   renderTodayOOTD();
   renderTodayMakeup();
   initWeather();
+});
+
+// log.html에서 저장 시 다른 탭 today.html 자동 갱신
+window.addEventListener('storage', e => {
+  if(e.key==='onstep_makeup_contents'){ renderTodayMakeup(); renderSmartGuide(); }
+  if(e.key==='onstep_look_contents'){   renderTodayOOTD();   renderSmartGuide(); }
+  if(e.key==='onstep_looks'){           renderTodayOOTD(); }
+  if(e.key==='onstep_care_themes'){     renderCareToday(); }
 });
 </script>
 </body>

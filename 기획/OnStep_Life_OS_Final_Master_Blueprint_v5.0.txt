@@ -1,0 +1,37 @@
+[OnStep Life OS: Master Development Blueprint v5.0]
+
+1. 프로젝트 비전 & 핵심 로직
+- 서비스명: OnStep (온스텝)
+- 철학: 영감(LOG) -> 전략(SETUP) -> 실행(TODAY) -> 자산(BOX)의 유기적 순환.
+- 핵심 엔진: [Dynamic Routine Engine] - 가변 길이를 가진 루틴 설계 및 실시간 렌더링.
+
+2. 시스템 아키텍처 (Unified Flow)
+A. BOX (Asset Management Layer)
+   - 재고(Stock)와 소모(Residual)의 이중 관리.
+   - 로직: [횟수 기반] vs [기간 기반] 선택형 잔량 계산.
+   - UI: 전체 재고 도트 표시 + 개별 잔량 '실버 바' 시각화. 0% 도달 시 재고 자동 차감 및 리셋.
+B. LOG (Inspiration & Feedback Layer)
+   - Muse: 외부 영감을 [Schedule to Setup] 버튼으로 특정 날짜에 즉시 예약.
+   - History: 성공한 루틴(사진+제품+로그)을 [Apply to Future]로 미래 일정에 복제.
+C. SETUP (Strategy & Control Layer)
+   - Dynamic Routine: 기본 10일 세션이나 사용자가 자유롭게 일수를 추가(Add)/삽입(Insert) 가능.
+   - Look Planner: LOG에서 넘어온 데이터와 BOX의 실물 자산을 매칭하여 당일 가이드 확정.
+D. TODAY (Execution & Interface Layer)
+   - SETUP의 가변 인덱스에 따라 현재 루틴 단계 및 제품 자동 노출.
+   - 제품 클릭 시 BOX의 Storage Photo(보관 장소 사진) 즉시 팝업.
+
+3. 데이터 사양 (Technical Spec)
+- Universal Key: User Email (비밀번호 없는 실시간 동기화).
+- 가변 배열 구조: 루틴은 고정 배열이 아닌 가변 길이 객체 배열로 관리.
+- No-Cache 전략: 설정 변경 즉시 반영을 위한 타임스탬프 기반 데이터 호출.
+
+4. 비주얼 가이드 (Visual Identity)
+- 컨셉: 하이엔드 미니멀리즘 (Luxury Magazine Mood).
+- 컬러: Pure White (#FFFFFF), Light Gray (#E5E5E5), Silver (#C0C0C0).
+- 폰트: Serif (타이틀/해시태그), Sans-serif (데이터/수치).
+
+5. 클로드(Claude) 구현 지시 (Action Items)
+- 1단계: 가변 세션 길이(Dynamic Session Length)를 지원하는 루틴 데이터 스키마 구축.
+- 2단계: SETUP에서 일정을 추가/삭제할 때 TODAY의 프로그레스 바가 동적으로 리인덱싱되는 로직 구현.
+- 3단계: BOX의 이중 잔량 계산 엔진(횟수/기간) 및 드래그 보정 기능 개발.
+- 4단계: LOG의 예약 데이터를 SETUP 캘린더로 브릿징하는 파이프라인 연결.

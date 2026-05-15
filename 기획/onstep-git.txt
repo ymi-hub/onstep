@@ -1,0 +1,67 @@
+onstep
+
+git-hub
+https://github.com/ymi-hub/onstyle.git
+
+
+Hashtag Daily Life
+
+
+mac에서 마지막 명령어
+git add .
+git commit -m "작업내용"
+git push origin main
+
+
+pc에서 시작
+git pull origin main
+
+작업 끝났으면 커밋하고 푸시까지 해줘
+
+git clone https://github.com/ymi-hub/onstep.git
+cd onstep
+
+====================================
+VS Code 터미널에서 실행하면 됩니다.
+
+실행 방법
+VS Code 터미널 열기
+
+
+Ctrl + ` (백틱)
+명령어 입력
+
+
+firebase deploy --only hosting
+Enter 누르면 자동으로 배포 완료됩니다.
+
+
+
+
+=======================
+AI 활용 클로드 사용
+
+# 관련 링크
+ 1. 구글  AI 스튜디오 (Gemini API키 발급)
+ https://aistudio.google.com/
+
+API 키: AIzaSyChkscxlYrNCWtI8XnxZ9y0WWtDouefPU0
+
+2. 클로드
+https://claude.ai/
+
+자료
+유트브영상 (AI 싱크크럽)
+https://youtube.com/watch?v=1_bRmkUvjHA&si=5Ewq7HVVxh9bLU8D
+
+자료실
+https://neighborly-wolfberry-308.notion.site/aisyncsource?pvs=149
+
+
+node.js 설치
+
+
+
+
+
+

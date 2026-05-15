@@ -1,0 +1,38 @@
+[OnStep Life OS: Tutorial & Master Design Spec v5.5]
+
+PART 1. User Tutorial: OnStep Life OS와 함께하는 하루
+1. [자산 등록] 사용자는 새로 산 제품을 BOX에 등록하고, 화장대 사진을 찍어 위치를 기록합니다. (데이터 소스 생성)
+2. [영감 수집] 인스타에서 본 메이크업 무드를 LOG에 저장하고, 미래 일정에 예약합니다. (전략 입력)
+3. [전략 설계] SETUP에서 가변 루틴을 설정합니다. 시스템은 자동으로 오늘이 며칠 차인지 계산합니다. (연산)
+4. [실시간 실행] TODAY를 켜면 오늘 할 일과 제품 위치(Storage Photo)를 즉시 확인합니다. (출력)
+
+PART 2. 메뉴별 상세 설계도 (Immutable Design Spec)
+
+1. [TODAY] 실시간 관제 화면
+- Header: #Flow, #MOTD, #OOTD 타이틀 + 세션 도트 프로그레스 바.
+- Main: 카드 섹션 기반. 제품 정보 + Silver Residual Bar 노출.
+- Interaction: 카드 클릭 시 BOX의 Storage Photo 모달 팝업.
+- Logic: SETUP의 가변 인덱스 데이터 기반 실시간 렌더링.
+
+2. [LOG] 영감 & 아카이브 화면
+- Top: Scene Category 텍스트 칩 필터 (선택 시 Silver Underline).
+- Muse Grid: 가변 그리드 레이아웃. [Schedule to Setup] 버튼 포함.
+- History List: 가로 스크롤. 과거 루틴 세트 복제 [Apply to Future] 버튼.
+- Logic: 예약 시 SETUP의 calendar_data로 실시간 Push.
+
+3. [BOX] 자산 상세 관리 화면
+- Visual: 제품 사진 vs 보관 장소 사진(Storage Photo) 1:1 배치.
+- Stock: 전체 재고 ● ○ 표시.
+- Residual Bar: 드래그 가능한 실버 슬라이더. 보정 시 예상 소진일 실시간 갱신.
+- Logic: 0% 도달 시 재고 자동 차감 및 100% 리셋 루프.
+
+4. [SETUP] 전략 설계 화면
+- Session: 세션 길이(+/- 버튼) 조절 및 확장형 숫자 그리드.
+- Routine Builder: 일자별 BOX 제품 매칭 및 루틴 편집.
+- Look Planner: LOG 예약 데이터 연동 미니 캘린더.
+- Logic: Session_Length 변경 시 routine_steps 배열 실시간 확장 및 TODAY 전파.
+
+PART 3. 개발 지시 사항 (Constraint Prompt)
+- 설계 불변: 위 레이아웃 위계와 디자인 톤(White/Silver/Serif)을 절대 임의 변경 금지.
+- 리액티브: 모든 상태 변화는 새로고침 없이 즉각 UI에 반영될 것.
+- 가변 확장: 루틴 배열은 고정 길이가 아닌 동적 확장 구조로 코딩할 것.

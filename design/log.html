@@ -4,300 +4,284 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>OnStep · Log</title>
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="favicon.png">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="OnStep">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#F9F9F9">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="shared.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Nanum+Pen+Script:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#FFFFFF; --surface:#F5F5F3; --surface-low:#EFEFED;
-  --surface-mid:#E8E8E6; --surface-high:#DDDDD9;
-  --ink:#0A0A0A; --sub:#444444; --mist:#999999;
-  --lime:#C5FF00; --lime-dark:#A8DB00; --lime-fg:#0A0A0A;
-  --border:rgba(10,10,10,.1); --border-md:rgba(10,10,10,.18); --border-light:rgba(10,10,10,.08);
-  --shadow:0 2px 16px rgba(0,0,0,.07);
-  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:9999px;
-  --green:#2d6a4f; --gutter:16px;
+:root{
+  --bg:#F9F9F9;--card:#FFFFFF;--surface:#F4F4F5;
+  --ink:#18181B;--sub:#52525B;--mist:#A1A1AA;--silver:#E4E4E7;
+  --lime:#C6F432;--lime-fg:#18181B;
+  --border:#F0F0F2;--border-card:#E4E4E7;--border-md:rgba(24,24,27,.12);
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-full:9999px;
+  --log-title-size:60px;
 }
-*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body {
-  background:#EBEBEB; display:flex; justify-content:center; align-items:flex-start;
-  min-height:100vh; padding:24px 16px 48px;
-  font-family:'Inter',sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased;
-}
-.phone {
-  width:390px; background:#FFFFFF; border-radius:48px;
-  box-shadow:0 0 0 1px rgba(255,255,255,.6) inset, 0 40px 100px rgba(0,0,0,.22);
-  overflow:hidden; position:relative;
-}
-.notch { height:44px; background:#FFFFFF; display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px; }
-.notch-bar { width:126px; height:5px; background:var(--ink); border-radius:3px; opacity:.1; }
-.scroll { height:844px; overflow-y:auto; scrollbar-width:none; background:#FFFFFF; }
-.scroll::-webkit-scrollbar { display:none; }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:#E5E5E5;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 16px 48px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
+.phone{width:390px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;}
+.notch{height:44px;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
+.notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1;}
+.scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:var(--bg);}
+.scroll::-webkit-scrollbar{display:none;}
 
 /* AppBar */
-.appbar {
-  padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
-  background:rgba(255,255,255,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-  position:sticky; top:0; z-index:10; border-bottom:1px solid var(--border);
-}
-.appbar-menu { width:22px; display:flex; flex-direction:column; gap:5px; cursor:pointer; }
-.appbar-menu span { height:1.5px; background:var(--ink); border-radius:2px; display:block; }
-.appbar-menu span:nth-child(2) { width:68%; }
-.appbar-center {
-  font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700;
-  letter-spacing:.02em; color:var(--ink);
-}
-#auth-avatar {
-  width:32px; height:32px; border-radius:9999px; background:var(--surface-mid);
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; overflow:hidden; border:1.5px solid var(--border);
-}
+.appbar{padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(249,249,249,.88);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border);}
+.appbar-menu{width:22px;display:flex;flex-direction:column;gap:5px;cursor:pointer;}
+.appbar-menu span{height:1.5px;background:var(--ink);border-radius:2px;display:block;}
+.appbar-menu span:nth-child(2){width:68%;}
+.appbar-title{font-size:15px;font-weight:700;letter-spacing:.01em;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.appbar-logo{width:24px;height:24px;border-radius:var(--r-sm);object-fit:cover;filter:grayscale(100%);}
+#auth-avatar{width:32px;height:32px;border-radius:var(--r-full);background:var(--surface);border:1.5px solid var(--border-md);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
-/* Filter bar */
-.filter-bar {
-  display:flex; gap:8px; overflow-x:auto; scrollbar-width:none;
-  border-bottom:1px solid var(--border); padding:10px 16px;
-  position:sticky; top:49px; z-index:8;
-  background:rgba(255,255,255,.94); backdrop-filter:blur(16px);
-}
-.filter-bar::-webkit-scrollbar { display:none; }
-.filter-chip {
-  flex-shrink:0; padding:6px 14px; border-radius:var(--r-full);
-  border:1.5px solid var(--border-md);
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--mist);
-  cursor:pointer; transition:all .18s; white-space:nowrap; background:transparent;
-}
-.filter-chip.active { color:#FFFFFF; background:var(--ink); border-color:var(--ink); }
+/* Page header */
+.page-header{padding:32px 24px 0;}
+.page-title-big{font-size:var(--log-title-size);font-weight:900;letter-spacing:-4.5px;line-height:.88;color:var(--ink);}
+.page-sub{font-family:'Nanum Pen Script',cursive;font-size:13px;color:var(--mist);margin-top:10px;padding-bottom:16px;border-bottom:1px solid var(--border);}
 
-/* Issue header */
-.issue-hd {
-  display:flex; align-items:center; gap:10px;
-  padding:20px 16px 12px; border-bottom:1px solid var(--border);
-}
-.issue-month {
-  font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:800;
-  letter-spacing:-.01em; color:var(--ink);
-}
-.issue-num {
-  font-family:'Inter',sans-serif; font-size:11px; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase; color:var(--mist);
-  background:var(--surface); padding:3px 8px; border-radius:var(--r-full);
-}
-.issue-count {
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
-  letter-spacing:.08em; text-transform:uppercase; color:var(--mist); margin-left:auto;
-}
+/* Scene filter — 텍스트 + 실버 언더라인 */
+.scene-bar{height:46px;display:flex;gap:20px;align-items:center;overflow-x:auto;scrollbar-width:none;position:sticky;top:64px;z-index:9;background:rgba(249,249,249,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:0 24px;border-bottom:1px solid var(--border);}
+.scene-bar::-webkit-scrollbar{display:none;}
+.scene-chip{flex-shrink:0;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--mist);padding:4px 0;border-bottom:1.5px solid transparent;cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s;}
+.scene-chip.active{color:var(--ink);border-bottom-color:#A1A1AA;}
 
-/* Cover card */
-.cover-card { margin:16px 16px 0; position:relative; border-radius:var(--r-xl); overflow:hidden; cursor:pointer; box-shadow:var(--shadow); border:1px solid var(--border); }
-.cover-img {
-  width:100%; height:220px; background:var(--surface-mid);
-  background-size:cover; background-position:center;
-  display:flex; align-items:center; justify-content:center;
-}
-.cover-body { padding:14px 16px 18px; background:#FFFFFF; }
-.cover-type {
-  font-family:'Inter',sans-serif; font-size:9px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:6px;
-}
-.cover-title {
-  font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:800;
-  color:var(--ink); line-height:1.1; margin-bottom:8px; letter-spacing:-.01em;
-}
-.cover-meta {
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
-  letter-spacing:.08em; text-transform:uppercase; color:var(--mist);
-}
+/* Main */
+.main{padding:0 24px;}
+.section-row{display:flex;align-items:baseline;justify-content:space-between;padding:28px 0 16px;}
+.section-label{font-family:'Nanum Pen Script',cursive;font-size:14px;color:var(--mist);}
+.section-title{font-size:22px;font-weight:900;letter-spacing:-1px;color:var(--ink);}
+.section-count{font-size:10px;font-weight:700;color:var(--mist);}
 
-/* Feature card */
-.feature-card {
-  display:flex; cursor:pointer; min-height:130px;
-  margin:10px 16px 0; border-radius:var(--r-xl); overflow:hidden;
-  box-shadow:var(--shadow); border:1px solid var(--border);
-}
-.feature-img {
-  width:38%; flex-shrink:0; background:var(--surface-mid);
-  background-size:cover; background-position:center;
-  display:flex; align-items:center; justify-content:center;
-}
-.feature-body {
-  flex:1; padding:14px 14px 14px 12px; background:#FFFFFF;
-  display:flex; flex-direction:column; justify-content:space-between;
-}
-.feature-type {
-  font-family:'Inter',sans-serif; font-size:8px; font-weight:700;
-  letter-spacing:.18em; text-transform:uppercase; color:var(--mist); margin-bottom:4px;
-}
-.feature-title {
-  font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700;
-  color:var(--ink); line-height:1.2; flex:1; letter-spacing:-.01em;
-}
-.feature-desc {
-  font-family:'Inter',sans-serif; font-size:10px; color:var(--mist);
-  line-height:1.5; margin-top:4px; overflow:hidden;
-  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
-}
-.feature-meta {
-  font-family:'Inter',sans-serif; font-size:9px; font-weight:600;
-  letter-spacing:.06em; text-transform:uppercase; color:var(--mist); margin-top:8px;
-}
-.feature-thumbs { display:flex; gap:4px; margin-top:8px; }
-.feature-thumb {
-  width:24px; height:24px; background:var(--surface-high);
-  background-size:cover; background-position:center;
-  flex-shrink:0; border-radius:var(--r-sm); border:1px solid var(--border-light);
-  display:flex; align-items:center; justify-content:center; font-size:9px;
-}
+/* Muse Library — Pinterest 2-col */
+.muse-grid{columns:2;column-gap:10px;padding-bottom:8px;}
+.muse-more-btn{column-span:all;margin:8px 0 16px;padding:14px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mist);background:var(--card);border:1px solid var(--border-card);border-radius:var(--r-lg);cursor:pointer;transition:background .15s;}
+.muse-more-btn:active{background:var(--surface);}
+.muse-card{break-inside:avoid;margin-bottom:10px;background:var(--card);border:1px solid var(--border-card);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:transform .15s;}
+.muse-card:active{transform:scale(.97);}
+.muse-img{width:100%;background:var(--surface);background-size:cover;background-position:center;}
+.muse-body{padding:10px 11px 11px;}
+.muse-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px;}
+.muse-tag{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--mist);}
+.muse-note{font-size:11px;font-weight:500;color:var(--ink);line-height:1.5;margin-bottom:9px;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.muse-sched-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:var(--lime-fg);background:var(--lime);padding:2px 8px;border-radius:var(--r-full);margin-bottom:5px;}
+.muse-sched-btn{width:100%;height:28px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);font-size:9px;font-weight:700;letter-spacing:.04em;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+.muse-sched-btn.done{background:var(--lime);color:var(--lime-fg);}
 
-/* Brief grid */
-.brief-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px 16px 0; }
-.brief-card { cursor:pointer; border-radius:var(--r-lg); overflow:hidden; box-shadow:var(--shadow); border:1px solid var(--border); background:#FFFFFF; }
-.brief-img {
-  width:100%; aspect-ratio:1/1; background:var(--surface-mid);
-  background-size:cover; background-position:center;
-  display:flex; align-items:center; justify-content:center;
-}
-.brief-body { padding:10px 10px 12px; }
-.brief-type {
-  font-family:'Inter',sans-serif; font-size:8px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:3px;
-}
-.brief-title {
-  font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700;
-  color:var(--ink); line-height:1.2; margin-bottom:4px; letter-spacing:-.01em;
-}
-.brief-date {
-  font-family:'Inter',sans-serif; font-size:8px; font-weight:600;
-  letter-spacing:.06em; color:var(--mist);
-}
+/* Empty */
+.empty-box{padding:48px 24px;text-align:center;}
+.empty-icon{font-size:32px;opacity:.25;margin-bottom:12px;}
+.empty-title{font-size:14px;font-weight:700;color:var(--mist);margin-bottom:6px;}
+.empty-sub{font-size:11px;color:var(--mist);line-height:1.6;}
 
-/* Load more */
-.load-more-wrap { padding:20px 16px; text-align:center; }
-.load-more-btn {
-  font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700;
-  color:var(--mist); background:none; border:1.5px solid var(--border-md);
-  border-radius:var(--r-full); padding:10px 28px; cursor:pointer; letter-spacing:.02em; transition:all .2s;
-}
-.load-more-btn:hover { color:var(--ink); border-color:var(--ink); }
+/* History — horizontal scroll */
+.history-wrap{margin:0 -24px;overflow-x:auto;scrollbar-width:none;padding:0 24px 24px;}
+.history-wrap::-webkit-scrollbar{display:none;}
+.history-row{display:flex;gap:10px;width:max-content;}
+.history-card{width:152px;background:var(--card);border:1px solid var(--border-card);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;flex-shrink:0;transition:transform .15s;}
+.history-card:active{transform:scale(.97);}
+.history-img{width:100%;height:132px;background:var(--surface);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;}
+.history-body{padding:10px 11px 11px;}
+.history-date{font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--mist);margin-bottom:3px;}
+.history-name{font-size:12px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.history-items-text{font-size:10px;color:var(--sub);margin-bottom:8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.history-apply-btn{width:100%;height:28px;background:var(--surface);color:var(--ink);border:1px solid var(--border-card);border-radius:var(--r-sm);font-size:9px;font-weight:700;letter-spacing:.04em;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 
-/* Empty archive */
-.empty-archive { padding:60px 32px; text-align:center; }
-.empty-archive-title {
-  font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:800;
-  color:var(--mist); margin-bottom:10px; letter-spacing:-.01em;
-}
-.empty-archive-sub {
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--mist);
-}
-
-/* Detail panel */
-.detail-panel {
-  position:absolute; inset:0; z-index:60; background:#FFFFFF;
-  transform:translateX(100%); transition:transform .36s cubic-bezier(.4,0,.2,1);
-  display:flex; flex-direction:column;
-}
-.detail-panel.open { transform:translateX(0); }
-.detail-appbar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px 16px 12px;
-  background:rgba(255,255,255,.92); backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border); flex-shrink:0;
-}
-.detail-back {
-  background:none; border:none;
-  font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700;
-  color:var(--ink); cursor:pointer; padding:0;
-}
-.detail-body { flex:1; overflow-y:auto; scrollbar-width:none; }
-.detail-body::-webkit-scrollbar { display:none; }
-.detail-hero-img {
-  width:100%; height:240px; background:var(--surface-mid);
-  background-size:cover; background-position:center;
-  display:flex; align-items:center; justify-content:center;
-  font-size:48px; opacity:.2;
-}
-.detail-content { padding:20px; }
-.detail-type {
-  font-family:'Inter',sans-serif; font-size:9px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:8px;
-}
-.detail-title {
-  font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:800;
-  color:var(--ink); line-height:1.05; margin-bottom:10px; letter-spacing:-.02em;
-}
-.detail-date {
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--mist); margin-bottom:16px;
-}
-.detail-desc {
-  font-family:'Inter',sans-serif; font-size:13px; color:var(--sub);
-  line-height:1.7; border-top:1px solid var(--border-light);
-  padding-top:16px; margin-bottom:20px;
-}
-.detail-prods-label {
-  font-family:'Inter',sans-serif; font-size:9px; font-weight:700;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:10px;
-}
-.detail-prods-grid {
-  display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:24px;
-}
-.detail-prod-item { text-align:center; }
-.detail-prod-img {
-  width:100%; aspect-ratio:1/1; background:var(--surface-mid);
-  background-size:cover; background-position:center;
-  border:1px solid var(--border-light); border-radius:var(--r-md);
-  display:flex; align-items:center; justify-content:center;
-  font-size:14px; margin-bottom:4px;
-}
-.detail-prod-name {
-  font-family:'Inter',sans-serif; font-size:8px; font-weight:600;
-  color:var(--ink); letter-spacing:.04em;
-  overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
-}
-.detail-ok-btn {
-  width:100%; height:52px; background:var(--ink); color:#fff; border:none;
-  font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700;
-  cursor:pointer; transition:opacity .2s; border-radius:var(--r-md);
-}
-.detail-ok-btn:active { opacity:.8; }
+/* FAB */
+.fab{position:absolute;bottom:80px;right:18px;width:48px;height:48px;background:var(--ink);border-radius:var(--r-full);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.28);z-index:20;transition:transform .15s;}
+.fab:active{transform:scale(.92);}
 
 /* Bottom nav */
 .bottom-nav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;padding:12px 6px 20px;text-decoration:none;border-radius:20px 20px 0 0;}
 .nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#AAAAAA;}
-.nav-label{font-family:'Space Grotesk','Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#AAAAAA;}
+.nav-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#AAAAAA;}
 .nav-item.active{background:#0A0A0A;}
-.nav-item.active .nav-icon{color:#FFFFFF;}
-.nav-item.active .nav-label{color:#FFFFFF;}
+.nav-item.active .nav-icon,.nav-item.active .nav-label{color:#FFFFFF;}
+
+/* Detail panel */
+.detail-panel{position:absolute;inset:0;z-index:60;background:#fff;transform:translateX(100%);transition:transform .34s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+.detail-panel.open{transform:translateX(0);}
+.detail-appbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-shrink:0;}
+.detail-back{background:none;border:none;font-size:18px;font-weight:700;color:var(--ink);cursor:pointer;padding:0;}
+.detail-edit-btn{background:none;border:1.5px solid var(--border-card);border-radius:var(--r-sm);font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--ink);cursor:pointer;padding:5px 12px;font-family:'Plus Jakarta Sans',sans-serif;}
+.detail-appbar-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);}
+.detail-body{flex:1;overflow-y:auto;scrollbar-width:none;}
+.detail-body::-webkit-scrollbar{display:none;}
+.detail-hero{width:100%;height:256px;background:var(--surface);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;}
+.detail-content{padding:20px 20px 8px;}
+.detail-tags-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.detail-tag{height:22px;padding:0 10px;background:var(--surface);border-radius:var(--r-full);font-size:10px;font-weight:700;color:var(--sub);display:inline-flex;align-items:center;}
+.detail-title{font-size:22px;font-weight:800;color:var(--ink);line-height:1.15;letter-spacing:-.6px;margin-bottom:8px;}
+.detail-meta{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);margin-bottom:14px;}
+.detail-scheduled-pill{display:inline-flex;align-items:center;gap:6px;background:var(--lime);padding:6px 14px;border-radius:var(--r-full);font-size:11px;font-weight:700;color:var(--lime-fg);margin-bottom:14px;}
+.detail-ref{font-size:11px;color:var(--mist);text-decoration:underline;text-underline-offset:2px;margin-bottom:14px;display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.detail-prods-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;}
+.detail-prods-row{display:flex;gap:8px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px;}
+.detail-prods-row::-webkit-scrollbar{display:none;}
+.detail-prod{flex-shrink:0;height:28px;padding:0 12px;background:var(--surface);border:1px solid var(--border-card);border-radius:var(--r-full);font-size:11px;font-weight:600;color:var(--ink);display:inline-flex;align-items:center;}
+.detail-actions{display:flex;gap:8px;padding:12px 20px 16px;border-top:1px solid var(--border);flex-shrink:0;background:#fff;}
+.detail-del-btn{height:50px;padding:0 14px;background:none;border:1.5px solid #FCA5A5;color:#DC2626;font-size:12px;font-weight:700;cursor:pointer;border-radius:var(--r-md);flex-shrink:0;font-family:'Plus Jakarta Sans',sans-serif;}
+.detail-main-btn{flex:1;height:50px;background:var(--ink);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;border-radius:var(--r-md);font-family:'Plus Jakarta Sans',sans-serif;transition:opacity .2s;}
+.detail-main-btn.lime{background:var(--lime);color:var(--lime-fg);}
+.detail-main-btn:active{opacity:.8;}
+
+/* Sheets */
+.sheet{position:absolute;inset:0;z-index:80;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .24s;}
+.sheet.open{opacity:1;pointer-events:all;}
+.sheet-inner{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 20px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto;scrollbar-width:none;}
+.sheet-inner::-webkit-scrollbar{display:none;}
+.sheet.open .sheet-inner{transform:translateY(0);}
+.sheet-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.4px;color:var(--ink);margin-bottom:4px;}
+.sheet-sub{font-size:12px;color:var(--mist);margin-bottom:20px;line-height:1.5;}
+.field-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin-bottom:6px;}
+.field-in{width:100%;border:1.5px solid var(--border-card);border-radius:var(--r-md);padding:11px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--ink);outline:none;margin-bottom:16px;background:#fff;}
+.field-in:focus{border-color:var(--ink);}
+textarea.field-in{resize:none;height:72px;line-height:1.6;}
+.sheet-btns{display:flex;gap:8px;}
+.sh-cancel{flex:1;height:52px;background:var(--surface-low);border:1.5px solid var(--border-card);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;}
+.sh-cancel:active{opacity:.8;}
+.sh-confirm{flex:2;height:52px;background:var(--ink);border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;}
+.sh-confirm:active{opacity:.8;}
+.sh-confirm.lime{background:var(--lime);color:var(--lime-fg);}
+
+/* Schedule to Setup — 이력 & 자동화 */
+.sched-log-section{background:var(--surface);border-radius:var(--r-md);padding:12px 14px;margin-bottom:16px;}
+.sched-log-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;}
+.sched-log-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.sched-log-chip{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;padding:4px 9px;background:var(--card);border:1px solid var(--border-card);border-radius:var(--r-full);color:var(--ink);}
+.sched-log-more{color:var(--mist);background:transparent;border-color:var(--border-card);}
+.sched-progress-wrap{height:4px;background:var(--border-card);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+.sched-progress-bar{height:100%;border-radius:2px;transition:width .5s;}
+.sched-progress-lbl{font-size:10px;font-weight:600;color:var(--mist);}
+.sched-progress-lbl.reached{color:#2D7A00;font-weight:700;}
+.sched-auto-card{border:1.5px solid var(--lime);border-radius:var(--r-md);padding:14px;margin-bottom:16px;background:rgba(198,244,50,.08);}
+.sched-auto-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.sched-auto-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.sched-auto-desc{font-size:11px;color:var(--mist);line-height:1.4;}
+.sched-auto-toggle{padding:6px 14px;border-radius:var(--r-full);border:1.5px solid var(--border-card);background:var(--surface-low);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--mist);cursor:pointer;flex-shrink:0;transition:all .2s;}
+.sched-auto-toggle.on{background:var(--lime);border-color:var(--lime);color:var(--lime-fg);}
+/* Muse card — 등록 횟수 배지 */
+.muse-img{position:relative;}
+.muse-count-badge{position:absolute;top:8px;right:8px;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;padding:3px 8px;border-radius:var(--r-full);letter-spacing:.04em;pointer-events:none;}
+.muse-count-badge.auto{background:var(--lime);color:var(--lime-fg);}
+.muse-count-badge.count{background:rgba(0,0,0,.55);color:#fff;}
+
+/* Image picker */
+.img-pick{width:100%;height:116px;background:var(--surface);border:1.5px dashed var(--border-card);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:16px;position:relative;background-size:cover;background-position:center;}
+.img-pick-ph{display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none;}
+.img-pick-icon-wrap{width:32px;height:32px;background:var(--border-card);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;}
+.img-pick-text{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mist);}
+.img-rm-btn{position:absolute;top:8px;right:8px;width:26px;height:26px;background:rgba(0,0,0,.55);border:none;border-radius:var(--r-full);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+
+/* TPO chips */
+.tpo-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
+.tpo-chip{height:30px;padding:0 14px;border-radius:var(--r-full);font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border-card);color:var(--mist);background:transparent;font-family:'Plus Jakarta Sans',sans-serif;transition:all .14s;}
+.tpo-chip.on{border-color:var(--ink);color:var(--ink);background:var(--surface);}
+
+/* Schedule type toggle */
+.type-row{display:flex;gap:8px;margin-bottom:20px;}
+.type-btn{flex:1;height:44px;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--border-card);color:var(--mist);background:transparent;font-family:'Plus Jakarta Sans',sans-serif;transition:all .14s;}
+.type-btn.on{border-color:var(--ink);color:var(--ink);background:var(--surface);}
+.type-btn-sub{font-size:9px;font-weight:400;opacity:.55;}
+.avatar-icon-default{opacity:.5;}
+
+.hidden{display:none;}
+
+/* BOX product picker */
+.bp-item{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;}
+.bp-item:active{background:var(--surface);}
+.bp-item.selected{background:rgba(198,244,50,.12);}
+.bp-item-check{width:20px;height:20px;border-radius:var(--r-full);border:1.5px solid var(--border-md);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .14s;}
+.bp-item.selected .bp-item-check{background:var(--lime);border-color:var(--lime);color:var(--lime-fg);}
+.bp-item-info{flex:1;min-width:0;}
+.bp-item-name{font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.bp-item-brand{font-size:10px;color:var(--mist);margin-top:2px;}
+.bp-item-domain{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--mist);background:var(--surface);padding:2px 8px;border-radius:var(--r-full);flex-shrink:0;}
+.bp-more-btn{padding:14px 16px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mist);border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.bp-more-btn:active{background:var(--surface);}
+.bp-search-wrap{padding:12px 16px;border-bottom:1px solid var(--border);}
+.bp-search-input{width:100%;border:1.5px solid var(--border-card);border-radius:var(--r-md);padding:9px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--ink);outline:none;background:#fff;}
+.bp-search-input:focus{border-color:var(--ink);}
+
+/* Muse product chips */
+.muse-prods-btn{margin-top:10px;width:100%;height:32px;background:var(--surface);border:1.5px dashed var(--border-card);border-radius:var(--r-sm);font-size:11px;font-weight:700;color:var(--sub);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+
+/* Archive panel list */
+.archive-item{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;}
+.archive-item:active{background:var(--surface);}
+.archive-item.selected{background:rgba(198,244,50,.1);}
+.archive-cb{width:22px;height:22px;border-radius:var(--r-full);border:1.5px solid var(--border-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;transition:all .14s;}
+.archive-item.selected .archive-cb{background:var(--lime);border-color:var(--lime);color:var(--lime-fg);}
+.archive-thumb{width:44px;height:44px;border-radius:var(--r-sm);background:var(--surface-low);background-size:cover;background-position:center;flex-shrink:0;}
+.archive-info{flex:1;min-width:0;}
+.archive-date{font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--mist);margin-bottom:2px;}
+.archive-note{font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.archive-prods{font-size:10px;color:var(--mist);margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.archive-apply-btn{flex-shrink:0;height:28px;padding:0 10px;background:var(--surface);border:1px solid var(--border-card);border-radius:var(--r-sm);font-size:10px;font-weight:700;color:var(--ink);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+.archive-group-year{padding:16px 20px 4px;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--mist);background:var(--bg);border-bottom:1px solid var(--border);}
+.archive-group-month{padding:8px 20px 6px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mist);background:var(--surface);display:flex;justify-content:space-between;align-items:center;}
+.archive-month-count{font-size:9px;font-weight:600;color:var(--border-md);}
+.archive-edit-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--border);background:#fff;flex-shrink:0;}
+.archive-edit-bar.hidden{display:none;}
+.archive-sel-label{font-size:13px;font-weight:700;color:var(--ink);}
+.archive-del-btn{height:40px;padding:0 20px;background:#DC2626;color:#fff;border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+.archive-del-btn:disabled{background:var(--border-md);cursor:not-allowed;}
+
+/* Tag editor */
+.edit-tags-selected{display:flex;flex-wrap:wrap;gap:7px;min-height:32px;align-items:center;margin-bottom:12px;}
+.edit-tag-chip{display:inline-flex;align-items:center;gap:3px;height:30px;padding:0 6px 0 12px;border-radius:var(--r-full);font-size:11px;font-weight:700;background:var(--ink);color:#fff;}
+.edit-tag-chip-x{background:none;border:none;color:rgba(255,255,255,.55);cursor:pointer;font-size:16px;padding:0 3px;line-height:1;display:flex;align-items:center;font-family:'Plus Jakarta Sans',sans-serif;}
+.edit-tag-chip-x:hover{color:#fff;}
+.edit-tags-quick{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.edit-tag-input-row{display:flex;gap:8px;}
+.edit-tag-add-btn{height:44px;padding:0 16px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;white-space:nowrap;}
 
 /* Toast */
-.toast {
-  position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
-  background:var(--ink); color:#fff; padding:10px 20px;
-  font-family:'Inter',sans-serif; font-size:12px; letter-spacing:.04em;
-  opacity:0; transition:opacity .25s, transform .25s; pointer-events:none;
-  white-space:nowrap; z-index:200;
-}
-.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 20px;font-size:12px;letter-spacing:.04em;border-radius:var(--r-full);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;z-index:200;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-@media (max-width:430px) {
-  body { background:#FFFFFF; padding:0; }
-  .phone { width:100%; border-radius:0; box-shadow:none; }
-  .scroll { height:100dvh; }
-  .bottom-nav { border-top:none; }
-  .nav-item { padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px); }
+@media(max-width:430px){
+  body{background:var(--bg);padding:0;}
+  .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
+  .notch{flex-shrink:0;}
+  .scroll{flex:1;min-height:0;height:auto;}
+  .bottom-nav{border-top:none;}
+  .nav-item{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);}
+  .fab{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);right:18px;}
 }
+/* ════ Scene Tag Manage Overlay ════ */
+.scene-manage-ov{position:absolute;inset:0;z-index:90;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+.scene-manage-ov.open{opacity:1;pointer-events:auto;}
+.scene-manage-sheet{width:100%;background:#fff;border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:82%;display:flex;flex-direction:column;}
+.scene-manage-ov.open .scene-manage-sheet{transform:translateY(0);}
+.scene-manage-hd{display:flex;align-items:center;gap:0;padding:20px 20px 12px;flex-shrink:0;}
+.scene-manage-hd-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;color:var(--ink);flex:1;text-align:center;}
+.scene-manage-close{width:32px;height:32px;background:#F0F0EE;border:none;border-radius:8px;cursor:pointer;font-size:15px;color:#44474A;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.scene-manage-scroll{flex:1;overflow-y:auto;scrollbar-width:none;padding:0 20px;}
+.scene-manage-scroll::-webkit-scrollbar{display:none;}
+.scene-manage-list{}
+.scene-manage-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #E5E7EB;}
+.scene-manage-row-label{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:500;color:var(--ink);}
+.scene-manage-row-actions{display:flex;gap:4px;}
+.scene-manage-action{width:28px;height:28px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;border-radius:6px;}
+.scene-manage-action:active{background:#F0F0EE;}
+.scene-manage-add-link{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:var(--ink);background:none;border:none;cursor:pointer;text-align:left;padding:14px 0 4px;display:flex;align-items:center;gap:6px;}
+.scene-manage-footer{padding:12px 20px 36px;flex-shrink:0;background:#fff;border-top:1px solid #F0F0EE;}
+.scene-manage-apply{width:100%;height:48px;background:var(--ink);color:#fff;border:none;border-radius:12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;}
+.scene-new-card{margin-top:8px;padding:16px;border:1px solid #E5E7EB;border-radius:12px;display:flex;flex-direction:column;gap:10px;flex-shrink:0;}
+.scene-new-inp{width:100%;border:none;border-bottom:1px solid #C5C6CA;padding:8px 0;font-size:16px;color:var(--ink);outline:none;background:transparent;}
+.scene-new-inp::placeholder{color:#C5C6CA;}
+.scene-new-confirm{width:100%;height:44px;background:var(--ink);color:#fff;border:none;cursor:pointer;border-radius:2px;font-size:14px;font-weight:600;letter-spacing:.04em;}
+.scene-new-cancel{width:100%;height:40px;background:transparent;color:var(--ink);border:1px solid #C5C6CA;cursor:pointer;border-radius:2px;font-size:14px;font-weight:600;}
 </style>
 </head>
 <body>
@@ -305,66 +289,214 @@ body {
   <div class="notch"><div class="notch-bar"></div></div>
   <div class="scroll">
 
-    <!-- AppBar -->
     <div class="appbar">
-      <div class="appbar-menu">
-        <span></span><span></span><span></span>
+      <div class="appbar-menu"><span></span><span></span><span></span></div>
+      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer">
+        <img src="favicon.png" class="appbar-logo" alt="OnStep">
+        OnStep
       </div>
-      <div class="appbar-center">LOG</div>
-      <div id="auth-avatar" onclick="handleAuthClick()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
+      <div id="auth-avatar" data-auth-avatar onclick="handleAuthClick()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class="avatar-icon-default"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
       </div>
     </div>
 
-    <!-- Filter bar -->
-    <div class="filter-bar">
-      <div class="filter-chip active" data-type="all" onclick="setFilter('all')">ALL&nbsp;<span id="fc-all">0</span></div>
-      <div class="filter-chip" data-type="routine" onclick="setFilter('routine')">루틴케어</div>
-      <div class="filter-chip" data-type="care" onclick="setFilter('care')">집중케어</div>
-      <div class="filter-chip" data-type="makeup" onclick="setFilter('makeup')">메이크업</div>
-      <div class="filter-chip" data-type="look" onclick="setFilter('look')">룩북</div>
+    <div class="page-header">
+      <div class="page-title-big">LOG</div>
+      <div class="page-sub">오늘 본 무드가 내일의 내 모습이 된다</div>
     </div>
 
-    <!-- Archive content -->
-    <div id="archive-content"></div>
+    <!-- Section A: Scene Filter -->
+    <div class="scene-bar" id="scene-bar">
+      <div class="scene-chip active" data-tag="전체" onclick="setScene('전체')">#전체</div>
 
-    <!-- Load more -->
-    <div id="load-more-wrap" style="display:none">
-      <button class="load-more-btn" onclick="loadMore()">Load More →</button>
+      <div class="scene-chip" data-tag="출근" onclick="setScene('출근')">#출근</div>
+      <div class="scene-chip" data-tag="운동" onclick="setScene('운동')">#운동</div>
+      <div class="scene-chip" data-tag="데이트" onclick="setScene('데이트')">#데이트</div>
+      <div class="scene-chip" data-tag="여행" onclick="setScene('여행')">#여행</div>
+      <div class="scene-chip" data-tag="파티" onclick="setScene('파티')">#파티</div>
     </div>
 
-    <div style="height:20px"></div>
+    <div class="main">
+      <!-- Section B: Muse Library -->
+      <div class="section-row">
+        <div>
+          <div class="section-label">영감의 축적</div>
+          <div class="section-title">Muse Library</div>
+        </div>
+        <div class="section-count" id="muse-count">—</div>
+      </div>
+      <div class="muse-grid" id="muse-grid"></div>
 
-    <!-- Bottom nav -->
-    <div class="bottom-nav">
-      <a class="nav-item" href="today.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <div class="nav-label">Today</div>
-      </a>
-      <a class="nav-item active" href="log.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="nav-label">Log</div>
-      </a>
-      <a class="nav-item" href="box.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
-        <div class="nav-label">Box</div>
-      </a>
-      <a class="nav-item" href="setup.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="nav-label">Setup</div>
-      </a>
+      <!-- Section C: Lookbook History -->
+      <div class="section-row">
+        <div>
+          <div class="section-label">기록의 재사용</div>
+          <div class="section-title">Lookbook History</div>
+        </div>
+        <button type="button" onclick="openArchive()" style="background:none;border:none;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--mist);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">전체 보기 →</button>
+      </div>
+    </div>
+
+    <div class="history-wrap">
+      <div class="history-row" id="history-row"></div>
+    </div>
+
+    <div style="height:88px"></div>
+
+    <div class="app-nav"></div>
     </div>
 
   </div><!-- /scroll -->
 
+  <!-- FAB -->
+  <button type="button" class="fab" onclick="openAddSheet()" title="영감 추가">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+
   <!-- Detail panel -->
   <div class="detail-panel" id="detail-panel">
     <div class="detail-appbar">
-      <button class="detail-back" onclick="closeDetail()">←</button>
-      <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:.02em">ARCHIVE</div>
-      <div style="width:28px"></div>
+      <button type="button" class="detail-back" id="detail-back-btn" onclick="closeDetail()">←</button>
+      <div class="detail-appbar-label" id="detail-appbar-label">MUSE</div>
+      <div style="width:24px"></div>
     </div>
-    <div class="detail-body" id="detail-content-inner"></div>
+    <div class="detail-body" id="detail-body"></div>
+    <div class="detail-actions" id="detail-actions"></div>
+  </div>
+  <input type="file" id="edit-img-input" accept="image/*" class="hidden" onchange="handleEditImg(this)">
+
+  <!-- Add Muse sheet -->
+  <div class="sheet" id="add-sheet" onclick="handleSheetBg(event,'add-sheet')">
+    <div class="sheet-inner">
+      <div class="sheet-title">영감 추가</div>
+      <div class="sheet-sub">이미지를 저장하고 Scene 태그를 달아<br>Muse Library에 추가합니다</div>
+      <div class="field-lbl">이미지</div>
+      <div class="img-pick" id="add-img-pick" onclick="triggerAddImg()">
+        <div class="img-pick-ph" id="add-img-ph">
+          <div class="img-pick-icon-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A1A1AA" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <div class="img-pick-text">사진 추가</div>
+        </div>
+        <button type="button" class="img-rm-btn hidden" id="add-img-rm" onclick="removeAddImg(event)">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <input type="file" id="add-img-input" accept="image/*" class="hidden" onchange="handleAddImg(this)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span class="field-lbl" style="margin-bottom:0">Scene 태그</span>
+        <button onclick="openSceneManage()" style="width:20px;height:20px;background:var(--ink);border:none;cursor:pointer;border-radius:2px;display:flex;align-items:center;justify-content:center">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+      <div class="tpo-row" id="add-tpo-row"></div>
+      <div class="field-lbl">메모</div>
+      <textarea class="field-in" id="add-note" placeholder="무드, 스타일 메모..."></textarea>
+      <div class="field-lbl">참조 링크 (선택)</div>
+      <input type="url" class="field-in" id="add-link" placeholder="https://">
+      <div class="sheet-btns">
+        <button type="button" class="sh-cancel" onclick="closeAddSheet()">취소</button>
+        <button type="button" class="sh-confirm" onclick="saveNewMuse()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule to Setup sheet -->
+  <div class="sheet" id="sched-sheet" onclick="handleSheetBg(event,'sched-sheet')">
+    <div class="sheet-inner">
+      <div class="sheet-title">Schedule to Setup</div>
+      <div class="sheet-sub">이 영감을 어느 날짜의 가이드로 등록할까요?</div>
+      <div id="sched-history-wrap"></div>
+      <div class="field-lbl">가이드 타입</div>
+      <div class="type-row">
+        <button type="button" class="type-btn on" id="type-motd" onclick="setSchedType('MOTD')">MOTD<br><span class="type-btn-sub">메이크업 가이드</span></button>
+        <button type="button" class="type-btn" id="type-ootd" onclick="setSchedType('OOTD')">OOTD<br><span class="type-btn-sub">룩 가이드</span></button>
+      </div>
+      <div class="field-lbl">날짜</div>
+      <input type="date" class="field-in" id="sched-date" title="일정 날짜">
+      <div class="sheet-btns">
+        <button type="button" class="sh-cancel" onclick="closeSchedSheet()">취소</button>
+        <button type="button" class="sh-confirm lime" onclick="confirmSched()">등록</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Apply to Future sheet -->
+  <div class="sheet" id="apply-sheet" onclick="handleSheetBg(event,'apply-sheet')">
+    <div class="sheet-inner">
+      <div class="sheet-title">Apply to Future</div>
+      <div class="sheet-sub">이 룩 세트를 미래 일정으로 예약합니다<br>제품·루틴 데이터가 함께 복사됩니다</div>
+      <div id="apply-history-wrap"></div>
+      <div class="field-lbl">예약 날짜</div>
+      <input type="date" class="field-in" id="apply-date" title="예약 날짜">
+      <div class="sheet-btns">
+        <button type="button" class="sh-cancel" onclick="closeApplySheet()">취소</button>
+        <button type="button" class="sh-confirm" onclick="confirmApply()">예약</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Archive panel -->
+  <div class="detail-panel" id="archive-panel">
+    <div class="detail-appbar">
+      <button type="button" class="detail-back" onclick="closeArchive()">←</button>
+      <div class="detail-appbar-label">전체 히스토리</div>
+      <button type="button" class="detail-edit-btn" id="archive-edit-btn" onclick="toggleArchiveEdit()">편집</button>
+    </div>
+    <div class="bp-search-wrap">
+      <input type="search" id="archive-search" class="bp-search-input" placeholder="날짜 또는 메모 검색..." oninput="renderArchive()">
+    </div>
+    <div class="detail-body" id="archive-list"></div>
+    <div class="archive-edit-bar hidden" id="archive-edit-bar">
+      <span class="archive-sel-label" id="archive-sel-label">0개 선택</span>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="sh-cancel" style="height:40px;padding:0 16px" onclick="toggleArchiveEdit()">취소</button>
+        <button type="button" class="archive-del-btn" id="archive-del-btn" onclick="deleteSelected()" disabled>삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOX Product Picker panel -->
+  <div class="detail-panel" id="bp-panel">
+    <div class="detail-appbar">
+      <button type="button" class="detail-back" onclick="closeBoxPicker()">←</button>
+      <div class="detail-appbar-label">BOX에서 불러오기</div>
+      <div style="width:24px"></div>
+    </div>
+    <div class="bp-search-wrap">
+      <input type="search" id="bp-search" class="bp-search-input" placeholder="제품 검색..." oninput="renderBoxPicker()">
+    </div>
+    <div class="detail-body" id="bp-list"></div>
+    <div class="detail-actions">
+      <button type="button" class="sh-cancel" onclick="closeBoxPicker()">취소</button>
+      <button type="button" class="detail-main-btn lime" onclick="confirmBoxPick()">선택 완료 (<span id="bp-sel-count">0</span>)</button>
+    </div>
+  </div>
+
+  <!-- Scene Tag Manage Overlay -->
+  <div class="scene-manage-ov" id="scene-manage-ov" onclick="if(event.target===this)closeSceneManage()">
+    <div class="scene-manage-sheet">
+      <div class="scene-manage-hd">
+        <button class="scene-manage-close" onclick="closeSceneManage()">✕</button>
+        <div class="scene-manage-hd-title">Scene Tags</div>
+        <div style="width:32px"></div>
+      </div>
+      <div class="scene-manage-scroll">
+        <div class="scene-manage-list" id="scene-manage-list"></div>
+        <button class="scene-manage-add-link" id="scene-manage-add-link" onclick="toggleSceneNewCard()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          + Add New Scene Tag
+        </button>
+        <div class="scene-new-card" id="scene-new-card" style="display:none">
+          <input class="scene-new-inp" id="scene-new-inp" placeholder="새 Scene 태그 이름..." onkeydown="if(event.key==='Enter')confirmScene()">
+          <button class="scene-new-confirm" onclick="confirmScene()">추가</button>
+          <button class="scene-new-cancel" onclick="hideSceneNewCard()">취소</button>
+        </div>
+      </div>
+      <div class="scene-manage-footer">
+        <button class="scene-manage-apply" onclick="applySceneManage()">선택 완료</button>
+      </div>
+    </div>
   </div>
 
 </div><!-- /phone -->
@@ -372,323 +504,1055 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Firebase ──────────────────────────────────────────────────
+// ── Firebase ─────────────────────────────────────────────────────
 firebase.initializeApp({
-  apiKey: "AIzaSyBdKnyU8t0XrQsT_EhKS2nk9zOKwjxoquk",
-  authDomain: "onstep-lifeos.firebaseapp.com",
-  projectId: "onstep-lifeos",
-  storageBucket: "onstep-lifeos.firebasestorage.app",
-  messagingSenderId: "333501649998",
-  appId: "1:333501649998:web:4eebd8b84a32ea8a581f1f"
+  apiKey:"AIzaSyBdKnyU8t0XrQsT_EhKS2nk9zOKwjxoquk",
+  authDomain:"onstep-lifeos.firebaseapp.com",
+  projectId:"onstep-lifeos",
+  storageBucket:"onstep-lifeos.firebasestorage.app",
+  messagingSenderId:"333501649998",
+  appId:"1:333501649998:web:4eebd8b84a32ea8a581f1f"
 });
-const fbAuth = firebase.auth();
-const fbDb   = firebase.firestore();
-let currentUser = null;
-firebase.auth().onAuthStateChanged(user => {
-  currentUser = user;
-  updateAuthAvatar(user);
-  if (user) loadExtraFromCloud(user.uid);
+const fbAuth=firebase.auth();
+const fbDb=firebase.firestore();
+let currentUser=null, _unsubExtra=null, _unsubBox=null;
+
+firebase.auth().onAuthStateChanged(user=>{
+  currentUser=user;
+  _updateAuthAvatar(user);
+  if(_unsubExtra){ _unsubExtra(); _unsubExtra=null; }
+  if(_unsubBox){ _unsubBox(); _unsubBox=null; }
+  if(user){
+    loadFromCloud(user.uid);
+    _unsubBox=fbDb.collection('users').doc(user.uid).collection('box').doc('data')
+      .onSnapshot(snap=>{
+        if(!snap.exists) return;
+        const d=snap.data();
+        if(d.assets)    localStorage.setItem('onstep_box_assets',    JSON.stringify(d.assets));
+        if(d.locations) localStorage.setItem('onstep_box_locations', JSON.stringify(d.locations));
+      }, e=>console.warn('box onSnapshot:',e));
+    _unsubExtra=fbDb.collection('users').doc(user.uid).collection('extra').doc('data')
+      .onSnapshot(snap=>{
+        if(!snap.exists) return;
+        const d=snap.data();
+        if(d.museItems)    localStorage.setItem('onstep_muse_items',    JSON.stringify(d.museItems));
+        if(d.careThemes)   localStorage.setItem('onstep_care_themes',   JSON.stringify(d.careThemes));
+        if(d.makeupThemes) localStorage.setItem('onstep_makeup_themes', JSON.stringify(d.makeupThemes));
+        if(d.lookThemes)   localStorage.setItem('onstep_look_themes',   JSON.stringify(d.lookThemes));
+        if(d.looks)        localStorage.setItem('onstep_looks',         JSON.stringify(d.looks));
+        if(d.portfolio)    localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
+        if(d.logScenes && Array.isArray(d.logScenes)){
+          ALL_SCENES=d.logScenes;
+          localStorage.setItem(_SCENE_KEY,JSON.stringify(d.logScenes));
+        }
+        renderAll();
+      }, e=>console.warn('onSnapshot:',e));
+  }
 });
 
-function updateAuthAvatar(user) {
-  const el = document.getElementById('auth-avatar');
-  if (!el) return;
-  if (user) {
-    el.innerHTML = user.photoURL
-      ? `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover;filter:grayscale(20%)">`
-      : `<span style="font-size:11px;color:#fff;font-weight:700">${(user.displayName||user.email||'?')[0].toUpperCase()}</span>`;
-    el.style.background = '#1A1C1C'; el.style.borderColor = '#1A1C1C';
-  } else {
-    el.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>';
-    el.style.background = ''; el.style.borderColor = '';
+async function loadFromCloud(uid){
+  try{
+    const [snap, boxSnap] = await Promise.all([
+      fbDb.collection('users').doc(uid).collection('extra').doc('data').get(),
+      fbDb.collection('users').doc(uid).collection('box').doc('data').get()
+    ]);
+    if(snap.exists){
+      const d=snap.data();
+      if(d.museItems)    localStorage.setItem('onstep_muse_items',    JSON.stringify(d.museItems));
+      if(d.careThemes)   localStorage.setItem('onstep_care_themes',   JSON.stringify(d.careThemes));
+      if(d.makeupThemes) localStorage.setItem('onstep_makeup_themes', JSON.stringify(d.makeupThemes));
+      if(d.lookThemes)   localStorage.setItem('onstep_look_themes',   JSON.stringify(d.lookThemes));
+      if(d.looks)        localStorage.setItem('onstep_looks',         JSON.stringify(d.looks));
+      if(d.portfolio)    localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
+      if(d.logScenes && Array.isArray(d.logScenes)){
+        ALL_SCENES=d.logScenes;
+        localStorage.setItem(_SCENE_KEY,JSON.stringify(d.logScenes));
+      }
+    }
+    if(boxSnap.exists){
+      const b=boxSnap.data();
+      if(b.assets)    localStorage.setItem('onstep_box_assets',    JSON.stringify(b.assets));
+      if(b.locations) localStorage.setItem('onstep_box_locations', JSON.stringify(b.locations));
+    }
+    renderAll();
+  }catch(e){ console.warn('loadFromCloud:',e); }
+}
+
+async function saveToCloud(){
+  const nowTs = Date.now();
+  localStorage.setItem('_onstep_extra_local_ts', nowTs.toString());
+  if(typeof _broadcastState==='function'){
+    _broadcastState('schedule');
+    _broadcastState('looks');
+  }
+  if(!currentUser) return;
+  try{
+    const muse     =JSON.parse(localStorage.getItem('onstep_muse_items')       ||'[]');
+    const care     =JSON.parse(localStorage.getItem('onstep_care_themes')      ||'[]');
+    const makeup   =JSON.parse(localStorage.getItem('onstep_makeup_themes')    ||'{"themes":[]}');
+    const looks    =JSON.parse(localStorage.getItem('onstep_look_themes')      ||'[]');
+    const looksLog =JSON.parse(localStorage.getItem('onstep_looks')            ||'[]');
+    const portfolio=JSON.parse(localStorage.getItem('onstep_planned_portfolio')||'[]');
+    const looksLogMeta=looksLog.map(l=>({...l,mainPhoto:null}));
+    await fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
+      .set({museItems:muse,careThemes:care,makeupThemes:makeup,lookThemes:looks,looks:looksLogMeta,portfolio,
+            logScenes:ALL_SCENES,savedAt:new Date(nowTs).toISOString()},{merge:true});
+  }catch(e){ console.warn('saveToCloud:',e); }
+}
+
+window.addEventListener('DOMContentLoaded', () => { initNav('log'); initCmsContent(); });
+
+let _lastSyncTs = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !currentUser) return;
+  const now = Date.now();
+  if (now - _lastSyncTs < 60000) return;
+  _lastSyncTs = now;
+  loadFromCloud(currentUser.uid);
+});
+function handleAuthClick(){
+  if(currentUser){
+    if(confirm(`${currentUser.displayName||currentUser.email}\n로그아웃할까요?`)) fbAuth.signOut();
+  }else{
+    fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>alert('로그인 오류: '+e.message));
   }
 }
 
-function handleAuthClick() {
-  if (currentUser) {
-    if (confirm(`${currentUser.displayName || currentUser.email}\n로그아웃할까요?`)) fbAuth.signOut();
-  } else {
-    fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .catch(e => alert('로그인 오류: ' + e.message));
-  }
+// ── TPO Scenes ───────────────────────────────────────────────────
+const _SCENE_KEY='onstep_log_scenes';
+const _DEFAULT_SCENES=['전체','결혼식','출근','운동','데이트','여행','파티'];
+let ALL_SCENES=(()=>{try{const s=JSON.parse(localStorage.getItem(_SCENE_KEY));if(Array.isArray(s)&&s.length)return s;}catch(e){}return[..._DEFAULT_SCENES];})();
+function _persistScenes(){localStorage.setItem(_SCENE_KEY,JSON.stringify(ALL_SCENES));saveToCloud();}
+
+let activeScene='전체';
+let _museLimit=20;
+function setScene(tag){
+  activeScene=tag;
+  _museLimit=20;
+  document.querySelectorAll('.scene-chip').forEach(c=>c.classList.toggle('active',c.dataset.tag===tag));
+  renderMuse();
+}
+function _museShowMore(){
+  _museLimit+=20;
+  renderMuse();
+}
+function renderSceneBar(){
+  const bar=document.getElementById('scene-bar');
+  if(!bar)return;
+  bar.innerHTML=ALL_SCENES.map(t=>
+    `<div class="scene-chip${t===activeScene?' active':''}" data-tag="${t}" onclick="setScene('${t}')">#${t}</div>`
+  ).join('');
 }
 
-// ── Cloud sync ────────────────────────────────────────────────
-async function savePortfolioToCloud() {
-  if (!currentUser) return;
-  try {
-    const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio')||'[]');
-    await fbDb.collection('users').doc(currentUser.uid)
-      .collection('extra').doc('data')
-      .set({ portfolio, savedAt: new Date().toISOString() }, { merge: true });
-  } catch(e) { console.warn('Portfolio cloud save:', e); }
+// ── Scene Tag Manage ──────────────────────────────────────────────
+let _sceneDraft=[];
+function openSceneManage(){
+  _sceneDraft=ALL_SCENES.filter(t=>t!=='전체').slice();
+  renderSceneManageList();
+  hideSceneNewCard();
+  document.getElementById('scene-manage-ov').classList.add('open');
 }
-async function loadExtraFromCloud(uid) {
-  try {
-    const snap = await fbDb.collection('users').doc(uid).collection('extra').doc('data').get();
-    if (!snap.exists) return;
-    const d = snap.data();
-    if (d.portfolio) localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
-    loadData();
-  } catch(e) { console.warn('Extra cloud load:', e); }
+function closeSceneManage(){document.getElementById('scene-manage-ov').classList.remove('open');}
+function applySceneManage(){
+  ALL_SCENES=['전체',..._sceneDraft];
+  _persistScenes();
+  renderSceneBar();
+  renderAddTags();
+  closeSceneManage();
+  renderAll();
+}
+function renderSceneManageList(){
+  const list=document.getElementById('scene-manage-list');
+  if(!list)return;
+  list.innerHTML=_sceneDraft.map((t,i)=>`
+    <div class="scene-manage-row">
+      <span class="scene-manage-row-label">${t}</span>
+      <div class="scene-manage-row-actions">
+        <button class="scene-manage-action" onclick="renameScene(${i})" title="이름 변경">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="scene-manage-action" onclick="deleteScene(${i})" title="삭제" style="color:#ba1a1a">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    </div>`).join('');
+}
+function renameScene(i){
+  const n=prompt('새 이름을 입력하세요',_sceneDraft[i]);
+  if(!n||!n.trim()||n.trim()===_sceneDraft[i])return;
+  _sceneDraft[i]=n.trim();renderSceneManageList();
+}
+function deleteScene(i){
+  if(_sceneDraft.length<=1){showToast('최소 1개는 유지해야 합니다');return;}
+  _sceneDraft.splice(i,1);renderSceneManageList();
+}
+function toggleSceneNewCard(){
+  const card=document.getElementById('scene-new-card');
+  const link=document.getElementById('scene-manage-add-link');
+  if(!card)return;
+  if(card.style.display==='none'){
+    card.style.display='flex';card.style.flexDirection='column';
+    if(link)link.style.display='none';
+    document.getElementById('scene-new-inp').focus();
+  }else{hideSceneNewCard();}
+}
+function hideSceneNewCard(){
+  const c=document.getElementById('scene-new-card');if(c)c.style.display='none';
+  const l=document.getElementById('scene-manage-add-link');if(l)l.style.display='';
+  const i=document.getElementById('scene-new-inp');if(i)i.value='';
+}
+function confirmScene(){
+  const inp=document.getElementById('scene-new-inp');
+  const name=inp?.value.trim();if(!name)return;
+  if(_sceneDraft.includes(name)){showToast('이미 존재하는 태그입니다');return;}
+  _sceneDraft.push(name);renderSceneManageList();hideSceneNewCard();
 }
 
-// ── Sample data ───────────────────────────────────────────────
-const SAMPLE_DATA = [
-  { id:1, type:'care', title:'Spring Hydration Protocol', emoji:'✦', description:'봄철 수분 집중 케어. 장벽 강화 + 광채 개선 2주 프로그램.', activatedAt:'2026-05-04T09:00:00', baselineImg:null, items:[{name:'자음수',step:'Toner'},{name:'레티놀 앰플',step:'Ampoule'},{name:'수분크림',step:'Cream'},{name:'선크림',step:'SPF'}] },
-  { id:2, type:'makeup', title:'Glass Skin · No-Makeup', emoji:'◎', description:'데일리 유리 피부 메이크업. 세미 매트 베이스 + 투명 립.', activatedAt:'2026-05-03T08:30:00', baselineImg:null, products:[{name:'스킨 틴트',step:'Base'},{name:'하이라이터',step:'Glow'},{name:'립밤',step:'Lip'}] },
-  { id:3, type:'look', title:'Minimal Monday', emoji:'◈', description:'모노톤 미니멀 오피스 룩. 화이트 셔츠 + 슬랙스 + 로퍼.', activatedAt:'2026-05-02T07:00:00', baselineImg:null, items:[{name:'화이트 셔츠',step:'Top'},{name:'슬랙스',step:'Bottom'},{name:'로퍼',step:'Shoes'}] },
-  { id:4, type:'routine', title:'A.M. Ritual', emoji:'☀', description:'아침 7스텝 루틴. 클렌징 → 세럼 → 선크림.', activatedAt:'2026-05-01T06:30:00', baselineImg:null, items:[{name:'폼 클렌저',step:'01'},{name:'토너',step:'02'},{name:'세럼',step:'03'},{name:'선크림',step:'07'}] },
-  { id:5, type:'care', title:'Recovery Week', emoji:'✦', description:'민감성 진정 집중 케어. 7일 장벽 회복 프로토콜.', activatedAt:'2026-04-28T09:00:00', baselineImg:null, items:[{name:'시카 크림',step:'Calm'},{name:'마스크팩',step:'Mask'}] },
-  { id:6, type:'makeup', title:'Sleek & Sharp', emoji:'◎', description:'에디토리얼 오피스 메이크업. 샤프한 라이너 + 누드 립.', activatedAt:'2026-04-25T08:00:00', baselineImg:null, products:[{name:'파운데이션',step:'Base'},{name:'아이라이너',step:'Eye'},{name:'립스틱',step:'Lip'},{name:'하이라이터',step:'Finish'}] },
-  { id:7, type:'look', title:'Weekend Fresh', emoji:'◈', description:'캐주얼 주말 룩. 데님 + 오버핏 티 + 스니커즈.', activatedAt:'2026-04-20T10:00:00', baselineImg:null, items:[{name:'오버핏 티',step:'Top'},{name:'데님',step:'Bottom'},{name:'스니커즈',step:'Shoes'}] },
-  { id:8, type:'routine', title:'P.M. Protocol', emoji:'☽', description:'저녁 보습 루틴. 이중세안 → 에센스 → 나이트크림.', activatedAt:'2026-04-15T22:00:00', baselineImg:null, items:[{name:'클렌징밤',step:'01'},{name:'에센스',step:'03'},{name:'나이트크림',step:'06'}] },
-  { id:9, type:'care', title:'Brightening Cycle', emoji:'✦', description:'미백 집중 케어 3주 사이클. 비타민C 세럼 중심 루틴.', activatedAt:'2026-03-30T09:00:00', baselineImg:null, items:[{name:'비타민C 세럼',step:'Vit.C'},{name:'나이아신아마이드',step:'Niacin'},{name:'SPF50+',step:'SPF'}] },
-  { id:10, type:'makeup', title:'Date Night Glam', emoji:'◎', description:'저녁 데이트 메이크업. 글로시 스모키 + 레드 립.', activatedAt:'2026-03-22T17:00:00', baselineImg:null, products:[{name:'루미너스 파운데이션',step:'Base'},{name:'스모키 팔레트',step:'Eye'},{name:'레드 립스틱',step:'Lip'}] },
-  { id:11, type:'look', title:'Power Suit', emoji:'◈', description:'프레젠테이션 데이 파워 수트. 네이비 블레이저 + 화이트 블라우스.', activatedAt:'2026-03-18T08:00:00', baselineImg:null, items:[{name:'네이비 블레이저',step:'Outer'},{name:'화이트 블라우스',step:'Top'},{name:'슬랙스',step:'Bottom'},{name:'힐',step:'Shoes'}] },
-  { id:12, type:'routine', title:'Skin Reset', emoji:'☀', description:'봄맞이 스킨케어 리셋. 각질 제거 + 재정비.', activatedAt:'2026-03-10T09:00:00', baselineImg:null, items:[{name:'AHA 토너',step:'01'},{name:'세럼',step:'03'},{name:'크림',step:'05'}] },
+// ── Sample data ──────────────────────────────────────────────────
+const SAMPLE_MUSE=[
+  {id:1,type:'MUSE',category_tags:['출근','데이트'],image_data:null,note:'봄 글래스 스킨 무드. 세미 매트 베이스 + 투명 하이라이터',_h:172,_bg:'linear-gradient(145deg,#e8eaf6,#c5cae9)',created_at:'2026-05-08T09:00:00'},
+  {id:2,type:'MUSE',category_tags:['결혼식'],image_data:null,note:'웨딩 게스트 플로럴 드레스 룩. 소프트 웨이브 헤어',_h:216,_bg:'linear-gradient(145deg,#fce4ec,#f8bbd0)',created_at:'2026-05-06T14:00:00'},
+  {id:3,type:'MUSE',category_tags:['운동'],image_data:null,note:'스포티 모노톤 오트밀 컬러 세트',_h:144,_bg:'linear-gradient(145deg,#f5f5f5,#e0e0e0)',created_at:'2026-05-05T07:00:00'},
+  {id:4,type:'MUSE',category_tags:['데이트'],image_data:null,note:'글로시 스모키 + 레드 립 — 저녁 에디토리얼',_h:196,_bg:'linear-gradient(145deg,#fff3e0,#ffe0b2)',created_at:'2026-05-04T20:00:00'},
+  {id:5,type:'MUSE',category_tags:['출근'],image_data:null,note:'파워 수트. 네이비 블레이저 + 화이트 블라우스',_h:148,_bg:'linear-gradient(145deg,#e8f5e9,#c8e6c9)',created_at:'2026-05-03T08:00:00'},
+  {id:6,type:'MUSE',category_tags:['여행'],image_data:null,note:'시티 투어 캐주얼 — 와이드 데님 + 스니커즈',_h:188,_bg:'linear-gradient(145deg,#e0f7fa,#b2ebf2)',created_at:'2026-05-01T11:00:00'},
+];
+const SAMPLE_HISTORY=[
+  {id:'h1',date:'2026-05-09',note:'Glass Skin Monday',mainPhoto:null,logged:true,products:[{name:'스킨 틴트'},{name:'하이라이터'},{name:'립밤'}],_bg:'linear-gradient(145deg,#ede7f6,#d1c4e9)'},
+  {id:'h2',date:'2026-05-07',note:'Minimal Office',mainPhoto:null,logged:true,products:[{name:'화이트셔츠'},{name:'슬랙스'},{name:'로퍼'}],_bg:'linear-gradient(145deg,#f5f5f5,#eeeeee)'},
+  {id:'h3',date:'2026-05-04',note:'Date Night Glam',mainPhoto:null,logged:true,products:[{name:'루미너스 베이스'},{name:'스모키 팔레트'},{name:'레드 립'}],_bg:'linear-gradient(145deg,#fce4ec,#ffcdd2)'},
+  {id:'h4',date:'2026-04-28',note:'Spring Walk',mainPhoto:null,logged:true,products:[{name:'틴티드 선스틱'},{name:'데님 재킷'},{name:'스니커즈'}],_bg:'linear-gradient(145deg,#e8f5e9,#c8e6c9)'},
 ];
 
-// ── Constants ────────────────────────────────────────────────
-const TYPE_LABEL = { routine:'루틴케어', care:'집중케어', makeup:'메이크업', look:'룩북' };
-const TYPE_ICON  = { routine:'☀', care:'✦', makeup:'◎', look:'◈' };
-const MONTHS_PER_LOAD = 2;
+// ── Data helpers ─────────────────────────────────────────────────
+function readMuse(){ return JSON.parse(localStorage.getItem('onstep_muse_items')||'[]'); }
+function writeMuse(arr){ localStorage.setItem('onstep_muse_items',JSON.stringify(arr)); }
 
-let allItems = [];
-let filteredItems = [];
-let activeFilter = 'all';
-let visibleMonths = MONTHS_PER_LOAD;
-
-// ── Data loading ──────────────────────────────────────────────
-function loadData() {
-  const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio') || '[]');
-  const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]')
-    .map(t => ({...t, type:'care', activatedAt: t.activatedAt || (t.scheduledDates||[])[0] || new Date().toISOString()}));
-  const mkpData = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
-  const mkp = (mkpData.themes||[])
-    .map(t => ({...t, type:'makeup', activatedAt: t.activatedAt || (t.scheduledDates||[])[0] || new Date().toISOString()}));
-  const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]')
-    .map(t => ({...t, type:'look', activatedAt: t.activatedAt || (t.scheduledDates||[])[0] || new Date().toISOString()}));
-
-  const portfolioIds = new Set(portfolio.map(p => p.id));
-  const extras = [...care, ...mkp, ...looks].filter(t => !portfolioIds.has(t.id));
-  const merged = [...portfolio, ...extras];
-
-  allItems = merged.length ? merged : SAMPLE_DATA;
-  allItems.sort((a, b) => new Date(b.activatedAt) - new Date(a.activatedAt));
-  applyFilter();
+function allMuseWithSample(){
+  const stored=readMuse();
+  return stored.length?stored:SAMPLE_MUSE;
 }
 
-function applyFilter() {
-  filteredItems = activeFilter === 'all'
-    ? [...allItems]
-    : allItems.filter(i => i.type === activeFilter);
-  visibleMonths = MONTHS_PER_LOAD;
-  render();
+function filteredMuse(){
+  const all=allMuseWithSample();
+  return activeScene==='전체'?all:all.filter(m=>(m.category_tags||[]).includes(activeScene));
 }
 
-function setFilter(type) {
-  activeFilter = type;
-  document.querySelectorAll('.filter-chip').forEach(c =>
-    c.classList.toggle('active', c.dataset.type === type)
-  );
-  applyFilter();
-  updateFilterCounts();
+function readHistory(){
+  const looks=JSON.parse(localStorage.getItem('onstep_looks')||'[]');
+  const themes=JSON.parse(localStorage.getItem('onstep_look_themes')||'[]');
+  const mkp=(JSON.parse(localStorage.getItem('onstep_makeup_themes')||'{"themes":[]}').themes||[]);
+  const care=JSON.parse(localStorage.getItem('onstep_care_themes')||'[]');
+  const done=looks.filter(l=>l.logged||l.mainPhoto);
+  if(!done.length) return SAMPLE_HISTORY;
+  return done.map(l=>{
+    const theme=themes.find(t=>t.id===l.lookThemeId)||mkp.find(t=>t.id===l.lookThemeId)||care.find(t=>t.id===l.lookThemeId);
+    return {id:l.date,date:l.date,note:l.note||(theme?(theme.name||theme.title||''):''),mainPhoto:l.mainPhoto||null,logged:true,products:theme?(theme.items||theme.products||[]):[],lookThemeId:l.lookThemeId||null,scheduleLog:l.scheduleLog||[],autoEnabled:l.autoEnabled||false};
+  }).sort((a,b)=>new Date(b.date)-new Date(a.date));
 }
 
-function updateFilterCounts() {
-  const allEl = document.getElementById('fc-all');
-  if (allEl) allEl.textContent = allItems.length;
+// ensure sample item is persisted before mutation
+function ensurePersisted(id){
+  const stored=readMuse();
+  if(stored.some(m=>m.id===id)) return stored;
+  const sample=SAMPLE_MUSE.find(m=>m.id===id);
+  if(!sample) return stored;
+  const promoted=[...stored,{...sample}];
+  writeMuse(promoted);
+  return promoted;
 }
 
-function groupByMonth(items) {
-  const groups = {};
-  items.forEach(item => {
-    const d = new Date(item.activatedAt);
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
-  });
-  return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
+// ── Render ───────────────────────────────────────────────────────
+function renderAll(){ renderMuse(); renderHistory(); }
+
+function _renderMuseCard(m){
+  const src=m.image_data||m.image_url;
+  const imgStyle=src?`background-image:url(${src});height:${m._h||160}px`:`background:${m._bg||'#f0f0f2'};height:${m._h||160}px`;
+  const tags=(m.category_tags||[]).map(t=>`<span class="muse-tag">#${t}</span>`).join('');
+  const badge=m.scheduled_date?`<div class="muse-sched-badge">📅 ${m.scheduled_date}</div>`:'';
+  const btnCls=m.scheduled_date?'muse-sched-btn done':'muse-sched-btn';
+  const btnTxt=m.scheduled_date?'✓ 등록됨':'Schedule to Setup';
+  const schedCount=(m.scheduleLog||[]).length;
+  const countBadge=m.autoEnabled
+    ?`<div class="muse-count-badge auto">⚡ AUTO</div>`
+    :schedCount>0?`<div class="muse-count-badge count">${schedCount}×</div>`:'';
+  return `<div class="muse-card" onclick="openMuseDetail(${m.id})">
+    <div class="muse-img" style="${imgStyle}">${countBadge}</div>
+    <div class="muse-body">
+      ${badge}
+      <div class="muse-tags">${tags}</div>
+      <div class="muse-note">${m.note||''}</div>
+      <button type="button" class="${btnCls}" onclick="event.stopPropagation();openSchedSheet(${m.id})">${btnTxt}</button>
+    </div>
+  </div>`;
 }
 
-function monthLabel(key) {
-  const [y, m] = key.split('-');
-  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-  return `${months[parseInt(m)-1]} ${y}`;
-}
-
-// ── Render ────────────────────────────────────────────────────
-function render() {
-  const container = document.getElementById('archive-content');
-  const lmWrap = document.getElementById('load-more-wrap');
-
-  if (!filteredItems.length) {
-    container.innerHTML = `<div class="empty-archive">
-      <div class="empty-archive-title">Archive</div>
-      <div class="empty-archive-sub">SETUP에서 설계를 완료하면<br>이곳에 기록됩니다</div>
+function renderMuse(){
+  const grid=document.getElementById('muse-grid');
+  const countEl=document.getElementById('muse-count');
+  const items=filteredMuse();
+  countEl.textContent=`${items.length} ITEMS`;
+  if(!items.length){
+    grid.innerHTML=`<div class="empty-box" style="column-span:all">
+      <div class="empty-icon">◎</div>
+      <div class="empty-title">영감을 모아보세요</div>
+      <div class="empty-sub">+ 버튼으로 인스타 캡처, 무드 이미지를<br>Muse Library에 추가할 수 있어요</div>
     </div>`;
-    lmWrap.style.display = 'none';
+    return;
+  }
+  const visible=items.slice(0,_museLimit);
+  const moreBtn=(items.length>_museLimit)
+    ?`<div class="muse-more-btn" onclick="_museShowMore()">더 보기 (${items.length-_museLimit}개 더) ▾</div>`
+    :'';
+  grid.innerHTML=visible.map(_renderMuseCard).join('')+moreBtn;
+}
+
+function renderHistory(){
+  const row=document.getElementById('history-row');
+  const all=readHistory();
+  // 최근 30일만 표시
+  const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-30);
+  const items=all.filter(h=>new Date(h.date)>=cutoff).slice(0,30);
+  if(!items.length){
+    row.innerHTML=`<div style="padding:20px 0;font-size:12px;color:var(--mist);font-weight:600">최근 30일 기록이 없습니다</div>`;
+    return;
+  }
+  row.innerHTML=items.map(h=>{
+    const src=h.mainPhoto;
+    const imgStyle=src?`background-image:url(${src});background-size:cover`:`background:${h._bg||'#f0f0f2'}`;
+    const prods=(h.products||[]).slice(0,2).map(p=>p.name||'').filter(Boolean).join(' · ')+(h.products&&h.products.length>2?` +${h.products.length-2}`:'');
+    return `<div class="history-card" onclick="openHistoryDetail('${h.id}')">
+      <div class="history-img" style="${imgStyle}"></div>
+      <div class="history-body">
+        <div class="history-date">${h.date}</div>
+        <div class="history-name">${h.note||'Untitled'}</div>
+        <div class="history-items-text">${prods||'아이템 정보 없음'}</div>
+        <button type="button" class="history-apply-btn" onclick="event.stopPropagation();openApplySheet('${h.id}')">Apply to Future</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Detail panel ─────────────────────────────────────────────────
+let detailId=null, detailKind=null;
+let editImgData=null;
+let editSelTags=[];
+
+function openMuseEdit(id){
+  const items=allMuseWithSample();
+  const m=items.find(i=>i.id===id);
+  if(!m) return;
+  editImgData=null;
+  editSelTags=[...(m.category_tags||[])];
+  document.getElementById('detail-appbar-label').textContent='편집';
+  document.getElementById('detail-back-btn').onclick=()=>openMuseDetail(id);
+  _renderEditBody(id,m);
+  document.getElementById('detail-actions').innerHTML=`
+    <button type="button" class="sh-cancel" onclick="openMuseDetail(${id})">취소</button>
+    <button type="button" class="detail-main-btn" onclick="saveMuseEdit(${id})">저장</button>`;
+}
+
+function _renderEditBody(id,m){
+  const src=editImgData||m.image_data||m.image_url;
+  const heroBg=src?`background-image:url(${src});background-size:cover`:`background:${m._bg||'#f0f0f2'}`;
+  document.getElementById('detail-body').innerHTML=`
+    <div id="edit-hero" style="${heroBg};width:100%;height:256px;background-size:cover;background-position:center;position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center"
+         onclick="showImgPickSheet(d=>{editImgData=d;const h=document.getElementById('edit-hero');if(h){h.style.backgroundImage='url('+d+')';h.style.backgroundSize='cover';}},600,0.68)">
+      <div style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.55);border-radius:20px;padding:5px 12px;font-size:10px;font-weight:700;color:#fff;letter-spacing:.06em;pointer-events:none">사진 변경</div>
+    </div>
+    <div class="detail-content">
+      <div class="field-lbl">Scene 태그</div>
+      <div id="edit-tag-section"></div>
+      <div class="field-lbl">메모</div>
+      <textarea class="field-in" id="edit-note" placeholder="무드, 스타일 메모...">${m.note||''}</textarea>
+      <div class="field-lbl">참조 링크 (선택)</div>
+      <input type="url" class="field-in" id="edit-link" placeholder="https://" value="${m.reference_link||''}">
+    </div>`;
+  _renderEditTags();
+}
+
+function _renderEditTags(){
+  const sec=document.getElementById('edit-tag-section');
+  if(!sec) return;
+  const predefined=ALL_SCENES.filter(t=>t!=='전체');
+  const unselected=predefined.filter(t=>!editSelTags.includes(t));
+
+  const selectedHtml=editSelTags.length
+    ?editSelTags.map(t=>`
+      <div class="edit-tag-chip">
+        <span>#${t}</span>
+        <button type="button" class="edit-tag-chip-x" onclick="removeEditTag('${t}')">×</button>
+      </div>`).join('')
+    :`<span style="font-size:11px;color:var(--mist)">태그 없음</span>`;
+
+  const quickHtml=unselected.map(t=>
+    `<button type="button" class="tpo-chip" onclick="addEditTag('${t}')">#${t}</button>`
+  ).join('');
+
+  sec.innerHTML=`
+    <div class="edit-tags-selected">${selectedHtml}</div>
+    ${quickHtml?`<div class="field-lbl" style="margin-bottom:6px">빠른 추가</div><div class="edit-tags-quick">${quickHtml}</div>`:''}
+    <div class="edit-tag-input-row">
+      <input type="text" id="edit-tag-input" class="field-in" placeholder="직접 입력..."
+             style="margin-bottom:0;flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomEditTag();}">
+      <button type="button" class="edit-tag-add-btn" onclick="addCustomEditTag()">+ 추가</button>
+    </div>`;
+}
+
+function addEditTag(t){
+  if(!editSelTags.includes(t)) editSelTags.push(t);
+  _renderEditTags();
+}
+function removeEditTag(t){
+  const i=editSelTags.indexOf(t);
+  if(i!==-1) editSelTags.splice(i,1);
+  _renderEditTags();
+}
+function addCustomEditTag(){
+  const input=document.getElementById('edit-tag-input');
+  if(!input) return;
+  const t=input.value.trim().replace(/^#/,'');
+  if(!t){ showToast('태그를 입력하세요'); return; }
+  if(!editSelTags.includes(t)) editSelTags.push(t);
+  input.value='';
+  _renderEditTags();
+}
+
+
+function handleEditImg(input){
+  const file=input.files[0]; if(!file) return;
+  _compressFile(file, 600, 0.68, compressed=>{
+    editImgData=compressed;
+    const hero=document.getElementById('edit-hero');
+    if(hero){ hero.style.backgroundImage=`url(${compressed})`; hero.style.backgroundSize='cover'; }
+  });
+  input.value='';
+}
+
+function saveMuseEdit(id){
+  const note=(document.getElementById('edit-note')||{}).value||'';
+  const link=(document.getElementById('edit-link')||{}).value||'';
+  const items=ensurePersisted(id);
+  const idx=items.findIndex(m=>m.id===id);
+  if(idx===-1){ showToast('저장 실패'); return; }
+  items[idx].note=note.trim();
+  items[idx].category_tags=[...editSelTags];
+  items[idx].reference_link=link.trim()||null;
+  if(editImgData) items[idx].image_data=editImgData;
+  try{
+    writeMuse(items);
+  }catch(e){
+    showToast('저장 실패: 이미지 용량 초과');
     return;
   }
 
-  const groups = groupByMonth(filteredItems);
-  const visibleGroups = groups.slice(0, visibleMonths);
+  // 이미지는 museId 로 onstep_muse_items에서 동적 조회 — baselineImg 별도 저장 없음
 
-  let html = '';
-  visibleGroups.forEach(([key, items], idx) => {
-    const num = String(groups.length - idx).padStart(2, '0');
-    html += renderIssue(key, items, num);
-  });
-  container.innerHTML = html;
-
-  lmWrap.style.display = groups.length > visibleMonths ? 'block' : 'none';
+  saveToCloud();
+  renderAll();
+  openMuseDetail(id);
+  showToast('✓ 수정됨');
 }
 
-function renderIssue(key, items, num) {
-  let html = `<div class="issue-hd">
-    <span class="issue-month">${monthLabel(key)}</span>
-    <span class="issue-num">Issue ${num}</span>
-    <span class="issue-count">${items.length} ITEMS</span>
-  </div>`;
-
-  if (items[0]) html += renderCoverCard(items[0]);
-  if (items[1]) html += renderFeatureCard(items[1]);
-
-  const briefs = items.slice(2);
-  for (let i = 0; i < briefs.length; i += 2) {
-    html += `<div class="brief-grid">`;
-    html += renderBriefCard(briefs[i]);
-    if (briefs[i+1]) html += renderBriefCard(briefs[i+1]);
-    else html += `<div class="brief-card"></div>`;
-    html += `</div>`;
-  }
-  return html;
-}
-
-function renderCoverCard(item) {
-  const imgStyle = item.baselineImg ? `background-image:url(${item.baselineImg})` : `background:var(--surface-mid)`;
-  const placeholder = TYPE_ICON[item.type] || '✦';
-  const dateStr = new Date(item.activatedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase();
-  return `<div class="cover-card" onclick="openDetail(${item.id})">
-    <div class="cover-img" style="${imgStyle}">
-      ${!item.baselineImg ? `<span style="font-size:40px;opacity:.12">${placeholder}</span>` : ''}
-    </div>
-    <div class="cover-body">
-      <div class="cover-type">${TYPE_LABEL[item.type]||item.type}</div>
-      <div class="cover-title">${item.title||item.name||'Untitled'}</div>
-      <div class="cover-meta">${dateStr}${item.description ? ` · ${item.description.slice(0,40)}` : ''}</div>
-    </div>
-  </div>`;
-}
-
-function renderFeatureCard(item) {
-  const imgStyle = item.baselineImg ? `background-image:url(${item.baselineImg})` : '';
-  const placeholder = TYPE_ICON[item.type] || '✦';
-  const products = item.products || item.items || [];
-  const dateStr = new Date(item.activatedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase();
-  const thumbs = products.slice(0,4).map(p => {
-    const imgS = p.imgData ? `background-image:url(${p.imgData});background-size:cover` : '';
-    return `<div class="feature-thumb" style="${imgS}">${!p.imgData ? (p.step ? p.step[0] : '·') : ''}</div>`;
-  }).join('');
-  return `<div class="feature-card" onclick="openDetail(${item.id})">
-    <div class="feature-img" style="${imgStyle}">
-      ${!item.baselineImg ? `<span style="font-size:28px;opacity:.15">${placeholder}</span>` : ''}
-    </div>
-    <div class="feature-body">
-      <div>
-        <div class="feature-type">${TYPE_LABEL[item.type]||item.type}</div>
-        <div class="feature-title">${item.title||item.name||'Untitled'}</div>
-        ${item.description ? `<div class="feature-desc">${item.description}</div>` : ''}
-      </div>
-      <div>
-        ${thumbs ? `<div class="feature-thumbs">${thumbs}</div>` : ''}
-        <div class="feature-meta">${dateStr}${products.length ? ` · ${products.length} ITEMS` : ''}</div>
-      </div>
-    </div>
-  </div>`;
-}
-
-function renderBriefCard(item) {
-  const imgStyle = item.baselineImg ? `background-image:url(${item.baselineImg})` : '';
-  const placeholder = TYPE_ICON[item.type] || '✦';
-  const dateStr = new Date(item.activatedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase();
-  return `<div class="brief-card" onclick="openDetail(${item.id})">
-    <div class="brief-img" style="${imgStyle}">
-      ${!item.baselineImg ? `<span style="font-size:24px;opacity:.12">${placeholder}</span>` : ''}
-    </div>
-    <div class="brief-body">
-      <div class="brief-type">${TYPE_LABEL[item.type]||item.type}</div>
-      <div class="brief-title">${item.title||item.name||'Untitled'}</div>
-      <div class="brief-date">${dateStr}</div>
-    </div>
-  </div>`;
-}
-
-function loadMore() {
-  visibleMonths += MONTHS_PER_LOAD;
-  render();
-}
-
-// ── Detail panel ──────────────────────────────────────────────
-function openDetail(id) {
-  const item = allItems.find(i => i.id === id);
-  if (!item) return;
-  const panel = document.getElementById('detail-panel');
-  const products = item.products || item.items || [];
-  const dateStr = new Date(item.activatedAt).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
-
-  const imgStyle = item.baselineImg ? `background-image:url(${item.baselineImg});background-size:cover;font-size:0` : '';
-  const prodsHtml = products.length ? `
-    <div class="detail-prods-label">ITEMS · ${products.length}</div>
-    <div class="detail-prods-grid">${products.slice(0,8).map(p => {
-      const imgS = p.imgData ? `background-image:url(${p.imgData});background-size:cover` : '';
-      return `<div class="detail-prod-item">
-        <div class="detail-prod-img" style="${imgS}">${!p.imgData ? (p.step ? p.step[0] : '·') : ''}</div>
-        <div class="detail-prod-name">${p.name||p.step||''}</div>
-      </div>`;
-    }).join('')}</div>` : '';
-
-  document.getElementById('detail-content-inner').innerHTML = `
-    <div class="detail-hero-img" style="${imgStyle}">${!item.baselineImg ? (TYPE_ICON[item.type]||'✦') : ''}</div>
+function openMuseDetail(id){
+  const items=allMuseWithSample();
+  const m=items.find(i=>i.id===id);
+  if(!m) return;
+  detailId=id; detailKind='MUSE';
+  document.getElementById('detail-appbar-label').textContent='MUSE';
+  const src=m.image_data||m.image_url;
+  const heroStyle=src?`background-image:url(${src});background-size:cover;font-size:0`:`background:${m._bg||'#f0f0f2'}`;
+  const tags=(m.category_tags||[]).map(t=>`<div class="detail-tag">#${t}</div>`).join('');
+  const created=new Date(m.created_at).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+  const schedPill=m.scheduled_date?`<div class="detail-scheduled-pill">📅 ${m.scheduled_date} · ${m.schedule_type||'MOTD'} 가이드 등록됨</div>`:'';
+  const prods=(m.products||[]);
+  const prodsHtml=prods.map(p=>`<div class="detail-prod">${p.name}${p.brand?` · ${p.brand}`:''}</div>`).join('');
+  document.getElementById('detail-body').innerHTML=`
+    <div class="detail-hero" style="${heroStyle}"></div>
     <div class="detail-content">
-      <div class="detail-type">${TYPE_LABEL[item.type]||item.type}</div>
-      <div class="detail-title">${item.title||item.name||'Untitled'}</div>
-      <div class="detail-date">${dateStr}</div>
-      ${item.description ? `<div class="detail-desc">${item.description}</div>` : ''}
-      ${prodsHtml}
-      <button class="detail-ok-btn" onclick="reactivateItem(${id})">ok → Today에 반영</button>
+      ${tags?`<div class="detail-tags-row">${tags}</div>`:''}
+      <div class="detail-title">${m.note||'Untitled Muse'}</div>
+      <div class="detail-meta">저장일 · ${created}</div>
+      ${schedPill}
+      ${m.reference_link?`<a class="detail-ref" href="${m.reference_link}" target="_blank">${m.reference_link}</a>`:''}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="detail-prods-label" style="margin-bottom:0">연결된 BOX 제품${prods.length?` · ${prods.length}`:''}</div>
+        <button type="button" class="detail-edit-btn" onclick="openMuseEdit(${m.id})">편집</button>
+      </div>
+      ${prodsHtml?`<div class="detail-prods-row">${prodsHtml}</div>`:''}
+      <button type="button" class="muse-prods-btn" onclick="openBoxPicker(${m.id})">+ BOX에서 불러오기</button>
     </div>`;
-  panel.classList.add('open');
+  document.getElementById('detail-actions').innerHTML=`
+    <button type="button" class="detail-del-btn" onclick="deleteMuse(${id})">삭제</button>
+    <button type="button" class="detail-main-btn lime" onclick="openSchedSheet(${id})">Schedule to Setup →</button>`;
+  document.getElementById('detail-back-btn').onclick=closeDetail;
+  document.getElementById('detail-panel').classList.add('open');
 }
 
-function closeDetail() {
+function openHistoryDetail(id){
+  const items=readHistory();
+  const h=items.find(i=>i.id===id);
+  if(!h) return;
+  detailId=id; detailKind='HISTORY';
+  document.getElementById('detail-appbar-label').textContent='HISTORY';
+  const src=h.mainPhoto;
+  const heroStyle=src?`background-image:url(${src});background-size:cover;font-size:0`:`background:${h._bg||'#f0f0f2'}`;
+  const prods=(h.products||[]).map(p=>`<div class="detail-prod">${p.name||''}</div>`).join('');
+  document.getElementById('detail-body').innerHTML=`
+    <div class="detail-hero" style="${heroStyle}"></div>
+    <div class="detail-content">
+      <div class="detail-title">${h.note||'Untitled'}</div>
+      <div class="detail-meta">${h.date}</div>
+      ${prods?`<div class="detail-prods-label">사용한 아이템 · ${h.products.length}</div><div class="detail-prods-row">${prods}</div>`:''}
+    </div>`;
+  document.getElementById('detail-actions').innerHTML=`
+    <button type="button" class="detail-del-btn" onclick="confirmDeleteHistory('${id}')">삭제</button>
+    <button type="button" class="detail-main-btn" onclick="openApplySheet('${id}')">Apply to Future →</button>`;
+  document.getElementById('detail-back-btn').onclick=closeDetail;
+  document.getElementById('detail-panel').classList.add('open');
+}
+
+function closeDetail(){
   document.getElementById('detail-panel').classList.remove('open');
+  document.getElementById('detail-back-btn').onclick=closeDetail;
+  detailId=null; detailKind=null;
 }
 
-function reactivateItem(id) {
-  const item = allItems.find(i => i.id === id);
-  if (!item) return;
-  const KEY = 'onstep_planned_portfolio';
-  const portfolio = JSON.parse(localStorage.getItem(KEY)||'[]');
-  portfolio.unshift({...item, id:Date.now(), activatedAt:new Date().toISOString()});
-  localStorage.setItem(KEY, JSON.stringify(portfolio));
-  savePortfolioToCloud();
+// ── Add Muse ─────────────────────────────────────────────────────
+let addImgData=null, addSelTags=[];
+
+function openAddSheet(){
+  addImgData=null; addSelTags=[];
+  document.getElementById('add-img-pick').style.backgroundImage='';
+  document.getElementById('add-img-ph').classList.remove('hidden');
+  document.getElementById('add-img-rm').classList.add('hidden');
+  document.getElementById('add-img-input').value='';
+  document.getElementById('add-note').value='';
+  document.getElementById('add-link').value='';
+  renderAddTags();
+  document.getElementById('add-sheet').classList.add('open');
+}
+function closeAddSheet(){ document.getElementById('add-sheet').classList.remove('open'); }
+
+function renderAddTags(){
+  document.getElementById('add-tpo-row').innerHTML=ALL_SCENES.filter(t=>t!=='전체').map(t=>
+    `<button type="button" class="tpo-chip${addSelTags.includes(t)?' on':''}" onclick="toggleAddTag('${t}')">#${t}</button>`
+  ).join('');
+}
+function toggleAddTag(t){
+  const i=addSelTags.indexOf(t);
+  if(i===-1) addSelTags.push(t); else addSelTags.splice(i,1);
+  renderAddTags();
+}
+function _applyAddImg(compressed){
+  addImgData=compressed;
+  document.getElementById('add-img-pick').style.backgroundImage=`url(${compressed})`;
+  document.getElementById('add-img-ph').classList.add('hidden');
+  document.getElementById('add-img-rm').classList.remove('hidden');
+}
+function triggerAddImg(){ showImgPickSheet(_applyAddImg, 600, 0.68); }
+function handleAddImg(input){
+  const file=input.files[0]; if(!file) return;
+  _compressFile(file, 600, 0.68, _applyAddImg);
+}
+function removeAddImg(e){
+  e.stopPropagation(); addImgData=null;
+  document.getElementById('add-img-pick').style.backgroundImage='';
+  document.getElementById('add-img-ph').classList.remove('hidden');
+  document.getElementById('add-img-rm').classList.add('hidden');
+}
+function saveNewMuse(){
+  const note=document.getElementById('add-note').value.trim();
+  const link=document.getElementById('add-link').value.trim();
+  if(!note&&!addImgData){ showToast('이미지 또는 메모를 입력하세요'); return; }
+  const items=readMuse();
+  items.unshift({id:Date.now(),type:'MUSE',category_tags:[...addSelTags],image_data:addImgData||null,image_url:null,note,reference_link:link||null,products:[],created_at:new Date().toISOString()});
+  writeMuse(items);
+  saveToCloud();
+  closeAddSheet();
+  renderAll();
+  showToast('✓ Muse Library에 추가됨');
+}
+
+// ── Schedule to Setup ────────────────────────────────────────────
+let schedId=null, schedType='MOTD';
+
+const SCHED_THRESHOLD=5;
+
+function openSchedSheet(id){
+  schedId=id; schedType='MOTD';
+  document.getElementById('type-motd').classList.add('on');
+  document.getElementById('type-ootd').classList.remove('on');
+  document.getElementById('sched-date').value=new Date().toISOString().slice(0,10);
+  const items=allMuseWithSample();
+  _renderSchedHistory(items.find(m=>m.id===id)||null);
+  document.getElementById('sched-sheet').classList.add('open');
+}
+function closeSchedSheet(){ document.getElementById('sched-sheet').classList.remove('open'); schedId=null; }
+
+function _renderSchedHistory(m){
+  const wrap=document.getElementById('sched-history-wrap');
+  if(!wrap) return;
+  const log=(m?.scheduleLog)||[];
+  if(!log.length){ wrap.innerHTML=''; return; }
+  const count=log.length;
+  const pct=Math.min(count/SCHED_THRESHOLD*100,100);
+  const reached=count>=SCHED_THRESHOLD;
+  const autoEnabled=m?.autoEnabled||false;
+  const shown=log.slice(-4);
+  const chips=shown.map(e=>{
+    const d=e.date.slice(5);
+    return `<span class="sched-log-chip">${d} ${e.type}</span>`;
+  }).join('');
+  const more=count>4?`<span class="sched-log-chip sched-log-more">+${count-4}</span>`:'';
+  const barColor=reached?'var(--lime)':'var(--ink)';
+  const lbl=reached?'✓ 자동화 달성! Today 자동 노출 가능':`${count}/${SCHED_THRESHOLD}회 · 달성 시 Today 자동 노출`;
+  const autoCard=reached?`<div class="sched-auto-card">
+    <div class="sched-auto-row">
+      <div>
+        <div class="sched-auto-title">⚡ Today 자동 노출</div>
+        <div class="sched-auto-desc">카테고리 선택만으로 Today에 자동 표시됩니다</div>
+      </div>
+      <button type="button" class="sched-auto-toggle${autoEnabled?' on':''}" onclick="toggleSchedAuto(${m.id})">${autoEnabled?'ON':'OFF'}</button>
+    </div>
+  </div>`:'';
+  wrap.innerHTML=`<div class="sched-log-section">
+    <div class="sched-log-label">등록 이력 · ${count}회</div>
+    <div class="sched-log-chips">${chips}${more}</div>
+    <div class="sched-progress-wrap"><div class="sched-progress-bar" style="width:${pct}%;background:${barColor}"></div></div>
+    <div class="sched-progress-lbl${reached?' reached':''}">${lbl}</div>
+  </div>${autoCard}`;
+}
+
+function toggleSchedAuto(museId){
+  const items=ensurePersisted(schedId);
+  const idx=items.findIndex(m=>m.id===museId);
+  if(idx===-1) return;
+  items[idx].autoEnabled=!items[idx].autoEnabled;
+  try{ writeMuse(items); }catch(e){ return; }
+  _renderSchedHistory(items[idx]);
+  showToast(items[idx].autoEnabled?'⚡ 자동 노출 활성화됨':'자동 노출 해제됨');
+}
+function setSchedType(t){
+  schedType=t;
+  document.getElementById('type-motd').classList.toggle('on',t==='MOTD');
+  document.getElementById('type-ootd').classList.toggle('on',t==='OOTD');
+}
+function confirmSched(){
+  const date=document.getElementById('sched-date').value;
+  if(!date){ showToast('날짜를 선택하세요'); return; }
+  const items=ensurePersisted(schedId);
+  const idx=items.findIndex(m=>m.id===schedId);
+  if(idx===-1){ showToast('항목을 찾을 수 없습니다'); closeSchedSheet(); return; }
+  items[idx].scheduled_date=date;
+  items[idx].schedule_type=schedType;
+  // 누적 이력 저장 (중복 날짜 제외)
+  if(!items[idx].scheduleLog) items[idx].scheduleLog=[];
+  if(!items[idx].scheduleLog.find(e=>e.date===date)){
+    items[idx].scheduleLog.push({date,type:schedType});
+  }
+  try{ writeMuse(items); }catch(e){ showToast('저장 실패: 저장 공간이 부족합니다'); return; }
+
+  // Muse → Setup 테마 자동 매핑 (today.html은 scheduledDates 배열로 조회)
+  // ※ baselineImg에 base64 이미지를 저장하지 않음 → QuotaExceededError 방지
+  //   이미지는 museId로 onstep_muse_items에서 동적으로 조회
+  const linkedProds=items[idx].products||[];
+  const mappedProds=linkedProds.map(p=>({id:p.id,name:p.name,brand:p.brand||null,step:'',icon:'✦',imgData:null}));
+  try{
+    if(schedType==='MOTD'){
+      const mkpData=JSON.parse(localStorage.getItem('onstep_makeup_themes')||'{"themes":[]}');
+      const themes=mkpData.themes||[];
+      const ti=themes.findIndex(t=>(t.scheduledDates||[]).includes(date));
+      if(ti===-1){
+        themes.push({
+          id:Date.now(),
+          name:items[idx].note||'Muse Guide',
+          emoji:'🎨',
+          description:items[idx].note||'',
+          baselineImg:null,
+          products:mappedProds,
+          scheduledDates:[date],
+          museId:schedId
+        });
+      }else{
+        if(!themes[ti].scheduledDates.includes(date)) themes[ti].scheduledDates.push(date);
+        if(mappedProds.length){
+          const existing=themes[ti].products||[];
+          const seen=new Set(existing.map(p=>p.id));
+          mappedProds.forEach(p=>{ if(!seen.has(p.id)) existing.push(p); });
+          themes[ti].products=existing;
+        }
+        themes[ti].museId=schedId;
+      }
+      mkpData.themes=themes;
+      localStorage.setItem('onstep_makeup_themes',JSON.stringify(mkpData));
+    }else if(schedType==='OOTD'){
+      const lookThemes=JSON.parse(localStorage.getItem('onstep_look_themes')||'[]');
+      const li=lookThemes.findIndex(t=>(t.scheduledDates||[]).includes(date));
+      if(li===-1){
+        lookThemes.push({
+          id:Date.now(),
+          name:items[idx].note||'Muse Look',
+          baselineImg:null,
+          products:mappedProds,
+          items:mappedProds,
+          scheduledDates:[date],
+          museId:schedId
+        });
+      }else{
+        if(!lookThemes[li].scheduledDates.includes(date)) lookThemes[li].scheduledDates.push(date);
+        if(mappedProds.length){
+          const existing=lookThemes[li].items||lookThemes[li].products||[];
+          const seen=new Set(existing.map(p=>p.id));
+          mappedProds.forEach(p=>{ if(!seen.has(p.id)) existing.push(p); });
+          lookThemes[li].items=existing;
+          lookThemes[li].products=existing;
+        }
+        lookThemes[li].museId=schedId;
+      }
+      localStorage.setItem('onstep_look_themes',JSON.stringify(lookThemes));
+    }
+  }catch(e){
+    showToast('테마 저장 실패: 저장 공간 부족');
+    return;
+  }
+
+  saveToCloud();
+  closeSchedSheet();
   closeDetail();
-  showToast(`✓ "${item.title||item.name}" — Today에 반영됩니다`);
-  loadData();
+  renderAll();
+  const d=new Date(date+'T00:00:00');
+  const prodTxt=mappedProds.length?` · 제품 ${mappedProds.length}개 자동 등록`:'';
+  showToast(`📅 ${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 · ${schedType} 가이드로 등록됨${prodTxt}`);
 }
 
-// ── Toast ─────────────────────────────────────────────────────
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
+// ── Apply to Future ──────────────────────────────────────────────
+let applyId=null;
+
+function openApplySheet(id){
+  applyId=id;
+  document.getElementById('apply-date').value='';
+  const h=readHistory().find(i=>i.id===id)||null;
+  _renderApplyHistory(h);
+  document.getElementById('apply-sheet').classList.add('open');
+}
+function closeApplySheet(){ document.getElementById('apply-sheet').classList.remove('open'); applyId=null; }
+
+function _renderApplyHistory(h){
+  const wrap=document.getElementById('apply-history-wrap');
+  if(!wrap) return;
+  const log=(h?.scheduleLog)||[];
+  if(!log.length){ wrap.innerHTML=''; return; }
+  const count=log.length;
+  const pct=Math.min(count/SCHED_THRESHOLD*100,100);
+  const reached=count>=SCHED_THRESHOLD;
+  const autoEnabled=h?.autoEnabled||false;
+  const shown=log.slice(-4);
+  const chips=shown.map(e=>{
+    const d=new Date(e.date+'T00:00:00');
+    return `<span class="sched-log-chip">${d.getMonth()+1}/${d.getDate()}</span>`;
+  }).join('');
+  const more=count>4?`<span class="sched-log-chip sched-log-more">+${count-4}</span>`:'';
+  const barColor=reached?'var(--lime)':'var(--ink)';
+  const lbl=reached?'✓ 자동화 달성! Today 자동 노출 가능':`${count}/${SCHED_THRESHOLD}회 · 달성 시 Today 자동 노출`;
+  const autoCard=reached?`<div class="sched-auto-card">
+    <div class="sched-auto-row">
+      <div>
+        <div class="sched-auto-title">⚡ Today 자동 노출</div>
+        <div class="sched-auto-desc">이 룩이 카테고리 패턴 기반으로 Today에 자동 표시됩니다</div>
+      </div>
+      <button type="button" class="sched-auto-toggle${autoEnabled?' on':''}" onclick="toggleApplyAuto('${h.id}')">${autoEnabled?'ON':'OFF'}</button>
+    </div>
+  </div>`:'';
+  wrap.innerHTML=`<div class="sched-log-section">
+    <div class="sched-log-label">예약 이력 · ${count}회</div>
+    <div class="sched-log-chips">${chips}${more}</div>
+    <div class="sched-progress-wrap"><div class="sched-progress-bar" style="width:${pct}%;background:${barColor}"></div></div>
+    <div class="sched-progress-lbl${reached?' reached':''}">${lbl}</div>
+  </div>${autoCard}`;
 }
 
-// ── Init ──────────────────────────────────────────────────────
-loadData();
-updateFilterCounts();
+function toggleApplyAuto(histId){
+  const looks=JSON.parse(localStorage.getItem('onstep_looks')||'[]');
+  const idx=looks.findIndex(l=>l.date===histId);
+  if(idx===-1) return;
+  looks[idx].autoEnabled=!looks[idx].autoEnabled;
+  localStorage.setItem('onstep_looks',JSON.stringify(looks));
+  saveToCloud();
+  const h=readHistory().find(i=>i.id===histId)||null;
+  _renderApplyHistory(h);
+  showToast(looks[idx].autoEnabled?'⚡ 자동 노출 활성화됨':'자동 노출 해제됨');
+}
+
+function confirmApply(){
+  const date=document.getElementById('apply-date').value;
+  if(!date){ showToast('날짜를 선택하세요'); return; }
+  const h=readHistory().find(i=>i.id===applyId);
+  if(!h){ showToast('항목을 찾을 수 없습니다'); return; }
+  if(h.lookThemeId){
+    const looks=JSON.parse(localStorage.getItem('onstep_look_themes')||'[]');
+    const idx=looks.findIndex(t=>t.id===h.lookThemeId);
+    if(idx!==-1){
+      const dates=looks[idx].scheduledDates||[];
+      if(!dates.includes(date)) looks[idx].scheduledDates=[...dates,date].sort();
+      localStorage.setItem('onstep_look_themes',JSON.stringify(looks));
+    }
+  }
+  const daily=JSON.parse(localStorage.getItem('onstep_looks')||'[]');
+  if(!daily.find(l=>l.date===date)){
+    daily.push({date,mainPhoto:h.mainPhoto||null,note:h.note,logged:false,lookThemeId:h.lookThemeId||null});
+  }
+  const srcIdx=daily.findIndex(l=>l.date===applyId);
+  if(srcIdx!==-1){
+    if(!daily[srcIdx].scheduleLog) daily[srcIdx].scheduleLog=[];
+    if(!daily[srcIdx].scheduleLog.find(e=>e.date===date)) daily[srcIdx].scheduleLog.push({date});
+  }
+  localStorage.setItem('onstep_looks',JSON.stringify(daily));
+  saveToCloud();
+  closeApplySheet();
+  closeDetail();
+  const d=new Date(date);
+  showToast(`📅 "${h.note}" → ${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 예약됨`);
+}
+
+// ── Delete Muse ──────────────────────────────────────────────────
+function deleteMuse(id){
+  const stored=readMuse();
+  const idx=stored.findIndex(m=>m.id===id);
+  if(idx===-1){ showToast('샘플 데이터는 삭제할 수 없습니다'); closeDetail(); return; }
+  if(!confirm('이 영감을 삭제할까요?')) return;
+  stored.splice(idx,1);
+  writeMuse(stored);
+  saveToCloud();
+  closeDetail();
+  renderAll();
+  showToast('삭제됨');
+}
+
+// ── History Delete ───────────────────────────────────────────────
+function deleteHistoryRecord(date){
+  // 1. onstep_looks에서 제거
+  const looks=JSON.parse(localStorage.getItem('onstep_looks')||'[]');
+  const filtered=looks.filter(l=>l.date!==date);
+  localStorage.setItem('onstep_looks',JSON.stringify(filtered));
+  // 2. look_themes scheduledDates에서 날짜 제거
+  const lt=JSON.parse(localStorage.getItem('onstep_look_themes')||'[]');
+  lt.forEach(t=>{ if(t.scheduledDates) t.scheduledDates=t.scheduledDates.filter(d=>d!==date); });
+  localStorage.setItem('onstep_look_themes',JSON.stringify(lt));
+  // 3. makeup_themes scheduledDates에서 날짜 제거
+  const mkp=JSON.parse(localStorage.getItem('onstep_makeup_themes')||'{"themes":[]}');
+  (mkp.themes||[]).forEach(t=>{ if(t.scheduledDates) t.scheduledDates=t.scheduledDates.filter(d=>d!==date); });
+  localStorage.setItem('onstep_makeup_themes',JSON.stringify(mkp));
+  // 4. MOTD done 키 정리
+  localStorage.removeItem(`onstep_motd_done_${date}`);
+  saveToCloud();
+}
+
+function confirmDeleteHistory(date){
+  if(!confirm(`${date} 기록을 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
+  deleteHistoryRecord(date);
+  closeDetail();
+  renderAll();
+  if(document.getElementById('archive-panel').classList.contains('open')) renderArchive();
+  showToast('기록 삭제됨');
+}
+
+// ── Archive ───────────────────────────────────────────────────────
+let archiveEditMode=false;
+let archiveSel=new Set();
+
+function openArchive(){
+  archiveEditMode=false;
+  archiveSel=new Set();
+  document.getElementById('archive-search').value='';
+  document.getElementById('archive-edit-btn').textContent='편집';
+  document.getElementById('archive-edit-bar').classList.add('hidden');
+  renderArchive();
+  document.getElementById('archive-panel').classList.add('open');
+}
+function closeArchive(){
+  document.getElementById('archive-panel').classList.remove('open');
+  archiveEditMode=false; archiveSel=new Set();
+}
+
+function toggleArchiveEdit(){
+  archiveEditMode=!archiveEditMode;
+  archiveSel=new Set();
+  document.getElementById('archive-edit-btn').textContent=archiveEditMode?'완료':'편집';
+  document.getElementById('archive-edit-bar').classList.toggle('hidden',!archiveEditMode);
+  _updateArchiveEditBar();
+  renderArchive();
+}
+
+function _updateArchiveEditBar(){
+  const n=archiveSel.size;
+  document.getElementById('archive-sel-label').textContent=`${n}개 선택`;
+  const btn=document.getElementById('archive-del-btn');
+  btn.disabled=n===0;
+}
+
+function archiveItemClick(date){
+  if(archiveEditMode){
+    if(archiveSel.has(date)) archiveSel.delete(date); else archiveSel.add(date);
+    _updateArchiveEditBar();
+    // 선택 상태만 토글 (전체 재렌더 없이)
+    const el=document.querySelector(`.archive-item[data-date="${date}"]`);
+    if(el){
+      el.classList.toggle('selected',archiveSel.has(date));
+      const cb=el.querySelector('.archive-cb');
+      if(cb) cb.textContent=archiveSel.has(date)?'✓':'';
+    }
+  }else{
+    const items=readHistory();
+    const h=items.find(i=>i.id===date||i.date===date);
+    if(h) openHistoryDetail(h.id);
+  }
+}
+
+function deleteSelected(){
+  if(!archiveSel.size) return;
+  const n=archiveSel.size;
+  if(!confirm(`선택한 ${n}건을 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
+  archiveSel.forEach(date=>deleteHistoryRecord(date));
+  archiveSel=new Set();
+  _updateArchiveEditBar();
+  renderAll();
+  renderArchive();
+  showToast(`${n}건 삭제됨`);
+}
+
+function renderArchive(){
+  const list=document.getElementById('archive-list');
+  if(!list) return;
+  const q=(document.getElementById('archive-search').value||'').toLowerCase();
+  const all=readHistory();
+  const filtered=q
+    ?all.filter(h=>h.date.includes(q)||(h.note||'').toLowerCase().includes(q))
+    :all;
+  if(!filtered.length){
+    list.innerHTML=`<div style="padding:48px 24px;text-align:center;color:var(--mist);font-size:12px;font-weight:600">${q?'검색 결과 없음':'기록이 없습니다'}</div>`;
+    return;
+  }
+  // 연도 → 월 그룹핑
+  const groups={};
+  filtered.forEach(h=>{
+    const [y,m]=h.date.split('-');
+    const yk=y; const mk=`${y}-${m}`;
+    if(!groups[yk]) groups[yk]={};
+    if(!groups[yk][mk]) groups[yk][mk]=[];
+    groups[yk][mk].push(h);
+  });
+  const html=Object.keys(groups).sort((a,b)=>b-a).map(y=>{
+    const monthsHtml=Object.keys(groups[y]).sort((a,b)=>b.localeCompare(a)).map(mk=>{
+      const mo=parseInt(mk.split('-')[1]);
+      const items=groups[y][mk];
+      const rowsHtml=items.map(h=>{
+        const src=h.mainPhoto;
+        const thumbStyle=src?`background-image:url(${src})`:`background:${h._bg||'#f0f0f2'}`;
+        const prods=(h.products||[]).slice(0,2).map(p=>p.name||'').filter(Boolean).join(' · ');
+        const sel=archiveSel.has(h.date);
+        const cbHtml=archiveEditMode?`<div class="archive-cb">${sel?'✓':''}</div>`:'';
+        const applyHtml=archiveEditMode?'':
+          `<button type="button" class="archive-apply-btn" onclick="event.stopPropagation();openApplySheet('${h.id}')">Apply →</button>`;
+        return `<div class="archive-item${sel?' selected':''}" data-date="${h.date}" onclick="archiveItemClick('${h.date}')">
+          ${cbHtml}
+          <div class="archive-thumb" style="${thumbStyle}"></div>
+          <div class="archive-info">
+            <div class="archive-date">${h.date}</div>
+            <div class="archive-note">${h.note||'Untitled'}</div>
+            ${prods?`<div class="archive-prods">${prods}</div>`:''}
+          </div>
+          ${applyHtml}
+        </div>`;
+      }).join('');
+      return `<div class="archive-group-month">${mo}월<span class="archive-month-count">${items.length}건</span></div>${rowsHtml}`;
+    }).join('');
+    return `<div class="archive-group-year">${y}</div>${monthsHtml}`;
+  }).join('');
+  list.innerHTML=html;
+}
+
+// ── BOX Product Picker ───────────────────────────────────────────
+let bpMuseId=null, bpSelected=new Set();
+let _bpPickerExpanded=false;
+
+function openBoxPicker(museId){
+  bpMuseId=museId;
+  _bpPickerExpanded=false;
+  const items=allMuseWithSample();
+  const m=items.find(i=>i.id===museId);
+  bpSelected=new Set((m?.products||[]).map(p=>p.id));
+  document.getElementById('bp-search').value='';
+  renderBoxPicker();
+  document.getElementById('bp-panel').classList.add('open');
+}
+function closeBoxPicker(){
+  document.getElementById('bp-panel').classList.remove('open');
+  bpMuseId=null;
+}
+function _bpPickerShowMore(){
+  _bpPickerExpanded=true;
+  renderBoxPicker();
+}
+function renderBoxPicker(){
+  const q=(document.getElementById('bp-search').value||'').toLowerCase();
+  const assets=JSON.parse(localStorage.getItem('onstep_box_assets')||'[]');
+  const filtered=assets.filter(a=>!q||(a.name||'').toLowerCase().includes(q)||(a.brand||'').toLowerCase().includes(q));
+  const domainLabel={beauty:'뷰티',look:'룩',care:'케어'};
+  const showAll=_bpPickerExpanded||!!q;
+  const visible=showAll?filtered:filtered.slice(0,10);
+  const rows=visible.map(a=>`
+    <div class="bp-item${bpSelected.has(a.id)?' selected':''}" onclick="toggleBoxAsset(${a.id})">
+      <div class="bp-item-check">${bpSelected.has(a.id)?'✓':''}</div>
+      <div class="bp-item-info">
+        <div class="bp-item-name">${a.name||'알 수 없음'}</div>
+        <div class="bp-item-brand">${a.brand||'—'}</div>
+      </div>
+      <div class="bp-item-domain">${domainLabel[a.domain]||a.domain||''}</div>
+    </div>`).join('');
+  const moreBtn=(!showAll&&filtered.length>10)
+    ?`<div class="bp-more-btn" onclick="_bpPickerShowMore()">더 보기 (${filtered.length-10}개 더) ▾</div>`
+    :'';
+  document.getElementById('bp-list').innerHTML=filtered.length
+    ?(rows+moreBtn)
+    :`<div style="padding:48px 24px;text-align:center;color:var(--mist);font-size:12px;font-weight:600">BOX에 저장된 제품이 없습니다</div>`;
+  document.getElementById('bp-sel-count').textContent=bpSelected.size;
+}
+function toggleBoxAsset(id){
+  if(bpSelected.has(id)) bpSelected.delete(id); else bpSelected.add(id);
+  renderBoxPicker();
+}
+function confirmBoxPick(){
+  const assets=JSON.parse(localStorage.getItem('onstep_box_assets')||'[]');
+  const picked=assets.filter(a=>bpSelected.has(a.id)).map(a=>({id:a.id,name:a.name,brand:a.brand||null}));
+  const items=ensurePersisted(bpMuseId);
+  const idx=items.findIndex(m=>m.id===bpMuseId);
+  if(idx===-1){ closeBoxPicker(); return; }
+  items[idx].products=picked;
+  writeMuse(items);
+  saveToCloud();
+  const savedId=bpMuseId;
+  closeBoxPicker();
+  openMuseDetail(savedId);
+  showToast(`✓ ${picked.length}개 제품 연결됨`);
+}
+
+// ── Utilities ────────────────────────────────────────────────────
+function handleSheetBg(e,id){
+  if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// ── Init ─────────────────────────────────────────────────────────
+renderSceneBar();
+renderAll();
+const _sp=new URLSearchParams(location.search);
+const _sc=_sp.get('scene');
+if(_sc&&ALL_SCENES.includes(_sc)) setScene(_sc);
 </script>
 </body>
 </html>

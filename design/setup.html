@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>OnStep · Routine</title>
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="favicon.png">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -15,6 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="shared.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -31,17 +32,17 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-start;padding:24px 16px 48px;font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
-.phone{width:390px;background:#FFFFFF;border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative}
-.notch{height:44px;background:#FFFFFF;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.phone{width:390px;height:888px;background:#FFFFFF;border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;}
+.notch{height:44px;background:#FFFFFF;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
 .scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:#FFFFFF}
 .scroll::-webkit-scrollbar{display:none}
 @media(max-width:430px){
   body{background:var(--bg);padding:0}
-  .phone{width:100%;border-radius:0;box-shadow:none}
-  .notch{height:calc(env(safe-area-inset-top,0px) + 12px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
+  .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
+  .notch{flex-shrink:0;height:calc(env(safe-area-inset-top,0px) + 12px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
   .notch-bar{display:none}
-  .scroll{height:calc(100dvh - env(safe-area-inset-top,0px) - 12px)}
+  .scroll{flex:1;min-height:0;height:auto;}
   .modal{width:100%}
   .toast{bottom:calc(env(safe-area-inset-bottom,0px) + 80px)}
   .bottom-nav{border-top:none;}
@@ -60,6 +61,8 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .appbar-menu span{height:1.5px;background:var(--ink);border-radius:2px}
 .appbar-menu span:nth-child(2){width:68%}
 .appbar-center{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink)}
+.appbar-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink);display:flex;align-items:center;gap:8px}
+.appbar-logo{width:24px;height:24px;border-radius:var(--r-sm);object-fit:cover;filter:grayscale(100%)}
 .appbar-edit{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);background:none;border:none;cursor:pointer;padding:0;letter-spacing:.02em}
 
 /* ── Session Hero ── */
@@ -73,6 +76,10 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
   font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
   color:var(--sub);margin-top:4px;
 }
+.session-date-edit-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+.session-date-inp{flex:1;padding:8px 10px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--ink);background:#fff;outline:none;min-width:0;transition:border-color .15s;-webkit-appearance:none}
+.session-date-inp:focus{border-color:var(--lime)}
+.session-date-sep{color:var(--mist);font-size:11px;flex-shrink:0}
 
 /* ── Routine Section ── */
 .routine-section{padding:24px 16px}
@@ -212,13 +219,19 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 }
 .draft-btn:active{background:var(--surface-low)}
 
+/* New session button */
+.new-session-btn{width:100%;padding:14px;border:1.5px solid var(--border-md);border-radius:var(--r-md);background:transparent;color:var(--sub);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s}
+.new-session-btn:active{background:var(--surface-low)}
+
 /* History */
 .history-section{padding:0 20px 32px;border-top:1px solid var(--border);margin-top:8px}
+.history-hd-row{display:flex;align-items:flex-end;justify-content:space-between;padding:24px 0 16px}
 .history-label-wrap{
   font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;
   letter-spacing:-.01em;color:var(--ink);
-  padding:24px 0 16px;
+  line-height:1.2;padding:0;
 }
+.history-view-all{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--mist);background:none;border:none;cursor:pointer;padding:4px 0;letter-spacing:.02em;flex-shrink:0}
 .history-item{
   display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);
   cursor:pointer;gap:0;
@@ -234,13 +247,57 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .history-arrow{color:var(--mist);font-size:14px;flex-shrink:0;font-weight:300}
 
 /* Bottom nav */
-.bottom-nav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);flex-shrink:0;}
+.bottom-nav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);position:sticky;bottom:0;z-index:10;}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;padding:12px 6px 20px;text-decoration:none;border-radius:20px 20px 0 0;}
 .nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#AAAAAA;}
 .nav-label{font-family:'Space Grotesk','Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#AAAAAA;}
 .nav-item.active{background:#0A0A0A;}
 .nav-item.active .nav-icon{color:#FFFFFF;}
 .nav-item.active .nav-label{color:#FFFFFF;}
+
+/* session data dropdown */
+.sdata-slot-hd{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px 6px;border-top:1px solid var(--border);
+}
+.sdata-slot-label{
+  font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--sub);flex:1;
+}
+.sdata-slot-step{
+  font-family:'Inter',sans-serif;font-size:9px;color:var(--mist);
+  background:var(--surface-mid);padding:1px 7px;border-radius:var(--r-full);
+}
+.sdata-prod-row{
+  display:flex;align-items:center;gap:10px;
+  padding:6px 12px 6px 20px;border-bottom:1px solid var(--border);
+}
+.sdata-prod-row:last-child{border-bottom:none}
+.sdata-prod-img{
+  width:30px;height:30px;border-radius:var(--r-sm);flex-shrink:0;
+  background:var(--surface-low) center/cover no-repeat;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.sdata-prod-info{flex:1;min-width:0}
+.sdata-prod-name{
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
+  color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sdata-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px}
+.sdata-prod-cat{
+  font-family:'Space Grotesk',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--mist);
+  background:var(--surface-mid);padding:2px 6px;border-radius:var(--r-full);flex-shrink:0;
+}
+.sdata-meta-row{
+  display:flex;flex-wrap:wrap;gap:5px;padding:10px 12px 8px;
+}
+.sdata-meta-chip{
+  font-family:'Inter',sans-serif;font-size:10px;font-weight:600;
+  color:var(--sub);background:var(--surface);border-radius:var(--r-full);
+  padding:3px 9px;letter-spacing:.04em;
+}
+.sdata-empty{padding:10px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--mist)}
 
 /* ══════════════════════════════════════
    SESSION ARCHIVE overlay
@@ -249,8 +306,9 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
   position:absolute;inset:0;z-index:200;background:#FFFFFF;
   display:flex;flex-direction:column;
   transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
 }
-.archive-overlay.open{transform:translateX(0)}
+.archive-overlay.open{transform:translateX(0);pointer-events:auto}
 .archive-appbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px 16px;
@@ -405,7 +463,6 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
   font-weight:700;letter-spacing:.01em;cursor:pointer;transition:opacity .18s;
 }
 .archive-new-btn:active{opacity:.8}
-.archive-bottom-nav{background:#0A0A0A;border-top:none;display:flex;padding:10px 0 20px;flex-shrink:0}
 
 /* ══════════════════════════════════════
    Edit Session Sheet
@@ -439,8 +496,8 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 /* ══════════════════════════════════════
    Session Editor Panel (full-screen)
    ══════════════════════════════════════ */
-.se-panel{position:absolute;inset:0;z-index:220;background:#FFFFFF;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1)}
-.se-panel.open{transform:translateX(0)}
+.se-panel{position:absolute;inset:0;z-index:220;background:#FFFFFF;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.se-panel.open{transform:translateX(0);pointer-events:auto}
 .se-appbar{display:flex;align-items:center;gap:0;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;background:#fff}
 .se-back{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink);flex-shrink:0;padding:0}
 .se-appbar-title{flex:1;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:.02em;color:var(--ink);text-align:center}
@@ -504,10 +561,11 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .prod-img-area{height:72px;border:1.5px dashed var(--border-md);border-radius:var(--r-sm);cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--surface-low)}
 .prod-img-preview{position:absolute;inset:0;background-size:cover;background-position:center;display:none}
 .prod-img-placeholder{display:flex;gap:6px;align-items:center;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist)}
-.modal-btn-row{display:flex;gap:10px;margin-top:16px}
-.modal-del-btn{flex:0 0 auto;padding:13px 18px;background:var(--surface-low);color:var(--sub);border:1px solid var(--border);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;cursor:pointer;display:none}
+.modal-btn-row{display:flex;gap:8px;margin-top:16px}
+.modal-del-btn{flex:0 0 auto;height:52px;padding:0 20px;background:var(--surface-low);color:var(--sub);border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;cursor:pointer;display:none}
 .modal-del-btn.show{display:block}
-.modal-add-btn{flex:1;padding:14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:opacity .2s}
+.modal-del-btn:active{opacity:.8}
+.modal-add-btn{flex:1;height:52px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;cursor:pointer;transition:opacity .2s}
 .modal-add-btn:active{opacity:.75}
 
 /* BOX search inside product modal */
@@ -566,6 +624,8 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .bp-list{flex:1;overflow-y:auto;scrollbar-width:none}
 .bp-list::-webkit-scrollbar{display:none}
 .bp-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.bp-more-btn{padding:14px 16px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mist);border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.bp-more-btn:active{background:var(--surface-low)}
 .bp-item:active{background:var(--surface-low)}
 .bp-item.selected{background:#f4ffe0}
 .bp-item-img{width:48px;height:48px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
@@ -651,12 +711,17 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .ct-desc-inp{width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);resize:none;height:60px;outline:none;background:var(--surface)}
 .ct-desc-inp:focus{border-color:var(--ink)}
 .ct-desc-inp::placeholder{color:var(--mist)}
+.ct-url-inp{width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:0 12px;height:40px;font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);outline:none;background:var(--surface)}
+.ct-url-inp:focus{border-color:var(--ink)}
+.ct-url-inp::placeholder{color:var(--mist)}
 .ct-box-wrap{border:1.5px solid var(--border);border-radius:var(--r-sm);overflow:hidden;background:var(--surface-low);margin-bottom:10px}
 .ct-box-inp{width:100%;padding:9px 12px;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none}
 .ct-box-inp::placeholder{color:var(--mist)}
-.ct-box-results{max-height:130px;overflow-y:auto}
+.ct-box-results{max-height:320px;overflow-y:auto}
 .ct-box-row{display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid var(--border);cursor:pointer;transition:background .15s}
 .ct-box-row:active{background:var(--surface-mid)}
+.ct-more-btn{padding:10px 12px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mist);border-top:1px solid var(--border);cursor:pointer;transition:background .15s}
+.ct-more-btn:active{background:var(--surface-low)}
 .ct-box-img{width:30px;height:30px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden}
 .ct-box-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ct-box-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist)}
@@ -671,10 +736,17 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .ct-date-del-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;background:var(--ink);color:#fff;padding:4px 9px;border-radius:var(--r-sm);cursor:pointer;letter-spacing:.04em}
 .ct-date-add-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;border:1.5px dashed var(--border-md);background:none;padding:4px 10px;border-radius:var(--r-sm);color:var(--mist);cursor:pointer;transition:all .15s}
 .ct-date-add-chip:active{border-color:var(--ink);color:var(--ink)}
-.ct-sheet-ok-wrap{padding:16px 20px 4px}
-.ct-sheet-ok{width:100%;height:52px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;cursor:pointer;transition:opacity .2s;letter-spacing:.02em}
+.ct-period-row{display:flex;align-items:flex-end;gap:10px}
+.ct-period-field{flex:1;display:flex;flex-direction:column;gap:5px}
+.ct-period-lbl{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
+.ct-period-inp{width:100%;border:none;border-bottom:1.5px solid var(--border-md);background:transparent;font-family:'Inter',sans-serif;font-size:17px;color:var(--ink);padding:4px 0;outline:none}
+.ct-period-inp:focus{border-bottom-color:var(--ink)}
+.ct-period-sep{font-size:18px;color:var(--mist);flex-shrink:0;padding-bottom:6px}
+.ct-sheet-ok-wrap{padding:16px 20px 4px;display:flex;gap:8px}
+.ct-sheet-cancel{flex:1;height:52px;background:var(--surface-low);color:var(--ink);border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.04em}
+.ct-sheet-cancel:active{opacity:.8}
+.ct-sheet-ok{flex:2;height:52px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s;letter-spacing:.02em}
 .ct-sheet-ok:active{opacity:.8}
-.ct-sheet-save{margin-top:8px;width:100%;height:42px;background:var(--surface);color:var(--sub);border:1px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer}
 /* Calendar for ct-sheet */
 .ct-cal-ov{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:135;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
 .ct-cal-ov.open{opacity:1;pointer-events:auto}
@@ -746,22 +818,10 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .hub-gc-cta{border-top:1px solid var(--border);padding:10px 12px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--ink)}
 /* Hub count badge (legacy support) */
 .hub-card-count{display:none}
-/* Editorial quote */
-.setup-quote{padding:32px 20px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.setup-quote-text{font-family:'Georgia',serif;font-size:20px;font-style:italic;color:var(--ink);line-height:1.55;margin-bottom:16px}
-.setup-quote-attr{display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist)}
-.setup-quote-attr::before{content:'';display:block;width:28px;height:1px;background:var(--mist)}
-/* System utilities */
-.sys-utils{padding:24px 20px 32px}
-.sys-utils-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--mist);margin-bottom:16px}
-.sys-util-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);cursor:pointer}
-.sys-util-row:last-child{border-bottom:none}
-.sys-util-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
-.sys-util-icon{font-size:16px;color:var(--mist)}
 
 /* ══ Setup Sub-Panels ══ */
-.setup-panel{position:absolute;inset:0;z-index:50;background:#FFFFFF;transform:translateX(100%);transition:transform .36s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
-.setup-panel.open{transform:translateX(0)}
+.setup-panel{position:absolute;inset:0;z-index:50;background:#FFFFFF;transform:translateX(100%);transition:transform .36s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;pointer-events:none}
+.setup-panel.open{transform:translateX(0);pointer-events:auto}
 .panel-appbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-shrink:0}
 .panel-back{background:none;border:none;cursor:pointer;font-size:20px;font-weight:600;color:var(--ink);padding:0;line-height:1;display:flex;align-items:center}
 .panel-appbar-center{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink)}
@@ -779,18 +839,16 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 
     <!-- AppBar -->
     <div class="appbar">
-      <div style="cursor:pointer;color:var(--ink);display:flex;align-items:center">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      </div>
-      <div class="appbar-center">OnStep</div>
-      <div id="auth-avatar" style="width:32px;height:32px;border-radius:9999px;background:var(--surface-mid);border:1.5px solid var(--border);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg></div>
+      <div class="appbar-menu"><span></span><span></span><span></span></div>
+      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer"><img src="logo.png" alt="OnStep" class="appbar-logo">OnStep</div>
+      <div id="auth-avatar" data-auth-avatar onclick="handleAuthClick()" style="width:32px;height:32px;border-radius:9999px;background:var(--surface-mid);border:1.5px solid var(--border);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg></div>
     </div>
 
     <!-- Hub Header -->
     <div class="hub-header">
       <div class="hub-header-label">CONFIGURATION</div>
       <div class="hub-header-title">Setup</div>
-      <div class="hub-header-sub">Meticulous configuration for the high-performance life. Align your routine with strategic intent.</div>
+      <div class="hub-header-sub">Let's start today and tomorrow</div>
     </div>
 
     <!-- Hub grid (2-col masonry) -->
@@ -853,28 +911,6 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       <button onclick="openSetupPanel('routine')" style="width:52px;height:52px;border-radius:9999px;background:var(--lime);color:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(197,255,0,.4)">⚙</button>
     </div>
 
-    <!-- Editorial quote -->
-    <div class="setup-quote">
-      <div class="setup-quote-text">"Strategic planning is not about future decisions, but about the future of current decisions. The curator must select with precision to build a gallery worth living."</div>
-      <div class="setup-quote-attr">THE CURATOR'S NOTE V.2.4</div>
-    </div>
-
-    <!-- System utilities -->
-    <div class="sys-utils">
-      <div class="sys-utils-label">SYSTEM UTILITIES</div>
-      <div class="sys-util-row" onclick="if(confirm('모든 데이터를 초기화하시겠습니까?')){localStorage.clear();location.reload()}">
-        <span class="sys-util-name">GLOBAL RESET</span>
-        <span class="sys-util-icon">↺</span>
-      </div>
-      <div class="sys-util-row" onclick="exportData()">
-        <span class="sys-util-name">DATA EXPORT</span>
-        <span class="sys-util-icon">⊡</span>
-      </div>
-      <div class="sys-util-row">
-        <span class="sys-util-name">PRIVACY LOCK</span>
-        <span class="sys-util-icon">🔒</span>
-      </div>
-    </div>
 
     <!-- Legacy hub-count holders (hidden) -->
     <span id="hub-count-routine" style="display:none"></span>
@@ -883,24 +919,8 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
     <span id="hub-count-look" style="display:none"></span>
 
     <!-- Bottom nav -->
-    <div class="bottom-nav">
-      <a class="nav-item" href="today.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <div class="nav-label">Today</div>
-      </a>
-      <a class="nav-item" href="log.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="nav-label">Log</div>
-      </a>
-      <a class="nav-item" href="box.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
-        <div class="nav-label">Box</div>
-      </a>
-      <a class="nav-item active" href="setup.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="nav-label">Setup</div>
-      </a>
-    </div>
+    <div class="app-nav" id="main-bottom-nav"></div>
+
   </div><!-- /scroll -->
 
   <!-- ══ SUB-PANEL: ROUTINE ══ -->
@@ -917,8 +937,12 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         <div style="position:absolute;top:18px;right:18px;font-size:36px;opacity:.08;transform:rotate(15deg);line-height:1">✦</div>
         <div style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px">CURRENT SESSION</div>
         <div class="session-title" id="session-title-display">12TH SESSION</div>
-        <div style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-top:12px;margin-bottom:2px">INTERVAL</div>
-        <div class="session-period" id="session-period-display"></div>
+        <div style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-top:12px;margin-bottom:6px">INTERVAL</div>
+        <div class="session-date-edit-row">
+          <input type="date" id="session-period-start-input" class="session-date-inp" onchange="updatePeriodDate('start',this.value)">
+          <span class="session-date-sep">—</span>
+          <input type="date" id="session-period-end-input" class="session-date-inp" onchange="updatePeriodDate('end',this.value)">
+        </div>
       </div>
       <input type="file" id="baseline-input" accept="image/*" style="display:none" onchange="onBaselineFile(this)">
 
@@ -928,10 +952,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
           <div class="rs-hd-left"><span class="rs-name">MORNING</span></div>
           <span class="rs-badge" id="morning-active-badge">A.M. ROUTINE</span>
         </div>
-        <div class="step-tabs">
-          <button class="step-tab active" id="mstep-1" onclick="pickStep('morning',1)">STEP 1</button>
-          <button class="step-tab" id="mstep-2" onclick="pickStep('morning',2)">STEP 2</button>
-        </div>
+        <div class="step-tabs" id="morning-step-tabs"></div>
         <div class="time-section" onclick="pickTime('morning')">
           <span style="font-size:14px">⏰</span>
           <div class="time-big">
@@ -967,10 +988,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
           <div class="rs-hd-left"><span class="rs-name">NIGHT</span></div>
           <span class="rs-badge" id="nightly-active-badge">P.M. ROUTINE</span>
         </div>
-        <div class="step-tabs">
-          <button class="step-tab active" id="nstep-1" onclick="pickStep('nightly',1)">STEP 1</button>
-          <button class="step-tab" id="nstep-2" onclick="pickStep('nightly',2)">STEP 2</button>
-        </div>
+        <div class="step-tabs" id="nightly-step-tabs"></div>
         <div class="time-section" onclick="pickTime('nightly')">
           <span style="font-size:14px">🌙</span>
           <div class="time-big">
@@ -1010,6 +1028,18 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         <button id="publish-btn" onclick="activateContent('routine')"></button>
       </div>
 
+      <!-- Today's Day Badge + Progress Bar -->
+      <div id="step-today-wrap" style="display:none;padding:16px 16px 4px">
+        <div class="step-today-badge">
+          <span class="step-today-label">TODAY</span>
+          <span id="step-today-val" class="step-today-val">DAY 1</span>
+        </div>
+        <div style="height:3px;background:var(--surface-high);border-radius:2px;overflow:hidden;margin-top:4px">
+          <div id="step-progress-bar" style="height:100%;background:var(--lime);border-radius:2px;width:50%;transition:width .5s"></div>
+        </div>
+        <div style="font-family:'Inter',sans-serif;font-size:9px;color:var(--mist);margin-top:4px;letter-spacing:.06em">루틴 사이클 진행률</div>
+      </div>
+
       <!-- Session Before Photo -->
       <div style="padding:24px 16px 8px">
         <div class="before-photo-label">SESSION BEFORE PHOTO</div>
@@ -1023,39 +1053,38 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
           onchange="onBeforePhoto('session',this)">
       </div>
 
+      <!-- Session Data Summary -->
+      <div style="padding:16px 16px 4px;border-top:1px solid var(--border)">
+        <button class="prod-list-toggle" id="sdata-toggle" onclick="toggleSessionData()">
+          <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase">SESSION DATA</span>
+          <span class="prod-list-count-badge" id="sdata-count">0</span>
+          <span class="prod-list-toggle-arrow">▾</span>
+        </button>
+        <div class="prod-list-dropdown" id="sdata-dropdown">
+          <div class="prod-list-inner" id="sdata-inner"></div>
+        </div>
+      </div>
+
       <!-- Save CTA -->
       <div class="routine-actions">
         <button class="publish-btn" onclick="saveRoutineChanges()" style="background:var(--lime);color:var(--lime-fg);letter-spacing:.06em;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px">
           SAVE ROUTINE
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
+        <button class="new-session-btn" onclick="startNewSessionSheet()" style="margin-top:10px">+ 새 세션 추가하기</button>
       </div>
 
       <!-- History -->
       <div class="history-section">
-        <div class="history-label-wrap">PREVIOUS SESSIONS<br>ARCHIVE</div>
+        <div class="history-hd-row">
+          <div class="history-label-wrap">PREVIOUS<br>SESSIONS</div>
+          <button class="history-view-all" onclick="openArchive()">전체보기 →</button>
+        </div>
         <div id="history-list"></div>
       </div>
 
     </div><!-- /panel-body -->
-    <div class="bottom-nav">
-      <a class="nav-item" href="today.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <div class="nav-label">Today</div>
-      </a>
-      <a class="nav-item" href="log.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="nav-label">Log</div>
-      </a>
-      <a class="nav-item" href="box.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
-        <div class="nav-label">Box</div>
-      </a>
-      <a class="nav-item active" href="setup.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="nav-label">Setup</div>
-      </a>
-    </div>
+    <div class="app-nav"></div>
   </div><!-- /setup-panel-routine -->
 
   <!-- ══ SUB-PANEL: 집중케어 ══ -->
@@ -1071,6 +1100,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         <div class="ct-hero-title">집중케어</div>
         <div class="ct-hero-sub">케어 프로그램 설계 · BOX 뷰티 제품 매핑 · 기간 & 스케줄 설정</div>
       </div>
+      <div id="setup-care-count" style="padding:4px 20px 0;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
       <div class="ct-list" id="setup-care-list"></div>
       <div class="ct-add-wrap">
         <div class="ct-add-btn" onclick="openCtSheet('care')">
@@ -1078,24 +1108,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         </div>
       </div>
     </div>
-    <div class="bottom-nav">
-      <a class="nav-item" href="today.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <div class="nav-label">Today</div>
-      </a>
-      <a class="nav-item" href="log.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="nav-label">Log</div>
-      </a>
-      <a class="nav-item" href="box.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
-        <div class="nav-label">Box</div>
-      </a>
-      <a class="nav-item active" href="setup.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="nav-label">Setup</div>
-      </a>
-    </div>
+    <div class="app-nav"></div>
   </div><!-- /setup-panel-care -->
 
   <!-- ══ SUB-PANEL: 메이크업북 ══ -->
@@ -1111,6 +1124,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         <div class="ct-hero-title">메이크업북</div>
         <div class="ct-hero-sub">테마별 화장법 설계 · BOX 뷰티 제품 매핑 · Today 스케줄 연동</div>
       </div>
+      <div id="setup-mkp-count" style="padding:4px 20px 0;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
       <div class="ct-list" id="setup-mkp-list"></div>
       <div class="ct-add-wrap">
         <div class="ct-add-btn" onclick="openCtSheet('makeup')">
@@ -1118,24 +1132,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         </div>
       </div>
     </div>
-    <div class="bottom-nav">
-      <a class="nav-item" href="today.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <div class="nav-label">Today</div>
-      </a>
-      <a class="nav-item" href="log.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="nav-label">Log</div>
-      </a>
-      <a class="nav-item" href="box.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
-        <div class="nav-label">Box</div>
-      </a>
-      <a class="nav-item active" href="setup.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="nav-label">Setup</div>
-      </a>
-    </div>
+    <div class="app-nav"></div>
   </div><!-- /setup-panel-makeup -->
 
   <!-- ══ SUB-PANEL: 룩북 ══ -->
@@ -1151,6 +1148,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         <div class="ct-hero-title">룩북</div>
         <div class="ct-hero-sub">T.P.O 기반 코디 설계 · BOX 패션·액세서리 매핑 · Today OOTD 연동</div>
       </div>
+      <div id="setup-look-count" style="padding:4px 20px 0;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
       <div class="ct-list" id="setup-look-list"></div>
       <div class="ct-add-wrap">
         <div class="ct-add-btn" onclick="openCtSheet('look')">
@@ -1158,24 +1156,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         </div>
       </div>
     </div>
-    <div class="bottom-nav">
-      <a class="nav-item" href="today.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <div class="nav-label">Today</div>
-      </a>
-      <a class="nav-item" href="log.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="nav-label">Log</div>
-      </a>
-      <a class="nav-item" href="box.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
-        <div class="nav-label">Box</div>
-      </a>
-      <a class="nav-item active" href="setup.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="nav-label">Setup</div>
-      </a>
-    </div>
+    <div class="app-nav"></div>
   </div><!-- /setup-panel-look -->
 
   <!-- ══ SUB-PANEL: ROUTINE TRACKER ══ -->
@@ -1212,24 +1193,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         <div id="tracker-list"></div>
       </div>
     </div>
-    <div class="bottom-nav">
-      <a class="nav-item" href="today.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <div class="nav-label">Today</div>
-      </a>
-      <a class="nav-item" href="log.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="nav-label">Log</div>
-      </a>
-      <a class="nav-item" href="box.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div>
-        <div class="nav-label">Box</div>
-      </a>
-      <a class="nav-item active" href="setup.html">
-        <div class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="nav-label">Setup</div>
-      </a>
-    </div>
+    <div class="app-nav"></div>
   </div><!-- /setup-panel-tracker -->
 
   <!-- SESSION ARCHIVE Overlay -->
@@ -1239,7 +1203,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         <span></span><span></span><span></span>
       </div>
       <div class="archive-appbar-center">SESSION ARCHIVE</div>
-      <div id="archive-avatar">
+      <div id="archive-avatar" data-auth-avatar onclick="handleAuthClick()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
       </div>
     </div>
@@ -1258,26 +1222,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       </div>
       <div id="archive-entries"></div>
     </div>
-    <div class="archive-new-btn-wrap">
-      <button class="archive-new-btn" onclick="startNewSession()">새 세션 시작하기</button>
-    </div>
-    <div class="archive-bottom-nav">
-      <div class="nav-item active" onclick="closeArchive()">
-        <div class="nav-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-        </div>
-        <div class="nav-label">ARCHIVE</div>
-      </div>
-      <div class="nav-item" onclick="closeArchive()">
-        <div class="nav-icon">✦</div><div class="nav-label">ROUTINE</div>
-      </div>
-      <a class="nav-item" href="log.html">
-        <div class="nav-icon">◌</div><div class="nav-label">SKIN</div>
-      </a>
-      <div class="nav-item">
-        <div class="nav-icon">◈</div><div class="nav-label">PROFILE</div>
-      </div>
-    </div>
+    <div class="app-nav"></div>
   </div>
 
   <!-- ── Content Add Sheet (makeup / look) ── -->
@@ -1297,6 +1242,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
           <span class="ct-sheet-baseline-text">레퍼런스 사진 추가</span>
         </div>
         <input type="file" id="ct-baseline-input" accept="image/*" style="display:none" onchange="onCtBaselineFile(this)">
+        <input class="ct-url-inp" id="ct-source-url" type="url" placeholder="Source URL (Instagram, YouTube…)" style="margin-top:8px">
       </div>
       <div class="ct-sheet-sec">
         <span class="ct-sheet-sec-lbl">제목</span>
@@ -1328,14 +1274,31 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
           <div class="ct-tpo-chip" onclick="toggleTpo(this,'travel')">Travel</div>
         </div>
       </div>
-      <div class="ct-sheet-sec">
+      <!-- makeup / look: 개별 날짜 -->
+      <div class="ct-sheet-sec" id="ct-dates-sec">
         <span class="ct-sheet-sec-lbl">예정 날짜</span>
         <div class="ct-dates-wrap" id="ct-dates-wrap">
           <button class="ct-date-add-chip" onclick="openCtCal()">+ 날짜 추가</button>
         </div>
       </div>
+      <!-- care: 기간 범위 -->
+      <div class="ct-sheet-sec" id="ct-period-sec" style="display:none">
+        <span class="ct-sheet-sec-lbl">케어 기간</span>
+        <div class="ct-period-row">
+          <div class="ct-period-field">
+            <div class="ct-period-lbl">시작일</div>
+            <input type="date" id="ct-period-start" class="ct-period-inp">
+          </div>
+          <div class="ct-period-sep">→</div>
+          <div class="ct-period-field">
+            <div class="ct-period-lbl">종료일</div>
+            <input type="date" id="ct-period-end" class="ct-period-inp">
+          </div>
+        </div>
+      </div>
       <div class="ct-sheet-ok-wrap">
-        <button class="ct-sheet-ok" onclick="saveCtContent()">ok →</button>
+        <button class="ct-sheet-cancel" onclick="closeCtSheet()">취소</button>
+        <button class="ct-sheet-ok" onclick="saveCtContent()">저장</button>
       </div>
     </div>
   </div>
@@ -1440,10 +1403,10 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
     </div>
     <div class="form-group">
       <div class="form-label">제품 이미지 <span style="color:var(--mist);font-size:9px;font-weight:400;letter-spacing:0">(선택)</span></div>
-      <label class="prod-img-area" for="prod-img-input">
+      <div class="prod-img-area" onclick="showImgPickSheet(d=>previewProdImgData(d),480,0.68)">
         <div id="prod-img-preview" class="prod-img-preview"></div>
         <div class="prod-img-placeholder" id="prod-img-placeholder"><span>📷</span><span style="margin-left:6px">이미지 추가</span></div>
-      </label>
+      </div>
       <input type="file" id="prod-img-input" accept="image/*" style="display:none" onchange="previewProdImg(this)">
     </div>
     <div class="form-group">
@@ -1491,13 +1454,101 @@ firebase.initializeApp({
 const fbAuth = firebase.auth();
 const fbDb   = firebase.firestore();
 let currentUser = null;
+let _unsubExtra = null, _unsubCareplan = null, _unsubSettings = null, _unsubBox = null;
+
+function _applyBoxSnap(d) {
+  if (d.assets)    localStorage.setItem('onstep_box_assets',    JSON.stringify(d.assets));
+  if (d.locations) localStorage.setItem('onstep_box_locations', JSON.stringify(d.locations));
+  if (d.boxCats)   localStorage.setItem('onstep_box_cats',      JSON.stringify(d.boxCats));
+  if (d.catLabels) {
+    const merged = Object.assign(
+      JSON.parse(localStorage.getItem('onstep_box_cat_labels') || '{}'),
+      d.catLabels
+    );
+    localStorage.setItem('onstep_box_cat_labels', JSON.stringify(merged));
+  }
+  // 현재 열려있는 패널 즉시 갱신
+  if (document.getElementById('bp-overlay')?.classList.contains('open')) {
+    renderBpList(document.getElementById('bp-search-inp')?.value || '');
+  }
+  const ctRes = document.getElementById('ct-box-results');
+  if (ctRes && ctRes.children.length) {
+    renderCtBoxResults(document.getElementById('ct-box-inp')?.value || '');
+  }
+}
 
 firebase.auth().onAuthStateChanged(user => {
   currentUser = user;
   updateArchiveAvatar(user);
-  if (user) loadFromCloud(user.uid);
+  _updateAuthAvatar(user);
+  [_unsubExtra, _unsubCareplan, _unsubSettings, _unsubBox].forEach(fn => fn && fn());
+  _unsubExtra = _unsubCareplan = _unsubSettings = _unsubBox = null;
+  if (user) {
+    loadFromCloud(user.uid);
+    const userRef = fbDb.collection('users').doc(user.uid);
+
+    _unsubExtra = userRef.collection('extra').doc('data')
+      .onSnapshot(snap => {
+        if (!snap.exists) return;
+        const d = snap.data();
+        const localTs = parseInt(localStorage.getItem('_onstep_extra_local_ts') || '0');
+        const snapTs  = d.savedAt ? new Date(d.savedAt).getTime() : 0;
+        if (snapTs < localTs - 3000) return;
+        if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(d.careThemes));
+        if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(d.makeupContents));
+        if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(d.lookContents));
+        if (d.portfolio)       localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
+        updateHubCounts();
+        renderCtCareList(); renderCtMkpList(); renderCtLookList();
+      }, e => console.warn('extra onSnapshot:', e));
+
+    _unsubCareplan = userRef.collection('careplan').doc('data')
+      .onSnapshot(snap => {
+        if (!snap.exists) return;
+        const data = snap.data();
+        const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+        const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
+        const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
+        if (cloudTs >= localTs) { applyPlanData(data); renderAll(); }
+      }, e => console.warn('careplan onSnapshot:', e));
+
+    _unsubSettings = userRef.collection('settings').doc('data')
+      .onSnapshot(snap => {
+        if (!snap.exists) return;
+        const s = snap.data();
+        if (s.trackerItems && Array.isArray(s.trackerItems)) {
+          trackerItems = s.trackerItems;
+          localStorage.setItem(TRACKER_KEY, JSON.stringify(trackerItems));
+          renderTrackerList();
+        }
+      }, e => console.warn('settings onSnapshot:', e));
+
+    _unsubBox = userRef.collection('box').doc('data')
+      .onSnapshot(snap => {
+        if (!snap.exists) return;
+        const d = snap.data();
+        const localTs = parseInt(localStorage.getItem('_onstep_box_local_ts') || '0');
+        const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
+        if (cloudTs >= localTs - 3000) _applyBoxSnap(d);
+      }, e => console.warn('box onSnapshot:', e));
+  }
 });
 
+window.addEventListener('DOMContentLoaded', () => { initNav('setup'); initCmsContent(); });
+
+let _lastSyncTs = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !currentUser) return;
+  const now = Date.now();
+  if (now - _lastSyncTs < 60000) return;
+  _lastSyncTs = now;
+  loadFromCloud(currentUser.uid);
+});
+function handleAuthClick() {
+  const _auth = typeof fbAuth !== 'undefined' ? fbAuth : firebase.auth();
+  if (currentUser) { if(confirm(`${currentUser.displayName||currentUser.email}\n로그아웃?`)) _auth.signOut(); }
+  else _auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>alert(e.message));
+}
 function updateArchiveAvatar(user) {
   const el = document.getElementById('archive-avatar');
   if (!el) return;
@@ -1511,42 +1562,94 @@ function updateArchiveAvatar(user) {
 
 async function loadFromCloud(uid) {
   try {
-    // 1) 케어플랜 (루틴·메이크업·룩 스케줄)
-    const snap = await fbDb.collection('users').doc(uid).collection('careplan').doc('data').get();
+    const userRef = fbDb.collection('users').doc(uid);
+
+    // 1) 케어플랜
+    const snap = await userRef.collection('careplan').doc('data').get();
     if (snap.exists) {
       const data = snap.data();
       const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
       const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
       const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
       if (cloudTs >= localTs) applyPlanData(data);
+    } else {
+      // Firestore 비어있음 → 로컬 데이터 업로드
+      const local = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
+      if (local && local.savedAt) await saveToCloud(local);
     }
+
     // 2) 테마·포트폴리오 (extra/data)
-    const extraSnap = await fbDb.collection('users').doc(uid).collection('extra').doc('data').get();
-    if (extraSnap.exists) {
+    const extraSnap = await userRef.collection('extra').doc('data').get();
+    if (extraSnap.exists && (extraSnap.data().careThemes || extraSnap.data().makeupContents || extraSnap.data().makeupThemes || extraSnap.data().lookContents || extraSnap.data().lookThemes)) {
       const d = extraSnap.data();
-      if (d.careThemes) localStorage.setItem('onstep_care_themes',        JSON.stringify(d.careThemes));
-      if (d.lookThemes) localStorage.setItem('onstep_look_themes',        JSON.stringify(d.lookThemes));
-      if (d.portfolio)  localStorage.setItem('onstep_planned_portfolio',  JSON.stringify(d.portfolio));
+      if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(d.careThemes));
+      if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',  JSON.stringify(d.makeupContents));
+      else if (d.makeupThemes) localStorage.setItem('onstep_makeup_contents', JSON.stringify(d.makeupThemes?.themes || []));
+      if (d.lookContents)    localStorage.setItem('onstep_look_contents',    JSON.stringify(d.lookContents));
+      else if (d.lookThemes) localStorage.setItem('onstep_look_contents',    JSON.stringify(d.lookThemes));
+      if (d.portfolio)    localStorage.setItem('onstep_planned_portfolio',  JSON.stringify(d.portfolio));
+      localStorage.removeItem('_onstep_extra_local_ts');
       updateHubCounts();
+      renderCtCareList(); renderCtMkpList(); renderCtLookList();
+    } else {
+      // Firestore 없거나 테마 데이터 없음 → 로컬 데이터 업로드
+      await saveThemesToFirestore();
     }
+
     // 3) 박스 자산
-    const boxSnap = await fbDb.collection('users').doc(uid).collection('box').doc('data').get();
+    const boxSnap = await userRef.collection('box').doc('data').get();
     if (boxSnap.exists) {
-      const b = boxSnap.data();
-      if (b.assets)    localStorage.setItem('onstep_box_assets',    JSON.stringify(b.assets));
-      if (b.locations) localStorage.setItem('onstep_box_locations', JSON.stringify(b.locations));
+      _applyBoxSnap(boxSnap.data());
+    } else {
+      // Firestore 비어있음 → 로컬 데이터 업로드
+      const assets  = JSON.parse(localStorage.getItem('onstep_box_assets')    || '[]');
+      const locs    = JSON.parse(localStorage.getItem('onstep_box_locations')  || '[]');
+      const boxCats = JSON.parse(localStorage.getItem('onstep_box_cats')       || 'null');
+      if (assets.length || locs.length) {
+        const payload = { assets, locations: locs, savedAt: new Date().toISOString() };
+        if (boxCats) payload.boxCats = boxCats;
+        await userRef.collection('box').doc('data').set(payload);
+      }
     }
+
+    // 4) 사용자 설정 (트래커)
+    const settingsSnap = await userRef.collection('settings').doc('data').get();
+    if (settingsSnap.exists) {
+      const s = settingsSnap.data();
+      if (s.trackerItems && Array.isArray(s.trackerItems)) {
+        trackerItems = s.trackerItems;
+        localStorage.setItem(TRACKER_KEY, JSON.stringify(trackerItems));
+        renderTrackerList();
+      }
+    } else {
+      // Firestore 비어있음 → 로컬 데이터 업로드
+      const local = JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]');
+      if (local.length) await saveTrackerToCloud();
+    }
+
   } catch(e) { console.warn('Cloud load:', e); }
 }
 
+async function saveTrackerToCloud() {
+  if (!currentUser) return;
+  try {
+    await fbDb.collection('users').doc(currentUser.uid)
+      .collection('settings').doc('data')
+      .set({ trackerItems, savedAt: new Date().toISOString() }, { merge: true });
+  } catch(e) { console.warn('Tracker cloud save:', e); }
+}
+
 async function saveThemesToFirestore() {
+  if (typeof _broadcastState === 'function') { _broadcastState('schedule'); _broadcastState('extra'); }
   if (!currentUser) return;
   try {
     const care      = JSON.parse(localStorage.getItem('onstep_care_themes')       || '[]');
-    const looks     = JSON.parse(localStorage.getItem('onstep_look_themes')       || '[]');
+    const makeup    = JSON.parse(localStorage.getItem('onstep_makeup_contents')   || '[]');
+    const looks     = JSON.parse(localStorage.getItem('onstep_look_contents')     || '[]');
     const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio') || '[]');
+    localStorage.setItem('_onstep_extra_local_ts', Date.now().toString());
     await fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
-      .set({ careThemes: care, lookThemes: looks, portfolio, savedAt: new Date().toISOString() }, { merge: true });
+      .set({ careThemes: care, makeupContents: makeup, lookContents: looks, portfolio, savedAt: new Date().toISOString() }, { merge: true });
   } catch(e) { console.warn('Themes cloud save:', e); }
 }
 
@@ -1566,7 +1669,7 @@ const CAT = {
   ampoule: {icon:'🧪', label:'앰플'},
   booster: {icon:'⚡', label:'부스터'},
   cream:   {icon:'🫙', label:'크림'},
-  pack:    {icon:'🎭', label:'팩'},
+  pack:    {icon:'🎭', label:'마스크팩'},
   mist:    {icon:'🌫️', label:'미스트'},
   etc:     {icon:'✨', label:'기타'},
 };
@@ -1574,31 +1677,31 @@ const CAT = {
 // ── State ─────────────────────────────────────────────────────
 // ── Real product sample data (5 per routine) ──────────────────
 const SAMPLE_MORNING_S1 = [
-  { id:1001, catKey:'toner',   name:'AHA/BHA Clarifying Toner',    brand:'COSRX',       icon:'💧', imgData:null },
-  { id:1002, catKey:'serum',   name:'No.3 Super Glowy Serum',       brand:'Numbuzin',    icon:'🔬', imgData:null },
-  { id:1003, catKey:'ampoule', name:'First Treatment Essence EX',   brand:'MISSHA',      icon:'🧪', imgData:null },
-  { id:1004, catKey:'cream',   name:'Water Sleeping Mask',          brand:'LANEIGE',     icon:'🫙', imgData:null },
-  { id:1005, catKey:'mist',    name:'Dewy Mist',                    brand:'Tatcha',      icon:'🌫️', imgData:null },
+  { id:1001, catKey:'toner',   name:'델마토너',    brand:'뷰티지아나',       icon:'💧', imgData:null },
+  { id:1002, catKey:'serum',   name:'델마세럼',       brand:'뷰티지아나',    icon:'🔬', imgData:null },
+  { id:1003, catKey:'ampoule', name:'오션앰플',   brand:'뷰티지아나',      icon:'🧪', imgData:null },
+  { id:1004, catKey:'cream',   name:'버터크림',          brand:'뷰티지아나',     icon:'🫙', imgData:null },
+  { id:1005, catKey:'mist',    name:'크림미스트',                    brand:'뷰티지아나',      icon:'🌫️', imgData:null },
 ];
 const SAMPLE_MORNING_S2 = [
-  { id:1011, catKey:'booster', name:'Enriched Firming Serum',       brand:'Sulwhasoo',   icon:'⚡', imgData:null },
-  { id:1012, catKey:'serum',   name:'Retinol Active Serum',         brand:'IOPE',        icon:'🔬', imgData:null },
-  { id:1013, catKey:'cream',   name:'Cicapair Tiger Grass Cream',   brand:'Dr.Jart+',    icon:'🫙', imgData:null },
+  { id:1011, catKey:'booster', name:'오션부스터',       brand:'뷰티지아나',   icon:'⚡', imgData:null },
+  { id:1012, catKey:'serum',   name:'버터세럼',         brand:'뷰티지아나',        icon:'🔬', imgData:null },
+  { id:1013, catKey:'cream',   name:'버터크림',   brand:'뷰티지아나',    icon:'🫙', imgData:null },
 ];
 const SAMPLE_NIGHTLY = [
-  { id:2001, catKey:'pack',    name:'Clean It Zero Original',       brand:'Banila Co',   icon:'🎭', imgData:null },
-  { id:2002, catKey:'toner',   name:'Birch Juice Moisturizing Toner', brand:'Round Lab', icon:'💧', imgData:null },
-  { id:2003, catKey:'serum',   name:'Propolis Synergy Serum',       brand:'By Wishtrend', icon:'🔬', imgData:null },
-  { id:2004, catKey:'cream',   name:'Hydra Plump Sleeping Cream',   brand:'BELIF',       icon:'🫙', imgData:null },
-  { id:2005, catKey:'ampoule', name:'Retinol Eye Cream',            brand:'RoC',         icon:'🧪', imgData:null },
+  { id:2001, catKey:'pack',    name:'쑥 팩',       brand:'뷰티지아나',   icon:'🎭', imgData:null },
+  { id:2002, catKey:'toner',   name:'델마토너', brand:'뷰티지아나', icon:'💧', imgData:null },
+  { id:2003, catKey:'serum',   name:'델마세럼',       brand:'뷰티지아나', icon:'🔬', imgData:null },
+  { id:2004, catKey:'cream',   name:'델마크림',   brand:'뷰티지아나',       icon:'🫙', imgData:null },
+  { id:2005, catKey:'ampoule', name:'오션앰플',            brand:'뷰티지아나',         icon:'🧪', imgData:null },
 ];
 const SAMPLE_MAKEUP_THEMES = [
   {
     id:1, name:'Daily Glow', emoji:'✨',
     description:'Natural dewy finish perfect for everyday wear.',
     products:[
-      {id:1,step:'Base',  name:'Skin Tint SPF30',               brand:'ILIA Beauty',    icon:'◎',imgData:null},
-      {id:2,step:'Cheek', name:'Soft Pinch Liquid Blush',        brand:'RARE BEAUTY',    icon:'◌',imgData:null},
+      {id:1,step:'Base',  name:'base SPF30',               brand:'chanel',    icon:'◎',imgData:null},
+      {id:2,step:'Cheek', name:'Soft Pinch Liquid Blush',        brand:'Dior',    icon:'◌',imgData:null},
       {id:3,step:'Eye',   name:'Gimme Brow+ Gel',                brand:'Benefit',        icon:'▸',imgData:null},
       {id:4,step:'Lip',   name:'Lip Glow Oil',                   brand:'Dior',           icon:'◈',imgData:null},
       {id:5,step:'Finish',name:'All Nighter Setting Spray',      brand:'Urban Decay',    icon:'✦',imgData:null}
@@ -1749,15 +1852,7 @@ function applyPlanData(saved) {
   if (saved.morning)      state.morning      = mig(saved.morning);
   if (saved.nightly)      state.nightly      = mig(saved.nightly);
   if (saved.history)      state.history      = saved.history;
-  if (saved.lookSchedule)   lookSchedule   = saved.lookSchedule;
-  if (saved.makeupSchedule) {
-    makeupSchedule = saved.makeupSchedule;
-    // migrate old scheduledDays → scheduledDates
-    (makeupSchedule.themes||[]).forEach(t => {
-      if (!t.scheduledDates) t.scheduledDates = [];
-      delete t.scheduledDays;
-    });
-  }
+  if (saved.lookSchedule) lookSchedule = saved.lookSchedule;
   if (saved.exercise) {
     // preserve tracker items — merge into localStorage without losing local-only data
     const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
@@ -1775,25 +1870,65 @@ function getSetupTimePeriod() {
   return (h >= 5 && h < 12) ? 'morning' : 'nightly';
 }
 
-// today.html의 getActiveCycleRoutine과 동일 — Step1만 있으면 1, 둘 다 있으면 격일 교대
+// N-step cycle: day offset from periodStart mod routines.length
 function computeTodayStep(slot) {
-  const r2 = state[slot].routines.find(r => r.id === 2);
-  if (!r2?.products?.length) return 1;
+  const routines = state[slot]?.routines || [];
+  if (routines.length <= 1) return 1;
+  // check if any non-first routine has products
+  const hasExtra = routines.slice(1).some(r => r.products?.length > 0);
+  if (!hasExtra) return 1;
   if (!state.periodStart) return 1;
+  const n = routines.length || 2;
   const diff = Math.floor((new Date() - new Date(state.periodStart)) / 86400000);
-  return diff % 2 === 0 ? 1 : 2;
+  const idx  = diff % n;
+  return routines[idx]?.id || 1;
+}
+
+// ── Dynamic step tabs ─────────────────────────────────────────
+function renderStepTabs(slot) {
+  const container = document.getElementById(`${slot}-step-tabs`);
+  if (!container) return;
+  const routines  = state[slot]?.routines || [];
+  const active    = state[slot]?.active   || 1;
+  const pfx       = slot === 'morning' ? 'm' : 'n';
+  const tabsHtml  = routines.map(r =>
+    `<button class="step-tab${r.id === active ? ' active' : ''}"
+             id="${pfx}step-${r.id}"
+             onclick="pickStep('${slot}',${r.id})">DAY ${r.id}</button>`
+  ).join('');
+  container.innerHTML = tabsHtml +
+    `<button class="step-tab" style="color:var(--lime-dark);font-size:16px;padding:8px 14px;letter-spacing:0"
+             onclick="addRoutineDay('${slot}')" title="루틴 추가">+</button>`;
+}
+
+function addRoutineDay(slot) {
+  const routines = state[slot].routines;
+  const newId    = Math.max(...routines.map(r => r.id)) + 1;
+  routines.push({ id: newId, products: [], tip: '' });
+  state[slot].active = newId;
+  renderStepTabs(slot);
+  renderGrid(slot);
+  renderTodayStepBadge();
+  showToast(`Day ${newId} 추가됨`);
 }
 
 function renderAll() {
   updateHero();
   updateTimeDisplay('morning', state.morningTime);
   updateTimeDisplay('nightly', state.nightlyTime);
+  renderStepTabs('morning');
+  renderStepTabs('nightly');
   renderGrid('morning');
   renderGrid('nightly');
   renderTodayStepBadge();
   renderHistory();
-  renderMakeupThemes();
   updateHubCounts();
+  if (_sdataOpen) renderSessionDataSummary();
+  else {
+    const totalProds = ['morning','nightly'].reduce((s,slot)=>s+(state[slot]?.routines||[]).reduce((ss,r)=>ss+(r.products?.length||0),0),0);
+    const c = document.getElementById('sdata-count');
+    if (c) c.textContent = totalProds;
+  }
   // 현재 활성 시간대 배지 표시
   const activeSlot = getSetupTimePeriod();
   const mBadge = document.getElementById('morning-active-badge');
@@ -1811,6 +1946,7 @@ function openSetupPanel(type) {
   _currentPanel = type;
   const panel = document.getElementById(`setup-panel-${type}`);
   if (panel) panel.classList.add('open');
+  if (type === 'routine') renderAll();
   if (type === 'care')    renderCtCareList();
   if (type === 'makeup')  renderCtMkpList();
   if (type === 'look')    renderCtLookList();
@@ -1833,11 +1969,11 @@ function updateHubCounts() {
   const cEl = document.getElementById('hub-count-care');
   if (cEl) cEl.textContent = care.length ? `${care.length} PROGRAMS` : 'SET UP';
   // makeup
-  const mkp = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
+  const mkp = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
   const mEl = document.getElementById('hub-count-makeup');
-  if (mEl) mEl.textContent = (mkp.themes?.length) ? `${mkp.themes.length} THEMES` : 'SET UP';
+  if (mEl) mEl.textContent = mkp.length ? `${mkp.length} THEMES` : 'SET UP';
   // look
-  const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+  const looks = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
   const lEl = document.getElementById('hub-count-look');
   if (lEl) lEl.textContent = looks.length ? `${looks.length} LOOKS` : 'SET UP';
 }
@@ -1850,18 +1986,19 @@ function getSuffix(n) {
 
 function updateHero() {
   const n = state.session || 0;
-  const titleEl = document.getElementById('session-title-display');
-  const periodEl = document.getElementById('session-period-display');
+  const titleEl  = document.getElementById('session-title-display');
+  const startInp = document.getElementById('session-period-start-input');
+  const endInp   = document.getElementById('session-period-end-input');
   const pubBtn   = document.getElementById('publish-btn');
-  if (titleEl) {
-    titleEl.textContent = n ? `${n}${getSuffix(n).toUpperCase()} SESSION` : '— SESSION';
-  }
-  if (periodEl) {
-    const s = state.periodStart, e = state.periodEnd;
-    const fmt = d => d ? d.replace(/-/g,'.') : '···';
-    periodEl.textContent = s ? `${fmt(s)} — ${fmt(e)}` : '';
-  }
+  if (titleEl) titleEl.textContent = n ? `${n}${getSuffix(n).toUpperCase()} SESSION` : '— SESSION';
+  if (startInp) startInp.value = state.periodStart || '';
+  if (endInp)   endInp.value   = state.periodEnd   || '';
   if (pubBtn && n) pubBtn.textContent = `PUBLISH ${n}${getSuffix(n).toUpperCase()} SESSION`;
+}
+
+function updatePeriodDate(which, value) {
+  if (which === 'start') state.periodStart = value;
+  else state.periodEnd = value;
 }
 
 // ── Time ──────────────────────────────────────────────────────
@@ -1892,9 +2029,11 @@ function pickStep(slot, id) {
     if (cur) cur.tip = tipEl.value;
   }
   state[slot].active = id;
+  // update all tab highlights dynamically
   const pfx = slot === 'morning' ? 'm' : 'n';
-  document.getElementById(`${pfx}step-1`)?.classList.toggle('active', id===1);
-  document.getElementById(`${pfx}step-2`)?.classList.toggle('active', id===2);
+  state[slot].routines.forEach(r => {
+    document.getElementById(`${pfx}step-${r.id}`)?.classList.toggle('active', r.id === id);
+  });
   renderGrid(slot);
 }
 
@@ -1995,17 +2134,61 @@ function toggleProdList(slot) {
 function renderHistory() {
   const el = document.getElementById('history-list');
   if (!el) return;
-  const sessions = (state.history || []).slice().sort((a,b) => b.session - a.session);
+  const sessions = (state.history || []).slice().sort((a,b) => b.session - a.session).slice(0,3);
+  if (!sessions.length) {
+    el.innerHTML = '<div style="font-family:\'Inter\',sans-serif;font-size:12px;color:var(--mist);padding:8px 0 4px;text-align:center">이전 세션이 없습니다</div>';
+    return;
+  }
   const fmt = d => (d||'').replace(/-/g,'.');
-  el.innerHTML = sessions.map((s, i) => `
-    <div class="history-item" onclick="openArchive()">
-      <div class="history-num${i > 0 ? ' dimmed' : ''}">${s.session}</div>
-      <div class="history-info">
-        <div class="history-date-range">${fmt(s.periodStart)} — ${fmt(s.periodEnd)}</div>
-        <div class="history-sub">${s.session}${getSuffix(s.session).toUpperCase()} SESSION · REVIEW</div>
+  const CAT_LABEL = { toner:'토너',serum:'세럼',ampoule:'앰플',booster:'부스터',cream:'크림',pack:'팩',mist:'미스트',etc:'기타' };
+  const stepRow = p => `
+    <div class="ae-step-row">
+      <span class="ae-step-icon">${p.icon||'✦'}</span>
+      <div class="ae-step-info">
+        <div class="ae-step-name">${p.name}</div>
+        ${p.brand?`<div class="ae-step-brand">${p.brand}</div>`:''}
       </div>
-      <div class="history-arrow">›</div>
-    </div>`).join('');
+      ${p.catKey?`<span class="ae-step-cat">${CAT_LABEL[p.catKey]||p.catKey}</span>`:''}
+    </div>`;
+  const slotBlock = (icon, label, prods) => prods.length ? `
+    <div class="ae-slot-hd"><span class="ae-slot-icon">${icon}</span><span class="ae-slot-label">${label} · ${prods.length} STEPS</span></div>
+    <div class="ae-step-list">${prods.map(stepRow).join('')}</div>` : '';
+
+  el.innerHTML = sessions.map(s => {
+    const n = s.session, sfx = getSuffix(n).toUpperCase();
+    const mProds = s.morning?.routines?.[0]?.products || [];
+    const nProds = s.nightly?.routines?.[0]?.products || [];
+    const tags = [...(mProds.length?[`☀ ${mProds.length}`]:[]),...(nProds.length?[`🌙 ${nProds.length}`]:[])];
+    const tagsHtml = tags.map(t=>`<span class="ae-tag">${t}</span>`).join('');
+    const detailBody = mProds.length||nProds.length
+      ? slotBlock('☀️','MORNING',mProds)+slotBlock('🌙','NIGHT',nProds)
+      : '<div class="ae-detail-empty">등록된 제품이 없습니다</div>';
+    return `
+    <div class="ae-row" id="hi-row-${n}" onclick="toggleHiRow(${n})">
+      <div class="ae-session-num">#${String(n).padStart(2,'0')}</div>
+      <div class="ae-row-info">
+        <div class="ae-row-title">${n}${sfx} SESSION</div>
+        <div class="ae-row-dates">${fmt(s.periodStart)} – ${fmt(s.periodEnd)}</div>
+      </div>
+      <div class="ae-row-right">${tagsHtml}<span class="ae-chevron">›</span></div>
+    </div>
+    <div class="ae-detail" id="hi-detail-${n}">
+      <div class="ae-detail-inner">
+        ${detailBody}
+        <button class="ae-detail-edit-btn" onclick="event.stopPropagation();openSessionEditor(${n})">편집 →</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHiRow(n) {
+  const row = document.getElementById(`hi-row-${n}`);
+  const detail = document.getElementById(`hi-detail-${n}`);
+  if (!detail) return;
+  const isOpen = detail.classList.contains('open');
+  document.querySelectorAll('#history-list .ae-detail.open').forEach(d=>d.classList.remove('open'));
+  document.querySelectorAll('#history-list .ae-row.expanded').forEach(r=>r.classList.remove('expanded'));
+  if (!isOpen) { detail.classList.add('open'); row?.classList.add('expanded'); }
 }
 
 // ── Archive ───────────────────────────────────────────────────
@@ -2146,6 +2329,16 @@ function startNewSession() {
   openEditSheet();
 }
 
+function startNewSessionSheet() {
+  _editingSessionNum = -1;
+  document.getElementById('edit-sheet-title').textContent = '새 세션 추가';
+  document.getElementById('edit-session-num').value = (state.session || 0) + 1;
+  document.getElementById('edit-period-start').value = '';
+  document.getElementById('edit-period-end').value = '';
+  document.getElementById('edit-overlay').classList.add('open');
+  document.getElementById('edit-sheet').classList.add('open');
+}
+
 // ── Edit Sheet ────────────────────────────────────────────────
 async function saveRoutineChanges() {
   ['morning','nightly'].forEach(slot => {
@@ -2208,6 +2401,32 @@ function saveEditSheet() {
   const e    = document.getElementById('edit-period-end').value;
   if (!newN || !s || !e) { showToast('회차 번호와 기간을 모두 입력해주세요'); return; }
 
+  if (_editingSessionNum === -1) {
+    // 새 세션: 현재 세션을 history에 보관 후 초기화
+    if (state.session) {
+      if (!state.history) state.history = [];
+      state.history.push({
+        session:     state.session,
+        periodStart: state.periodStart,
+        periodEnd:   state.periodEnd,
+        morning:     JSON.parse(JSON.stringify(state.morning || {})),
+        nightly:     JSON.parse(JSON.stringify(state.nightly || {})),
+        published:   state.published || false
+      });
+    }
+    state.session     = newN;
+    state.periodStart = s;
+    state.periodEnd   = e;
+    state.morning     = { routines: [{ id: 1, products: [], tip: '' }] };
+    state.nightly     = { routines: [{ id: 1, products: [], tip: '' }] };
+    state.published   = false;
+    closeEditSheet();
+    renderAll();
+    persistPlan(false);
+    showToast('✓ 새 세션이 시작됐습니다');
+    return;
+  }
+
   const isCurrent = (_editingSessionNum === state.session);
 
   if (isCurrent) {
@@ -2223,7 +2442,6 @@ function saveEditSheet() {
       hist.periodStart = s;
       hist.periodEnd   = e;
       persistPlan(state.published || false);
-      // 아카이브 다시 렌더링
       renderArchiveEntries();
     }
   }
@@ -2396,12 +2614,12 @@ function persistPlan(published = false) {
     nightly:      state.nightly,
     history:      state.history,
     lookSchedule,
-    makeupSchedule,
     published,
     savedAt:      new Date().toISOString(),
     exercise:     existing.exercise || {},
   };
   localStorage.setItem(DB_KEY, JSON.stringify(plan));
+  if (typeof _broadcastState === 'function') _broadcastState('schedule');
   if (currentUser) return saveToCloud(plan);
   return Promise.resolve();
 }
@@ -2471,9 +2689,11 @@ function openModal(slot, editId = null) {
 
 // ── Box Search Panel ─────────────────────────────────────────
 let bpSelectedId = null;
+let _bpExpanded = false;
 
 function openBoxPanel() {
   bpSelectedId = selectedBoxAssetId;
+  _bpExpanded = false;
   const inp = document.getElementById('bp-search-inp');
   if (inp) inp.value = '';
   renderBpList('');
@@ -2484,6 +2704,11 @@ function openBoxPanel() {
 
 function closeBoxPanel() {
   document.getElementById('bp-overlay').classList.remove('open');
+}
+
+function _bpShowMore() {
+  _bpExpanded = true;
+  renderBpList(document.getElementById('bp-search-inp')?.value || '');
 }
 
 function renderBpList(q) {
@@ -2502,7 +2727,9 @@ function renderBpList(q) {
     el.innerHTML = `<div class="bp-empty">BOX에 등록된 뷰티 제품이 없습니다.<br>먼저 BOX에서 제품을 추가해주세요.</div>`;
     return;
   }
-  el.innerHTML = filtered.map(a => {
+  const showAll = _bpExpanded || !!q.trim();
+  const visible = showAll ? filtered : filtered.slice(0, 10);
+  const rows = visible.map(a => {
     const isSel = bpSelectedId === a.id;
     const imgStyle = a.imgData ? `background-image:url(${a.imgData});background-size:cover;background-position:center` : '';
     const icon = CAT[a.catKey]?.icon || '✨';
@@ -2516,6 +2743,10 @@ function renderBpList(q) {
       <div class="bp-item-check">✓</div>
     </div>`;
   }).join('');
+  const moreBtn = (!showAll && filtered.length > 10)
+    ? `<div class="bp-more-btn" onclick="_bpShowMore()">더 보기 (${filtered.length - 10}개 더) ▾</div>`
+    : '';
+  el.innerHTML = rows + moreBtn;
 }
 
 function selectBpItem(id) {
@@ -2743,31 +2974,37 @@ function deleteProduct() {
   closeModal();
 }
 
+function previewProdImgData(compressed) {
+  prodImgData = compressed;
+  document.getElementById('prod-img-preview').style.cssText = `background-image:url(${compressed});display:block`;
+  document.getElementById('prod-img-placeholder').style.display = 'none';
+}
 function previewProdImg(input) {
   if (!input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    prodImgData = e.target.result;
-    document.getElementById('prod-img-preview').style.cssText = `background-image:url(${e.target.result});display:block`;
-    document.getElementById('prod-img-placeholder').style.display = 'none';
-  };
-  reader.readAsDataURL(input.files[0]);
+  _compressFile(input.files[0], 480, 0.68, previewProdImgData);
 }
 
 // ── Today's Step Badge ────────────────────────────────────────
 function getTodayStep() {
-  if (!state.periodStart) return 1;
-  const diff = Math.floor((new Date() - new Date(state.periodStart)) / 86400000);
-  return diff % 2 === 0 ? 1 : 2;
+  return computeTodayStep(getSetupTimePeriod());
 }
 
 function renderTodayStepBadge() {
   const wrap = document.getElementById('step-today-wrap');
   const val  = document.getElementById('step-today-val');
   if (!wrap || !val) return;
-  const step = getTodayStep();
-  val.textContent = `STEP ${step}`;
+  // show current day + progress fraction
+  const slot     = getSetupTimePeriod();
+  const step     = getTodayStep();
+  const routines = state[slot]?.routines || [];
+  const n        = routines.length;
+  const idx      = routines.findIndex(r => r.id === step);
+  const dayNum   = idx >= 0 ? idx + 1 : 1;
+  val.textContent = n > 1 ? `DAY ${dayNum} / ${n}` : `DAY ${dayNum}`;
   wrap.style.display = 'block';
+  // progress bar if element exists
+  const bar = document.getElementById('step-progress-bar');
+  if (bar) bar.style.width = `${Math.round(dayNum / Math.max(n,1) * 100)}%`;
 }
 
 // ── Look Schedule ─────────────────────────────────────────────
@@ -2800,11 +3037,7 @@ function openLookCell(day) {
 }
 
 // ── Makeup Themes ─────────────────────────────────────────────
-const MKP_KEY = 'onstep_makeup_themes';
-
-function saveThemesToStorage() {
-  localStorage.setItem(MKP_KEY, JSON.stringify({ themes: makeupSchedule.themes }));
-}
+function saveThemesToStorage() {} // no-op — data now in onstep_makeup_contents / onstep_look_contents
 
 function renderMakeupThemes() {
   const el = document.getElementById('makeup-themes-list');
@@ -2938,15 +3171,19 @@ function renderCtCareList() {
   const el = document.getElementById('setup-care-list');
   if (!el) return;
   const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+  const cntEl = document.getElementById('setup-care-count');
+  if (cntEl) cntEl.textContent = care.length ? `${care.length}개 프로그램 등록됨` : '';
   if (!care.length) {
     el.innerHTML = `<div style="padding:8px 0 4px;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);text-align:center">등록된 케어 프로그램이 없습니다</div>`;
     return;
   }
   const today = new Date().toISOString().slice(0,10);
   el.innerHTML = care.map(t => {
-    const isPublished = (t.scheduledDates||[]).some(d => d >= today);
-    const dateChips = (t.scheduledDates||[]).slice(0,3).map(d =>
-      `<span class="ct-date-chip">${d.slice(5).replace('-','/')}</span>`).join('');
+    const p = t.scheduledPeriod;
+    const isPublished = p ? (p.start <= today && today <= (p.end || p.start)) : false;
+    const dateChips = p
+      ? `<span class="ct-date-chip">${p.start ? p.start.slice(5).replace('-','/') : '—'} → ${p.end ? p.end.slice(5).replace('-','/') : '—'}</span>`
+      : '';
     const itemsHtml = (t.items||[]).slice(0,6).map(p => {
       const asset = getBoxAssets().find(a => a.id === p.assetId);
       const imgStyle = (asset?.imgData||p.imgData) ? `background-image:url(${asset?.imgData||p.imgData})` : '';
@@ -2977,12 +3214,12 @@ function renderCtCareList() {
 
 function activateCare(id) {
   const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
-  const t = care.find(x => x.id === id);
-  if (!t) return;
+  const idx  = care.findIndex(x => x.id === id);
+  if (idx === -1) return;
+  const t = care[idx];
   const today = new Date().toISOString().slice(0,10);
-  if (!(t.scheduledDates||[]).includes(today)) {
-    const idx = care.findIndex(x => x.id === id);
-    if (idx !== -1) { care[idx].scheduledDates = [today, ...(care[idx].scheduledDates||[])]; }
+  if (!t.scheduledPeriod || !t.scheduledPeriod.start) {
+    care[idx].scheduledPeriod = { start: today, end: today };
     localStorage.setItem('onstep_care_themes', JSON.stringify(care));
   }
   addToLogPortfolio({ id: Date.now(), type:'care', title:t.name, emoji:t.emoji, baselineImg:t.baselineImg||null, activatedAt: new Date().toISOString() });
@@ -2995,31 +3232,35 @@ function activateCare(id) {
 let careBaselineImg = null;
 
 function pickBaseline() {
-  document.getElementById('baseline-input').click();
+  showImgPickSheet(compressed => {
+    careBaselineImg = compressed;
+    const el = document.getElementById('care-baseline');
+    if (!el) return;
+    el.style.backgroundImage = `url(${compressed})`;
+    el.classList.add('has-img');
+    const txt = el.querySelector('.baseline-photo-text');
+    if (txt) txt.style.display = 'none';
+  }, 600, 0.68);
 }
 function onBeforePhoto(slot, input) {
   if (!input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  _compressFile(input.files[0], 480, 0.68, compressed => {
     const area = document.getElementById(`${slot}-before-area`);
     const preview = document.getElementById(`${slot}-before-preview`);
-    if (preview) preview.style.backgroundImage = `url(${e.target.result})`;
+    if (preview) preview.style.backgroundImage = `url(${compressed})`;
     if (area) area.classList.add('has-img');
-  };
-  reader.readAsDataURL(input.files[0]);
+  });
 }
 
 function onBaselineFile(input) {
   if (!input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    careBaselineImg = e.target.result;
+  _compressFile(input.files[0], 600, 0.68, compressed => {
+    careBaselineImg = compressed;
     const el = document.getElementById('care-baseline');
-    el.style.backgroundImage = `url(${e.target.result})`;
+    el.style.backgroundImage = `url(${compressed})`;
     el.classList.add('has-img');
     el.querySelector('.baseline-photo-text').style.display = 'none';
-  };
-  reader.readAsDataURL(input.files[0]);
+  });
 }
 
 // ── activateContent ('ok →' 트리거) ────────────────────────────
@@ -3041,9 +3282,10 @@ function activateContent(type) {
 
 function addToLogPortfolio(entry) {
   const KEY = 'onstep_planned_portfolio';
-  const list = JSON.parse(localStorage.getItem(KEY) || '[]');
+  const raw = localStorage.getItem(KEY) || '[]';
+  const list = JSON.parse(raw).map(({baselineImg, ...rest}) => rest); // strip old baselineImg entries
   list.unshift(entry);
-  localStorage.setItem(KEY, JSON.stringify(list));
+  localStorage.setItem(KEY, JSON.stringify(list.slice(0, 100))); // max 100 entries
   saveThemesToFirestore();
 }
 
@@ -3053,8 +3295,9 @@ function getBoxAssets() { return JSON.parse(localStorage.getItem('onstep_box_ass
 function renderCtMkpList() {
   const el = document.getElementById('setup-mkp-list');
   if (!el) return;
-  const data = JSON.parse(localStorage.getItem('onstep_makeup_themes') || 'null');
-  const themes = data?.themes || makeupSchedule?.themes || [];
+  const themes = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
+  const cntEl = document.getElementById('setup-mkp-count');
+  if (cntEl) cntEl.textContent = themes.length ? `${themes.length}개 테마 등록됨` : '';
   if (!themes.length) {
     el.innerHTML = `<div style="padding:8px 0 4px;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);text-align:center">등록된 테마가 없습니다</div>`;
     return;
@@ -3093,21 +3336,17 @@ function renderCtMkpList() {
 }
 
 function activateMkpTheme(themeId) {
-  const stored = JSON.parse(localStorage.getItem('onstep_makeup_themes') || 'null');
-  const allThemes = stored?.themes || makeupSchedule?.themes || [];
-  const t = allThemes.find(x => x.id === themeId);
+  const contents = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
+  const t = contents.find(x => x.id === themeId);
   if (!t) return;
   const today = new Date().toISOString().slice(0,10);
-  // 항상 localStorage 업데이트 (중복 체크 후 today 날짜 보장)
-  const updated = stored || { themes: makeupSchedule?.themes || [] };
-  const idx = updated.themes.findIndex(x => x.id === themeId);
+  const idx = contents.findIndex(x => x.id === themeId);
   if (idx !== -1) {
-    const dates = updated.themes[idx].scheduledDates || [];
+    const dates = contents[idx].scheduledDates || [];
     if (!dates.includes(today)) dates.unshift(today);
-    updated.themes[idx].scheduledDates = dates;
+    contents[idx].scheduledDates = dates;
   }
-  localStorage.setItem('onstep_makeup_themes', JSON.stringify(updated));
-  if (makeupSchedule) makeupSchedule.themes = updated.themes;
+  localStorage.setItem('onstep_makeup_contents', JSON.stringify(contents));
   const entry = { id: Date.now(), type:'makeup', title:t.name, emoji:t.emoji, baselineImg:t.baselineImg||null, activatedAt: new Date().toISOString() };
   addToLogPortfolio(entry);
   showToast(`✓ "${t.name}" — Today #MOTD에 반영됩니다`);
@@ -3118,7 +3357,9 @@ function activateMkpTheme(themeId) {
 function renderCtLookList() {
   const el = document.getElementById('setup-look-list');
   if (!el) return;
-  const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+  const looks = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
+  const cntEl = document.getElementById('setup-look-count');
+  if (cntEl) cntEl.textContent = looks.length ? `${looks.length}개 룩 등록됨` : '';
   if (!looks.length) {
     el.innerHTML = `<div style="padding:8px 0 4px;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);text-align:center">등록된 룩이 없습니다</div>`;
     return;
@@ -3131,7 +3372,7 @@ function renderCtLookList() {
     const tpoHtml = (t.tpo||[]).map(tp =>
       `<span style="font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--surface-mid);color:var(--sub);padding:2px 7px;border-radius:var(--r-sm)">${tp}</span>`
     ).join(' ');
-    const itemsHtml = (t.items||[]).slice(0,6).map(p => {
+    const itemsHtml = (t.products||t.items||[]).slice(0,6).map(p => {
       const asset = getBoxAssets().find(a => a.id === p.assetId);
       const imgStyle = (asset?.imgData||p.imgData) ? `background-image:url(${asset?.imgData||p.imgData})` : '';
       return `<div class="ct-card-item-wrap">
@@ -3161,18 +3402,17 @@ function renderCtLookList() {
 }
 
 function activateLook(lookId) {
-  const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
+  const looks = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
   const t = looks.find(x => x.id === lookId);
   if (!t) return;
   const today = new Date().toISOString().slice(0,10);
-  // 1) look_themes scheduledDates 업데이트
   const idx = looks.findIndex(x => x.id === lookId);
   if (idx !== -1) {
     const dates = looks[idx].scheduledDates || [];
     if (!dates.includes(today)) dates.unshift(today);
     looks[idx].scheduledDates = dates;
   }
-  localStorage.setItem('onstep_look_themes', JSON.stringify(looks));
+  localStorage.setItem('onstep_look_contents', JSON.stringify(looks));
   // 2) onstep_looks (today.html이 읽는 키)에 오늘 룩 기록 — 키 불일치 해소
   const dailyLooks = JSON.parse(localStorage.getItem('onstep_looks') || '[]');
   let todayLook = dailyLooks.find(l => l.date === today);
@@ -3186,7 +3426,7 @@ function activateLook(lookId) {
   }
   localStorage.setItem('onstep_looks', JSON.stringify(dailyLooks));
   // 3) log portfolio 등록
-  const entry = { id: Date.now(), type:'look', title:t.name, emoji:t.emoji, baselineImg:t.baselineImg||null, activatedAt: new Date().toISOString() };
+  const entry = { id: Date.now(), type:'look', title:t.name, emoji:t.emoji, activatedAt: new Date().toISOString() };
   addToLogPortfolio(entry);
   showToast(`✓ "${t.name}" — Today #OOTD에 반영됩니다`);
   renderCtLookList();
@@ -3198,14 +3438,12 @@ function deleteCtContent(type, id) {
     localStorage.setItem('onstep_care_themes', JSON.stringify(care));
     renderCtCareList();
   } else if (type === 'makeup') {
-    const data = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
-    data.themes = (data.themes||[]).filter(x => x.id !== id);
-    localStorage.setItem('onstep_makeup_themes', JSON.stringify(data));
-    if (makeupSchedule) makeupSchedule.themes = data.themes;
+    const contents = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]').filter(x => x.id !== id);
+    localStorage.setItem('onstep_makeup_contents', JSON.stringify(contents));
     renderCtMkpList();
   } else {
-    const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]').filter(x => x.id !== id);
-    localStorage.setItem('onstep_look_themes', JSON.stringify(looks));
+    const contents = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]').filter(x => x.id !== id);
+    localStorage.setItem('onstep_look_contents', JSON.stringify(contents));
     renderCtLookList();
   }
   updateHubCounts();
@@ -3216,6 +3454,7 @@ function deleteCtContent(type, id) {
 // ── Content Add Sheet ──────────────────────────────────────────
 let ctSheetState = { type:'makeup', editId:null, baselineImg:null, items:[], dates:[], tpo:[] };
 let ctCalState   = { year: new Date().getFullYear(), month: new Date().getMonth() };
+let _ctBoxExpanded = false;
 
 function openCtSheet(type, editId = null) {
   ctSheetState = { type, editId, baselineImg:null, items:[], dates:[], tpo:[] };
@@ -3224,14 +3463,20 @@ function openCtSheet(type, editId = null) {
   const itemsMap = { care:'아이템 매핑 (BOX 뷰티)', makeup:'아이템 매핑 (BOX 뷰티)', look:'아이템 매핑 (BOX 패션·ACC)' };
   document.getElementById('ct-items-lbl').textContent = itemsMap[type] || '아이템 매핑 (BOX)';
   document.getElementById('ct-tpo-sec').style.display = type === 'look' ? '' : 'none';
+  document.getElementById('ct-dates-sec').style.display = type === 'care' ? 'none' : '';
+  document.getElementById('ct-period-sec').style.display = type === 'care' ? '' : 'none';
   // reset form
   document.getElementById('ct-emoji').value = '';
   document.getElementById('ct-name').value  = '';
   document.getElementById('ct-desc').value  = '';
+  document.getElementById('ct-source-url').value = '';
   document.getElementById('ct-box-inp').value = '';
   document.getElementById('ct-box-results').innerHTML = '';
+  _ctBoxExpanded = false;
   renderCtChips();
   renderCtDates();
+  document.getElementById('ct-period-start').value = '';
+  document.getElementById('ct-period-end').value   = '';
   document.querySelectorAll('.ct-tpo-chip').forEach(el => el.classList.remove('active'));
   const bl = document.getElementById('ct-sheet-baseline');
   bl.style.backgroundImage = '';
@@ -3246,20 +3491,28 @@ function openCtSheet(type, editId = null) {
       t = care.find(x => x.id === editId);
       if (t) ctSheetState.items = (t.items||[]).map(p => ({...p}));
     } else if (type === 'makeup') {
-      const data = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
-      t = (data.themes||[]).find(x => x.id === editId);
+      const contents = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
+      t = contents.find(x => x.id === editId);
       if (t) ctSheetState.items = (t.products||[]).map(p => ({...p}));
     } else {
-      const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
-      t = looks.find(x => x.id === editId);
-      if (t) ctSheetState.items = (t.items||[]).map(p => ({...p}));
+      const contents = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
+      t = contents.find(x => x.id === editId);
+      if (t) ctSheetState.items = (t.products||t.items||[]).map(p => ({...p}));
     }
     if (t) {
-      document.getElementById('ct-emoji').value = t.emoji||'';
-      document.getElementById('ct-name').value  = t.name||'';
-      document.getElementById('ct-desc').value  = t.description||'';
+      document.getElementById('ct-emoji').value      = t.emoji||'';
+      document.getElementById('ct-name').value       = t.name||'';
+      document.getElementById('ct-desc').value       = t.description||'';
+      document.getElementById('ct-source-url').value = t.sourceUrl||'';
       ctSheetState.dates = [...(t.scheduledDates||[])];
       ctSheetState.tpo   = [...(t.tpo||[])];
+      if (type === 'care' && t.scheduledPeriod) {
+        document.getElementById('ct-period-start').value = t.scheduledPeriod.start || '';
+        document.getElementById('ct-period-end').value   = t.scheduledPeriod.end   || '';
+      } else {
+        document.getElementById('ct-period-start').value = '';
+        document.getElementById('ct-period-end').value   = '';
+      }
       ctSheetState.baselineImg = t.baselineImg||null;
       if (t.baselineImg) {
         bl.style.backgroundImage = `url(${t.baselineImg})`;
@@ -3279,37 +3532,55 @@ function openCtSheet(type, editId = null) {
 
 function closeCtSheet() { document.getElementById('ct-sheet-ov').classList.remove('open'); }
 
-function pickCtBaseline() { document.getElementById('ct-baseline-input').click(); }
+function pickCtBaseline() {
+  showImgPickSheet(compressed => {
+    ctSheetState.baselineImg = compressed;
+    const el = document.getElementById('ct-sheet-baseline');
+    if (!el) return;
+    el.style.backgroundImage = `url(${compressed})`;
+    el.classList.add('has-img');
+    const txt = el.querySelector('.ct-sheet-baseline-text');
+    if (txt) txt.style.display = 'none';
+  }, 600, 0.68);
+}
 function onCtBaselineFile(input) {
   if (!input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    ctSheetState.baselineImg = e.target.result;
+  _compressFile(input.files[0], 600, 0.68, compressed => {
+    ctSheetState.baselineImg = compressed;
     const el = document.getElementById('ct-sheet-baseline');
-    el.style.backgroundImage = `url(${e.target.result})`;
+    if (!el) return;
+    el.style.backgroundImage = `url(${compressed})`;
     el.classList.add('has-img');
     el.querySelector('.ct-sheet-baseline-text').style.display = 'none';
-  };
-  reader.readAsDataURL(input.files[0]);
+  });
+}
+
+function _ctBoxShowMore() {
+  _ctBoxExpanded = true;
+  renderCtBoxResults(document.getElementById('ct-box-inp')?.value || '');
 }
 
 function renderCtBoxResults(q) {
   const el = document.getElementById('ct-box-results');
   if (!el) return;
   const all = getBoxAssets();
-  const filtered = (ctSheetState.type === 'look'
+  const byType = ctSheetState.type === 'look'
     ? all.filter(a => a.domain === 'fashion' || a.domain === 'acc')
-    : all.filter(a => a.domain === 'beauty')
-  ).filter(a => !q.trim() ? true :
+    : ctSheetState.type === 'makeup'
+      ? all.filter(a => a.domain === 'beauty' && a.type === 'makeup')
+      : all.filter(a => a.domain === 'beauty');
+  const filtered = byType.filter(a => !q.trim() ? true :
     (a.name||'').toLowerCase().includes(q.toLowerCase()) ||
     (a.brand||'').toLowerCase().includes(q.toLowerCase())
-  ).slice(0, 8);
+  );
   if (!filtered.length) {
     el.innerHTML = `<div style="padding:9px 12px;font-size:11px;color:var(--mist);text-align:center">BOX에 등록된 제품이 없습니다</div>`;
     return;
   }
+  const showAll = _ctBoxExpanded || !!q.trim();
+  const visible = showAll ? filtered : filtered.slice(0, 10);
   const alreadyIds = ctSheetState.items.map(i => i.assetId);
-  el.innerHTML = filtered.map(a => {
+  const rows = visible.map(a => {
     const used = alreadyIds.includes(a.id);
     const icon = a.domain === 'beauty' ? '✦' : '◈';
     return `<div class="ct-box-row${used?' selected':''}" onclick="${used?'':` addCtItem(${a.id})`}">
@@ -3321,6 +3592,10 @@ function renderCtBoxResults(q) {
       ${used?`<span style="color:var(--ink);font-size:11px;font-weight:700">✓</span>`:`<span style="color:var(--mist);font-size:14px">+</span>`}
     </div>`;
   }).join('');
+  const moreBtn = (!showAll && filtered.length > 10)
+    ? `<div class="ct-more-btn" onclick="_ctBoxShowMore()">더 보기 (${filtered.length - 10}개 더) ▾</div>`
+    : '';
+  el.innerHTML = rows + moreBtn;
 }
 
 function addCtItem(assetId) {
@@ -3422,34 +3697,38 @@ function saveCtContent() {
     const cleanItems = ctSheetState.items.map(({assetId, name: n, brand}) => ({assetId, name: n, brand: brand||''}));
     if (ctSheetState.type === 'care') {
       const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
-      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
+      const periodStart = document.getElementById('ct-period-start').value;
+      const periodEnd   = document.getElementById('ct-period-end').value;
+      const scheduledPeriod = (periodStart || periodEnd) ? { start: periodStart || '', end: periodEnd || periodStart || '' } : null;
+      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, scheduledPeriod, baselineImg: ctSheetState.baselineImg || null, updatedAt: new Date().toISOString() };
       if (ctSheetState.editId) {
         const idx = care.findIndex(x => x.id === ctSheetState.editId);
         if (idx !== -1) care[idx] = obj; else care.push(obj);
       } else { care.push(obj); }
       localStorage.setItem('onstep_care_themes', JSON.stringify(care));
-      addToLogPortfolio({ id: Date.now(), type:'care', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
+      addToLogPortfolio({ id: Date.now(), type:'care', title:name, emoji, activatedAt: new Date().toISOString() });
       renderCtCareList();
     } else if (ctSheetState.type === 'makeup') {
-      const stored = JSON.parse(localStorage.getItem('onstep_makeup_themes') || '{"themes":[]}');
-      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, products: cleanItems, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
+      const contents = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
+      const sourceUrl = document.getElementById('ct-source-url')?.value.trim() || '';
+      const obj = { id: ctSheetState.editId || Date.now(), category:'makeup', name, emoji, description: desc, baselineImg: ctSheetState.baselineImg || null, sourceUrl, products: cleanItems, tpo: [], scheduledDates: ctSheetState.dates, scheduleLog: [], autoEnabled: false, updatedAt: new Date().toISOString() };
       if (ctSheetState.editId) {
-        const idx = stored.themes.findIndex(x => x.id === ctSheetState.editId);
-        if (idx !== -1) stored.themes[idx] = obj; else stored.themes.push(obj);
-      } else { stored.themes.push(obj); }
-      localStorage.setItem('onstep_makeup_themes', JSON.stringify(stored));
-      if (makeupSchedule) makeupSchedule.themes = stored.themes;
-      addToLogPortfolio({ id: Date.now(), type:'makeup', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
+        const idx = contents.findIndex(x => x.id === ctSheetState.editId);
+        if (idx !== -1) { obj.scheduleLog = contents[idx].scheduleLog||[]; obj.autoEnabled = contents[idx].autoEnabled||false; contents[idx] = obj; } else contents.push(obj);
+      } else { contents.push(obj); }
+      localStorage.setItem('onstep_makeup_contents', JSON.stringify(contents));
+      addToLogPortfolio({ id: Date.now(), type:'makeup', title:name, emoji, activatedAt: new Date().toISOString() });
       renderCtMkpList();
     } else {
-      const looks = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
-      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, tpo: ctSheetState.tpo, scheduledDates: ctSheetState.dates, baselineImg: ctSheetState.baselineImg || null };
+      const contents = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
+      const sourceUrl = document.getElementById('ct-source-url')?.value.trim() || '';
+      const obj = { id: ctSheetState.editId || Date.now(), category:'lookbook', name, emoji, description: desc, baselineImg: ctSheetState.baselineImg || null, sourceUrl, products: cleanItems, tpo: ctSheetState.tpo, scheduledDates: ctSheetState.dates, scheduleLog: [], autoEnabled: false, updatedAt: new Date().toISOString() };
       if (ctSheetState.editId) {
-        const idx = looks.findIndex(x => x.id === ctSheetState.editId);
-        if (idx !== -1) looks[idx] = obj; else looks.push(obj);
-      } else { looks.push(obj); }
-      localStorage.setItem('onstep_look_themes', JSON.stringify(looks));
-      addToLogPortfolio({ id: Date.now(), type:'look', title:name, emoji, baselineImg:ctSheetState.baselineImg||null, activatedAt: new Date().toISOString() });
+        const idx = contents.findIndex(x => x.id === ctSheetState.editId);
+        if (idx !== -1) { obj.scheduleLog = contents[idx].scheduleLog||[]; obj.autoEnabled = contents[idx].autoEnabled||false; contents[idx] = obj; } else contents.push(obj);
+      } else { contents.push(obj); }
+      localStorage.setItem('onstep_look_contents', JSON.stringify(contents));
+      addToLogPortfolio({ id: Date.now(), type:'look', title:name, emoji, activatedAt: new Date().toISOString() });
       renderCtLookList();
     }
     updateHubCounts();
@@ -3478,7 +3757,7 @@ function showToast(msg) {
 }
 
 function exportData() {
-  const keys = ['onstep_box_assets','onstep_care_plan','onstep_makeup_themes','onstep_look_themes','onstep_care_themes'];
+  const keys = ['onstep_box_assets','onstep_care_plan','onstep_makeup_contents','onstep_look_contents','onstep_care_themes'];
   const data = {};
   keys.forEach(k => { try { data[k] = JSON.parse(localStorage.getItem(k)||'null'); } catch(e) {} });
   const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
@@ -3510,6 +3789,7 @@ function loadTrackerItems() {
 function saveTrackerItems() {
   try {
     localStorage.setItem(TRACKER_KEY, JSON.stringify(trackerItems));
+    saveTrackerToCloud();
     showToast('✓ Routine Tracker 저장됐습니다 — Today에 반영됩니다');
   } catch(e) {
     showToast('⚠️ 저장 실패 — 저장공간이 부족합니다');
@@ -3550,6 +3830,59 @@ function fmtTime12h(t) {
   return `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
 }
 
+// ── Session Data Dropdown (Routine Panel) ─────────────────────
+let _sdataOpen = false;
+function toggleSessionData() {
+  _sdataOpen = !_sdataOpen;
+  const toggle = document.getElementById('sdata-toggle');
+  const drop   = document.getElementById('sdata-dropdown');
+  if (!toggle || !drop) return;
+  toggle.classList.toggle('open', _sdataOpen);
+  drop.classList.toggle('open', _sdataOpen);
+  if (_sdataOpen) renderSessionDataSummary();
+}
+
+function renderSessionDataSummary() {
+  const inner = document.getElementById('sdata-inner');
+  const countEl = document.getElementById('sdata-count');
+  if (!inner) return;
+  const CAT = { toner:'토너', serum:'세럼', ampoule:'앰플', cream:'크림', sunscreen:'선크림', cleanser:'클렌저', mask:'마스크팩', eye:'아이크림', oil:'오일', mist:'미스트', lip:'립', makeup:'메이크업', etc:'기타' };
+  const slotLabel = { morning:'A.M. ROUTINE', nightly:'P.M. ROUTINE' };
+  let totalProds = 0;
+  let html = `<div class="sdata-meta-row">
+    <span class="sdata-meta-chip">SESSION ${state.session||'—'}</span>
+    <span class="sdata-meta-chip">${state.periodStart||'—'} → ${state.periodEnd||'—'}</span>
+    <span class="sdata-meta-chip">☀ ${state.morningTime||'—'}</span>
+    <span class="sdata-meta-chip">🌙 ${state.nightlyTime||'—'}</span>
+  </div>`;
+  ['morning','nightly'].forEach(slot => {
+    (state[slot]?.routines || []).forEach(r => {
+      const prods = r.products || [];
+      totalProds += prods.length;
+      html += `<div class="sdata-slot-hd">
+        <span class="sdata-slot-label">${slotLabel[slot]}</span>
+        <span class="sdata-slot-step">STEP ${r.id} · ${prods.length}개</span>
+      </div>`;
+      if (!prods.length) {
+        html += `<div class="sdata-empty">제품 없음</div>`;
+      } else {
+        html += prods.map(p => `<div class="sdata-prod-row">
+          <div class="sdata-prod-img" style="${p.imgData?`background-image:url(${p.imgData})`:''}">
+            ${!p.imgData ? (p.icon||'✦') : ''}
+          </div>
+          <div class="sdata-prod-info">
+            <div class="sdata-prod-name">${p.name||'—'}</div>
+            ${p.brand?`<div class="sdata-prod-brand">${p.brand}</div>`:''}
+          </div>
+          <span class="sdata-prod-cat">${CAT[p.catKey]||p.catKey||''}</span>
+        </div>`).join('');
+      }
+    });
+  });
+  if (countEl) countEl.textContent = totalProds;
+  inner.innerHTML = html;
+}
+
 function renderTrackerList() {
   const el = document.getElementById('tracker-list');
   if (!el) return;
@@ -3568,6 +3901,35 @@ function renderTrackerList() {
       <button class="tracker-del-btn" onclick="deleteTrackerItem(${it.id})">✕</button>
     </div>`).join('');
 }
+
+(function _migrateV2() {
+  if (localStorage.getItem('_onstep_migrated_v2')) return;
+  const mk=[], lk=[];
+  try {
+    JSON.parse(localStorage.getItem('onstep_muse_items')||'[]').forEach(m=>{
+      const isL=m.schedule_type==='OOTD'||(m.category_tags||[]).some(t=>['look','fashion','ootd','outfit'].includes((t||'').toLowerCase()));
+      (isL?lk:mk).push({id:m.id,category:isL?'lookbook':'makeup',name:m.note||'',emoji:'✦',description:'',baselineImg:m.image_data||null,sourceUrl:m.image_url||'',products:m.products||[],tpo:[],scheduledDates:m.scheduled_date?[m.scheduled_date]:[],scheduleLog:m.scheduleLog||[],autoEnabled:m.autoEnabled||false,updatedAt:new Date().toISOString()});
+    });
+  } catch(e){}
+  try {
+    (JSON.parse(localStorage.getItem('onstep_makeup_themes')||'{"themes":[]}').themes||[]).forEach(t=>{
+      if(!mk.find(c=>c.id===t.id)) mk.push({id:t.id,category:'makeup',name:t.name||'',emoji:t.emoji||'✦',description:t.description||'',baselineImg:t.baselineImg||null,sourceUrl:'',products:t.products||[],tpo:[],scheduledDates:t.scheduledDates||[],scheduleLog:[],autoEnabled:false,updatedAt:t.updatedAt||new Date().toISOString()});
+    });
+  } catch(e){}
+  try {
+    JSON.parse(localStorage.getItem('onstep_look_themes')||'[]').forEach(t=>{
+      if(!lk.find(c=>c.id===t.id)) lk.push({id:t.id,category:'lookbook',name:t.name||'',emoji:t.emoji||'✦',description:t.description||'',baselineImg:t.baselineImg||null,sourceUrl:'',products:t.products||t.items||[],tpo:t.tpo||[],scheduledDates:t.scheduledDates||[],scheduleLog:[],autoEnabled:false,updatedAt:t.updatedAt||new Date().toISOString()});
+    });
+  } catch(e){}
+  try {
+    if(mk.length) localStorage.setItem('onstep_makeup_contents',JSON.stringify(mk));
+    if(lk.length) localStorage.setItem('onstep_look_contents',JSON.stringify(lk));
+  } catch(e){}
+  localStorage.removeItem('onstep_muse_items');
+  localStorage.removeItem('onstep_makeup_themes');
+  localStorage.removeItem('onstep_look_themes');
+  localStorage.setItem('_onstep_migrated_v2','1');
+})();
 </script>
 </body>
 </html>

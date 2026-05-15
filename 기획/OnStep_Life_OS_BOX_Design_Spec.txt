@@ -1,0 +1,68 @@
+[Claude 개발 지시서: OnStep Life OS - BOX 상세 화면 및 잔량 로직 설계]
+
+1. 프로젝트 개요
+- 모듈명: BOX (Visual Inventory & Asset Management)
+- 핵심 목표: 제품의 총 재고(Stock)와 현재 사용 중인 제품의 소모 잔량(Residual)을 이중으로 관리하고 시각화함.
+
+2. 비주얼 가이드 (UI/UX)
+- 스타일: 하이엔드 미니멀리즘 (Pure White, Light Gray, Silver 포인트)
+- 타이포그래피: Serif(라벨/제목), Sans-serif(입력값/수치)
+- 컴포넌트: 
+  - 제품 이미지와 보관 장소(Storage Photo)를 1:1 그리드로 배치.
+  - 잔량은 두께 4px의 미니멀한 실버 바(#C0C0C0)로 표현.
+
+3. 데이터 스키마 (JSON Structure)
+{
+  "product_id": "uuid",
+  "brand": "string",
+  "name": "string",
+  "category": "Beauty | Fashion | Acc",
+  "stock_unit": 3, // 총 구매 수량 (공구 묶음 단위)
+  "consumption_logic": {
+    "type": "time | count", // 기간 기반 vs 횟수 기반
+    "total_capacity": 120, // 4개월(120일) 또는 60회(회수)
+    "current_usage": 0, // 현재까지 소모된 값
+    "start_date": "YYYY-MM-DD" // 개봉일
+  },
+  "images": {
+    "product": "url",
+    "storage": "url"
+  },
+  "manual_link": "url",
+  "price": number
+}
+
+4. 화면 설계 위계 (Layout Hierarchy)
+
+[Section 1: Header & Identity]
+- 브랜드명 (Serif, 10pt, Gray)
+- 제품명 (Serif, 18pt, Bold, Black)
+- 카테고리 칩 (Minimal Border)
+
+[Section 2: Visual Evidence]
+- 2-Column Grid:
+  - Left: 제품 실제 사진 (Square)
+  - Right: 보관 장소 사진 (Square, 'Storage Location' 뱃지 포함)
+
+[Section 3: Dual-Layer Residual Control]
+- 재고 상태 (Total Stock): 
+  - 구매한 총 개수를 작은 도트(●)로 표시. 사용 완료 시 회색(○) 처리.
+- 잔량 로직 선택 (Toggle):
+  - [기간 기반] : "개봉 후 OO개월 사용" 입력 필드 활성화.
+  - [횟수 기반] : "총 OO회 사용 가능" 입력 필드 활성화.
+- 실시간 잔량 바 (The Silver Bar):
+  - 현재 소모도를 0~100%로 시각화.
+  - [기능]: 사용자가 바의 핸들을 드래그하여 실물 잔량에 맞게 수동 보정(Calibration) 가능.
+
+[Section 4: Meta Data]
+- 개봉일 설정 (Date Picker)
+- 구매 링크 및 가격 정보
+
+5. 로직 구현 지시 (Logic Implementation)
+- 횟수 기반: TODAY 메뉴에서 '루틴 완료' 체크 시마다 consumption_logic.current_usage를 +1 하고 실버 바를 업데이트함.
+- 기간 기반: 시스템 클록(System Clock)과 start_date를 대조하여 경과 일수를 소모량으로 실시간 계산.
+- 자동 재고 차감: 실버 바가 0%에 도달하면 stock_unit을 -1 하고, 잔량 바를 100%로 리셋하며 '새 제품 개봉' 알림을 트리거함.
+
+6. 개발 요청사항
+- 위 명세에 따라 React/Vue 기반의 컴포넌트를 작성하라.
+- 특히 실버 바의 드래그 보정 시 예상 종료 날짜(Expected End Date)가 실시간으로 재계산되어 하단에 표시되도록 하라.
