@@ -304,27 +304,22 @@ textarea.field-in{resize:none;height:72px;line-height:1.6;}
       <div class="page-sub">오늘 본 무드가 내일의 내 모습이 된다</div>
     </div>
 
-    <!-- Section A: Scene Filter -->
-    <div class="scene-bar" id="scene-bar">
-      <div class="scene-chip active" data-tag="전체" onclick="setScene('전체')">#전체</div>
-
-      <div class="scene-chip" data-tag="출근" onclick="setScene('출근')">#출근</div>
-      <div class="scene-chip" data-tag="운동" onclick="setScene('운동')">#운동</div>
-      <div class="scene-chip" data-tag="데이트" onclick="setScene('데이트')">#데이트</div>
-      <div class="scene-chip" data-tag="여행" onclick="setScene('여행')">#여행</div>
-      <div class="scene-chip" data-tag="파티" onclick="setScene('파티')">#파티</div>
+    <!-- Section A: Category Tabs -->
+    <div class="cat-tab-bar">
+      <button class="cat-tab active" id="tab-makeup" onclick="setActiveTab('makeup')">Makeup</button>
+      <button class="cat-tab" id="tab-lookbook" onclick="setActiveTab('lookbook')">Lookbook</button>
     </div>
 
     <div class="main">
-      <!-- Section B: Muse Library -->
+      <!-- Section B: Content Library -->
       <div class="section-row">
         <div>
-          <div class="section-label">영감의 축적</div>
-          <div class="section-title">Muse Library</div>
+          <div class="section-label" id="content-section-label">메이크업 컬렉션</div>
+          <div class="section-title" id="content-section-title">Makeup</div>
         </div>
-        <div class="section-count" id="muse-count">—</div>
+        <div class="section-count" id="content-count">—</div>
       </div>
-      <div class="muse-grid" id="muse-grid"></div>
+      <div class="muse-grid" id="content-grid"></div>
 
       <!-- Section C: Lookbook History -->
       <div class="section-row">
@@ -348,7 +343,7 @@ textarea.field-in{resize:none;height:72px;line-height:1.6;}
   </div><!-- /scroll -->
 
   <!-- FAB -->
-  <button type="button" class="fab" onclick="openAddSheet()" title="영감 추가">
+  <button type="button" class="fab" onclick="openAddSheet()" title="컨텐츠 추가">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
 
