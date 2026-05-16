@@ -1,18 +1,29 @@
 // ── OnStep Shared Utilities ────────────────────────────────────
-// 이미지 압축 · 네비게이션 · Auth 헬퍼 · Firebase Storage 업로드
+// 이미지 압축 · 네비게이션 · Auth 헬퍼 · Cloudinary 업로드
 // 각 페이지의 <script src="shared.js"> 태그가 Firebase SDK 이후에 위치해야 함
 // ──────────────────────────────────────────────────────────────
 
-// ═══ Firebase Storage 이미지 업로드 ══════════════════════════════
-// base64 dataUrl → Storage 업로드 → 다운로드 URL 반환
+// ═══ Cloudinary 이미지 업로드 ════════════════════════════════════
+const _CDN_CLOUD  = 'demntoouc';
+const _CDN_PRESET = 'onstep-upload';
+
+// base64 dataUrl → Cloudinary 업로드 → 다운로드 URL 반환
+// storagePath는 Cloudinary public_id로 사용 (폴더 구조 유지)
 async function uploadImageStorage(uid, base64, storagePath) {
   if (!uid || !base64 || !base64.startsWith('data:')) return null;
   try {
-    const ref = firebase.storage().ref(`users/${uid}/${storagePath}`);
-    const blob = await (await fetch(base64)).blob();
-    await ref.put(blob);
-    return await ref.getDownloadURL();
-  } catch(e) { console.warn('Storage upload failed:', storagePath, e); return null; }
+    const publicId = `onstep/${uid}/${storagePath.replace(/\.jpg$/, '')}`;
+    const fd = new FormData();
+    fd.append('file', base64);
+    fd.append('upload_preset', _CDN_PRESET);
+    fd.append('public_id', publicId);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${_CDN_CLOUD}/image/upload`, {
+      method: 'POST', body: fd
+    });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    return data.secure_url || null;
+  } catch(e) { console.warn('Cloudinary upload failed:', storagePath, e); return null; }
 }
 
 // 이미지 변경 감지용 간단 해시 (base64 앞부분 샘플링)
@@ -24,7 +35,7 @@ function _imgHash(base64) {
   return Math.abs(h).toString(36);
 }
 
-// imgData가 바뀐 경우만 Storage 업로드, 동일하면 기존 URL 재사용
+// imgData가 바뀐 경우만 업로드, 동일하면 기존 URL 재사용
 async function ensureImgUrl(uid, imgData, currentUrl, currentHash, storagePath) {
   if (!imgData) return { url: currentUrl || null, hash: currentHash || '' };
   const hash = _imgHash(imgData);
