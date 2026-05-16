@@ -1408,9 +1408,9 @@ function openOOTDPicker() {
     list.innerHTML = `<div style="padding:32px 0;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:#9CA3AF">등록된 룩 테마가 없습니다<br><a href="setup.html" style="color:var(--ink);font-weight:600;margin-top:8px;display:inline-block">Setup에서 추가 →</a></div>`;
   } else {
     list.innerHTML = looks.map(t => {
-      const img = t.baselineImg ? `background-image:url(${t.baselineImg});background-size:cover;background-position:center` : 'background:#F3F4F6';
+      const img = (t.baselineImg||t.storageUrl) ? `background-image:url(${t.baselineImg||t.storageUrl});background-size:cover;background-position:center` : 'background:#F3F4F6';
       return `<div onclick="selectOOTDTheme(${t.id})" style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #F3F4F6;cursor:pointer">
-        <div style="width:48px;height:48px;border-radius:10px;flex-shrink:0;${img};display:flex;align-items:center;justify-content:center;font-size:22px">${!t.baselineImg?(t.emoji||'◈'):''}</div>
+        <div style="width:48px;height:48px;border-radius:10px;flex-shrink:0;${img};display:flex;align-items:center;justify-content:center;font-size:22px">${!(t.baselineImg||t.storageUrl)?(t.emoji||'◈'):''}</div>
         <div style="flex:1;min-width:0">
           <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#1A1C1C">${t.name}</div>
           <div style="font-family:'Inter',sans-serif;font-size:11px;color:#9CA3AF;margin-top:2px">${(t.products||t.items||[]).length}개 아이템</div>
@@ -1457,9 +1457,9 @@ function openMOTDPicker() {
     list.innerHTML = `<div style="padding:32px 0;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:#9CA3AF">등록된 메이크업 테마가 없습니다<br><a href="setup.html" style="color:var(--ink);font-weight:600;margin-top:8px;display:inline-block">Setup에서 추가 →</a></div>`;
   } else {
     list.innerHTML = themes.map(t => {
-      const img = t.baselineImg ? `background-image:url(${t.baselineImg});background-size:cover;background-position:center` : 'background:#F3F4F6';
+      const img = (t.baselineImg||t.storageUrl) ? `background-image:url(${t.baselineImg||t.storageUrl});background-size:cover;background-position:center` : 'background:#F3F4F6';
       return `<div onclick="selectMOTDTheme(${t.id})" style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #F3F4F6;cursor:pointer">
-        <div style="width:48px;height:48px;border-radius:10px;flex-shrink:0;${img};display:flex;align-items:center;justify-content:center;font-size:22px">${!t.baselineImg?(t.emoji||'✦'):''}</div>
+        <div style="width:48px;height:48px;border-radius:10px;flex-shrink:0;${img};display:flex;align-items:center;justify-content:center;font-size:22px">${!(t.baselineImg||t.storageUrl)?(t.emoji||'✦'):''}</div>
         <div style="flex:1;min-width:0">
           <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#1A1C1C">${t.name}</div>
           <div style="font-family:'Inter',sans-serif;font-size:11px;color:#9CA3AF;margin-top:2px">${(t.products||[]).length}개 제품</div>
@@ -1754,11 +1754,11 @@ function renderOOTDLogCard() {
   const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
   const look  = looks.find(l=>l.date===getTodayKey())||null;
   if (look?.logged) {
-    const thumb = look.mainPhoto
-      ? `style="background-image:url(${look.mainPhoto});background-size:cover;background-position:center"`
+    const thumb = (look.mainPhoto||look.storageUrl)
+      ? `style="background-image:url(${look.mainPhoto||look.storageUrl});background-size:cover;background-position:center"`
       : '';
     wrap.innerHTML = `<div class="record-logged-card" onclick="openOOTDRecord()">
-      <div class="record-logged-thumb" ${thumb}>${!look.mainPhoto?'📷':''}</div>
+      <div class="record-logged-thumb" ${thumb}>${!(look.mainPhoto||look.storageUrl)?'📷':''}</div>
       <div class="record-logged-info">
         <div class="record-logged-name">"${look.note||'오늘의 룩'}"</div>
         <div class="record-logged-badge">Logged ✓</div>
@@ -1798,8 +1798,8 @@ function openOOTDRecord() {
     } else {
       themeList.innerHTML = themes.map(t => {
         const isSel = t.id === _ootdRecSelectedThemeId;
-        const thumbStyle = t.baselineImg ? `background-image:url(${t.baselineImg})` : '';
-        const icon = !t.baselineImg ? (t.emoji||'✦') : '';
+        const thumbStyle = (t.baselineImg||t.storageUrl) ? `background-image:url(${t.baselineImg||t.storageUrl})` : '';
+        const icon = !(t.baselineImg||t.storageUrl) ? (t.emoji||'✦') : '';
         return `<div class="ootd-rec-theme-row${isSel?' sel':''}" data-tid="${t.id}" onclick="_selectOOTDRecTheme(${t.id})">
           <div class="ootd-rec-theme-thumb" style="${thumbStyle}">${icon}</div>
           <div class="ootd-rec-theme-name">${t.name||'Untitled'}</div>
@@ -1812,8 +1812,8 @@ function openOOTDRecord() {
   // photo
   const area  = document.getElementById('ootd-rec-photo-area');
   const ph    = document.getElementById('ootd-rec-photo-placeholder');
-  if (area && look?.mainPhoto) {
-    area.style.backgroundImage = `url(${look.mainPhoto})`;
+  if (area && (look?.mainPhoto||look?.storageUrl)) {
+    area.style.backgroundImage = `url(${look.mainPhoto||look.storageUrl})`;
     if (ph) ph.style.display = 'none';
   } else if (area) {
     area.style.backgroundImage = '';
@@ -1933,10 +1933,10 @@ function renderMOTDLogCard() {
   const logs = JSON.parse(localStorage.getItem(MAKEUP_LOGS_KEY)||'[]');
   const log  = logs.find(l=>l.date===getTodayKey())||null;
   if (log?.logged) {
-    const thumb = log.mainPhoto
-      ? `style="background-image:url(${log.mainPhoto});background-size:cover;background-position:center"` : '';
+    const thumb = (log.mainPhoto||log.storageUrl)
+      ? `style="background-image:url(${log.mainPhoto||log.storageUrl});background-size:cover;background-position:center"` : '';
     wrap.innerHTML = `<div class="record-logged-card" onclick="openMOTDRecord()">
-      <div class="record-logged-thumb" ${thumb}>${!log.mainPhoto?'💄':''}</div>
+      <div class="record-logged-thumb" ${thumb}>${!(log.mainPhoto||log.storageUrl)?'💄':''}</div>
       <div class="record-logged-info">
         <div class="record-logged-name">"${log.note||'오늘의 메이크업'}"</div>
         <div class="record-logged-badge">Logged ✓</div>
@@ -1975,8 +1975,8 @@ function openMOTDRecord() {
     } else {
       themeList.innerHTML = themes.map(t => {
         const isSel = t.id === _motdRecSelectedThemeId;
-        const thumbStyle = t.baselineImg ? `background-image:url(${t.baselineImg})` : '';
-        const icon = !t.baselineImg ? (t.emoji||'✦') : '';
+        const thumbStyle = (t.baselineImg||t.storageUrl) ? `background-image:url(${t.baselineImg||t.storageUrl})` : '';
+        const icon = !(t.baselineImg||t.storageUrl) ? (t.emoji||'✦') : '';
         return `<div class="ootd-rec-theme-row${isSel?' sel':''}" data-tid="${t.id}" onclick="_selectMOTDRecTheme(${t.id})">
           <div class="ootd-rec-theme-thumb" style="${thumbStyle}">${icon}</div>
           <div class="ootd-rec-theme-name">${t.name||'Untitled'}</div>
@@ -1987,8 +1987,8 @@ function openMOTDRecord() {
   }
   const area = document.getElementById('motd-rec-photo-area');
   const ph   = document.getElementById('motd-rec-photo-placeholder');
-  if (area && log?.mainPhoto) {
-    area.style.backgroundImage = `url(${log.mainPhoto})`;
+  if (area && (log?.mainPhoto||log?.storageUrl)) {
+    area.style.backgroundImage = `url(${log.mainPhoto||log.storageUrl})`;
     if (ph) ph.style.display = 'none';
   } else if (area) {
     area.style.backgroundImage = '';

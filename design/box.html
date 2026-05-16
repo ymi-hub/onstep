@@ -2585,8 +2585,8 @@ function openLocPanel(locKey) {
   // Hero
   const hero = document.getElementById('loc-hero');
   if (hero) {
-    if (loc?.imgData) {
-      hero.style.backgroundImage = `url(${loc.imgData})`;
+    if (loc?.imgData||loc?.storageUrl) {
+      hero.style.backgroundImage = `url(${loc.imgData||loc.storageUrl})`;
       hero.style.backgroundSize  = 'cover';
       hero.style.backgroundPosition = 'center';
     } else {
@@ -2647,10 +2647,10 @@ function renderLocItems() {
   } else {
     items.innerHTML = page.map(a => {
       const cat     = CAT_LABELS[a.catKey] || a.catKey || '—';
-      const imgSt   = a.imgData ? `background-image:url(${a.imgData});background-size:cover;background-position:center;` : '';
+      const imgSt   = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl});background-size:cover;background-position:center;` : '';
       const icon    = DOMAIN_ICONS[a.domain] || '◈';
       return `<div class="loc-item-row" onclick="openEditAsset(${a.id})">
-        <div class="loc-item-thumb" style="${imgSt}">${!a.imgData ? `<span style="font-size:18px">${icon}</span>` : ''}</div>
+        <div class="loc-item-thumb" style="${imgSt}">${!(a.imgData||a.storageUrl) ? `<span style="font-size:18px">${icon}</span>` : ''}</div>
         <div style="flex:1;min-width:0">
           <div class="loc-item-brand">${a.brand||''}</div>
           <div class="loc-item-name">${a.name||''}</div>
@@ -2781,7 +2781,7 @@ function renderLocProductPickerList() {
     return;
   }
   list.innerHTML = assets.map(a => {
-    const thumb = a.imgData ? `<div style="width:40px;height:40px;border-radius:8px;background:url(${a.imgData}) center/cover no-repeat;flex-shrink:0"></div>`
+    const thumb = (a.imgData||a.storageUrl) ? `<div style="width:40px;height:40px;border-radius:8px;background:url(${a.imgData||a.storageUrl}) center/cover no-repeat;flex-shrink:0"></div>`
       : `<div style="width:40px;height:40px;border-radius:8px;background:#F3F4F6;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:18px">📦</span></div>`;
     return '<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #F3F4F6;cursor:pointer;active:background:#F9FAFB" onclick="linkProductToLoc(' + a.id + ')">'
       + thumb
@@ -3090,13 +3090,13 @@ function _cardResHtml(a) {
 }
 
 function _magCard(a, isHero, isFirst) {
-  const bg      = a.imgData ? `background-image:url(${a.imgData})` : '';
+  const bg      = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl})` : '';
   const icon    = CAT_ICONS[a.catKey] || (a.domain==='beauty'?'◈':'◻');
   const resHtml = _cardResHtml(a);
   if (isHero) {
     const badge = isFirst ? `<div class="mag-badge">NEW ARRIVAL</div>` : '';
     return `<div class="mag-hero-card" onclick="openEditAsset(${a.id})">
-      <div class="mag-hero-img" style="${bg}">${a.imgData?'':
+      <div class="mag-hero-img" style="${bg}">${(a.imgData||a.storageUrl)?'':
         `<span style="font-size:48px;opacity:.15">${icon}</span>`}${badge}</div>
       <div class="mag-hero-info">
         <div class="mag-brand">${a.brand||''}</div>
@@ -3105,7 +3105,7 @@ function _magCard(a, isHero, isFirst) {
       </div></div>`;
   }
   return `<div class="mag-small-card" onclick="openEditAsset(${a.id})">
-    <div class="mag-small-img" style="${bg}">${a.imgData?'':
+    <div class="mag-small-img" style="${bg}">${(a.imgData||a.storageUrl)?'':
       `<span style="font-size:24px;opacity:.15">${icon}</span>`}</div>
     <div class="mag-small-info">
       <div class="mag-brand">${a.brand||''}</div>
@@ -3155,7 +3155,7 @@ function renderMagazine(assets, grid) {
 
 function renderGallery(assets, grid) {
   const items = assets.map(a => {
-    const bg      = a.imgData ? `background-image:url(${a.imgData})` : '';
+    const bg      = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl})` : '';
     const icon    = CAT_ICONS[a.catKey] || (a.domain==='beauty'?'◈':'◻');
     const resInfo = calcResidualPct(a);
     const resBar  = resInfo
@@ -3164,7 +3164,7 @@ function renderGallery(assets, grid) {
       : '';
     return `<div class="gallery-item" onclick="openEditAsset(${a.id})">
       <div class="gallery-bg" style="${bg}"></div>
-      ${!a.imgData ? `<div class="gallery-placeholder">${icon}</div>` : ''}
+      ${!(a.imgData||a.storageUrl) ? `<div class="gallery-placeholder">${icon}</div>` : ''}
       <div class="gallery-name-bar">${a.name}</div>
       ${resBar}
     </div>`;
@@ -3203,7 +3203,7 @@ function renderList(assets, grid) {
 }
 
 function _listRow(a) {
-  const bg      = a.imgData ? `background-image:url(${a.imgData});background-size:cover;background-position:center;` : '';
+  const bg      = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl});background-size:cover;background-position:center;` : '';
   const icon    = CAT_ICONS[a.catKey] || (a.domain==='beauty'?'◈':'◻');
   const resInfo = calcResidualPct(a);
   const resHtml = resInfo
@@ -3212,7 +3212,7 @@ function _listRow(a) {
     : `<div class="list-qty">${a.qtyCurrent||0}/${a.qtyTotal||1}</div>`;
   const locName = a.locKey ? (getLocs().find(l => l.key === a.locKey)?.name || '') : '';
   return `<div class="list-item" onclick="openEditAsset(${a.id})">
-    <div class="list-thumb" style="${bg}">${!a.imgData?`<span>${icon}</span>`:''}</div>
+    <div class="list-thumb" style="${bg}">${!(a.imgData||a.storageUrl)?`<span>${icon}</span>`:''}</div>
     <div class="list-info">
       <div class="list-brand">${a.brand||''}</div>
       <div class="list-name">${a.name}</div>
@@ -3415,7 +3415,7 @@ function openDetail(id) {
       </div>
     </div>` : '';
 
-  const locPhotoBg = loc?.imgData ? `background-image:url(${loc.imgData})` : '';
+  const locPhotoBg = (loc?.imgData||loc?.storageUrl) ? `background-image:url(${loc.imgData||loc.storageUrl})` : '';
 
   // ── Build inner HTML ──
   const inner = document.getElementById('detail-inner');
@@ -3423,9 +3423,9 @@ function openDetail(id) {
   inner.innerHTML = `
     <!-- Product photo -->
     <div class="detail-hero-photo" id="detail-hero-photo"
-         style="${asset.imgData?`background-image:url(${asset.imgData})`:''}"
+         style="${(asset.imgData||asset.storageUrl)?`background-image:url(${asset.imgData||asset.storageUrl})`:''}"
          onclick="tapDetailPhoto(${id})">
-      ${asset.imgData?'':`<span style="font-size:60px;opacity:.2">${CAT_ICONS[asset.catKey]||'◈'}</span>`}
+      ${(asset.imgData||asset.storageUrl)?'':`<span style="font-size:60px;opacity:.2">${CAT_ICONS[asset.catKey]||'◈'}</span>`}
       <div class="detail-hero-edit">사진 변경</div>
     </div>
 
@@ -3607,8 +3607,8 @@ function detSwitchLoc(id, locKey) {
   const photoEl = document.getElementById('detail-storage-photo');
   if (nameEl)  nameEl.value = loc?.name || '';
   if (photoEl) {
-    photoEl.style.backgroundImage = loc?.imgData ? `url(${loc.imgData})` : '';
-    photoEl.innerHTML = loc?.imgData
+    photoEl.style.backgroundImage = (loc?.imgData||loc?.storageUrl) ? `url(${loc.imgData||loc.storageUrl})` : '';
+    photoEl.innerHTML = (loc?.imgData||loc?.storageUrl)
       ? '<div class="storage-edit-hint"><span>사진 변경</span></div>'
       : '<span style="font-size:24px;opacity:.3">📷</span><div class="storage-edit-hint"><span>사진 변경</span></div>';
   }
@@ -3799,10 +3799,11 @@ function _populateEditForm(asset) {
     else { locDispEl.textContent = '위치 선택'; locDispEl.style.color = '#9CA3AF'; }
   }
   // 제품 사진
-  if (asset.imgData) {
+  const _aImg = asset.imgData||asset.storageUrl;
+  if (_aImg) {
     addState.productImgData = asset.imgData;
     const b = document.getElementById('add-img-block');
-    if (b) { b.style.backgroundImage = `url(${asset.imgData})`; b.classList.add('has-img'); }
+    if (b) { b.style.backgroundImage = `url(${_aImg})`; b.classList.add('has-img'); }
   }
   // 보관 사진
   if (asset.storageImgData) {

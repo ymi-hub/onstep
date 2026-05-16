@@ -2131,8 +2131,8 @@ function renderGrid(slot) {
     }
     html += products.map(p => `
       <div class="prod-card" onclick="openModal('${slot}',${p.id})">
-        <div class="prod-card-img" ${p.imgData ? `style="background-image:url(${p.imgData})"` : ''}>
-          ${!p.imgData ? `<span style="opacity:.2">${p.icon||'✦'}</span>` : ''}
+        <div class="prod-card-img" ${(p.imgData||p.storageUrl) ? `style="background-image:url(${p.imgData||p.storageUrl})"` : ''}>
+          ${!(p.imgData||p.storageUrl) ? `<span style="opacity:.2">${p.icon||'✦'}</span>` : ''}
         </div>
         <div class="prod-card-cat">${(CAT[p.catKey]?.label || p.catKey || '').toUpperCase()}</div>
         <div class="prod-card-name">${p.name}</div>
@@ -2155,8 +2155,8 @@ function renderProdList(slot) {
   }
   innerEl.innerHTML = products.map((p, i) => `
     <div class="prod-list-item" onclick="openModal('${slot}',${p.id})">
-      <div class="prod-list-img" ${p.imgData ? `style="background-image:url(${p.imgData})"` : ''}>
-        ${!p.imgData ? `<span>${p.icon||'✦'}</span>` : ''}
+      <div class="prod-list-img" ${(p.imgData||p.storageUrl) ? `style="background-image:url(${p.imgData||p.storageUrl})"` : ''}>
+        ${!(p.imgData||p.storageUrl) ? `<span>${p.icon||'✦'}</span>` : ''}
       </div>
       <div class="prod-list-info">
         <div class="prod-list-cat">${(CAT[p.catKey]?.label || p.catKey || '').toUpperCase()}</div>
@@ -2875,8 +2875,8 @@ function openModal(slot, editId = null) {
     prodImgData = p.imgData || null;
     selectedBoxAssetId = p.assetId || null;
     bpSelectedId = p.assetId || null;
-    if (p.imgData) {
-      document.getElementById('prod-img-preview').style.cssText = `background-image:url(${p.imgData});display:block`;
+    if (p.imgData||p.storageUrl) {
+      document.getElementById('prod-img-preview').style.cssText = `background-image:url(${p.imgData||p.storageUrl});display:block`;
       document.getElementById('prod-img-placeholder').style.display = 'none';
     } else {
       document.getElementById('prod-img-preview').style.display = 'none';
@@ -3001,12 +3001,12 @@ function renderBpList(q) {
   const visible = showAll ? filtered : filtered.slice(0, 12);
   const rows = visible.map(a => {
     const isSel = bpSelectedId === a.id;
-    const imgStyle = a.imgData ? `background-image:url(${a.imgData});background-size:cover;background-position:center` : '';
+    const imgStyle = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl});background-size:cover;background-position:center` : '';
     const icon = CAT[a.catKey]?.icon || '✨';
     const catLabel = (CAT[a.catKey]?.label || a.catKey || '').toUpperCase();
     const typeTag  = a.type && a.type !== a.domain ? `<span style="opacity:.6">${a.type}</span> · ` : '';
     return `<div class="bp-item${isSel?' selected':''}" onclick="selectBpItem(${a.id})">
-      <div class="bp-item-img" style="${imgStyle}">${!a.imgData ? icon : ''}</div>
+      <div class="bp-item-img" style="${imgStyle}">${!(a.imgData||a.storageUrl) ? icon : ''}</div>
       <div class="bp-item-info">
         <div class="bp-item-name">${a.name}</div>
         ${a.brand ? `<div class="bp-item-brand">${a.brand}</div>` : ''}
@@ -3044,9 +3044,9 @@ function confirmBoxPanel() {
   document.getElementById('product-brand').value = asset.brand || '';
   const catKey = asset.catKey && CAT[asset.catKey] ? asset.catKey : 'etc';
   selectCatByKey(catKey);
-  if (asset.imgData) {
-    prodImgData = asset.imgData;
-    document.getElementById('prod-img-preview').style.cssText = `background-image:url(${asset.imgData});display:block`;
+  if (asset.imgData||asset.storageUrl) {
+    prodImgData = asset.imgData||asset.storageUrl;
+    document.getElementById('prod-img-preview').style.cssText = `background-image:url(${asset.imgData||asset.storageUrl});display:block`;
     document.getElementById('prod-img-placeholder').style.display = 'none';
   }
 
@@ -3070,9 +3070,9 @@ function selectBoxAsset(assetId) {
   document.getElementById('product-brand').value = asset.brand || '';
   const catKey = asset.catKey && CAT[asset.catKey] ? asset.catKey : 'etc';
   selectCatByKey(catKey);
-  if (asset.imgData) {
-    prodImgData = asset.imgData;
-    document.getElementById('prod-img-preview').style.cssText = `background-image:url(${asset.imgData});display:block`;
+  if (asset.imgData||asset.storageUrl) {
+    prodImgData = asset.imgData||asset.storageUrl;
+    document.getElementById('prod-img-preview').style.cssText = `background-image:url(${asset.imgData||asset.storageUrl});display:block`;
     document.getElementById('prod-img-placeholder').style.display = 'none';
   }
 }
@@ -3309,11 +3309,11 @@ function renderLookStrip() {
     const day = i + 1;
     const data = lookSchedule[day];
     const hasData = !!data;
-    const imgStyle = data?.imgData ? `background-image:url(${data.imgData});background-size:cover;background-position:center` : '';
+    const imgStyle = (data?.imgData||data?.storageUrl) ? `background-image:url(${data.imgData||data.storageUrl});background-size:cover;background-position:center` : '';
     return `
       <div class="sched-cell${hasData?' has-data':''}" onclick="openLookCell(${day})">
         <div class="sched-thumb" style="${imgStyle}">
-          ${!data?.imgData ? `<span class="sched-thumb-plus">+</span>` : ''}
+          ${!(data?.imgData||data?.storageUrl) ? `<span class="sched-thumb-plus">+</span>` : ''}
           <div class="sched-thumb-dot"></div>
         </div>
         <div class="sched-day-num">D${day}</div>
@@ -3475,9 +3475,9 @@ function renderCtCareList() {
       : '';
     const itemsHtml = (t.items||[]).slice(0,6).map(p => {
       const asset = getBoxAssets().find(a => a.id === p.assetId);
-      const imgStyle = (asset?.imgData||p.imgData) ? `background-image:url(${asset?.imgData||p.imgData})` : '';
+      const imgStyle = (asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl) ? `background-image:url(${asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl})` : '';
       return `<div class="ct-card-item-wrap">
-        <div class="ct-card-item-img" style="${imgStyle}">${!(asset?.imgData||p.imgData)?'✦':''}</div>
+        <div class="ct-card-item-img" style="${imgStyle}">${!(asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl)?'✦':''}</div>
         <div class="ct-card-item-nm">${p.name||''}</div>
       </div>`;
     }).join('');
@@ -3598,9 +3598,9 @@ function renderCtMkpList() {
       `<span class="ct-date-chip">${d.slice(5).replace('-','/')}</span>`).join('');
     const itemsHtml = (t.products||[]).slice(0,6).map(p => {
       const asset = getBoxAssets().find(a => a.id === p.assetId);
-      const imgStyle = (asset?.imgData||p.imgData) ? `background-image:url(${asset?.imgData||p.imgData})` : '';
+      const imgStyle = (asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl) ? `background-image:url(${asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl})` : '';
       return `<div class="ct-card-item-wrap">
-        <div class="ct-card-item-img" style="${imgStyle}">${!(asset?.imgData||p.imgData)?'✦':''}</div>
+        <div class="ct-card-item-img" style="${imgStyle}">${!(asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl)?'✦':''}</div>
         <div class="ct-card-item-nm">${p.name||p.step||''}</div>
       </div>`;
     }).join('');
@@ -3663,9 +3663,9 @@ function renderCtLookList() {
     ).join(' ');
     const itemsHtml = (t.products||t.items||[]).slice(0,6).map(p => {
       const asset = getBoxAssets().find(a => a.id === p.assetId);
-      const imgStyle = (asset?.imgData||p.imgData) ? `background-image:url(${asset?.imgData||p.imgData})` : '';
+      const imgStyle = (asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl) ? `background-image:url(${asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl})` : '';
       return `<div class="ct-card-item-wrap">
-        <div class="ct-card-item-img" style="${imgStyle}">${!(asset?.imgData||p.imgData)?'◈':''}</div>
+        <div class="ct-card-item-img" style="${imgStyle}">${!(asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl)?'◈':''}</div>
         <div class="ct-card-item-nm">${p.name||''}</div>
       </div>`;
     }).join('');
@@ -3809,7 +3809,7 @@ function openCtSheet(type, editId = null) {
       }
       ctSheetState.baselineImg = t.baselineImg||null;
       if (t.baselineImg) {
-        bl.style.backgroundImage = `url(${t.baselineImg})`;
+        bl.style.backgroundImage = `url(${t.baselineImg||t.storageUrl})`;
         bl.classList.add('has-img');
         bl.querySelector('.ct-sheet-baseline-text').style.display = 'none';
       }
@@ -3878,7 +3878,7 @@ function renderCtBoxResults(q) {
     const used = alreadyIds.includes(a.id);
     const icon = a.domain === 'beauty' ? '✦' : '◈';
     return `<div class="ct-box-row${used?' selected':''}" onclick="${used?'':` addCtItem(${a.id})`}">
-      <div class="ct-box-img" style="${a.imgData?`background-image:url(${a.imgData});background-size:cover`:''}">${!a.imgData?icon:''}</div>
+      <div class="ct-box-img" style="${(a.imgData||a.storageUrl)?`background-image:url(${a.imgData||a.storageUrl});background-size:cover`:''}">${!(a.imgData||a.storageUrl)?icon:''}</div>
       <div style="flex:1;min-width:0">
         <div class="ct-box-name">${a.name}</div>
         ${a.brand?`<div class="ct-box-brand">${a.brand}</div>`:''}
@@ -3912,7 +3912,7 @@ function renderCtChips() {
   if (!el) return;
   el.innerHTML = ctSheetState.items.map(p =>
     `<div class="ct-chip">
-      <div class="ct-chip-img" style="${p.imgData?`background-image:url(${p.imgData});background-size:cover`:''}">${!p.imgData?'✦':''}</div>
+      <div class="ct-chip-img" style="${(p.imgData||p.storageUrl)?`background-image:url(${p.imgData||p.storageUrl});background-size:cover`:''}">${!(p.imgData||p.storageUrl)?'✦':''}</div>
       ${p.name}
       <span class="ct-chip-del" onclick="removeCtItem(${p.assetId})">✕</span>
     </div>`
@@ -4161,8 +4161,8 @@ function renderSessionDataSummary() {
         html += `<div class="sdata-empty">제품 없음</div>`;
       } else {
         html += prods.map(p => `<div class="sdata-prod-row">
-          <div class="sdata-prod-img" style="${p.imgData?`background-image:url(${p.imgData})`:''}">
-            ${!p.imgData ? (p.icon||'✦') : ''}
+          <div class="sdata-prod-img" style="${(p.imgData||p.storageUrl)?`background-image:url(${p.imgData||p.storageUrl})`:''}">
+            ${!(p.imgData||p.storageUrl) ? (p.icon||'✦') : ''}
           </div>
           <div class="sdata-prod-info">
             <div class="sdata-prod-name">${p.name||'—'}</div>

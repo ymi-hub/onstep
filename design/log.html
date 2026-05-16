@@ -787,7 +787,7 @@ function renderAll(){
 let _boxAssetsCache = null;
 
 function _renderContentCard(c){
-  const src=c.baselineImg;
+  const src=c.baselineImg||c.storageUrl;
   const today=new Date().toISOString().slice(0,10);
   const nextDate=(c.scheduledDates||[]).filter(d=>d>=today).sort()[0];
   const schedCount=(c.scheduleLog||[]).length;
@@ -798,7 +798,7 @@ function _renderContentCard(c){
   const prods=(c.products||[]).map(p=>({p,a:assets.find(a=>a.id===p.id)})).filter(({a})=>!!a);
   const prodsStrip=prods.length
     ?`<div class="lib-card-prods">${prods.map(({p,a})=>{
-        const imgStyle=a.imgData?`background-image:url(${a.imgData})`:'';
+        const imgStyle=(a.imgData||a.storageUrl)?`background-image:url(${a.imgData||a.storageUrl})`:'';
         const icon=!a.imgData?(a.icon||'📦'):'';
         return `<div class="lib-card-prod">
           <div class="lib-prod-img" style="${imgStyle}">${icon}</div>
@@ -861,7 +861,7 @@ function renderArchiveMain(){
   const assets=_boxAssetsCache||JSON.parse(localStorage.getItem('onstep_box_assets')||'[]');
   list.innerHTML=all.map(h=>{
     const theme=h.lookThemeId!=null?(lk.find(t=>t.id===h.lookThemeId)||mk.find(t=>t.id===h.lookThemeId)):null;
-    const src=h.mainPhoto||(theme?.baselineImg)||null;
+    const src=h.mainPhoto||h.storageUrl||(theme?.baselineImg||theme?.storageUrl)||null;
     const heroStyle=src?`background-image:url(${src})`:'';
     const dateBadge=`<span class="lib-badge date">📅 ${h.date.slice(5).replace('-','/')}</span>`;
     const typeBadge=h.type==='makeup'?`<span class="lib-badge auto">💄 MAKEUP</span>`:'';
@@ -871,7 +871,7 @@ function renderArchiveMain(){
     const prods=(h.products||[]).map(p=>({p,a:assets.find(a=>a.id===(p.assetId??p.id))}));
     const prodsStrip=prods.length
       ?`<div class="lib-card-prods">${prods.map(({p,a})=>{
-          const imgStyle=a?.imgData?`background-image:url(${a.imgData})`:'';
+          const imgStyle=(a?.imgData||a?.storageUrl)?`background-image:url(${a.imgData||a.storageUrl})`:'';
           const icon=!a?.imgData?(a?.icon||p.icon||'📦'):'';
           return `<div class="lib-card-prod">
             <div class="lib-prod-img" style="${imgStyle}">${icon}</div>
@@ -904,7 +904,7 @@ function renderHistory(){
     return;
   }
   row.innerHTML=items.map(h=>{
-    const src=h.mainPhoto;
+    const src=h.mainPhoto||h.storageUrl;
     const imgStyle=src?`background-image:url(${src});background-size:cover`:`background:${h._bg||'#f0f0f2'}`;
     const prods=(h.products||[]).slice(0,2).map(p=>p.name||'').filter(Boolean).join(' · ')+(h.products&&h.products.length>2?` +${h.products.length-2}`:'');
     return `<div class="history-card" onclick="openHistoryDetail('${h.id}')">
@@ -928,7 +928,7 @@ function openContentDetail(id){
   if(!c) return;
   detailId=id; detailKind=activeTab;
   document.getElementById('detail-appbar-label').textContent=activeTab==='makeup'?'MAKEUP':'LOOKBOOK';
-  const src=c.baselineImg;
+  const src=c.baselineImg||c.storageUrl;
   const heroStyle=src?`background-image:url(${src});background-size:cover`:`background:#f0f0f2;display:flex;align-items:center;justify-content:center`;
   const today=new Date().toISOString().slice(0,10);
   const nextDates=(c.scheduledDates||[]).filter(d=>d>=today).sort();
@@ -1012,7 +1012,7 @@ function openHistoryDetail(id){
   detailId=id; detailKind='HISTORY';
   const isMakeup=h.type==='makeup';
   document.getElementById('detail-appbar-label').textContent=isMakeup?'MAKEUP':'LOOK';
-  const src=h.mainPhoto;
+  const src=h.mainPhoto||h.storageUrl;
   const heroStyle=src?`background-image:url(${src});background-size:cover;font-size:0`:`background:${h._bg||'#f0f0f2'}`;
   const prods=(h.products||[]).map(p=>`<div class="detail-prod">${p.name||''}</div>`).join('');
   document.getElementById('detail-body').innerHTML=`
@@ -1065,8 +1065,8 @@ function openAddSheet(editId=null){
       document.getElementById('add-name').value=c.name||'';
       document.getElementById('add-desc').value=c.description||'';
       document.getElementById('add-source-url').value=c.sourceUrl||'';
-      if(c.baselineImg){
-        document.getElementById('add-img-pick').style.backgroundImage=`url(${c.baselineImg})`;
+      if(c.baselineImg||c.storageUrl){
+        document.getElementById('add-img-pick').style.backgroundImage=`url(${c.baselineImg||c.storageUrl})`;
         document.getElementById('add-img-ph').classList.add('hidden');
         document.getElementById('add-img-rm').classList.remove('hidden');
       }
@@ -1398,7 +1398,7 @@ function renderArchive(){
       const mo=parseInt(mk.split('-')[1]);
       const items=groups[y][mk];
       const rowsHtml=items.map(h=>{
-        const src=h.mainPhoto;
+        const src=h.mainPhoto||h.storageUrl;
         const thumbStyle=src?`background-image:url(${src})`:`background:${h._bg||'#f0f0f2'}`;
         const prods=(h.products||[]).slice(0,2).map(p=>p.name||'').filter(Boolean).join(' · ');
         const sel=archiveSel.has(h.id);
