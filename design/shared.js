@@ -1,7 +1,37 @@
 // ── OnStep Shared Utilities ────────────────────────────────────
-// 이미지 압축 · 네비게이션 · Auth 헬퍼
+// 이미지 압축 · 네비게이션 · Auth 헬퍼 · Firebase Storage 업로드
 // 각 페이지의 <script src="shared.js"> 태그가 Firebase SDK 이후에 위치해야 함
 // ──────────────────────────────────────────────────────────────
+
+// ═══ Firebase Storage 이미지 업로드 ══════════════════════════════
+// base64 dataUrl → Storage 업로드 → 다운로드 URL 반환
+async function uploadImageStorage(uid, base64, storagePath) {
+  if (!uid || !base64 || !base64.startsWith('data:')) return null;
+  try {
+    const ref = firebase.storage().ref(`users/${uid}/${storagePath}`);
+    const blob = await (await fetch(base64)).blob();
+    await ref.put(blob);
+    return await ref.getDownloadURL();
+  } catch(e) { console.warn('Storage upload failed:', storagePath, e); return null; }
+}
+
+// 이미지 변경 감지용 간단 해시 (base64 앞부분 샘플링)
+function _imgHash(base64) {
+  if (!base64) return '';
+  let h = 0;
+  const n = Math.min(base64.length, 3000);
+  for (let i = 0; i < n; i++) h = (h * 31 + base64.charCodeAt(i)) | 0;
+  return Math.abs(h).toString(36);
+}
+
+// imgData가 바뀐 경우만 Storage 업로드, 동일하면 기존 URL 재사용
+async function ensureImgUrl(uid, imgData, currentUrl, currentHash, storagePath) {
+  if (!imgData) return { url: currentUrl || null, hash: currentHash || '' };
+  const hash = _imgHash(imgData);
+  if (hash === currentHash && currentUrl) return { url: currentUrl, hash };
+  const url = await uploadImageStorage(uid, imgData, storagePath);
+  return { url: url || currentUrl || null, hash };
+}
 
 // ═══ 이미지 압축 ══════════════════════════════════════════════
 // File 객체 → 압축 JPEG dataUrl

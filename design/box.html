@@ -15,6 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <script src="shared.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <style>
@@ -42,7 +43,8 @@ body{
 .phone{
   width:390px; background:#FFFFFF; border-radius:48px;
   box-shadow:0 0 0 1px rgba(255,255,255,.6) inset, 0 40px 100px rgba(0,0,0,.22);
-  overflow:hidden; position:relative;
+  overflow:hidden; position:relative; transform:translate(0,0);
+  height:888px;
 }
 .notch{height:44px;background:#FFFFFF;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1;}
@@ -229,6 +231,20 @@ body{
 .add-res-tab{flex:1;padding:9px 0;border:1.5px solid #C5C6CA;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#44474A;text-align:center;cursor:pointer;background:transparent;transition:all .18s;}
 .add-res-tab.active{background:#000;color:#fff;border-color:#000;}
 
+/* ── Unit pills (pkg / item unit selector) ── */
+.unit-pill{padding:5px 10px;border-radius:9999px;border:1.5px solid #C5C6CA;background:transparent;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;color:#44474A;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.unit-pill.active{background:#0C1014;color:#fff;border-color:#0C1014;}
+
+/* ── Frequency pills (하루횟수 / 사용주기) ── */
+.freq-pill{padding:6px 12px;border-radius:9999px;border:1.5px solid #C5C6CA;background:transparent;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;color:#44474A;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.freq-pill.active{background:#0C1014;color:#fff;border-color:#0C1014;}
+
+/* ── Quick action buttons (복용/보정) in card ── */
+.quick-action-row{display:flex;gap:6px;margin-top:8px;}
+.quick-btn{flex:1;height:36px;border:1.5px solid var(--border-md);border-radius:var(--r-md);background:transparent;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;transition:all .15s;}
+.quick-btn.consume{background:var(--ink);color:#fff;border-color:var(--ink);}
+.quick-btn:active{opacity:.75;}
+
 /* Empty state */
 .empty-state{
   grid-column:1/-1; text-align:center; padding:40px 20px;
@@ -325,7 +341,7 @@ body{
   color:var(--sub);background:transparent;cursor:pointer;flex-shrink:0;
 }
 .loc-panel-scroll{
-  flex:1;overflow-y:auto;scrollbar-width:none;padding-top:56px;padding-bottom:80px;
+  flex:1;overflow-y:auto;scrollbar-width:none;padding-top:56px;padding-bottom:160px;
 }
 .loc-panel-scroll::-webkit-scrollbar{display:none;}
 .loc-hero{
@@ -381,7 +397,7 @@ body{
   font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--sub);
   border-top:1px solid var(--border);
 }
-.loc-add-here-wrap{position:absolute;bottom:0;left:0;right:0;padding:12px 16px 20px;background:#fff;border-top:1px solid var(--border);}
+.loc-add-here-wrap{position:absolute;bottom:0;left:0;right:0;padding:10px 16px 16px;background:#fff;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;}
 .loc-add-here-btn{
   width:100%;height:48px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);
   font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
@@ -744,6 +760,33 @@ body{
 }
 .det-season-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
 
+/* ── Box screen search bar ── */
+.box-search-bar{
+  position:sticky; top:97px; z-index:7;
+  background:rgba(255,255,255,.95); backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  padding:8px 16px 8px; border-bottom:1px solid var(--border);
+}
+.box-search-inp{
+  width:100%; padding:9px 40px 9px 14px;
+  border:1.5px solid var(--border); border-radius:var(--r-full);
+  font-family:'Inter',sans-serif; font-size:13px; color:var(--ink);
+  background:var(--surface); outline:none; transition:border-color .2s;
+}
+.box-search-inp:focus{border-color:var(--ink);}
+.box-search-inp::placeholder{color:var(--mist);}
+.box-search-wrap-inner{position:relative;}
+.box-search-icon{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  color:var(--mist); pointer-events:none;
+}
+.box-search-clear{
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  width:20px; height:20px; border:none; background:var(--surface-mid);
+  border-radius:9999px; cursor:pointer; font-size:11px; color:var(--mist);
+  display:flex; align-items:center; justify-content:center;
+}
+
 @media(max-width:430px){
   body{background:var(--bg);padding:0;align-items:stretch;}
   .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
@@ -759,7 +802,7 @@ body{
   display:none;padding:0 16px;gap:0;
   border-bottom:1px solid var(--border);
   background:rgba(255,255,255,.94);backdrop-filter:blur(14px);
-  position:sticky;top:97px;z-index:7;
+  position:sticky;top:145px;z-index:6;
   overflow-x:auto;scrollbar-width:none;
 }
 .subtype-row.show{display:flex;}
@@ -1502,6 +1545,16 @@ body{
       <div class="domain-tab"        id="dtab-storage" onclick="setDomain('storage')">Storage</div>
     </div>
 
+    <!-- Search bar -->
+    <div class="box-search-bar" id="box-search-bar">
+      <div class="box-search-wrap-inner">
+        <input class="box-search-inp" id="box-search-inp" type="search"
+          placeholder="제품명 · 브랜드 검색..."
+          oninput="onBoxSearch(this.value)" autocomplete="off" />
+        <svg class="box-search-icon" id="box-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </div>
+    </div>
+
     <!-- Sub-type tabs (Beauty: Skincare / Makeup) -->
     <div class="subtype-row" id="subtype-row">
       <div class="subtype-tab active" id="stab-skincare" onclick="setSubType('skincare')">Skincare</div>
@@ -1601,36 +1654,63 @@ body{
         <!-- HorizontalBorder + fields -->
         <div style="border-top:1px solid #C5C6CA;display:flex;flex-direction:column;gap:0;padding-top:25px;margin-top:8px">
 
-          <!-- DATE OF PURCHASE -->
-          <div style="margin-bottom:24px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0">
-              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">DATE OF PURCHASE</div>
-              <button style="background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;color:#44474A;padding:0" onclick="document.getElementById('add-expiry').focus()">Set Expiry →</button>
+          <!-- DATE OF PURCHASE + SET EXPIRY (1열 2컬럼) -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px">
+            <div>
+              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">DATE OF PURCHASE</div>
+              <div style="position:relative;border-bottom:1px solid #6B7280;padding:4px 0;cursor:pointer;min-height:36px" onclick="_openDatePicker('add-purchase-date')">
+                <div id="add-purchase-date-display" style="font-family:'Inter',sans-serif;font-size:15px;color:#9CA3AF;min-height:24px;line-height:1.6;pointer-events:none">날짜 선택</div>
+                <input id="add-purchase-date" type="date" style="position:absolute;inset:0;width:100%;height:100%;opacity:0.01;cursor:pointer;font-size:16px" onchange="_syncDateDisp('add-purchase-date','add-purchase-date-display')" />
+              </div>
             </div>
-            <div style="display:flex;align-items:center;gap:16px;margin-top:8px">
-              <input id="add-purchase-date" type="date" style="flex:1;border:none;border-bottom:1px solid #6B7280;padding:4px 0;background:transparent;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;outline:none" />
+            <div>
+              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">SET EXPIRY</div>
+              <div style="position:relative;border-bottom:1px solid #6B7280;padding:4px 0;cursor:pointer;min-height:36px" onclick="_openDatePicker('add-expiry')">
+                <div id="add-expiry-display" style="font-family:'Inter',sans-serif;font-size:15px;color:#9CA3AF;min-height:24px;line-height:1.6;pointer-events:none">날짜 선택</div>
+                <input id="add-expiry" type="date" style="position:absolute;inset:0;width:100%;height:100%;opacity:0.01;cursor:pointer;font-size:16px" onchange="_syncDateDisp('add-expiry','add-expiry-display')" />
+              </div>
             </div>
-          </div>
-
-          <!-- SOURCE (bordered box) -->
-          <div style="margin-bottom:8px">
-            <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">SOURCE</div>
-            <input id="add-source" style="width:100%;border:1px solid #C5C6CA;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#0C1014;padding:11px 12px;height:48px;transition:border-color .2s" placeholder="뷰티지아나 공구" />
-          </div>
-
-          <!-- BRAND NAME (underline) -->
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
-            <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">BRAND NAME</div>
-            <input id="add-brand" class="add-underline-input" placeholder="뷰티지아나" style="border-bottom:1px solid #C5C6CA;height:42px;padding:8px 0 4px 10px;font-size:18px" />
           </div>
 
           <!-- PRODUCT NAME (underline) -->
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
             <div style="display:flex;justify-content:space-between">
               <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PRODUCT NAME</div>
               <div style="font-family:'Inter',sans-serif;font-size:10px;color:#44474A;opacity:.7">*필수</div>
             </div>
             <input id="add-name" class="add-underline-input" placeholder="제품명" style="border-bottom:1px solid #C5C6CA;height:42px;padding:8px 0 4px 10px;font-size:18px" />
+          </div>
+
+          <!-- PRICE -->
+          <div style="margin-bottom:16px">
+            <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">PRICE</div>
+            <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px;gap:8px">
+              <span style="font-family:'Inter',sans-serif;font-size:18px;color:#44474A">₩</span>
+              <input id="add-price" type="text" inputmode="numeric" pattern="[0-9,]*" oninput="formatPriceInput(this)" style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" placeholder="0" />
+            </div>
+          </div>
+
+          <!-- BRAND NAME + SOURCE (1열 2컬럼) -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">BRAND NAME</div>
+              <input id="add-brand" class="add-underline-input" placeholder="뷰티지아나" style="border-bottom:1px solid #C5C6CA;height:42px;padding:8px 0 4px 10px;font-size:15px" />
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">SOURCE</div>
+              <input id="add-source" class="add-underline-input" placeholder="공구/매장" style="border-bottom:1px solid #C5C6CA;height:42px;padding:8px 0 4px 10px;font-size:15px" />
+            </div>
+          </div>
+
+          <!-- PURCHASE URL -->
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PURCHASE URL</div>
+              <svg width="20" height="10" viewBox="0 0 24 12" fill="#44474A"><path d="M3.9 6c0-1.71 1.39-3.1 3.1-3.1h4V1H7C4.24 1 2 3.24 2 6s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 7h8V5H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V11h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+            </div>
+            <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px">
+              <input id="add-purchase-url" style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" placeholder="aesop.com" />
+            </div>
           </div>
         </div>
       </div>
@@ -1665,15 +1745,13 @@ body{
 
       <!-- FASHION fields -->
       <div id="step3-fashion" style="display:none;border-top:1px solid #C5C6CA;padding-top:20px;margin-top:4px">
-        <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">SCENE TAGS</div>
-        <div class="add-scene-tags" id="add-scene-tags">
-          <button class="add-scene-tag" data-tag="출근" onclick="toggleSceneTag(this)">출근</button>
-          <button class="add-scene-tag" data-tag="결혼식" onclick="toggleSceneTag(this)">결혼식</button>
-          <button class="add-scene-tag" data-tag="운동" onclick="toggleSceneTag(this)">운동</button>
-          <button class="add-scene-tag" data-tag="캐주얼" onclick="toggleSceneTag(this)">캐주얼</button>
-          <button class="add-scene-tag" data-tag="데이트" onclick="toggleSceneTag(this)">데이트</button>
-          <button class="add-scene-tag" data-tag="여행" onclick="toggleSceneTag(this)">여행</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A">SCENE TAGS</div>
+          <button onclick="openSceneTagManage()" style="width:20px;height:20px;background:#18181B;border:none;cursor:pointer;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="태그 관리">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+          </button>
         </div>
+        <div class="add-scene-tags" id="add-scene-tags"></div>
         <div style="margin-top:16px">
           <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">MATERIAL</div>
           <input class="add-underline-input" id="add-material" placeholder="예: 코튼, 린넨, 울" style="border-bottom:1px solid #C5C6CA" />
@@ -1701,128 +1779,137 @@ body{
         </div>
       </div>
 
+      <!-- Makeup fields -->
+      <div id="step3-makeup" style="display:none;border-top:1px solid #C5C6CA;padding-top:20px;margin-top:4px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A">SCENE TAGS</div>
+          <button onclick="openSceneTagManage()" style="width:20px;height:20px;background:#18181B;border:none;cursor:pointer;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="태그 관리">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+          </button>
+        </div>
+        <div class="add-scene-tags" id="add-makeup-scene-tags"></div>
+        <div style="margin-top:16px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">SPECIAL NOTE</div>
+          <textarea class="add-notes" id="add-makeup-special-note" placeholder="보존 상태, 사용감 메모 등…" rows="3"></textarea>
+        </div>
+      </div>
+
       <!-- Separator -->
       <div style="border-top:1px solid rgba(197,198,202,.3)"></div>
 
-      <!-- STOCK + EXPIRY (beauty only) -->
+      <!-- STOCK + USAGE (beauty skincare only) -->
       <div id="step3-beauty" style="display:flex;flex-direction:column;gap:0;padding-top:20px">
+        <div class="add-newsreader-sub" style="margin-bottom:16px">Asset Count</div>
 
-        <!-- ── Layer 1: 재고 도트 ── -->
+        <!-- GROUP 2: 수량 구조 -->
         <div style="margin-bottom:24px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <div>
-              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">총 재고</div>
-              <div style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-top:2px">보유 중인 개수 (Layer 1)</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:14px">수량 구조</div>
+          <!-- 패키지 수 + 수량 — 2열 1행 -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <!-- 패키지 수 (박스) -->
+            <div style="min-width:0;overflow:hidden">
+              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">패키지 수 · 박스</div>
+              <div style="border-bottom:1.5px solid #C5C6CA;padding-bottom:4px">
+                <input id="add-pkg-count" type="number" min="1" value="1" oninput="updateQuantityCalc()"
+                  style="width:100%;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:20px;color:#1A1C1C;outline:none;padding:4px 0;text-align:center" />
+              </div>
             </div>
-            <div style="display:flex;align-items:center;gap:6px">
-              <button type="button" onclick="adjustStock(-1)" style="width:28px;height:28px;border:1px solid #C5C6CA;background:transparent;font-size:17px;color:#44474A;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:4px;line-height:1">−</button>
-              <span style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#0C1014;min-width:28px;text-align:center" id="add-qty-num">1</span>
-              <button type="button" onclick="adjustStock(1)" style="width:28px;height:28px;border:1px solid #C5C6CA;background:transparent;font-size:17px;color:#44474A;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:4px;line-height:1">+</button>
+            <!-- 수량 -->
+            <div style="min-width:0;overflow:hidden">
+              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">수량 · 개</div>
+              <div style="border-bottom:1.5px solid #C5C6CA;padding-bottom:4px">
+                <input id="add-unit-per" type="number" min="1" value="1" oninput="updateQuantityCalc()"
+                  style="width:100%;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:20px;color:#1A1C1C;outline:none;padding:4px 0;text-align:center" />
+              </div>
             </div>
           </div>
-          <!-- Dot visualizer -->
-          <div id="add-qty-dots" style="display:flex;gap:5px;flex-wrap:wrap;min-height:12px"></div>
-          <div style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-top:6px">잔량 0% → 재고 자동 −1 후 새 제품으로 리셋</div>
-        </div>
-
-        <!-- ── Layer 2: 잔량 추적 ── -->
-
-        <!-- EXPIRATION DATE -->
-        <div style="margin-bottom:0">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">EXPIRATION DATE</div>
-            <svg width="18" height="20" viewBox="0 0 24 24" fill="#44474A"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>
-          </div>
-          <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px">
-            <input id="add-expiry" type="date" style="flex:1;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;outline:none;padding:4px 0" />
+          <!-- 총 수량 미리보기 -->
+          <div id="qty-calc-preview" style="display:flex;align-items:center;gap:6px;background:#F5F5F3;border-radius:6px;padding:9px 12px">
+            <span style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF">총 수량</span>
+            <span id="qty-calc-total" style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#0C1014;margin-left:auto">1개</span>
           </div>
         </div>
 
-        <!-- ── Layer 2: 잔량 추적 ── -->
-        <div style="margin-top:0">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:2px">잔량 추적 방식</div>
-          <div style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-bottom:10px">1개 소모 후 자동 리셋 (Layer 2)</div>
-          <div class="add-res-mode-row">
-            <button class="add-res-tab active" id="add-res-tab-count" type="button" onclick="pickResMode('count')">횟수 기반</button>
-            <button class="add-res-tab" id="add-res-tab-period" type="button" onclick="pickResMode('period')">날짜 기반</button>
-            <button class="add-res-tab" id="add-res-tab-none" type="button" onclick="pickResMode('none')">미설정</button>
-          </div>
-          <!-- count mode -->
-          <div id="add-res-count" style="display:flex;flex-direction:column;gap:14px">
+        <!-- 사용 기간: 시작일 + 분량 -->
+        <div style="margin-bottom:24px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:12px">사용 기간</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px">
             <div>
-              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:4px">1개당 총 사용 횟수</div>
-              <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px;gap:4px">
-                <input id="add-res-total" type="number" min="1" value="100"
-                  style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" oninput="updateResPreview()" />
-                <span style="font-family:'Inter',sans-serif;font-size:12px;color:#44474A">회</span>
+              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:4px">시작일</div>
+              <div style="position:relative;border-bottom:1.5px solid #C5C6CA;padding:4px 0;cursor:pointer;min-height:32px" onclick="_openDatePicker('add-start-date')">
+                <div id="add-start-date-display" style="font-family:'Inter',sans-serif;font-size:14px;color:#9CA3AF;min-height:22px;line-height:1.6;pointer-events:none">0000.00.00</div>
+                <input id="add-start-date" type="date" style="position:absolute;inset:0;width:100%;height:100%;opacity:0.01;cursor:pointer;font-size:16px" onchange="_syncDateDisp('add-start-date','add-start-date-display');updateUsagePreview()" oninput="_syncDateDisp('add-start-date','add-start-date-display');updateUsagePreview()" />
               </div>
             </div>
             <div>
-              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:4px">1회 사용량</div>
-              <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px;gap:4px">
-                <input id="add-res-per" type="number" min="1" value="1"
-                  style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" oninput="updateResPreview()" />
-                <span style="font-family:'Inter',sans-serif;font-size:12px;color:#44474A">회</span>
-              </div>
-            </div>
-            <!-- 잔량 바 미리보기 -->
-            <div>
-              <div style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-bottom:6px">잔량 바 미리보기 (처음 등록 시 100%)</div>
-              <div style="height:4px;background:#E5E7EB;border-radius:2px;overflow:hidden">
-                <div id="add-res-bar" style="height:100%;width:100%;background:#0C1014;border-radius:2px;transition:width .3s"></div>
-              </div>
-              <div id="add-res-preview-text" style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-top:4px;text-align:right">100회 ÷ 1회 = 100회 사용 후 자동 −1</div>
+              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:4px">분량</div>
+              <input id="add-duration-value" type="number" min="0" value="0" oninput="updateUsagePreview()"
+                style="width:100%;border:none;border-bottom:1.5px solid #C5C6CA;background:transparent;font-family:'Inter',sans-serif;font-size:20px;color:#1A1C1C;outline:none;padding:4px 0;text-align:center" />
             </div>
           </div>
-          <!-- period mode -->
-          <div id="add-res-period" style="display:none;flex-direction:column;gap:14px">
-            <div>
-              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:4px">개봉일</div>
-              <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px">
-                <input id="add-res-open" type="date"
-                  style="flex:1;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;outline:none;padding:4px 0" oninput="updateResPreview()" />
-              </div>
-            </div>
-            <div>
-              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:4px">유효 기간</div>
-              <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px;gap:4px">
-                <input id="add-res-days" type="number" min="1" value="60"
-                  style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" oninput="updateResPreview()" />
-                <span style="font-family:'Inter',sans-serif;font-size:12px;color:#44474A">일</span>
-              </div>
-            </div>
-            <!-- 날짜 미리보기 -->
-            <div>
-              <div style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-bottom:6px">잔량 바 미리보기</div>
-              <div style="height:4px;background:#E5E7EB;border-radius:2px;overflow:hidden">
-                <div id="add-res-period-bar" style="height:100%;width:100%;background:#0C1014;border-radius:2px;transition:width .3s"></div>
-              </div>
-              <div id="add-res-period-text" style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-top:4px;text-align:right">오늘 개봉 기준 100%</div>
-            </div>
+          <div style="display:flex;gap:6px" id="duration-unit-group">
+            <button class="freq-pill active" data-unit="개월" onclick="pickDurationUnit(this,'개월')">개월</button>
+            <button class="freq-pill" data-unit="주일" onclick="pickDurationUnit(this,'주일')">주일</button>
+            <button class="freq-pill" data-unit="일" onclick="pickDurationUnit(this,'일')">일</button>
           </div>
         </div>
-      </div>
 
-      <!-- PRICE -->
-      <div style="padding-top:8px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PRICE</div>
+        <!-- GROUP 3: 사용 패턴 -->
+        <div style="margin-bottom:24px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:2px">사용 패턴</div>
+          <div style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-bottom:14px">소진 예측에 사용됩니다</div>
+          <!-- 하루 횟수 -->
+          <div style="margin-bottom:14px">
+            <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">하루 횟수</div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap" id="uses-per-day-group">
+              <button class="freq-pill active" onclick="pickUsesPerDay(this,1)">1회</button>
+              <button class="freq-pill" onclick="pickUsesPerDay(this,2)">2회</button>
+              <button class="freq-pill" onclick="pickUsesPerDay(this,3)">3회</button>
+              <button class="freq-pill" onclick="pickUsesPerDay(this,4)">4+회</button>
+            </div>
+          </div>
+          <!-- 사용 주기 -->
+          <div style="margin-bottom:14px">
+            <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">사용 주기</div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap" id="frequency-group">
+              <button class="freq-pill active" onclick="pickFrequency(this,'매일',7)">매일</button>
+              <button class="freq-pill" onclick="pickFrequency(this,'주중',5)">주중</button>
+              <button class="freq-pill" onclick="pickFrequency(this,'격일',3.5)">격일</button>
+              <button class="freq-pill" onclick="pickFrequency(this,'주3회',3)">주3회</button>
+              <button class="freq-pill" onclick="pickFrequency(this,'불규칙',0)">불규칙</button>
+            </div>
+          </div>
+          <!-- 예상 소진 미리보기 -->
+          <div id="usage-preview-card" style="background:#F5F5F3;border-radius:8px;padding:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF">예상 소진</span>
+              <span id="usage-preview-date" style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#0C1014">0000.00.00</span>
+            </div>
+            <div style="height:3px;background:#E5E7EB;border-radius:2px;overflow:hidden">
+              <div id="usage-preview-bar" style="height:100%;width:100%;background:#0C1014;border-radius:2px;transition:width .3s"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:5px">
+              <span id="usage-preview-days" style="font-family:'Inter',sans-serif;font-size:9px;color:#9CA3AF">— 일 남음</span>
+              <span id="usage-preview-daily" style="font-family:'Inter',sans-serif;font-size:9px;color:#9CA3AF">일 소비: —회</span>
+            </div>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px;gap:8px">
-          <span style="font-family:'Inter',sans-serif;font-size:18px;color:#44474A">₩</span>
-          <input id="add-price" type="text" inputmode="numeric" pattern="[0-9,]*" oninput="formatPriceInput(this)" style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" placeholder="0" />
-        </div>
-      </div>
 
-      <!-- SOURCE URL -->
-      <div style="padding-top:8px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">SOURCE</div>
-          <svg width="20" height="10" viewBox="0 0 24 12" fill="#44474A"><path d="M3.9 6c0-1.71 1.39-3.1 3.1-3.1h4V1H7C4.24 1 2 3.24 2 6s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 7h8V5H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V11h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+        <!-- GROUP 4: 현재 잔량 (개수 기반) -->
+        <div style="margin-bottom:24px">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:2px">현재 잔량</div>
+          <div style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-bottom:10px">기본값: 총 수량 (새 제품이면 수정 불필요)</div>
+          <div style="display:flex;align-items:center;gap:8px;border-bottom:1.5px solid #C5C6CA;padding-bottom:4px;margin-bottom:10px">
+            <input id="add-remaining" type="number" min="0" step="1" value="1" oninput="this.dataset.userEdited='1';updateRemainingPreview()"
+              style="flex:1;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:22px;font-weight:600;color:#1A1C1C;outline:none;padding:4px 0" />
+            <span style="font-family:'Inter',sans-serif;font-size:14px;color:#44474A;flex-shrink:0">개</span>
+          </div>
+          <div style="height:4px;background:#E5E7EB;border-radius:2px;overflow:hidden">
+            <div id="add-remaining-bar" style="height:100%;width:100%;background:#0C1014;border-radius:2px;transition:width .3s"></div>
+          </div>
+          <div id="add-remaining-pct" style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;text-align:right;margin-top:4px">100%</div>
         </div>
-        <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px">
-          <input id="add-purchase-url" style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" placeholder="aesop.com" />
-        </div>
+
       </div>
 
       <!-- STORAGE VIEW section -->
@@ -1849,16 +1936,20 @@ body{
         </div>
         <div id="add-storage-error" style="display:none;font-family:'Inter',sans-serif;font-size:10px;color:var(--error);font-weight:600;letter-spacing:.04em">★ Storage Photo를 추가하세요</div>
 
-        <!-- Location text input -->
+        <!-- Location picker button -->
         <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">위치 입력</div>
-          <input class="add-underline-input" id="add-location" placeholder="예: 안방 드레스룸 A-1" oninput="apUpdateLocation()" style="border-bottom:1px solid #C5C6CA;font-size:16px" />
+          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">보관 위치</div>
+          <button type="button" onclick="openLocPicker()" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;border-bottom:1px solid #C5C6CA;padding:8px 0;cursor:pointer;min-height:36px">
+            <span id="add-loc-display" style="font-family:'Inter',sans-serif;font-size:15px;color:#9CA3AF">위치 선택</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#9CA3AF"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
         </div>
       </div>
 
       <!-- SAVE CHANGES button (Figma: black bg, 44px height, letter-spacing 1.2px) -->
-      <div style="padding:48px 0 0">
+      <div style="padding:48px 0 0;display:flex;flex-direction:column;gap:12px">
         <button type="button" id="add-submit-btn" class="page-save-btn" onclick="saveAsset()">저장</button>
+        <button type="button" id="add-delete-btn" onclick="_deleteEditingAsset()" style="display:none;width:100%;height:44px;border:1px solid #EF4444;background:transparent;color:#EF4444;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer">삭제</button>
       </div>
 
     </div><!-- /add-page-scroll -->
@@ -1889,6 +1980,54 @@ body{
       </div>
     </div>
 
+    <!-- Scene Tag Manage Popup -->
+    <div class="ap-cat-manage-ov" id="scene-tag-manage-ov" onclick="if(event.target===this)closeSceneTagManage()">
+      <div class="ap-cat-manage-sheet">
+        <div class="ap-cat-manage-hd">
+          <button class="ap-cat-manage-close" onclick="closeSceneTagManage()">✕</button>
+          <div class="ap-cat-manage-hd-title">Scene Tags</div>
+          <button class="ap-cat-manage-apply" onclick="closeSceneTagManage()">DONE</button>
+        </div>
+        <div class="ap-cat-manage-list" id="scene-tag-manage-list"></div>
+        <button class="ap-cat-manage-add-link" onclick="toggleSceneTagNewCard()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          Add New Tag
+        </button>
+        <div class="ap-new-cat-card" id="scene-tag-new-card" style="display:none">
+          <div class="ap-new-cat-title">New Tag</div>
+          <div class="ap-new-cat-sub">씬 태그 추가</div>
+          <input class="ap-new-cat-inp" id="scene-tag-new-inp" placeholder="예: 파티, 홈카페"
+                 onkeydown="if(event.key==='Enter')confirmNewSceneTag()">
+          <div class="ap-new-cat-inp-hint">새 태그 이름을 입력하세요</div>
+          <button class="ap-new-cat-confirm" onclick="confirmNewSceneTag()">추가</button>
+          <button class="ap-new-cat-cancel" onclick="hideSceneTagNewCard()">취소</button>
+        </div>
+      </div>
+    </div>
+    <!-- Location Picker Popup -->
+    <div class="ap-cat-manage-ov" id="loc-picker-ov" onclick="if(event.target===this)closeLocPicker()">
+      <div class="ap-cat-manage-sheet">
+        <div class="ap-cat-manage-hd">
+          <button class="ap-cat-manage-close" onclick="closeLocPicker()">✕</button>
+          <div class="ap-cat-manage-hd-title">보관 위치 선택</div>
+          <div style="width:48px"></div>
+        </div>
+        <div class="ap-cat-manage-list" id="loc-picker-list"></div>
+        <button class="ap-cat-manage-add-link" onclick="toggleLocNewCard()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          Add New Location
+        </button>
+        <div class="ap-new-cat-card" id="loc-new-card" style="display:none">
+          <div class="ap-new-cat-title">New Location</div>
+          <div class="ap-new-cat-sub">위치 추가</div>
+          <input class="ap-new-cat-inp" id="loc-new-inp" placeholder="예: 안방 화장대, 드레스룸"
+                 onkeydown="if(event.key==='Enter')confirmNewLoc()">
+          <div class="ap-new-cat-inp-hint">새 위치 이름을 입력하세요</div>
+          <button class="ap-new-cat-confirm" onclick="confirmNewLoc()">추가</button>
+          <button class="ap-new-cat-cancel" onclick="hideLocNewCard()">취소</button>
+        </div>
+      </div>
+    </div>
   </div><!-- /add-page -->
 
   <!-- ── Storage Location Detail Panel ── -->
@@ -1898,20 +2037,12 @@ body{
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       </button>
       <span class="loc-panel-title" id="loc-panel-title">Storage</span>
-      <button class="loc-panel-edit-btn" id="loc-edit-btn" onclick="toggleLocEdit()">편집</button>
+      <div style="width:40px"></div>
     </div>
     <div class="loc-panel-scroll" id="loc-panel-scroll">
       <!-- Hero photo -->
-      <div class="loc-hero" id="loc-hero" onclick="changeLocPhoto()">
-        <div class="storage-edit-hint"><span>CHANGE PHOTO</span></div>
-      </div>
-      <!-- Edit section (hidden by default) -->
-      <div class="loc-edit-section" id="loc-edit-section" style="display:none">
-        <input class="loc-name-inp" id="loc-name-inp" placeholder="위치 이름 (예: 안방 화장대)">
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button class="loc-save-btn" onclick="saveLocName()">저장</button>
-          <button class="loc-del-btn" onclick="deleteLocConfirm()">위치 삭제</button>
-        </div>
+      <div class="loc-hero" id="loc-hero">
+        <div class="storage-edit-hint" style="display:none"><span>CHANGE PHOTO</span></div>
       </div>
       <!-- Stats bar -->
       <div class="loc-stats-bar" id="loc-stats"></div>
@@ -1926,10 +2057,68 @@ body{
         <button class="loc-load-more-btn" onclick="loadMoreLocItems()">더 보기 (<span id="loc-more-count">0</span>개)</button>
       </div>
     </div>
-    <!-- Add here button -->
+    <!-- Bottom buttons -->
     <div class="loc-add-here-wrap">
-      <button class="loc-add-here-btn" onclick="openAddAtLoc()">+ 이 위치에 제품 추가</button>
+      <button class="loc-add-here-btn" onclick="openLocProductPicker()" id="loc-link-btn">+ 이 위치에 제품 추가</button>
+      <button id="loc-edit-btn" onclick="openLocEditSheet()" style="width:100%;height:40px;background:transparent;border:1px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--sub);cursor:pointer">편집</button>
     </div>
+
+    <!-- 위치 편집 바텀시트 (loc-panel 내부) -->
+    <div id="loc-edit-ov" style="display:none;position:absolute;inset:0;z-index:100;background:rgba(0,0,0,.45);align-items:flex-end" onclick="if(event.target===this)closeLocEditSheet()">
+      <div style="width:100%;background:#fff;border-radius:16px 16px 0 0">
+        <div style="display:flex;justify-content:center;padding:12px 0 4px">
+          <div style="width:36px;height:4px;background:#E5E7EB;border-radius:2px"></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px 16px">
+          <span style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;color:#1A1C1C">위치 편집</span>
+          <button onclick="closeLocEditSheet()" style="width:32px;height:32px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6B7280">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div style="padding:0 20px 16px">
+          <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9CA3AF;margin-bottom:8px">위치 이름</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="loc-name-inp" class="loc-name-inp" placeholder="예: 안방 화장대" style="flex:1">
+            <button onclick="saveLocName()" style="height:44px;padding:0 18px;background:#1A1C1C;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">저장</button>
+          </div>
+        </div>
+        <div style="padding:0 20px 16px">
+          <button onclick="changeLocPhoto()" style="width:100%;height:44px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#44474A;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            사진 변경
+          </button>
+        </div>
+        <div id="loc-edit-del-wrap" style="border-top:1px solid #F3F4F6;padding:12px 20px 24px">
+          <div id="loc-del-step1">
+            <button onclick="showLocDelConfirm()" style="width:100%;height:44px;background:transparent;border:1px solid #EF4444;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:#EF4444;cursor:pointer">위치 삭제</button>
+          </div>
+          <div id="loc-del-step2" style="display:none">
+            <div style="font-family:'Inter',sans-serif;font-size:12px;color:#991B1B;margin-bottom:10px;line-height:1.5">이 위치의 제품들은 '위치 미지정'으로 변경됩니다. 삭제할까요?</div>
+            <div style="display:flex;gap:8px">
+              <button onclick="executeDeleteLoc()" style="flex:1;height:44px;background:#EF4444;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer">삭제 확인</button>
+              <button onclick="hideLocDelConfirm()" style="flex:1;height:44px;background:transparent;color:#6B7280;border:1px solid #D1D5DB;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer">취소</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 제품 불러오기 피커 (loc-panel 내부) -->
+    <div id="loc-product-picker-ov" style="display:none;position:absolute;inset:0;z-index:100;background:rgba(0,0,0,.45);align-items:flex-end" onclick="if(event.target===this)closeLocProductPicker()">
+    <div style="width:100%;max-height:75vh;background:#fff;border-radius:16px 16px 0 0;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #F3F4F6;flex-shrink:0">
+        <button onclick="closeLocProductPicker()" style="width:32px;height:32px;background:none;border:none;cursor:pointer;font-size:16px;color:#6B7280">✕</button>
+        <span style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em">제품 불러오기</span>
+        <div style="width:32px"></div>
+      </div>
+      <div style="padding:10px 16px;border-bottom:1px solid #F3F4F6;flex-shrink:0">
+        <input type="search" id="loc-product-search" placeholder="제품명 검색..." oninput="renderLocProductPickerList()"
+          style="width:100%;height:36px;border:1px solid #E5E7EB;border-radius:20px;padding:0 14px;font-family:'Inter',sans-serif;font-size:13px;outline:none;background:#F9FAFB">
+      </div>
+      <div id="loc-product-picker-list" style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch"></div>
+    </div>
+  </div>
+
   </div><!-- /loc-panel -->
 
   <!-- Category Manage Sheet -->
@@ -2001,6 +2190,20 @@ firebase.initializeApp({
 });
 const fbAuth = firebase.auth();
 const fbDb   = firebase.firestore();
+const fmtDate = d => (d||'').replace(/-/g,'.');
+function _syncDateDisp(inputId, displayId) {
+  const v  = document.getElementById(inputId)?.value;
+  const el = document.getElementById(displayId);
+  if (!el) return;
+  const empty = displayId === 'add-start-date-display' ? '0000.00.00' : '';
+  el.textContent = v ? fmtDate(v) : empty;
+  el.style.color = v ? '#1A1C1C' : '#9CA3AF';
+}
+function _openDatePicker(id) {
+  const input = document.getElementById(id);
+  if (!input) return;
+  try { input.showPicker(); } catch(e) { input.focus(); input.click(); }
+}
 let currentUser = null;
 let _unsubBox = null;
 firebase.auth().onAuthStateChanged(u => {
@@ -2017,8 +2220,20 @@ firebase.auth().onAuthStateChanged(u => {
         const localTs = parseInt(localStorage.getItem('_onstep_box_local_ts') || '0');
         const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
         if (cloudTs >= localTs - 3000) {
-          if (d.assets)    localStorage.setItem(ASSETS_KEY, JSON.stringify(d.assets));
-          if (d.locations) localStorage.setItem(LOCS_KEY,   JSON.stringify(d.locations));
+          if (d.assets) {
+            const localAssets = JSON.parse(localStorage.getItem(ASSETS_KEY)||'[]');
+            localStorage.setItem(ASSETS_KEY, JSON.stringify(d.assets.map(ca => {
+              const la = localAssets.find(a => a.id === ca.id);
+              return {...ca, imgData: la?.imgData||null, storageImgData: la?.storageImgData||null};
+            })));
+          }
+          if (d.locations) {
+            const localLocs = JSON.parse(localStorage.getItem(LOCS_KEY)||'[]');
+            localStorage.setItem(LOCS_KEY, JSON.stringify(d.locations.map(cl => {
+              const ll = localLocs.find(l => (l.key||l.id) === (cl.key||cl.id));
+              return {...cl, imgData: ll?.imgData||null};
+            })));
+          }
           if (d.boxCats) {
             if (d.boxCats.beauty)  BEAUTY_CATS  = d.boxCats.beauty;
             if (d.boxCats.fashion) FASHION_CATS = d.boxCats.fashion;
@@ -2030,8 +2245,14 @@ firebase.auth().onAuthStateChanged(u => {
             localStorage.setItem(CUSTOM_LABELS_KEY, JSON.stringify(merged));
             Object.assign(CAT_LABELS, merged);
           }
+          if (d.sceneTags && d.sceneTags.length) {
+            SCENE_TAGS = d.sceneTags;
+            localStorage.setItem('onstep_scene_tags', JSON.stringify(SCENE_TAGS));
+          }
         }
+        _reconcileOrphanCats();
         setDomain(curDomain || 'beauty');
+        renderNewCatChips();
       }, e => console.warn('Box onSnapshot:', e));
   }
 });
@@ -2050,8 +2271,20 @@ document.addEventListener('visibilitychange', async () => {
     const localTs = parseInt(localStorage.getItem('_onstep_box_local_ts') || '0');
     const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
     if (cloudTs >= localTs - 3000) {
-      if (d.assets)    localStorage.setItem(ASSETS_KEY, JSON.stringify(d.assets));
-      if (d.locations) localStorage.setItem(LOCS_KEY,   JSON.stringify(d.locations));
+      if (d.assets) {
+        const localAssets = JSON.parse(localStorage.getItem(ASSETS_KEY)||'[]');
+        localStorage.setItem(ASSETS_KEY, JSON.stringify(d.assets.map(ca => {
+          const la = localAssets.find(a => a.id === ca.id);
+          return {...ca, imgData: la?.imgData||null, storageImgData: la?.storageImgData||null};
+        })));
+      }
+      if (d.locations) {
+        const localLocs = JSON.parse(localStorage.getItem(LOCS_KEY)||'[]');
+        localStorage.setItem(LOCS_KEY, JSON.stringify(d.locations.map(cl => {
+          const ll = localLocs.find(l => l.id === cl.id);
+          return {...cl, imgData: ll?.imgData||null};
+        })));
+      }
       if (d.boxCats) {
         if (d.boxCats.beauty)  BEAUTY_CATS  = d.boxCats.beauty;
         if (d.boxCats.fashion) FASHION_CATS = d.boxCats.fashion;
@@ -2063,7 +2296,13 @@ document.addEventListener('visibilitychange', async () => {
         localStorage.setItem(CUSTOM_LABELS_KEY, JSON.stringify(merged));
         Object.assign(CAT_LABELS, merged);
       }
+      if (d.sceneTags && d.sceneTags.length) {
+        SCENE_TAGS = d.sceneTags;
+        localStorage.setItem('onstep_scene_tags', JSON.stringify(SCENE_TAGS));
+      }
+      _reconcileOrphanCats();
       setDomain(curDomain || 'beauty');
+      renderNewCatChips();
     }
   } catch(e) { console.warn('Box resync:', e); }
 });
@@ -2078,9 +2317,26 @@ async function saveBoxToCloud() {
     const locs       = JSON.parse(localStorage.getItem(LOCS_KEY)||'[]');
     const boxCats    = { beauty: BEAUTY_CATS, fashion: FASHION_CATS, acc: ACC_CATS };
     const catLabels  = JSON.parse(localStorage.getItem(CUSTOM_LABELS_KEY)||'{}');
-    await fbDb.collection('users').doc(currentUser.uid)
+    const uid = currentUser.uid;
+    const assetsForFs = await Promise.all(assets.map(async a => {
+      if (a.imgData) {
+        const {url, hash} = await ensureImgUrl(uid, a.imgData, a.storageUrl||null, a.storageHash||'', `box/assets/${a.id}.jpg`);
+        a.storageUrl = url; a.storageHash = hash;
+      }
+      return {...a, imgData: null};
+    }));
+    const locsForFs = await Promise.all(locs.map(async l => {
+      if (l.imgData) {
+        const {url, hash} = await ensureImgUrl(uid, l.imgData, l.storageUrl||null, l.storageHash||'', `box/locations/${l.id||l.key}.jpg`);
+        l.storageUrl = url; l.storageHash = hash;
+      }
+      return {...l, imgData: null};
+    }));
+    localStorage.setItem(ASSETS_KEY, JSON.stringify(assets));
+    localStorage.setItem(LOCS_KEY, JSON.stringify(locs));
+    await fbDb.collection('users').doc(uid)
       .collection('box').doc('data')
-      .set({ assets, locations: locs, boxCats, catLabels, savedAt: new Date(nowTs).toISOString() });
+      .set({ assets: assetsForFs, locations: locsForFs, boxCats, catLabels, sceneTags: SCENE_TAGS, savedAt: new Date(nowTs).toISOString() });
   } catch(e) { console.warn('Box cloud save:', e); }
 }
 
@@ -2136,12 +2392,12 @@ let curSubType     = 'skincare'; // beauty only: 'skincare'|'makeup'
 let curView        = 'magazine'; // 'magazine'|'gallery'|'list'
 let curSort        = 'added';    // 'added'|'uses'|'brand'|'price'
 let catManageType  = 'skincare'; // which type is being managed
-let addState    = { domain:'beauty', type:'skincare', catKey:null, productImgData:null, storageImgData:null, qtyTotal:1, qtyCurrent:1, sceneTags:[], materialType:null, residualMode:'none' };
+let addState    = { domain:'beauty', type:'skincare', catKey:null, productImgData:null, storageImgData:null, packageCount:1, packageUnit:'병', unitPerPackage:1, itemUnit:'ea', totalAmount:1, dosePerUse:1, usesPerDay:1, endDate:null,durationValue:4,durationUnit:'개월', frequencyType:'매일', frequencyValue:7, currentRemaining:null, sceneTags:[], materialType:null };
 
 // ── Storage ───────────────────────────────────────────────────
 function getAssets()  { return JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]'); }
 function getLocs()    { return JSON.parse(localStorage.getItem(LOCS_KEY)   || '[]'); }
-function saveAssets(a){ localStorage.setItem(ASSETS_KEY, JSON.stringify(a)); saveBoxToCloud(); }
+function saveAssets(a){ localStorage.setItem(ASSETS_KEY, JSON.stringify(a)); saveBoxToCloud(); if(typeof _broadcastState==='function') _broadcastState('box_assets'); }
 function saveLocs(l)  { localStorage.setItem(LOCS_KEY,   JSON.stringify(l)); saveBoxToCloud(); }
 
 // ── Sample data ───────────────────────────────────────────────
@@ -2155,18 +2411,17 @@ function initSampleData() {
   ];
   saveLocs(locs);
   const assets = [
-    { id:1, domain:'beauty', type:'skincare', catKey:'toner',    brand:'COSRX',   name:'AHA BHA Clarifying Toner', imgData:null, price:'₩18,000', purchaseUrl:'', expiryDate:addD(180), qtyTotal:2, qtyCurrent:2, useCount:3, lastUsed:addD(-1), addedDate:addD(-10), season:null, locKey:'loc-1',
-      residual:{mode:'count', count_based:{total_uses:120, current_uses:18, uses_per_session:1}, period_based:{open_date:addD(-10), expiry_days:180}} },
-    { id:2, domain:'beauty', type:'skincare', catKey:'serum',    brand:'Some By Mi',name:'30 Days Miracle Serum',  imgData:null, price:'₩22,000', purchaseUrl:'', expiryDate:addD(25),  qtyTotal:2, qtyCurrent:1, useCount:7, lastUsed:addD(-2), addedDate:addD(-30), season:null, locKey:'loc-1',
-      residual:{mode:'period', count_based:{total_uses:60, current_uses:28, uses_per_session:1}, period_based:{open_date:addD(-30), expiry_days:60}} },
-    { id:3, domain:'beauty', type:'skincare', catKey:'suncare',  brand:'Anessa',  name:'Perfect UV Sunscreen',     imgData:null, price:'₩36,000', purchaseUrl:'', expiryDate:addD(90),  qtyTotal:1, qtyCurrent:1, useCount:5, lastUsed:addD(-1), addedDate:addD(-5),  season:null, locKey:'loc-2',
-      residual:{mode:'count', count_based:{total_uses:80, current_uses:5, uses_per_session:1}, period_based:{open_date:addD(-5), expiry_days:90}} },
-    { id:4, domain:'beauty', type:'makeup',   catKey:'lip',      brand:'NARS',    name:'Satin Lip Pencil',         imgData:null, price:'₩32,000', purchaseUrl:'', expiryDate:addD(365), qtyTotal:1, qtyCurrent:1, useCount:2, lastUsed:addD(-5), addedDate:addD(-60), season:null, locKey:'loc-1',
-      residual:{mode:'count', count_based:{total_uses:200, current_uses:2, uses_per_session:1}, period_based:{open_date:addD(-60), expiry_days:365}} },
-    { id:5, domain:'fashion',type:null,       catKey:'outer',    brand:'ZARA',    name:'Wool Blend Coat',          imgData:null, price:'₩129,000',purchaseUrl:'', expiryDate:null,      qtyTotal:1, qtyCurrent:1, useCount:1, lastUsed:addD(-14),addedDate:addD(-90), season:'winter', locKey:'loc-1' },
-    { id:6, domain:'fashion',type:null,       catKey:'top',      brand:'COS',     name:'Relaxed Linen Shirt',      imgData:null, price:'₩59,000', purchaseUrl:'', expiryDate:null,      qtyTotal:1, qtyCurrent:1, useCount:4, lastUsed:addD(-3), addedDate:addD(-45), season:'all',   locKey:'loc-1' },
-    { id:7, domain:'acc',    type:null,       catKey:'jewelry',  brand:'AGETE',   name:'K10 Leaf Ring',            imgData:null, price:'₩185,000',purchaseUrl:'', expiryDate:null,      qtyTotal:1, qtyCurrent:1, useCount:12,lastUsed:addD(-2), addedDate:addD(-120),season:null,    locKey:'loc-1', materialType:'금', specialNote:'' },
-    { id:8, domain:'acc',    type:null,       catKey:'watch',    brand:'CASIO',   name:'Vintage A168W',            imgData:null, price:'₩49,000', purchaseUrl:'', expiryDate:null,      qtyTotal:1, qtyCurrent:1, useCount:8, lastUsed:addD(-5), addedDate:addD(-200),season:'all',   locKey:'loc-2', materialType:'플라스틱', specialNote:'' },
+    { id:1, domain:'beauty', type:'skincare', catKey:'toner',  brand:'COSRX',     name:'AHA BHA Clarifying Toner', imgData:null, price:'₩18,000', purchaseUrl:'', useCount:3, lastUsed:addD(-1), addedDate:addD(-10), locKey:'loc-1', purchaseDate:addD(-10), startDate:addD(-10), endDate:addD(110),
+      packageCount:1, packageUnit:'병', unitPerPackage:60, itemUnit:'ea', totalAmount:60, dosePerUse:1, usesPerDay:2, frequencyType:'매일', frequencyValue:7, currentRemaining:54, remainingUpdatedAt:new Date().toISOString(), usageLogs:[] },
+    { id:2, domain:'beauty', type:'skincare', catKey:'serum',  brand:'Some By Mi', name:'30 Days Miracle Serum',   imgData:null, price:'₩22,000', purchaseUrl:'', useCount:7, lastUsed:addD(-2), addedDate:addD(-30), locKey:'loc-1', purchaseDate:addD(-30), startDate:addD(-30), endDate:addD(60),
+      packageCount:1, packageUnit:'병', unitPerPackage:30, itemUnit:'ea', totalAmount:30, dosePerUse:1, usesPerDay:2, frequencyType:'매일', frequencyValue:7, currentRemaining:16, remainingUpdatedAt:new Date().toISOString(), usageLogs:[] },
+    { id:3, domain:'beauty', type:'skincare', catKey:'suncare',brand:'Anessa',    name:'Perfect UV Sunscreen',     imgData:null, price:'₩36,000', purchaseUrl:'', useCount:5, lastUsed:addD(-1), addedDate:addD(-5),  locKey:'loc-2', purchaseDate:addD(-5),  startDate:addD(-5),  endDate:addD(55),
+      packageCount:1, packageUnit:'통', unitPerPackage:20, itemUnit:'ea', totalAmount:20, dosePerUse:1, usesPerDay:1, frequencyType:'매일', frequencyValue:7, currentRemaining:19, remainingUpdatedAt:new Date().toISOString(), usageLogs:[] },
+    { id:4, domain:'beauty', type:'makeup',   catKey:'lip',    brand:'NARS',      name:'Satin Lip Pencil',         imgData:null, price:'₩32,000', purchaseUrl:'', useCount:2, lastUsed:addD(-5), addedDate:addD(-60), locKey:'loc-1', purchaseDate:addD(-60) },
+    { id:5, domain:'fashion',type:null, catKey:'outer',  brand:'ZARA',  name:'Wool Blend Coat',    imgData:null, price:'₩129,000',purchaseUrl:'', expiryDate:null, useCount:1, lastUsed:addD(-14),addedDate:addD(-90),  locKey:'loc-1', season:'winter' },
+    { id:6, domain:'fashion',type:null, catKey:'top',    brand:'COS',   name:'Relaxed Linen Shirt', imgData:null, price:'₩59,000', purchaseUrl:'', expiryDate:null, useCount:4, lastUsed:addD(-3), addedDate:addD(-45),  locKey:'loc-1', season:'all' },
+    { id:7, domain:'acc',    type:null, catKey:'jewelry',brand:'AGETE', name:'K10 Leaf Ring',       imgData:null, price:'₩185,000',purchaseUrl:'', expiryDate:null, useCount:12,lastUsed:addD(-2), addedDate:addD(-120), locKey:'loc-1', materialType:'금', specialNote:'' },
+    { id:8, domain:'acc',    type:null, catKey:'watch',  brand:'CASIO', name:'Vintage A168W',       imgData:null, price:'₩49,000', purchaseUrl:'', expiryDate:null, useCount:8, lastUsed:addD(-5), addedDate:addD(-200), locKey:'loc-2', materialType:'플라스틱', specialNote:'' },
   ];
   saveAssets(assets);
 }
@@ -2174,6 +2429,9 @@ function initSampleData() {
 // ── Domain tabs ───────────────────────────────────────────────
 function setDomain(d) {
   curDomain = d; curCat = 'all';
+  _boxSearch = '';
+  const si = document.getElementById('box-search-inp');
+  if (si) si.value = '';
   ['beauty','fashion','acc','storage'].forEach(x => {
     document.getElementById(`dtab-${x}`)?.classList.toggle('active', x===d);
   });
@@ -2229,9 +2487,26 @@ function setSort(sort) {
   renderGrid();
 }
 
+let _addLocOpen = false;
+function addNewLocation() { _addLocOpen = true; renderSpaceMap(); requestAnimationFrame(() => document.getElementById('new-loc-inp')?.focus()); }
+function cancelNewLoc()  { _addLocOpen = false; renderSpaceMap(); }
+function confirmSpaceNewLoc() {
+  const inp  = document.getElementById('new-loc-inp');
+  const name = inp?.value.trim();
+  if (!name) { inp?.focus(); return; }
+  const locs = getLocs();
+  const key  = 'loc-' + Date.now();
+  locs.push({ key, name, imgData: null });
+  localStorage.setItem(LOCS_KEY, JSON.stringify(locs));
+  saveBoxToCloud();
+  _addLocOpen = false;
+  renderSpaceMap();
+  showToast(`"${name}" 추가됨`);
+}
+
 function renderSpaceMap() {
   const assets = getAssets();
-  const locs   = getLocs();
+  const locs   = getLocs().slice().sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));
   const map    = document.getElementById('space-map');
   if (!map) return;
 
@@ -2244,10 +2519,18 @@ function renderSpaceMap() {
     grouped[key].push(a);
   });
 
-  const addBtn = `<button class="space-add-loc-btn" onclick="addNewLocation()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    새 위치 추가
-  </button>`;
+  const addBtn = _addLocOpen
+    ? `<div style="display:flex;gap:8px;align-items:center;padding:10px 4px">
+        <input id="new-loc-inp" type="text" placeholder="예: 안방 화장대" maxlength="30"
+          style="flex:1;height:40px;border:none;border-bottom:1.5px solid #1A1C1C;background:transparent;font-family:'Inter',sans-serif;font-size:14px;outline:none;padding:0 4px"
+          onkeydown="if(event.key==='Enter')confirmSpaceNewLoc();if(event.key==='Escape')cancelNewLoc()" />
+        <button onclick="confirmSpaceNewLoc()" style="height:40px;padding:0 16px;background:#1A1C1C;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
+        <button onclick="cancelNewLoc()" style="height:40px;padding:0 12px;background:transparent;color:#9CA3AF;border:1px solid #E5E7EB;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer">취소</button>
+      </div>`
+    : `<button class="space-add-loc-btn" onclick="addNewLocation()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        새 위치 추가
+      </button>`;
 
   if (!Object.keys(grouped).length) {
     map.innerHTML = addBtn + `<div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:16px;text-align:center">위치를 추가하고 제품을 분류해보세요</div>`;
@@ -2262,7 +2545,7 @@ function renderSpaceMap() {
     const thumbsHtml = items.slice(0, 6).map(a => {
       const imgStyle = a.imgData ? `background-image:url('${a.imgData}');background-size:cover;background-position:center;` : '';
       const icon = DOMAIN_ICONS[a.domain] || '◈';
-      return `<div class="space-asset-thumb" onclick="openDetail(${a.id});event.stopPropagation()">
+      return `<div class="space-asset-thumb" onclick="openEditAsset(${a.id});event.stopPropagation()">
         <div class="space-asset-img" style="${imgStyle}">${!a.imgData ? `<span style="font-size:16px">${icon}</span>` : ''}</div>
         <div class="space-asset-name">${(a.name||'').substring(0,6)}</div>
       </div>`;
@@ -2310,11 +2593,13 @@ function openLocPanel(locKey) {
       hero.style.backgroundImage = '';
     }
   }
-  // Reset edit section
-  const editSec = document.getElementById('loc-edit-section');
-  if (editSec) editSec.style.display = 'none';
+  // 편집 시트 닫기
+  closeLocEditSheet();
+  // 미지정 위치는 제품 추가 버튼 숨김
+  const linkBtn = document.getElementById('loc-link-btn');
+  if (linkBtn) linkBtn.style.display = (locKey === '_unassigned') ? 'none' : '';
   const editBtn = document.getElementById('loc-edit-btn');
-  if (editBtn) editBtn.textContent = '편집';
+  if (editBtn) editBtn.style.display = (locKey === '_unassigned') ? 'none' : '';
   // Pre-fill name input
   const nameInp = document.getElementById('loc-name-inp');
   if (nameInp) nameInp.value = loc?.name || '';
@@ -2339,7 +2624,7 @@ function renderLocItems() {
     if ((a.locKey || '_unassigned') !== curLocKey) return false;
     if (q && !(a.name||'').toLowerCase().includes(q) && !(a.brand||'').toLowerCase().includes(q)) return false;
     return true;
-  });
+  }).sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));
 
   // Stats
   const stats = document.getElementById('loc-stats');
@@ -2364,7 +2649,7 @@ function renderLocItems() {
       const cat     = CAT_LABELS[a.catKey] || a.catKey || '—';
       const imgSt   = a.imgData ? `background-image:url(${a.imgData});background-size:cover;background-position:center;` : '';
       const icon    = DOMAIN_ICONS[a.domain] || '◈';
-      return `<div class="loc-item-row" onclick="openDetail(${a.id})">
+      return `<div class="loc-item-row" onclick="openEditAsset(${a.id})">
         <div class="loc-item-thumb" style="${imgSt}">${!a.imgData ? `<span style="font-size:18px">${icon}</span>` : ''}</div>
         <div style="flex:1;min-width:0">
           <div class="loc-item-brand">${a.brand||''}</div>
@@ -2387,57 +2672,137 @@ function renderLocItems() {
 
 function loadMoreLocItems() { locOffset += LOC_PAGE; renderLocItems(); }
 
-function toggleLocEdit() {
-  const sec = document.getElementById('loc-edit-section');
-  const btn = document.getElementById('loc-edit-btn');
-  if (!sec) return;
-  const opening = sec.style.display === 'none';
-  sec.style.display = opening ? 'block' : 'none';
-  if (btn) btn.textContent = opening ? '완료' : '편집';
+function openLocEditSheet() {
+  const locs = getLocs();
+  const loc  = locs.find(l => l.key === curLocKey);
+  const inp  = document.getElementById('loc-name-inp');
+  if (inp) inp.value = loc?.name || '';
+  hideLocDelConfirm();
+  // 미지정 위치는 삭제 불가
+  const delWrap = document.getElementById('loc-edit-del-wrap');
+  if (delWrap) delWrap.style.display = curLocKey === '_unassigned' ? 'none' : '';
+  const ov = document.getElementById('loc-edit-ov');
+  if (ov) ov.style.display = 'flex';
+}
+function closeLocEditSheet() {
+  const ov = document.getElementById('loc-edit-ov');
+  if (ov) ov.style.display = 'none';
+  hideLocDelConfirm();
+}
+function showLocDelConfirm() {
+  document.getElementById('loc-del-step1').style.display = 'none';
+  document.getElementById('loc-del-step2').style.display = '';
+}
+function hideLocDelConfirm() {
+  const s1 = document.getElementById('loc-del-step1');
+  const s2 = document.getElementById('loc-del-step2');
+  if (s1) s1.style.display = '';
+  if (s2) s2.style.display = 'none';
+}
+function executeDeleteLoc() {
+  const key  = curLocKey;
+  if (!key || key === '_unassigned') return;
+  const locs    = getLocs();
+  const loc     = locs.find(l => l.key === key);
+  const locName = loc?.name || '위치';
+  // Unassign products from this location
+  const assets = getAssets();
+  assets.forEach(a => { if (a.locKey === key) a.locKey = null; });
+  // Update both localStorage keys atomically then single cloud save
+  localStorage.setItem(ASSETS_KEY, JSON.stringify(assets));
+  localStorage.setItem(LOCS_KEY,   JSON.stringify(locs.filter(l => l.key !== key)));
+  saveBoxToCloud();
+  closeLocEditSheet();
+  closeLocPanel();
+  renderSpaceMap();
+  showToast(`"${locName}" 삭제됨`);
 }
 
 function saveLocName() {
+  const key  = curLocKey;
   const inp  = document.getElementById('loc-name-inp');
   const name = inp?.value.trim();
-  if (!name || curLocKey === '_unassigned') { showToast('위치 이름을 입력하세요'); return; }
+  if (!name || !key || key === '_unassigned') { showToast('위치 이름을 입력하세요'); return; }
   const locs = getLocs();
-  const idx  = locs.findIndex(l => l.key === curLocKey);
-  if (idx === -1) return;
-  locs[idx].name = name;
-  saveLocs(locs);
+  const idx  = locs.findIndex(l => l.key === key);
+  // race-condition guard: if snapshot wiped the loc, restore it
+  if (idx === -1) {
+    locs.push({ key, name, imgData: null });
+  } else {
+    locs[idx].name = name;
+  }
+  localStorage.setItem(LOCS_KEY, JSON.stringify(locs));
+  saveBoxToCloud();
   const title = document.getElementById('loc-panel-title');
   if (title) title.textContent = name;
-  toggleLocEdit();
+  closeLocEditSheet();
   renderSpaceMap();
   showToast(`"${name}"으로 변경됨`);
 }
 
 function changeLocPhoto() {
-  if (!curLocKey || curLocKey === '_unassigned') return;
+  const key = curLocKey;
+  if (!key || key === '_unassigned') return;
   showImgPickSheet(compressed => {
     const locs = getLocs();
-    const idx  = locs.findIndex(l => l.key === curLocKey);
+    const idx  = locs.findIndex(l => l.key === key);
     if (idx === -1) return;
     locs[idx].imgData = compressed;
-    saveLocs(locs);
+    localStorage.setItem(LOCS_KEY, JSON.stringify(locs));
+    saveBoxToCloud();
     const hero = document.getElementById('loc-hero');
     if (hero) { hero.style.backgroundImage=`url(${compressed})`;hero.style.backgroundSize='cover';hero.style.backgroundPosition='center'; }
     renderSpaceMap();
   }, 480, 0.7);
 }
 
-function deleteLocConfirm() {
-  const locs = getLocs();
-  const loc  = locs.find(l => l.key === curLocKey);
-  if (!loc) return;
-  if (!confirm(`"${loc.name}" 위치를 삭제할까요?\n이 위치의 제품들은 '위치 미지정'으로 변경됩니다.`)) return;
+function openLocProductPicker() {
+  renderLocProductPickerList();
+  const ov = document.getElementById('loc-product-picker-ov');
+  if (ov) ov.style.display = 'flex';
+  const search = document.getElementById('loc-product-search');
+  if (search) search.value = '';
+}
+function closeLocProductPicker() {
+  const ov = document.getElementById('loc-product-picker-ov');
+  if (ov) ov.style.display = 'none';
+}
+function renderLocProductPickerList() {
+  const list = document.getElementById('loc-product-picker-list');
+  if (!list) return;
+  const q = (document.getElementById('loc-product-search')?.value || '').toLowerCase();
+  const assets = getAssets().filter(a => {
+    if (a.locKey === curLocKey) return false;
+    if (q && !(a.name||'').toLowerCase().includes(q) && !(a.brand||'').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));
+  if (!assets.length) {
+    list.innerHTML = '<div style="padding:32px 20px;text-align:center;font-family:\'Inter\',sans-serif;font-size:13px;color:#9CA3AF">추가할 제품이 없습니다</div>';
+    return;
+  }
+  list.innerHTML = assets.map(a => {
+    const thumb = a.imgData ? `<div style="width:40px;height:40px;border-radius:8px;background:url(${a.imgData}) center/cover no-repeat;flex-shrink:0"></div>`
+      : `<div style="width:40px;height:40px;border-radius:8px;background:#F3F4F6;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:18px">📦</span></div>`;
+    return '<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #F3F4F6;cursor:pointer;active:background:#F9FAFB" onclick="linkProductToLoc(' + a.id + ')">'
+      + thumb
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-family:\'Inter\',sans-serif;font-size:13px;font-weight:600;color:#1A1C1C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (a.name||'') + '</div>'
+      + '<div style="font-family:\'Inter\',sans-serif;font-size:11px;color:#9CA3AF;margin-top:2px">' + (a.brand||'') + (a.brand && a.catKey ? ' · ' : '') + (a.catKey||'') + '</div>'
+      + '</div>'
+      + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'
+      + '</div>';
+  }).join('');
+}
+function linkProductToLoc(id) {
   const assets = getAssets();
-  assets.forEach(a => { if (a.locKey === curLocKey) a.locKey = null; });
+  const a = assets.find(x => x.id === id);
+  if (!a || !curLocKey || curLocKey === '_unassigned') return;
+  a.locKey = curLocKey;
   saveAssets(assets);
-  saveLocs(locs.filter(l => l.key !== curLocKey));
-  closeLocPanel();
+  closeLocProductPicker();
+  renderLocItems();
   renderSpaceMap();
-  showToast(`"${loc.name}" 삭제됨`);
+  showToast((a.name||'제품') + ' 위치 연결됨 ✓');
 }
 
 function openAddAtLoc() {
@@ -2447,21 +2812,73 @@ function openAddAtLoc() {
   closeLocPanel();
   openAdd();
   setTimeout(() => {
-    const locInput = document.getElementById('add-location');
-    if (locInput && loc) locInput.value = loc.name;
-    if (preKey) addState._presetLocKey = preKey;
+    if (preKey) {
+      addState._locKey = preKey;
+      const dispEl = document.getElementById('add-loc-display');
+      if (dispEl) { dispEl.textContent = loc ? loc.name : preKey; dispEl.style.color = '#1A1C1C'; }
+    }
   }, 200);
 }
 
-function addNewLocation() {
-  const name = prompt('새 위치 이름을 입력하세요\n(예: 안방 화장대, 드레스룸, 욕실 선반)');
-  if (!name || !name.trim()) return;
+
+// ── Location Picker (Add Product form) ───────────────────────
+function openLocPicker() {
+  renderLocPickerList();
+  document.getElementById('loc-picker-ov').classList.add('open');
+}
+function closeLocPicker() {
+  document.getElementById('loc-picker-ov').classList.remove('open');
+  hideLocNewCard();
+}
+function renderLocPickerList() {
+  const locs = getLocs().slice().sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));
+  const list = document.getElementById('loc-picker-list');
+  if (!list) return;
+  if (!locs.length) {
+    list.innerHTML = '<div style="padding:20px 24px;font-family:\'Inter\',sans-serif;font-size:13px;color:#9CA3AF;text-align:center">등록된 위치 없음</div>';
+    return;
+  }
+  list.innerHTML = locs.map(loc => {
+    const isSelected = addState._locKey === loc.key;
+    const safeName = loc.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;cursor:pointer;border-bottom:1px solid #F3F4F6;background:' + (isSelected?'#F9FAFB':'') + '" onclick="selectLocFromPicker(\'' + loc.key + '\',\'' + safeName + '\')">'
+      + '<span style="font-family:\'Inter\',sans-serif;font-size:14px;color:' + (isSelected?'#18181B':'#44474A') + ';font-weight:' + (isSelected?'600':'400') + '">' + loc.name + '</span>'
+      + (isSelected ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#18181B" stroke-width="2.5" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>' : '')
+      + '</div>';
+  }).join('');
+}
+function selectLocFromPicker(key, name) {
+  addState._locKey = key;
+  const dispEl = document.getElementById('add-loc-display');
+  if (dispEl) { dispEl.textContent = name; dispEl.style.color = '#1A1C1C'; }
+  apUpdateLocation();
+  closeLocPicker();
+}
+function toggleLocNewCard() {
+  const card = document.getElementById('loc-new-card');
+  if (!card) return;
+  card.style.display = card.style.display === 'none' ? '' : 'none';
+  if (card.style.display !== 'none') document.getElementById('loc-new-inp')?.focus();
+}
+function hideLocNewCard() {
+  const card = document.getElementById('loc-new-card');
+  if (card) card.style.display = 'none';
+  const inp = document.getElementById('loc-new-inp');
+  if (inp) inp.value = '';
+}
+function confirmNewLoc() {
+  const inp = document.getElementById('loc-new-inp');
+  const name = inp?.value.trim();
+  if (!name) return;
   const locs = getLocs();
   const key  = 'loc-' + Date.now();
-  locs.push({ key, name: name.trim(), imgData: null });
-  saveLocs(locs);
+  locs.push({ key, name, imgData: null });
+  localStorage.setItem(LOCS_KEY, JSON.stringify(locs));
+  saveBoxToCloud();
   renderSpaceMap();
-  showToast(`"${name.trim()}" 추가됨`);
+  hideLocNewCard();
+  renderLocPickerList();
+  selectLocFromPicker(key, name);
 }
 
 // ── Category chips ────────────────────────────────────────────
@@ -2479,9 +2896,9 @@ function renderCatChips() {
     if (curDomain === 'beauty' && a.type !== curSubType) return false;
     return true;
   });
-  const cats = getCurrentCats();
   const counts = {};
   allAssets.forEach(a => { counts[a.catKey] = (counts[a.catKey]||0)+1; });
+  const cats = getCurrentCats(); // _reconcileOrphanCats()가 이미 고아 키를 포함시킴
 
   row.innerHTML = [
     `<div class="cat-chip${curCat==='all'?' active':''}" onclick="setCat('all')">
@@ -2508,8 +2925,28 @@ function getFilteredAssets(domain, cat) {
   return a;
 }
 
+let _boxSearch = '';
+
+function onBoxSearch(q) {
+  _boxSearch = q.trim().toLowerCase();
+  renderGrid();
+}
+
 function getSortedFilteredAssets() {
-  let assets = [...getFilteredAssets(curDomain, curCat)];
+  let assets;
+  if (_boxSearch) {
+    // 검색 중에는 카테고리·서브타입 필터 무시하고 현재 도메인 전체에서 검색
+    let base = getAssets();
+    if (curDomain !== 'all') base = base.filter(x => x.domain === curDomain);
+    const q = _boxSearch;
+    assets = base.filter(a =>
+      (a.name||'').toLowerCase().includes(q) ||
+      (a.brand||'').toLowerCase().includes(q) ||
+      (CAT_LABELS[a.catKey]||a.catKey||'').toLowerCase().includes(q)
+    );
+  } else {
+    assets = [...getFilteredAssets(curDomain, curCat)];
+  }
   switch (curSort) {
     case 'uses':  assets.sort((a,b) => (b.useCount||0) - (a.useCount||0)); break;
     case 'brand': assets.sort((a,b) => (a.brand||'').localeCompare(b.brand||'')); break;
@@ -2517,7 +2954,7 @@ function getSortedFilteredAssets() {
       const p = s => parseInt((s+'').replace(/[^0-9]/g,''))||0;
       assets.sort((a,b) => p(b.price) - p(a.price)); break;
     }
-    default: assets.sort((a,b) => (b.id||0) - (a.id||0)); // added (newest first)
+    default: assets.sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));
   }
   return assets;
 }
@@ -2534,7 +2971,40 @@ function getExpiryInfo(asset) {
   return { pct, rem, cls, label: rem > 0 ? `${rem}d left` : 'Expired' };
 }
 
+function calcDepletionInfo(asset) {
+  if (asset.totalAmount == null || asset.currentRemaining == null) return null;
+
+  // 개수 기반(ea) + startDate + endDate: 1개당 사용 일수 기준
+  if ((asset.itemUnit === 'ea' || !asset.itemUnit) && asset.startDate && asset.endDate) {
+    const totalDays  = Math.max(1, Math.round((new Date(asset.endDate) - new Date(asset.startDate)) / 86400000));
+    const daysPerItem = totalDays / asset.totalAmount;
+    const daysLeft   = Math.max(0, Math.round(asset.currentRemaining * daysPerItem));
+    const depDate    = new Date();
+    depDate.setDate(depDate.getDate() + daysLeft);
+    const depStr     = `${depDate.getFullYear()}.${String(depDate.getMonth()+1).padStart(2,'0')}.${String(depDate.getDate()).padStart(2,'0')}`;
+    return { daysLeft, depletionDate: depStr, avgDaily: 1 / daysPerItem, expiryStatus: 'safe' };
+  }
+
+  // ml/g 기반: 사용 패턴 기준
+  const daysPerWeek = asset.frequencyValue || 0;
+  if (daysPerWeek === 0) return null;
+  const dose      = asset.dosePerUse || 1;
+  const avgDaily  = dose * (asset.usesPerDay || 1) * daysPerWeek / 7;
+  if (avgDaily <= 0) return null;
+  const daysLeft  = Math.max(0, Math.round(asset.currentRemaining / avgDaily));
+  const depDate   = new Date();
+  depDate.setDate(depDate.getDate() + daysLeft);
+  const depStr    = `${depDate.getFullYear()}.${String(depDate.getMonth()+1).padStart(2,'0')}.${String(depDate.getDate()).padStart(2,'0')}`;
+  return { daysLeft, depletionDate: depStr, avgDaily, expiryStatus: 'safe' };
+}
+
 function calcResidualPct(asset) {
+  // New schema: use currentRemaining / totalAmount
+  if (asset.totalAmount != null && asset.currentRemaining != null) {
+    const pct = Math.min(100, Math.max(0, Math.round(asset.currentRemaining / asset.totalAmount * 100)));
+    const cls = pct > 40 ? 'fresh' : pct > 15 ? 'mid' : 'low';
+    return { pct, cls };
+  }
   const r = asset.residual;
   if (!r || !r.mode || r.mode === 'none') return null;
   let pct;
@@ -2558,62 +3028,89 @@ function calcResidualPct(asset) {
 function recordUse(id) {
   const assets = getAssets();
   const a = assets.find(x => x.id === id);
-  if (!a || !a.residual) return;
+  if (!a) return;
   a.useCount = (a.useCount || 0) + 1;
   a.lastUsed = new Date().toISOString().slice(0,10);
-  const r = a.residual;
-  if (r.mode === 'count') {
-    const cb = r.count_based;
-    cb.current_uses = (cb.current_uses || 0) + (cb.uses_per_session || 1);
-    if (cb.current_uses >= cb.total_uses) {
-      // exhausted — decrement stock, reset residual
-      if (a.qtyCurrent > 1) { a.qtyCurrent--; cb.current_uses = 0; }
-      else { cb.current_uses = cb.total_uses; }
+  const today = new Date().toISOString().slice(0,10);
+
+  if (a.totalAmount != null) {
+    // New schema: decrement by dosePerUse
+    const dose = a.dosePerUse || 1;
+    a.currentRemaining = Math.max(0, (a.currentRemaining || 0) - dose);
+    a.remainingUpdatedAt = new Date().toISOString();
+    if (!a.usageLogs) a.usageLogs = [];
+    a.usageLogs.push({ date: today, amount: dose, remaining: a.currentRemaining });
+  } else if (a.residual) {
+    // Legacy schema
+    const r = a.residual;
+    if (r.mode === 'count') {
+      const cb = r.count_based;
+      cb.current_uses = (cb.current_uses || 0) + (cb.uses_per_session || 1);
+      if (cb.current_uses >= cb.total_uses) {
+        if (a.qtyCurrent > 1) { a.qtyCurrent--; cb.current_uses = 0; }
+        else { cb.current_uses = cb.total_uses; }
+      }
     }
   }
   saveAssets(assets);
-  openDetail(id);
+  renderGrid();
   showToast('사용 기록됨 ✓');
+}
+
+function adjustRemaining(id, newVal) {
+  const assets = getAssets();
+  const a = assets.find(x => x.id === id);
+  if (!a || a.totalAmount == null) return;
+  const val = parseFloat(newVal);
+  if (isNaN(val) || val < 0) return;
+  a.currentRemaining   = Math.min(a.totalAmount, val);
+  a.remainingUpdatedAt = new Date().toISOString();
+  if (!a.usageLogs) a.usageLogs = [];
+  a.usageLogs.push({ date: new Date().toISOString().slice(0,10), amount: null, remaining: a.currentRemaining, type: 'adjust' });
+  saveAssets(assets);
+  renderGrid();
+  showToast('잔량 보정됨 ✓');
+}
+
+function _cardResHtml(a) {
+  const resInfo = calcResidualPct(a);
+  if (!resInfo) {
+    return `<div class="mag-stock-row">
+      <span class="mag-stock-label">STOCK</span>
+      <span class="mag-stock-val">${a.qtyCurrent||1}/${a.qtyTotal||1}</span>
+    </div>`;
+  }
+  const dep     = calcDepletionInfo(a);
+  const remLabel = a.itemUnit === 'ea' ? `${a.currentRemaining}개` : (a.currentRemaining != null ? a.currentRemaining+(a.itemUnit||'') : resInfo.pct+'%');
+  const depLine = dep
+    ? `<span>${dep.daysLeft}일 남음${dep.expiryStatus==='warning'?' ⚠':''} · ${remLabel}</span>`
+    : `<span>${remLabel}</span>`;
+  return `<div class="res-bar"><div class="res-fill ${resInfo.cls}" style="width:${resInfo.pct}%"></div></div>
+    <div class="res-meta">${depLine}<span>${resInfo.pct}%</span></div>`;
 }
 
 function _magCard(a, isHero, isFirst) {
   const bg      = a.imgData ? `background-image:url(${a.imgData})` : '';
   const icon    = CAT_ICONS[a.catKey] || (a.domain==='beauty'?'◈':'◻');
-  const resInfo = calcResidualPct(a);
-
-  // residual bar or simple stock label
-  const resHtml = resInfo
-    ? `<div class="res-bar"><div class="res-fill ${resInfo.cls}" style="width:${resInfo.pct}%"></div></div>
-       <div class="res-meta"><span>RESIDUAL</span><span>${resInfo.pct}%</span></div>`
-    : `<div class="mag-stock-row">
-         <span class="mag-stock-label">REMAINING</span>
-         <span class="mag-stock-val">${a.qtyCurrent||0}/${a.qtyTotal||1}</span>
-       </div>`;
-
-  // stock dots (max 8)
-  const dotN = Math.min(a.qtyTotal || 1, 8);
-  const dotF = Math.round((a.qtyCurrent || 0) / (a.qtyTotal || 1) * dotN);
-  const dotsHtml = `<div class="stock-dots">${Array.from({length:dotN},(_,i)=>
-    `<span class="stock-dot${i<dotF?' filled':''}"></span>`).join('')}</div>`;
-
+  const resHtml = _cardResHtml(a);
   if (isHero) {
     const badge = isFirst ? `<div class="mag-badge">NEW ARRIVAL</div>` : '';
-    return `<div class="mag-hero-card" onclick="openDetail(${a.id})">
+    return `<div class="mag-hero-card" onclick="openEditAsset(${a.id})">
       <div class="mag-hero-img" style="${bg}">${a.imgData?'':
         `<span style="font-size:48px;opacity:.15">${icon}</span>`}${badge}</div>
       <div class="mag-hero-info">
         <div class="mag-brand">${a.brand||''}</div>
         <div class="mag-name">${a.name}</div>
-        ${resHtml}${dotsHtml}
+        ${resHtml}
       </div></div>`;
   }
-  return `<div class="mag-small-card" onclick="openDetail(${a.id})">
+  return `<div class="mag-small-card" onclick="openEditAsset(${a.id})">
     <div class="mag-small-img" style="${bg}">${a.imgData?'':
       `<span style="font-size:24px;opacity:.15">${icon}</span>`}</div>
     <div class="mag-small-info">
       <div class="mag-brand">${a.brand||''}</div>
       <div class="mag-name" style="font-size:12px">${a.name}</div>
-      ${resHtml}${dotsHtml}
+      ${resHtml}
     </div></div>`;
 }
 
@@ -2639,10 +3136,19 @@ function renderGrid() {
 }
 
 function renderMagazine(assets, grid) {
-  let html = _magCard(assets[0], true, true);
-  if (assets.length > 1) {
-    const rest = assets.slice(1).map(a => _magCard(a, false, false)).join('');
-    html += `<div class="mag-3col">${rest}</div>`;
+  // 히어로는 항상 최신 등록 제품 (addedDate 기준, 동일 날짜는 id 높은 쪽)
+  let heroIdx = 0;
+  assets.forEach((a, i) => {
+    const cur  = assets[heroIdx];
+    const da   = a.addedDate   ? new Date(a.addedDate)   : new Date(0);
+    const dh   = cur.addedDate ? new Date(cur.addedDate) : new Date(0);
+    if (da > dh || (da.getTime() === dh.getTime() && (a.id||0) > (cur.id||0))) heroIdx = i;
+  });
+  const hero = assets[heroIdx];
+  const rest = assets.filter((_, i) => i !== heroIdx);
+  let html = _magCard(hero, true, true);
+  if (rest.length) {
+    html += `<div class="mag-3col">${rest.map(a => _magCard(a, false, false)).join('')}</div>`;
   }
   grid.innerHTML = html;
 }
@@ -2656,7 +3162,7 @@ function renderGallery(assets, grid) {
       ? `<div class="gallery-res-bar"><div class="gallery-res-fill ${resInfo.cls}" style="width:${resInfo.pct}%"></div></div>
          ${resInfo.pct < 15 ? '<div class="gallery-low-badge">LOW</div>' : ''}`
       : '';
-    return `<div class="gallery-item" onclick="openDetail(${a.id})">
+    return `<div class="gallery-item" onclick="openEditAsset(${a.id})">
       <div class="gallery-bg" style="${bg}"></div>
       ${!a.imgData ? `<div class="gallery-placeholder">${icon}</div>` : ''}
       <div class="gallery-name-bar">${a.name}</div>
@@ -2675,7 +3181,8 @@ function renderList(assets, grid) {
       if (!groups[k]) groups[k] = [];
       groups[k].push(a);
     });
-    Object.entries(groups).sort(([a],[b])=>a.localeCompare(b)).forEach(([brand, items]) => {
+    Object.entries(groups).sort(([a],[b])=>a.localeCompare(b,'ko')).forEach(([brand, items]) => {
+      items.sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko'));
       html += `<div class="list-group-hd">${brand} · ${items.length}개</div>`;
       html += items.map(_listRow).join('');
     });
@@ -2686,7 +3193,8 @@ function renderList(assets, grid) {
       if (!groups[k]) groups[k] = [];
       groups[k].push(a);
     });
-    Object.entries(groups).forEach(([catKey, items]) => {
+    Object.entries(groups).sort(([a],[b])=>(CAT_LABELS[a]||a).localeCompare(CAT_LABELS[b]||b,'ko')).forEach(([catKey, items]) => {
+      items.sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko'));
       html += `<div class="list-group-hd">${(CAT_LABELS[catKey]||catKey).toUpperCase()} · ${items.length}개</div>`;
       html += items.map(_listRow).join('');
     });
@@ -2702,12 +3210,16 @@ function _listRow(a) {
     ? `<div class="list-res-bar"><div class="list-res-fill ${resInfo.cls}" style="width:${resInfo.pct}%"></div></div>
        <div class="list-res-pct">${resInfo.pct}%</div>`
     : `<div class="list-qty">${a.qtyCurrent||0}/${a.qtyTotal||1}</div>`;
-  return `<div class="list-item" onclick="openDetail(${a.id})">
+  const locName = a.locKey ? (getLocs().find(l => l.key === a.locKey)?.name || '') : '';
+  return `<div class="list-item" onclick="openEditAsset(${a.id})">
     <div class="list-thumb" style="${bg}">${!a.imgData?`<span>${icon}</span>`:''}</div>
     <div class="list-info">
       <div class="list-brand">${a.brand||''}</div>
       <div class="list-name">${a.name}</div>
-      <div class="list-cat-tag">${(CAT_LABELS[a.catKey]||a.catKey||'').toUpperCase()}</div>
+      <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:2px">
+        <div class="list-cat-tag">${(CAT_LABELS[a.catKey]||a.catKey||'').toUpperCase()}</div>
+        ${locName ? `<div class="list-cat-tag" style="background:#E8F0FE;color:#3B5998">📍 ${locName}</div>` : ''}
+      </div>
       ${(a.useCount||0)>0?`<div class="list-use-cnt">${a.useCount}회 사용</div>`:''}
     </div>
     <div class="list-res-col">${resHtml}</div>
@@ -2752,110 +3264,114 @@ function openDetail(id) {
     </div>
     <div class="expiry-meta-row" style="margin-bottom:10px">
       <div class="expiry-meta-left">${expInfo.label}</div>
-      <div class="expiry-meta-right">${expInfo.pct}% · ${asset.expiryDate}</div>
+      <div class="expiry-meta-right">${expInfo.pct}% · ${fmtDate(asset.expiryDate)}</div>
     </div>` : '';
 
   // ── Qty pips (visual only) ──
-  const qtyPipsHtml = (asset.qtyTotal > 0) ? (() => {
-    const pips   = Math.min(asset.qtyTotal, 10);
-    const filled = Math.round((asset.qtyCurrent / asset.qtyTotal) * pips);
+  const qtyPipsHtml = (asset.totalAmount > 0 && asset.currentRemaining != null) ? (() => {
+    const pips   = Math.min(asset.totalAmount, 10);
+    const filled = Math.round((asset.currentRemaining / asset.totalAmount) * pips);
     return `<div class="qty-row">${Array.from({length:pips},(_,i)=>
       `<div class="qty-pip${i<filled?' filled':''}"></div>`).join('')}</div>`;
   })() : '';
 
-  // ── Residual tracking section ──
-  const residual = asset.residual || { mode:'none', count_based:{total_uses:100,current_uses:0,uses_per_session:1}, period_based:{open_date:'',expiry_days:60} };
-  const resInfo2 = calcResidualPct(asset);
-  const resBarHtml = resInfo2 ? `
-    <div class="expiry-bar-full" style="margin-bottom:6px">
-      <div class="expiry-bar-fill ${resInfo2.cls}" style="width:${resInfo2.pct}%"></div>
-    </div>
-    <div class="expiry-meta-row" style="margin-bottom:12px">
-      <div class="expiry-meta-left">잔량 ${resInfo2.pct}%</div>
-      <div class="expiry-meta-right">${residual.mode==='count'?
-        `${residual.count_based.total_uses - residual.count_based.current_uses}회 남음`:
-        `${Math.max(0,(residual.period_based.expiry_days||0) - Math.floor((new Date()-new Date(residual.period_based.open_date))/86400000))}일 남음`}
-      </div>
-    </div>` : '';
-  const resCountHtml = `
-    <div id="res-count-fields" style="display:${residual.mode==='count'?'':'none'}">
-      <div class="det-row">
-        <div class="det-field-group">
-          <div class="det-field-label">총 사용 횟수</div>
-          <input class="det-input" id="det-res-total" type="number" min="1"
-                 value="${residual.count_based?.total_uses||100}" />
-        </div>
-        <div class="det-field-group">
-          <div class="det-field-label">사용 횟수/회차</div>
-          <input class="det-input" id="det-res-per" type="number" min="1"
-                 value="${residual.count_based?.uses_per_session||1}" />
-        </div>
-      </div>
-      <div class="det-field-group" style="margin-top:8px">
-        <div class="det-field-label">현재 사용 횟수 <span style="font-weight:400;opacity:.6">(자동 기록)</span></div>
-        <input class="det-input" id="det-res-used" type="number" min="0"
-               value="${residual.count_based?.current_uses||0}" />
-      </div>
-      <button class="res-use-btn" style="margin-top:10px;width:100%" onclick="recordUse(${id})">
-        사용 기록 +1
-      </button>
-    </div>`;
-  const resPeriodHtml = `
-    <div id="res-period-fields" style="display:${residual.mode==='period'?'':'none'}">
-      <div class="det-row">
-        <div class="det-field-group">
-          <div class="det-field-label">개봉일</div>
-          <input class="det-input" id="det-res-open" type="date"
-                 value="${residual.period_based?.open_date||''}" />
-        </div>
-        <div class="det-field-group">
-          <div class="det-field-label">유효 기간 (일)</div>
-          <input class="det-input" id="det-res-days" type="number" min="1"
-                 value="${residual.period_based?.expiry_days||60}" />
-        </div>
-      </div>
-    </div>`;
+  // ── Beauty: new schema dashboard ──
+  const isNewSchema = asset.totalAmount != null;
+  const resInfo2    = calcResidualPct(asset);
+  const depInfo     = calcDepletionInfo(asset);
 
-  const residualHtml = `
-    <div class="detail-section">
-      <div class="detail-section-label">잔량 추적</div>
-      ${resBarHtml}
-      <div class="res-mode-row">
-        <div class="res-mode-tab${residual.mode==='count'?' active':''}"
-             onclick="switchResMode(${id},'count')">사용횟수</div>
-        <div class="res-mode-tab${residual.mode==='period'?' active':''}"
-             onclick="switchResMode(${id},'period')">기간기반</div>
-        <div class="res-mode-tab${!residual.mode||residual.mode==='none'?' active':''}"
-             onclick="switchResMode(${id},'none')">미설정</div>
-      </div>
-      ${resCountHtml}
-      ${resPeriodHtml}
-    </div>`;
-
-  // ── Beauty fields ──
-  const beautyHtml = isBeauty ? `
-    <div class="detail-section">
-      <div class="detail-section-label">사용기한 · 재고</div>
-      ${expiryBarHtml}
-      <div class="det-row">
-        <div class="det-field-group">
-          <div class="det-field-label">사용기한</div>
-          <input class="det-input" id="det-expiry" type="date" value="${asset.expiryDate||''}" />
+  const beautyHtml = isBeauty ? (() => {
+    if (isNewSchema) {
+      const pct = resInfo2 ? resInfo2.pct : 100;
+      const cls = resInfo2 ? resInfo2.cls : 'fresh';
+      const isCountBased = asset.itemUnit === 'ea' || asset.itemUnit == null || asset.itemUnit === '';
+      const remDisplay  = isCountBased ? `${asset.currentRemaining}개` : `${asset.currentRemaining}${asset.itemUnit}`;
+      const totDisplay  = isCountBased ? `${asset.totalAmount}개` : `${asset.totalAmount}${asset.itemUnit}`;
+      const depLine = depInfo
+        ? `소진 예정: ${depInfo.depletionDate} (${depInfo.daysLeft}일 남음)`
+        : '사용 패턴 미설정 (소진 예측 불가)';
+      return `
+      <div class="detail-section">
+        <div class="detail-section-label">잔량 현황</div>
+        <div class="expiry-bar-full" style="margin-bottom:8px">
+          <div class="expiry-bar-fill ${cls}" style="width:${pct}%"></div>
+        </div>
+        <div class="expiry-meta-row" style="margin-bottom:6px">
+          <div class="expiry-meta-left" style="font-size:20px;font-weight:700">${remDisplay}</div>
+          <div class="expiry-meta-right">${pct}% · 총 ${totDisplay}</div>
+        </div>
+        <div style="font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-bottom:12px">${depLine}</div>
+        <div style="display:flex;gap:8px">
+          <button class="quick-btn consume" style="height:44px;flex:2;font-size:12px" onclick="recordUse(${id})">사용 −1개</button>
+          <button class="quick-btn" style="height:44px;flex:1;font-size:12px" onclick="openAdjustSheet(${id})">보정</button>
         </div>
       </div>
-      ${qtyPipsHtml}
-      <div class="det-row" style="margin-top:8px">
-        <div class="det-field-group">
-          <div class="det-field-label">현재 재고</div>
-          <input class="det-input" id="det-qty-c" type="number" value="${asset.qtyCurrent||1}" min="0" />
+      <div class="detail-section">
+        <div class="detail-section-label">수량 · 사용 패턴</div>
+        ${expiryBarHtml}
+        <div class="det-row">
+          <div class="det-field-group">
+            <div class="det-field-label">사용기한</div>
+            <input class="det-input" id="det-expiry" type="date" value="${asset.expiryDate||''}" />
+          </div>
+          <div class="det-field-group">
+            <div class="det-field-label">시작일</div>
+            <input class="det-input" id="det-start-date" type="date" value="${asset.startDate||''}" />
+          </div>
         </div>
-        <div class="det-field-group">
-          <div class="det-field-label">총 재고</div>
-          <input class="det-input" id="det-qty-t" type="number" value="${asset.qtyTotal||1}" min="1" />
+        <div class="det-row" style="margin-top:8px">
+          <div class="det-field-group">
+            <div class="det-field-label">총 수량</div>
+            <input class="det-input" id="det-total-amount" type="number" min="0" step="0.1" value="${asset.totalAmount||1}" />
+          </div>
+          <div class="det-field-group">
+            <div class="det-field-label">현재 잔량</div>
+            <input class="det-input" id="det-remaining" type="number" min="0" step="0.1" value="${asset.currentRemaining!=null?asset.currentRemaining:asset.totalAmount||1}" />
+          </div>
         </div>
-      </div>
-    </div>
-    ${residualHtml}` : '';
+        <div class="det-row" style="margin-top:8px">
+          <div class="det-field-group">
+            <div class="det-field-label">1회 사용량</div>
+            <input class="det-input" id="det-dose" type="number" min="0.1" step="0.1" value="${asset.dosePerUse||1}" />
+          </div>
+          <div class="det-field-group">
+            <div class="det-field-label">하루 횟수</div>
+            <input class="det-input" id="det-uses-per-day" type="number" min="1" value="${asset.usesPerDay||1}" />
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <div class="det-field-label" style="margin-bottom:4px">사용 주기</div>
+          <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--ink)">${asset.frequencyType||'매일'}${depInfo?` · 일 소비량 ${depInfo.avgDaily.toFixed(1)}${unit}`:''}</div>
+        </div>
+      </div>`;
+    } else {
+      // Legacy schema fallback
+      return `
+      <div class="detail-section">
+        <div class="detail-section-label">사용기한 · 재고</div>
+        ${expiryBarHtml}
+        <div class="det-row">
+          <div class="det-field-group">
+            <div class="det-field-label">사용기한</div>
+            <input class="det-input" id="det-expiry" type="date" value="${asset.expiryDate||''}" />
+          </div>
+        </div>
+        <div class="det-row" style="margin-top:8px">
+          <div class="det-field-group">
+            <div class="det-field-label">현재 재고</div>
+            <input class="det-input" id="det-qty-c" type="number" value="${asset.qtyCurrent||1}" min="0" />
+          </div>
+          <div class="det-field-group">
+            <div class="det-field-label">총 재고</div>
+            <input class="det-input" id="det-qty-t" type="number" value="${asset.qtyTotal||1}" min="1" />
+          </div>
+        </div>
+        <button class="res-use-btn" style="margin-top:10px;width:100%" onclick="recordUse(${id})">
+          사용 기록 +1
+        </button>
+      </div>`;
+    }
+  })() : '';
 
   // ── Season chips (fashion + acc) ──
   const SEASONS = ['all','spring','summer','fall','winter'];
@@ -2965,7 +3481,7 @@ function openDetail(id) {
         <div class="detail-section-label" style="margin-bottom:2px">루틴 사용 기록</div>
         <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--ink)">${asset.useCount} times</div>
       </div>
-      ${asset.lastUsed ? `<div style="font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);text-align:right">마지막 사용<br><span style="color:var(--ink);font-weight:600">${asset.lastUsed}</span></div>` : ''}
+      ${asset.lastUsed ? `<div style="font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);text-align:right">마지막 사용<br><span style="color:var(--ink);font-weight:600">${fmtDate(asset.lastUsed)}</span></div>` : ''}
     </div>` : ''}
 
     <!-- Source + Notes -->
@@ -3121,20 +3637,23 @@ function saveDetailChanges(id) {
 
   if (asset.domain === 'beauty') {
     asset.expiryDate = v('det-expiry') || null;
-    asset.qtyCurrent = parseInt(document.getElementById('det-qty-c')?.value) || asset.qtyCurrent;
-    asset.qtyTotal   = parseInt(document.getElementById('det-qty-t')?.value) || asset.qtyTotal;
-    // residual
-    if (!asset.residual) asset.residual = {mode:'none', count_based:{total_uses:100,current_uses:0,uses_per_session:1}, period_based:{open_date:'',expiry_days:60}};
-    const resTotal  = parseInt(document.getElementById('det-res-total')?.value);
-    const resPer    = parseInt(document.getElementById('det-res-per')?.value);
-    const resUsed   = parseInt(document.getElementById('det-res-used')?.value);
-    const resOpen   = document.getElementById('det-res-open')?.value;
-    const resDays   = parseInt(document.getElementById('det-res-days')?.value);
-    if (!isNaN(resTotal)) asset.residual.count_based.total_uses = resTotal;
-    if (!isNaN(resPer))   asset.residual.count_based.uses_per_session = resPer;
-    if (!isNaN(resUsed))  asset.residual.count_based.current_uses = resUsed;
-    if (resOpen)          asset.residual.period_based.open_date = resOpen;
-    if (!isNaN(resDays))  asset.residual.period_based.expiry_days = resDays;
+    if (asset.totalAmount != null) {
+      // New schema
+      const total     = parseFloat(document.getElementById('det-total-amount')?.value);
+      const remaining = parseFloat(document.getElementById('det-remaining')?.value);
+      const dose      = parseFloat(document.getElementById('det-dose')?.value);
+      const upd       = parseInt(document.getElementById('det-uses-per-day')?.value);
+      const startDate = document.getElementById('det-start-date')?.value;
+      if (!isNaN(total) && total > 0) asset.totalAmount = total;
+      if (!isNaN(remaining) && remaining >= 0) { asset.currentRemaining = remaining; asset.remainingUpdatedAt = new Date().toISOString(); }
+      if (!isNaN(dose) && dose > 0) asset.dosePerUse = dose;
+      if (!isNaN(upd) && upd > 0)  asset.usesPerDay  = upd;
+      if (startDate) asset.startDate = startDate;
+    } else {
+      // Legacy schema
+      asset.qtyCurrent = parseInt(document.getElementById('det-qty-c')?.value) || asset.qtyCurrent;
+      asset.qtyTotal   = parseInt(document.getElementById('det-qty-t')?.value) || asset.qtyTotal;
+    }
   }
 
   // Storage location name
@@ -3208,26 +3727,166 @@ function deleteAsset(id) {
   renderGrid();
 }
 
-// ── Add page ──────────────────────────────────────────────────
+function openAdjustSheet(id) {
+  const a = getAssets().find(x => x.id === id);
+  if (!a || a.totalAmount == null) return;
+  const unit = (a.itemUnit === 'ea' || !a.itemUnit) ? '개' : a.itemUnit;
+  const newVal = prompt(`현재 잔량 보정 (현재: ${a.currentRemaining}${unit})\n총 수량: ${a.totalAmount}${unit}\n\n새 잔량을 입력하세요 (${unit}):`);
+  if (newVal === null) return;
+  adjustRemaining(id, newVal);
+}
+
+// ── Add / Edit page ──────────────────────────────────────────
+let _editingAssetId = null;
+
 function openAdd() {
-  addState = { domain:'beauty', type:'skincare', catKey:null, productImgData:null, storageImgData:null, qtyTotal:1, qtyCurrent:1, sceneTags:[], materialType:null, residualMode:'none' };
+  _loadCustomCats();
+  _reconcileOrphanCats();
+  _editingAssetId = null;
+  const initDomain = (curDomain && curDomain !== 'storage') ? curDomain : 'beauty';
+  const initType   = initDomain === 'beauty' ? curSubType : initDomain;
+  addState = { domain: initDomain, type: initType, catKey:null, productImgData:null, storageImgData:null, packageCount:1, packageUnit:'병', unitPerPackage:1, itemUnit:'ea', totalAmount:1, dosePerUse:1, usesPerDay:1, endDate:null,durationValue:4,durationUnit:'개월', frequencyType:'매일', frequencyValue:7, currentRemaining:null, sceneTags:[], materialType:null };
   resetAddForm();
+  _syncEditModeUI();
   document.getElementById('add-page').classList.add('open');
   document.getElementById('main-scroll').style.overflow = 'hidden';
-  // 스크롤 맨 위로 리셋
-  requestAnimationFrame(() => {
-    const scroll = document.querySelector('.add-page-scroll');
-    if (scroll) scroll.scrollTop = 0;
-  });
+  requestAnimationFrame(() => { const s = document.querySelector('.add-page-scroll'); if (s) s.scrollTop = 0; });
+}
+
+function openEditAsset(id) {
+  _loadCustomCats();
+  _reconcileOrphanCats();
+  const asset = getAssets().find(a => a.id === id);
+  if (!asset) return;
+  _editingAssetId = id;
+  addState = { domain:'beauty', type:'skincare', catKey:null, productImgData:null, storageImgData:null, packageCount:1, packageUnit:'병', unitPerPackage:1, itemUnit:'ea', totalAmount:1, dosePerUse:1, usesPerDay:1, endDate:null,durationValue:4,durationUnit:'개월', frequencyType:'매일', frequencyValue:7, currentRemaining:null, sceneTags:[], materialType:null };
+  resetAddForm();
+  _populateEditForm(asset);
+  _syncEditModeUI();
+  document.getElementById('add-page').classList.add('open');
+  document.getElementById('main-scroll').style.overflow = 'hidden';
+  requestAnimationFrame(() => { const s = document.querySelector('.add-page-scroll'); if (s) s.scrollTop = 0; });
+}
+
+function _syncEditModeUI() {
+  const isEdit = _editingAssetId !== null;
+  const titleEl   = document.getElementById('add-page-bar-title');
+  const submitBtn = document.getElementById('add-submit-btn');
+  const deleteBtn = document.getElementById('add-delete-btn');
+  if (titleEl)   titleEl.textContent = isEdit ? 'EDIT PRODUCT' : 'ADD PRODUCT';
+  if (submitBtn) { submitBtn.textContent = isEdit ? '변경 저장' : '저장'; submitBtn.disabled = false; submitBtn.style.background = ''; }
+  if (deleteBtn) deleteBtn.style.display = isEdit ? '' : 'none';
+}
+
+function _populateEditForm(asset) {
+  const _s = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
+  _s('add-brand', asset.brand || '');
+  _s('add-name',  asset.name  || '');
+  _s('add-source', asset.source || '');
+  _s('add-purchase-date', asset.purchaseDate || '');
+  _syncDateDisp('add-purchase-date','add-purchase-date-display');
+  if (asset.expiryDate) { _s('add-expiry', asset.expiryDate); _syncDateDisp('add-expiry','add-expiry-display'); }
+  _s('add-purchase-url', asset.purchaseUrl || '');
+  const priceNum = (asset.price || '').replace(/[₩,]/g, '');
+  _s('add-price', priceNum);
+  if (priceNum) { const p = document.getElementById('add-price'); if (p) formatPriceInput(p); }
+  // 보관 장소
+  const loc = getLocs().find(l => l.key === asset.locKey);
+  addState._locKey = asset.locKey || null;
+  const locDispEl = document.getElementById('add-loc-display');
+  if (locDispEl) {
+    if (loc) { locDispEl.textContent = loc.name; locDispEl.style.color = '#1A1C1C'; }
+    else { locDispEl.textContent = '위치 선택'; locDispEl.style.color = '#9CA3AF'; }
+  }
+  // 제품 사진
+  if (asset.imgData) {
+    addState.productImgData = asset.imgData;
+    const b = document.getElementById('add-img-block');
+    if (b) { b.style.backgroundImage = `url(${asset.imgData})`; b.classList.add('has-img'); }
+  }
+  // 보관 사진
+  if (asset.storageImgData) {
+    addState.storageImgData = asset.storageImgData;
+    const b = document.getElementById('add-storage-block');
+    if (b) { b.style.backgroundImage = `url(${asset.storageImgData})`; b.classList.add('has-img'); }
+  }
+  // 도메인 + 타입
+  pickDomain(asset.domain || 'beauty');
+  if (asset.domain === 'beauty' && asset.type) pickType(asset.type);
+  // 카테고리
+  if (asset.catKey) { addState.catKey = asset.catKey; renderNewCatChips(); }
+  // Beauty Skincare 추적 필드
+  if (asset.domain === 'beauty' && asset.type === 'skincare') {
+    addState.packageCount   = asset.packageCount   || 1;
+    addState.packageUnit    = asset.packageUnit    || '병';
+    addState.unitPerPackage = asset.unitPerPackage || 1;
+    addState.totalAmount    = asset.totalAmount    || 1;
+    addState.endDate        = asset.endDate        || null;
+    addState.durationValue  = asset.durationValue  || 4;
+    addState.durationUnit   = asset.durationUnit   || '개월';
+    addState.usesPerDay     = asset.usesPerDay     || 1;
+    addState.frequencyType  = asset.frequencyType  || '매일';
+    addState.frequencyValue = asset.frequencyValue !== undefined ? asset.frequencyValue : 7;
+    addState.currentRemaining = asset.currentRemaining;
+    const _si = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    _si('add-pkg-count', addState.packageCount);
+    _si('add-unit-per',  addState.unitPerPackage);
+    _si('add-start-date',     asset.startDate    || '');
+    _syncDateDisp('add-start-date','add-start-date-display');
+    _si('add-duration-value', addState.durationValue);
+    document.getElementById('duration-unit-group')?.querySelectorAll('.freq-pill').forEach(b =>
+      b.classList.toggle('active', b.dataset.unit === addState.durationUnit));
+    _si('add-remaining', asset.currentRemaining ?? addState.totalAmount);
+    const remEl = document.getElementById('add-remaining');
+    if (remEl) remEl.dataset.userEdited = '1';
+    addState.packageUnit = asset.packageUnit || '박스';
+    document.getElementById('uses-per-day-group')?.querySelectorAll('.freq-pill').forEach(b =>
+      b.classList.toggle('active', parseInt(b.textContent) === addState.usesPerDay));
+    document.getElementById('frequency-group')?.querySelectorAll('.freq-pill').forEach(b =>
+      b.classList.toggle('active', b.textContent.trim() === addState.frequencyType));
+    updateQuantityCalc();
+  }
+  // Makeup
+  if (asset.domain === 'beauty' && asset.type === 'makeup') {
+    addState.sceneTags = asset.sceneTags || [];
+    renderSceneTagPills('add-makeup-scene-tags');
+    _s('add-makeup-special-note', asset.specialNote || '');
+  }
+  // Fashion
+  if (asset.domain === 'fashion') {
+    _s('add-material',   asset.material   || '');
+    _s('add-care-guide', asset.careGuide  || '');
+    addState.sceneTags = asset.sceneTags || [];
+    renderSceneTagPills('add-scene-tags');
+  }
+  // Acc
+  if (asset.domain === 'acc') {
+    _s('add-special-note', asset.specialNote || '');
+    addState.materialType = asset.materialType || null;
+    document.querySelectorAll('#add-material-tags .add-scene-tag').forEach(el =>
+      el.classList.toggle('active', el.dataset.tag === addState.materialType));
+  }
+  updateUsagePreview();
+  updateRemainingPreview();
+}
+
+function _deleteEditingAsset() {
+  if (!_editingAssetId || !confirm('이 제품을 삭제할까요?')) return;
+  const assets = getAssets().filter(a => a.id !== _editingAssetId);
+  saveAssets(assets);
+  closeAdd();
+  renderCatChips();
+  renderGrid();
 }
 
 function closeAdd() {
+  _editingAssetId = null;
   document.getElementById('add-page').classList.remove('open');
   document.getElementById('main-scroll').style.overflow = '';
 }
 
 function resetAddForm() {
-  ['add-brand','add-name','add-source','add-location','add-material','add-care-guide','add-special-note','add-purchase-url'].forEach(id => {
+  ['add-brand','add-name','add-source','add-material','add-care-guide','add-special-note','add-makeup-special-note','add-purchase-url'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.value = ''; el.classList.remove('input-error'); }
   });
@@ -3235,6 +3894,9 @@ function resetAddForm() {
   if (priceEl) priceEl.value = '';
   document.getElementById('add-purchase-date') && (document.getElementById('add-purchase-date').value = new Date().toISOString().slice(0,10));
   document.getElementById('add-expiry') && (document.getElementById('add-expiry').value = '');
+  _syncDateDisp('add-purchase-date','add-purchase-date-display');
+  _syncDateDisp('add-expiry','add-expiry-display');
+  _syncDateDisp('add-start-date','add-start-date-display');
   // Object photo 초기화
   const imgBlock = document.getElementById('add-img-block');
   if (imgBlock) {
@@ -3257,25 +3919,44 @@ function resetAddForm() {
   addState.domain = 'beauty';
   addState.type = 'skincare';
   addState.catKey = null;
-  addState.qtyTotal = 1;
-  addState.qtyCurrent = 1;
+  addState.packageCount = 1; addState.packageUnit = '박스';
+  addState.unitPerPackage = 1; addState.itemUnit = 'ea';
+  addState.totalAmount = 1; addState.currentRemaining = null;
+  addState.dosePerUse = 1; addState.usesPerDay = 1;
+  addState.endDate = null;
+  addState.frequencyType = '매일'; addState.frequencyValue = 7;
   addState.storageImgData = null;
   addState.productImgData = null;
   addState.sceneTags = [];
   addState.materialType = null;
-  addState.residualMode = 'none';
-  pickDomain('beauty');
-  pickType('skincare');
-  pickResMode('none');
-  const resTotal = document.getElementById('add-res-total');
-  const resPer   = document.getElementById('add-res-per');
-  const resOpen  = document.getElementById('add-res-open');
-  const resDays  = document.getElementById('add-res-days');
-  if (resTotal) resTotal.value = '100';
-  if (resPer)   resPer.value   = '1';
-  if (resOpen)  resOpen.value  = new Date().toISOString().slice(0,10);
-  if (resDays)  resDays.value  = '60';
-  updateQtyDisplay();
+  addState._locKey = null;
+  const locDispEl = document.getElementById('add-loc-display');
+  if (locDispEl) { locDispEl.textContent = '위치 선택'; locDispEl.style.color = '#9CA3AF'; }
+  const _initDomain = addState.domain || 'beauty';
+  const _initType   = addState.type   || 'skincare';
+  pickDomain(_initDomain);
+  if (_initDomain === 'beauty') pickType(_initType);
+  // Reset quantity fields
+  const pkgCount  = document.getElementById('add-pkg-count');
+  const unitPer   = document.getElementById('add-unit-per');
+  const remEl     = document.getElementById('add-remaining');
+  const startEl   = document.getElementById('add-start-date');
+  const durValEl  = document.getElementById('add-duration-value');
+  if (pkgCount) pkgCount.value = '1';
+  if (unitPer)  unitPer.value  = '1';
+  if (remEl)    { remEl.value  = '1'; delete remEl.dataset.userEdited; }
+  if (startEl)   startEl.value   = '';
+  if (durValEl)  durValEl.value  = '0';
+  const startDisp = document.getElementById('add-start-date-display');
+  if (startDisp) { startDisp.textContent = '0000.00.00'; startDisp.style.color = '#9CA3AF'; }
+  addState.durationUnit = '개월';
+  document.getElementById('duration-unit-group')?.querySelectorAll('.freq-pill').forEach((b,i) =>
+    b.classList.toggle('active', i === 0));
+  // Reset pills to defaults
+  addState.packageUnit = '박스';
+  document.getElementById('uses-per-day-group')?.querySelectorAll('.freq-pill').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.getElementById('frequency-group')?.querySelectorAll('.freq-pill').forEach((b,i) => b.classList.toggle('active', i===0));
+  updateQuantityCalc();
   document.querySelectorAll('.add-scene-tag').forEach(el => el.classList.remove('active'));
   const btn = document.getElementById('add-submit-btn');
   if (btn) { btn.textContent = 'SAVE CHANGES'; btn.disabled = false; btn.style.background = ''; }
@@ -3291,13 +3972,16 @@ function pickDomain(domain) {
   const beautyTypeToggle = document.getElementById('beauty-type-toggle');
   if (beautyTypeToggle) beautyTypeToggle.style.display = domain === 'beauty' ? '' : 'none';
   const beautyFields = document.getElementById('step3-beauty');
-  if (beautyFields) beautyFields.style.display = domain === 'beauty' ? '' : 'none';
+  if (beautyFields) beautyFields.style.display = 'none'; // pickType will handle visibility
   document.getElementById('step3-fashion').style.display = domain === 'fashion' ? '' : 'none';
-  document.getElementById('step3-acc').style.display = domain === 'acc' ? '' : 'none';
-  document.getElementById('add-page-bar-title') && (document.getElementById('add-page-bar-title').textContent = domain.toUpperCase());
+  document.getElementById('step3-acc').style.display     = domain === 'acc'     ? '' : 'none';
+  document.getElementById('step3-makeup').style.display  = 'none';
+  if (domain === 'fashion') renderSceneTagPills('add-scene-tags');
+  if (!_editingAssetId) document.getElementById('add-page-bar-title') && (document.getElementById('add-page-bar-title').textContent = domain.toUpperCase());
   addState.type = domain === 'beauty' ? 'skincare' : domain;
   addState.catKey = null;
   renderNewCatChips();
+  if (domain === 'beauty') pickType(addState.type);
 }
 
 function pickType(type) {
@@ -3305,6 +3989,11 @@ function pickType(type) {
   ['skincare','makeup'].forEach(t => {
     document.getElementById(`class-tab-${t}`)?.classList.toggle('active', t === type);
   });
+  const beautyFields  = document.getElementById('step3-beauty');
+  const makeupFields  = document.getElementById('step3-makeup');
+  if (beautyFields)  beautyFields.style.display  = type === 'skincare' ? '' : 'none';
+  if (makeupFields)  makeupFields.style.display   = type === 'makeup'   ? '' : 'none';
+  if (type === 'makeup') renderSceneTagPills('add-makeup-scene-tags');
   renderNewCatChips();
 }
 
@@ -3320,11 +4009,18 @@ function renderNewCatChips() {
   } else if (domain === 'acc') {
     cats = ACC_CATS;
   }
-  wrap.innerHTML = cats.map(c => `
+  // 편집 중인 제품의 catKey가 목록에 없으면(고아 키) 자동으로 복원
+  if (addState.catKey && !cats.includes(addState.catKey)) {
+    cats = [...cats, addState.catKey];
+    _setApCatArray(cats);
+    _persistCustomCats();
+  }
+  const sortedCats = cats.slice().sort((a,b) => (CAT_LABELS[a]||a).localeCompare(CAT_LABELS[b]||b, 'ko'));
+  wrap.innerHTML = sortedCats.map(c => `
     <div class="add-cat-pill${addState.catKey===c?' active':''}" onclick="pickCat('${c}')">
       ${(CAT_LABELS[c]||c).toUpperCase()}
     </div>`).join('');
-  if (!addState.catKey && cats.length) { addState.catKey = cats[0]; renderNewCatChips(); }
+  if (!addState.catKey && sortedCats.length) { addState.catKey = sortedCats[0]; renderNewCatChips(); }
 }
 
 function pickCat(c) {
@@ -3336,6 +4032,91 @@ function pickCat(c) {
 
 function toggleSceneTag(btn) {
   btn.classList.toggle('active');
+  const tag = btn.dataset.tag;
+  if (!addState.sceneTags) addState.sceneTags = [];
+  if (btn.classList.contains('active')) { if (!addState.sceneTags.includes(tag)) addState.sceneTags.push(tag); }
+  else addState.sceneTags = addState.sceneTags.filter(t => t !== tag);
+}
+
+// ── Scene Tag Management ──────────────────────────────────────
+let SCENE_TAGS = ['출근','결혼식','운동','캐주얼','데이트','여행'];
+function _loadSceneTags() {
+  try { const s = JSON.parse(localStorage.getItem('onstep_scene_tags')||'[]'); if(s.length) SCENE_TAGS=s; } catch(e) {}
+}
+function _persistSceneTags() {
+  try { localStorage.setItem('onstep_scene_tags', JSON.stringify(SCENE_TAGS)); } catch(e) {}
+  saveBoxToCloud();
+}
+_loadSceneTags();
+
+function renderSceneTagPills(containerId) {
+  const id   = containerId || 'add-scene-tags';
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  wrap.innerHTML = SCENE_TAGS.map(tag =>
+    `<button class="add-scene-tag${(addState.sceneTags||[]).includes(tag)?' active':''}" data-tag="${tag}" onclick="toggleSceneTag(this)">${tag}</button>`
+  ).join('');
+}
+function openSceneTagManage() {
+  renderSceneTagManageList();
+  hideSceneTagNewCard();
+  document.getElementById('scene-tag-manage-ov').classList.add('open');
+}
+function closeSceneTagManage() {
+  document.getElementById('scene-tag-manage-ov').classList.remove('open');
+  const id = addState.type === 'makeup' ? 'add-makeup-scene-tags' : 'add-scene-tags';
+  renderSceneTagPills(id);
+}
+function renderSceneTagManageList() {
+  const list = document.getElementById('scene-tag-manage-list');
+  if (!list) return;
+  if (!SCENE_TAGS.length) {
+    list.innerHTML = '<div style="font-family:\'Inter\',sans-serif;font-size:12px;color:#9CA3AF;padding:12px 0">태그가 없습니다</div>';
+    return;
+  }
+  list.innerHTML = SCENE_TAGS.map((tag, i) => `
+    <div class="ap-cat-manage-row">
+      <span class="ap-cat-manage-row-label">${tag}</span>
+      <div class="ap-cat-manage-row-actions">
+        <button class="ap-cat-manage-action" onclick="deleteSceneTag(${i})" title="삭제" style="color:#ba1a1a">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="#ba1a1a"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+      </div>
+    </div>`).join('');
+}
+function deleteSceneTag(i) {
+  const tag = SCENE_TAGS[i];
+  if (!confirm(`"${tag}" 태그를 삭제할까요?`)) return;
+  SCENE_TAGS.splice(i, 1);
+  addState.sceneTags = (addState.sceneTags||[]).filter(t => t !== tag);
+  _persistSceneTags();
+  renderSceneTagManageList();
+}
+function toggleSceneTagNewCard() {
+  const card = document.getElementById('scene-tag-new-card');
+  if (!card) return;
+  const hidden = card.style.display === 'none';
+  card.style.display = hidden ? '' : 'none';
+  if (hidden) setTimeout(() => document.getElementById('scene-tag-new-inp')?.focus(), 50);
+}
+function hideSceneTagNewCard() {
+  const card = document.getElementById('scene-tag-new-card');
+  if (card) card.style.display = 'none';
+  const inp = document.getElementById('scene-tag-new-inp');
+  if (inp) inp.value = '';
+}
+function confirmNewSceneTag() {
+  const inp = document.getElementById('scene-tag-new-inp');
+  if (!inp) return;
+  const name = inp.value.trim();
+  if (!name) { showToast('태그 이름을 입력하세요'); return; }
+  if (SCENE_TAGS.includes(name)) { showToast('이미 있는 태그입니다'); return; }
+  SCENE_TAGS.push(name);
+  _persistSceneTags();
+  inp.value = '';
+  hideSceneTagNewCard();
+  renderSceneTagManageList();
+  showToast(`"${name}" 추가됨`);
 }
 
 function toggleMaterialTag(btn) {
@@ -3374,7 +4155,36 @@ function _loadCustomCats() {
     if (saved.acc)     ACC_CATS      = saved.acc;
   } catch(e) {}
 }
+
+// 실제 제품 catKey 중 BEAUTY_CATS/FASHION_CATS/ACC_CATS에 없는 고아 키를 영구 복원
+// 목록 화면과 추가/편집 폼의 카테고리를 항상 일치시킴
+function _reconcileOrphanCats() {
+  const assets = getAssets();
+  let changed = false;
+  ['skincare', 'makeup'].forEach(type => {
+    const cur = BEAUTY_CATS[type] || [];
+    const orphans = [...new Set(
+      assets.filter(a => a.domain === 'beauty' && a.type === type && a.catKey && !cur.includes(a.catKey))
+            .map(a => a.catKey)
+    )];
+    if (orphans.length) { BEAUTY_CATS[type] = [...cur, ...orphans]; changed = true; }
+  });
+  const fOrph = [...new Set(
+    assets.filter(a => a.domain === 'fashion' && a.catKey && !FASHION_CATS.includes(a.catKey)).map(a => a.catKey)
+  )];
+  if (fOrph.length) { FASHION_CATS = [...FASHION_CATS, ...fOrph]; changed = true; }
+  const aOrph = [...new Set(
+    assets.filter(a => a.domain === 'acc' && a.catKey && !ACC_CATS.includes(a.catKey)).map(a => a.catKey)
+  )];
+  if (aOrph.length) { ACC_CATS = [...ACC_CATS, ...aOrph]; changed = true; }
+  if (changed) {
+    localStorage.setItem('onstep_box_cats', JSON.stringify({ beauty: BEAUTY_CATS, fashion: FASHION_CATS, acc: ACC_CATS }));
+    if (typeof currentUser !== 'undefined' && currentUser) saveBoxToCloud();
+  }
+}
+
 _loadCustomCats();
+_reconcileOrphanCats();
 
 function openApCatManage() {
   renderApCatManageList();
@@ -3386,32 +4196,31 @@ function closeApCatManage() {
 }
 function applyApCatManage() {
   closeApCatManage();
+  renderCatChips();
   renderNewCatChips();
 }
 function renderApCatManageList() {
   const list = document.getElementById('ap-cat-manage-list');
   if (!list) return;
-  const cats = _getApCatArray();
+  const cats = _getApCatArray().slice().sort((a,b) => (CAT_LABELS[a]||a).localeCompare(CAT_LABELS[b]||b, 'ko'));
   if (!cats.length) {
     list.innerHTML = '<div style="font-family:\'Inter\',sans-serif;font-size:12px;color:#9CA3AF;padding:12px 0">카테고리가 없습니다</div>';
     return;
   }
-  list.innerHTML = cats.map((c, i) => `
+  list.innerHTML = cats.map(c => `
     <div class="ap-cat-manage-row">
       <span class="ap-cat-manage-row-label">${CAT_LABELS[c] || c}</span>
       <div class="ap-cat-manage-row-actions">
-        <button class="ap-cat-manage-action" onclick="renameApCat(${i})" title="편집">
+        <button class="ap-cat-manage-action" onclick="renameApCat('${c}')" title="편집">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="#6B7280"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
         </button>
-        <button class="ap-cat-manage-action" onclick="deleteApCat(${i})" title="삭제" style="color:#ba1a1a">
+        <button class="ap-cat-manage-action" onclick="deleteApCat('${c}')" title="삭제" style="color:#ba1a1a">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="#ba1a1a"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
         </button>
       </div>
     </div>`).join('');
 }
-function renameApCat(i) {
-  const cats = _getApCatArray();
-  const key = cats[i];
+function renameApCat(key) {
   const cur = CAT_LABELS[key] || key;
   const name = prompt('카테고리 이름 변경:', cur);
   if (!name || !name.trim() || name.trim() === cur) return;
@@ -3419,11 +4228,11 @@ function renameApCat(i) {
   _persistCustomCats();
   renderApCatManageList();
 }
-function deleteApCat(i) {
-  const cats = _getApCatArray();
-  const key = cats[i];
+function deleteApCat(key) {
   if (!confirm(`"${CAT_LABELS[key] || key}" 삭제할까요?`)) return;
-  cats.splice(i, 1);
+  const cats = _getApCatArray();
+  const idx  = cats.indexOf(key);
+  if (idx !== -1) cats.splice(idx, 1);
   _setApCatArray(cats);
   _persistCustomCats();
   if (addState.catKey === key) { addState.catKey = cats[0] || null; }
@@ -3491,11 +4300,11 @@ function filterCatList() {
 
 function renderCatList() {
   const q = (document.getElementById('cat-search-input')?.value || '').toLowerCase();
-  const cats = BEAUTY_CATS[addState.type] || [];
+  const cats = _getApCatArray();
   const filtered = cats.filter(c => {
     const label = (CAT_LABELS[c] || c).toLowerCase();
     return !q || label.includes(q);
-  });
+  }).sort((a,b) => (CAT_LABELS[a]||a).localeCompare(CAT_LABELS[b]||b, 'ko'));
   const el = document.getElementById('cat-list');
   if (!el) return;
   el.innerHTML = filtered.map(c => {
@@ -3544,11 +4353,12 @@ function commitEditCat(c, newLabel) {
 }
 
 function deleteCatRow(c) {
-  const type = addState.type;
-  BEAUTY_CATS[type] = (BEAUTY_CATS[type] || []).filter(x => x !== c);
+  _setApCatArray(_getApCatArray().filter(x => x !== c));
   if (catSelectPending === c) catSelectPending = null;
-  if (addState.catKey === c) { addState.catKey = null; renderNewCatChips(); }
+  if (addState.catKey === c) addState.catKey = null;
+  renderNewCatChips();
   renderCatList();
+  renderCatChips();
 }
 
 // ── New Category dialog ───────────────────────────────────────
@@ -3562,72 +4372,133 @@ function closeNewCat() {
   document.getElementById('cat-new-overlay').classList.remove('open');
 }
 
-// target: 'cur' = qtyCurrent, 'tot' = qtyTotal
-function pickResMode(mode) {
-  addState.residualMode = mode;
-  ['count','period','none'].forEach(m => {
-    document.getElementById(`add-res-tab-${m}`)?.classList.toggle('active', m === mode);
-  });
-  const cf = document.getElementById('add-res-count');
-  const pf = document.getElementById('add-res-period');
-  if (cf) cf.style.display = mode === 'count'  ? 'flex' : 'none';
-  if (pf) pf.style.display = mode === 'period' ? 'flex' : 'none';
-  updateResPreview();
+// ── Unit / Frequency pickers ──────────────────────────────────
+function pickPkgUnit(btn, unit) {
+  addState.packageUnit = unit;
+  updateQuantityCalc();
 }
 
-function updateResPreview() {
-  const mode = addState.residualMode;
-  if (mode === 'count') {
-    const total = parseInt(document.getElementById('add-res-total')?.value) || 100;
-    const per   = parseInt(document.getElementById('add-res-per')?.value)   || 1;
-    const bar   = document.getElementById('add-res-bar');
-    if (bar) bar.style.width = '100%';
-    const txt = document.getElementById('add-res-preview-text');
-    if (txt) txt.textContent = `${total}회 ÷ ${per}회 = ${Math.floor(total / per)}회 사용 후 자동 −1`;
-  } else if (mode === 'period') {
-    const days    = parseInt(document.getElementById('add-res-days')?.value) || 60;
-    const openVal = document.getElementById('add-res-open')?.value;
-    let pct = 100;
-    if (openVal) {
-      const open    = new Date(openVal); open.setHours(0,0,0,0);
-      const today   = new Date(); today.setHours(0,0,0,0);
-      const elapsed = Math.floor((today - open) / 86400000);
-      pct = Math.max(0, Math.round((days - elapsed) / days * 100));
-    }
-    const bar = document.getElementById('add-res-period-bar');
-    if (bar) bar.style.width = `${pct}%`;
-    const txt = document.getElementById('add-res-period-text');
-    if (txt) txt.textContent = `${pct}% 잔량 · ${days}일 후 자동 −1`;
+function pickItemUnit(btn, unit) {
+  addState.itemUnit = unit;
+  btn.closest('[style*="display:flex"]').querySelectorAll('.unit-pill[data-group="item"]').forEach(b => b.classList.toggle('active', b === btn));
+  const doseUnit = document.getElementById('add-dose-unit');
+  const remUnit  = document.getElementById('add-remaining-unit');
+  if (doseUnit) doseUnit.textContent = unit;
+  if (remUnit)  remUnit.textContent  = unit;
+  updateQuantityCalc();
+}
+
+function pickUsesPerDay(btn, val) {
+  addState.usesPerDay = val;
+  document.getElementById('uses-per-day-group')?.querySelectorAll('.freq-pill').forEach(b => b.classList.toggle('active', b === btn));
+  updateUsagePreview();
+}
+
+function pickDurationUnit(btn, unit) {
+  addState.durationUnit = unit;
+  document.getElementById('duration-unit-group')?.querySelectorAll('.freq-pill').forEach(b =>
+    b.classList.toggle('active', b.dataset.unit === unit));
+  updateUsagePreview();
+}
+
+function _calcEndDate(startRaw, value, unit) {
+  const d = new Date(startRaw);
+  if (unit === '개월') d.setMonth(d.getMonth() + value);
+  else if (unit === '주일') d.setDate(d.getDate() + value * 7);
+  else d.setDate(d.getDate() + value);
+  return d;
+}
+
+function pickFrequency(btn, type, daysPerWeek) {
+  addState.frequencyType  = type;
+  addState.frequencyValue = daysPerWeek;
+  document.getElementById('frequency-group')?.querySelectorAll('.freq-pill').forEach(b => b.classList.toggle('active', b === btn));
+  updateUsagePreview();
+}
+
+function updateQuantityCalc() {
+  const pkgCount = Math.max(1, parseInt(document.getElementById('add-pkg-count')?.value) || 1);
+  const unitPer  = Math.max(1, parseInt(document.getElementById('add-unit-per')?.value)  || 1);
+  addState.packageCount   = pkgCount;
+  addState.unitPerPackage = unitPer;
+  addState.totalAmount    = pkgCount * unitPer;
+  // 총 수량 표시
+  const totalEl = document.getElementById('qty-calc-total');
+  if (totalEl) totalEl.textContent = `${addState.totalAmount}개`;
+  // 잔량 미입력 상태면 총 수량으로 동기화
+  const remEl = document.getElementById('add-remaining');
+  if (remEl && !remEl.dataset.userEdited) remEl.value = addState.totalAmount;
+  updateUsagePreview();
+  updateRemainingPreview();
+}
+
+function updateUsagePreview() {
+  const dateEl  = document.getElementById('usage-preview-date');
+  const daysEl  = document.getElementById('usage-preview-days');
+  const dailyEl = document.getElementById('usage-preview-daily');
+  const barEl   = document.getElementById('usage-preview-bar');
+
+  const startRaw   = document.getElementById('add-start-date')?.value;
+  const durVal     = parseInt(document.getElementById('add-duration-value')?.value) || 0;
+  const durUnit    = addState.durationUnit || '개월';
+  const total      = Math.max(1, addState.totalAmount || 1);
+  const remRaw     = document.getElementById('add-remaining')?.value;
+  const remaining  = (remRaw !== '' && remRaw != null) ? Math.max(0, parseInt(remRaw) || 0) : total;
+
+  if (!startRaw || durVal === 0) {
+    if (dateEl)  dateEl.textContent  = '0000.00.00';
+    if (daysEl)  daysEl.textContent  = '— 일 남음';
+    if (dailyEl) dailyEl.textContent = '일 소비: —회';
+    if (barEl)   barEl.style.width   = '0%';
+    return;
   }
+
+  const startDate  = new Date(startRaw + 'T00:00:00');
+  const plannedEnd = _calcEndDate(startRaw, durVal, durUnit);
+  const totalDays  = Math.max(1, Math.round((plannedEnd - startDate) / 86400000));
+  const daysPerUnit = totalDays / total;
+
+  // 예상 소진: 오늘 + 잔량×단위당일수 (잔량 기반 보정 계산)
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const daysLeft = Math.max(0, Math.round(remaining * daysPerUnit));
+  const depDate  = new Date(today);
+  depDate.setDate(today.getDate() + daysLeft);
+
+  const depStr = `${depDate.getFullYear()}.${String(depDate.getMonth()+1).padStart(2,'0')}.${String(depDate.getDate()).padStart(2,'0')}`;
+  const barPct = Math.round(remaining / total * 100);
+
+  if (dateEl)  dateEl.textContent  = depStr;
+  if (daysEl)  daysEl.textContent  = daysLeft > 0 ? `${daysLeft}일 남음` : '소진 완료';
+  if (dailyEl) dailyEl.textContent = `1개당 ${daysPerUnit.toFixed(1)}일`;
+  if (barEl)   barEl.style.width   = `${barPct}%`;
 }
 
-function adjustQty(target, delta) {
-  if (target === 'tot') {
-    const next = addState.qtyTotal + delta;
-    if (next < 1) return;
-    addState.qtyTotal = next;
-    // qtyCurrent는 qtyTotal 이하여야 함
-    if (addState.qtyCurrent > addState.qtyTotal) addState.qtyCurrent = addState.qtyTotal;
-  } else {
-    const next = addState.qtyCurrent + delta;
-    if (next < 0 || next > addState.qtyTotal) return;
-    addState.qtyCurrent = next;
-  }
-  updateQtyDisplay();
+function updateRemainingPreview() {
+  const pkgCount = Math.max(1, parseInt(document.getElementById('add-pkg-count')?.value) || 1);
+  const unitPer  = Math.max(1, parseInt(document.getElementById('add-unit-per')?.value)  || 1);
+  const total    = pkgCount * unitPer;
+  addState.totalAmount    = total;
+  addState.packageCount   = pkgCount;
+  addState.unitPerPackage = unitPer;
+  const remEl  = document.getElementById('add-remaining');
+  if (remEl) remEl.max = total;
+  const remRaw    = remEl?.value;
+  const remaining = (remRaw !== '' && remRaw != null) ? Math.min(total, Math.max(0, parseInt(remRaw) || 0)) : total;
+  const pct       = Math.min(100, Math.max(0, Math.round(remaining / total * 100)));
+  const bar   = document.getElementById('add-remaining-bar');
+  const pctEl = document.getElementById('add-remaining-pct');
+  if (bar)   bar.style.width    = `${pct}%`;
+  if (pctEl) pctEl.textContent  = `${pct}%`;
+  updateUsagePreview();
 }
 
-function updateQtyDisplay() {
-  const num = document.getElementById('add-qty-num');
-  if (num) num.textContent = addState.qtyTotal;
-  const dots = document.getElementById('add-qty-dots');
-  if (!dots) return;
-  const total = addState.qtyTotal;
-  const show  = Math.min(total, 12);
-  dots.innerHTML =
-    Array.from({length: show}, (_, i) =>
-      `<div style="width:10px;height:10px;border-radius:50%;background:${i < addState.qtyCurrent ? '#0C1014' : '#E5E7EB'}"></div>`
-    ).join('') +
-    (total > 12 ? `<span style="font-size:10px;color:#9CA3AF;align-self:center;margin-left:4px">+${total - 12}</span>` : '');
+function adjustStock(delta) {
+  const next = (addState.packageCount || 1) + delta;
+  if (next < 1) return;
+  addState.packageCount = next;
+  const el = document.getElementById('add-pkg-count');
+  if (el) el.value = next;
+  updateQuantityCalc();
 }
 
 function _applyProductImg(compressed) {
@@ -3678,21 +4549,14 @@ function formatPriceInput(el) {
   el.value = raw ? Number(raw).toLocaleString('ko-KR') : '';
 }
 
-function adjustStock(delta) {
-  const next = addState.qtyTotal + delta;
-  if (next < 1) return;
-  addState.qtyTotal = next;
-  addState.qtyCurrent = next;
-  updateQtyDisplay();
-}
 
 function apUpdateLocation() {
-  const val = document.getElementById('add-location')?.value.trim() || '';
   const badge = document.getElementById('ap-location-badge');
   const nameEl = document.getElementById('ap-location-name');
+  const locName = addState._locKey ? (getLocs().find(l => l.key === addState._locKey)?.name || '위치 미지정') : '위치 미지정';
   if (addState.storageImgData) {
     if (badge) badge.style.display = '';
-    if (nameEl) nameEl.textContent = val || '위치 미지정';
+    if (nameEl) nameEl.textContent = locName;
   } else {
     if (badge) badge.style.display = 'none';
   }
@@ -3709,7 +4573,7 @@ function saveAsset() {
   const domain = addState.domain || 'beauty';
   const brand = document.getElementById('add-brand')?.value.trim() || '';
   const source = document.getElementById('add-source')?.value.trim() || '';
-  const locKey = document.getElementById('add-location')?.value.trim() || '';
+  const locKey = addState._locKey || '';
   const purchaseDate = document.getElementById('add-purchase-date')?.value || new Date().toISOString().slice(0,10);
   const priceRaw = document.getElementById('add-price')?.value || '';
   const priceNum = parseInt(priceRaw.replace(/,/g, '')) || 0;
@@ -3717,55 +4581,75 @@ function saveAsset() {
   const purchaseUrl = document.getElementById('add-purchase-url')?.value.trim() || '';
   const catKey = addState.catKey || (domain === 'beauty' ? (BEAUTY_CATS[addState.type]||[])[0] : FASHION_CATS[0]) || domain;
 
-  const asset = {
-    id: (getAssets().reduce((m,a) => Math.max(m, a.id||0), 0)) + 1,
-    domain,
-    type: addState.type || domain,
-    catKey,
-    brand,
-    name,
-    source,
-    price,
-    purchaseUrl,
-    imgData: addState.productImgData || null,
-    storageImgData: addState.storageImgData || null,
-    locKey,
-    purchaseDate,
-    addedDate: purchaseDate,
-    qtyTotal: addState.qtyTotal,
-    qtyCurrent: addState.qtyCurrent,
-    useCount: 0,
-    lastUsed: null,
+  const _buildFields = (base) => {
+    base.domain       = domain;
+    base.type         = addState.type || domain;
+    base.catKey       = catKey;
+    base.brand        = brand;
+    base.name         = name;
+    base.source       = source;
+    base.price        = price;
+    base.purchaseUrl  = purchaseUrl;
+    base.imgData      = addState.productImgData || null;
+    base.storageImgData = addState.storageImgData || null;
+    base.locKey       = locKey;
+    base.purchaseDate = purchaseDate;
+    if (domain === 'beauty' && addState.type === 'skincare') {
+      const startDate = document.getElementById('add-start-date')?.value || purchaseDate;
+      const pkgCount  = Math.max(1, parseInt(document.getElementById('add-pkg-count')?.value)  || 1);
+      const unitPer   = Math.max(1, parseInt(document.getElementById('add-unit-per')?.value)   || 1);
+      const totalAmt  = pkgCount * unitPer;
+      const remaining = parseInt(document.getElementById('add-remaining')?.value);
+      base.startDate          = startDate;
+      base.durationValue      = parseInt(document.getElementById('add-duration-value')?.value) || 1;
+      base.durationUnit       = addState.durationUnit || '개월';
+      base.endDate            = (() => {
+        if (!startDate) return null;
+        const d = _calcEndDate(startDate, base.durationValue, base.durationUnit);
+        return d.toISOString().slice(0,10);
+      })();
+      base.packageCount       = pkgCount;
+      base.packageUnit        = addState.packageUnit || '병';
+      base.unitPerPackage     = unitPer;
+      base.itemUnit           = 'ea';
+      base.totalAmount        = totalAmt;
+      base.dosePerUse         = 1;
+      base.usesPerDay         = addState.usesPerDay     || 1;
+      base.frequencyType      = addState.frequencyType  || '매일';
+      base.frequencyValue     = addState.frequencyValue !== undefined ? addState.frequencyValue : 7;
+      base.currentRemaining   = isNaN(remaining) ? totalAmt : Math.min(remaining, totalAmt);
+      base.remainingUpdatedAt = new Date().toISOString();
+      if (!base.usageLogs) base.usageLogs = [];
+    } else if (domain === 'beauty' && addState.type === 'makeup') {
+      base.sceneTags   = addState.sceneTags || [];
+      base.specialNote = document.getElementById('add-makeup-special-note')?.value.trim() || '';
+    } else if (domain === 'fashion') {
+      base.sceneTags  = addState.sceneTags || [];
+      base.material   = document.getElementById('add-material')?.value.trim() || '';
+      base.careGuide  = document.getElementById('add-care-guide')?.value.trim() || '';
+    } else if (domain === 'acc') {
+      const matEl = document.querySelector('#add-material-tags .add-scene-tag.active');
+      base.materialType = matEl ? matEl.dataset.tag : '';
+      base.specialNote  = document.getElementById('add-special-note')?.value.trim() || '';
+    }
+    return base;
   };
 
-  if (domain === 'beauty') {
-    asset.expiryDate = document.getElementById('add-expiry')?.value || null;
-    const rm = addState.residualMode || 'none';
-    asset.residual = {
-      mode: rm,
-      count_based: {
-        total_uses:      parseInt(document.getElementById('add-res-total')?.value) || 100,
-        current_uses:    0,
-        uses_per_session: parseInt(document.getElementById('add-res-per')?.value) || 1
-      },
-      period_based: {
-        open_date:   document.getElementById('add-res-open')?.value || new Date().toISOString().slice(0,10),
-        expiry_days: parseInt(document.getElementById('add-res-days')?.value) || 60
-      }
-    };
-  } else if (domain === 'fashion') {
-    asset.sceneTags = Array.from(document.querySelectorAll('#add-scene-tags .add-scene-tag.active')).map(el => el.dataset.tag);
-    asset.material = document.getElementById('add-material')?.value.trim() || '';
-    asset.careGuide = document.getElementById('add-care-guide')?.value.trim() || '';
-  } else if (domain === 'acc') {
-    const matEl = document.querySelector('#add-material-tags .add-scene-tag.active');
-    asset.materialType = matEl ? matEl.dataset.tag : '';
-    asset.specialNote = document.getElementById('add-special-note')?.value.trim() || '';
-  }
-
   const assets = getAssets();
-  assets.push(asset);
-  saveAssets(assets);
+  if (_editingAssetId !== null) {
+    // 수정 모드
+    const idx = assets.findIndex(a => a.id === _editingAssetId);
+    if (idx !== -1) _buildFields(assets[idx]);
+    saveAssets(assets);
+  } else {
+    // 신규 등록
+    const newAsset = _buildFields({
+      id: (assets.reduce((m,a) => Math.max(m, a.id||0), 0)) + 1,
+      addedDate: new Date().toISOString().slice(0,10), useCount: 0, lastUsed: null,
+    });
+    assets.push(newAsset);
+    saveAssets(assets);
+  }
 
   const btn = document.getElementById('add-submit-btn');
   if (btn) { btn.textContent = 'Saved ✓'; btn.style.background = '#2d6a4f'; btn.disabled = true; }
@@ -3806,6 +4690,7 @@ function closeCatManage() {
   });
   document.getElementById('cat-manage-sheet').classList.remove('open');
   renderCatChips();
+  renderNewCatChips();
   renderGrid();
 }
 
@@ -3824,7 +4709,7 @@ function _getCatManageCats() {
   if (catManageType === 'skincare') return BEAUTY_CATS.skincare;
   if (catManageType === 'makeup')   return BEAUTY_CATS.makeup;
   if (catManageType === 'fashion')  return FASHION_CATS;
-  return ['jewelry','watch','belt','sunglasses','hat','other'];
+  return ACC_CATS;
 }
 
 function _isBrokenKey(c) {
@@ -3834,7 +4719,7 @@ function _isBrokenKey(c) {
 function renderCatManageBody() {
   const body = document.getElementById('cat-manage-body');
   if (!body) return;
-  const cats    = _getCatManageCats();
+  const cats    = _getCatManageCats().slice().sort((a,b) => (CAT_LABELS[a]||a).localeCompare(CAT_LABELS[b]||b, 'ko'));
   const assets  = getAssets();
   const counts  = {};
   assets.forEach(a => { counts[a.catKey] = (counts[a.catKey]||0)+1; });
@@ -3881,8 +4766,11 @@ function _commitCatRename(key, newLabel) {
   if (!trimmed) return;
   if (trimmed !== (CAT_LABELS[key]||'')) {
     saveCustomLabel(key, trimmed);
+    saveBoxToCloud();
   }
   renderCatManageBody();
+  renderCatChips();
+  renderNewCatChips();
 }
 
 function deleteCatFromManage(key) {
@@ -3892,6 +4780,9 @@ function deleteCatFromManage(key) {
   if (cnt > 0 && !confirm(`'${label}' 카테고리에 ${cnt}개 제품이 있습니다.\n삭제하면 해당 제품들의 카테고리가 초기화됩니다. 계속할까요?`)) return;
   if (catManageType === 'skincare') BEAUTY_CATS.skincare = BEAUTY_CATS.skincare.filter(c => c !== key);
   if (catManageType === 'makeup')   BEAUTY_CATS.makeup   = BEAUTY_CATS.makeup.filter(c => c !== key);
+  if (catManageType === 'fashion')  FASHION_CATS         = FASHION_CATS.filter(c => c !== key);
+  if (catManageType === 'acc')      ACC_CATS             = ACC_CATS.filter(c => c !== key);
+  _persistCustomCats();
   // Reset catKey on affected assets
   if (cnt > 0) {
     const updated = assets.map(a => a.catKey === key ? {...a, catKey: null} : a);
@@ -3899,6 +4790,8 @@ function deleteCatFromManage(key) {
   }
   if (curCat === key) curCat = 'all';
   renderCatManageBody();
+  renderCatChips();
+  renderNewCatChips();
 }
 
 function addCatFromManage() {
@@ -3917,8 +4810,11 @@ function addCatFromManage() {
   } else if (catManageType === 'acc') {
     if (!ACC_CATS.includes(key)) { ACC_CATS = [...ACC_CATS, key]; saveCustomLabel(key, raw); }
   }
+  _persistCustomCats();
   inp.value = '';
   renderCatManageBody();
+  renderCatChips();
+  renderNewCatChips();
 }
 
 // Also update existing openNewCat / submitNewCat to persist labels
@@ -3926,14 +4822,17 @@ function submitNewCat() {
   const raw = document.getElementById('cat-new-input').value.trim();
   if (!raw) return;
   const key = 'c_' + raw.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_가-힣]/g,'').slice(0,20) + '_' + Date.now().toString().slice(-5);
-  const type = addState.type;
-  if (!(BEAUTY_CATS[type] || []).includes(key)) {
-    BEAUTY_CATS[type] = [...(BEAUTY_CATS[type] || []), key];
+  const cats = _getApCatArray();
+  if (!cats.includes(key)) {
     saveCustomLabel(key, raw);
+    cats.push(key);
+    _setApCatArray(cats);
   }
   catSelectPending = key;
   closeNewCat();
   renderCatList();
+  renderCatChips();
+  renderNewCatChips();
 }
 
 // ── Init ──────────────────────────────────────────────────────

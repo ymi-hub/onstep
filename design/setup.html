@@ -15,6 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <script src="shared.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -32,7 +33,7 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-start;padding:24px 16px 48px;font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
-.phone{width:390px;height:888px;background:#FFFFFF;border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;}
+.phone{width:390px;height:888px;background:#FFFFFF;border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate(0,0);}
 .notch{height:44px;background:#FFFFFF;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
 .scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:#FFFFFF}
@@ -372,6 +373,9 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .ae-detail-empty{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:6px 0}
 .ae-detail-edit-btn{width:100%;margin-top:14px;padding:11px;border:none;border-radius:var(--r-md);background:var(--ink);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
 .ae-detail-edit-btn:active{opacity:.7}
+.ae-detail-del-btn{padding:11px 16px;border:1.5px solid var(--border);border-radius:var(--r-md);background:transparent;color:var(--mist);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;flex-shrink:0;transition:all .15s}
+.ae-detail-del-btn:active{background:rgba(255,82,82,.06);border-color:#ff5252;color:#ff5252}
+.ae-detail-action-row{display:flex;gap:8px;margin-top:14px}
 
 /* Archive — no results */
 .ae-no-results{padding:40px 20px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);line-height:1.6}
@@ -539,7 +543,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 /* ══════════════════════════════════════
    Product modal (bottom sheet)
    ══════════════════════════════════════ */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:300;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:300;opacity:0;pointer-events:none;transition:opacity .3s}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{width:390px;background:var(--surface);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 20px 36px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto}
 .modal-overlay.open .modal{transform:translateY(0)}
@@ -610,7 +614,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .cat-btn.selected .cat-name-inp{color:var(--ink)}
 
 /* Box Search Full Panel */
-.bp-overlay{position:fixed;inset:0;background:#fff;z-index:500;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.bp-overlay{position:absolute;inset:0;background:#fff;z-index:500;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
 .bp-overlay.open{transform:translateX(0)}
 .bp-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;border-bottom:1px solid var(--border);flex-shrink:0;background:#fff}
 .bp-back{background:none;border:none;cursor:pointer;font-size:20px;font-weight:600;color:var(--ink);padding:0;line-height:1}
@@ -623,6 +627,14 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .bp-count{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:6px;letter-spacing:.04em}
 .bp-list{flex:1;overflow-y:auto;scrollbar-width:none}
 .bp-list::-webkit-scrollbar{display:none}
+/* BOX picker — domain + subcat filter */
+.bp-domain-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:#fff}
+.bp-dtab{flex:1;padding:10px 0;border:none;background:none;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mist);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s}
+.bp-dtab.active{color:var(--ink);border-bottom-color:var(--lime)}
+.bp-subcat-row{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.bp-subcat-row::-webkit-scrollbar{display:none}
+.bp-scat{padding:4px 11px;border-radius:9999px;border:1.5px solid var(--border);background:transparent;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;transition:all .18s;white-space:nowrap}
+.bp-scat.active{background:var(--ink);color:#fff;border-color:var(--ink)}
 .bp-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
 .bp-more-btn{padding:14px 16px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mist);border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
 .bp-more-btn:active{background:var(--surface-low)}
@@ -767,7 +779,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
 .ct-cal-done{width:100%;height:44px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:14px}
 
 /* Toast */
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 24px;border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:500}
+.toast{position:absolute;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 24px;border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:500}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ══ Tracker Panel ══ */
@@ -856,7 +868,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       <!-- Left column -->
       <div class="hub-col">
         <div class="hub-gc" onclick="openSetupPanel('routine')">
-          <div class="hub-gc-img"></div>
+          <div class="hub-gc-img" id="hub-img-routine"></div>
           <div class="hub-gc-body">
             <div class="hub-gc-badge">#SESSION</div>
             <div class="hub-gc-title">ROUTINE SETUP</div>
@@ -874,7 +886,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
           <div class="hub-gc-cta">Set Alarms →</div>
         </div>
         <div class="hub-gc" onclick="openSetupPanel('look')">
-          <div class="hub-gc-img"></div>
+          <div class="hub-gc-img" id="hub-img-look"></div>
           <div class="hub-gc-body">
             <div class="hub-gc-badge">#LOOKBOOK</div>
             <div class="hub-gc-title">PLANNING</div>
@@ -886,7 +898,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       <!-- Right column (offset) -->
       <div class="hub-col hub-col-right">
         <div class="hub-gc" onclick="openSetupPanel('makeup')">
-          <div class="hub-gc-img"></div>
+          <div class="hub-gc-img" id="hub-img-makeup"></div>
           <div class="hub-gc-body">
             <div class="hub-gc-badge">#MAKEUP</div>
             <div class="hub-gc-title">STRATEGY</div>
@@ -895,7 +907,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
           <div class="hub-gc-cta">Reconstruct →</div>
         </div>
         <div class="hub-gc" onclick="openSetupPanel('care')">
-          <div class="hub-gc-img"></div>
+          <div class="hub-gc-img" id="hub-img-care"></div>
           <div class="hub-gc-body">
             <div class="hub-gc-badge">#INTENSIVE CARE</div>
             <div class="hub-gc-title">SPECIAL CARE</div>
@@ -906,10 +918,6 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       </div>
     </div>
 
-    <!-- FAB -->
-    <div style="display:flex;justify-content:flex-end;padding:4px 20px 8px">
-      <button onclick="openSetupPanel('routine')" style="width:52px;height:52px;border-radius:9999px;background:var(--lime);color:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(197,255,0,.4)">⚙</button>
-    </div>
 
 
     <!-- Legacy hub-count holders (hidden) -->
@@ -926,17 +934,31 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
   <!-- ══ SUB-PANEL: ROUTINE ══ -->
   <div class="setup-panel" id="setup-panel-routine">
     <div class="panel-appbar">
-      <button class="panel-back" onclick="closeSetupPanel()" style="font-size:18px;font-weight:400">✕</button>
-      <div style="background:var(--lime);color:var(--ink);font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:var(--r-full)">EDIT MODE</div>
-      <div style="width:40px"></div>
+      <button class="panel-back" onclick="closeSetupPanel()">←</button>
+      <div class="panel-appbar-center">ROUTINE SETUP</div>
+      <button onclick="startNewSessionSheet()"
+        style="width:32px;height:32px;border-radius:9999px;background:var(--lime);color:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:300;line-height:1">+</button>
     </div>
     <div class="panel-body" id="routine-panel-body">
+      <div id="routine-session-list" style="padding:8px 0 80px"></div>
+    </div>
+    <div class="app-nav"></div>
+  </div><!-- /setup-panel-routine -->
+
+  <!-- ══ SUB-PANEL: ROUTINE EDIT (3단계 — 현재 세션 전용) ══ -->
+  <div class="setup-panel" id="setup-panel-routine-edit">
+    <div class="panel-appbar">
+      <button class="panel-back" onclick="closeRoutineEditPanel()">←</button>
+      <div class="panel-appbar-center">EDIT SESSION</div>
+      <div style="width:40px"></div>
+    </div>
+    <div class="panel-body">
 
       <!-- Session Hero -->
       <div class="routine-hero">
         <div style="position:absolute;top:18px;right:18px;font-size:36px;opacity:.08;transform:rotate(15deg);line-height:1">✦</div>
         <div style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px">CURRENT SESSION</div>
-        <div class="session-title" id="session-title-display">12TH SESSION</div>
+        <div class="session-title" id="session-title-display">SESSION</div>
         <div style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-top:12px;margin-bottom:6px">INTERVAL</div>
         <div class="session-date-edit-row">
           <input type="date" id="session-period-start-input" class="session-date-inp" onchange="updatePeriodDate('start',this.value)">
@@ -1023,9 +1045,10 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
         </div>
       </div>
 
-      <!-- Hidden: publish/draft -->
+      <!-- Hidden: publish/draft trigger -->
       <div style="display:none">
         <button id="publish-btn" onclick="activateContent('routine')"></button>
+        <div id="history-list"></div>
       </div>
 
       <!-- Today's Day Badge + Progress Bar -->
@@ -1071,21 +1094,11 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
           SAVE ROUTINE
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
-        <button class="new-session-btn" onclick="startNewSessionSheet()" style="margin-top:10px">+ 새 세션 추가하기</button>
-      </div>
-
-      <!-- History -->
-      <div class="history-section">
-        <div class="history-hd-row">
-          <div class="history-label-wrap">PREVIOUS<br>SESSIONS</div>
-          <button class="history-view-all" onclick="openArchive()">전체보기 →</button>
-        </div>
-        <div id="history-list"></div>
       </div>
 
     </div><!-- /panel-body -->
     <div class="app-nav"></div>
-  </div><!-- /setup-panel-routine -->
+  </div><!-- /setup-panel-routine-edit -->
 
   <!-- ══ SUB-PANEL: 집중케어 ══ -->
   <div class="setup-panel" id="setup-panel-care">
@@ -1199,8 +1212,8 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
   <!-- SESSION ARCHIVE Overlay -->
   <div class="archive-overlay" id="archive-overlay">
     <div class="archive-appbar">
-      <div class="appbar-menu" onclick="closeArchive()" style="cursor:pointer">
-        <span></span><span></span><span></span>
+      <div onclick="closeArchive()" style="cursor:pointer;display:flex;align-items:center;justify-content:center;width:32px;height:32px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
       </div>
       <div class="archive-appbar-center">SESSION ARCHIVE</div>
       <div id="archive-avatar" data-auth-avatar onclick="handleAuthClick()">
@@ -1364,8 +1377,6 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
     <div class="se-body" id="se-body"></div>
   </div>
 
-</div><!-- /phone -->
-
 <!-- Product modal -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
@@ -1418,7 +1429,7 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       <input class="form-input" id="product-brand" type="text" placeholder="브랜드명">
     </div>
     <div class="modal-btn-row">
-      <button class="modal-del-btn" id="modal-del-btn" onclick="deleteProduct()">삭제</button>
+      <button class="modal-del-btn" id="modal-del-btn" onclick="deleteProduct()">제거</button>
       <button class="modal-add-btn" id="modal-confirm-btn" onclick="confirmProduct()">추가하기</button>
     </div>
   </div>
@@ -1436,10 +1447,20 @@ body{background:#EBEBEB;display:flex;justify-content:center;align-items:flex-sta
       oninput="renderBpList(this.value)" autocomplete="off">
     <div class="bp-count" id="bp-count"></div>
   </div>
+  <!-- Domain tabs -->
+  <div class="bp-domain-tabs">
+    <button class="bp-dtab active" id="bpd-beauty"  onclick="setBpDomain('beauty')">Beauty</button>
+    <button class="bp-dtab"        id="bpd-fashion" onclick="setBpDomain('fashion')">Fashion</button>
+    <button class="bp-dtab"        id="bpd-acc"     onclick="setBpDomain('acc')">Acc</button>
+  </div>
+  <!-- Sub-cat chips -->
+  <div class="bp-subcat-row" id="bp-subcat-row"></div>
   <div class="bp-list" id="bp-list"></div>
 </div>
 
 <div class="toast" id="toast"></div>
+
+</div><!-- /phone -->
 
 <script>
 // ── Firebase ──────────────────────────────────────────────────
@@ -1457,8 +1478,15 @@ let currentUser = null;
 let _unsubExtra = null, _unsubCareplan = null, _unsubSettings = null, _unsubBox = null;
 
 function _applyBoxSnap(d) {
-  if (d.assets)    localStorage.setItem('onstep_box_assets',    JSON.stringify(d.assets));
-  if (d.locations) localStorage.setItem('onstep_box_locations', JSON.stringify(d.locations));
+  if (d.assets) {
+    const localAssets=JSON.parse(localStorage.getItem('onstep_box_assets')||'[]');
+    const merged=d.assets.map(ca=>{const la=localAssets.find(a=>a.id===ca.id);return{...ca,imgData:la?.imgData||null,storageImgData:la?.storageImgData||null};});
+    localStorage.setItem('onstep_box_assets', JSON.stringify(merged));
+  }
+  if (d.locations) {
+    const localLocs=JSON.parse(localStorage.getItem('onstep_box_locations')||'[]');
+    localStorage.setItem('onstep_box_locations', JSON.stringify(d.locations.map(cl=>{const ll=localLocs.find(l=>l.id===cl.id);return{...cl,imgData:ll?.imgData||null};})));
+  }
   if (d.boxCats)   localStorage.setItem('onstep_box_cats',      JSON.stringify(d.boxCats));
   if (d.catLabels) {
     const merged = Object.assign(
@@ -1534,7 +1562,16 @@ firebase.auth().onAuthStateChanged(user => {
   }
 });
 
-window.addEventListener('DOMContentLoaded', () => { initNav('setup'); initCmsContent(); });
+window.addEventListener('DOMContentLoaded', () => {
+  initNav('setup'); initCmsContent();
+  _onStateChange('box_assets', () => {
+    if (document.getElementById('bp-overlay')?.classList.contains('open')) {
+      renderBpList(document.getElementById('bp-search-inp')?.value || '');
+    }
+    const ctRes = document.getElementById('ct-box-results');
+    if (ctRes && ctRes.children.length) renderCtBoxResults(document.getElementById('ct-box-inp')?.value || '');
+  });
+});
 
 let _lastSyncTs = 0;
 document.addEventListener('visibilitychange', () => {
@@ -1582,10 +1619,11 @@ async function loadFromCloud(uid) {
     const extraSnap = await userRef.collection('extra').doc('data').get();
     if (extraSnap.exists && (extraSnap.data().careThemes || extraSnap.data().makeupContents || extraSnap.data().makeupThemes || extraSnap.data().lookContents || extraSnap.data().lookThemes)) {
       const d = extraSnap.data();
-      if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(d.careThemes));
-      if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',  JSON.stringify(d.makeupContents));
+      const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null};});};
+      if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(_mi('onstep_care_themes',d.careThemes)));
+      if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',  JSON.stringify(_mi('onstep_makeup_contents',d.makeupContents)));
       else if (d.makeupThemes) localStorage.setItem('onstep_makeup_contents', JSON.stringify(d.makeupThemes?.themes || []));
-      if (d.lookContents)    localStorage.setItem('onstep_look_contents',    JSON.stringify(d.lookContents));
+      if (d.lookContents)    localStorage.setItem('onstep_look_contents',    JSON.stringify(_mi('onstep_look_contents',d.lookContents)));
       else if (d.lookThemes) localStorage.setItem('onstep_look_contents',    JSON.stringify(d.lookThemes));
       if (d.portfolio)    localStorage.setItem('onstep_planned_portfolio',  JSON.stringify(d.portfolio));
       localStorage.removeItem('_onstep_extra_local_ts');
@@ -1631,6 +1669,7 @@ async function loadFromCloud(uid) {
 }
 
 async function saveTrackerToCloud() {
+  if (typeof _broadcastState === 'function') _broadcastState('tracker');
   if (!currentUser) return;
   try {
     await fbDb.collection('users').doc(currentUser.uid)
@@ -1643,13 +1682,30 @@ async function saveThemesToFirestore() {
   if (typeof _broadcastState === 'function') { _broadcastState('schedule'); _broadcastState('extra'); }
   if (!currentUser) return;
   try {
+    const uid       = currentUser.uid;
     const care      = JSON.parse(localStorage.getItem('onstep_care_themes')       || '[]');
     const makeup    = JSON.parse(localStorage.getItem('onstep_makeup_contents')   || '[]');
     const looks     = JSON.parse(localStorage.getItem('onstep_look_contents')     || '[]');
     const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio') || '[]');
-    localStorage.setItem('_onstep_extra_local_ts', Date.now().toString());
-    await fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
-      .set({ careThemes: care, makeupContents: makeup, lookContents: looks, portfolio, savedAt: new Date().toISOString() }, { merge: true });
+    const nowTs     = Date.now();
+    localStorage.setItem('_onstep_extra_local_ts', nowTs.toString());
+    const _uploadThemes=(arr,prefix)=>Promise.all(arr.map(async t=>{
+      if(t.baselineImg){
+        const {url,hash}=await ensureImgUrl(uid,t.baselineImg,t.storageUrl||null,t.storageHash||'',`${prefix}/${t.id}.jpg`);
+        t.storageUrl=url; t.storageHash=hash;
+      }
+      return{...t,baselineImg:null};
+    }));
+    const [careFs,makeupFs,looksFs]=await Promise.all([
+      _uploadThemes(care,'extra/care'),
+      _uploadThemes(makeup,'extra/makeup'),
+      _uploadThemes(looks,'extra/look'),
+    ]);
+    localStorage.setItem('onstep_care_themes',     JSON.stringify(care));
+    localStorage.setItem('onstep_makeup_contents', JSON.stringify(makeup));
+    localStorage.setItem('onstep_look_contents',   JSON.stringify(looks));
+    await fbDb.collection('users').doc(uid).collection('extra').doc('data')
+      .set({ careThemes: careFs, makeupContents: makeupFs, lookContents: looksFs, portfolio, savedAt: new Date(nowTs).toISOString() }, { merge: true });
   } catch(e) { console.warn('Themes cloud save:', e); }
 }
 
@@ -1695,69 +1751,9 @@ const SAMPLE_NIGHTLY = [
   { id:2004, catKey:'cream',   name:'델마크림',   brand:'뷰티지아나',       icon:'🫙', imgData:null },
   { id:2005, catKey:'ampoule', name:'오션앰플',            brand:'뷰티지아나',         icon:'🧪', imgData:null },
 ];
-const SAMPLE_MAKEUP_THEMES = [
-  {
-    id:1, name:'Daily Glow', emoji:'✨',
-    description:'Natural dewy finish perfect for everyday wear.',
-    products:[
-      {id:1,step:'Base',  name:'base SPF30',               brand:'chanel',    icon:'◎',imgData:null},
-      {id:2,step:'Cheek', name:'Soft Pinch Liquid Blush',        brand:'Dior',    icon:'◌',imgData:null},
-      {id:3,step:'Eye',   name:'Gimme Brow+ Gel',                brand:'Benefit',        icon:'▸',imgData:null},
-      {id:4,step:'Lip',   name:'Lip Glow Oil',                   brand:'Dior',           icon:'◈',imgData:null},
-      {id:5,step:'Finish',name:'All Nighter Setting Spray',      brand:'Urban Decay',    icon:'✦',imgData:null}
-    ],
-    scheduledDates:['2026-04-29','2026-05-01','2026-05-06','2026-05-08']
-  },
-  {
-    id:2, name:'Sleek & Sharp', emoji:'🖤',
-    description:'Polished editorial look for days you want to command the room.',
-    products:[
-      {id:1,step:'Base',  name:'Luminous Silk Foundation',       brand:'Giorgio Armani', icon:'◎',imgData:null},
-      {id:2,step:'Eye',   name:'Naked3 Palette',                 brand:'Urban Decay',    icon:'▪',imgData:null},
-      {id:3,step:'Liner', name:'Calligraphie Liner',             brand:'Lancôme',        icon:'▸',imgData:null},
-      {id:4,step:'Lip',   name:'Matte Revolution Lipstick',      brand:'Charlotte Tilbury',icon:'◈',imgData:null}
-    ],
-    scheduledDates:['2026-04-30','2026-05-02','2026-05-07']
-  },
-  {
-    id:3, name:'Office Minimal', emoji:'💼',
-    description:'Understated confidence for the boardroom. Clean, precise, professional.',
-    products:[
-      {id:1,step:'Base',   name:'BB Cream SPF50+',               brand:'Dr.Jart+',       icon:'◎',imgData:null},
-      {id:2,step:'Conceal',name:'Radiant Creamy Concealer',      brand:'NARS',           icon:'◌',imgData:null},
-      {id:3,step:'Brow',   name:'Micro Precision Pen',           brand:'Anastasia BH',   icon:'▸',imgData:null},
-      {id:4,step:'Lip',    name:'Ink Velvet Tint',               brand:'Peripera',       icon:'◈',imgData:null}
-    ],
-    scheduledDates:[]
-  },
-  {
-    id:4, name:'Weekend Fresh', emoji:'☀️',
-    description:'Quick 5-min routine for relaxed days. SPF is your best friend.',
-    products:[
-      {id:1,step:'Base',  name:'Tinted Moisturizer SPF30',       brand:'Laura Mercier',  icon:'◎',imgData:null},
-      {id:2,step:'Color', name:'Multi-Stick (Cheek+Lip)',         brand:'ILIA Beauty',    icon:'◌',imgData:null},
-      {id:3,step:'Lip',   name:'Almost Lipstick in Black Honey',  brand:'Clinique',       icon:'◈',imgData:null}
-    ],
-    scheduledDates:[]
-  },
-  {
-    id:5, name:'Glazed Donut', emoji:'🍩',
-    description:'K-beauty glass skin moment — sheer, dewy, luminous all day.',
-    products:[
-      {id:1,step:'Prep',  name:'Pore Minimizing Blur Stick',     brand:'Milk Makeup',    icon:'◎',imgData:null},
-      {id:2,step:'Base',  name:'Essential Finisher Cushion',      brand:'Sulwhasoo',      icon:'◌',imgData:null},
-      {id:3,step:'Glow',  name:'Gloss Bomb Universal Lip Luminizer',brand:'Fenty Beauty', icon:'✦',imgData:null},
-      {id:4,step:'Lip',   name:'Juicy Lasting Tint Cherry',       brand:'Rom&nd',         icon:'◈',imgData:null},
-      {id:5,step:'Lash',  name:'Unlocked Tubing Mascara',         brand:'Hourglass',      icon:'▸',imgData:null}
-    ],
-    scheduledDates:[]
-  }
-];
-const SAMPLE_LOOK_SCHEDULE = {}; // populated below
-
 // ── State ─────────────────────────────────────────────────────
-let lookSchedule   = Object.assign({}, SAMPLE_LOOK_SCHEDULE);
-let makeupSchedule = { themes: SAMPLE_MAKEUP_THEMES.map(t=>({...t, scheduledDates:[...(t.scheduledDates||[])]})) };
+let lookSchedule   = {};
+let makeupSchedule = { themes: [] };
 
 let state = {
   session: 12,
@@ -1836,11 +1832,10 @@ window.addEventListener('load', () => {
 
 function applyPlanData(saved) {
   const mig = r => {
-    if (!r) return { active:1, routines:[{id:1,products:[],tip:''},{id:2,products:[],tip:''}] };
-    if (Array.isArray(r)) return { active:1, routines:[{id:1,products:r,tip:''},{id:2,products:[],tip:''}] };
-    if (!r.routines) r.routines = [{id:1,products:[],tip:''},{id:2,products:[],tip:''}];
+    if (!r) return { active:1, routines:[{id:1,products:[],tip:''}] };
+    if (Array.isArray(r)) return { active:1, routines:[{id:1,products:r,tip:''}] };
+    if (!r.routines) r.routines = [{id:1,products:[],tip:''}];
     r.routines.forEach(rt => { if (rt.tip===undefined) rt.tip=''; });
-    if (!r.routines.find(x=>x.id===2)) r.routines.push({id:2,products:[],tip:''});
     if (!r.active) r.active = 1;
     return r;
   };
@@ -1901,6 +1896,21 @@ function renderStepTabs(slot) {
              onclick="addRoutineDay('${slot}')" title="루틴 추가">+</button>`;
 }
 
+function deleteRoutineDay(slot, id) {
+  const routines = state[slot].routines;
+  if (routines.length <= 1) return;
+  const idx = routines.findIndex(r => r.id === id);
+  if (idx === -1) return;
+  routines.splice(idx, 1);
+  if (state[slot].active === id) {
+    state[slot].active = routines[Math.max(0, idx - 1)].id;
+  }
+  renderStepTabs(slot);
+  renderGrid(slot);
+  renderTodayStepBadge();
+  showToast(`Day ${id} 삭제됨`);
+}
+
 function addRoutineDay(slot) {
   const routines = state[slot].routines;
   const newId    = Math.max(...routines.map(r => r.id)) + 1;
@@ -1946,7 +1956,7 @@ function openSetupPanel(type) {
   _currentPanel = type;
   const panel = document.getElementById(`setup-panel-${type}`);
   if (panel) panel.classList.add('open');
-  if (type === 'routine') renderAll();
+  if (type === 'routine') renderRoutineSessionList();
   if (type === 'care')    renderCtCareList();
   if (type === 'makeup')  renderCtMkpList();
   if (type === 'look')    renderCtLookList();
@@ -1976,6 +1986,40 @@ function updateHubCounts() {
   const looks = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
   const lEl = document.getElementById('hub-count-look');
   if (lEl) lEl.textContent = looks.length ? `${looks.length} LOOKS` : 'SET UP';
+  updateHubImages();
+}
+
+function _setHubImg(id, src) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (src) {
+    el.style.backgroundImage = `url(${src})`;
+    el.style.backgroundSize = 'cover';
+    el.style.backgroundPosition = 'center';
+  } else {
+    el.style.backgroundImage = '';
+  }
+}
+
+function updateHubImages() {
+  // Makeup: id 내림차순(최신순) 중 baselineImg 있는 첫 번째
+  const mkp  = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
+  _setHubImg('hub-img-makeup', [...mkp].sort((a,b)=>b.id-a.id).find(t=>t.baselineImg)?.baselineImg || null);
+
+  // Look: 동일 패턴
+  const lk   = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
+  _setHubImg('hub-img-look', [...lk].sort((a,b)=>b.id-a.id).find(t=>t.baselineImg)?.baselineImg || null);
+
+  // Care: 동일 패턴
+  const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+  _setHubImg('hub-img-care', [...care].sort((a,b)=>b.id-a.id).find(t=>t.baselineImg)?.baselineImg || null);
+
+  // Routine: 현재 세션 루틴 전체 제품 중 imgData 있는 마지막 제품
+  const allProds = [
+    ...(state.morning?.routines||[]).flatMap(r=>r.products||[]),
+    ...(state.nightly?.routines||[]).flatMap(r=>r.products||[])
+  ];
+  _setHubImg('hub-img-routine', [...allProds].reverse().find(p=>p.imgData)?.imgData || null);
 }
 
 // ── Hero ──────────────────────────────────────────────────────
@@ -2015,8 +2059,10 @@ function updateTimeDisplay(slot, val) {
   const pad = n => String(n).padStart(2,'0');
   const vEl = document.getElementById(`${slot}-time-display`);
   const aEl = document.getElementById(`${slot}-time-ampm`);
+  const iEl = document.getElementById(`${slot}-time`);
   if (vEl) vEl.textContent = `${pad(h12)}:${pad(m)}`;
   if (aEl) aEl.textContent = ampm;
+  if (iEl) iEl.value = val;
   if (slot === 'morning') state.morningTime = val;
   else state.nightlyTime = val;
 }
@@ -2131,6 +2177,104 @@ function toggleProdList(slot) {
 }
 
 // ── History ───────────────────────────────────────────────────
+function renderRoutineSessionList() {
+  const el = document.getElementById('routine-session-list');
+  if (!el) return;
+  updateHubCounts();
+
+  const all = [
+    { session: state.session, periodStart: state.periodStart, periodEnd: state.periodEnd,
+      morning: state.morning, nightly: state.nightly, isCurrent: true },
+    ...(state.history || []).map(s => ({ ...s, isCurrent: false }))
+  ].filter(s => s.session).sort((a, b) => b.session - a.session);
+
+  if (!all.length) {
+    el.innerHTML = `<div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);text-align:center;padding:48px 24px">
+      세션이 없습니다.<br>+ 버튼으로 첫 세션을 추가해보세요.
+    </div>`;
+    return;
+  }
+
+  const fmt = d => (d || '').replace(/-/g, '.');
+  const CAT_LABEL = { toner:'토너',serum:'세럼',ampoule:'앰플',booster:'부스터',cream:'크림',pack:'팩',mist:'미스트',etc:'기타' };
+  const stepRow = p => `
+    <div class="ae-step-row">
+      <span class="ae-step-icon">${p.icon||'✦'}</span>
+      <div class="ae-step-info">
+        <div class="ae-step-name">${p.name}</div>
+        ${p.brand ? `<div class="ae-step-brand">${p.brand}</div>` : ''}
+      </div>
+      ${p.catKey ? `<span class="ae-step-cat">${CAT_LABEL[p.catKey]||p.catKey}</span>` : ''}
+    </div>`;
+  const slotBlock = (icon, label, prods) => prods.length ? `
+    <div class="ae-slot-hd"><span class="ae-slot-icon">${icon}</span><span class="ae-slot-label">${label} · ${prods.length} STEPS</span></div>
+    <div class="ae-step-list">${prods.map(stepRow).join('')}</div>` : '';
+
+  let html = '';
+  let lastYear = null;
+  all.forEach(s => {
+    const n = s.session;
+    const sfx = getSuffix(n).toUpperCase();
+    const yr = (s.periodStart || '').slice(0, 4) || '—';
+    const mProds = (s.morning?.routines || []).flatMap(r => r.products || []);
+    const nProds = (s.nightly?.routines || []).flatMap(r => r.products || []);
+    const tags = [...(mProds.length ? [`☀ ${mProds.length}`] : []), ...(nProds.length ? [`🌙 ${nProds.length}`] : [])];
+    const tagsHtml = tags.map(t => `<span class="ae-tag">${t}</span>`).join('');
+    const detailBody = mProds.length || nProds.length
+      ? slotBlock('☀️', 'MORNING', mProds) + slotBlock('🌙', 'NIGHT', nProds)
+      : '<div class="ae-detail-empty">등록된 제품이 없습니다</div>';
+
+    if (yr !== lastYear) {
+      html += `<div class="ae-year-hd">${yr}</div>`;
+      lastYear = yr;
+    }
+
+    html += `
+    <div class="ae-row${s.isCurrent ? ' current' : ''}" id="rs-row-${n}" onclick="toggleRsRow(${n})">
+      <div class="ae-session-num">#${String(n).padStart(2,'0')}</div>
+      <div class="ae-row-info">
+        <div class="ae-row-title">${n}${sfx} SESSION${s.isCurrent ? ' <span class="ae-now-pill">NOW</span>' : ''}</div>
+        <div class="ae-row-dates">${fmt(s.periodStart)} – ${fmt(s.periodEnd)}</div>
+      </div>
+      <div class="ae-row-right">${tagsHtml}<span class="ae-chevron">›</span></div>
+    </div>
+    <div class="ae-detail" id="rs-detail-${n}">
+      <div class="ae-detail-inner">
+        ${detailBody}
+        ${s.isCurrent
+          ? `<button class="ae-detail-edit-btn" onclick="event.stopPropagation();openRoutineEditPanel()">EDIT ROUTINE →</button>`
+          : `<div class="ae-detail-action-row">
+               <button class="ae-detail-edit-btn" style="flex:1" onclick="event.stopPropagation();openSessionEditor(${n})">편집 →</button>
+               <button class="ae-detail-del-btn" onclick="event.stopPropagation();deleteSession(${n})">삭제</button>
+             </div>`
+        }
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+function toggleRsRow(n) {
+  const row = document.getElementById(`rs-row-${n}`);
+  const detail = document.getElementById(`rs-detail-${n}`);
+  if (!detail) return;
+  const isOpen = detail.classList.contains('open');
+  document.querySelectorAll('#routine-session-list .ae-detail.open').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('#routine-session-list .ae-row.expanded').forEach(r => r.classList.remove('expanded'));
+  if (!isOpen) { detail.classList.add('open'); row?.classList.add('expanded'); }
+}
+
+function deleteSession(n) {
+  if (n === state.session) { showToast('현재 세션은 삭제할 수 없습니다'); return; }
+  if (!confirm(`${n}회차 세션을 삭제하시겠습니까?`)) return;
+  state.history = (state.history || []).filter(h => h.session !== n);
+  persistPlan(state.published || false);
+  renderRoutineSessionList();
+  renderArchiveEntries();
+  showToast(`✓ ${n}회차 삭제됨`);
+}
+
 function renderHistory() {
   const el = document.getElementById('history-list');
   if (!el) return;
@@ -2156,8 +2300,8 @@ function renderHistory() {
 
   el.innerHTML = sessions.map(s => {
     const n = s.session, sfx = getSuffix(n).toUpperCase();
-    const mProds = s.morning?.routines?.[0]?.products || [];
-    const nProds = s.nightly?.routines?.[0]?.products || [];
+    const mProds = (s.morning?.routines || []).flatMap(r => r.products || []);
+    const nProds = (s.nightly?.routines || []).flatMap(r => r.products || []);
     const tags = [...(mProds.length?[`☀ ${mProds.length}`]:[]),...(nProds.length?[`🌙 ${nProds.length}`]:[])];
     const tagsHtml = tags.map(t=>`<span class="ae-tag">${t}</span>`).join('');
     const detailBody = mProds.length||nProds.length
@@ -2301,7 +2445,7 @@ function renderArchiveList(sessions) {
     <div class="ae-detail" id="ae-detail-${n}">
       <div class="ae-detail-inner">
         ${detailBody}
-            <button class="ae-detail-edit-btn" onclick="event.stopPropagation();openSessionEditor(${n})">편집 →</button>
+        <button class="ae-detail-edit-btn" onclick="event.stopPropagation();editSessionFromArchive(${n},${s.isCurrent})">편집 →</button>
       </div>
     </div>`;
   });
@@ -2331,12 +2475,23 @@ function startNewSession() {
 
 function startNewSessionSheet() {
   _editingSessionNum = -1;
-  document.getElementById('edit-sheet-title').textContent = '새 세션 추가';
+  document.getElementById('edit-sheet-title').textContent = 'NEW ROUTINE SETUP';
   document.getElementById('edit-session-num').value = (state.session || 0) + 1;
   document.getElementById('edit-period-start').value = '';
   document.getElementById('edit-period-end').value = '';
   document.getElementById('edit-overlay').classList.add('open');
   document.getElementById('edit-sheet').classList.add('open');
+}
+
+// ── Routine Edit Panel (3단계) ────────────────────────────────
+function openRoutineEditPanel() {
+  document.getElementById('setup-panel-routine-edit').classList.add('open');
+  renderAll();
+}
+
+function closeRoutineEditPanel() {
+  document.getElementById('setup-panel-routine-edit').classList.remove('open');
+  renderRoutineSessionList();
 }
 
 // ── Edit Sheet ────────────────────────────────────────────────
@@ -2348,10 +2503,9 @@ async function saveRoutineChanges() {
       if (cur) cur.tip = tipEl.value;
     }
   });
-  // localStorage에 먼저 동기적으로 저장, Firestore 쓰기 완료까지 대기
   await persistPlan(true);
   showToast('✓ 루틴이 저장됐습니다');
-  setTimeout(() => { location.href = 'today.html'; }, 700);
+  closeRoutineEditPanel();
 }
 
 let _editingSessionNum = null; // null = new session, N = edit session N
@@ -2417,13 +2571,16 @@ function saveEditSheet() {
     state.session     = newN;
     state.periodStart = s;
     state.periodEnd   = e;
-    state.morning     = { routines: [{ id: 1, products: [], tip: '' }] };
-    state.nightly     = { routines: [{ id: 1, products: [], tip: '' }] };
+    state.morning     = { active: 1, routines: [{ id: 1, products: [], tip: '' }] };
+    state.nightly     = { active: 1, routines: [{ id: 1, products: [], tip: '' }] };
+    state.morningTime = state.morningTime || '08:00';
+    state.nightlyTime = state.nightlyTime || '22:00';
     state.published   = false;
     closeEditSheet();
-    renderAll();
     persistPlan(false);
     showToast('✓ 새 세션이 시작됐습니다');
+    openSetupPanel('routine');
+    setTimeout(() => openRoutineEditPanel(), 80);
     return;
   }
 
@@ -2451,7 +2608,10 @@ function saveEditSheet() {
 }
 
 // ── Session Editor Panel ──────────────────────────────────────
-let _seEdit = null; // { isCurrent, origN, data: deepclone }
+let _seEdit = null;
+let _seActiveSlot = { morning: 1, nightly: 1 };
+let _seModalSlot = null;
+let _seModalRouteId = null;
 
 function openSessionEditor(n) {
   const isCurrent = (n === state.session);
@@ -2464,16 +2624,26 @@ function openSessionEditor(n) {
     if (!src) return;
   }
   _seEdit = { isCurrent, origN: n, data: JSON.parse(JSON.stringify(src)) };
-  // routines 구조 보장
   ['morning','nightly'].forEach(slot => {
     if (!_seEdit.data[slot]) _seEdit.data[slot] = { routines: [{id:1,products:[],tip:''}] };
     if (!_seEdit.data[slot].routines) _seEdit.data[slot].routines = [{id:1,products:[],tip:''}];
     if (!_seEdit.data[slot].routines[0]) _seEdit.data[slot].routines[0] = {id:1,products:[],tip:''};
     if (!_seEdit.data[slot].routines[0].products) _seEdit.data[slot].routines[0].products = [];
+    _seActiveSlot[slot] = _seEdit.data[slot].routines[0].id || 1;
   });
   document.getElementById('se-panel-title').textContent = `${n}회차 편집`;
   renderSeBody();
   document.getElementById('se-panel').classList.add('open');
+}
+
+function editSessionFromArchive(n, isCurrent) {
+  if (isCurrent) {
+    closeArchive();
+    openSetupPanel('routine');
+    setTimeout(() => openRoutineEditPanel(), 80);
+  } else {
+    openSessionEditor(n);
+  }
 }
 
 function closeSessionEditor() {
@@ -2485,6 +2655,7 @@ function renderSeBody() {
   if (!_seEdit) return;
   const d = _seEdit.data;
   const CAT_LABEL = { toner:'토너',serum:'세럼',ampoule:'앰플',booster:'부스터',cream:'크림',pack:'팩',mist:'미스트',etc:'기타' };
+
   const prodRow = (slot, idx, p) => `
     <div class="se-prod-row">
       <span class="se-prod-icon">${p.icon||'✦'}</span>
@@ -2495,27 +2666,35 @@ function renderSeBody() {
       ${p.catKey ? `<span class="se-prod-cat">${CAT_LABEL[p.catKey]||p.catKey}</span>` : ''}
       <button class="se-remove-btn" onclick="seRemoveProd('${slot}',${idx})">✕</button>
     </div>`;
-  const catOptions = Object.entries(CAT).map(([k,v]) => `<option value="${k}">${v.icon} ${v.label}</option>`).join('');
+
   const slotBlock = (icon, label, slot) => {
-    const prods = d[slot].routines[0].products;
+    const routines = d[slot]?.routines || [];
+    const activeId = _seActiveSlot[slot] || routines[0]?.id || 1;
+    const activeRoutine = routines.find(r => r.id === activeId) || routines[0];
+    const prods = activeRoutine?.products || [];
+
+    const tabsHtml = routines.length > 1
+      ? `<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+          ${routines.map(r =>
+            `<button onclick="sePickTab('${slot}',${r.id})"
+              style="padding:5px 14px;border-radius:9999px;border:1.5px solid ${r.id===activeId?'var(--ink)':'var(--border)'};background:${r.id===activeId?'var(--ink)':'transparent'};color:${r.id===activeId?'#fff':'var(--sub)'};font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:all .15s">DAY ${r.id}</button>`
+          ).join('')}
+         </div>` : '';
+
     return `
     <div class="se-slot-hd">
       <div class="se-slot-title"><span>${icon}</span>${label}</div>
     </div>
+    ${tabsHtml}
     <div class="se-prod-list" id="se-list-${slot}">
       ${prods.length ? prods.map((p,i) => prodRow(slot,i,p)).join('') : `<div class="se-empty">등록된 제품 없음</div>`}
     </div>
-    <div class="se-add-form">
-      <div class="se-add-row">
-        <select class="se-add-select" id="se-cat-${slot}">${catOptions}</select>
-        <input class="se-add-input" id="se-name-${slot}" placeholder="제품명" maxlength="40" onkeydown="if(event.key==='Enter')seAddProd('${slot}')">
-      </div>
-      <div class="se-add-row">
-        <input class="se-add-input" id="se-brand-${slot}" placeholder="브랜드 (선택)" maxlength="30" style="flex:1">
-        <button class="se-add-confirm" onclick="seAddProd('${slot}')">+ ADD</button>
-      </div>
-    </div>`;
+    <button onclick="openSeModal('${slot}')"
+      style="width:100%;margin-top:8px;padding:11px;background:transparent;border:1.5px dashed var(--border-md);border-radius:var(--r-sm);color:var(--sub);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+      <span style="font-size:15px;font-weight:300">+</span> 제품 추가
+    </button>`;
   };
+
   document.getElementById('se-body').innerHTML = `
     <div class="se-section">
       <div class="se-section-label">SESSION INFO</div>
@@ -2532,6 +2711,19 @@ function renderSeBody() {
             <input class="se-input" id="se-end" type="date" value="${d.periodEnd||''}" style="flex:1">
           </div>
         </div>
+        <div class="se-field">
+          <label>ROUTINE TIME</label>
+          <div class="se-date-row" style="gap:12px">
+            <div style="flex:1;display:flex;align-items:center;gap:6px">
+              <span style="font-size:13px">☀️</span>
+              <input class="se-input" id="se-morning-time" type="time" value="${d.morningTime||'08:00'}" style="flex:1">
+            </div>
+            <div style="flex:1;display:flex;align-items:center;gap:6px">
+              <span style="font-size:13px">🌙</span>
+              <input class="se-input" id="se-nightly-time" type="time" value="${d.nightlyTime||'22:00'}" style="flex:1">
+            </div>
+          </div>
+        </div>
       </div>
       ${slotBlock('☀️','MORNING','morning')}
       ${slotBlock('🌙','NIGHT','nightly')}
@@ -2539,9 +2731,25 @@ function renderSeBody() {
     </div>`;
 }
 
+function sePickTab(slot, id) {
+  _seActiveSlot[slot] = id;
+  renderSeBody();
+}
+
+function openSeModal(slot) {
+  if (!_seEdit) return;
+  _seModalSlot = slot;
+  _seModalRouteId = _seActiveSlot[slot] || 1;
+  openModal(slot);
+}
+
 function seRemoveProd(slot, idx) {
   if (!_seEdit) return;
-  _seEdit.data[slot].routines[0].products.splice(idx, 1);
+  const activeId = _seActiveSlot[slot] || 1;
+  const routine = (_seEdit.data[slot]?.routines || []).find(r => r.id === activeId)
+               || _seEdit.data[slot]?.routines?.[0];
+  if (!routine) return;
+  routine.products.splice(idx, 1);
   renderSeBody();
 }
 
@@ -2569,14 +2777,20 @@ function saveSessionEditor() {
   const start = document.getElementById('se-start')?.value;
   const end   = document.getElementById('se-end')?.value;
   if (!newN || !start || !end) { showToast('회차 번호와 기간을 입력해주세요'); return; }
+  const mTime = document.getElementById('se-morning-time')?.value || '08:00';
+  const nTime = document.getElementById('se-nightly-time')?.value || '22:00';
   _seEdit.data.session     = newN;
   _seEdit.data.periodStart = start;
   _seEdit.data.periodEnd   = end;
+  _seEdit.data.morningTime = mTime;
+  _seEdit.data.nightlyTime = nTime;
 
   if (_seEdit.isCurrent) {
     state.session     = newN;
     state.periodStart = start;
     state.periodEnd   = end;
+    state.morningTime = mTime;
+    state.nightlyTime = nTime;
     state.morning     = _seEdit.data.morning;
     state.nightly     = _seEdit.data.nightly;
     updateHero();
@@ -2587,6 +2801,7 @@ function saveSessionEditor() {
   }
   persistPlan(state.published || false);
   renderArchiveEntries();
+  renderRoutineSessionList();
   closeSessionEditor();
   showToast('✓ 저장됐습니다');
 }
@@ -2689,13 +2904,64 @@ function openModal(slot, editId = null) {
 
 // ── Box Search Panel ─────────────────────────────────────────
 let bpSelectedId = null;
-let _bpExpanded = false;
+let _bpExpanded  = false;
+let _bpDomain    = 'beauty';
+let _bpSubcat    = 'all';
+
+const BP_BEAUTY_CATS = {
+  skincare: ['toner','serum','cream','essence','suncare','mask','cleansing','eye','lip_care','etc'],
+  makeup:   ['base','lip','eye','cheek','brow','etc']
+};
+const BP_FASHION_CATS = ['top','bottom','outer','shoes','bag','acc'];
+const BP_ACC_CATS     = ['jewelry','watch','belt','sunglasses','hat','other'];
+
+function setBpDomain(d) {
+  _bpDomain = d; _bpSubcat = 'all';
+  ['beauty','fashion','acc'].forEach(x => document.getElementById('bpd-'+x)?.classList.toggle('active', x===d));
+  _renderBpSubcats();
+  renderBpList(document.getElementById('bp-search-inp')?.value || '');
+}
+
+function setBpSubcat(s) {
+  _bpSubcat = s;
+  document.querySelectorAll('.bp-scat').forEach(b => b.classList.toggle('active', b.dataset.key === s));
+  renderBpList(document.getElementById('bp-search-inp')?.value || '');
+}
+
+function _renderBpSubcats() {
+  const row = document.getElementById('bp-subcat-row');
+  if (!row) return;
+  if (_bpDomain === 'beauty') {
+    const cats = [
+      { key:'all',      label:'전체' },
+      { key:'skincare', label:'Skincare' },
+      { key:'makeup',   label:'Makeup' },
+    ];
+    row.innerHTML = cats.map(c =>
+      `<button class="bp-scat${_bpSubcat===c.key?' active':''}" data-key="${c.key}" onclick="setBpSubcat('${c.key}')">${c.label}</button>`
+    ).join('');
+  } else if (_bpDomain === 'fashion') {
+    const cats = [{ key:'all', label:'전체' }, ...BP_FASHION_CATS.map(k => ({ key:k, label:k.toUpperCase() }))];
+    row.innerHTML = cats.map(c =>
+      `<button class="bp-scat${_bpSubcat===c.key?' active':''}" data-key="${c.key}" onclick="setBpSubcat('${c.key}')">${c.label}</button>`
+    ).join('');
+  } else {
+    const cats = [{ key:'all', label:'전체' }, ...BP_ACC_CATS.map(k => ({ key:k, label:k.toUpperCase() }))];
+    row.innerHTML = cats.map(c =>
+      `<button class="bp-scat${_bpSubcat===c.key?' active':''}" data-key="${c.key}" onclick="setBpSubcat('${c.key}')">${c.label}</button>`
+    ).join('');
+  }
+}
 
 function openBoxPanel() {
   bpSelectedId = selectedBoxAssetId;
-  _bpExpanded = false;
+  _bpExpanded  = false;
+  _bpDomain    = 'beauty';
+  _bpSubcat    = 'all';
   const inp = document.getElementById('bp-search-inp');
   if (inp) inp.value = '';
+  ['beauty','fashion','acc'].forEach(x => document.getElementById('bpd-'+x)?.classList.toggle('active', x==='beauty'));
+  _renderBpSubcats();
   renderBpList('');
   updateBpConfirm();
   document.getElementById('bp-overlay').classList.add('open');
@@ -2716,35 +2982,41 @@ function renderBpList(q) {
   const countEl = document.getElementById('bp-count');
   if (!el) return;
   const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
-  const beauty = assets.filter(a => a.domain === 'beauty');
-  const filtered = q.trim()
-    ? beauty.filter(a =>
-        (a.name||'').toLowerCase().includes(q.toLowerCase()) ||
-        (a.brand||'').toLowerCase().includes(q.toLowerCase()))
-    : beauty;
-  if (countEl) countEl.textContent = `${filtered.length}개 제품`;
+  let filtered = assets.filter(a => a.domain === _bpDomain);
+  if (_bpDomain === 'beauty' && _bpSubcat !== 'all') filtered = filtered.filter(a => a.type === _bpSubcat);
+  if (_bpDomain !== 'beauty' && _bpSubcat !== 'all') filtered = filtered.filter(a => a.catKey === _bpSubcat);
+  if (q.trim()) {
+    const lq = q.toLowerCase();
+    filtered = filtered.filter(a =>
+      (a.name||'').toLowerCase().includes(lq) ||
+      (a.brand||'').toLowerCase().includes(lq));
+  }
+  if (countEl) countEl.textContent = `${filtered.length}개`;
   if (!filtered.length) {
-    el.innerHTML = `<div class="bp-empty">BOX에 등록된 뷰티 제품이 없습니다.<br>먼저 BOX에서 제품을 추가해주세요.</div>`;
+    const domainLabel = { beauty:'뷰티', fashion:'패션', acc:'악세서리' };
+    el.innerHTML = `<div class="bp-empty">BOX에 등록된 ${domainLabel[_bpDomain]||''} 제품이 없습니다.<br><a href="box.html" style="color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px">BOX에서 제품 추가하기 →</a></div>`;
     return;
   }
   const showAll = _bpExpanded || !!q.trim();
-  const visible = showAll ? filtered : filtered.slice(0, 10);
+  const visible = showAll ? filtered : filtered.slice(0, 12);
   const rows = visible.map(a => {
     const isSel = bpSelectedId === a.id;
     const imgStyle = a.imgData ? `background-image:url(${a.imgData});background-size:cover;background-position:center` : '';
     const icon = CAT[a.catKey]?.icon || '✨';
+    const catLabel = (CAT[a.catKey]?.label || a.catKey || '').toUpperCase();
+    const typeTag  = a.type && a.type !== a.domain ? `<span style="opacity:.6">${a.type}</span> · ` : '';
     return `<div class="bp-item${isSel?' selected':''}" onclick="selectBpItem(${a.id})">
       <div class="bp-item-img" style="${imgStyle}">${!a.imgData ? icon : ''}</div>
       <div class="bp-item-info">
         <div class="bp-item-name">${a.name}</div>
         ${a.brand ? `<div class="bp-item-brand">${a.brand}</div>` : ''}
-        <div class="bp-item-cat">${(CAT[a.catKey]?.label||a.catKey||'ETC').toUpperCase()}</div>
+        <div class="bp-item-cat">${typeTag}${catLabel}</div>
       </div>
       <div class="bp-item-check">✓</div>
     </div>`;
   }).join('');
-  const moreBtn = (!showAll && filtered.length > 10)
-    ? `<div class="bp-more-btn" onclick="_bpShowMore()">더 보기 (${filtered.length - 10}개 더) ▾</div>`
+  const moreBtn = (!showAll && filtered.length > 12)
+    ? `<div class="bp-more-btn" onclick="_bpShowMore()">더 보기 (${filtered.length - 12}개 더) ▾</div>`
     : '';
   el.innerHTML = rows + moreBtn;
 }
@@ -2946,6 +3218,23 @@ function confirmProduct() {
   if (!name) { showToast('제품명을 입력해주세요'); return; }
   const brand = document.getElementById('product-brand').value.trim();
   const meta  = CAT[selectedCat] || { icon:'✨' };
+
+  // se-panel 컨텍스트: _seEdit에 저장
+  if (_seModalSlot !== null && _seEdit) {
+    const slot    = _seModalSlot;
+    const routeId = _seModalRouteId;
+    _seModalSlot = null; _seModalRouteId = null;
+    const routine = (_seEdit.data[slot]?.routines || []).find(r => r.id === routeId)
+                 || _seEdit.data[slot]?.routines?.[0];
+    if (routine) {
+      routine.products.push({ id: Date.now(), catKey: selectedCat, name, brand,
+        icon: meta.icon, imgData: prodImgData, assetId: selectedBoxAssetId || null });
+    }
+    renderSeBody();
+    closeModal();
+    showToast(`${meta.icon} ${name} 추가됨`);
+    return;
+  }
 
   if (modal.editId !== null) {
     const prods = getActiveProducts(modal.slot);
@@ -3170,7 +3459,7 @@ function saveNewTheme() {
 function renderCtCareList() {
   const el = document.getElementById('setup-care-list');
   if (!el) return;
-  const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+  const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]').sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko'));
   const cntEl = document.getElementById('setup-care-count');
   if (cntEl) cntEl.textContent = care.length ? `${care.length}개 프로그램 등록됨` : '';
   if (!care.length) {
@@ -3295,7 +3584,7 @@ function getBoxAssets() { return JSON.parse(localStorage.getItem('onstep_box_ass
 function renderCtMkpList() {
   const el = document.getElementById('setup-mkp-list');
   if (!el) return;
-  const themes = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
+  const themes = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]').sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko'));
   const cntEl = document.getElementById('setup-mkp-count');
   if (cntEl) cntEl.textContent = themes.length ? `${themes.length}개 테마 등록됨` : '';
   if (!themes.length) {
@@ -3357,7 +3646,7 @@ function activateMkpTheme(themeId) {
 function renderCtLookList() {
   const el = document.getElementById('setup-look-list');
   if (!el) return;
-  const looks = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
+  const looks = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]').sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko'));
   const cntEl = document.getElementById('setup-look-count');
   if (cntEl) cntEl.textContent = looks.length ? `${looks.length}개 룩 등록됨` : '';
   if (!looks.length) {
@@ -3413,18 +3702,23 @@ function activateLook(lookId) {
     looks[idx].scheduledDates = dates;
   }
   localStorage.setItem('onstep_look_contents', JSON.stringify(looks));
-  // 2) onstep_looks (today.html이 읽는 키)에 오늘 룩 기록 — 키 불일치 해소
+  // 2) onstep_looks에 오늘 룩 일정 기록 (mainPhoto는 사용자가 직접 기록 시에만 설정)
   const dailyLooks = JSON.parse(localStorage.getItem('onstep_looks') || '[]');
   let todayLook = dailyLooks.find(l => l.date === today);
   if (!todayLook) {
-    todayLook = { date: today, mainPhoto: t.baselineImg || null, note: t.name, logged: false, lookThemeId: lookId };
+    todayLook = { date: today, mainPhoto: null, note: t.name, logged: false, lookThemeId: lookId, scheduleLog: [] };
     dailyLooks.push(todayLook);
   } else {
     todayLook.lookThemeId = lookId;
     todayLook.note = t.name;
-    if (!todayLook.mainPhoto && t.baselineImg) todayLook.mainPhoto = t.baselineImg;
+    if (!todayLook.scheduleLog) todayLook.scheduleLog = [];
   }
   localStorage.setItem('onstep_looks', JSON.stringify(dailyLooks));
+  if (currentUser) {
+    fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
+      .set({ looks: dailyLooks.map(l => ({...l, mainPhoto: null})), savedAt: new Date().toISOString() }, { merge: true })
+      .catch(e => console.warn('looks sync:', e));
+  }
   // 3) log portfolio 등록
   const entry = { id: Date.now(), type:'look', title:t.name, emoji:t.emoji, activatedAt: new Date().toISOString() };
   addToLogPortfolio(entry);
@@ -3890,7 +4184,7 @@ function renderTrackerList() {
     el.innerHTML = '<div class="tracker-empty">등록된 습관이 없습니다.<br>위에서 새 습관을 추가해 보세요.</div>';
     return;
   }
-  el.innerHTML = trackerItems.map(it => `
+  el.innerHTML = trackerItems.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko')).map(it => `
     <div class="tracker-item">
       <div class="tracker-item-icon">◎</div>
       <div class="tracker-item-info">

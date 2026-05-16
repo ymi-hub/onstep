@@ -15,6 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <script src="shared.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
@@ -32,7 +33,7 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 16px 48px;font-family:'Plus Jakarta Sans','Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
-.phone{width:390px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative}
+.phone{width:390px;height:888px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate(0,0)}
 .notch{height:44px;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
 .scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:var(--bg)}
@@ -221,15 +222,25 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 /* OOTD Record Sheet */
 .ootd-rec-sheet{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
 .ootd-rec-sheet.open{opacity:1;pointer-events:auto}
-.ootd-rec-inner{background:#fff;border-radius:24px 24px 0 0;width:100%;padding:24px 20px 36px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.ootd-rec-inner{background:#fff;border-radius:24px 24px 0 0;width:100%;padding:24px 20px 36px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;max-height:88vh}
 .ootd-rec-sheet.open .ootd-rec-inner{transform:translateY(0)}
 .ootd-rec-handle{width:32px;height:4px;background:var(--border-md);border-radius:var(--r-full);margin:0 auto 20px}
 .ootd-rec-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:#0C1014;margin-bottom:16px}
-.ootd-rec-photo-area{width:100%;height:180px;background:var(--surface-low);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:16px;overflow:hidden;background-size:cover;background-position:center;position:relative}
-.ootd-rec-photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
-.ootd-rec-photo-icon{font-size:32px;opacity:.35}
-.ootd-rec-photo-hint{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist)}
-.ootd-rec-note{width:100%;border:1.5px solid var(--border-md);border-radius:var(--r-md);padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;color:#0C1014;resize:none;height:80px;outline:none;box-sizing:border-box;margin-bottom:16px}
+.ootd-rec-sec-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin-bottom:8px}
+.ootd-rec-sec-label span{font-weight:500;letter-spacing:0;text-transform:none;font-size:9px;margin-left:4px;opacity:.7}
+.ootd-rec-theme-list{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-height:180px;overflow-y:auto}
+.ootd-rec-theme-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-md);cursor:pointer;transition:background .15s,border-color .15s;flex-shrink:0}
+.ootd-rec-theme-row.sel{border-color:#0A0A0A;background:var(--surface)}
+.ootd-rec-theme-thumb{width:34px;height:34px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.8}
+.ootd-rec-theme-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--ink);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ootd-rec-theme-chk{font-size:13px;color:#0A0A0A;opacity:0;flex-shrink:0}
+.ootd-rec-theme-row.sel .ootd-rec-theme-chk{opacity:1}
+.ootd-rec-photo-area{width:100%;height:120px;background:var(--surface-low);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:12px;overflow:hidden;background-size:cover;background-position:center;position:relative}
+.ootd-rec-photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.ootd-rec-photo-icon{font-size:26px;opacity:.3}
+.ootd-rec-photo-hint{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist)}
+.ootd-rec-note{width:100%;border:1.5px solid var(--border-md);border-radius:var(--r-md);padding:11px 14px;font-family:'Inter',sans-serif;font-size:14px;color:#0C1014;resize:none;height:64px;outline:none;box-sizing:border-box;margin-bottom:16px}
+.ootd-rec-theme-empty{padding:20px 0;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist)}
 .ootd-rec-note:focus{border-color:#0C1014}
 .ootd-rec-note::placeholder{color:#bbb}
 .ootd-rec-btns{display:flex;gap:8px}
@@ -258,6 +269,9 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 .nav-item.active{background:#0A0A0A;}
 .nav-item.active .nav-icon{color:#FFFFFF;}
 .nav-item.active .nav-label{color:#FFFFFF;}
+
+.toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--ink);color:#fff;padding:10px 20px;font-size:12px;font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.04em;border-radius:var(--r-full);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;z-index:200}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 @media(max-width:430px){
   body{background:var(--bg);padding:0;align-items:stretch}
@@ -289,6 +303,9 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 .ed-prod-cat{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-top:8px}
 .ed-prod-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ed-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-prod-loc{display:inline-flex;align-items:center;gap:3px;margin-top:4px;padding:2px 6px;background:var(--surface);border:1px solid var(--border);border-radius:9999px;font-family:'Inter',sans-serif;font-size:9px;font-weight:600;color:var(--sub);letter-spacing:.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed-prod-expiry{display:inline-block;margin-left:4px;padding:1px 5px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:9999px;font-family:'Inter',sans-serif;font-size:8px;font-weight:700;color:#B45309;letter-spacing:.03em;vertical-align:middle}
+.ed-prod-expiry.expired{background:#FEE2E2;border-color:#EF4444;color:#DC2626}
 .editorial-empty{padding:28px 20px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);border:1.5px dashed var(--border-md);border-radius:var(--r-xl);line-height:1.6}
 /* Smart Guide 카드 */
 .smart-guide-card{background:var(--surface);border:1.5px solid var(--lime);border-radius:var(--r-xl);padding:16px;margin-bottom:12px;}
@@ -311,6 +328,10 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 .record-logged-info{flex:1;min-width:0}
 .record-logged-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .record-logged-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:#4caf78;margin-top:3px}
+.record-logged-del{width:28px;height:28px;border-radius:var(--r-full);border:none;background:var(--surface-low);color:var(--mist);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.record-logged-del:active{background:#fee2e2;color:#ef4444}
+.ootd-rec-del{width:100%;height:44px;background:none;border:1.5px solid #fee2e2;color:#ef4444;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;letter-spacing:.02em}
+.ootd-rec-del:active{background:#fee2e2}
 /* Allday redesign */
 .allday-top-label{display:none}
 .allday-section{padding:28px 0 0;display:flex;flex-direction:column;gap:0}
@@ -428,17 +449,18 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
     <div class="editorial-section">
       <div class="editorial-hd">
         <div class="editorial-hd-tag">#MOTD</div>
-        <a class="editorial-hd-sub" href="log.html?tab=library" id="motd-hd-sub">Edit →</a>
+        <a class="editorial-hd-sub" href="log.html?tab=makeup" id="motd-hd-sub">Edit →</a>
       </div>
       <div id="smart-guide-motd"></div>
       <div id="motd-theme-block"></div>
+      <div id="motd-log-wrap"></div>
     </div>
 
     <!-- #OOTD section -->
     <div class="editorial-section" style="padding-bottom:0">
       <div class="editorial-hd">
         <div class="editorial-hd-tag">#OOTD</div>
-        <a class="editorial-hd-sub" href="log.html?tab=library" id="ootd-hd-sub">Edit →</a>
+        <a class="editorial-hd-sub" href="log.html?tab=lookbook" id="ootd-hd-sub">Edit →</a>
       </div>
       <div id="smart-guide-ootd"></div>
       <div id="ootd-editorial-block"></div>
@@ -450,21 +472,73 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
     <div class="app-nav"></div>
 
   <!-- OOTD Record Sheet -->
+  <!-- OOTD Theme Picker Sheet -->
+  <div class="toast" id="toast"></div>
+
+  <div class="ootd-rec-sheet" id="ootd-pick-sheet" onclick="if(event.target===this)closeOOTDPicker()">
+    <div class="ootd-rec-inner" style="padding-bottom:40px;max-height:75vh;display:flex;flex-direction:column">
+      <div class="ootd-rec-handle"></div>
+      <div class="ootd-rec-title" style="margin-bottom:12px">오늘 룩 테마 선택</div>
+      <div id="ootd-pick-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px"></div>
+      <button type="button" onclick="closeOOTDPicker()" style="margin-top:16px;width:100%;height:48px;border:1.5px solid #E5E7EB;border-radius:12px;background:transparent;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#6B7280;cursor:pointer">취소</button>
+    </div>
+  </div>
+
+  <!-- MOTD Theme Picker Sheet -->
+  <div class="ootd-rec-sheet" id="motd-pick-sheet" onclick="if(event.target===this)closeMOTDPicker()">
+    <div class="ootd-rec-inner" style="padding-bottom:40px;max-height:75vh;display:flex;flex-direction:column">
+      <div class="ootd-rec-handle"></div>
+      <div class="ootd-rec-title" style="margin-bottom:12px">오늘 메이크업 테마 선택</div>
+      <div id="motd-pick-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px"></div>
+      <button type="button" onclick="closeMOTDPicker()" style="margin-top:16px;width:100%;height:48px;border:1.5px solid #E5E7EB;border-radius:12px;background:transparent;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#6B7280;cursor:pointer">취소</button>
+    </div>
+  </div>
+
   <div class="ootd-rec-sheet" id="ootd-rec-sheet" onclick="if(event.target===this)closeOOTDRecord()">
     <div class="ootd-rec-inner">
       <div class="ootd-rec-handle"></div>
       <div class="ootd-rec-title">오늘의 룩 기록</div>
+      <div class="ootd-rec-sec-label">룩 테마</div>
+      <div class="ootd-rec-theme-list" id="ootd-rec-theme-list"></div>
+      <div class="ootd-rec-sec-label">사진 <span>선택</span></div>
       <input type="file" id="ootd-rec-file" accept="image/*" style="display:none" onchange="handleOOTDRecPhoto(this)">
       <div class="ootd-rec-photo-area" id="ootd-rec-photo-area" onclick="showImgPickSheet(d=>_applyOOTDRecPhoto(d),480,0.68)">
         <div class="ootd-rec-photo-placeholder" id="ootd-rec-photo-placeholder">
           <div class="ootd-rec-photo-icon">📷</div>
-          <div class="ootd-rec-photo-hint">사진 추가</div>
+          <div class="ootd-rec-photo-hint">탭하여 사진 추가</div>
         </div>
       </div>
+      <div class="ootd-rec-sec-label">메모 <span>선택</span></div>
       <textarea class="ootd-rec-note" id="ootd-rec-note" placeholder="오늘의 룩 메모…"></textarea>
+      <button type="button" class="ootd-rec-del" id="ootd-rec-del-btn" style="display:none" onclick="deleteOOTDRecord()">기록 삭제</button>
       <div class="ootd-rec-btns">
         <button type="button" class="ootd-rec-cancel" onclick="closeOOTDRecord()">취소</button>
         <button type="button" class="ootd-rec-save" onclick="saveOOTDRecord()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOTD Record Sheet -->
+  <div class="ootd-rec-sheet" id="motd-rec-sheet" onclick="if(event.target===this)closeMOTDRecord()">
+    <div class="ootd-rec-inner">
+      <div class="ootd-rec-handle"></div>
+      <div class="ootd-rec-title">오늘의 메이크업 기록</div>
+      <div class="ootd-rec-sec-label">메이크업 테마</div>
+      <div class="ootd-rec-theme-list" id="motd-rec-theme-list"></div>
+      <div class="ootd-rec-sec-label">사진 <span>선택</span></div>
+      <input type="file" id="motd-rec-file" accept="image/*" style="display:none" onchange="handleMOTDRecPhoto(this)">
+      <div class="ootd-rec-photo-area" id="motd-rec-photo-area" onclick="showImgPickSheet(d=>_applyMOTDRecPhoto(d),480,0.68)">
+        <div class="ootd-rec-photo-placeholder" id="motd-rec-photo-placeholder">
+          <div class="ootd-rec-photo-icon">📷</div>
+          <div class="ootd-rec-photo-hint">탭하여 사진 추가</div>
+        </div>
+      </div>
+      <div class="ootd-rec-sec-label">메모 <span>선택</span></div>
+      <textarea class="ootd-rec-note" id="motd-rec-note" placeholder="오늘의 메이크업 메모…"></textarea>
+      <button type="button" class="ootd-rec-del" id="motd-rec-del-btn" style="display:none" onclick="deleteMOTDRecord()">기록 삭제</button>
+      <div class="ootd-rec-btns">
+        <button type="button" class="ootd-rec-cancel" onclick="closeMOTDRecord()">취소</button>
+        <button type="button" class="ootd-rec-save" onclick="saveMOTDRecord()">저장</button>
       </div>
     </div>
   </div>
@@ -481,13 +555,14 @@ firebase.initializeApp({
 });
 const fbAuth = firebase.auth();
 const fbDb   = firebase.firestore();
-let currentUser = null, unsubscribe = null, _unsubExtra = null;
+let currentUser = null, unsubscribe = null, _unsubExtra = null, _unsubBox = null;
 
 firebase.auth().onAuthStateChanged(user => {
   currentUser = user;
   _updateAuthAvatar(user);
   if (unsubscribe)   { unsubscribe();   unsubscribe   = null; }
   if (_unsubExtra)   { _unsubExtra();   _unsubExtra   = null; }
+  if (_unsubBox)     { _unsubBox();     _unsubBox     = null; }
   if (user) {
     loadExtraFromCloud(user.uid);
     // careplan 실시간 동기화
@@ -521,17 +596,51 @@ firebase.auth().onAuthStateChanged(user => {
         const localTs = parseInt(localStorage.getItem('_onstep_extra_local_ts') || '0');
         const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
         if (cloudTs >= localTs - 3000) {
-          if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(d.careThemes));
-          if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(d.makeupContents));
-          if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(d.lookContents));
+          const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null};});};
+          if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(_mi('onstep_care_themes',d.careThemes)));
+          if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(_mi('onstep_makeup_contents',d.makeupContents)));
+          if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(_mi('onstep_look_contents',d.lookContents)));
           if (d.portfolio)       localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
-          if (d.looks)           localStorage.setItem(LOOKS_KEY, JSON.stringify(d.looks));
+          if (d.looks) {
+            const ll = JSON.parse(localStorage.getItem(LOOKS_KEY) || '[]');
+            localStorage.setItem(LOOKS_KEY, JSON.stringify(d.looks.map(cl => {
+              const loc = ll.find(l => l.date === cl.date);
+              return { ...cl, mainPhoto: loc?.mainPhoto || null };
+            })));
+          }
+          if (d.makeupLogs) {
+            const ll = JSON.parse(localStorage.getItem(MAKEUP_LOGS_KEY) || '[]');
+            localStorage.setItem(MAKEUP_LOGS_KEY, JSON.stringify(d.makeupLogs.map(cl => {
+              const lc = ll.find(l => l.date === cl.date);
+              return { ...cl, mainPhoto: lc?.mainPhoto || null };
+            })));
+          }
         }
         renderTodayMakeup();
         renderTodayOOTD();
         renderCareToday();
         renderSmartGuide();
       }, e => console.warn('extra onSnapshot:', e));
+    // box/data(자산·위치) 크로스디바이스 동기화
+    _unsubBox = fbDb.collection('users').doc(user.uid)
+      .collection('box').doc('data')
+      .onSnapshot(snap => {
+        if (!snap.exists) return;
+        const d = snap.data();
+        const localTs = parseInt(localStorage.getItem('_onstep_box_local_ts') || '0');
+        const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
+        if (cloudTs >= localTs - 3000) {
+          if (d.assets) {
+            const localAssets=JSON.parse(localStorage.getItem('onstep_box_assets')||'[]');
+            localStorage.setItem('onstep_box_assets', JSON.stringify(d.assets.map(ca=>{const la=localAssets.find(a=>a.id===ca.id);return{...ca,imgData:la?.imgData||null,storageImgData:la?.storageImgData||null};})));
+          }
+          if (d.locations) {
+            const localLocs=JSON.parse(localStorage.getItem('onstep_box_locations')||'[]');
+            localStorage.setItem('onstep_box_locations', JSON.stringify(d.locations.map(cl=>{const ll=localLocs.find(l=>l.id===cl.id);return{...cl,imgData:ll?.imgData||null};})));
+          }
+        }
+        renderCareToday();
+      }, e => console.warn('box onSnapshot:', e));
   }
 });
 
@@ -540,15 +649,47 @@ window.addEventListener('DOMContentLoaded', () => {
   initCmsContent();
   // Setup 변경 시 Today 즉시 업데이트 (BroadcastChannel)
   if (typeof _onStateChange === 'function') {
-    _onStateChange('schedule', () => { renderTodayMakeup(); renderTodayOOTD(); renderSmartGuide(); });
-    _onStateChange('looks',    () => { renderTodayOOTD(); });
-    _onStateChange('extra',    () => { renderCareToday(); });
+    _onStateChange('makeupLogs', () => { renderTodayMakeup(); });
+    _onStateChange('schedule', () => {
+      const plan = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
+      if (plan) loadPlan(plan);
+      renderTodayMakeup(); renderTodayOOTD(); renderSmartGuide();
+    });
+    _onStateChange('looks',      () => { renderTodayOOTD(); renderSmartGuide(); });
+    _onStateChange('extra',      () => { renderTodayMakeup(); renderTodayOOTD(); renderCareToday(); renderSmartGuide(); });
+    _onStateChange('tracker',    () => { renderAllDay(); });
+    _onStateChange('box_assets', () => { renderTodayMakeup(); renderTodayOOTD(); });
   }
 });
 
 let _lastSyncTs = 0;
+let _currentDateKey = getTodayKey();
+
+// 자정 초기화 — 날짜가 바뀌면 Today 화면 갱신
+function _scheduleMidnightReset() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setDate(midnight.getDate() + 1);
+  midnight.setHours(0, 0, 0, 200); // 자정 +200ms
+  setTimeout(() => {
+    _currentDateKey = getTodayKey();
+    renderTodayOOTD();
+    renderTodayMakeup();
+    _scheduleMidnightReset();
+  }, midnight - now);
+}
+_scheduleMidnightReset();
+
 document.addEventListener('visibilitychange', async () => {
-  if (document.visibilityState !== 'visible' || !currentUser) return;
+  if (document.visibilityState !== 'visible') return;
+  // 날짜 변경 감지 — 자정을 넘긴 채 앱으로 돌아온 경우 즉시 갱신
+  const newKey = getTodayKey();
+  if (newKey !== _currentDateKey) {
+    _currentDateKey = newKey;
+    renderTodayOOTD();
+    renderTodayMakeup();
+  }
+  if (!currentUser) return;
   const now = Date.now();
   if (now - _lastSyncTs < 60000) return;
   _lastSyncTs = now;
@@ -565,16 +706,28 @@ document.addEventListener('visibilitychange', async () => {
   loadExtraFromCloud(currentUser.uid);
 });
 
-const DB_KEY    = 'onstep_care_plan';
-const LOOKS_KEY = 'onstep_looks';
-const MAKEUP_KEY= 'onstep_makeup';
+const DB_KEY         = 'onstep_care_plan';
+const LOOKS_KEY      = 'onstep_looks';
+const MAKEUP_KEY     = 'onstep_makeup';
+const MAKEUP_LOGS_KEY= 'onstep_makeup_logs';
 
 async function saveLogsToCloud() {
   if (!currentUser) return;
   try {
+    const nowTs = Date.now();
+    localStorage.setItem('_onstep_extra_local_ts', nowTs.toString());
+    const uid   = currentUser.uid;
     const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
-    await fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
-      .set({ looks, savedAt: new Date().toISOString() }, { merge: true });
+    const looksFs = await Promise.all(looks.map(async l => {
+      if (l.mainPhoto) {
+        const {url,hash} = await ensureImgUrl(uid, l.mainPhoto, l.storageUrl||null, l.storageHash||'', `extra/looks/${l.date}.jpg`);
+        l.storageUrl = url; l.storageHash = hash;
+      }
+      return {...l, mainPhoto: null};
+    }));
+    localStorage.setItem(LOOKS_KEY, JSON.stringify(looks));
+    await fbDb.collection('users').doc(uid).collection('extra').doc('data')
+      .set({ looks: looksFs, savedAt: new Date(nowTs).toISOString() }, { merge: true });
   } catch(e) { console.warn('Looks cloud save:', e); }
 }
 async function loadExtraFromCloud(uid) {
@@ -588,15 +741,30 @@ async function loadExtraFromCloud(uid) {
     const localTs = parseInt(localStorage.getItem('_onstep_extra_local_ts') || '0');
     const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
     if (cloudTs >= localTs - 3000) {
-      if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(d.careThemes));
-      if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(d.makeupContents));
-      if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(d.lookContents));
+      const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null};});};
+      if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(_mi('onstep_care_themes',d.careThemes)));
+      if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(_mi('onstep_makeup_contents',d.makeupContents)));
+      if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(_mi('onstep_look_contents',d.lookContents)));
       if (d.portfolio)       localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
-      if (d.looks)           localStorage.setItem(LOOKS_KEY, JSON.stringify(d.looks));
+      if (d.looks) {
+        const ll = JSON.parse(localStorage.getItem(LOOKS_KEY) || '[]');
+        localStorage.setItem(LOOKS_KEY, JSON.stringify(d.looks.map(cl => {
+          const loc = ll.find(l => l.date === cl.date);
+          return { ...cl, mainPhoto: loc?.mainPhoto || null };
+        })));
+      }
+      if (d.makeupLogs) {
+        const ll = JSON.parse(localStorage.getItem(MAKEUP_LOGS_KEY) || '[]');
+        localStorage.setItem(MAKEUP_LOGS_KEY, JSON.stringify(d.makeupLogs.map(cl => {
+          const lc = ll.find(l => l.date === cl.date);
+          return { ...cl, mainPhoto: lc?.mainPhoto || null };
+        })));
+      }
     }
     renderTodayMakeup();
     renderTodayOOTD();
     renderCareToday();
+    renderSmartGuide();
   } catch(e) { console.warn('Extra cloud load:', e); }
 }
 
@@ -605,14 +773,17 @@ function getBoxAssets() { return JSON.parse(localStorage.getItem('onstep_box_ass
 
 function getBoxImgForProduct(p) {
   const assets = getBoxAssets();
-  if (p.assetId) {
-    const a = assets.find(a => a.id === p.assetId);
+  // log.html 라이브러리 제품: {id, name, brand} — id가 asset ID
+  const assetId = p.assetId ?? p.id;
+  if (assetId != null) {
+    const a = assets.find(a => a.id === assetId);
     if (a?.imgData) return a.imgData;
   }
-  const a = assets.find(a => a.domain === 'beauty' && (
-    a.name?.toLowerCase() === p.name?.toLowerCase() ||
-    (p.brand && a.brand?.toLowerCase() === p.brand?.toLowerCase() && a.name?.toLowerCase() === p.name?.toLowerCase())
-  ));
+  // 이름·브랜드 폴백 (도메인 무관)
+  const a = assets.find(a =>
+    a.name?.toLowerCase() === p.name?.toLowerCase() &&
+    (!p.brand || a.brand?.toLowerCase() === p.brand?.toLowerCase())
+  );
   return a?.imgData || p.imgData || null;
 }
 
@@ -621,15 +792,23 @@ function recordBoxUsage(products) {
   const assets = getBoxAssets();
   let changed  = false;
   products.forEach(p => {
-    if (!p.assetId) return;
-    const idx = assets.findIndex(a => a.id === p.assetId);
+    const assetId = p.assetId ?? p.id;
+    if (assetId == null) return;
+    const idx = assets.findIndex(a => a.id === assetId);
     if (idx === -1) return;
     if (!assets[idx].useCount) assets[idx].useCount = 0;
     assets[idx].useCount++;
     assets[idx].lastUsed = today;
     changed = true;
   });
-  if (changed) localStorage.setItem('onstep_box_assets', JSON.stringify(assets));
+  if (!changed) return;
+  localStorage.setItem('onstep_box_assets', JSON.stringify(assets));
+  // useCount를 Firestore에도 동기화 (크로스 디바이스 보존)
+  if (currentUser) {
+    fbDb.collection('users').doc(currentUser.uid).collection('box').doc('data')
+      .set({ assets, savedAt: new Date().toISOString() }, { merge: true })
+      .catch(e => console.warn('Box usage sync:', e));
+  }
 }
 
 const CAT_LABEL = {
@@ -640,15 +819,27 @@ const CAT_LABEL = {
 
 function getTimePeriod() {
   const h = new Date().getHours();
-  if (h>=5&&h<12) return 'am';
-  if (h>=12&&h<17) return 'pm';
-  if (h>=17&&h<21) return 'eve';
-  return 'night';
+  if (h>=5&&h<17) return 'am';   // 5시~17시: 모닝 루틴
+  if (h>=17&&h<21) return 'eve'; // 17시~21시: 나이틀리 루틴
+  return 'night';                 // 21시~5시: 나이틀리 루틴
 }
 function getTodayKey()      { return new Date().toISOString().slice(0,10); }
 function calcCurrentDay(s)  { return s ? Math.max(1,Math.floor((new Date()-new Date(s))/86400000)+1) : 1; }
 function calcTotalDays(s,e) { return (s&&e) ? Math.floor((new Date(e)-new Date(s))/86400000)+1 : 10; }
 function getSuffix(n)       { const a=['th','st','nd','rd'],v=n%100; return a[(v-20)%10]||a[v]||a[0]; }
+
+function isSessionActive(plan) {
+  if (!plan?.periodStart) return { active: true, status: 'active', daysUntil: 0 };
+  const today = getTodayKey();
+  const start = plan.periodStart;
+  const end   = plan.periodEnd || start;
+  if (today < start) {
+    const daysUntil = Math.ceil((new Date(start) - new Date(today)) / 86400000);
+    return { active: false, status: 'before', daysUntil };
+  }
+  if (today > end) return { active: false, status: 'ended', daysUntil: 0 };
+  return { active: true, status: 'active', daysUntil: 0 };
+}
 
 function initSampleData() {
   if (localStorage.getItem(DB_KEY)) return;
@@ -801,8 +992,12 @@ function renderFlowSession(plan) {
   // Session hero date: "2026.4.10-4.20"
   const dateEl = document.getElementById('session-hero-date');
   if (dateEl && plan.periodStart) {
-    const fmt = d => d.replace(/-0?/g, '.').replace(/^\./, '');
-    dateEl.textContent = `${fmt(plan.periodStart)} – ${fmt(plan.periodEnd||'')}`;
+    const fmt = d => (d||'').replace(/-/g,'.');
+    const sess = isSessionActive(plan);
+    const statusLabel = sess.status === 'before' ? ` · ${sess.daysUntil}일 후 시작`
+                      : sess.status === 'ended'  ? ' · 세션 종료'
+                      : '';
+    dateEl.textContent = `${fmt(plan.periodStart)} – ${fmt(plan.periodEnd||'')}${statusLabel}`;
   }
 
   // Session dots
@@ -831,6 +1026,23 @@ function buildHeroDots(cur, total) {
 
 // ── Flow hero step ────────────────────────────────────────────
 function renderFlowHeroStep(plan) {
+  const sess = isSessionActive(plan);
+  if (plan && !sess.active) {
+    const strip   = document.getElementById('flow-prod-strip');
+    const dotsEl  = document.getElementById('flow-prod-dots');
+    const tipArea = document.getElementById('flow-expert-tip');
+    const badgeEl = document.getElementById('flow-step-badge-icon');
+    const countEl = document.getElementById('flow-step-count');
+    if (badgeEl) badgeEl.textContent = '';
+    if (countEl) countEl.textContent = '';
+    if (dotsEl)  dotsEl.innerHTML = '';
+    if (tipArea) tipArea.style.display = 'none';
+    if (strip) strip.innerHTML = sess.status === 'before'
+      ? `<div style="padding:24px 16px;font-family:'Inter',sans-serif;font-size:13px;color:var(--sub);line-height:1.6"><strong>${sess.daysUntil}일 후 시작 예정</strong><br><span style="font-size:11px;color:var(--mist)">${(plan.periodStart||'').replace(/-/g,'.')} 시작</span></div>`
+      : `<div style="padding:24px 16px;font-family:'Inter',sans-serif;font-size:13px;color:var(--sub);line-height:1.6"><strong>세션이 종료됐습니다</strong><br><a href="setup.html" style="font-size:11px;color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:3px">새 세션 시작 →</a></div>`;
+    updateCTABtn(0, 0);
+    return;
+  }
   const period   = getTimePeriod();
   const slot     = (period==='am') ? 'morning' : 'nightly';
   const slotData = plan?.[slot];
@@ -958,7 +1170,10 @@ function handleMainRoutineBtn() {
   const today   = getTodayKey();
   const doneKey = `onstep_flow_done_${today}_${slot}`;
   const doneList= JSON.parse(localStorage.getItem(doneKey)||'[]');
-  if (doneList.length >= products.length) return;
+  if (doneList.length >= products.length) {
+    showToast('루틴 완료! ✓');
+    return;
+  }
 
   // Mark all remaining products done at once
   products.forEach(p => { if (!doneList.includes(p.name)) doneList.push(p.name); });
@@ -1137,33 +1352,150 @@ function renderTodayMakeup() {
   if (!block) return;
   const theme = getTodaysScheduledTheme(plan);
   if (!theme) {
-    block.innerHTML = `<div class="editorial-empty">오늘 지정된 메이크업 테마가 없습니다.<br><a href="log.html?tab=library" style="color:var(--ink);font-weight:600">라이브러리에서 등록 →</a></div>`;
+    block.innerHTML = `<div class="editorial-empty">오늘 지정된 메이크업 테마가 없습니다.<br><button onclick="openMOTDPicker()" style="all:unset;color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px">라이브러리에서 등록 →</button></div>`;
+    const logWrap = document.getElementById('motd-log-wrap');
+    if (logWrap) logWrap.innerHTML = '';
     return;
   }
   const today = getTodayKey();
   const doneSet = new Set(JSON.parse(localStorage.getItem(`onstep_motd_done_${today}`) || '[]'));
   const products = theme.products || [];
   const heroImg = theme.baselineImg || '';
+  const _boxAssets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const _boxLocs   = JSON.parse(localStorage.getItem('onstep_box_locations') || '[]');
   const grid = products.map(p => {
     const isDone = doneSet.has(p.name);
     const img = getBoxImgForProduct(p);
+    let asset = p.assetId ? _boxAssets.find(a => a.id === p.assetId) : null;
+    if (!asset && p.name) asset = _boxAssets.find(a =>
+      a.name?.toLowerCase() === p.name?.toLowerCase() &&
+      (!p.brand || a.brand?.toLowerCase() === p.brand?.toLowerCase())
+    );
+    const loc    = asset?.locKey ? _boxLocs.find(l => l.key === asset.locKey) : null;
+    const locTag = loc?.name ? `<div class="ed-prod-loc">◎ ${loc.name}</div>` : '';
+    let expiryBadge = '';
+    if (asset?.expiryDate) {
+      const dLeft = Math.ceil((new Date(asset.expiryDate) - new Date()) / 86400000);
+      if (dLeft < 0) expiryBadge = `<span class="ed-prod-expiry expired">기간만료</span>`;
+      else if (dLeft <= 30) expiryBadge = `<span class="ed-prod-expiry">D-${dLeft}</span>`;
+    }
     return `<div class="ed-prod-card${isDone?' done':''}" onclick="toggleMotdDone(${JSON.stringify(p.name)})">
       <div class="ed-prod-img"${img?` style="background-image:url(${img})"`:''}>
         ${!img?`<span style="font-size:28px;opacity:.25">${p.icon||'✦'}</span>`:''}
         <div class="ed-prod-check">✓</div>
       </div>
       <div class="ed-prod-cat">${(p.step||'').toUpperCase()}</div>
-      <div class="ed-prod-name">${p.name}</div>
-      ${p.brand?`<div class="ed-prod-brand">${p.brand}</div>`:''}
+      <div class="ed-prod-name">${p.name}${expiryBadge}</div>
+      ${locTag}
     </div>`;
   }).join('');
   block.innerHTML = `
     <div class="editorial-hero"${heroImg?` style="background-image:url(${heroImg})"`:''}>
       ${!heroImg?`<span style="font-size:44px;opacity:.2">💄</span>`:''}
       <div class="editorial-badge">EDITORIAL CHOICE</div>
-      <a class="editorial-gear" href="log.html?tab=library" onclick="event.stopPropagation()">⚙</a>
+      <a class="editorial-gear" href="log.html?tab=makeup&id=${theme.id}" onclick="event.stopPropagation()">⚙</a>
     </div>
     <div class="editorial-prod-grid">${grid}</div>`;
+  renderMOTDLogCard();
+}
+
+function openOOTDPicker() {
+  const looks = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]')
+    .sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));
+  const list = document.getElementById('ootd-pick-list');
+  if (!list) return;
+  if (!looks.length) {
+    list.innerHTML = `<div style="padding:32px 0;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:#9CA3AF">등록된 룩 테마가 없습니다<br><a href="setup.html" style="color:var(--ink);font-weight:600;margin-top:8px;display:inline-block">Setup에서 추가 →</a></div>`;
+  } else {
+    list.innerHTML = looks.map(t => {
+      const img = t.baselineImg ? `background-image:url(${t.baselineImg});background-size:cover;background-position:center` : 'background:#F3F4F6';
+      return `<div onclick="selectOOTDTheme(${t.id})" style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #F3F4F6;cursor:pointer">
+        <div style="width:48px;height:48px;border-radius:10px;flex-shrink:0;${img};display:flex;align-items:center;justify-content:center;font-size:22px">${!t.baselineImg?(t.emoji||'◈'):''}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#1A1C1C">${t.name}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:11px;color:#9CA3AF;margin-top:2px">${(t.products||t.items||[]).length}개 아이템</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C5C6CA" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('ootd-pick-sheet')?.classList.add('open');
+}
+function closeOOTDPicker() {
+  document.getElementById('ootd-pick-sheet')?.classList.remove('open');
+}
+function selectOOTDTheme(themeId) {
+  const today = getTodayKey();
+  const looks = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
+  const idx   = looks.findIndex(t => t.id === themeId);
+  if (idx === -1) return;
+  if (!(looks[idx].scheduledDates||[]).includes(today)) {
+    looks[idx].scheduledDates = [...(looks[idx].scheduledDates||[]), today];
+  }
+  localStorage.setItem('onstep_look_contents', JSON.stringify(looks));
+  localStorage.setItem('_onstep_extra_local_ts', Date.now().toString());
+  if (typeof _broadcastState === 'function') _broadcastState('extra');
+  if (typeof fbDb !== 'undefined' && currentUser) {
+    const _si=items=>items.map(t=>({...t,baselineImg:null}));
+    const care      = JSON.parse(localStorage.getItem('onstep_care_themes')       || '[]');
+    const makeup    = JSON.parse(localStorage.getItem('onstep_makeup_contents')   || '[]');
+    const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio') || '[]');
+    fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
+      .set({ careThemes: _si(care), makeupContents: _si(makeup), lookContents: _si(looks), portfolio, savedAt: new Date().toISOString() }, { merge: true })
+      .catch(e => console.warn('OOTD sync:', e));
+  }
+  closeOOTDPicker();
+  renderTodayOOTD();
+}
+
+function openMOTDPicker() {
+  const themes = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]')
+    .sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));
+  const list = document.getElementById('motd-pick-list');
+  if (!list) return;
+  if (!themes.length) {
+    list.innerHTML = `<div style="padding:32px 0;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:#9CA3AF">등록된 메이크업 테마가 없습니다<br><a href="setup.html" style="color:var(--ink);font-weight:600;margin-top:8px;display:inline-block">Setup에서 추가 →</a></div>`;
+  } else {
+    list.innerHTML = themes.map(t => {
+      const img = t.baselineImg ? `background-image:url(${t.baselineImg});background-size:cover;background-position:center` : 'background:#F3F4F6';
+      return `<div onclick="selectMOTDTheme(${t.id})" style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #F3F4F6;cursor:pointer">
+        <div style="width:48px;height:48px;border-radius:10px;flex-shrink:0;${img};display:flex;align-items:center;justify-content:center;font-size:22px">${!t.baselineImg?(t.emoji||'✦'):''}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#1A1C1C">${t.name}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:11px;color:#9CA3AF;margin-top:2px">${(t.products||[]).length}개 제품</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C5C6CA" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('motd-pick-sheet')?.classList.add('open');
+}
+function closeMOTDPicker() {
+  document.getElementById('motd-pick-sheet')?.classList.remove('open');
+}
+function selectMOTDTheme(themeId) {
+  const today  = getTodayKey();
+  const themes = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
+  const idx    = themes.findIndex(t => t.id === themeId);
+  if (idx === -1) return;
+  if (!(themes[idx].scheduledDates||[]).includes(today)) {
+    themes[idx].scheduledDates = [...(themes[idx].scheduledDates||[]), today];
+  }
+  localStorage.setItem('onstep_makeup_contents', JSON.stringify(themes));
+  localStorage.setItem('_onstep_extra_local_ts', Date.now().toString());
+  if (typeof _broadcastState === 'function') _broadcastState('extra');
+  // Firestore 동기화
+  if (typeof fbDb !== 'undefined' && currentUser) {
+    const _si=items=>items.map(t=>({...t,baselineImg:null}));
+    const care      = JSON.parse(localStorage.getItem('onstep_care_themes')       || '[]');
+    const looks     = JSON.parse(localStorage.getItem('onstep_look_contents')     || '[]');
+    const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio') || '[]');
+    fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
+      .set({ careThemes: _si(care), makeupContents: _si(themes), lookContents: _si(looks), portfolio, savedAt: new Date().toISOString() }, { merge: true })
+      .catch(e => console.warn('MOTD sync:', e));
+  }
+  closeMOTDPicker();
+  renderTodayMakeup();
 }
 
 function toggleMotdDone(name) {
@@ -1297,6 +1629,20 @@ function applySmartGuide(contentId, type, elId) {
   if (!items[idx].scheduledDates.includes(today)) items[idx].scheduledDates.push(today);
   items[idx].updatedAt = new Date().toISOString();
   try { localStorage.setItem(key, JSON.stringify(items)); } catch(e) { showToast('저장 공간 부족'); return; }
+  // Firestore 동기화
+  localStorage.setItem('_onstep_extra_local_ts', Date.now().toString());
+  if (typeof _broadcastState === 'function') _broadcastState('extra');
+  if (currentUser) {
+    const _si=items=>items.map(t=>({...t,baselineImg:null}));
+    const care      = JSON.parse(localStorage.getItem('onstep_care_themes')       || '[]');
+    const makeup    = JSON.parse(localStorage.getItem('onstep_makeup_contents')   || '[]');
+    const looks     = JSON.parse(localStorage.getItem('onstep_look_contents')     || '[]');
+    const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio') || '[]');
+    fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
+      .set({ careThemes: _si(care), makeupContents: _si(makeup), lookContents: _si(looks), portfolio,
+             savedAt: new Date().toISOString() }, { merge: true })
+      .catch(e => console.warn('SmartGuide sync:', e));
+  }
   _addSmartDismiss(contentId);
   document.getElementById(elId).innerHTML = '';
   type === 'MOTD' ? renderTodayMakeup() : renderTodayOOTD();
@@ -1316,14 +1662,15 @@ function applySmartLook(histId, elId) {
   const today = getTodayKey();
   if (!look.scheduleLog) look.scheduleLog = [];
   if (!look.scheduleLog.find(e => e.date === today)) look.scheduleLog.push({ date: today });
+  // onstep_look_contents(현행 키)에서 테마 일정 등록
   if (look.lookThemeId) {
-    const lt = JSON.parse(localStorage.getItem('onstep_look_themes') || '[]');
-    const li = lt.findIndex(t => t.id === look.lookThemeId);
+    const lc = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
+    const li = lc.findIndex(t => t.id === look.lookThemeId);
     if (li !== -1) {
-      if (!lt[li].scheduledDates) lt[li].scheduledDates = [];
-      if (!lt[li].scheduledDates.includes(today)) lt[li].scheduledDates.push(today);
-      lt[li].updatedAt = new Date().toISOString();
-      localStorage.setItem('onstep_look_themes', JSON.stringify(lt));
+      if (!lc[li].scheduledDates) lc[li].scheduledDates = [];
+      if (!lc[li].scheduledDates.includes(today)) lc[li].scheduledDates.push(today);
+      lc[li].updatedAt = new Date().toISOString();
+      localStorage.setItem('onstep_look_contents', JSON.stringify(lc));
     }
   }
   const todayIdx = looks.findIndex(l => l.date === today);
@@ -1331,6 +1678,22 @@ function applySmartLook(histId, elId) {
     looks.push({ date: today, mainPhoto: look.mainPhoto || null, note: look.note, logged: false, lookThemeId: look.lookThemeId || null });
   }
   localStorage.setItem('onstep_looks', JSON.stringify(looks));
+  // Firestore 동기화
+  localStorage.setItem('_onstep_extra_local_ts', Date.now().toString());
+  if (typeof _broadcastState === 'function') { _broadcastState('extra'); _broadcastState('looks'); }
+  if (currentUser) {
+    const _si=items=>items.map(t=>({...t,baselineImg:null}));
+    const care      = JSON.parse(localStorage.getItem('onstep_care_themes')       || '[]');
+    const makeup    = JSON.parse(localStorage.getItem('onstep_makeup_contents')   || '[]');
+    const looksCont = JSON.parse(localStorage.getItem('onstep_look_contents')     || '[]');
+    const portfolio = JSON.parse(localStorage.getItem('onstep_planned_portfolio') || '[]');
+    const looksLog  = JSON.parse(localStorage.getItem(LOOKS_KEY) || '[]');
+    fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
+      .set({ careThemes: _si(care), makeupContents: _si(makeup), lookContents: _si(looksCont), portfolio,
+             looks: looksLog.map(l => ({...l, mainPhoto: null})),
+             savedAt: new Date().toISOString() }, { merge: true })
+      .catch(e => console.warn('SmartLook sync:', e));
+  }
   _addSmartDismiss('look_' + histId);
   const el = document.getElementById(elId);
   if (el) el.innerHTML = '';
@@ -1348,24 +1711,38 @@ function renderTodayOOTD() {
   const block = document.getElementById('ootd-editorial-block');
   if (!block) return;
   const lookTheme = getTodaysScheduledLook();
-  const heroImg = lookTheme?.baselineImg || '';
-  const items = lookTheme?.products || lookTheme?.items || [];
+  if (!lookTheme) {
+    block.innerHTML = `<div class="editorial-empty">오늘 지정된 룩 테마가 없습니다.<br><button onclick="openOOTDPicker()" style="all:unset;color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px">라이브러리에서 등록 →</button></div>`;
+    renderOOTDLogCard();
+    return;
+  }
+  const heroImg = lookTheme.baselineImg || '';
+  const items = lookTheme.products || lookTheme.items || [];
+  const _ootdAssets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const _ootdLocs   = JSON.parse(localStorage.getItem('onstep_box_locations') || '[]');
   const grid = items.map(p => {
     const img = p.imgData || getBoxImgForProduct(p) || '';
+    let asset = p.assetId ? _ootdAssets.find(a => a.id === p.assetId) : null;
+    if (!asset && p.name) asset = _ootdAssets.find(a =>
+      a.name?.toLowerCase() === p.name?.toLowerCase() &&
+      (!p.brand || a.brand?.toLowerCase() === p.brand?.toLowerCase())
+    );
+    const loc    = asset?.locKey ? _ootdLocs.find(l => l.key === asset.locKey) : null;
+    const locTag = loc?.name ? `<div class="ed-prod-loc">◎ ${loc.name}</div>` : '';
     return `<div class="ed-prod-card">
       <div class="ed-prod-img"${img?` style="background-image:url(${img})"`:''}>
         ${!img?`<span style="font-size:28px;opacity:.25">👗</span>`:''}
       </div>
       <div class="ed-prod-cat">${(p.category||p.step||'').toUpperCase()}</div>
       <div class="ed-prod-name">${p.name||''}</div>
-      ${p.brand?`<div class="ed-prod-brand">${p.brand}</div>`:''}
+      ${locTag}
     </div>`;
   }).join('');
   block.innerHTML = `
     <div class="editorial-hero"${heroImg?` style="background-image:url(${heroImg})"`:''}>
       ${!heroImg?`<span style="font-size:44px;opacity:.2">👗</span>`:''}
       <div class="editorial-badge">EDITORIAL CHOICE</div>
-      <a class="editorial-gear" href="log.html?tab=library" onclick="event.stopPropagation()">⚙</a>
+      <a class="editorial-gear" href="log.html?tab=lookbook&id=${lookTheme.id}" onclick="event.stopPropagation()">⚙</a>
     </div>
     ${grid?`<div class="editorial-prod-grid">${grid}</div>`:''}`;
   renderOOTDLogCard();
@@ -1386,6 +1763,7 @@ function renderOOTDLogCard() {
         <div class="record-logged-name">"${look.note||'오늘의 룩'}"</div>
         <div class="record-logged-badge">Logged ✓</div>
       </div>
+      <button type="button" class="record-logged-del" onclick="event.stopPropagation();deleteOOTDRecord()" title="삭제">✕</button>
     </div>`;
   } else {
     wrap.innerHTML = `<div class="record-look-row" onclick="openOOTDRecord()">
@@ -1396,12 +1774,44 @@ function renderOOTDLogCard() {
   }
 }
 
+let _ootdRecSelectedThemeId = null;
+
+function _selectOOTDRecTheme(id) {
+  _ootdRecSelectedThemeId = id;
+  document.querySelectorAll('#ootd-rec-theme-list .ootd-rec-theme-row').forEach(row => {
+    row.classList.toggle('sel', Number(row.dataset.tid) === id);
+  });
+}
+
 function openOOTDRecord() {
   const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
   const look  = looks.find(l=>l.date===getTodayKey())||null;
+
+  // theme selector
+  const themes = JSON.parse(localStorage.getItem('onstep_look_contents')||'[]');
+  const schedTheme = getTodaysScheduledLook();
+  _ootdRecSelectedThemeId = look?.lookThemeId ?? (schedTheme?.id ?? (themes[0]?.id ?? null));
+  const themeList = document.getElementById('ootd-rec-theme-list');
+  if (themeList) {
+    if (!themes.length) {
+      themeList.innerHTML = `<div class="ootd-rec-theme-empty">등록된 룩 테마가 없습니다<br><a href="log.html?tab=lookbook" style="color:var(--ink);font-weight:700">라이브러리에서 추가 →</a></div>`;
+    } else {
+      themeList.innerHTML = themes.map(t => {
+        const isSel = t.id === _ootdRecSelectedThemeId;
+        const thumbStyle = t.baselineImg ? `background-image:url(${t.baselineImg})` : '';
+        const icon = !t.baselineImg ? (t.emoji||'✦') : '';
+        return `<div class="ootd-rec-theme-row${isSel?' sel':''}" data-tid="${t.id}" onclick="_selectOOTDRecTheme(${t.id})">
+          <div class="ootd-rec-theme-thumb" style="${thumbStyle}">${icon}</div>
+          <div class="ootd-rec-theme-name">${t.name||'Untitled'}</div>
+          <div class="ootd-rec-theme-chk">✓</div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // photo
   const area  = document.getElementById('ootd-rec-photo-area');
   const ph    = document.getElementById('ootd-rec-photo-placeholder');
-  const note  = document.getElementById('ootd-rec-note');
   if (area && look?.mainPhoto) {
     area.style.backgroundImage = `url(${look.mainPhoto})`;
     if (ph) ph.style.display = 'none';
@@ -1409,12 +1819,31 @@ function openOOTDRecord() {
     area.style.backgroundImage = '';
     if (ph) ph.style.display = 'flex';
   }
+  if (area) area._pendingPhoto = null;
+
+  const note = document.getElementById('ootd-rec-note');
   if (note) note.value = look?.note || '';
+
+  const delBtn = document.getElementById('ootd-rec-del-btn');
+  if (delBtn) delBtn.style.display = look?.logged ? '' : 'none';
+
   document.getElementById('ootd-rec-sheet')?.classList.add('open');
 }
 
 function closeOOTDRecord() {
   document.getElementById('ootd-rec-sheet')?.classList.remove('open');
+}
+
+function deleteOOTDRecord() {
+  if (!confirm('오늘의 룩 기록을 삭제할까요?')) return;
+  const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
+  const today = getTodayKey();
+  const filtered = looks.filter(l => l.date !== today);
+  localStorage.setItem(LOOKS_KEY, JSON.stringify(filtered));
+  saveLogsToCloud();
+  closeOOTDRecord();
+  renderTodayOOTD();
+  showToast('기록이 삭제됐습니다');
 }
 
 function _applyOOTDRecPhoto(compressed) {
@@ -1430,14 +1859,21 @@ function handleOOTDRecPhoto(input) {
 
 function saveOOTDRecord() {
   const area  = document.getElementById('ootd-rec-photo-area');
-  const note  = document.getElementById('ootd-rec-note')?.value.trim() || '';
+  const customNote = document.getElementById('ootd-rec-note')?.value.trim() || '';
   const photo = area?._pendingPhoto || null;
   const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
   const today = getTodayKey();
   let look = looks.find(l=>l.date===today);
   if (!look) { look={date:today,mainPhoto:null,note:'',logged:false}; looks.push(look); }
   if (photo) look.mainPhoto = photo;
-  look.note = note;
+  if (_ootdRecSelectedThemeId != null) look.lookThemeId = _ootdRecSelectedThemeId;
+  if (customNote) {
+    look.note = customNote;
+  } else if (_ootdRecSelectedThemeId != null) {
+    const themes = JSON.parse(localStorage.getItem('onstep_look_contents')||'[]');
+    const t = themes.find(x => x.id === _ootdRecSelectedThemeId);
+    look.note = t?.name || '';
+  }
   look.logged = true;
   look.loggedAt = new Date().toISOString();
   const plan = JSON.parse(localStorage.getItem(DB_KEY)||'null');
@@ -1476,6 +1912,146 @@ function pickOOTDPhoto() {
 
 function logTodayOOTD() {
   openOOTDRecord();
+}
+
+// ── MOTD Record ───────────────────────────────────────────────
+async function saveMakeupLogsToCloud() {
+  if (!currentUser) return;
+  try {
+    const nowTs = Date.now();
+    localStorage.setItem('_onstep_extra_local_ts', nowTs.toString());
+    const logs = JSON.parse(localStorage.getItem(MAKEUP_LOGS_KEY)||'[]');
+    await fbDb.collection('users').doc(currentUser.uid).collection('extra').doc('data')
+      .set({ makeupLogs: logs.map(l=>({...l,mainPhoto:null})), savedAt: new Date(nowTs).toISOString() }, { merge: true });
+    if (typeof _broadcastState === 'function') _broadcastState('makeupLogs');
+  } catch(e) { console.warn('Makeup logs cloud save:', e); }
+}
+
+function renderMOTDLogCard() {
+  const wrap = document.getElementById('motd-log-wrap');
+  if (!wrap) return;
+  const logs = JSON.parse(localStorage.getItem(MAKEUP_LOGS_KEY)||'[]');
+  const log  = logs.find(l=>l.date===getTodayKey())||null;
+  if (log?.logged) {
+    const thumb = log.mainPhoto
+      ? `style="background-image:url(${log.mainPhoto});background-size:cover;background-position:center"` : '';
+    wrap.innerHTML = `<div class="record-logged-card" onclick="openMOTDRecord()">
+      <div class="record-logged-thumb" ${thumb}>${!log.mainPhoto?'💄':''}</div>
+      <div class="record-logged-info">
+        <div class="record-logged-name">"${log.note||'오늘의 메이크업'}"</div>
+        <div class="record-logged-badge">Logged ✓</div>
+      </div>
+      <button type="button" class="record-logged-del" onclick="event.stopPropagation();deleteMOTDRecord()" title="삭제">✕</button>
+    </div>`;
+  } else {
+    wrap.innerHTML = `<div class="record-look-row" onclick="openMOTDRecord()">
+      <div class="record-look-icon">💄</div>
+      <div class="record-look-text">Record your final makeup</div>
+      <div class="record-look-plus">+</div>
+    </div>`;
+  }
+}
+
+let _motdRecSelectedThemeId = null;
+
+function _selectMOTDRecTheme(id) {
+  _motdRecSelectedThemeId = id;
+  document.querySelectorAll('#motd-rec-theme-list .ootd-rec-theme-row').forEach(row => {
+    row.classList.toggle('sel', Number(row.dataset.tid) === id);
+  });
+}
+
+function openMOTDRecord() {
+  const logs = JSON.parse(localStorage.getItem(MAKEUP_LOGS_KEY)||'[]');
+  const log  = logs.find(l=>l.date===getTodayKey())||null;
+  const themes = JSON.parse(localStorage.getItem('onstep_makeup_contents')||'[]');
+  const plan = JSON.parse(localStorage.getItem(DB_KEY)||'null');
+  const schedTheme = getTodaysScheduledTheme(plan);
+  _motdRecSelectedThemeId = log?.makeupThemeId ?? (schedTheme?.id ?? (themes[0]?.id ?? null));
+  const themeList = document.getElementById('motd-rec-theme-list');
+  if (themeList) {
+    if (!themes.length) {
+      themeList.innerHTML = `<div class="ootd-rec-theme-empty">등록된 메이크업 테마가 없습니다<br><a href="log.html?tab=makeup" style="color:var(--ink);font-weight:700">라이브러리에서 추가 →</a></div>`;
+    } else {
+      themeList.innerHTML = themes.map(t => {
+        const isSel = t.id === _motdRecSelectedThemeId;
+        const thumbStyle = t.baselineImg ? `background-image:url(${t.baselineImg})` : '';
+        const icon = !t.baselineImg ? (t.emoji||'✦') : '';
+        return `<div class="ootd-rec-theme-row${isSel?' sel':''}" data-tid="${t.id}" onclick="_selectMOTDRecTheme(${t.id})">
+          <div class="ootd-rec-theme-thumb" style="${thumbStyle}">${icon}</div>
+          <div class="ootd-rec-theme-name">${t.name||'Untitled'}</div>
+          <div class="ootd-rec-theme-chk">✓</div>
+        </div>`;
+      }).join('');
+    }
+  }
+  const area = document.getElementById('motd-rec-photo-area');
+  const ph   = document.getElementById('motd-rec-photo-placeholder');
+  if (area && log?.mainPhoto) {
+    area.style.backgroundImage = `url(${log.mainPhoto})`;
+    if (ph) ph.style.display = 'none';
+  } else if (area) {
+    area.style.backgroundImage = '';
+    if (ph) ph.style.display = 'flex';
+  }
+  if (area) area._pendingPhoto = null;
+  const note = document.getElementById('motd-rec-note');
+  if (note) note.value = log?.note || '';
+  const delBtn = document.getElementById('motd-rec-del-btn');
+  if (delBtn) delBtn.style.display = log?.logged ? '' : 'none';
+  document.getElementById('motd-rec-sheet')?.classList.add('open');
+}
+
+function closeMOTDRecord() {
+  document.getElementById('motd-rec-sheet')?.classList.remove('open');
+}
+
+function deleteMOTDRecord() {
+  if (!confirm('오늘의 메이크업 기록을 삭제할까요?')) return;
+  const logs = JSON.parse(localStorage.getItem(MAKEUP_LOGS_KEY)||'[]');
+  localStorage.setItem(MAKEUP_LOGS_KEY, JSON.stringify(logs.filter(l=>l.date!==getTodayKey())));
+  saveMakeupLogsToCloud();
+  closeMOTDRecord();
+  renderTodayMakeup();
+  showToast('기록이 삭제됐습니다');
+}
+
+function _applyMOTDRecPhoto(compressed) {
+  const area = document.getElementById('motd-rec-photo-area');
+  const ph   = document.getElementById('motd-rec-photo-placeholder');
+  if (area) { area.style.backgroundImage = `url(${compressed})`; area._pendingPhoto = compressed; }
+  if (ph) ph.style.display = 'none';
+}
+
+function handleMOTDRecPhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  _compressFile(file, 480, 0.68, _applyMOTDRecPhoto);
+}
+
+function saveMOTDRecord() {
+  const area = document.getElementById('motd-rec-photo-area');
+  const customNote = document.getElementById('motd-rec-note')?.value.trim() || '';
+  const photo = area?._pendingPhoto || null;
+  const logs = JSON.parse(localStorage.getItem(MAKEUP_LOGS_KEY)||'[]');
+  const today = getTodayKey();
+  let log = logs.find(l=>l.date===today);
+  if (!log) { log={date:today,mainPhoto:null,note:'',logged:false}; logs.push(log); }
+  if (photo) log.mainPhoto = photo;
+  if (_motdRecSelectedThemeId != null) log.makeupThemeId = _motdRecSelectedThemeId;
+  if (customNote) {
+    log.note = customNote;
+  } else if (_motdRecSelectedThemeId != null) {
+    const themes = JSON.parse(localStorage.getItem('onstep_makeup_contents')||'[]');
+    const t = themes.find(x=>x.id===_motdRecSelectedThemeId);
+    log.note = t?.name || '';
+  }
+  log.logged = true;
+  log.loggedAt = new Date().toISOString();
+  localStorage.setItem(MAKEUP_LOGS_KEY, JSON.stringify(logs));
+  saveMakeupLogsToCloud();
+  if (area) area._pendingPhoto = null;
+  closeMOTDRecord();
+  renderTodayMakeup();
 }
 
 // ── Weather ───────────────────────────────────────────────────
@@ -1564,6 +2140,13 @@ function renderWeatherFallback() {
   const period = h < 12 ? '아침' : h < 18 ? '오후' : '저녁';
   if (mascot) mascot.textContent = '🌿';
   if (mainEl) mainEl.textContent = `${period} --° 습도 --%`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 
 // ── Load plan ─────────────────────────────────────────────────
