@@ -128,13 +128,15 @@ async function pasteImageFromClipboard(cb, maxPx, quality) {
   }
 }
 
+function _phoneRoot() { return document.querySelector('.phone') || document.body; }
+
 function showImgPickSheet(cb, maxPx, quality) {
   _ipsCb = cb; _ipsMaxPx = maxPx || 480; _ipsQuality = quality || 0.68;
   let el = document.getElementById('_ips');
   if (!el) {
     el = document.createElement('div');
     el.id = '_ips';
-    el.style.cssText = 'position:fixed;inset:0;z-index:99990;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center';
+    el.style.cssText = 'position:absolute;inset:0;z-index:99990;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center';
     el.addEventListener('click', e => { if (e.target === el) _closeIps(); });
     el.innerHTML =
       '<div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:430px;padding:20px 20px 40px;box-sizing:border-box;">' +
@@ -150,7 +152,7 @@ function showImgPickSheet(cb, maxPx, quality) {
         '</button>' +
         '<button id="_ips-cancel" style="width:100%;height:44px;background:none;border:none;font-family:\'Inter\',sans-serif;font-size:14px;color:#9CA3AF;cursor:pointer;">취소</button>' +
       '</div>';
-    document.body.appendChild(el);
+    _phoneRoot().appendChild(el);
     document.getElementById('_ips-paste').addEventListener('click', async () => {
       _closeIps();
       await pasteImageFromClipboard(_ipsCb, _ipsMaxPx, _ipsQuality);
@@ -159,7 +161,13 @@ function showImgPickSheet(cb, maxPx, quality) {
       _closeIps();
       const inp = document.createElement('input');
       inp.type = 'file'; inp.accept = 'image/*';
-      inp.onchange = e => { const f = e.target.files[0]; if (!f) return; _compressFile(f, _ipsMaxPx, _ipsQuality, _ipsCb); };
+      inp.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none';
+      inp.onchange = e => {
+        if (document.body.contains(inp)) document.body.removeChild(inp);
+        const f = e.target.files[0]; if (!f) return;
+        _compressFile(f, _ipsMaxPx, _ipsQuality, _ipsCb);
+      };
+      document.body.appendChild(inp);
       inp.click();
     });
     document.getElementById('_ips-cancel').addEventListener('click', _closeIps);
@@ -268,7 +276,7 @@ function _cmsOpenEdit(el) {
     modal = document.createElement('div');
     modal.id = '_cms-modal';
     modal.style.cssText = [
-      'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99999',
+      'position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:99999',
       'display:flex;align-items:flex-end;justify-content:center'
     ].join(';');
     modal.innerHTML =
@@ -282,7 +290,7 @@ function _cmsOpenEdit(el) {
         '</div>' +
       '</div>';
     modal.addEventListener('click', e => { if (e.target === modal) { modal.remove(); _cmsKey = null; } });
-    document.body.appendChild(modal);
+    _phoneRoot().appendChild(modal);
   }
   document.getElementById('_cms-ta').value = cur;
 }

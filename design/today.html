@@ -1065,7 +1065,7 @@ function renderFlowHeroStep(plan) {
   const dotsEl   = document.getElementById('flow-prod-dots');
   if (strip) {
     if (!products.length) {
-      strip.innerHTML = `<div style="padding:16px;font-family:'Inter',sans-serif;font-size:14px;color:var(--mist)">루틴을 설정해주세요</div>`;
+      strip.innerHTML = `<div style="padding:20px 16px;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);line-height:1.6">루틴 제품이 없습니다<br><a href="setup.html" style="font-size:11px;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:.06em;text-transform:uppercase">SET UP ROUTINE →</a></div>`;
       if (dotsEl) dotsEl.innerHTML = '';
     } else {
       strip.innerHTML = products.map(p => {
