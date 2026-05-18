@@ -2315,7 +2315,8 @@ document.addEventListener('visibilitychange', async () => {
 async function saveBoxToCloud() {
   if (!currentUser) return;
   const nowTs = Date.now();
-  localStorage.setItem('_onstep_box_local_ts', nowTs.toString());
+  // 업로드 최대 30초 보호: 슬로우 업로드 중 다른 기기 스냅샷이 로컬 덮어쓰기 방지
+  localStorage.setItem('_onstep_box_local_ts', (nowTs + 30000).toString());
   try {
     const assets     = JSON.parse(localStorage.getItem(ASSETS_KEY)||'[]');
     const locs       = JSON.parse(localStorage.getItem(LOCS_KEY)||'[]');
@@ -2341,7 +2342,13 @@ async function saveBoxToCloud() {
     await fbDb.collection('users').doc(uid)
       .collection('box').doc('data')
       .set({ assets: assetsForFs, locations: locsForFs, boxCats, catLabels, sceneTags: SCENE_TAGS, savedAt: new Date(nowTs).toISOString() });
-  } catch(e) { console.warn('Box cloud save:', e); }
+    // 업로드 완료 후 실제 저장 시각으로 업데이트
+    localStorage.setItem('_onstep_box_local_ts', nowTs.toString());
+  } catch(e) {
+    // 실패 시 보호 타임스탬프 해제
+    localStorage.setItem('_onstep_box_local_ts', nowTs.toString());
+    console.warn('Box cloud save:', e);
+  }
 }
 
 // ── Data keys ─────────────────────────────────────────────────

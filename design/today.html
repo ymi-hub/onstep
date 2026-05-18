@@ -1378,7 +1378,7 @@ function renderTodayMakeup() {
       a.name?.toLowerCase() === p.name?.toLowerCase() &&
       (!p.brand || a.brand?.toLowerCase() === p.brand?.toLowerCase())
     );
-    const loc    = asset?.locKey ? _boxLocs.find(l => l.key === asset.locKey) : null;
+    const loc    = asset?.locationId ? _boxLocs.find(l => l.id === asset.locationId) : null;
     const locTag = loc?.name ? `<div class="ed-prod-loc">◎ ${loc.name}</div>` : '';
     let expiryBadge = '';
     if (asset?.expiryDate) {
@@ -1734,7 +1734,7 @@ function renderTodayOOTD() {
       a.name?.toLowerCase() === p.name?.toLowerCase() &&
       (!p.brand || a.brand?.toLowerCase() === p.brand?.toLowerCase())
     );
-    const loc    = asset?.locKey ? _ootdLocs.find(l => l.key === asset.locKey) : null;
+    const loc    = asset?.locationId ? _ootdLocs.find(l => l.id === asset.locationId) : null;
     const locTag = loc?.name ? `<div class="ed-prod-loc">◎ ${loc.name}</div>` : '';
     return `<div class="ed-prod-card">
       <div class="ed-prod-img"${img?` style="background-image:url(${img})"`:''}>
