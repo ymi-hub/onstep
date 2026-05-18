@@ -2067,8 +2067,9 @@ function _setHubImg(id, src) {
   if (!el) return;
   if (src) {
     el.style.backgroundImage = `url(${src})`;
-    el.style.backgroundSize = 'cover';
+    el.style.backgroundSize = 'auto 100%';
     el.style.backgroundPosition = 'center';
+    el.style.backgroundRepeat = 'no-repeat';
   } else {
     el.style.backgroundImage = '';
   }
@@ -2798,10 +2799,10 @@ function renderSeBody() {
     const tip   = activeRoutine?.tip || '';
     const chipHtml = _seChipHtml(slot, prods);
 
-    const tabsHtml = `<div style="display:flex;gap:6px;margin-bottom:12px;align-items:center">
+    const tabsHtml = `<div style="display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
         ${routines.map(r =>
           `<button onclick="sePickTab('${slot}',${r.id})"
-            style="padding:5px 14px;border-radius:9999px;border:1.5px solid ${r.id===activeId?'var(--ink)':'var(--border)'};background:${r.id===activeId?'var(--ink)':'transparent'};color:${r.id===activeId?'#fff':'var(--sub)'};font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;cursor:pointer;min-height:0;transition:all .15s">DAY ${r.id}</button>`
+            style="padding:5px ${routines.length>1?'10px':'14px'} 5px 14px;border-radius:9999px;border:1.5px solid ${r.id===activeId?'var(--ink)':'var(--border)'};background:${r.id===activeId?'var(--ink)':'transparent'};color:${r.id===activeId?'#fff':'var(--sub)'};font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;cursor:pointer;min-height:0;transition:all .15s;display:inline-flex;align-items:center;gap:5px">DAY ${r.id}${routines.length>1?`<span onclick="event.stopPropagation();seRemoveRoutineDay('${slot}',${r.id})" style="font-size:13px;line-height:1;opacity:.55;cursor:pointer">×</span>`:''}</button>`
         ).join('')}
         ${routines.length < 3 ? `<button onclick="seAddRoutineDay('${slot}')"
           style="padding:5px 12px;border-radius:9999px;border:1.5px dashed var(--border);background:transparent;color:var(--mist);font-size:14px;cursor:pointer;min-height:0;line-height:1">+</button>` : ''}
@@ -2895,6 +2896,17 @@ function seAddRoutineDay(slot) {
   routines.push({ id: newId, products: [], tip: '' });
   _seEdit.data[slot].routines = routines;
   _seActiveSlot[slot] = newId;
+  renderSeBody();
+}
+
+function seRemoveRoutineDay(slot, id) {
+  if (!_seEdit) return;
+  const routines = _seEdit.data[slot]?.routines || [];
+  if (routines.length <= 1) return;
+  _seEdit.data[slot].routines = routines.filter(r => r.id !== id);
+  if (_seActiveSlot[slot] === id) {
+    _seActiveSlot[slot] = _seEdit.data[slot].routines[0]?.id;
+  }
   renderSeBody();
 }
 
