@@ -283,7 +283,7 @@ textarea.field-in{resize:none;height:72px;line-height:1.6;}
 @media(max-width:430px){
   body{background:var(--bg);padding:0;}
   .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
-  .notch{flex-shrink:0;}
+  .notch{flex-shrink:0;height:calc(env(safe-area-inset-top,0px) + 12px);padding-top:env(safe-area-inset-top,0px)}
   .scroll{flex:1;min-height:0;height:auto;}
   .bottom-nav{border-top:none;}
   .nav-item{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);}
@@ -313,6 +313,13 @@ textarea.field-in{resize:none;height:72px;line-height:1.6;}
 .scene-new-inp::placeholder{color:#C5C6CA;}
 .scene-new-confirm{width:100%;height:44px;background:var(--ink);color:#fff;border:none;cursor:pointer;border-radius:2px;font-size:14px;font-weight:600;letter-spacing:.04em;}
 .scene-new-cancel{width:100%;height:40px;background:transparent;color:var(--ink);border:1px solid #C5C6CA;cursor:pointer;border-radius:2px;font-size:14px;font-weight:600;}
+@media(pointer:coarse),(max-width:430px){input,textarea,select{font-size:16px!important}}
+/* ── 버튼 UI 공통화 ── */
+.detail-edit-btn,.detail-del-btn,.detail-main-btn,.lib-sched-btn,
+.lib-filter-pill,.tpo-chip,.type-btn,.cat-tab{font-family:'Space Grotesk',sans-serif}
+.detail-del-btn{height:52px;color:var(--error);border-color:rgba(186,26,26,.3)}
+.detail-main-btn{height:52px}
+.fab{width:52px;height:52px}
 </style>
 </head>
 <body>

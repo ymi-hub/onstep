@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnStep · UX Flow Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0E0E12;font-family:'Space Grotesk',sans-serif;color:#fff;overflow-x:auto}
+.stage{padding:60px 40px 80px;min-width:max-content}
+
+/* 섹션 헤더 */
+.section-label{font-size:9px;font-weight:700;letter-spacing:.22em;color:#5A5A6E;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.section-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+.section-title{font-size:11px;font-weight:600;letter-spacing:.1em;color:#7C7C96;text-transform:uppercase;margin-bottom:8px}
+
+/* 폰 껍데기 */
+.flow-row{display:flex;gap:20px;align-items:flex-start;margin-bottom:64px}
+.phone-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:12px}
+.phone{width:280px;height:580px;background:#09090E;border-radius:36px;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.06),0 24px 60px rgba(0,0,0,.6);flex-shrink:0}
+.phone.light{background:#F9F9F9}
+.phone-label{font-size:10px;font-weight:700;letter-spacing:.08em;color:#5A5A6E;text-align:center}
+.phone-sub{font-size:9px;color:#3A3A4E;text-align:center;margin-top:2px;max-width:200px;text-align:center;line-height:1.5}
+.arrow{width:32px;height:2px;background:rgba(255,255,255,.1);position:relative;margin-top:280px;flex-shrink:0}
+.arrow::after{content:'›';position:absolute;right:-6px;top:-9px;font-size:18px;color:rgba(255,255,255,.15)}
+
+/* 태그 */
+.tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.tag.new{background:rgba(197,255,0,.12);color:#C5FF00;border:1px solid rgba(197,255,0,.2)}
+.tag.exist{background:rgba(255,255,255,.06);color:#5A5A6E;border:1px solid rgba(255,255,255,.08)}
+.tag.improve{background:rgba(100,150,255,.12);color:#7BA3FF;border:1px solid rgba(100,150,255,.2)}
+
+/* 어노테이션 */
+.anno{font-size:10px;color:#4A4A60;line-height:1.6;max-width:200px;margin-top:8px}
+
+/* ══════════════════════════════════
+   SCREEN CONTENTS
+   ══════════════════════════════════ */
+
+/* ── 공통 앱바 (다크) ── */
+.d-appbar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.05)}
+.d-notch{height:32px;background:#09090E;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.d-notch-bar{width:90px;height:3px;background:rgba(255,255,255,.15);border-radius:2px}
+
+/* ── 공통 앱바 (라이트) ── */
+.l-notch{height:32px;background:#F9F9F9;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.l-notch-bar{width:90px;height:3px;background:rgba(0,0,0,.15);border-radius:2px}
+.l-appbar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.07)}
+.l-appbar-title{font-size:13px;font-weight:700;color:#0A0A0A;display:flex;align-items:center;gap:6px}
+.l-appbar-logo{width:18px;height:18px;border-radius:5px;background:#0A0A0A}
+.l-avatar{width:26px;height:26px;border-radius:50%;background:#E8E8E6;border:1.5px solid rgba(0,0,0,.12)}
+
+/* 하단 탭바 */
+.bnav{position:absolute;bottom:0;left:0;right:0;height:56px;background:#fff;border-top:1px solid rgba(0,0,0,.06);display:flex}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 0 12px}
+.bnav-dot{width:16px;height:2px;border-radius:1px;background:#CCCCCC}
+.bnav-txt{font-size:8px;font-weight:700;letter-spacing:.06em;color:#AAAAAA}
+.bnav-item.active .bnav-dot{background:#0A0A0A}
+.bnav-item.active .bnav-txt{color:#0A0A0A}
+
+/* ──────────────────────────────────
+   SCREEN 1: 온보딩 슬라이드 (기존)
+   ────────────────────────────────── */
+.s1-bg{position:absolute;inset:0;background:#09090E;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 72px}
+.s1-chaos-mini{position:absolute;inset:0;overflow:hidden}
+.s1-emoji{position:absolute;font-size:14px;opacity:.08}
+.s1-grid{position:absolute;top:60px;left:20px;right:20px;display:flex;flex-direction:column;gap:5px}
+.s1-grid-row{display:flex;gap:5px}
+.s1-cell{border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;letter-spacing:.3px}
+.s1-text{position:relative;z-index:5;padding:0 22px}
+.s1-tag-sm{font-size:7px;letter-spacing:3px;color:rgba(255,255,255,.35);margin-bottom:8px;font-weight:600}
+.s1-title-sm{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:#fff;line-height:1.25;margin-bottom:10px}
+.s1-title-sm em{font-style:italic;color:rgba(255,255,255,.45)}
+.s1-sub-sm{font-size:9px;color:rgba(255,255,255,.35);line-height:1.7;font-weight:300}
+.s1-dots{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+.s1-dot{width:14px;height:2px;border-radius:1px;background:rgba(255,255,255,.15)}
+.s1-dot.on{width:22px;background:#fff}
+.s1-nextbtn{position:absolute;bottom:18px;right:18px;width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;color:#09090E;font-weight:700}
+
+/* ──────────────────────────────────
+   SCREEN 2: 로그인 (신규)
+   ────────────────────────────────── */
+.signin-bg{position:absolute;inset:0;background:#09090E;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 24px 48px}
+.signin-logo{width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px}
+.signin-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#fff;text-align:center;margin-bottom:6px}
+.signin-sub{font-size:10px;color:rgba(255,255,255,.3);text-align:center;line-height:1.6;margin-bottom:36px}
+.signin-divider{display:flex;align-items:center;gap:8px;width:100%;margin-bottom:20px}
+.signin-divider-line{flex:1;height:1px;background:rgba(255,255,255,.06)}
+.signin-divider-txt{font-size:8px;color:rgba(255,255,255,.2);letter-spacing:.1em;font-weight:600}
+.google-btn{width:100%;height:48px;background:#fff;border:none;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;margin-bottom:10px}
+.google-btn-txt{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#0A0A0A}
+.google-icon{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#4285F4,#EA4335,#FBBC05,#34A853);opacity:.9}
+.signin-terms{font-size:8px;color:rgba(255,255,255,.18);text-align:center;line-height:1.6;position:absolute;bottom:28px;left:24px;right:24px}
+
+/* ──────────────────────────────────
+   SCREEN 3: 퀵 셋업 Step 1 (신규)
+   ────────────────────────────────── */
+.setup-wiz-bg{position:absolute;inset:0;background:#09090E;padding:0}
+.wiz-header{padding:36px 24px 20px}
+.wiz-step-row{display:flex;gap:5px;margin-bottom:24px}
+.wiz-step{height:2px;flex:1;border-radius:1px;background:rgba(255,255,255,.08)}
+.wiz-step.done{background:#C5FF00}
+.wiz-step.active{background:rgba(197,255,0,.4)}
+.wiz-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:#fff;margin-bottom:5px}
+.wiz-sub{font-size:9px;color:rgba(255,255,255,.3);line-height:1.6}
+.wiz-body{padding:0 24px}
+.wiz-field-label{font-size:8px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:8px}
+.wiz-date-row{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.wiz-date-inp{flex:1;padding:11px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;font-family:'Space Grotesk',sans-serif;font-size:12px;color:rgba(255,255,255,.7)}
+.wiz-date-sep{font-size:9px;color:rgba(255,255,255,.2)}
+.wiz-duration-chips{display:flex;gap:6px;margin-bottom:24px}
+.wiz-chip{padding:7px 14px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:rgba(255,255,255,.4)}
+.wiz-chip.on{background:rgba(197,255,0,.12);border-color:rgba(197,255,0,.3);color:#C5FF00}
+.wiz-session-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-bottom:24px}
+.wiz-session-no{font-size:8px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.25);margin-bottom:2px}
+.wiz-session-title{font-size:16px;font-weight:700;color:#fff}
+.wiz-session-period{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px}
+.wiz-btn{position:absolute;bottom:32px;left:24px;right:24px;height:50px;background:#C5FF00;border:none;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#0A0A0A;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ──────────────────────────────────
+   SCREEN 4: 퀵 셋업 Step 2 (신규)
+   ────────────────────────────────── */
+.wiz-time-row{display:flex;gap:8px;margin-bottom:16px}
+.wiz-time-card{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 12px}
+.wiz-time-icon{font-size:16px;margin-bottom:8px}
+.wiz-time-label{font-size:8px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.3);margin-bottom:6px}
+.wiz-time-val{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+.wiz-time-ampm{font-size:9px;color:rgba(255,255,255,.3)}
+.wiz-time-edit{font-size:8px;font-weight:700;color:#C5FF00;letter-spacing:.06em;margin-top:4px}
+.wiz-routine-preview{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px;margin-bottom:16px}
+.wiz-routine-row{display:flex;align-items:center;gap:8px;padding:5px 0}
+.wiz-routine-row+.wiz-routine-row{border-top:1px solid rgba(255,255,255,.04)}
+.wiz-routine-time{font-size:9px;color:rgba(255,255,255,.25);width:38px;flex-shrink:0}
+.wiz-routine-name{font-size:10px;font-weight:600;color:rgba(255,255,255,.6)}
+.wiz-routine-badge{font-size:7px;font-weight:700;padding:2px 6px;border-radius:10px;background:rgba(197,255,0,.1);color:#C5FF00;margin-left:auto}
+
+/* ──────────────────────────────────
+   SCREEN 5: Today 첫 진입 (개선)
+   ────────────────────────────────── */
+.today-hero{padding:16px;background:#F9F9F9}
+.today-welcome{background:linear-gradient(135deg,#0A0A0A 0%,#1A1A2E 100%);border-radius:16px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.today-welcome-tag{font-size:7px;font-weight:700;letter-spacing:.14em;color:rgba(197,255,0,.7);margin-bottom:8px}
+.today-welcome-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;line-height:1.2}
+.today-welcome-sub{font-size:9px;color:rgba(255,255,255,.4);line-height:1.5}
+.today-welcome-emoji{position:absolute;right:14px;bottom:14px;font-size:32px;opacity:.5}
+.today-guide-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.today-step-card{background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.today-step-num{width:22px;height:22px;border-radius:50%;background:#0A0A0A;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.today-step-num.done{background:#C5FF00;color:#0A0A0A}
+.today-step-info{flex:1}
+.today-step-name{font-size:11px;font-weight:700;color:#0A0A0A;margin-bottom:2px}
+.today-step-desc{font-size:9px;color:#888888}
+.today-step-arrow{font-size:14px;color:#CCCCCC}
+.today-step-card.done{opacity:.5}
+.today-section-hd{font-size:8px;font-weight:700;letter-spacing:.1em;color:#BBBBBB;text-transform:uppercase;padding:4px 0 8px}
+
+/* ──────────────────────────────────
+   SCREEN 6: Setup 첫 진입 (개선)
+   ────────────────────────────────── */
+.setup-hero-new{padding:20px 16px 16px}
+.setup-session-card{background:#0A0A0A;border-radius:14px;padding:16px;margin-bottom:14px}
+.setup-session-no{font-size:7px;font-weight:700;letter-spacing:.14em;color:rgba(197,255,0,.6);margin-bottom:4px}
+.setup-session-title{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;color:#fff;line-height:1;margin-bottom:4px}
+.setup-session-period{font-size:10px;color:rgba(255,255,255,.4)}
+.setup-session-actions{display:flex;gap:6px;margin-top:12px}
+.setup-action-btn{flex:1;height:32px;border-radius:8px;font-size:9px;font-weight:700;letter-spacing:.06em;display:flex;align-items:center;justify-content:center;gap:4px}
+.setup-action-btn.primary{background:#C5FF00;color:#0A0A0A}
+.setup-action-btn.ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)}
+.setup-start-banner{background:rgba(197,255,0,.06);border:1px solid rgba(197,255,0,.15);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.setup-start-icon{font-size:20px}
+.setup-start-info{flex:1}
+.setup-start-title{font-size:11px;font-weight:700;color:#0A0A0A;margin-bottom:2px}
+.setup-start-sub{font-size:9px;color:#888888;line-height:1.4}
+.setup-start-btn{height:28px;padding:0 12px;background:#0A0A0A;border-radius:8px;font-size:9px;font-weight:700;color:#C5FF00;display:flex;align-items:center;white-space:nowrap}
+.setup-routine-empty{background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:12px;padding:20px;text-align:center}
+.setup-routine-empty-icon{font-size:20px;opacity:.3;margin-bottom:6px}
+.setup-routine-empty-txt{font-size:10px;font-weight:700;color:#BBBBBB;margin-bottom:2px}
+.setup-routine-empty-sub{font-size:9px;color:#CCCCCC;line-height:1.5}
+.setup-add-step-btn{width:100%;height:36px;border:1.5px dashed rgba(0,0,0,.12);border-radius:10px;background:transparent;display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;font-weight:700;color:#AAAAAA;margin-top:8px}
+.setup-tabs{display:flex;border-bottom:1px solid rgba(0,0,0,.07)}
+.setup-tab{flex:1;padding:9px 0;font-size:10px;font-weight:700;letter-spacing:.06em;color:#AAAAAA;text-align:center;text-transform:uppercase;border-bottom:2px solid transparent}
+.setup-tab.active{color:#0A0A0A;border-bottom-color:#C5FF00}
+.setup-section{padding:12px 16px}
+.setup-section-label{font-size:8px;font-weight:700;letter-spacing:.12em;color:#AAAAAA;text-transform:uppercase;margin-bottom:8px}
+
+/* ── USER JOURNEY MAP ── */
+.journey-map{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:24px;margin-bottom:64px;min-width:900px}
+.journey-row{display:flex;align-items:flex-start;gap:0;position:relative}
+.journey-node{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1}
+.journey-circle{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:14px;position:relative;z-index:1}
+.journey-circle.highlight{background:rgba(197,255,0,.1);border-color:rgba(197,255,0,.3)}
+.journey-circle.new-c{background:rgba(100,150,255,.1);border-color:rgba(100,150,255,.3)}
+.journey-node-label{font-size:9px;font-weight:600;color:rgba(255,255,255,.5);text-align:center;max-width:70px;line-height:1.4}
+.journey-node-tag{font-size:7px;font-weight:700;padding:2px 6px;border-radius:10px}
+.journey-connector{flex:0 0 auto;width:40px;height:1px;background:rgba(255,255,255,.08);margin-top:18px}
+.journey-connector.new-c-line{background:rgba(100,150,255,.2)}
+
+/* 문제점/개선사항 카드 */
+.issues{display:flex;gap:12px;margin-bottom:48px;flex-wrap:wrap}
+.issue-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px;width:220px}
+.issue-card-type{font-size:7px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.issue-card-type.prob{color:#FF6B6B}
+.issue-card-type.fix{color:#C5FF00}
+.issue-card-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:4px}
+.issue-card-desc{font-size:9px;color:rgba(255,255,255,.3);line-height:1.6}
+
+/* ── 범례 ── */
+.legend{display:flex;gap:16px;margin-bottom:32px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:600;color:#4A4A60}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- 타이틀 -->
+  <div style="margin-bottom:48px">
+    <div style="font-size:9px;font-weight:700;letter-spacing:.2em;color:#3A3A52;text-transform:uppercase;margin-bottom:8px">OnStep · UX Design Review</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:36px;color:rgba(255,255,255,.85);font-weight:400;margin-bottom:6px">사용자 배포용 플로우 설계</div>
+    <div style="font-size:11px;color:#3A3A52">신규 유저 진입부터 첫 루틴 완료까지의 전체 경험 설계</div>
+  </div>
+
+  <!-- ── 유저 저니 맵 ── -->
+  <div class="section-label">User Journey Map</div>
+  <div class="journey-map">
+    <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:#3A3A52;text-transform:uppercase;margin-bottom:16px">신규 사용자 전체 플로우</div>
+    <div class="journey-row">
+      <div class="journey-node">
+        <div class="journey-circle">📱</div>
+        <div class="journey-node-label">앱 첫 실행</div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-node">
+        <div class="journey-circle highlight">✨</div>
+        <div class="journey-node-label">온보딩 3슬라이드</div>
+        <div class="journey-node-tag tag exist">기존</div>
+      </div>
+      <div class="journey-connector new-c-line"></div>
+      <div class="journey-node">
+        <div class="journey-circle new-c">🔑</div>
+        <div class="journey-node-label">Google 로그인</div>
+        <div class="journey-node-tag tag new">신규</div>
+      </div>
+      <div class="journey-connector new-c-line"></div>
+      <div class="journey-node">
+        <div class="journey-circle new-c">📅</div>
+        <div class="journey-node-label">퀵셋업 Step1 세션기간</div>
+        <div class="journey-node-tag tag new">신규</div>
+      </div>
+      <div class="journey-connector new-c-line"></div>
+      <div class="journey-node">
+        <div class="journey-circle new-c">⏰</div>
+        <div class="journey-node-label">퀵셋업 Step2 루틴시간</div>
+        <div class="journey-node-tag tag new">신규</div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-node">
+        <div class="journey-circle highlight">🏠</div>
+        <div class="journey-node-label">Today 첫 진입 가이드</div>
+        <div class="journey-node-tag tag improve">개선</div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-node">
+        <div class="journey-circle">📦</div>
+        <div class="journey-node-label">Box 제품 등록</div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-node">
+        <div class="journey-circle">⚙️</div>
+        <div class="journey-node-label">Setup 루틴 구성</div>
+        <div class="journey-node-tag tag improve">개선</div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-node">
+        <div class="journey-circle highlight">✅</div>
+        <div class="journey-node-label">첫 루틴 완료</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 발견된 문제점 ── -->
+  <div class="section-label">발견된 문제점 & 개선 방향</div>
+  <div class="issues">
+    <div class="issue-card">
+      <div class="issue-card-type prob">문제점 01</div>
+      <div class="issue-card-title">로그인이 온보딩에 없음</div>
+      <div class="issue-card-desc">현재 각 탭 우상단 아바타로만 로그인 가능. 신규 유저가 인증 없이 Today에 진입 → 데이터 저장 안 됨을 나중에 발견</div>
+    </div>
+    <div class="issue-card">
+      <div class="issue-card-type prob">문제점 02</div>
+      <div class="issue-card-title">첫 진입 후 무엇을 해야 할지 모름</div>
+      <div class="issue-card-desc">Today 진입 시 빈 화면 + "Setup에서 등록하세요" 텍스트만 존재. 어떤 순서로 설정하는지 안내 없음</div>
+    </div>
+    <div class="issue-card">
+      <div class="issue-card-type prob">문제점 03</div>
+      <div class="issue-card-title">Setup 진입 장벽</div>
+      <div class="issue-card-desc">세션 날짜·루틴·제품 연결 등 설정 항목이 많아 처음 사용자에게 압도적으로 느껴짐</div>
+    </div>
+    <div class="issue-card">
+      <div class="issue-card-type fix">개선 01</div>
+      <div class="issue-card-title">온보딩 마지막에 로그인 삽입</div>
+      <div class="issue-card-desc">Slide 3 → Google 로그인 → 퀵셋업 → Today 순서로 연결. 첫 실행부터 데이터 연동 보장</div>
+    </div>
+    <div class="issue-card">
+      <div class="issue-card-type fix">개선 02</div>
+      <div class="issue-card-title">퀵셋업 2스텝 위저드</div>
+      <div class="issue-card-desc">Step 1: 세션 기간 선택 (10일/2주/1개월). Step 2: 아침/저녁 시간 설정. 최소한의 입력으로 바로 시작</div>
+    </div>
+    <div class="issue-card">
+      <div class="issue-card-type fix">개선 03</div>
+      <div class="issue-card-title">Today 시작 가이드 카드</div>
+      <div class="issue-card-desc">설정 완료 항목에 체크, 미완료 항목에 바로가기 버튼. 모두 완료 시 가이드 카드 자동 숨김</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       6-SCREEN MOCKUP ROW
+       ════════════════════════════════════ -->
+  <div class="section-label">화면 설계 (6 screens)</div>
+
+  <div class="flow-row">
+
+    <!-- ─── SCREEN 1: 온보딩 슬라이드 (기존) ─── -->
+    <div class="phone-wrap">
+      <div class="tag exist" style="margin-bottom:8px">기존 유지</div>
+      <div class="phone">
+        <div class="s1-bg">
+          <!-- 이모지 배경 -->
+          <span class="s1-emoji" style="left:12%;top:10%">💧</span>
+          <span class="s1-emoji" style="left:68%;top:8%">🌸</span>
+          <span class="s1-emoji" style="left:38%;top:22%">👗</span>
+          <span class="s1-emoji" style="left:80%;top:30%">💄</span>
+          <span class="s1-emoji" style="left:20%;top:40%">☀️</span>
+          <span class="s1-emoji" style="left:55%;top:42%">🫙</span>
+          <!-- 그리드 -->
+          <div class="s1-grid">
+            <div class="s1-grid-row">
+              <div class="s1-cell" style="width:64px;height:26px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:rgba(255,255,255,.5);font-size:8px;gap:3px">☀️ 23°</div>
+              <div class="s1-cell" style="width:80px;height:26px;background:rgba(45,59,85,.5);border:1px solid rgba(45,59,85,.8);color:rgba(200,215,240,.8);font-size:7px">아침 케어</div>
+              <div class="s1-cell" style="width:56px;height:26px;background:rgba(200,102,110,.1);border:1px solid rgba(200,102,110,.2);color:rgba(200,102,110,.8);font-size:7px">OOTD</div>
+            </div>
+            <div class="s1-grid-row">
+              <div class="s1-cell" style="width:88px;height:32px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.4);font-size:7px">💧 토너 → 세럼</div>
+              <div class="s1-cell" style="width:58px;height:32px;background:rgba(74,187,120,.08);border:1px solid rgba(74,187,120,.15);color:rgba(74,187,120,.7);font-size:8px">67%</div>
+              <div class="s1-cell" style="width:52px;height:32px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.3);font-size:7px">₩2.8M</div>
+            </div>
+            <div class="s1-grid-row">
+              <div class="s1-cell" style="width:66px;height:26px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);color:rgba(255,255,255,.3);font-size:7px">6step</div>
+              <div class="s1-cell" style="width:66px;height:26px;background:rgba(45,59,85,.3);border:1px solid rgba(45,59,85,.5);color:rgba(200,215,240,.6);font-size:7px">19회차</div>
+              <div class="s1-cell" style="width:66px;height:26px;background:rgba(200,102,110,.08);border:1px solid rgba(200,102,110,.15);color:rgba(200,102,110,.6);font-size:7px">D-10</div>
+            </div>
+          </div>
+          <!-- 텍스트 -->
+          <div class="s1-text">
+            <div class="s1-tag-sm">STEP 01 · 공감</div>
+            <div class="s1-title-sm">당신의 아침,<br>더 이상 <em>고민할</em><br>필요 없게.</div>
+            <div class="s1-sub-sm">선택의 피로를 삭제하고<br>지금 이 순간 해야 할 단 하나만.</div>
+          </div>
+          <!-- 도트 -->
+          <div class="s1-dots">
+            <div class="s1-dot on"></div>
+            <div class="s1-dot"></div>
+            <div class="s1-dot"></div>
+          </div>
+          <!-- 넥스트 -->
+          <div class="s1-nextbtn">›</div>
+        </div>
+      </div>
+      <div class="phone-label">① 온보딩 슬라이드</div>
+      <div class="phone-sub">3슬라이드 (공감·제안·확신)<br>기존 코드 유지</div>
+    </div>
+
+    <div class="arrow"></div>
+
+    <!-- ─── SCREEN 2: 로그인 ─── -->
+    <div class="phone-wrap">
+      <div class="tag new" style="margin-bottom:8px">신규 추가</div>
+      <div class="phone">
+        <div class="signin-bg">
+          <div class="signin-logo">🪞</div>
+          <div class="signin-title">OnStep에 오신 것을<br>환영합니다</div>
+          <div class="signin-sub">내 스타일 자산을 기록하고<br>매일의 루틴을 자동화하세요</div>
+          <div class="signin-divider">
+            <div class="signin-divider-line"></div>
+            <div class="signin-divider-txt">시작하기</div>
+            <div class="signin-divider-line"></div>
+          </div>
+          <div class="google-btn">
+            <div class="google-icon"></div>
+            <div class="google-btn-txt">Google로 계속하기</div>
+          </div>
+          <div class="signin-terms">
+            계속 진행하면 서비스 이용약관 및<br>개인정보처리방침에 동의하는 것으로 간주됩니다
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">② Google 로그인</div>
+      <div class="phone-sub">온보딩 마지막 슬라이드 후<br>로그인 → 데이터 연동 보장</div>
+    </div>
+
+    <div class="arrow"></div>
+
+    <!-- ─── SCREEN 3: 퀵셋업 Step 1 ─── -->
+    <div class="phone-wrap">
+      <div class="tag new" style="margin-bottom:8px">신규 추가</div>
+      <div class="phone">
+        <div class="setup-wiz-bg">
+          <div class="wiz-header">
+            <div class="wiz-step-row">
+              <div class="wiz-step done"></div>
+              <div class="wiz-step active"></div>
+              <div class="wiz-step"></div>
+            </div>
+            <div style="font-size:8px;font-weight:700;letter-spacing:.1em;color:rgba(197,255,0,.6);margin-bottom:6px">QUICK SETUP 1/2</div>
+            <div class="wiz-title">이번 케어 세션은<br>언제까지인가요?</div>
+            <div class="wiz-sub">세션 기간을 설정하면 루틴 달성률을<br>자동으로 계산해드립니다</div>
+          </div>
+          <div class="wiz-body">
+            <div class="wiz-field-label">기간 빠른 선택</div>
+            <div class="wiz-duration-chips">
+              <div class="wiz-chip">10일</div>
+              <div class="wiz-chip on">2주</div>
+              <div class="wiz-chip">1개월</div>
+            </div>
+            <div class="wiz-field-label">직접 설정</div>
+            <div class="wiz-date-row">
+              <div class="wiz-date-inp">2026.05.17</div>
+              <div class="wiz-date-sep">→</div>
+              <div class="wiz-date-inp">2026.05.31</div>
+            </div>
+            <div class="wiz-session-card">
+              <div class="wiz-session-no">SESSION #1</div>
+              <div class="wiz-session-title">14일간의 케어</div>
+              <div class="wiz-session-period">2026.05.17 — 2026.05.31</div>
+            </div>
+          </div>
+          <div class="wiz-btn">다음 단계 →</div>
+        </div>
+      </div>
+      <div class="phone-label">③ 퀵셋업 Step 1</div>
+      <div class="phone-sub">세션 기간 선택<br>10일·2주·1개월 프리셋 + 직접입력</div>
+    </div>
+
+    <div class="arrow"></div>
+
+    <!-- ─── SCREEN 4: 퀵셋업 Step 2 ─── -->
+    <div class="phone-wrap">
+      <div class="tag new" style="margin-bottom:8px">신규 추가</div>
+      <div class="phone">
+        <div class="setup-wiz-bg">
+          <div class="wiz-header">
+            <div class="wiz-step-row">
+              <div class="wiz-step done"></div>
+              <div class="wiz-step done"></div>
+              <div class="wiz-step active"></div>
+            </div>
+            <div style="font-size:8px;font-weight:700;letter-spacing:.1em;color:rgba(197,255,0,.6);margin-bottom:6px">QUICK SETUP 2/2</div>
+            <div class="wiz-title">루틴 시간을<br>설정하세요</div>
+            <div class="wiz-sub">아침·저녁 알림 기준 시간입니다<br>나중에 언제든 변경 가능해요</div>
+          </div>
+          <div class="wiz-body">
+            <div class="wiz-time-row">
+              <div class="wiz-time-card">
+                <div class="wiz-time-icon">🌅</div>
+                <div class="wiz-time-label">아침 루틴</div>
+                <div class="wiz-time-val">07:30</div>
+                <div class="wiz-time-ampm">AM</div>
+                <div class="wiz-time-edit">탭하여 변경</div>
+              </div>
+              <div class="wiz-time-card">
+                <div class="wiz-time-icon">🌙</div>
+                <div class="wiz-time-label">저녁 루틴</div>
+                <div class="wiz-time-val">21:00</div>
+                <div class="wiz-time-ampm">PM</div>
+                <div class="wiz-time-edit">탭하여 변경</div>
+              </div>
+            </div>
+            <div class="wiz-field-label" style="margin-top:4px">오늘의 루틴 미리보기</div>
+            <div class="wiz-routine-preview">
+              <div class="wiz-routine-row">
+                <div class="wiz-routine-time">07:30</div>
+                <div class="wiz-routine-name">아침 케어 루틴</div>
+                <div class="wiz-routine-badge">설정 후 구성</div>
+              </div>
+              <div class="wiz-routine-row">
+                <div class="wiz-routine-time">21:00</div>
+                <div class="wiz-routine-name">저녁 케어 루틴</div>
+                <div class="wiz-routine-badge">설정 후 구성</div>
+              </div>
+            </div>
+          </div>
+          <div class="wiz-btn" style="background:#C5FF00">OnStep 시작하기 ✓</div>
+        </div>
+      </div>
+      <div class="phone-label">④ 퀵셋업 Step 2</div>
+      <div class="phone-sub">아침·저녁 루틴 시간 설정<br>미리보기 제공 후 시작</div>
+    </div>
+
+    <div class="arrow"></div>
+
+    <!-- ─── SCREEN 5: Today 첫 진입 ─── -->
+    <div class="phone-wrap">
+      <div class="tag improve" style="margin-bottom:8px">개선</div>
+      <div class="phone light">
+        <div class="l-notch"><div class="l-notch-bar"></div></div>
+        <div class="l-appbar">
+          <div style="width:20px;display:flex;flex-direction:column;gap:4px">
+            <div style="height:1.5px;background:#0A0A0A;border-radius:1px"></div>
+            <div style="height:1.5px;background:#0A0A0A;border-radius:1px;width:68%"></div>
+          </div>
+          <div class="l-appbar-title"><div class="l-appbar-logo"></div>OnStep</div>
+          <div class="l-avatar"></div>
+        </div>
+        <div style="height:476px;overflow:hidden;background:#F5F5F3;padding:12px">
+          <!-- 웰컴 카드 -->
+          <div class="today-welcome">
+            <div class="today-welcome-tag">WELCOME · SESSION #1</div>
+            <div class="today-welcome-title">안녕하세요, Ymi님</div>
+            <div style="font-size:8px;color:rgba(255,255,255,.35);line-height:1.5">세션 시작까지 0일 · 2026.05.17 ~ 05.31</div>
+            <div class="today-welcome-emoji">🌸</div>
+          </div>
+          <!-- 시작 가이드 -->
+          <div class="today-section-hd">시작 가이드</div>
+          <div class="today-guide-steps">
+            <div class="today-step-card done">
+              <div class="today-step-num done">✓</div>
+              <div class="today-step-info">
+                <div class="today-step-name">세션 기간 설정</div>
+                <div class="today-step-desc">2026.05.17 ~ 05.31 · 14일</div>
+              </div>
+            </div>
+            <div class="today-step-card">
+              <div class="today-step-num">2</div>
+              <div class="today-step-info">
+                <div class="today-step-name">제품 등록 (Box)</div>
+                <div class="today-step-desc">스킨케어, 화장품, 패션 아이템 추가</div>
+              </div>
+              <div class="today-step-arrow">›</div>
+            </div>
+            <div class="today-step-card">
+              <div class="today-step-num">3</div>
+              <div class="today-step-info">
+                <div class="today-step-name">루틴 구성 (Setup)</div>
+                <div class="today-step-desc">아침·저녁 케어 스텝 연결</div>
+              </div>
+              <div class="today-step-arrow">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="bnav">
+          <div class="bnav-item active"><div class="bnav-dot"></div><div class="bnav-txt">TODAY</div></div>
+          <div class="bnav-item"><div class="bnav-dot"></div><div class="bnav-txt">LOG</div></div>
+          <div class="bnav-item"><div class="bnav-dot"></div><div class="bnav-txt">BOX</div></div>
+          <div class="bnav-item"><div class="bnav-dot"></div><div class="bnav-txt">SETUP</div></div>
+        </div>
+      </div>
+      <div class="phone-label">⑤ Today 첫 진입</div>
+      <div class="phone-sub">단계별 체크리스트로<br>다음 행동 명확하게 안내<br>완료 시 자동 숨김</div>
+    </div>
+
+    <div class="arrow"></div>
+
+    <!-- ─── SCREEN 6: Setup 개선 ─── -->
+    <div class="phone-wrap">
+      <div class="tag improve" style="margin-bottom:8px">개선</div>
+      <div class="phone light">
+        <div class="l-notch"><div class="l-notch-bar"></div></div>
+        <div class="l-appbar">
+          <div style="width:20px;display:flex;flex-direction:column;gap:4px">
+            <div style="height:1.5px;background:#0A0A0A;border-radius:1px"></div>
+            <div style="height:1.5px;background:#0A0A0A;border-radius:1px;width:68%"></div>
+          </div>
+          <div class="l-appbar-title"><div class="l-appbar-logo"></div>OnStep</div>
+          <div style="font-size:12px;font-weight:600;color:#0A0A0A">편집</div>
+        </div>
+        <div style="height:476px;overflow:hidden;background:#F5F5F3">
+          <div class="setup-hero-new">
+            <!-- 세션 카드 -->
+            <div class="setup-session-card">
+              <div class="setup-session-no">SESSION #1 · 진행 중</div>
+              <div class="setup-session-title">SESSION<br>ONE</div>
+              <div class="setup-session-period">2026.05.17 — 2026.05.31 · D-14</div>
+              <div class="setup-session-actions">
+                <div class="setup-action-btn primary">+ 루틴 추가</div>
+                <div class="setup-action-btn ghost">날짜 편집</div>
+                <div class="setup-action-btn ghost">세션 종료</div>
+              </div>
+            </div>
+            <!-- BOX 연결 배너 -->
+            <div class="setup-start-banner">
+              <div class="setup-start-icon">📦</div>
+              <div class="setup-start-info">
+                <div class="setup-start-title">BOX에서 제품을 먼저 등록하세요</div>
+                <div class="setup-start-sub">제품이 있어야 루틴 스텝에 연결할 수 있어요</div>
+              </div>
+              <div class="setup-start-btn">Box →</div>
+            </div>
+          </div>
+          <!-- 탭 -->
+          <div class="setup-tabs">
+            <div class="setup-tab active">MORNING</div>
+            <div class="setup-tab">NIGHT</div>
+          </div>
+          <!-- 루틴 빈 상태 -->
+          <div class="setup-section">
+            <div class="setup-section-label">루틴 스텝</div>
+            <div class="setup-routine-empty">
+              <div class="setup-routine-empty-icon">🌅</div>
+              <div class="setup-routine-empty-txt">아침 루틴이 아직 없어요</div>
+              <div class="setup-routine-empty-sub">BOX에서 제품을 추가하면<br>여기서 루틴으로 연결할 수 있어요</div>
+            </div>
+            <div class="setup-add-step-btn">
+              <span>+</span> 루틴 스텝 추가
+            </div>
+          </div>
+        </div>
+        <div class="bnav">
+          <div class="bnav-item"><div class="bnav-dot"></div><div class="bnav-txt">TODAY</div></div>
+          <div class="bnav-item"><div class="bnav-dot"></div><div class="bnav-txt">LOG</div></div>
+          <div class="bnav-item"><div class="bnav-dot"></div><div class="bnav-txt">BOX</div></div>
+          <div class="bnav-item active"><div class="bnav-dot"></div><div class="bnav-txt">SETUP</div></div>
+        </div>
+      </div>
+      <div class="phone-label">⑥ Setup 첫 진입</div>
+      <div class="phone-sub">세션 카드 + BOX 연결 배너로<br>다음 단계 명확히 안내<br>빈 루틴 empty state 개선</div>
+    </div>
+
+  </div>
+
+  <!-- ── 구현 우선순위 ── -->
+  <div class="section-label">구현 우선순위</div>
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:600px">
+    <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 16px">
+      <div style="font-size:10px;font-weight:700;color:#C5FF00;width:60px;flex-shrink:0">P1 · 즉시</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.6)">② 로그인 화면 — onboarding.html 마지막 슬라이드 후 삽입</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 16px">
+      <div style="font-size:10px;font-weight:700;color:#C5FF00;width:60px;flex-shrink:0">P1 · 즉시</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.6)">③④ 퀵셋업 위저드 — 신규 HTML 또는 onboarding.html 슬라이드 4·5로 추가</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 16px">
+      <div style="font-size:10px;font-weight:700;color:#7BA3FF;width:60px;flex-shrink:0">P2 · 이번주</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.6)">⑤ Today 첫 진입 가이드 카드 — onstep_onboarded + 설정 완료 여부 체크</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 16px">
+      <div style="font-size:10px;font-weight:700;color:#7BA3FF;width:60px;flex-shrink:0">P2 · 이번주</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.6)">⑥ Setup BOX 연결 배너 + empty state 문구 개선</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 16px">
+      <div style="font-size:10px;font-weight:700;color:#5A5A6E;width:60px;flex-shrink:0">P3 · 추후</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.4)">Box / Log empty state 개선, 튜토리얼 툴팁</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -255,49 +255,6 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .nav-item.active .nav-icon{color:#FFFFFF;}
 .nav-item.active .nav-label{color:#FFFFFF;}
 
-/* session data dropdown */
-.sdata-slot-hd{
-  display:flex;align-items:center;gap:8px;
-  padding:10px 12px 6px;border-top:1px solid var(--border);
-}
-.sdata-slot-label{
-  font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;
-  letter-spacing:.12em;text-transform:uppercase;color:var(--sub);flex:1;
-}
-.sdata-slot-step{
-  font-family:'Inter',sans-serif;font-size:9px;color:var(--mist);
-  background:var(--surface-mid);padding:1px 7px;border-radius:var(--r-full);
-}
-.sdata-prod-row{
-  display:flex;align-items:center;gap:10px;
-  padding:6px 12px 6px 20px;border-bottom:1px solid var(--border);
-}
-.sdata-prod-row:last-child{border-bottom:none}
-.sdata-prod-img{
-  width:30px;height:30px;border-radius:var(--r-sm);flex-shrink:0;
-  background:var(--surface-low) center/cover no-repeat;
-  display:flex;align-items:center;justify-content:center;font-size:13px;
-}
-.sdata-prod-info{flex:1;min-width:0}
-.sdata-prod-name{
-  font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
-  color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.sdata-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px}
-.sdata-prod-cat{
-  font-family:'Space Grotesk',sans-serif;font-size:8px;font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--mist);
-  background:var(--surface-mid);padding:2px 6px;border-radius:var(--r-full);flex-shrink:0;
-}
-.sdata-meta-row{
-  display:flex;flex-wrap:wrap;gap:5px;padding:10px 12px 8px;
-}
-.sdata-meta-chip{
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:600;
-  color:var(--sub);background:var(--surface);border-radius:var(--r-full);
-  padding:3px 9px;letter-spacing:.04em;
-}
-.sdata-empty{padding:10px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--mist)}
 
 /* ══════════════════════════════════════
    SESSION ARCHIVE overlay
@@ -370,11 +327,22 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ae-step-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px}
 .ae-step-cat{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:9999px;background:var(--surface-low);color:var(--sub);white-space:nowrap;flex-shrink:0}
 .ae-detail-empty{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:6px 0}
-.ae-detail-edit-btn{width:100%;margin-top:14px;padding:11px;border:none;border-radius:var(--r-md);background:var(--ink);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
+.ae-detail-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.ae-detail-edit-btn{width:100%;margin-top:14px;padding:12px;border:none;border-radius:var(--r-md);background:var(--ink);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
 .ae-detail-edit-btn:active{opacity:.7}
-.ae-detail-del-btn{padding:11px 16px;border:1.5px solid var(--border);border-radius:var(--r-md);background:transparent;color:var(--mist);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;flex-shrink:0;transition:all .15s}
+.ae-detail-action-row .ae-detail-edit-btn{margin-top:0;flex:unset}
+.ae-detail-del-btn{padding:12px;border:1.5px solid var(--border);border-radius:var(--r-md);background:transparent;color:var(--sub);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .15s;width:100%;text-align:center}
 .ae-detail-del-btn:active{background:rgba(255,82,82,.06);border-color:#ff5252;color:#ff5252}
-.ae-detail-action-row{display:flex;gap:8px;margin-top:14px}
+/* Session detail — 3-column name grid */
+.sd-slot-section{margin-bottom:12px}
+.sd-slot-section:last-child{margin-bottom:0}
+.sd-slot-hd{display:flex;align-items:center;gap:6px;padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.sd-slot-icon{font-size:12px;line-height:1}
+.sd-slot-label{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);flex:1}
+.sd-slot-cnt{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;color:var(--mist);background:var(--surface-mid);padding:2px 8px;border-radius:9999px}
+.sd-day-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin:8px 0 5px;opacity:.7}
+.sd-name-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}
+.sd-name-bar{font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:var(--ink);background:var(--surface);border-radius:var(--r-sm);padding:8px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 
 /* Archive — no results */
 .ae-no-results{padding:40px 20px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);line-height:1.6}
@@ -687,6 +655,8 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-card-item-wrap{flex-shrink:0;width:40px;text-align:center}
 .ct-card-item-img{width:40px;height:40px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:15px;overflow:hidden;margin-bottom:3px}
 .ct-card-item-nm{font-family:'Inter',sans-serif;font-size:8px;font-weight:600;color:var(--ink);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ct-card-item-plus{flex-shrink:0;width:16px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mist);font-weight:300;padding-bottom:14px}
+.ct-card-item-desc{flex-shrink:0;max-width:72px;font-family:'Inter',sans-serif;font-size:8px;color:var(--sub);line-height:1.35;padding:4px 6px;background:var(--surface-low);border-radius:var(--r-sm);align-self:flex-start;word-break:keep-all}
 .ct-card-dates{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
 .ct-date-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;background:var(--ink);color:#fff;padding:3px 8px;border-radius:var(--r-sm);letter-spacing:.04em}
 .ct-card-actions{padding:10px 16px 12px;border-top:1px solid var(--border);display:flex;gap:8px}
@@ -729,6 +699,41 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-box-inp{width:100%;padding:9px 12px;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none}
 .ct-box-inp::placeholder{color:var(--mist)}
 .ct-box-results{max-height:320px;overflow-y:auto}
+/* 루틴 편집 패널 인라인 제품 검색 */
+.rs-inline-search{display:none;padding:10px 16px 0}
+.rs-inline-search.open{display:block}
+.rs-search-row{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm) var(--r-sm) 0 0;background:var(--surface-low)}
+.rs-search-inp{flex:1;border:none;outline:none;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);background:transparent}
+.rs-search-inp::placeholder{color:var(--mist)}
+.rs-search-close{font-size:15px;color:var(--mist);cursor:pointer;padding:2px 4px;line-height:1;flex-shrink:0}
+.rs-search-results{border:1.5px solid var(--border);border-top:none;border-radius:0 0 var(--r-sm) var(--r-sm);background:#fff;overflow:hidden;margin-bottom:12px}
+.rs-search-placeholder{padding:14px 12px;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);text-align:center}
+.rs-search-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.rs-search-item:last-child{border-bottom:none}
+.rs-search-item:active{background:var(--surface-low)}
+.rs-search-item-img{width:36px;height:36px;border-radius:var(--r-sm);background:var(--surface-low);background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden}
+.rs-search-item-info{flex:1;min-width:0}
+.rs-search-item-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rs-search-item-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist)}
+.rs-register-row{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-top:1px dashed var(--border);transition:background .12s}
+.rs-register-row:active{background:var(--surface-low)}
+/* 루틴 편집 타입드 아이템 */
+.rs-chip-list{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px 4px}
+.rs-chip{display:inline-flex;align-items:center;gap:5px;cursor:default;position:relative}
+.rs-chip--prod{background:#fff;border:1px solid var(--border);padding:4px 6px 4px 4px;border-radius:10px;box-shadow:var(--shadow)}
+.rs-chip-img{width:30px;height:30px;border-radius:7px;background:var(--surface-mid);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden}
+.rs-chip-name{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72px}
+.rs-chip--plus{width:28px;height:28px;border:1.5px dashed var(--border-md);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mist);font-weight:300;flex-shrink:0;cursor:pointer}
+.rs-chip--desc{background:var(--surface-mid);border-radius:var(--r-sm);padding:5px 8px;font-family:'Inter',sans-serif;font-size:10px;color:var(--sub);line-height:1.4;max-width:120px;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rs-chip-del{font-size:9px;color:var(--mist);flex-shrink:0;cursor:pointer;line-height:1;margin-left:2px}
+.rs-act-row{display:flex;gap:6px;padding:8px 16px 14px;flex-wrap:wrap}
+.rs-act-btn{border:1.5px solid var(--border-md);border-radius:var(--r-full);padding:6px 14px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--sub);background:transparent;cursor:pointer;transition:all .15s;white-space:nowrap}
+.rs-act-btn:active{border-color:var(--ink);color:var(--ink)}
+.rs-act-btn--plus{border-style:dashed;min-width:36px;text-align:center;padding:6px 10px}
+.rs-desc-row{display:flex;align-items:center;gap:6px;padding:0 16px 12px}
+.rs-desc-inp{flex:1;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px 10px;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);background:#fff;outline:none}
+.rs-desc-ok{padding:8px 14px;border:none;border-radius:var(--r-sm);background:var(--ink);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.rs-desc-cancel{padding:8px;border:none;background:transparent;color:var(--mist);font-size:16px;cursor:pointer;line-height:1}
 .ct-box-row{display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid var(--border);cursor:pointer;transition:background .15s}
 .ct-box-row:active{background:var(--surface-mid)}
 .ct-more-btn{padding:10px 12px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mist);border-top:1px solid var(--border);cursor:pointer;transition:background .15s}
@@ -755,6 +760,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-desc-inline-inp{flex:1;padding:8px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);background:#fff;outline:none;transition:border-color .18s}
 .ct-desc-inline-inp:focus{border-color:var(--ink)}
 .ct-desc-inline-ok{padding:8px 14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;cursor:pointer}
+.ct-desc-inline-cancel{padding:8px 10px;background:transparent;color:var(--mist);border:none;font-size:15px;cursor:pointer;line-height:1;flex-shrink:0}
 .ct-tpo-wrap{display:flex;flex-wrap:wrap;gap:6px}
 .ct-tpo-chip{padding:7px 14px;border:1.5px solid var(--border);border-radius:var(--r-full);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--mist);cursor:pointer;transition:all .15s;background:var(--surface)}
 .ct-tpo-chip.active{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -856,6 +862,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .panel-body{flex:1;overflow-y:auto;scrollbar-width:none}
 .panel-body::-webkit-scrollbar{display:none}
 .panel-bnav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);flex-shrink:0;}
+@media(pointer:coarse),(max-width:430px){input,textarea,select{font-size:16px!important}}
 </style>
 </head>
 <body>
@@ -1002,12 +1009,15 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
             onchange="updateTimeDisplay('morning',this.value)">
         </div>
         <div class="prod-scroll-strip" id="morning-grid"></div>
-        <button class="prod-list-toggle" id="morning-list-toggle" onclick="toggleProdList('morning')">
-          LIST <span class="prod-list-count-badge" id="morning-list-count">0</span>
-          <span class="prod-list-toggle-arrow">▾</span>
-        </button>
-        <div class="prod-list-dropdown" id="morning-list-dropdown">
-          <div class="prod-list-inner" id="morning-list-inner"></div>
+        <div class="rs-inline-search" id="rs-search-morning">
+          <div class="rs-search-row">
+            <input class="rs-search-inp" id="rs-inp-morning" type="text" placeholder="제품명 · 브랜드 검색..."
+              oninput="renderRsResults('morning',this.value)">
+            <span class="rs-search-close" onclick="closeRsSearch('morning')">✕</span>
+          </div>
+          <div class="rs-search-results" id="rs-results-morning">
+            <div class="rs-search-placeholder">BOX에서 제품을 검색하세요</div>
+          </div>
         </div>
         <div class="tip-card">
           <div class="tip-card-hd">
@@ -1015,7 +1025,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
             EXPERT TIP
           </div>
           <textarea class="tip-card-input" id="morning-tip" rows="2"
-            placeholder="Apply the toner while the skin is still slightly damp for maximum hydration absorption."
+            placeholder=""
             oninput="updateRoutineTip('morning',this.value)"></textarea>
         </div>
       </div>
@@ -1038,12 +1048,15 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
             onchange="updateTimeDisplay('nightly',this.value)">
         </div>
         <div class="prod-scroll-strip" id="nightly-grid"></div>
-        <button class="prod-list-toggle" id="nightly-list-toggle" onclick="toggleProdList('nightly')">
-          LIST <span class="prod-list-count-badge" id="nightly-list-count">0</span>
-          <span class="prod-list-toggle-arrow">▾</span>
-        </button>
-        <div class="prod-list-dropdown" id="nightly-list-dropdown">
-          <div class="prod-list-inner" id="nightly-list-inner"></div>
+        <div class="rs-inline-search" id="rs-search-nightly">
+          <div class="rs-search-row">
+            <input class="rs-search-inp" id="rs-inp-nightly" type="text" placeholder="제품명 · 브랜드 검색..."
+              oninput="renderRsResults('nightly',this.value)">
+            <span class="rs-search-close" onclick="closeRsSearch('nightly')">✕</span>
+          </div>
+          <div class="rs-search-results" id="rs-results-nightly">
+            <div class="rs-search-placeholder">BOX에서 제품을 검색하세요</div>
+          </div>
         </div>
         <div id="nightly-empty" class="empty-state-wrap">
           <div class="empty-state-text">No products assigned.<br>Configure your night routine steps.</div>
@@ -1056,7 +1069,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
             EXPERT TIP
           </div>
           <textarea class="tip-card-input" id="nightly-tip" rows="2"
-            placeholder="Double cleansing is essential at night to remove pollutants and SPF effectively."
+            placeholder=""
             oninput="updateRoutineTip('nightly',this.value)"></textarea>
         </div>
       </div>
@@ -1092,24 +1105,10 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
           onchange="onBeforePhoto('session',this)">
       </div>
 
-      <!-- Session Data Summary -->
-      <div style="padding:16px 16px 4px;border-top:1px solid var(--border)">
-        <button class="prod-list-toggle" id="sdata-toggle" onclick="toggleSessionData()">
-          <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase">SESSION DATA</span>
-          <span class="prod-list-count-badge" id="sdata-count">0</span>
-          <span class="prod-list-toggle-arrow">▾</span>
-        </button>
-        <div class="prod-list-dropdown" id="sdata-dropdown">
-          <div class="prod-list-inner" id="sdata-inner"></div>
-        </div>
-      </div>
-
       <!-- Save CTA -->
-      <div class="routine-actions">
-        <button class="publish-btn" onclick="saveRoutineChanges()" style="background:var(--lime);color:var(--lime-fg);letter-spacing:.06em;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px">
-          SAVE ROUTINE
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
+      <div class="routine-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="publish-btn" onclick="saveRoutineChanges()" style="background:var(--lime);color:var(--lime-fg);letter-spacing:.06em;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;height:52px">SAVE ROUTINE →</button>
+        <button class="ae-detail-del-btn" onclick="clearCurrentRoutine()" style="height:52px;padding:0;margin:0">초기화</button>
       </div>
 
     </div><!-- /panel-body -->
@@ -1256,7 +1255,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
   <!-- ── Content Add Sheet (makeup / look) ── -->
   <div class="ct-sheet-ov" id="ct-sheet-ov" onclick="if(event.target===this)closeCtSheet()">
-    <div class="ct-sheet" id="ct-sheet">
+    <div class="ct-sheet" id="ct-sheet" onclick="if(!event.target.closest('#ct-box-wrap'))_closeCtBoxWrap()">
       <div class="ct-sheet-sticky">
         <div class="ct-sheet-handle"></div>
         <div class="ct-sheet-hd">
@@ -1285,14 +1284,15 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <span class="ct-sheet-sec-lbl" id="ct-items-lbl">아이템 매핑 (BOX 뷰티)</span>
         <div class="ct-chips" id="ct-selected-chips"></div>
         <div class="ct-action-row" id="ct-action-row" style="display:none">
-          <button class="ct-act-btn" onclick="ctAddProductStart('main')">+ 제품</button>
+          <button class="ct-act-btn" onclick="ctAddProductStart('main',event)">+ 제품</button>
           <button class="ct-act-btn" onclick="ctAddDescStart('main')">+ 설명</button>
           <button class="ct-act-btn ct-act-plus" onclick="ctAddPlusChip('main')">+</button>
         </div>
         <div class="ct-desc-inline-row" id="ct-desc-inline-row" style="display:none">
           <input class="ct-desc-inline-inp" id="ct-desc-inline-inp" type="text" placeholder="설명 텍스트 입력..."
-            onkeydown="if(event.key==='Enter')ctConfirmDesc('main')">
+            onkeydown="if(event.key==='Enter')ctConfirmDesc('main');else if(event.key==='Escape')ctCancelDesc('main')">
           <button class="ct-desc-inline-ok" onclick="ctConfirmDesc('main')">추가</button>
+          <button class="ct-desc-inline-cancel" onclick="ctCancelDesc('main')">✕</button>
         </div>
         <div class="ct-box-wrap" id="ct-box-wrap">
           <input class="ct-box-inp" id="ct-box-inp" type="text" placeholder="제품명·브랜드 검색..."
@@ -1304,14 +1304,15 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <div class="ct-tip-lbl">— TIP <span style="font-size:10px;font-weight:400;color:var(--mist)">(내용 있을 때만 Today 표시)</span></div>
         <div class="ct-chips" id="ct-tip-chips"></div>
         <div class="ct-action-row">
-          <button class="ct-act-btn" onclick="ctAddProductStart('tip')">+ 제품</button>
+          <button class="ct-act-btn" onclick="ctAddProductStart('tip',event)">+ 제품</button>
           <button class="ct-act-btn" onclick="ctAddDescStart('tip')">+ 설명</button>
           <button class="ct-act-btn ct-act-plus" onclick="ctAddPlusChip('tip')">+</button>
         </div>
         <div class="ct-desc-inline-row" id="ct-tip-desc-inline-row" style="display:none">
           <input class="ct-desc-inline-inp" id="ct-tip-desc-inline-inp" type="text" placeholder="TIP 설명 텍스트 입력..."
-            onkeydown="if(event.key==='Enter')ctConfirmDesc('tip')">
+            onkeydown="if(event.key==='Enter')ctConfirmDesc('tip');else if(event.key==='Escape')ctCancelDesc('tip')">
           <button class="ct-desc-inline-ok" onclick="ctConfirmDesc('tip')">추가</button>
+          <button class="ct-desc-inline-cancel" onclick="ctCancelDesc('tip')">✕</button>
         </div>
       </div>
       <div class="ct-sheet-sec" id="ct-tpo-sec" style="display:none">
@@ -1349,7 +1350,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
           </div>
         </div>
       </div>
-      <div class="ct-sheet-ok-wrap">
+      <div class="ct-sheet-ok-wrap" id="ct-sheet-ok-wrap">
         <button class="ct-sheet-cancel" onclick="closeCtSheet()">취소</button>
         <button class="ct-sheet-ok" onclick="saveCtContent()">저장</button>
       </div>
@@ -1610,6 +1611,8 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     const ctRes = document.getElementById('ct-box-results');
     if (ctRes && ctRes.children.length) renderCtBoxResults(document.getElementById('ct-box-inp')?.value || '');
+    renderCtCareList();
+    renderCtChips();
   });
 });
 
@@ -1893,7 +1896,10 @@ window.addEventListener('load', () => {
   const slot  = params.get('slot');
   if (panel) {
     openSetupPanel(panel);
-    if (slot) {
+    const edit = params.get('edit');
+    if (panel === 'routine' && edit === '1') {
+      setTimeout(() => openRoutineEditPanel(), 120);
+    } else if (slot) {
       setTimeout(() => {
         const el = document.getElementById(`${slot}-grid`);
         if (el) el.closest('.routine-section')?.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -2005,12 +2011,6 @@ function renderAll() {
   renderTodayStepBadge();
   renderHistory();
   updateHubCounts();
-  if (_sdataOpen) renderSessionDataSummary();
-  else {
-    const totalProds = ['morning','nightly'].reduce((s,slot)=>s+(state[slot]?.routines||[]).reduce((ss,r)=>ss+(r.products?.length||0),0),0);
-    const c = document.getElementById('sdata-count');
-    if (c) c.textContent = totalProds;
-  }
   // 현재 활성 시간대 배지 표시
   const activeSlot = getSetupTimePeriod();
   const mBadge = document.getElementById('morning-active-badge');
@@ -2042,8 +2042,8 @@ function closeSetupPanel() {
 }
 function updateHubCounts() {
   // routine: morning + nightly product count
-  const mCnt = (state.morning?.routines?.reduce((s,r)=>s+(r.products?.length||0),0)||0);
-  const nCnt = (state.nightly?.routines?.reduce((s,r)=>s+(r.products?.length||0),0)||0);
+  const mCnt = (state.morning?.routines?.reduce((s,r)=>s+(r.products?.filter(i=>(i.type||'product')==='product').length||0),0)||0);
+  const nCnt = (state.nightly?.routines?.reduce((s,r)=>s+(r.products?.filter(i=>(i.type||'product')==='product').length||0),0)||0);
   const rEl = document.getElementById('hub-count-routine');
   if (rEl) rEl.textContent = (mCnt+nCnt) ? `${mCnt+nCnt} PRODUCTS` : 'SET UP';
   // care
@@ -2074,24 +2074,21 @@ function _setHubImg(id, src) {
 }
 
 function updateHubImages() {
-  // Makeup: id 내림차순(최신순) 중 baselineImg 있는 첫 번째
+  const _img = t => t.baselineImg || t.storageUrl || null;
   const mkp  = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
-  _setHubImg('hub-img-makeup', [...mkp].sort((a,b)=>b.id-a.id).find(t=>t.baselineImg)?.baselineImg || null);
+  _setHubImg('hub-img-makeup', [...mkp].sort((a,b)=>b.id-a.id).map(_img).find(Boolean) || null);
 
-  // Look: 동일 패턴
   const lk   = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
-  _setHubImg('hub-img-look', [...lk].sort((a,b)=>b.id-a.id).find(t=>t.baselineImg)?.baselineImg || null);
+  _setHubImg('hub-img-look', [...lk].sort((a,b)=>b.id-a.id).map(_img).find(Boolean) || null);
 
-  // Care: 동일 패턴
   const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
-  _setHubImg('hub-img-care', [...care].sort((a,b)=>b.id-a.id).find(t=>t.baselineImg)?.baselineImg || null);
+  _setHubImg('hub-img-care', [...care].sort((a,b)=>b.id-a.id).map(_img).find(Boolean) || null);
 
-  // Routine: 현재 세션 루틴 전체 제품 중 imgData 있는 마지막 제품
   const allProds = [
     ...(state.morning?.routines||[]).flatMap(r=>r.products||[]),
     ...(state.nightly?.routines||[]).flatMap(r=>r.products||[])
   ];
-  _setHubImg('hub-img-routine', [...allProds].reverse().find(p=>p.imgData)?.imgData || null);
+  _setHubImg('hub-img-routine', [...allProds].reverse().find(p=>p.imgData||p.storageUrl)?.imgData || [...allProds].reverse().find(p=>p.storageUrl)?.storageUrl || null);
 }
 
 // ── Hero ──────────────────────────────────────────────────────
@@ -2176,47 +2173,52 @@ function renderGrid(slot) {
 
   const activeId = state[slot].active;
   const routine  = state[slot].routines.find(r => r.id === activeId);
-  const products = routine?.products || [];
+  const items    = routine?.products || [];
 
-  // step 탭 UI를 state.active와 동기화
   const pfx = slot === 'morning' ? 'm' : 'n';
   document.getElementById(`${pfx}step-1`)?.classList.toggle('active', activeId === 1);
   document.getElementById(`${pfx}step-2`)?.classList.toggle('active', activeId === 2);
-
   const tipEl = document.getElementById(`${slot}-tip`);
   if (tipEl) tipEl.value = routine?.tip || '';
+  if (emptyEl) emptyEl.style.display = 'none';
 
-  if (products.length === 0) {
-    grid.innerHTML = `<div class="prod-card-add" onclick="openModal('${slot}')">
-      <div class="prod-card-add-plus">+</div>
-      <div class="prod-card-add-label">ADD</div>
-    </div>`;
-    if (emptyEl) emptyEl.style.display = 'flex';
-  } else {
-    if (emptyEl) emptyEl.style.display = 'none';
-    let html = '';
-    if (products.length < MAX) {
-      html += `<div class="prod-card-add" onclick="openModal('${slot}')">
-        <div class="prod-card-add-plus">+</div>
-        <div class="prod-card-add-label">ADD</div>
-      </div>`;
+  grid.style.cssText = 'display:block;overflow:visible;padding:0';
+
+  const chipHtml = items.map((item, idx) => {
+    const t = item.type || 'product';
+    if (t === 'plus') {
+      return `<div class="rs-chip rs-chip--plus" onclick="rsRemoveItem('${slot}',${idx})" title="탭하면 삭제">+</div>`;
     }
-    html += products.map(p => `
-      <div class="prod-card" onclick="openModal('${slot}',${p.id})">
-        <div class="prod-card-img" ${(p.imgData||p.storageUrl) ? `style="background-image:url(${p.imgData||p.storageUrl})"` : ''}>
-          ${!(p.imgData||p.storageUrl) ? `<span style="opacity:.2">${p.icon||'✦'}</span>` : ''}
-        </div>
-        <div class="prod-card-cat">${(CAT[p.catKey]?.label || p.catKey || '').toUpperCase()}</div>
-        <div class="prod-card-name">${p.name}</div>
-      </div>`).join('');
-    grid.innerHTML = html;
-  }
+    if (t === 'desc') {
+      return `<div class="rs-chip rs-chip--desc">${item.text||''}<span class="rs-chip-del" onclick="event.stopPropagation();rsRemoveItem('${slot}',${idx})"> ✕</span></div>`;
+    }
+    const img = item.imgData || item.storageUrl || '';
+    return `<div class="rs-chip rs-chip--prod" onclick="openModal('${slot}',${item.id})">
+      <div class="rs-chip-img" ${img ? `style="background-image:url(${img})"` : ''}>${!img ? (item.icon||'✨') : ''}</div>
+      <div class="rs-chip-name">${item.name||''}</div>
+      <span class="rs-chip-del" onclick="event.stopPropagation();rsRemoveItem('${slot}',${idx})">✕</span>
+    </div>`;
+  }).join('');
+
+  grid.innerHTML = `
+    ${chipHtml ? `<div class="rs-chip-list">${chipHtml}</div>` : ''}
+    <div class="rs-act-row">
+      <button class="rs-act-btn" onclick="openRoutineEditSearch('${slot}')">+ 제품</button>
+      <button class="rs-act-btn" onclick="rsOpenDesc('${slot}')">+ 설명</button>
+      <button class="rs-act-btn rs-act-btn--plus" onclick="rsAddPlusItem('${slot}')">+</button>
+    </div>
+    <div class="rs-desc-row" id="rs-desc-${slot}" style="display:none">
+      <input class="rs-desc-inp" id="rs-desc-inp-${slot}" type="text" placeholder="설명 텍스트 입력..."
+        onkeydown="if(event.key==='Enter')rsConfirmDesc('${slot}');else if(event.key==='Escape')rsCancelDesc('${slot}')">
+      <button class="rs-desc-ok" onclick="rsConfirmDesc('${slot}')">추가</button>
+      <button class="rs-desc-cancel" onclick="rsCancelDesc('${slot}')">✕</button>
+    </div>`;
 
   renderProdList(slot);
 }
 
 function renderProdList(slot) {
-  const products = getActiveProducts(slot);
+  const products = getActiveProducts(slot).filter(i => (i.type||'product') === 'product');
   const countEl  = document.getElementById(`${slot}-list-count`);
   const innerEl  = document.getElementById(`${slot}-list-inner`);
   if (countEl) countEl.textContent = products.length;
@@ -2268,19 +2270,24 @@ function renderRoutineSessionList() {
   }
 
   const fmt = d => (d || '').replace(/-/g, '.');
-  const CAT_LABEL = { toner:'토너',serum:'세럼',ampoule:'앰플',booster:'부스터',cream:'크림',pack:'팩',mist:'미스트',etc:'기타' };
-  const stepRow = p => `
-    <div class="ae-step-row">
-      <span class="ae-step-icon">${p.icon||'✦'}</span>
-      <div class="ae-step-info">
-        <div class="ae-step-name">${p.name}</div>
-        ${p.brand ? `<div class="ae-step-brand">${p.brand}</div>` : ''}
+  const nameGrid = prods => `<div class="sd-name-grid">${prods.map(p=>`<div class="sd-name-bar">${CAT[p.catKey]?.icon||'✦'} ${p.name||''}</div>`).join('')}</div>`;
+  const slotSection = (icon, label, d1, d2) => {
+    const p1 = d1.filter(i => (i.type||'product') === 'product');
+    const p2 = d2.filter(i => (i.type||'product') === 'product');
+    if (!p1.length && !p2.length) return '';
+    const hasDay2 = p2.length > 0;
+    const cnt = p1.length + p2.length;
+    return `<div class="sd-slot-section">
+      <div class="sd-slot-hd">
+        <span class="sd-slot-icon">${icon}</span>
+        <span class="sd-slot-label">${label}</span>
+        <span class="sd-slot-cnt">${cnt} STEPS</span>
       </div>
-      ${p.catKey ? `<span class="ae-step-cat">${CAT_LABEL[p.catKey]||p.catKey}</span>` : ''}
+      ${hasDay2 ? '<div class="sd-day-label">DAY 1</div>' : ''}
+      ${p1.length ? nameGrid(p1) : ''}
+      ${hasDay2 && p2.length ? `<div class="sd-day-label">DAY 2</div>${nameGrid(p2)}` : ''}
     </div>`;
-  const slotBlock = (icon, label, prods) => prods.length ? `
-    <div class="ae-slot-hd"><span class="ae-slot-icon">${icon}</span><span class="ae-slot-label">${label} · ${prods.length} STEPS</span></div>
-    <div class="ae-step-list">${prods.map(stepRow).join('')}</div>` : '';
+  };
 
   let html = '';
   let lastYear = null;
@@ -2288,12 +2295,16 @@ function renderRoutineSessionList() {
     const n = s.session;
     const sfx = getSuffix(n).toUpperCase();
     const yr = (s.periodStart || '').slice(0, 4) || '—';
-    const mProds = (s.morning?.routines || []).flatMap(r => r.products || []);
-    const nProds = (s.nightly?.routines || []).flatMap(r => r.products || []);
+    const mProds = (s.morning?.routines || []).flatMap(r => (r.products||[]).filter(i=>(i.type||'product')==='product'));
+    const nProds = (s.nightly?.routines || []).flatMap(r => (r.products||[]).filter(i=>(i.type||'product')==='product'));
     const tags = [...(mProds.length ? [`☀ ${mProds.length}`] : []), ...(nProds.length ? [`🌙 ${nProds.length}`] : [])];
     const tagsHtml = tags.map(t => `<span class="ae-tag">${t}</span>`).join('');
-    const detailBody = mProds.length || nProds.length
-      ? slotBlock('☀️', 'MORNING', mProds) + slotBlock('🌙', 'NIGHT', nProds)
+    const mDay1 = s.morning?.routines?.find(r=>r.id===1)?.products||[];
+    const mDay2 = s.morning?.routines?.find(r=>r.id===2)?.products||[];
+    const nDay1 = s.nightly?.routines?.find(r=>r.id===1)?.products||[];
+    const nDay2 = s.nightly?.routines?.find(r=>r.id===2)?.products||[];
+    const detailBody = (mProds.length || nProds.length)
+      ? slotSection('☀', 'MORNING', mDay1, mDay2) + slotSection('🌙', 'NIGHT', nDay1, nDay2)
       : '<div class="ae-detail-empty">등록된 제품이 없습니다</div>';
 
     if (yr !== lastYear) {
@@ -2313,13 +2324,7 @@ function renderRoutineSessionList() {
     <div class="ae-detail" id="rs-detail-${n}">
       <div class="ae-detail-inner">
         ${detailBody}
-        ${s.isCurrent
-          ? `<button class="ae-detail-edit-btn" onclick="event.stopPropagation();openRoutineEditPanel()">EDIT ROUTINE →</button>`
-          : `<div class="ae-detail-action-row">
-               <button class="ae-detail-edit-btn" style="flex:1" onclick="event.stopPropagation();openSessionEditor(${n})">편집 →</button>
-               <button class="ae-detail-del-btn" onclick="event.stopPropagation();deleteSession(${n})">삭제</button>
-             </div>`
-        }
+        <button class="ae-detail-edit-btn" onclick="event.stopPropagation();${s.isCurrent ? 'openRoutineEditPanel()' : `openSessionEditor(${n})`}">EDIT ROUTINE →</button>
       </div>
     </div>`;
   });
@@ -2566,6 +2571,31 @@ function closeRoutineEditPanel() {
   renderRoutineSessionList();
 }
 
+function clearCurrentRoutine() {
+  if (!confirm('현재 루틴의 모든 제품을 초기화하시겠습니까?')) return;
+  ['morning','nightly'].forEach(slot => {
+    (state[slot]?.routines || []).forEach(r => { r.products = []; r.tip = ''; });
+    renderGrid(slot);
+    const tipEl = document.getElementById(`${slot}-tip`);
+    if (tipEl) tipEl.value = '';
+  });
+  persistPlan(false);
+  renderRoutineSessionList();
+  showToast('루틴이 초기화됐습니다');
+}
+
+function deleteSeSession() {
+  if (!_seEdit) return;
+  const n = _seEdit.origN;
+  if (!confirm(`${n}회차 세션을 삭제하시겠습니까?`)) return;
+  state.history = (state.history || []).filter(h => h.session !== n);
+  persistPlan(state.published || false);
+  closeSessionEditor();
+  renderRoutineSessionList();
+  renderArchiveEntries();
+  showToast(`✓ ${n}회차 삭제됨`);
+}
+
 // ── Edit Sheet ────────────────────────────────────────────────
 async function saveRoutineChanges() {
   ['morning','nightly'].forEach(slot => {
@@ -2728,25 +2758,28 @@ function renderSeBody() {
   const d = _seEdit.data;
   const CAT_LABEL = { toner:'토너',serum:'세럼',ampoule:'앰플',booster:'부스터',cream:'크림',pack:'팩',mist:'미스트',etc:'기타' };
 
-  const prodRow = (slot, idx, p) => `
-    <div class="se-prod-row">
-      <span class="se-prod-icon">${p.icon||'✦'}</span>
-      <div class="se-prod-info">
-        <div class="se-prod-name">${p.name}</div>
-        ${p.brand ? `<div class="se-prod-brand">${p.brand}</div>` : ''}
-      </div>
-      ${p.catKey ? `<span class="se-prod-cat">${CAT_LABEL[p.catKey]||p.catKey}</span>` : ''}
-      <button class="se-remove-btn" onclick="seRemoveProd('${slot}',${idx})">✕</button>
+  const _seChipHtml = (slot, prods) => prods.map((item, idx) => {
+    const t = item.type || 'product';
+    if (t === 'plus') return `<div class="rs-chip rs-chip--plus" onclick="seRsRemoveItem('${slot}',${idx})" title="탭하면 삭제">+</div>`;
+    if (t === 'desc') return `<div class="rs-chip rs-chip--desc">${item.text||''}<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})"> ✕</span></div>`;
+    const img = item.imgData || item.storageUrl || '';
+    return `<div class="rs-chip rs-chip--prod">
+      <div class="rs-chip-img" ${img ? `style="background-image:url(${img})"` : ''}>${!img ? (item.icon||'✨') : ''}</div>
+      <div class="rs-chip-name">${item.name||''}</div>
+      <span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span>
     </div>`;
+  }).join('');
 
   const slotBlock = (icon, label, slot) => {
     const routines = d[slot]?.routines || [];
     const activeId = _seActiveSlot[slot] || routines[0]?.id || 1;
     const activeRoutine = routines.find(r => r.id === activeId) || routines[0];
     const prods = activeRoutine?.products || [];
+    const tip   = activeRoutine?.tip || '';
+    const chipHtml = _seChipHtml(slot, prods);
 
     const tabsHtml = routines.length > 1
-      ? `<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+      ? `<div style="display:flex;gap:6px;margin-bottom:12px">
           ${routines.map(r =>
             `<button onclick="sePickTab('${slot}',${r.id})"
               style="padding:5px 14px;border-radius:9999px;border:1.5px solid ${r.id===activeId?'var(--ink)':'var(--border)'};background:${r.id===activeId?'var(--ink)':'transparent'};color:${r.id===activeId?'#fff':'var(--sub)'};font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:all .15s">DAY ${r.id}</button>`
@@ -2754,17 +2787,44 @@ function renderSeBody() {
          </div>` : '';
 
     return `
-    <div class="se-slot-hd">
-      <div class="se-slot-title"><span>${icon}</span>${label}</div>
-    </div>
-    ${tabsHtml}
-    <div class="se-prod-list" id="se-list-${slot}">
-      ${prods.length ? prods.map((p,i) => prodRow(slot,i,p)).join('') : `<div class="se-empty">등록된 제품 없음</div>`}
-    </div>
-    <button onclick="openSeModal('${slot}')"
-      style="width:100%;margin-top:8px;padding:11px;background:transparent;border:1.5px dashed var(--border-md);border-radius:var(--r-sm);color:var(--sub);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-      <span style="font-size:15px;font-weight:300">+</span> 제품 추가
-    </button>`;
+    <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
+      <div class="rs-hd" style="margin-bottom:12px">
+        <div class="rs-hd-left"><span class="rs-name">${label.toUpperCase()}</span></div>
+      </div>
+      ${tabsHtml}
+      <div id="se-chips-${slot}">
+        ${chipHtml ? `<div class="rs-chip-list">${chipHtml}</div>` : ''}
+        <div class="rs-act-row">
+          <button class="rs-act-btn" onclick="seRsOpenSearch('${slot}')">+ 제품</button>
+          <button class="rs-act-btn" onclick="seRsOpenDesc('${slot}')">+ 설명</button>
+          <button class="rs-act-btn rs-act-btn--plus" onclick="seRsAddPlus('${slot}')">+</button>
+        </div>
+        <div class="rs-desc-row" id="se-desc-row-${slot}" style="display:none">
+          <input class="rs-desc-inp" id="se-desc-inp-${slot}" type="text" placeholder="설명 텍스트 입력..."
+            onkeydown="if(event.key==='Enter')seRsConfirmDesc('${slot}');else if(event.key==='Escape')seRsCancelDesc('${slot}')">
+          <button class="rs-desc-ok" onclick="seRsConfirmDesc('${slot}')">추가</button>
+          <button class="rs-desc-cancel" onclick="seRsCancelDesc('${slot}')">✕</button>
+        </div>
+      </div>
+      <div class="rs-inline-search" id="se-rs-search-${slot}" style="margin-top:8px">
+        <div class="rs-search-row">
+          <input class="rs-search-inp" id="se-rs-inp-${slot}" type="text" placeholder="제품명 · 브랜드 검색..."
+            oninput="seRsRenderResults('${slot}',this.value)">
+          <span class="rs-search-close" onclick="seRsCloseSearch('${slot}')">✕</span>
+        </div>
+        <div class="rs-search-results" id="se-rs-results-${slot}">
+          <div class="rs-search-placeholder">BOX에서 제품을 검색하세요</div>
+        </div>
+      </div>
+      <div class="tip-card" style="margin-top:12px">
+        <div class="tip-card-hd">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          EXPERT TIP
+        </div>
+        <textarea class="tip-card-input" id="se-tip-${slot}" rows="2" placeholder=""
+          oninput="seUpdateTip('${slot}',this.value)">${tip}</textarea>
+      </div>
+    </div>`;
   };
 
   document.getElementById('se-body').innerHTML = `
@@ -2799,7 +2859,10 @@ function renderSeBody() {
       </div>
       ${slotBlock('☀️','MORNING','morning')}
       ${slotBlock('🌙','NIGHT','nightly')}
-      <div class="se-bottom-gap"></div>
+      <div style="padding:24px 16px 40px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="publish-btn" onclick="saveSessionEditor()" style="background:var(--lime);color:var(--lime-fg);letter-spacing:.06em;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;height:52px">SAVE ROUTINE →</button>
+        <button class="ae-detail-del-btn" onclick="deleteSeSession()" style="height:52px;padding:0;margin:0">세션 삭제</button>
+      </div>
     </div>`;
 }
 
@@ -2808,11 +2871,293 @@ function sePickTab(slot, id) {
   renderSeBody();
 }
 
+function seGetActiveRoutine(slot) {
+  if (!_seEdit) return null;
+  const routines = _seEdit.data[slot]?.routines || [];
+  const activeId = _seActiveSlot[slot] || routines[0]?.id || 1;
+  return routines.find(r => r.id === activeId) || routines[0] || null;
+}
+
+function seRenderChips(slot) {
+  if (!_seEdit) return;
+  const routine = seGetActiveRoutine(slot);
+  const prods = routine?.products || [];
+  const chipHtml = prods.map((item, idx) => {
+    const t = item.type || 'product';
+    if (t === 'plus') return `<div class="rs-chip rs-chip--plus" onclick="seRsRemoveItem('${slot}',${idx})" title="탭하면 삭제">+</div>`;
+    if (t === 'desc') return `<div class="rs-chip rs-chip--desc">${item.text||''}<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})"> ✕</span></div>`;
+    const img = item.imgData || item.storageUrl || '';
+    return `<div class="rs-chip rs-chip--prod">
+      <div class="rs-chip-img" ${img ? `style="background-image:url(${img})"` : ''}>${!img ? (item.icon||'✨') : ''}</div>
+      <div class="rs-chip-name">${item.name||''}</div>
+      <span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span>
+    </div>`;
+  }).join('');
+  const el = document.getElementById(`se-chips-${slot}`);
+  if (!el) return;
+  el.innerHTML = `
+    ${chipHtml ? `<div class="rs-chip-list">${chipHtml}</div>` : ''}
+    <div class="rs-act-row">
+      <button class="rs-act-btn" onclick="seRsOpenSearch('${slot}')">+ 제품</button>
+      <button class="rs-act-btn" onclick="seRsOpenDesc('${slot}')">+ 설명</button>
+      <button class="rs-act-btn rs-act-btn--plus" onclick="seRsAddPlus('${slot}')">+</button>
+    </div>
+    <div class="rs-desc-row" id="se-desc-row-${slot}" style="display:none">
+      <input class="rs-desc-inp" id="se-desc-inp-${slot}" type="text" placeholder="설명 텍스트 입력..."
+        onkeydown="if(event.key==='Enter')seRsConfirmDesc('${slot}');else if(event.key==='Escape')seRsCancelDesc('${slot}')">
+      <button class="rs-desc-ok" onclick="seRsConfirmDesc('${slot}')">추가</button>
+      <button class="rs-desc-cancel" onclick="seRsCancelDesc('${slot}')">✕</button>
+    </div>`;
+}
+
+function seRsOpenSearch(slot) {
+  const el = document.getElementById(`se-rs-search-${slot}`);
+  const inp = document.getElementById(`se-rs-inp-${slot}`);
+  if (el) el.classList.add('open');
+  if (inp) { inp.value = ''; setTimeout(() => inp.focus(), 80); }
+  seRsRenderResults(slot, '');
+}
+function seRsCloseSearch(slot) {
+  document.getElementById(`se-rs-search-${slot}`)?.classList.remove('open');
+}
+function seRsRenderResults(slot, q) {
+  const resultsEl = document.getElementById(`se-rs-results-${slot}`);
+  if (!resultsEl) return;
+  if (!q.trim()) { resultsEl.innerHTML = '<div class="rs-search-placeholder">BOX에서 제품을 검색하세요</div>'; return; }
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const lq = q.toLowerCase();
+  const filtered = assets.filter(a => (a.name||'').toLowerCase().includes(lq) || (a.brand||'').toLowerCase().includes(lq)).slice(0, 12);
+  const safeName = q.trim().replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/</g,'&lt;');
+  const registerRow = `<div class="rs-register-row" onclick="seRsRegisterAndAdd('${slot}','${safeName}')">
+    <div class="rs-search-item-img" style="font-size:20px;color:var(--mist)">+</div>
+    <div class="rs-search-item-info"><div class="rs-search-item-name">"${safeName}" 이름으로 등록</div></div>
+  </div>`;
+  resultsEl.innerHTML = filtered.map(a => {
+    const img = a.imgData || a.storageUrl || '';
+    const icon = CAT[a.catKey]?.icon || '✨';
+    return `<div class="rs-search-item" onclick="seRsSelectProduct('${slot}',${a.id})">
+      <div class="rs-search-item-img" ${img ? `style="background-image:url(${img});background-size:cover;background-position:center"` : `style="font-size:18px"`}>${img ? '' : icon}</div>
+      <div class="rs-search-item-info">
+        <div class="rs-search-item-name">${a.name}</div>
+        ${a.brand ? `<div class="rs-search-item-brand">${a.brand}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('') + registerRow;
+}
+function seRsSelectProduct(slot, assetId) {
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const asset = assets.find(a => a.id === assetId);
+  if (!asset) return;
+  const routine = seGetActiveRoutine(slot);
+  if (!routine) return;
+  const meta = CAT[asset.catKey] || { icon:'✨' };
+  routine.products.push({
+    type: 'product', id: Date.now(), catKey: asset.catKey || 'skincare',
+    name: asset.name, brand: asset.brand || '',
+    icon: meta.icon, imgData: asset.imgData || null,
+    storageUrl: asset.storageUrl || null, assetId: asset.id
+  });
+  seRenderChips(slot);
+  seRsCloseSearch(slot);
+  showToast(`${meta.icon} ${asset.name} 추가됨`);
+}
+function seRsRegisterAndAdd(slot, name) {
+  const q = (name || '').trim();
+  if (!q) return;
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const newId = Date.now();
+  assets.push({ id: newId, name: q, brand: '', domain: 'beauty', catKey: 'skincare',
+    useCount: 0, addedDate: new Date().toISOString().slice(0,10), imgData: null, storageUrl: null, storageHash: '' });
+  localStorage.setItem('onstep_box_assets', JSON.stringify(assets));
+  if (typeof _broadcastState === 'function') _broadcastState('box_assets');
+  _saveBoxAssetsToCloud();
+  seRsSelectProduct(slot, newId);
+}
+function seRsRemoveItem(slot, idx) {
+  const routine = seGetActiveRoutine(slot);
+  if (!routine) return;
+  routine.products.splice(idx, 1);
+  seRenderChips(slot);
+}
+function seRsOpenDesc(slot) {
+  const row = document.getElementById(`se-desc-row-${slot}`);
+  const inp = document.getElementById(`se-desc-inp-${slot}`);
+  if (!row) return;
+  row.style.display = 'flex';
+  setTimeout(() => inp?.focus(), 50);
+}
+function seRsCancelDesc(slot) {
+  const row = document.getElementById(`se-desc-row-${slot}`);
+  const inp = document.getElementById(`se-desc-inp-${slot}`);
+  if (row) row.style.display = 'none';
+  if (inp) inp.value = '';
+}
+function seRsConfirmDesc(slot) {
+  const inp = document.getElementById(`se-desc-inp-${slot}`);
+  const text = (inp?.value || '').trim();
+  if (!text) { seRsCancelDesc(slot); return; }
+  const routine = seGetActiveRoutine(slot);
+  if (!routine) return;
+  routine.products.push({ type: 'desc', text, id: Date.now() });
+  seRenderChips(slot);
+  seRsCancelDesc(slot);
+}
+function seRsAddPlus(slot) {
+  const routine = seGetActiveRoutine(slot);
+  if (!routine) return;
+  routine.products.push({ type: 'plus', id: Date.now() });
+  seRenderChips(slot);
+}
+function seUpdateTip(slot, value) {
+  const routine = seGetActiveRoutine(slot);
+  if (routine) routine.tip = value;
+}
+
+function openRoutineEditSearch(slot) {
+  ['morning','nightly'].forEach(s => { if (s !== slot) closeRsSearch(s); });
+  const el = document.getElementById(`rs-search-${slot}`);
+  if (el) el.classList.add('open');
+  const inp = document.getElementById(`rs-inp-${slot}`);
+  if (inp) { inp.value = ''; setTimeout(() => inp.focus(), 80); }
+  renderRsResults(slot, '');
+}
+
+function closeRsSearch(slot) {
+  document.getElementById(`rs-search-${slot}`)?.classList.remove('open');
+}
+
+function renderRsResults(slot, q) {
+  const el = document.getElementById(`rs-results-${slot}`);
+  if (!el) return;
+  if (!q.trim()) {
+    el.innerHTML = `<div class="rs-search-placeholder">BOX에서 제품을 검색하세요</div>`;
+    return;
+  }
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const lq = q.toLowerCase();
+  const filtered = assets.filter(a =>
+    (a.name||'').toLowerCase().includes(lq) || (a.brand||'').toLowerCase().includes(lq)
+  ).slice(0, 12);
+  const safeName = q.trim().replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/</g,'&lt;');
+  const registerRow = `<div class="rs-register-row" onclick="rsRegisterAndAdd('${slot}','${safeName}')">
+    <div class="rs-search-item-img" style="font-size:20px;color:var(--mist)">+</div>
+    <div class="rs-search-item-info">
+      <div class="rs-search-item-name">"${q.trim()}" 이름으로 등록 후 추가</div>
+      <div class="rs-search-item-brand">BOX 제품 리스트에 자동 저장</div>
+    </div>
+  </div>`;
+  if (!filtered.length) {
+    el.innerHTML = `<div class="rs-search-placeholder">검색 결과가 없습니다</div>${registerRow}`;
+    return;
+  }
+  el.innerHTML = filtered.map(a => {
+    const img = a.imgData || a.storageUrl || '';
+    const icon = CAT[a.catKey]?.icon || '✨';
+    return `<div class="rs-search-item" onclick="rsSelectProduct('${slot}',${a.id})">
+      <div class="rs-search-item-img" ${img ? `style="background-image:url(${img});background-size:cover;background-position:center"` : `style="font-size:18px"`}>${img ? '' : icon}</div>
+      <div class="rs-search-item-info">
+        <div class="rs-search-item-name">${a.name}</div>
+        ${a.brand ? `<div class="rs-search-item-brand">${a.brand}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('') + registerRow;
+}
+
+function rsSelectProduct(slot, assetId) {
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const asset = assets.find(a => a.id === assetId);
+  if (!asset) return;
+  const meta = CAT[asset.catKey] || { icon:'✨' };
+  const prods = getActiveProducts(slot);
+  const prodCount = prods.filter(i => (i.type||'product') === 'product').length;
+  if (prodCount >= MAX) { showToast(`최대 ${MAX}개까지 등록 가능합니다`); return; }
+  prods.push({
+    type: 'product', id: Date.now(), catKey: asset.catKey || 'skincare',
+    name: asset.name, brand: asset.brand || '',
+    icon: meta.icon, imgData: asset.imgData || null,
+    storageUrl: asset.storageUrl || null, assetId: asset.id
+  });
+  setActiveProducts(slot, prods);
+  renderGrid(slot);
+  persistPlan(false);
+  showToast(`${meta.icon} ${asset.name} 추가됨`);
+  const inp = document.getElementById(`rs-inp-${slot}`);
+  if (inp) { inp.value = ''; inp.focus(); }
+  renderRsResults(slot, '');
+}
+
+function rsRegisterAndAdd(slot, name) {
+  const q = (name || '').trim();
+  if (!q) return;
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const newId = Date.now();
+  assets.push({ id: newId, name: q, brand: '', domain: 'beauty', catKey: 'skincare',
+    useCount: 0, addedDate: new Date().toISOString().slice(0,10), imgData: null, storageUrl: null, storageHash: '' });
+  localStorage.setItem('onstep_box_assets', JSON.stringify(assets));
+  if (typeof _broadcastState === 'function') _broadcastState('box_assets');
+  _saveBoxAssetsToCloud();
+  rsSelectProduct(slot, newId);
+}
+
+function rsOpenDesc(slot) {
+  const row = document.getElementById(`rs-desc-${slot}`);
+  const inp = document.getElementById(`rs-desc-inp-${slot}`);
+  if (!row) return;
+  row.style.display = 'flex';
+  setTimeout(() => inp?.focus(), 50);
+}
+function rsCancelDesc(slot) {
+  const row = document.getElementById(`rs-desc-${slot}`);
+  const inp = document.getElementById(`rs-desc-inp-${slot}`);
+  if (row) row.style.display = 'none';
+  if (inp) inp.value = '';
+}
+function rsConfirmDesc(slot) {
+  const inp = document.getElementById(`rs-desc-inp-${slot}`);
+  const text = (inp?.value || '').trim();
+  if (!text) { rsCancelDesc(slot); return; }
+  const prods = getActiveProducts(slot);
+  prods.push({ type: 'desc', text, id: Date.now() });
+  setActiveProducts(slot, prods);
+  renderGrid(slot);
+  persistPlan(false);
+  rsCancelDesc(slot);
+}
+function rsAddPlusItem(slot) {
+  const prods = getActiveProducts(slot);
+  prods.push({ type: 'plus', id: Date.now() });
+  setActiveProducts(slot, prods);
+  renderGrid(slot);
+  persistPlan(false);
+}
+function rsRemoveItem(slot, idx) {
+  const prods = getActiveProducts(slot);
+  prods.splice(idx, 1);
+  setActiveProducts(slot, prods);
+  renderGrid(slot);
+  persistPlan(false);
+}
+
 function openSeModal(slot) {
   if (!_seEdit) return;
-  _seModalSlot = slot;
+  _seModalSlot  = slot;
   _seModalRouteId = _seActiveSlot[slot] || 1;
-  openModal(slot);
+  // 검색 먼저: bp-overlay를 루틴 컨텍스트로 열기
+  _bpContext  = 'routine';
+  _bpSeSlot   = slot;
+  _bpSeRouteId = _seModalRouteId;
+  bpSelectedId = null;
+  _bpExpanded = false;
+  _bpDomain   = 'beauty';
+  _bpSubcat   = 'all';
+  const inp = document.getElementById('bp-search-inp');
+  if (inp) inp.value = '';
+  ['beauty','fashion','acc'].forEach(x => document.getElementById('bpd-'+x)?.classList.toggle('active', x==='beauty'));
+  _renderBpSubcats();
+  renderBpList('');
+  updateBpConfirm();
+  document.getElementById('bp-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('bp-search-inp')?.focus(), 300);
 }
 
 function seRemoveProd(slot, idx) {
@@ -2851,6 +3196,11 @@ function saveSessionEditor() {
   if (!newN || !start || !end) { showToast('회차 번호와 기간을 입력해주세요'); return; }
   const mTime = document.getElementById('se-morning-time')?.value || '08:00';
   const nTime = document.getElementById('se-nightly-time')?.value || '22:00';
+  ['morning','nightly'].forEach(slot => {
+    const tipEl = document.getElementById(`se-tip-${slot}`);
+    const routine = seGetActiveRoutine(slot);
+    if (tipEl && routine) routine.tip = tipEl.value;
+  });
   _seEdit.data.session     = newN;
   _seEdit.data.periodStart = start;
   _seEdit.data.periodEnd   = end;
@@ -2979,6 +3329,9 @@ let bpSelectedId = null;
 let _bpExpanded  = false;
 let _bpDomain    = 'beauty';
 let _bpSubcat    = 'all';
+let _bpContext   = 'modal'; // 'modal' | 'routine'
+let _bpSeSlot    = null;
+let _bpSeRouteId = null;
 
 const BP_BEAUTY_CATS = {
   skincare: ['toner','serum','cream','essence','suncare','mask','cleansing','eye','lip_care','etc'],
@@ -3042,6 +3395,13 @@ function openBoxPanel() {
 
 function closeBoxPanel() {
   document.getElementById('bp-overlay').classList.remove('open');
+  if (_bpContext === 'routine') {
+    _seModalSlot = null;
+    _seModalRouteId = null;
+  }
+  _bpContext  = 'modal';
+  _bpSeSlot   = null;
+  _bpSeRouteId = null;
 }
 
 function _bpShowMore() {
@@ -3053,6 +3413,11 @@ function renderBpList(q) {
   const el = document.getElementById('bp-list');
   const countEl = document.getElementById('bp-count');
   if (!el) return;
+  if (_bpContext === 'routine' && !q.trim()) {
+    el.innerHTML = `<div class="bp-empty">BOX에서 제품을 검색하세요</div>`;
+    if (countEl) countEl.textContent = '';
+    return;
+  }
   const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
   let filtered = assets.filter(a => a.domain === _bpDomain);
   if (_bpDomain === 'beauty' && _bpSubcat !== 'all') filtered = filtered.filter(a => a.type === _bpSubcat);
@@ -3066,7 +3431,17 @@ function renderBpList(q) {
   if (countEl) countEl.textContent = `${filtered.length}개`;
   if (!filtered.length) {
     const domainLabel = { beauty:'뷰티', fashion:'패션', acc:'악세서리' };
-    el.innerHTML = `<div class="bp-empty">BOX에 등록된 ${domainLabel[_bpDomain]||''} 제품이 없습니다.<br><a href="box.html" style="color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px">BOX에서 제품 추가하기 →</a></div>`;
+    const qTrim = q.trim();
+    const registerRow = (_bpContext === 'routine' || _bpContext === 'ct') && qTrim
+      ? `<div class="bp-item" style="cursor:pointer" onclick="bpRegisterAndAdd('${qTrim.replace(/'/g,"\\'").replace(/</g,'&lt;')}')">
+          <div class="bp-item-img" style="background:var(--surface-low);font-size:20px;display:flex;align-items:center;justify-content:center;color:var(--mist)">+</div>
+          <div class="bp-item-info">
+            <div class="bp-item-name">"${qTrim}" 이름으로 등록 후 추가</div>
+            <div class="bp-item-brand">BOX 제품 리스트에 자동 저장</div>
+          </div>
+        </div>`
+      : `<a href="box.html" style="display:block;padding:12px 16px;text-align:center;font-family:'Inter',sans-serif;font-size:11px;color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px">BOX에서 제품 추가하기 →</a>`;
+    el.innerHTML = `<div class="bp-empty">BOX에 등록된 ${domainLabel[_bpDomain]||''} 제품이 없습니다.</div>${registerRow}`;
     return;
   }
   const showAll = _bpExpanded || !!q.trim();
@@ -3109,9 +3484,15 @@ function confirmBoxPanel() {
   const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
   const asset = assets.find(a => a.id === bpSelectedId);
   if (!asset) return;
-  selectedBoxAssetId = bpSelectedId;
 
-  // fill modal fields
+  if (_bpContext === 'routine') {
+    _addAssetToRoutine(asset);
+    closeBoxPanel();
+    return;
+  }
+
+  // modal context: fill product modal fields
+  selectedBoxAssetId = bpSelectedId;
   document.getElementById('product-name').value  = asset.name  || '';
   document.getElementById('product-brand').value = asset.brand || '';
   const catKey = asset.catKey && CAT[asset.catKey] ? asset.catKey : 'etc';
@@ -3121,14 +3502,63 @@ function confirmBoxPanel() {
     document.getElementById('prod-img-preview').style.cssText = `background-image:url(${asset.imgData||asset.storageUrl});display:block`;
     document.getElementById('prod-img-placeholder').style.display = 'none';
   }
-
-  // update "BOX에서 가져오기" button label
   const subEl = document.getElementById('box-from-sub');
   if (subEl) subEl.textContent = `${asset.name}${asset.brand ? ' · '+asset.brand : ''}`;
   const fromBtn = document.getElementById('box-from-btn');
   if (fromBtn) fromBtn.classList.add('has-sel');
-
   closeBoxPanel();
+}
+
+function _addAssetToRoutine(asset) {
+  const slot    = _bpSeSlot;
+  const routeId = _bpSeRouteId;
+  if (slot === null) return;
+  const meta = CAT[asset.catKey] || { icon:'✨' };
+  const prodObj = {
+    id: Date.now(), catKey: asset.catKey || 'skincare',
+    name: asset.name, brand: asset.brand || '',
+    icon: meta.icon, imgData: asset.imgData || null,
+    storageUrl: asset.storageUrl || null, assetId: asset.id
+  };
+  if (_seEdit) {
+    const routine = (_seEdit.data[slot]?.routines || []).find(r => r.id === routeId)
+                 || _seEdit.data[slot]?.routines?.[0];
+    if (!routine) return;
+    routine.products.push(prodObj);
+    renderSeBody();
+  } else {
+    const prods = getActiveProducts(slot);
+    if (prods.length >= MAX) { showToast(`최대 ${MAX}개까지 등록 가능합니다`); return; }
+    prods.push(prodObj);
+    setActiveProducts(slot, prods);
+    renderGrid(slot);
+    persistPlan(false);
+  }
+  showToast(`${meta.icon} ${asset.name} 추가됨`);
+}
+
+function bpRegisterAndAdd(name) {
+  const q = (name || '').trim();
+  if (!q) return;
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const newId = Date.now();
+  const newAsset = {
+    id: newId, name: q, brand: '', domain: 'beauty', catKey: 'skincare',
+    useCount: 0, addedDate: new Date().toISOString().slice(0, 10),
+    imgData: null, storageUrl: null, storageHash: ''
+  };
+  assets.push(newAsset);
+  localStorage.setItem('onstep_box_assets', JSON.stringify(assets));
+  if (typeof _broadcastState === 'function') _broadcastState('box_assets');
+  _saveBoxAssetsToCloud();
+  if (_bpContext === 'routine') {
+    _addAssetToRoutine(newAsset);
+    closeBoxPanel();
+  } else {
+    // ct-sheet context: reuse ctRegisterAndAddProduct logic
+    addCtItem(newId);
+    closeBoxPanel();
+  }
 }
 
 function renderBoxSearchResults(q) {} // kept for backward compat
@@ -3545,12 +3975,14 @@ function renderCtCareList() {
     const dateChips = p
       ? `<span class="ct-date-chip">${p.start ? p.start.slice(5).replace('-','/') : '—'} → ${p.end ? p.end.slice(5).replace('-','/') : '—'}</span>`
       : '';
-    const itemsHtml = (t.items||[]).slice(0,6).map(p => {
+    const itemsHtml = (t.items||[]).slice(0, 8).map(p => {
+      if (p.type === 'plus') return `<div class="ct-card-item-plus">+</div>`;
+      if (p.type === 'desc') return `<div class="ct-card-item-desc">${p.text||''}</div>`;
       const asset = getBoxAssets().find(a => a.id === p.assetId);
-      const imgStyle = (asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl) ? `background-image:url(${asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl})` : '';
+      const imgSrc = asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl||'';
       return `<div class="ct-card-item-wrap">
-        <div class="ct-card-item-img" style="${imgStyle}">${!(asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl)?'✦':''}</div>
-        <div class="ct-card-item-nm">${p.name||''}</div>
+        <div class="ct-card-item-img" style="${imgSrc?`background-image:url(${imgSrc})`:''}">${!imgSrc?'✦':''}</div>
+        <div class="ct-card-item-nm">${asset?.name||p.name||''}</div>
       </div>`;
     }).join('');
     return `<div class="ct-card${isPublished?' published':''}">
@@ -3565,9 +3997,11 @@ function renderCtCareList() {
         ${dateChips?`<div class="ct-card-dates">${dateChips}</div>`:''}
       </div>
       <div class="ct-card-actions">
-        <button class="ct-card-ok-btn" onclick="activateCare(${t.id})">ok →</button>
-        <button class="ct-card-edit-btn" onclick="editCtContent('care',${t.id})">편집</button>
-        <button class="ct-card-del-btn" onclick="deleteCtContent('care',${t.id})">🗑</button>
+        ${isPublished
+          ? `<button class="ct-card-ok-btn" onclick="editCtContent('care',${t.id})">EDIT ROUTINE →</button>`
+          : `<button class="ct-card-edit-btn" style="flex:1" onclick="careGoToday(${t.id})">Today Go →</button>
+             <button class="ct-card-ok-btn" onclick="careEditWithToday(${t.id})">EDIT ROUTINE →</button>`
+        }
       </div>
     </div>`;
   }).join('');
@@ -3584,6 +4018,7 @@ function activateCare(id) {
     localStorage.setItem('onstep_care_themes', JSON.stringify(care));
   }
   addToLogPortfolio({ id: Date.now(), type:'care', title:t.name, emoji:t.emoji, baselineImg:t.baselineImg||null, activatedAt: new Date().toISOString() });
+  saveThemesToFirestore();
   showToast(`✓ "${t.name}" — Today에 반영됩니다`);
   renderCtCareList();
   updateHubCounts();
@@ -3818,13 +4253,13 @@ function deleteCtContent(type, id) {
 }
 
 // ── Content Add Sheet ──────────────────────────────────────────
-let ctSheetState = { type:'makeup', editId:null, baselineImg:null, items:[], tipItems:[], dates:[], tpo:[] };
+let ctSheetState = { type:'makeup', editId:null, baselineImg:null, storageUrl:null, storageHash:'', items:[], tipItems:[], dates:[], tpo:[] };
 let ctCalState   = { year: new Date().getFullYear(), month: new Date().getMonth() };
 let _ctBoxExpanded = false;
 let _ctActiveSection = 'main';
 
 function openCtSheet(type, editId = null) {
-  ctSheetState = { type, editId, baselineImg:null, items:[], tipItems:[], dates:[], tpo:[] };
+  ctSheetState = { type, editId, baselineImg:null, storageUrl:null, storageHash:'', items:[], tipItems:[], dates:[], tpo:[] };
   const titleMap = { care:'집중케어 설계', makeup:'메이크업 테마 설계', look:'룩 설계' };
   document.getElementById('ct-sheet-title').textContent = titleMap[type] || '설계';
   const itemsMap = { care:'아이템 매핑 (BOX 뷰티)', makeup:'아이템 매핑 (BOX 뷰티)', look:'아이템 매핑 (BOX 패션·ACC)' };
@@ -3851,6 +4286,14 @@ function openCtSheet(type, editId = null) {
   document.getElementById('ct-period-start').value = '';
   document.getElementById('ct-period-end').value   = '';
   document.querySelectorAll('.ct-tpo-chip').forEach(el => el.classList.remove('active'));
+  const _okWrap = document.getElementById('ct-sheet-ok-wrap');
+  if (_okWrap) {
+    if (type === 'care' && editId !== null) {
+      _okWrap.innerHTML = `<button class="ct-sheet-ok" style="flex:1" onclick="saveCtContent()">저장</button><button class="ct-sheet-cancel" style="flex:1" onclick="deleteCtFromSheet()">삭제</button>`;
+    } else {
+      _okWrap.innerHTML = `<button class="ct-sheet-cancel" onclick="closeCtSheet()">취소</button><button class="ct-sheet-ok" onclick="saveCtContent()">저장</button>`;
+    }
+  }
   const bl = document.getElementById('ct-sheet-baseline');
   bl.style.backgroundImage = '';
   bl.classList.remove('has-img');
@@ -3890,7 +4333,9 @@ function openCtSheet(type, editId = null) {
         document.getElementById('ct-period-end').value   = '';
       }
       ctSheetState.baselineImg = t.baselineImg||null;
-      if (t.baselineImg) {
+      ctSheetState.storageUrl  = t.storageUrl||null;
+      ctSheetState.storageHash = t.storageHash||'';
+      if (t.baselineImg || t.storageUrl) {
         bl.style.backgroundImage = `url(${t.baselineImg||t.storageUrl})`;
         bl.classList.add('has-img');
         bl.querySelector('.ct-sheet-baseline-text').style.display = 'none';
@@ -3939,18 +4384,33 @@ function _ctBoxShowMore() {
 function renderCtBoxResults(q) {
   const el = document.getElementById('ct-box-results');
   if (!el) return;
+  if (!q.trim()) {
+    el.innerHTML = '<div style="padding:10px 12px;font-size:11px;color:var(--mist);text-align:center">제품명을 입력하세요</div>';
+    return;
+  }
   const all = getBoxAssets();
   const byType = ctSheetState.type === 'look'
     ? all.filter(a => a.domain === 'fashion' || a.domain === 'acc')
     : ctSheetState.type === 'makeup'
       ? all.filter(a => a.domain === 'beauty' && a.type === 'makeup')
       : all.filter(a => a.domain === 'beauty');
-  const filtered = byType.filter(a => !q.trim() ? true :
+  const filtered = byType.filter(a =>
     (a.name||'').toLowerCase().includes(q.toLowerCase()) ||
     (a.brand||'').toLowerCase().includes(q.toLowerCase())
   );
   if (!filtered.length) {
-    el.innerHTML = `<div style="padding:9px 12px;font-size:11px;color:var(--mist);text-align:center">BOX에 등록된 제품이 없습니다</div>`;
+    const qTrim = q.trim();
+    const registerRow = qTrim && ctSheetState.type === 'care'
+      ? `<div class="ct-box-row" onclick="ctRegisterAndAddProduct('${qTrim.replace(/'/g,"\\'").replace(/</g,'&lt;')}')">
+          <div class="ct-box-img" style="background:var(--surface-low);font-size:18px;display:flex;align-items:center;justify-content:center">+</div>
+          <div style="flex:1;min-width:0">
+            <div class="ct-box-name">"${qTrim}" 이름으로 등록 후 추가</div>
+            <div class="ct-box-brand">BOX 제품 리스트에 자동 저장</div>
+          </div>
+          <span style="color:var(--mist);font-size:14px">→</span>
+        </div>`
+      : '';
+    el.innerHTML = `<div style="padding:9px 12px;font-size:11px;color:var(--mist);text-align:center">검색 결과 없음</div>${registerRow}`;
     return;
   }
   const showAll = _ctBoxExpanded || !!q.trim();
@@ -3981,7 +4441,9 @@ function addCtItem(assetId) {
   if (ctSheetState.type === 'care') {
     const target = _ctActiveSection === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
     target.push({ type: 'product', assetId, name: asset.name, brand: asset.brand||'' });
-    document.getElementById('ct-box-wrap').style.display = 'none';
+    const _ctInp = document.getElementById('ct-box-inp');
+    if (_ctInp) { _ctInp.value = ''; _ctInp.focus(); }
+    renderCtBoxResults('');
     renderCtChips();
   } else {
     if (ctSheetState.items.find(i => i.assetId === assetId)) return;
@@ -4008,7 +4470,8 @@ function _renderTypedChip(item, idx, section) {
     const asset = getBoxAssets().find(a => a.id === item.assetId);
     const img = asset?.imgData || asset?.storageUrl || '';
     const cls = asset ? 'ct-chip ct-chip--product' : 'ct-chip ct-chip--product-missing';
-    return `<div class="${cls}"><div class="ct-chip-img" style="${img?`background-image:url(${img});background-size:cover`:''}">${!img?'✦':''}</div>${item.name}<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+    const displayName = asset?.name || item.name;
+    return `<div class="${cls}"><div class="ct-chip-img" style="${img?`background-image:url(${img});background-size:cover`:''}">${!img?'✦':''}</div>${displayName}<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
   }
   if (item.type === 'plus') {
     return `<div class="ct-chip ct-chip--plus">+<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
@@ -4036,7 +4499,18 @@ function renderCtChips() {
   }
 }
 
-function ctAddProductStart(section) {
+function _closeCtBoxWrap() {
+  const wrap = document.getElementById('ct-box-wrap');
+  if (!wrap || wrap.style.display === 'none') return;
+  wrap.style.display = 'none';
+  const inp = document.getElementById('ct-box-inp');
+  if (inp) inp.value = '';
+  const res = document.getElementById('ct-box-results');
+  if (res) res.innerHTML = '';
+}
+
+function ctAddProductStart(section, e) {
+  if (e) e.stopPropagation();
   _ctActiveSection = section || 'main';
   const wrap = document.getElementById('ct-box-wrap');
   if (!wrap) return;
@@ -4053,6 +4527,15 @@ function ctAddDescStart(section) {
   const row = document.getElementById(rowId);
   if (row) row.style.display = '';
   setTimeout(() => document.getElementById(inpId)?.focus(), 80);
+}
+
+function ctCancelDesc(section) {
+  const rowId = section === 'tip' ? 'ct-tip-desc-inline-row' : 'ct-desc-inline-row';
+  const inpId = section === 'tip' ? 'ct-tip-desc-inline-inp' : 'ct-desc-inline-inp';
+  const row = document.getElementById(rowId);
+  const inp = document.getElementById(inpId);
+  if (inp) inp.value = '';
+  if (row) row.style.display = 'none';
 }
 
 function ctConfirmDesc(section) {
@@ -4074,6 +4557,38 @@ function ctAddPlusChip(section) {
   const target = section === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
   target.push({ type: 'plus' });
   renderCtChips();
+}
+
+async function _saveBoxAssetsToCloud() {
+  if (!currentUser) return;
+  const uid = currentUser.uid;
+  const assets   = JSON.parse(localStorage.getItem('onstep_box_assets')    || '[]');
+  const locations= JSON.parse(localStorage.getItem('onstep_box_locations') || '[]');
+  const boxCats  = JSON.parse(localStorage.getItem('onstep_box_cats')      || '{}');
+  const nowTs = Date.now();
+  const cleanAssets = assets.map(a => ({...a, imgData: null}));
+  const cleanLocs   = locations.map(l => ({...l, imgData: null}));
+  try {
+    localStorage.setItem('_onstep_box_local_ts', String(nowTs));
+    await fbDb.collection('users').doc(uid).collection('box').doc('data')
+      .set({ assets: cleanAssets, locations: cleanLocs, boxCats, savedAt: new Date(nowTs).toISOString() }, { merge: true });
+  } catch(e) { console.warn('_saveBoxAssetsToCloud:', e); }
+}
+
+function ctRegisterAndAddProduct(name) {
+  const q = (name || '').trim();
+  if (!q) return;
+  const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+  const newId = Date.now();
+  assets.push({
+    id: newId, name: q, brand: '', domain: 'beauty', catKey: 'skincare',
+    useCount: 0, addedDate: new Date().toISOString().slice(0, 10),
+    imgData: null, storageUrl: null, storageHash: ''
+  });
+  localStorage.setItem('onstep_box_assets', JSON.stringify(assets));
+  if (typeof _broadcastState === 'function') _broadcastState('box_assets');
+  _saveBoxAssetsToCloud();
+  addCtItem(newId);
 }
 
 function toggleTpo(el, val) {
@@ -4161,7 +4676,8 @@ function saveCtContent() {
       const periodStart = document.getElementById('ct-period-start').value;
       const periodEnd   = document.getElementById('ct-period-end').value;
       const scheduledPeriod = (periodStart || periodEnd) ? { start: periodStart || '', end: periodEnd || periodStart || '' } : null;
-      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, tipItems: cleanTipItems, scheduledPeriod, baselineImg: ctSheetState.baselineImg || null, updatedAt: new Date().toISOString() };
+      const _hasNewImg = !!ctSheetState.baselineImg;
+      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, tipItems: cleanTipItems, scheduledPeriod, baselineImg: ctSheetState.baselineImg || null, storageUrl: _hasNewImg ? null : (ctSheetState.storageUrl || null), storageHash: _hasNewImg ? '' : (ctSheetState.storageHash || ''), updatedAt: new Date().toISOString() };
       if (ctSheetState.editId) {
         const idx = care.findIndex(x => x.id === ctSheetState.editId);
         if (idx !== -1) care[idx] = obj; else care.push(obj);
@@ -4172,7 +4688,8 @@ function saveCtContent() {
     } else if (ctSheetState.type === 'makeup') {
       const contents = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
       const sourceUrl = document.getElementById('ct-source-url')?.value.trim() || '';
-      const obj = { id: ctSheetState.editId || Date.now(), category:'makeup', name, emoji, description: desc, baselineImg: ctSheetState.baselineImg || null, sourceUrl, products: cleanItems, tpo: [], scheduledDates: ctSheetState.dates, scheduleLog: [], autoEnabled: false, updatedAt: new Date().toISOString() };
+      const _hasNewImgMkp = !!ctSheetState.baselineImg;
+      const obj = { id: ctSheetState.editId || Date.now(), category:'makeup', name, emoji, description: desc, baselineImg: ctSheetState.baselineImg || null, storageUrl: _hasNewImgMkp ? null : (ctSheetState.storageUrl || null), storageHash: _hasNewImgMkp ? '' : (ctSheetState.storageHash || ''), sourceUrl, products: cleanItems, tpo: [], scheduledDates: ctSheetState.dates, scheduleLog: [], autoEnabled: false, updatedAt: new Date().toISOString() };
       if (ctSheetState.editId) {
         const idx = contents.findIndex(x => x.id === ctSheetState.editId);
         if (idx !== -1) { obj.scheduleLog = contents[idx].scheduleLog||[]; obj.autoEnabled = contents[idx].autoEnabled||false; contents[idx] = obj; } else contents.push(obj);
@@ -4183,7 +4700,8 @@ function saveCtContent() {
     } else {
       const contents = JSON.parse(localStorage.getItem('onstep_look_contents') || '[]');
       const sourceUrl = document.getElementById('ct-source-url')?.value.trim() || '';
-      const obj = { id: ctSheetState.editId || Date.now(), category:'lookbook', name, emoji, description: desc, baselineImg: ctSheetState.baselineImg || null, sourceUrl, products: cleanItems, tpo: ctSheetState.tpo, scheduledDates: ctSheetState.dates, scheduleLog: [], autoEnabled: false, updatedAt: new Date().toISOString() };
+      const _hasNewImgLk = !!ctSheetState.baselineImg;
+      const obj = { id: ctSheetState.editId || Date.now(), category:'lookbook', name, emoji, description: desc, baselineImg: ctSheetState.baselineImg || null, storageUrl: _hasNewImgLk ? null : (ctSheetState.storageUrl || null), storageHash: _hasNewImgLk ? '' : (ctSheetState.storageHash || ''), sourceUrl, products: cleanItems, tpo: ctSheetState.tpo, scheduledDates: ctSheetState.dates, scheduleLog: [], autoEnabled: false, updatedAt: new Date().toISOString() };
       if (ctSheetState.editId) {
         const idx = contents.findIndex(x => x.id === ctSheetState.editId);
         if (idx !== -1) { obj.scheduleLog = contents[idx].scheduleLog||[]; obj.autoEnabled = contents[idx].autoEnabled||false; contents[idx] = obj; } else contents.push(obj);
@@ -4203,6 +4721,36 @@ function saveCtContent() {
 }
 
 function editCtContent(type, id) { openCtSheet(type, id); }
+
+function careGoToday(id) {
+  const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
+  const idx = care.findIndex(x => x.id === id);
+  if (idx === -1) return;
+  const today = new Date().toISOString().slice(0,10);
+  care[idx].scheduledPeriod = { start: today, end: today };
+  localStorage.setItem('onstep_care_themes', JSON.stringify(care));
+  if (typeof _broadcastState === 'function') _broadcastState('care_themes');
+  saveThemesToFirestore();
+  location.href = 'today.html';
+}
+
+function careEditWithToday(id) {
+  openCtSheet('care', id);
+  const today = new Date().toISOString().slice(0,10);
+  setTimeout(() => {
+    const startEl = document.getElementById('ct-period-start');
+    const endEl   = document.getElementById('ct-period-end');
+    if (startEl && !startEl.value) startEl.value = today;
+    if (endEl   && !endEl.value)   endEl.value   = today;
+  }, 80);
+}
+
+function deleteCtFromSheet() {
+  if (!ctSheetState?.editId) return;
+  if (!confirm('삭제하시겠습니까?')) return;
+  deleteCtContent(ctSheetState.type, ctSheetState.editId);
+  closeCtSheet();
+}
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.getElementById('modal-overlay').classList.contains('open')) {
@@ -4289,59 +4837,6 @@ function fmtTime12h(t) {
   const ap = h >= 12 ? 'PM' : 'AM';
   const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
   return `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
-}
-
-// ── Session Data Dropdown (Routine Panel) ─────────────────────
-let _sdataOpen = false;
-function toggleSessionData() {
-  _sdataOpen = !_sdataOpen;
-  const toggle = document.getElementById('sdata-toggle');
-  const drop   = document.getElementById('sdata-dropdown');
-  if (!toggle || !drop) return;
-  toggle.classList.toggle('open', _sdataOpen);
-  drop.classList.toggle('open', _sdataOpen);
-  if (_sdataOpen) renderSessionDataSummary();
-}
-
-function renderSessionDataSummary() {
-  const inner = document.getElementById('sdata-inner');
-  const countEl = document.getElementById('sdata-count');
-  if (!inner) return;
-  const CAT = { toner:'토너', serum:'세럼', ampoule:'앰플', cream:'크림', sunscreen:'선크림', cleanser:'클렌저', mask:'마스크팩', eye:'아이크림', oil:'오일', mist:'미스트', lip:'립', makeup:'메이크업', etc:'기타' };
-  const slotLabel = { morning:'A.M. ROUTINE', nightly:'P.M. ROUTINE' };
-  let totalProds = 0;
-  let html = `<div class="sdata-meta-row">
-    <span class="sdata-meta-chip">SESSION ${state.session||'—'}</span>
-    <span class="sdata-meta-chip">${state.periodStart||'—'} → ${state.periodEnd||'—'}</span>
-    <span class="sdata-meta-chip">☀ ${state.morningTime||'—'}</span>
-    <span class="sdata-meta-chip">🌙 ${state.nightlyTime||'—'}</span>
-  </div>`;
-  ['morning','nightly'].forEach(slot => {
-    (state[slot]?.routines || []).forEach(r => {
-      const prods = r.products || [];
-      totalProds += prods.length;
-      html += `<div class="sdata-slot-hd">
-        <span class="sdata-slot-label">${slotLabel[slot]}</span>
-        <span class="sdata-slot-step">STEP ${r.id} · ${prods.length}개</span>
-      </div>`;
-      if (!prods.length) {
-        html += `<div class="sdata-empty">제품 없음</div>`;
-      } else {
-        html += prods.map(p => `<div class="sdata-prod-row">
-          <div class="sdata-prod-img" style="${(p.imgData||p.storageUrl)?`background-image:url(${p.imgData||p.storageUrl})`:''}">
-            ${!(p.imgData||p.storageUrl) ? (p.icon||'✦') : ''}
-          </div>
-          <div class="sdata-prod-info">
-            <div class="sdata-prod-name">${p.name||'—'}</div>
-            ${p.brand?`<div class="sdata-prod-brand">${p.brand}</div>`:''}
-          </div>
-          <span class="sdata-prod-cat">${CAT[p.catKey]||p.catKey||''}</span>
-        </div>`).join('');
-      }
-    });
-  });
-  if (countEl) countEl.textContent = totalProds;
-  inner.innerHTML = html;
 }
 
 function renderTrackerList() {
