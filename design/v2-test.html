@@ -8,29 +8,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════
-   OnStep v2 — DARK EDITORIAL Design System
-   Inspired by: setlog (time-log grid) + brewwww! (editorial dark)
+   OnStep v2 — CLEAN WHITE × CREAM × BROWN
+   Inspired by: setlog (time-log grid) + brewwww! (editorial)
    ═══════════════════════════════════════════════ */
 
 :root {
-  /* Core */
-  --bg:       #0D0D0B;
-  --surface:  #141412;
-  --surface2: #1C1C19;
-  --surface3: #252521;
-  --card:     #1E1E1B;
-  --border:   rgba(255,255,255,.07);
-  --border2:  rgba(255,255,255,.13);
+  /* Core — white base + cream layers */
+  --bg:       #FAFAF7;
+  --surface:  #F4F0E8;
+  --surface2: #EDE8DC;
+  --surface3: #E3DCD0;
+  --card:     #FFFFFF;
+  --border:   rgba(90,60,30,.08);
+  --border2:  rgba(90,60,30,.18);
 
-  /* Ink */
-  --ink:      #F0EFE8;
-  --sub:      #8A8880;
-  --mist:     #55544F;
+  /* Ink — warm near-black */
+  --ink:      #1A1208;
+  --sub:      #6B5040;
+  --mist:     #A8907A;
 
-  /* Accent — electric lime (THERMAL lime 진화) */
-  --lime:     #C8FF00;
-  --lime-dim: rgba(200,255,0,.12);
-  --lime-fg:  #0D0D0B;
+  /* Accent — clean brown */
+  --brown:     #7C5230;
+  --brown-dark:#5C3B1E;
+  --brown-dim: rgba(124,82,48,.1);
+  --brown-fg:  #FDFCF9;
 
   /* Semantic */
   --amber:    #F59E0B;
@@ -46,7 +47,7 @@
 
 /* ── Page Shell ─────────────────────────────── */
 body {
-  background: #080807;
+  background: #E8E2D8;
   display: flex;
   gap: 32px;
   justify-content: center;
@@ -75,7 +76,7 @@ body {
   color: var(--mist);
 }
 .screen-label span {
-  color: var(--lime);
+  color: var(--brown);
 }
 
 /* ── Phone Frame ─────────────────────────────── */
@@ -85,10 +86,10 @@ body {
   background: var(--bg);
   border-radius: 48px;
   box-shadow:
-    0 0 0 1px rgba(255,255,255,.08) inset,
-    0 0 0 1px rgba(0,0,0,.6),
-    0 40px 120px rgba(0,0,0,.7),
-    0 0 80px rgba(200,255,0,.04);
+    0 0 0 1px rgba(255,255,255,.9) inset,
+    0 0 0 1px rgba(90,60,30,.12),
+    0 40px 80px rgba(80,50,20,.18),
+    0 8px 24px rgba(90,60,30,.08);
   overflow: hidden;
   position: relative;
   flex-shrink: 0;
@@ -105,7 +106,7 @@ body {
 .notch-pill {
   width: 120px;
   height: 4px;
-  background: rgba(255,255,255,.1);
+  background: rgba(30,15,5,.12);
   border-radius: 2px;
 }
 
@@ -123,7 +124,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: rgba(13,13,11,.88);
+  background: rgba(250,250,247,.92);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--border);
@@ -139,7 +140,7 @@ body {
 .appbar-logo {
   width: 26px;
   height: 26px;
-  background: var(--lime);
+  background: var(--brown);
   border-radius: 7px;
   display: flex;
   align-items: center;
@@ -147,7 +148,7 @@ body {
   font-family: 'Space Mono', monospace;
   font-size: 9px;
   font-weight: 700;
-  color: var(--lime-fg);
+  color: var(--brown-fg);
   letter-spacing: -.02em;
 }
 .appbar-title {
@@ -179,13 +180,13 @@ body {
   align-items: center;
   gap: 5px;
   padding: 5px 10px;
-  background: var(--lime-dim);
-  border: 1px solid rgba(200,255,0,.2);
+  background: var(--brown-dim);
+  border: 1px solid rgba(124,82,48,.2);
   border-radius: var(--r-full);
   font-family: 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
-  color: var(--lime);
+  color: var(--brown);
   letter-spacing: .04em;
 }
 
@@ -194,7 +195,7 @@ body {
   position: sticky;
   bottom: 0;
   z-index: 10;
-  background: rgba(13,13,11,.92);
+  background: rgba(250,250,247,.94);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-top: 1px solid var(--border);
@@ -212,7 +213,7 @@ body {
   border-radius: 20px 20px 0 0;
   transition: background .2s;
 }
-.bnav-item.active { background: rgba(200,255,0,.06); }
+.bnav-item.active { background: rgba(124,82,48,.06); }
 .bnav-icon {
   width: 22px;
   height: 22px;
@@ -221,7 +222,7 @@ body {
   justify-content: center;
   color: var(--mist);
 }
-.bnav-item.active .bnav-icon { color: var(--lime); }
+.bnav-item.active .bnav-icon { color: var(--brown); }
 .bnav-label {
   font-family: 'Space Mono', monospace;
   font-size: 8px;
@@ -230,11 +231,11 @@ body {
   text-transform: uppercase;
   color: var(--mist);
 }
-.bnav-item.active .bnav-label { color: var(--lime); }
+.bnav-item.active .bnav-label { color: var(--brown); }
 .bnav-dot {
   width: 4px;
   height: 4px;
-  background: var(--lime);
+  background: var(--brown);
   border-radius: 50%;
   position: absolute;
   top: 8px;
@@ -257,7 +258,7 @@ body {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .18em;
-  color: var(--lime);
+  color: var(--brown);
   text-transform: uppercase;
   margin-bottom: 4px;
 }
@@ -293,7 +294,7 @@ body {
   transform: rotate(-90deg);
 }
 .ring-bg { fill: none; stroke: var(--surface3); stroke-width: 4; }
-.ring-fg { fill: none; stroke: var(--lime); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 188; stroke-dashoffset: 56; transition: stroke-dashoffset .6s; }
+.ring-fg { fill: none; stroke: var(--brown); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 188; stroke-dashoffset: 56; transition: stroke-dashoffset .6s; }
 .ring-label {
   position: absolute;
   inset: 0;
@@ -332,7 +333,7 @@ body {
   text-transform: uppercase;
   color: var(--sub);
 }
-.sec-tag-active { color: var(--lime); }
+.sec-tag-active { color: var(--brown); }
 .sec-link {
   font-family: 'Inter', sans-serif;
   font-size: 10px;
@@ -359,19 +360,19 @@ body {
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(200,255,0,.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(124,82,48,.15), transparent);
 }
 .flow-time-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 4px 10px;
-  background: var(--lime);
+  background: var(--brown);
   border-radius: var(--r-full);
   font-family: 'Space Mono', monospace;
   font-size: 9px;
   font-weight: 700;
-  color: var(--lime-fg);
+  color: var(--brown-fg);
   letter-spacing: .08em;
   align-self: flex-start;
 }
@@ -414,8 +415,8 @@ body {
   transition: border-color .2s;
 }
 .prod-chip-img.done {
-  border-color: var(--lime);
-  background: var(--lime-dim);
+  border-color: var(--brown);
+  background: var(--brown-dim);
 }
 .prod-chip-img.done::after {
   content: '✓';
@@ -424,8 +425,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(200,255,0,.15);
-  color: var(--lime);
+  background: rgba(124,82,48,.12);
+  color: var(--brown);
   font-size: 18px;
   font-weight: 800;
   backdrop-filter: blur(2px);
@@ -448,13 +449,13 @@ body {
 .btn-primary {
   flex: 1;
   padding: 12px 16px;
-  background: var(--lime);
+  background: var(--brown);
   border: none;
   border-radius: var(--r-lg);
   font-family: 'Space Grotesk', sans-serif;
   font-size: 12px;
   font-weight: 800;
-  color: var(--lime-fg);
+  color: var(--brown-fg);
   letter-spacing: .06em;
   text-transform: uppercase;
   cursor: pointer;
@@ -512,11 +513,11 @@ body {
   letter-spacing: .12em;
   text-transform: uppercase;
   color: #fff;
-  background: rgba(255,255,255,.12);
+  background: rgba(26,18,8,.5);
   backdrop-filter: blur(8px);
   padding: 4px 8px;
   border-radius: var(--r-sm);
-  border: 1px solid rgba(255,255,255,.15);
+  border: 1px solid rgba(26,18,8,.1);
 }
 .care-card-body {
   padding: 12px 14px 14px;
@@ -582,9 +583,9 @@ body {
   transition: background .2s, border-color .2s;
 }
 .tracker-row.done .tracker-dot {
-  background: var(--lime);
-  border-color: var(--lime);
-  box-shadow: 0 0 8px rgba(200,255,0,.4);
+  background: var(--brown);
+  border-color: var(--brown);
+  box-shadow: 0 0 8px rgba(124,82,48,.35);
 }
 .tracker-name {
   font-family: 'Space Grotesk', sans-serif;
@@ -630,9 +631,9 @@ body {
   transition: all .15s;
 }
 .filter-pill.active {
-  background: var(--lime);
-  border-color: var(--lime);
-  color: var(--lime-fg);
+  background: var(--brown);
+  border-color: var(--brown);
+  color: var(--brown-fg);
 }
 
 /* Log Grid — setlog 스타일 타임라인 */
@@ -645,10 +646,10 @@ body {
 }
 .log-date-dot {
   width: 6px; height: 6px;
-  background: var(--lime);
+  background: var(--brown);
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(200,255,0,.5);
+  box-shadow: 0 0 8px rgba(124,82,48,.4);
 }
 .log-date-text {
   font-family: 'Space Mono', monospace;
@@ -691,7 +692,7 @@ body {
   top: 10px;
   left: 10px;
   padding: 4px 9px;
-  background: rgba(13,13,11,.65);
+  background: rgba(26,18,8,.55);
   backdrop-filter: blur(6px);
   border-radius: var(--r-full);
   border: 1px solid var(--border2);
@@ -747,7 +748,7 @@ body {
   font-family: 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
-  color: var(--lime);
+  color: var(--brown);
 }
 
 /* Muse Grid */
@@ -873,12 +874,12 @@ body {
   top: 6px;
   right: 6px;
   padding: 2px 5px;
-  background: rgba(13,13,11,.75);
+  background: rgba(26,18,8,.65);
   border-radius: var(--r-full);
   font-family: 'Space Mono', monospace;
   font-size: 7px;
   font-weight: 700;
-  color: var(--lime);
+  color: var(--brown);
   letter-spacing: .06em;
 }
 .box-prod-body { padding: 8px 8px 10px; }
@@ -963,7 +964,7 @@ body {
   font-family: 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
-  color: var(--lime);
+  color: var(--brown);
   letter-spacing: .04em;
 }
 .setup-slot-name {
@@ -1032,7 +1033,7 @@ body {
   border: 1px solid var(--border2);
   transition: background .2s;
 }
-.toggle.on { background: var(--lime); border-color: var(--lime); }
+.toggle.on { background: var(--brown); border-color: var(--brown); }
 .toggle-knob {
   position: absolute;
   top: 3px;
@@ -1043,14 +1044,14 @@ body {
   border-radius: 50%;
   transition: left .2s;
 }
-.toggle.on .toggle-knob { left: 21px; background: var(--lime-fg); }
+.toggle.on .toggle-knob { left: 21px; background: var(--brown-fg); }
 
 /* Quote banner */
 .quote-banner {
   margin: 0 16px 16px;
   padding: 16px;
-  background: var(--lime-dim);
-  border: 1px solid rgba(200,255,0,.15);
+  background: var(--brown-dim);
+  border: 1px solid rgba(124,82,48,.18);
   border-radius: var(--r-xl);
 }
 .quote-text {
@@ -1066,7 +1067,7 @@ body {
   font-size: 8px;
   font-weight: 700;
   letter-spacing: .14em;
-  color: var(--lime);
+  color: var(--brown);
   text-transform: uppercase;
   margin-top: 6px;
 }
@@ -1078,9 +1079,9 @@ body {
   left: 0;
   right: 0;
   padding: 12px 24px;
-  background: rgba(8,8,7,.9);
+  background: rgba(250,248,244,.96);
   backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255,255,255,.06);
+  border-top: 1px solid rgba(90,60,30,.1);
   display: flex;
   justify-content: center;
   gap: 40px;
@@ -1097,7 +1098,7 @@ body {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .1em;
-  color: var(--lime);
+  color: var(--brown);
 }
 .compare-desc {
   font-family: 'Inter', sans-serif;
@@ -1117,7 +1118,7 @@ body {
   color: var(--ink);
   letter-spacing: -.03em;
 }
-.page-title h1 span { color: var(--lime); }
+.page-title h1 span { color: var(--brown); }
 .page-title p {
   font-family: 'Inter', sans-serif;
   font-size: 12px;
@@ -1139,7 +1140,7 @@ body {
 
 <div style="position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:100;text-align:center">
   <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#55544F;letter-spacing:.12em;text-transform:uppercase">
-    ONSTEP <span style="color:#C8FF00">v2</span> — DARK EDITORIAL / DESIGN TEST
+    ONSTEP <span style="color:#7C5230">v2</span> — WHITE × CREAM × BROWN / DESIGN TEST
   </div>
 </div>
 
@@ -1235,7 +1236,7 @@ body {
         </div>
 
         <div class="care-card">
-          <div class="care-card-img" style="background-color:#1a1a18">
+          <div class="care-card-img" style="background-color:#EDE8DF">
             <span>🌿</span>
             <div class="care-card-img-overlay"></div>
             <div class="care-card-badge">✦ 수분 집중 케어</div>
@@ -1251,7 +1252,7 @@ body {
         </div>
 
         <div class="care-card">
-          <div class="care-card-img" style="background-color:#141218">
+          <div class="care-card-img" style="background-color:#EBE5DC">
             <span>🔆</span>
             <div class="care-card-img-overlay"></div>
             <div class="care-card-badge">✦ 브라이트닝 케어</div>
@@ -1369,7 +1370,7 @@ body {
 
         <!-- Editorial look card — brewwww! 스타일 -->
         <div class="look-card">
-          <div class="look-card-img" style="background-color:#1a1812">
+          <div class="look-card-img" style="background-color:#EDE7DF">
             <span>👗</span>
             <div class="look-card-overlay"></div>
             <div class="look-card-scene">OFFICE</div>
@@ -1395,7 +1396,7 @@ body {
         </div>
 
         <div class="look-card">
-          <div class="look-card-img" style="background-color:#18141a">
+          <div class="look-card-img" style="background-color:#EAE4DC">
             <span>💄</span>
             <div class="look-card-overlay"></div>
             <div class="look-card-scene">DATE</div>
@@ -1422,7 +1423,7 @@ body {
         </div>
       </div>
       <div class="muse-grid">
-        <div class="muse-card" style="background-color:#181614">
+        <div class="muse-card" style="background-color:#E8E2D8">
           <div class="muse-card-placeholder">🖤</div>
           <div class="muse-card-overlay"></div>
           <div class="muse-card-body">
@@ -1430,7 +1431,7 @@ body {
             <div class="muse-card-sub">Minimal Dark</div>
           </div>
         </div>
-        <div class="muse-card" style="background-color:#141820">
+        <div class="muse-card" style="background-color:#E4E8EE">
           <div class="muse-card-placeholder">💙</div>
           <div class="muse-card-overlay"></div>
           <div class="muse-card-body">
@@ -1438,7 +1439,7 @@ body {
             <div class="muse-card-sub">Editorial Blue</div>
           </div>
         </div>
-        <div class="muse-card" style="background-color:#1a1612">
+        <div class="muse-card" style="background-color:#EDE8DC">
           <div class="muse-card-placeholder">🍂</div>
           <div class="muse-card-overlay"></div>
           <div class="muse-card-body">
@@ -1446,7 +1447,7 @@ body {
             <div class="muse-card-sub">Earthy Warm</div>
           </div>
         </div>
-        <div class="muse-card" style="background-color:#1a1820">
+        <div class="muse-card" style="background-color:#EAE8EF">
           <div class="muse-card-placeholder">✨</div>
           <div class="muse-card-overlay"></div>
           <div class="muse-card-body">
@@ -1509,7 +1510,7 @@ body {
           <div class="stat-label">Products</div>
         </div>
         <div class="stat-card">
-          <div class="stat-num" style="color:var(--lime)">12</div>
+          <div class="stat-num" style="color:var(--brown)">12</div>
           <div class="stat-label">In Use</div>
         </div>
         <div class="stat-card">
@@ -1534,7 +1535,7 @@ body {
       <!-- Box Grid -->
       <div class="box-grid">
         <div class="box-prod">
-          <div class="box-prod-img" style="background-color:#1a1820">
+          <div class="box-prod-img" style="background-color:#EDE8E0">
             <span>🧴</span>
             <div class="box-prod-badge">×12</div>
           </div>
@@ -1545,7 +1546,7 @@ body {
           </div>
         </div>
         <div class="box-prod">
-          <div class="box-prod-img" style="background-color:#121a18">
+          <div class="box-prod-img" style="background-color:#E8EDE8">
             <span>💧</span>
             <div class="box-prod-badge">×8</div>
             <div class="expiry-warn">D-7</div>
@@ -1557,7 +1558,7 @@ body {
           </div>
         </div>
         <div class="box-prod">
-          <div class="box-prod-img" style="background-color:#1a1614">
+          <div class="box-prod-img" style="background-color:#EDE8E4">
             <span>✨</span>
             <div class="box-prod-badge">×5</div>
           </div>
@@ -1568,7 +1569,7 @@ body {
           </div>
         </div>
         <div class="box-prod">
-          <div class="box-prod-img" style="background-color:#181814">
+          <div class="box-prod-img" style="background-color:#EEEBE4">
             <span>🌙</span>
             <div class="box-prod-badge">×3</div>
           </div>
@@ -1579,7 +1580,7 @@ body {
           </div>
         </div>
         <div class="box-prod">
-          <div class="box-prod-img" style="background-color:#141418">
+          <div class="box-prod-img" style="background-color:#ECEAE6">
             <span>🌿</span>
             <div class="box-prod-badge">×20</div>
           </div>
@@ -1590,7 +1591,7 @@ body {
           </div>
         </div>
         <div class="box-prod">
-          <div class="box-prod-img" style="background-color:#1a1418">
+          <div class="box-prod-img" style="background-color:#EDE8EC">
             <span>💊</span>
             <div class="box-prod-badge">×60</div>
           </div>
@@ -1639,7 +1640,7 @@ body {
           <div class="appbar-title">Setup</div>
         </div>
         <div class="appbar-right">
-          <div style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:var(--lime);letter-spacing:.08em">SESSION 12</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:var(--brown);letter-spacing:.08em">SESSION 12</div>
         </div>
       </div>
 
@@ -1671,7 +1672,7 @@ body {
           <div class="slot-prod-thumb">☀️</div>
           <div class="slot-prod-thumb">✨</div>
           <div class="slot-prod-thumb">💊</div>
-          <div class="slot-prod-thumb" style="background:var(--lime-dim);border-color:rgba(200,255,0,.2);font-size:12px;color:var(--lime)">+3</div>
+          <div class="slot-prod-thumb" style="background:var(--brown-dim);border-color:rgba(124,82,48,.2);font-size:12px;color:var(--brown)">+3</div>
         </div>
       </div>
 
@@ -1751,9 +1752,9 @@ body {
     <div class="compare-app">SETLOG</div>
     <div class="compare-desc">타임스탬프 · 타임라인 그리드 · Space Mono</div>
   </div>
-  <div class="compare-item" style="border-left:1px solid rgba(255,255,255,.06);border-right:1px solid rgba(255,255,255,.06);padding:0 40px">
-    <div class="compare-app" style="color:var(--sub)">ONSTEP v2</div>
-    <div class="compare-desc">Dark Editorial · Electric Lime · 세션 OS</div>
+  <div class="compare-item" style="border-left:1px solid rgba(90,60,30,.12);border-right:1px solid rgba(90,60,30,.12);padding:0 40px">
+    <div class="compare-app" style="color:var(--ink)">ONSTEP v2</div>
+    <div class="compare-desc">White × Cream · Brown · 세션 OS</div>
   </div>
   <div class="compare-item">
     <div class="compare-app">BREWWWW!</div>
