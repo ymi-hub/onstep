@@ -911,7 +911,7 @@ function renderHistory(){
   }
   row.innerHTML=items.map(h=>{
     const src=h.mainPhoto||h.storageUrl;
-    const imgStyle=src?`background-image:url(${src});background-size:cover`:`background:${h._bg||'#f0f0f2'}`;
+    const imgStyle=src?`background-image:url(${src});background-size:auto 100%;background-position:center`:`background:${h._bg||'#f0f0f2'}`;
     const prods=(h.products||[]).slice(0,2).map(p=>p.name||'').filter(Boolean).join(' · ')+(h.products&&h.products.length>2?` +${h.products.length-2}`:'');
     return `<div class="history-card" onclick="openHistoryDetail('${h.id}')">
       <div class="history-img" style="${imgStyle}"></div>
@@ -935,7 +935,7 @@ function openContentDetail(id){
   detailId=id; detailKind=activeTab;
   document.getElementById('detail-appbar-label').textContent=activeTab==='makeup'?'MAKEUP':'LOOKBOOK';
   const src=c.baselineImg||c.storageUrl;
-  const heroStyle=src?`background-image:url(${src});background-size:cover`:`background:#f0f0f2;display:flex;align-items:center;justify-content:center`;
+  const heroStyle=src?`background-image:url(${src});background-size:auto 100%;background-position:center`:`background:#f0f0f2;display:flex;align-items:center;justify-content:center`;
   const today=new Date().toISOString().slice(0,10);
   const nextDates=(c.scheduledDates||[]).filter(d=>d>=today).sort();
   const dateChips=nextDates.slice(0,3).map(d=>`<div class="detail-tag">📅 ${d.slice(5).replace('-','/')}</div>`).join('');
@@ -1019,7 +1019,7 @@ function openHistoryDetail(id){
   const isMakeup=h.type==='makeup';
   document.getElementById('detail-appbar-label').textContent=isMakeup?'MAKEUP':'LOOK';
   const src=h.mainPhoto||h.storageUrl;
-  const heroStyle=src?`background-image:url(${src});background-size:cover;font-size:0`:`background:${h._bg||'#f0f0f2'}`;
+  const heroStyle=src?`background-image:url(${src});background-size:auto 100%;background-position:center;font-size:0`:`background:${h._bg||'#f0f0f2'}`;
   const prods=(h.products||[]).map(p=>`<div class="detail-prod">${p.name||''}</div>`).join('');
   document.getElementById('detail-body').innerHTML=`
     <div class="detail-hero" style="${heroStyle}"></div>

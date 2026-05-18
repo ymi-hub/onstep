@@ -4453,7 +4453,7 @@ function renderCtBoxResults(q) {
     const used = !_isCare && alreadyIds.includes(a.id);
     const icon = a.domain === 'beauty' ? '✦' : '◈';
     return `<div class="ct-box-row${used?' selected':''}" onclick="${used?'':` addCtItem(${a.id})`}">
-      <div class="ct-box-img" style="${(a.imgData||a.storageUrl)?`background-image:url(${a.imgData||a.storageUrl});background-size:cover`:''}">${!(a.imgData||a.storageUrl)?icon:''}</div>
+      <div class="ct-box-img" style="${(a.imgData||a.storageUrl)?`background-image:url(${a.imgData||a.storageUrl});background-size:auto 100%;background-position:center`:''}">${!(a.imgData||a.storageUrl)?icon:''}</div>
       <div style="flex:1;min-width:0">
         <div class="ct-box-name">${a.name}</div>
         ${a.brand?`<div class="ct-box-brand">${a.brand}</div>`:''}
@@ -4503,7 +4503,7 @@ function _renderTypedChip(item, idx, section) {
     const img = asset?.imgData || asset?.storageUrl || '';
     const cls = asset ? 'ct-chip ct-chip--product' : 'ct-chip ct-chip--product-missing';
     const displayName = asset?.name || item.name;
-    return `<div class="${cls}"><div class="ct-chip-img" style="${img?`background-image:url(${img});background-size:cover`:''}">${!img?'✦':''}</div>${displayName}<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+    return `<div class="${cls}"><div class="ct-chip-img" style="${img?`background-image:url(${img});background-size:auto 100%;background-position:center`:''}">${!img?'✦':''}</div>${displayName}<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
   }
   if (item.type === 'plus') {
     return `<div class="ct-chip ct-chip--plus">+<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
@@ -4521,7 +4521,7 @@ function renderCtChips() {
       el.innerHTML = ctSheetState.items.map((item, idx) => _renderTypedChip(item, idx, 'main')).join('');
     } else {
       el.innerHTML = ctSheetState.items.map(p =>
-        `<div class="ct-chip"><div class="ct-chip-img" style="${(p.imgData||p.storageUrl)?`background-image:url(${p.imgData||p.storageUrl});background-size:cover`:''}">${!(p.imgData||p.storageUrl)?'✦':''}</div>${p.name}<span class="ct-chip-del" onclick="removeCtItem(${p.assetId})">✕</span></div>`
+        `<div class="ct-chip"><div class="ct-chip-img" style="${(p.imgData||p.storageUrl)?`background-image:url(${p.imgData||p.storageUrl});background-size:auto 100%;background-position:center`:''}">${!(p.imgData||p.storageUrl)?'✦':''}</div>${p.name}<span class="ct-chip-del" onclick="removeCtItem(${p.assetId})">✕</span></div>`
       ).join('');
     }
   }
