@@ -131,7 +131,7 @@ body{
 .mag-hero-card{padding:16px 16px 0;cursor:pointer;}
 .mag-hero-img{
   width:100%;height:260px;border-radius:var(--r-xl);
-  background:var(--surface-mid);background-size:cover;background-position:center;
+  background:var(--surface-mid);background-size:auto 100%;background-position:center;
   display:flex;align-items:center;justify-content:center;
   position:relative;overflow:hidden;
 }
@@ -146,7 +146,7 @@ body{
 .mag-small-card{cursor:pointer;}
 .mag-small-img{
   width:100%;aspect-ratio:1/1;border-radius:var(--r-lg);
-  background:var(--surface-mid);background-size:cover;background-position:center;
+  background:var(--surface-mid);background-size:auto 100%;background-position:center;
   display:flex;align-items:center;justify-content:center;overflow:hidden;
 }
 .mag-small-info{padding:8px 0 0;}
@@ -280,7 +280,7 @@ body{
 .space-group-hd{display:flex;align-items:center;gap:12px;padding:14px 16px;}
 .space-group-photo{
   width:44px;height:44px;border-radius:var(--r-sm);
-  background:var(--surface-mid);background-size:cover;background-position:center;
+  background:var(--surface-mid);background-size:auto 100%;background-position:center;
   display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
 }
 .space-group-name{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink);flex:1;}
@@ -292,7 +292,7 @@ body{
 .space-asset-thumb{flex-shrink:0;width:58px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
 .space-asset-img{
   width:58px;height:70px;border-radius:var(--r-sm);
-  background:var(--surface-mid);background-size:cover;background-position:center;
+  background:var(--surface-mid);background-size:auto 100%;background-position:center;
   display:flex;align-items:center;justify-content:center;font-size:18px;
   border:1px solid var(--border);filter:grayscale(15%);
 }
@@ -346,7 +346,7 @@ body{
 .loc-panel-scroll::-webkit-scrollbar{display:none;}
 .loc-hero{
   width:100%;height:160px;background:var(--surface-mid);
-  background-size:cover;background-position:center;
+  background-size:auto 100%;background-position:center;
   display:flex;align-items:center;justify-content:center;font-size:36px;
   position:relative;cursor:pointer;
 }
@@ -384,7 +384,7 @@ body{
 .loc-item-row:active{background:var(--surface);}
 .loc-item-thumb{
   width:44px;height:44px;border-radius:var(--r-sm);background:var(--surface-mid);
-  flex-shrink:0;background-size:cover;background-position:center;
+  flex-shrink:0;background-size:auto 100%;background-position:center;
   display:flex;align-items:center;justify-content:center;font-size:18px;
 }
 .loc-item-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);text-transform:uppercase;letter-spacing:.06em;}
@@ -455,7 +455,7 @@ body{
 .detail-hero-photo{
   width:100%; height:240px; background:var(--surface-mid);
   display:flex;align-items:center;justify-content:center;font-size:60px;
-  background-size:cover;background-position:center;position:relative;cursor:pointer;
+  background-size:auto 100%;background-position:center;position:relative;cursor:pointer;
 }
 .detail-hero-edit{
   position:absolute;bottom:12px;right:12px;
@@ -650,7 +650,7 @@ body{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:6px;cursor:pointer;margin-bottom:14px;position:relative;overflow:hidden;
   border:1.5px dashed var(--border-md);transition:border-color .2s;
-  background-size:cover;background-position:center;
+  background-size:auto 100%;background-position:center;
 }
 .photo-upload-block.has-img{border:none;}
 .photo-upload-block:active{border-color:var(--ink);}
@@ -677,7 +677,7 @@ body{
 .storage-loc-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
 .storage-loc-thumb{
   width:16px;height:16px;border-radius:var(--r-sm);background:var(--surface-high);
-  background-size:cover;background-position:center;flex-shrink:0;overflow:hidden;
+  background-size:auto 100%;background-position:center;flex-shrink:0;overflow:hidden;
 }
 .or-divider{
   display:flex;align-items:center;gap:8px;margin:10px 0;
@@ -873,7 +873,7 @@ body{
   aspect-ratio:3/4;position:relative;cursor:pointer;overflow:hidden;
   background:var(--surface-mid);display:flex;align-items:center;justify-content:center;
 }
-.gallery-bg{position:absolute;inset:0;background-size:cover;background-position:center;}
+.gallery-bg{position:absolute;inset:0;background-size:auto 100%;background-position:center;}
 .gallery-placeholder{font-size:24px;opacity:.15;position:relative;}
 .gallery-name-bar{
   position:absolute;bottom:0;left:0;right:0;padding:22px 5px 4px;
@@ -907,7 +907,7 @@ body{
 .list-item:active{background:var(--surface-low);}
 .list-thumb{
   width:44px;height:54px;border-radius:var(--r-sm);flex-shrink:0;
-  background:var(--surface-mid);overflow:hidden;background-size:cover;background-position:center;
+  background:var(--surface-mid);overflow:hidden;background-size:auto 100%;background-position:center;
   display:flex;align-items:center;justify-content:center;font-size:20px;
 }
 .list-info{flex:1;min-width:0;}
@@ -1333,7 +1333,7 @@ body{
 .add-domain-btn:not(.active):hover{border-color:var(--ink);color:var(--ink);}
 .add-photo-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:6px;}
 .add-required-star{color:var(--error);}
-.add-photo-block{height:90px;background:var(--surface-low);border:1.5px dashed var(--border-md);border-radius:var(--r-md);cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background-size:cover;background-position:center;transition:border-color .2s;}
+.add-photo-block{height:90px;background:var(--surface-low);border:1.5px dashed var(--border-md);border-radius:var(--r-md);cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background-size:auto 100%;background-position:center;transition:border-color .2s;}
 .add-photo-block:hover{border-color:var(--ink);}
 .add-photo-block.has-img .add-photo-inner{opacity:0;}
 .add-photo-block.storage-ok{border-color:var(--green);border-style:solid;}
@@ -1923,7 +1923,7 @@ body{
         <!-- Storage image box (Figma: #F9F9F9 bg, #C5C6CA border) -->
         <div style="border:1px solid #C5C6CA;background:#F9F9F9;overflow:hidden;cursor:pointer" onclick="showImgPickSheet(d=>_applyStorageImg(d),360,0.65)">
           <!-- Image area (192px) -->
-          <div id="add-storage-block" style="width:100%;height:192px;background:#DADADA;position:relative;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden">
+          <div id="add-storage-block" style="width:100%;height:192px;background:#DADADA;position:relative;background-size:auto 100%;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden">
             <div id="add-storage-inner" style="display:flex;flex-direction:column;align-items:center;gap:8px">
               <div class="add-img-icon"><svg width="28" height="25" viewBox="0 0 24 24" fill="#44474A"><path d="M20 5h-2.83L15 3H9L6.83 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg></div>
               <div class="add-img-label">ADD STORAGE PHOTO</div>
@@ -2545,9 +2545,9 @@ function renderSpaceMap() {
     const loc      = locs.find(l => l.key === locKey);
     const locName  = loc?.name || (locKey === '_unassigned' ? '위치 미지정' : locKey);
     const locPhoto = loc?.imgData || '';
-    const photoStyle = locPhoto ? `background-image:url('${locPhoto}');background-size:cover;background-position:center;` : '';
+    const photoStyle = locPhoto ? `background-image:url('${locPhoto}');background-size:auto 100%;background-position:center;` : '';
     const thumbsHtml = items.slice(0, 6).map(a => {
-      const imgStyle = a.imgData ? `background-image:url('${a.imgData}');background-size:cover;background-position:center;` : '';
+      const imgStyle = a.imgData ? `background-image:url('${a.imgData}');background-size:auto 100%;background-position:center;` : '';
       const icon = DOMAIN_ICONS[a.domain] || '◈';
       return `<div class="space-asset-thumb" onclick="openEditAsset(${a.id});event.stopPropagation()">
         <div class="space-asset-img" style="${imgStyle}">${!a.imgData ? `<span style="font-size:16px">${icon}</span>` : ''}</div>
@@ -2651,7 +2651,7 @@ function renderLocItems() {
   } else {
     items.innerHTML = page.map(a => {
       const cat     = CAT_LABELS[a.catKey] || a.catKey || '—';
-      const imgSt   = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl});background-size:cover;background-position:center;` : '';
+      const imgSt   = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl});background-size:auto 100%;background-position:center;` : '';
       const icon    = DOMAIN_ICONS[a.domain] || '◈';
       return `<div class="loc-item-row" onclick="openEditAsset(${a.id})">
         <div class="loc-item-thumb" style="${imgSt}">${!(a.imgData||a.storageUrl) ? `<span style="font-size:18px">${icon}</span>` : ''}</div>
@@ -3207,7 +3207,7 @@ function renderList(assets, grid) {
 }
 
 function _listRow(a) {
-  const bg      = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl});background-size:cover;background-position:center;` : '';
+  const bg      = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl});background-size:auto 100%;background-position:center;` : '';
   const icon    = CAT_ICONS[a.catKey] || (a.domain==='beauty'?'◈':'◻');
   const resInfo = calcResidualPct(a);
   const resHtml = resInfo
