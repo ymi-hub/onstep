@@ -31,7 +31,7 @@ body{background:#E5E5E5;display:flex;justify-content:center;align-items:flex-sta
 .phone{width:390px;height:888px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate(0,0);}
 .notch{height:44px;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1;}
-.scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:var(--bg);}
+.scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:var(--bg);overscroll-behavior:contain;}
 .scroll::-webkit-scrollbar{display:none;}
 
 /* AppBar */
@@ -135,7 +135,7 @@ body{background:#E5E5E5;display:flex;justify-content:center;align-items:flex-sta
 .detail-back{background:none;border:none;font-size:18px;font-weight:700;color:var(--ink);cursor:pointer;padding:0;}
 .detail-edit-btn{background:none;border:1.5px solid var(--border-card);border-radius:var(--r-sm);font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--ink);cursor:pointer;padding:5px 12px;font-family:'Plus Jakarta Sans',sans-serif;}
 .detail-appbar-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);}
-.detail-body{flex:1;overflow-y:auto;scrollbar-width:none;}
+.detail-body{flex:1;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;}
 .detail-body::-webkit-scrollbar{display:none;}
 .detail-hero{width:100%;height:256px;background:var(--surface);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;}
 .detail-content{padding:20px 20px 8px;}
@@ -160,7 +160,7 @@ body{background:#E5E5E5;display:flex;justify-content:center;align-items:flex-sta
 /* Sheets */
 .sheet{position:absolute;inset:0;z-index:80;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .24s;}
 .sheet.open{opacity:1;pointer-events:all;}
-.sheet-inner{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 20px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto;scrollbar-width:none;}
+.sheet-inner{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 20px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;}
 .sheet-inner::-webkit-scrollbar{display:none;}
 .sheet.open .sheet-inner{transform:translateY(0);}
 .sheet-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.4px;color:var(--ink);margin-bottom:4px;}
@@ -297,7 +297,7 @@ textarea.field-in{resize:none;height:72px;line-height:1.6;}
 .scene-manage-hd{display:flex;align-items:center;gap:0;padding:20px 20px 12px;flex-shrink:0;}
 .scene-manage-hd-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:700;color:var(--ink);flex:1;text-align:center;}
 .scene-manage-close{width:32px;height:32px;background:#F0F0EE;border:none;border-radius:8px;cursor:pointer;font-size:15px;color:#44474A;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.scene-manage-scroll{flex:1;overflow-y:auto;scrollbar-width:none;padding:0 20px;}
+.scene-manage-scroll{flex:1;overflow-y:auto;scrollbar-width:none;padding:0 20px;overscroll-behavior:contain;}
 .scene-manage-scroll::-webkit-scrollbar{display:none;}
 .scene-manage-list{}
 .scene-manage-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #E5E7EB;}
@@ -313,7 +313,7 @@ textarea.field-in{resize:none;height:72px;line-height:1.6;}
 .scene-new-inp::placeholder{color:#C5C6CA;}
 .scene-new-confirm{width:100%;height:44px;background:var(--ink);color:#fff;border:none;cursor:pointer;border-radius:2px;font-size:14px;font-weight:600;letter-spacing:.04em;}
 .scene-new-cancel{width:100%;height:40px;background:transparent;color:var(--ink);border:1px solid #C5C6CA;cursor:pointer;border-radius:2px;font-size:14px;font-weight:600;}
-@media(pointer:coarse),(max-width:430px){input,textarea,select{font-size:16px!important}}
+@media(pointer:coarse),(max-width:430px){input,textarea,select{font-size:16px!important}button{min-height:44px}}
 /* ── 버튼 UI 공통화 ── */
 .detail-edit-btn,.detail-del-btn,.detail-main-btn,.lib-sched-btn,
 .lib-filter-pill,.tpo-chip,.type-btn,.cat-tab{font-family:'Space Grotesk',sans-serif}
