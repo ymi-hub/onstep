@@ -300,8 +300,20 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ed-prod-plus-sym{font-size:18px;color:var(--mist);font-weight:300;line-height:1}
 .ed-prod-desc{width:calc((100% - 16px) / 2.2)!important;cursor:default}
 .ed-prod-desc-txt{font-family:'Inter',sans-serif;font-size:11px;color:var(--sub);line-height:1.4;padding:6px 0;word-break:keep-all}
-/* ── 집중케어 전용 컴팩트 그리드 ── */
-.care-prod-grid{gap:6px;align-items:center}
+/* ── 집중케어 블록 레이아웃 ── */
+#care-today-wrap{display:flex;flex-direction:column;gap:20px}
+.care-block{display:flex;flex-direction:column;gap:10px}
+/* 단일 히어로 이미지 (1개일 때 1:1 정방형 유지) */
+.care-hero{position:relative;width:100%;aspect-ratio:1/1;background:var(--surface-mid);border-radius:var(--r-xl);overflow:hidden;background-size:auto 100%;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;cursor:pointer}
+/* 복수 항목일 때 히어로를 배너 비율(5:2)로 축소 */
+.care-block-multi .care-hero{aspect-ratio:5/2;border-radius:var(--r-lg)}
+/* 복수 항목일 때 테마명 라벨 */
+.care-block-name{display:flex;align-items:center;gap:7px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1}
+.care-block-name-emoji{font-size:18px;line-height:1}
+/* 구분선 (복수 항목 사이) */
+.care-block+.care-block{padding-top:0}
+/* 집중케어 전용 컴팩트 그리드 */
+.care-prod-grid{gap:6px;align-items:center;margin-top:0}
 .care-prod-grid .ed-prod-card{width:68px;align-self:flex-start}
 .care-prod-grid .ed-prod-img{border-radius:var(--r-md)}
 .care-prod-grid .ed-prod-cat{font-size:7px;margin-top:5px}
@@ -1203,16 +1215,13 @@ function renderCareToday() {
   section.style.display = '';
   const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
   const locs   = JSON.parse(localStorage.getItem('onstep_box_locations') || '[]');
+  const isMulti = active.length > 1;
   wrap.innerHTML = active.map(t => {
     const heroImg = t.baselineImg || t.storageUrl || '';
     const allItems = t.items || [];
     const grid = allItems.slice(0, 12).map(p => {
-      if (p.type === 'plus') {
-        return `<div class="care-tag-plus">+</div>`;
-      }
-      if (p.type === 'desc') {
-        return `<div class="care-tag-desc">${p.text||''}</div>`;
-      }
+      if (p.type === 'plus') return `<div class="care-tag-plus">+</div>`;
+      if (p.type === 'desc') return `<div class="care-tag-desc">${p.text||''}</div>`;
       const asset = assets.find(a => a.id === p.assetId);
       const img = asset?.imgData || asset?.storageUrl || p.imgData || p.storageUrl || '';
       const loc = asset?.locKey ? locs.find(l => l.key === asset.locKey) : null;
@@ -1224,11 +1233,22 @@ function renderCareToday() {
         ${loc ? `<div class="ed-prod-loc">◎ ${loc.name}</div>` : ''}
       </div>`;
     }).join('');
-    return `<div class="editorial-hero"${heroImg ? ` style="background-image:url(${heroImg})"` : ''}>
-        ${!heroImg ? `<span style="font-size:44px;opacity:.2">${t.emoji||'✦'}</span>` : ''}
-        <div class="editorial-badge">${t.emoji||'✦'} ${t.name}</div>
+
+    const nameLine = isMulti
+      ? `<div class="care-block-name"><span class="care-block-name-emoji">${t.emoji||'✦'}</span><span>${t.name}</span></div>`
+      : '';
+    const badge = !isMulti
+      ? `<div class="editorial-badge">${t.emoji||'✦'} ${t.name}</div>`
+      : '';
+
+    return `<div class="care-block${isMulti ? ' care-block-multi' : ''}">
+      ${nameLine}
+      <div class="care-hero"${heroImg ? ` style="background-image:url(${heroImg})"` : ''}>
+        ${!heroImg ? `<span style="font-size:${isMulti ? 32 : 44}px;opacity:.2">${t.emoji||'✦'}</span>` : ''}
+        ${badge}
       </div>
-      ${grid ? `<div class="editorial-prod-grid care-prod-grid">${grid}</div>` : ''}`;
+      ${grid ? `<div class="editorial-prod-grid care-prod-grid">${grid}</div>` : ''}
+    </div>`;
   }).join('');
 }
 
