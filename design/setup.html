@@ -1748,6 +1748,7 @@ async function saveThemesToFirestore() {
     localStorage.setItem('onstep_care_themes',     JSON.stringify(care));
     localStorage.setItem('onstep_makeup_contents', JSON.stringify(makeup));
     localStorage.setItem('onstep_look_contents',   JSON.stringify(looks));
+    if (typeof _broadcastState === 'function') _broadcastState('extra');
     await fbDb.collection('users').doc(uid).collection('extra').doc('data')
       .set({ careThemes: careFs, makeupContents: makeupFs, lookContents: looksFs, portfolio, savedAt: new Date(nowTs).toISOString() }, { merge: true });
   } catch(e) { console.warn('Themes cloud save:', e); }
