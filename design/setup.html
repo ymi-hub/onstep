@@ -740,6 +740,21 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-chip{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:5px 10px 5px 5px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--ink)}
 .ct-chip-img{width:20px;height:20px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:10px;overflow:hidden;flex-shrink:0}
 .ct-chip-del{font-size:10px;color:var(--mist);cursor:pointer;margin-left:2px}
+.ct-chip--product{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ct-chip--product .ct-chip-img{background:rgba(255,255,255,.15)}
+.ct-chip--product .ct-chip-del{color:rgba(255,255,255,.5)}
+.ct-chip--product-missing{border:1.5px dashed var(--border-md);color:var(--sub)}
+.ct-chip--plus{border:1.5px dashed var(--border-md);color:var(--mist);font-weight:700;padding:5px 12px}
+.ct-chip--desc{background:var(--surface-low);border-color:var(--border)}
+.ct-action-row{display:flex;gap:6px;margin-top:8px}
+.ct-act-btn{padding:7px 14px;border:1.5px solid var(--border-md);border-radius:var(--r-full);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--ink);background:var(--surface);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.ct-act-btn:active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ct-act-plus{border-style:dashed;min-width:36px;text-align:center}
+.ct-tip-lbl{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);margin-bottom:8px}
+.ct-desc-inline-row{display:flex;gap:6px;margin-top:8px}
+.ct-desc-inline-inp{flex:1;padding:8px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);background:#fff;outline:none;transition:border-color .18s}
+.ct-desc-inline-inp:focus{border-color:var(--ink)}
+.ct-desc-inline-ok{padding:8px 14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;cursor:pointer}
 .ct-tpo-wrap{display:flex;flex-wrap:wrap;gap:6px}
 .ct-tpo-chip{padding:7px 14px;border:1.5px solid var(--border);border-radius:var(--r-full);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--mist);cursor:pointer;transition:all .15s;background:var(--surface)}
 .ct-tpo-chip.active{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -935,11 +950,13 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
     <div class="panel-appbar">
       <button class="panel-back" onclick="closeSetupPanel()">←</button>
       <div class="panel-appbar-center">ROUTINE SETUP</div>
-      <button onclick="startNewSessionSheet()"
-        style="width:32px;height:32px;border-radius:9999px;background:var(--lime);color:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:300;line-height:1">+</button>
+      <div style="width:32px"></div>
     </div>
     <div class="panel-body" id="routine-panel-body">
-      <div id="routine-session-list" style="padding:8px 0 80px"></div>
+      <div id="routine-session-list" style="padding:8px 0 16px"></div>
+      <div style="padding:0 16px 80px">
+        <button onclick="startNewSessionSheet()" style="width:100%;padding:14px;border:1.5px dashed var(--border-md);border-radius:var(--r-md);background:none;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--mist);cursor:pointer;transition:all .15s" onmouseenter="this.style.borderColor='var(--ink)';this.style.color='var(--ink)'" onmouseleave="this.style.borderColor='var(--border-md)';this.style.color='var(--mist)'">+ 새 루틴케어 설정</button>
+      </div>
     </div>
     <div class="app-nav"></div>
   </div><!-- /setup-panel-routine -->
@@ -1265,13 +1282,37 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <textarea class="ct-desc-inp" id="ct-desc" rows="2" placeholder="간단한 설명 (선택)..."></textarea>
       </div>
       <div class="ct-sheet-sec">
-        <span class="ct-sheet-sec-lbl" id="ct-items-lbl">아이템 매핑 (BOX)</span>
-        <div class="ct-box-wrap">
+        <span class="ct-sheet-sec-lbl" id="ct-items-lbl">아이템 매핑 (BOX 뷰티)</span>
+        <div class="ct-chips" id="ct-selected-chips"></div>
+        <div class="ct-action-row" id="ct-action-row" style="display:none">
+          <button class="ct-act-btn" onclick="ctAddProductStart('main')">+ 제품</button>
+          <button class="ct-act-btn" onclick="ctAddDescStart('main')">+ 설명</button>
+          <button class="ct-act-btn ct-act-plus" onclick="ctAddPlusChip('main')">+</button>
+        </div>
+        <div class="ct-desc-inline-row" id="ct-desc-inline-row" style="display:none">
+          <input class="ct-desc-inline-inp" id="ct-desc-inline-inp" type="text" placeholder="설명 텍스트 입력..."
+            onkeydown="if(event.key==='Enter')ctConfirmDesc('main')">
+          <button class="ct-desc-inline-ok" onclick="ctConfirmDesc('main')">추가</button>
+        </div>
+        <div class="ct-box-wrap" id="ct-box-wrap">
           <input class="ct-box-inp" id="ct-box-inp" type="text" placeholder="제품명·브랜드 검색..."
             oninput="renderCtBoxResults(this.value)" onfocus="renderCtBoxResults(this.value)">
           <div id="ct-box-results"></div>
         </div>
-        <div class="ct-chips" id="ct-selected-chips"></div>
+      </div>
+      <div class="ct-sheet-sec" id="ct-tip-sec" style="display:none">
+        <div class="ct-tip-lbl">— TIP <span style="font-size:10px;font-weight:400;color:var(--mist)">(내용 있을 때만 Today 표시)</span></div>
+        <div class="ct-chips" id="ct-tip-chips"></div>
+        <div class="ct-action-row">
+          <button class="ct-act-btn" onclick="ctAddProductStart('tip')">+ 제품</button>
+          <button class="ct-act-btn" onclick="ctAddDescStart('tip')">+ 설명</button>
+          <button class="ct-act-btn ct-act-plus" onclick="ctAddPlusChip('tip')">+</button>
+        </div>
+        <div class="ct-desc-inline-row" id="ct-tip-desc-inline-row" style="display:none">
+          <input class="ct-desc-inline-inp" id="ct-tip-desc-inline-inp" type="text" placeholder="TIP 설명 텍스트 입력..."
+            onkeydown="if(event.key==='Enter')ctConfirmDesc('tip')">
+          <button class="ct-desc-inline-ok" onclick="ctConfirmDesc('tip')">추가</button>
+        </div>
       </div>
       <div class="ct-sheet-sec" id="ct-tpo-sec" style="display:none">
         <span class="ct-sheet-sec-lbl">T.P.O</span>
@@ -3777,12 +3818,13 @@ function deleteCtContent(type, id) {
 }
 
 // ── Content Add Sheet ──────────────────────────────────────────
-let ctSheetState = { type:'makeup', editId:null, baselineImg:null, items:[], dates:[], tpo:[] };
+let ctSheetState = { type:'makeup', editId:null, baselineImg:null, items:[], tipItems:[], dates:[], tpo:[] };
 let ctCalState   = { year: new Date().getFullYear(), month: new Date().getMonth() };
 let _ctBoxExpanded = false;
+let _ctActiveSection = 'main';
 
 function openCtSheet(type, editId = null) {
-  ctSheetState = { type, editId, baselineImg:null, items:[], dates:[], tpo:[] };
+  ctSheetState = { type, editId, baselineImg:null, items:[], tipItems:[], dates:[], tpo:[] };
   const titleMap = { care:'집중케어 설계', makeup:'메이크업 테마 설계', look:'룩 설계' };
   document.getElementById('ct-sheet-title').textContent = titleMap[type] || '설계';
   const itemsMap = { care:'아이템 매핑 (BOX 뷰티)', makeup:'아이템 매핑 (BOX 뷰티)', look:'아이템 매핑 (BOX 패션·ACC)' };
@@ -3795,6 +3837,12 @@ function openCtSheet(type, editId = null) {
   document.getElementById('ct-name').value  = '';
   document.getElementById('ct-desc').value  = '';
   document.getElementById('ct-source-url').value = '';
+  const isCare = type === 'care';
+  document.getElementById('ct-box-wrap').style.display = isCare ? 'none' : '';
+  document.getElementById('ct-action-row').style.display = isCare ? '' : 'none';
+  document.getElementById('ct-tip-sec').style.display = isCare ? '' : 'none';
+  document.getElementById('ct-desc-inline-row').style.display = 'none';
+  document.getElementById('ct-tip-desc-inline-row').style.display = 'none';
   document.getElementById('ct-box-inp').value = '';
   document.getElementById('ct-box-results').innerHTML = '';
   _ctBoxExpanded = false;
@@ -3814,7 +3862,10 @@ function openCtSheet(type, editId = null) {
     if (type === 'care') {
       const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
       t = care.find(x => x.id === editId);
-      if (t) ctSheetState.items = (t.items||[]).map(p => ({...p}));
+      if (t) {
+        ctSheetState.items = (t.items||[]).map(p => ({...p}));
+        ctSheetState.tipItems = (t.tipItems||[]).map(p => ({...p}));
+      }
     } else if (type === 'makeup') {
       const contents = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
       t = contents.find(x => x.id === editId);
@@ -3904,9 +3955,10 @@ function renderCtBoxResults(q) {
   }
   const showAll = _ctBoxExpanded || !!q.trim();
   const visible = showAll ? filtered : filtered.slice(0, 10);
-  const alreadyIds = ctSheetState.items.map(i => i.assetId);
+  const _isCare = ctSheetState.type === 'care';
+  const alreadyIds = _isCare ? [] : ctSheetState.items.map(i => i.assetId);
   const rows = visible.map(a => {
-    const used = alreadyIds.includes(a.id);
+    const used = !_isCare && alreadyIds.includes(a.id);
     const icon = a.domain === 'beauty' ? '✦' : '◈';
     return `<div class="ct-box-row${used?' selected':''}" onclick="${used?'':` addCtItem(${a.id})`}">
       <div class="ct-box-img" style="${(a.imgData||a.storageUrl)?`background-image:url(${a.imgData||a.storageUrl});background-size:cover`:''}">${!(a.imgData||a.storageUrl)?icon:''}</div>
@@ -3926,10 +3978,17 @@ function renderCtBoxResults(q) {
 function addCtItem(assetId) {
   const asset = getBoxAssets().find(a => a.id === assetId);
   if (!asset) return;
-  if (ctSheetState.items.find(i => i.assetId === assetId)) return;
-  ctSheetState.items.push({ assetId, name: asset.name, brand: asset.brand||'', imgData: asset.imgData||null });
-  renderCtChips();
-  renderCtBoxResults(document.getElementById('ct-box-inp')?.value || '');
+  if (ctSheetState.type === 'care') {
+    const target = _ctActiveSection === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
+    target.push({ type: 'product', assetId, name: asset.name, brand: asset.brand||'' });
+    document.getElementById('ct-box-wrap').style.display = 'none';
+    renderCtChips();
+  } else {
+    if (ctSheetState.items.find(i => i.assetId === assetId)) return;
+    ctSheetState.items.push({ assetId, name: asset.name, brand: asset.brand||'', imgData: asset.imgData||null });
+    renderCtChips();
+    renderCtBoxResults(document.getElementById('ct-box-inp')?.value || '');
+  }
 }
 
 function removeCtItem(assetId) {
@@ -3938,16 +3997,83 @@ function removeCtItem(assetId) {
   renderCtBoxResults(document.getElementById('ct-box-inp')?.value || '');
 }
 
+function removeCtItemByIdx(section, idx) {
+  const target = section === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
+  target.splice(idx, 1);
+  renderCtChips();
+}
+
+function _renderTypedChip(item, idx, section) {
+  if (item.type === 'product') {
+    const asset = getBoxAssets().find(a => a.id === item.assetId);
+    const img = asset?.imgData || asset?.storageUrl || '';
+    const cls = asset ? 'ct-chip ct-chip--product' : 'ct-chip ct-chip--product-missing';
+    return `<div class="${cls}"><div class="ct-chip-img" style="${img?`background-image:url(${img});background-size:cover`:''}">${!img?'✦':''}</div>${item.name}<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+  }
+  if (item.type === 'plus') {
+    return `<div class="ct-chip ct-chip--plus">+<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+  }
+  if (item.type === 'desc') {
+    return `<div class="ct-chip ct-chip--desc">${item.text}<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+  }
+  return '';
+}
+
 function renderCtChips() {
   const el = document.getElementById('ct-selected-chips');
-  if (!el) return;
-  el.innerHTML = ctSheetState.items.map(p =>
-    `<div class="ct-chip">
-      <div class="ct-chip-img" style="${(p.imgData||p.storageUrl)?`background-image:url(${p.imgData||p.storageUrl});background-size:cover`:''}">${!(p.imgData||p.storageUrl)?'✦':''}</div>
-      ${p.name}
-      <span class="ct-chip-del" onclick="removeCtItem(${p.assetId})">✕</span>
-    </div>`
-  ).join('');
+  if (el) {
+    if (ctSheetState.type === 'care') {
+      el.innerHTML = ctSheetState.items.map((item, idx) => _renderTypedChip(item, idx, 'main')).join('');
+    } else {
+      el.innerHTML = ctSheetState.items.map(p =>
+        `<div class="ct-chip"><div class="ct-chip-img" style="${(p.imgData||p.storageUrl)?`background-image:url(${p.imgData||p.storageUrl});background-size:cover`:''}">${!(p.imgData||p.storageUrl)?'✦':''}</div>${p.name}<span class="ct-chip-del" onclick="removeCtItem(${p.assetId})">✕</span></div>`
+      ).join('');
+    }
+  }
+  const tipEl = document.getElementById('ct-tip-chips');
+  if (tipEl) {
+    tipEl.innerHTML = ctSheetState.tipItems.map((item, idx) => _renderTypedChip(item, idx, 'tip')).join('');
+  }
+}
+
+function ctAddProductStart(section) {
+  _ctActiveSection = section || 'main';
+  const wrap = document.getElementById('ct-box-wrap');
+  if (!wrap) return;
+  wrap.style.display = '';
+  document.getElementById('ct-box-inp').value = '';
+  renderCtBoxResults('');
+  setTimeout(() => document.getElementById('ct-box-inp')?.focus(), 80);
+}
+
+function ctAddDescStart(section) {
+  _ctActiveSection = section || 'main';
+  const rowId = section === 'tip' ? 'ct-tip-desc-inline-row' : 'ct-desc-inline-row';
+  const inpId = section === 'tip' ? 'ct-tip-desc-inline-inp' : 'ct-desc-inline-inp';
+  const row = document.getElementById(rowId);
+  if (row) row.style.display = '';
+  setTimeout(() => document.getElementById(inpId)?.focus(), 80);
+}
+
+function ctConfirmDesc(section) {
+  section = section || 'main';
+  const inpId = section === 'tip' ? 'ct-tip-desc-inline-inp' : 'ct-desc-inline-inp';
+  const rowId = section === 'tip' ? 'ct-tip-desc-inline-row' : 'ct-desc-inline-row';
+  const inp = document.getElementById(inpId);
+  const text = (inp?.value || '').trim();
+  if (!text) { inp?.focus(); return; }
+  const target = section === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
+  target.push({ type: 'desc', text });
+  inp.value = '';
+  const row = document.getElementById(rowId);
+  if (row) row.style.display = 'none';
+  renderCtChips();
+}
+
+function ctAddPlusChip(section) {
+  const target = section === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
+  target.push({ type: 'plus' });
+  renderCtChips();
 }
 
 function toggleTpo(el, val) {
@@ -4018,14 +4144,24 @@ function saveCtContent() {
   const desc  = document.getElementById('ct-desc').value.trim();
 
   try {
-    // Strip imgData from items (ref by assetId, image loaded from box assets at render time)
-    const cleanItems = ctSheetState.items.map(({assetId, name: n, brand}) => ({assetId, name: n, brand: brand||''}));
+    const cleanItems = ctSheetState.type === 'care'
+      ? ctSheetState.items.map(item => item.type === 'product'
+          ? { type:'product', assetId: item.assetId, name: item.name, brand: item.brand||'' }
+          : item.type === 'plus' ? { type:'plus' }
+          : { type:'desc', text: item.text||'' })
+      : ctSheetState.items.map(({assetId, name: n, brand}) => ({assetId, name: n, brand: brand||''}));
+    const cleanTipItems = ctSheetState.type === 'care'
+      ? ctSheetState.tipItems.map(item => item.type === 'product'
+          ? { type:'product', assetId: item.assetId, name: item.name, brand: item.brand||'' }
+          : item.type === 'plus' ? { type:'plus' }
+          : { type:'desc', text: item.text||'' })
+      : [];
     if (ctSheetState.type === 'care') {
       const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
       const periodStart = document.getElementById('ct-period-start').value;
       const periodEnd   = document.getElementById('ct-period-end').value;
       const scheduledPeriod = (periodStart || periodEnd) ? { start: periodStart || '', end: periodEnd || periodStart || '' } : null;
-      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, scheduledPeriod, baselineImg: ctSheetState.baselineImg || null, updatedAt: new Date().toISOString() };
+      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, tipItems: cleanTipItems, scheduledPeriod, baselineImg: ctSheetState.baselineImg || null, updatedAt: new Date().toISOString() };
       if (ctSheetState.editId) {
         const idx = care.findIndex(x => x.id === ctSheetState.editId);
         if (idx !== -1) care[idx] = obj; else care.push(obj);
