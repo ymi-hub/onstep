@@ -1564,10 +1564,12 @@ firebase.auth().onAuthStateChanged(user => {
         const localTs = parseInt(localStorage.getItem('_onstep_extra_local_ts') || '0');
         const snapTs  = d.savedAt ? new Date(d.savedAt).getTime() : 0;
         if (snapTs < localTs - 3000) return;
-        if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(d.careThemes));
-        if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(d.makeupContents));
-        if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(d.lookContents));
+        const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null,storageUrl:lc?.storageUrl||ct.storageUrl||null};});};
+        if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(_mi('onstep_care_themes',d.careThemes)));
+        if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(_mi('onstep_makeup_contents',d.makeupContents)));
+        if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(_mi('onstep_look_contents',d.lookContents)));
         if (d.portfolio)       localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
+        if (typeof _broadcastState === 'function') _broadcastState('extra');
         updateHubCounts();
         renderCtCareList(); renderCtMkpList(); renderCtLookList();
       }, e => console.warn('extra onSnapshot:', e));
