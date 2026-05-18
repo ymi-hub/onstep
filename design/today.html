@@ -1171,18 +1171,19 @@ function handleMainRoutineBtn() {
   const products = slotData?.routines?.find(r=>r.id===activeId)?.products||[];
   if (!products.length) return;
 
+  const realProducts = products.filter(p => (p.type||'product') === 'product');
   const today   = getTodayKey();
   const doneKey = `onstep_flow_done_${today}_${slot}`;
   const doneList= JSON.parse(localStorage.getItem(doneKey)||'[]');
-  if (doneList.length >= products.length) {
+  if (doneList.length >= realProducts.length) {
     showToast('루틴 완료! ✓');
     return;
   }
 
   // Mark all remaining products done at once
-  products.forEach(p => { if (!doneList.includes(p.name)) doneList.push(p.name); });
+  realProducts.forEach(p => { if (!doneList.includes(p.name)) doneList.push(p.name); });
   localStorage.setItem(doneKey, JSON.stringify(doneList));
-  recordBoxUsage(products);
+  recordBoxUsage(realProducts);
   renderFlowHeroStep(plan);
 }
 
@@ -1214,7 +1215,7 @@ function renderCareToday() {
       }
       const asset = assets.find(a => a.id === p.assetId);
       const img = asset?.imgData || asset?.storageUrl || p.imgData || p.storageUrl || '';
-      const loc = asset?.locationId ? locs.find(l => l.id === asset.locationId) : null;
+      const loc = asset?.locKey ? locs.find(l => l.key === asset.locKey) : null;
       return `<div class="ed-prod-card">
         <div class="ed-prod-img"${img ? ` style="background-image:url(${img})"` : ''}>
           ${!img ? `<span style="font-size:28px;opacity:.25">${t.emoji||'✦'}</span>` : ''}
@@ -1383,7 +1384,7 @@ function renderTodayMakeup() {
       a.name?.toLowerCase() === p.name?.toLowerCase() &&
       (!p.brand || a.brand?.toLowerCase() === p.brand?.toLowerCase())
     );
-    const loc    = asset?.locationId ? _boxLocs.find(l => l.id === asset.locationId) : null;
+    const loc    = asset?.locKey ? _boxLocs.find(l => l.key === asset.locKey) : null;
     const locTag = loc?.name ? `<div class="ed-prod-loc">◎ ${loc.name}</div>` : '';
     let expiryBadge = '';
     if (asset?.expiryDate) {
@@ -1739,7 +1740,7 @@ function renderTodayOOTD() {
       a.name?.toLowerCase() === p.name?.toLowerCase() &&
       (!p.brand || a.brand?.toLowerCase() === p.brand?.toLowerCase())
     );
-    const loc    = asset?.locationId ? _ootdLocs.find(l => l.id === asset.locationId) : null;
+    const loc    = asset?.locKey ? _ootdLocs.find(l => l.key === asset.locKey) : null;
     const locTag = loc?.name ? `<div class="ed-prod-loc">◎ ${loc.name}</div>` : '';
     return `<div class="ed-prod-card">
       <div class="ed-prod-img"${img?` style="background-image:url(${img})"`:''}>

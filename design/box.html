@@ -2411,7 +2411,7 @@ let addState    = { domain:'beauty', type:'skincare', catKey:null, productImgDat
 function getAssets()  { return JSON.parse(localStorage.getItem(ASSETS_KEY) || '[]'); }
 function getLocs()    { return JSON.parse(localStorage.getItem(LOCS_KEY)   || '[]'); }
 function saveAssets(a){ localStorage.setItem(ASSETS_KEY, JSON.stringify(a)); saveBoxToCloud(); if(typeof _broadcastState==='function') _broadcastState('box_assets'); }
-function saveLocs(l)  { localStorage.setItem(LOCS_KEY,   JSON.stringify(l)); saveBoxToCloud(); }
+function saveLocs(l)  { localStorage.setItem(LOCS_KEY,   JSON.stringify(l)); saveBoxToCloud(); if(typeof _broadcastState==='function') _broadcastState('box_assets'); }
 
 // ── Sample data ───────────────────────────────────────────────
 function initSampleData() {
