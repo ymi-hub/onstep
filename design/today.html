@@ -288,7 +288,7 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 .editorial-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
 .editorial-hd-tag{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
 .editorial-hd-sub{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--mist);letter-spacing:.02em;text-decoration:none}
-.editorial-hero{position:relative;width:100%;aspect-ratio:4/3;background:var(--surface-mid);border-radius:var(--r-xl);overflow:hidden;cursor:pointer;background-size:auto 100%;background-position:center;display:flex;align-items:center;justify-content:center}
+.editorial-hero{position:relative;width:100%;aspect-ratio:1/1;background:var(--surface-mid);border-radius:var(--r-xl);overflow:hidden;cursor:pointer;background-size:auto 100%;background-position:center;display:flex;align-items:center;justify-content:center}
 .editorial-badge{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,.65);color:#fff;font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-sm)}
 .editorial-gear{position:absolute;top:12px;right:12px;width:30px;height:30px;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;text-decoration:none}
 .editorial-prod-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;gap:8px;margin-top:10px;padding-bottom:2px}
@@ -1367,7 +1367,7 @@ function renderTodayMakeup() {
   const today = getTodayKey();
   const doneSet = new Set(JSON.parse(localStorage.getItem(`onstep_motd_done_${today}`) || '[]'));
   const products = theme.products || [];
-  const heroImg = theme.baselineImg || '';
+  const heroImg = theme.baselineImg || theme.storageUrl || '';
   const _boxAssets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
   const _boxLocs   = JSON.parse(localStorage.getItem('onstep_box_locations') || '[]');
   const grid = products.map(p => {
@@ -1723,7 +1723,7 @@ function renderTodayOOTD() {
     renderOOTDLogCard();
     return;
   }
-  const heroImg = lookTheme.baselineImg || '';
+  const heroImg = lookTheme.baselineImg || lookTheme.storageUrl || '';
   const items = lookTheme.products || lookTheme.items || [];
   const _ootdAssets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
   const _ootdLocs   = JSON.parse(localStorage.getItem('onstep_box_locations') || '[]');
