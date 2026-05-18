@@ -91,3 +91,61 @@ body{
   transition:color .15s;
 }
 .sec-edit-link:hover,.sec-edit-link:active{color:var(--ink)}
+
+/* ── 섹션 헤더 통일 (모든 페이지 동일 스타일) ── */
+.sec-hd-title{
+  font-family:'Space Grotesk','Plus Jakarta Sans',sans-serif;
+  font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.01em;
+}
+.sec-hd-row{
+  display:flex;align-items:baseline;justify-content:space-between;
+  padding:28px 16px 10px;
+}
+.sec-hd-sub{
+  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--mist);
+  text-decoration:none;transition:color .15s;
+}
+.sec-hd-sub:active,.sec-hd-sub:hover{color:var(--ink)}
+
+/* ── 공통 빈 상태 (empty state) ── */
+.empty-state-common{
+  padding:44px 24px;text-align:center;
+  border:1.5px dashed var(--border-md);border-radius:var(--r-lg);
+  background:var(--surface-low);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.empty-state-emoji{font-size:36px;line-height:1;opacity:.7;}
+.empty-state-title{
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;
+  color:var(--sub);line-height:1.4;
+}
+.empty-state-hint{
+  font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);
+  line-height:1.5;
+}
+.empty-state-cta{
+  margin-top:4px;padding:9px 20px;
+  background:var(--ink);color:#fff;border:none;border-radius:var(--r-full);
+  font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.06em;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;transition:opacity .15s;
+}
+.empty-state-cta:active{opacity:.8}
+
+/* ── 토스트 공통 ── */
+.toast{
+  position:absolute;bottom:90px;left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--ink);color:#fff;padding:10px 20px;
+  font-size:12px;font-family:'Inter',sans-serif;font-weight:600;
+  letter-spacing:.04em;border-radius:var(--r-full);
+  opacity:0;transition:opacity .25s,transform .25s;
+  pointer-events:none;white-space:nowrap;z-index:200;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── 모바일 입력폼 font-size 강제 16px (확대 방지) ── */
+@media(pointer:coarse),(max-width:430px){
+  input,textarea,select{font-size:16px!important}
+  button{min-height:44px}
+}

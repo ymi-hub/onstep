@@ -16,22 +16,23 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="shared.js"></script>
+<link rel="stylesheet" href="shared.css">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#F9F9FF; --surface:#F8FAFC; --surface-low:#F1F5F9;
-  --surface-mid:#E2E8F0; --surface-high:#CBD5E1; --surface-inv:#18181B;
-  --ink:#18181B; --sub:#5B5F5E; --mist:#94A3B8;
-  --lime:#C6F432; --lime-dark:#A8DB00; --lime-fg:#18181B; --lime-border:#506600;
-  --border:#F1F5F9; --border-md:rgba(24,24,27,.15);
-  --shadow:0px 1px 2px rgba(0,0,0,.05);
+  --bg:#FAFAF8; --surface:#F4F4F0; --surface-low:#EEEDE9;
+  --surface-mid:#E4E2DC; --surface-high:#D8D6CF; --surface-inv:#0C0C0A;
+  --ink:#0C0C0A; --sub:#4A4846; --mist:#9A9490;
+  --lime:#C5FF00; --lime-dark:#A6D900; --lime-fg:#0C0C0A; --lime-border:#84B000;
+  --border:rgba(12,12,10,.07); --border-md:rgba(12,12,10,.14);
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03);
   --gutter:16px; --margin:16px;
   --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:9999px;
-  --green:#2d6a4f; --amber:#b45309; --error:#ba1a1a;
+  --green:#1E6B4A; --amber:#B45309; --error:#D93025;
   --xs:4px; --sm:8px; --md:16px; --lg:24px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 16px 48px;font-family:'Plus Jakarta Sans','Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 16px 48px;font-family:'Plus Jakarta Sans','Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
 .phone{width:390px;height:888px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate(0,0)}
 .notch{height:44px;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
@@ -39,7 +40,7 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 .scroll::-webkit-scrollbar{display:none}
 
 /* Appbar */
-.appbar{padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(249,249,255,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;border-bottom:1px solid rgba(241,245,249,1)}
+.appbar{padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(250,250,248,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;border-bottom:1px solid rgba(241,245,249,1)}
 .appbar-menu{width:22px;display:flex;flex-direction:column;gap:5px;cursor:pointer}
 .appbar-menu span{height:1.5px;background:var(--ink);border-radius:2px}
 .appbar-menu span:nth-child(2){width:68%}
@@ -122,7 +123,7 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 
 .flow-step-body{padding:4px 16px 20px;display:flex;flex-direction:column;gap:12px}
 .flow-step-tag{display:none}
-.flow-expert-tip{background:#F7FDE8;border-left:3px solid var(--lime);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.flow-expert-tip{background:#F5FDD4;border-left:3px solid var(--lime);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
 .flow-tip-header{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);display:flex;align-items:center;gap:6px}
 .flow-tip-text{font-family:'Inter',sans-serif;font-size:13px;color:var(--sub);line-height:1.6}
 .flow-edit-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none;align-self:flex-start}
@@ -132,7 +133,7 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 .flow-cta-wrap{padding:10px 16px 0}
 .flow-cta-btn{width:100%;background:var(--ink);color:#ffffff;border:none;padding:11px 0;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .28s,transform .15s;border-radius:10px}
 .flow-cta-btn:active{transform:scale(.98)}
-.flow-cta-btn.done{background:var(--lime);color:var(--ink)}
+.flow-cta-btn.done{background:var(--lime);color:var(--ink);border:2px solid var(--lime-border)}
 .flow-cta-arrow{font-size:12px;color:#fff}
 @keyframes btn-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 .flow-cta-btn.shake{animation:btn-shake .35s ease}
@@ -147,14 +148,14 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 .allday-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer;transition:opacity .2s;box-shadow:var(--shadow)}
 .allday-item.done{opacity:.5}
 .allday-item-left{display:flex;align-items:center;gap:12px}
-.allday-dot{width:22px;height:22px;border-radius:var(--r-full);border:2px solid var(--border-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative}
-.allday-dot-inner{width:10px;height:10px;background:var(--lime);border-radius:var(--r-full);opacity:0;transition:opacity .2s}
+.allday-dot{width:32px;height:32px;border-radius:var(--r-full);border:2px solid var(--border-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative}
+.allday-dot-inner{width:14px;height:14px;background:var(--lime);border-radius:var(--r-full);opacity:0;transition:opacity .2s}
 .allday-item.done .allday-dot{border-color:var(--lime);background:var(--lime)}
 .allday-item.done .allday-dot-inner{opacity:1;background:#0A0A0A}
 .allday-item-name{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--ink)}
 .allday-item.done .allday-item-name{color:var(--mist)}
 .allday-item-meta{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--mist)}
-.allday-empty{padding:16px 0;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist)}
+.allday-empty{padding:28px 20px;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);text-align:center;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);background:var(--surface-low);line-height:1.6}
 .allday-item-right{display:flex;align-items:center;gap:6px}
 .allday-item-time{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--mist);letter-spacing:.04em}
 .allday-alarm-icon{font-size:13px;opacity:.4;line-height:1}
@@ -395,7 +396,7 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
 
     <!-- #FLOW header -->
     <div class="hash-row">
-      <div class="hash-label">#Flow</div>
+      <div class="hash-label">#루틴</div>
       <div class="hash-sub" id="flow-slot-label">MORNING RITUAL</div>
     </div>
 
@@ -443,7 +444,7 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
     <!-- Special Care -->
     <div class="editorial-section" id="care-today-section" style="display:none">
       <div class="editorial-hd">
-        <div class="editorial-hd-tag">#SPECIAL CARE</div>
+        <div class="editorial-hd-tag">#집중케어</div>
         <a class="editorial-hd-sub" href="setup.html?panel=care">Edit →</a>
       </div>
       <div id="care-today-wrap"></div>
@@ -464,7 +465,7 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
     <!-- #MOTD section -->
     <div class="editorial-section">
       <div class="editorial-hd">
-        <div class="editorial-hd-tag">#MOTD</div>
+        <div class="editorial-hd-tag">#메이크업</div>
         <a class="editorial-hd-sub" href="log.html?tab=makeup" id="motd-hd-sub">Edit →</a>
       </div>
       <div id="smart-guide-motd"></div>
@@ -475,7 +476,7 @@ body{background:#DDDDE8;display:flex;justify-content:center;align-items:flex-sta
     <!-- #OOTD section -->
     <div class="editorial-section" style="padding-bottom:0">
       <div class="editorial-hd">
-        <div class="editorial-hd-tag">#OOTD</div>
+        <div class="editorial-hd-tag">#오늘의 룩</div>
         <a class="editorial-hd-sub" href="log.html?tab=lookbook" id="ootd-hd-sub">Edit →</a>
       </div>
       <div id="smart-guide-ootd"></div>
