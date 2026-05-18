@@ -612,7 +612,7 @@ firebase.auth().onAuthStateChanged(user => {
         const localTs = parseInt(localStorage.getItem('_onstep_extra_local_ts') || '0');
         const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
         if (cloudTs >= localTs - 3000) {
-          const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null,storageUrl:lc?.storageUrl||ct.storageUrl||null};});};
+          const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null,storageUrl:ct.storageUrl||lc?.storageUrl||null};});};
           if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(_mi('onstep_care_themes',d.careThemes)));
           if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(_mi('onstep_makeup_contents',d.makeupContents)));
           if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(_mi('onstep_look_contents',d.lookContents)));
@@ -731,9 +731,9 @@ const MAKEUP_LOGS_KEY= 'onstep_makeup_logs';
 
 async function saveLogsToCloud() {
   if (!currentUser) return;
+  const nowTs = Date.now();
+  localStorage.setItem('_onstep_extra_local_ts', (nowTs + 30000).toString());
   try {
-    const nowTs = Date.now();
-    localStorage.setItem('_onstep_extra_local_ts', nowTs.toString());
     const uid   = currentUser.uid;
     const looks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
     const looksFs = await Promise.all(looks.map(async l => {
@@ -744,9 +744,13 @@ async function saveLogsToCloud() {
       return {...l, mainPhoto: null};
     }));
     localStorage.setItem(LOOKS_KEY, JSON.stringify(looks));
+    localStorage.setItem('_onstep_extra_local_ts', nowTs.toString());
     await fbDb.collection('users').doc(uid).collection('extra').doc('data')
       .set({ looks: looksFs, savedAt: new Date(nowTs).toISOString() }, { merge: true });
-  } catch(e) { console.warn('Looks cloud save:', e); }
+  } catch(e) {
+    localStorage.setItem('_onstep_extra_local_ts', nowTs.toString());
+    console.warn('Looks cloud save:', e);
+  }
 }
 async function loadExtraFromCloud(uid) {
   try {
@@ -759,7 +763,7 @@ async function loadExtraFromCloud(uid) {
     const localTs = parseInt(localStorage.getItem('_onstep_extra_local_ts') || '0');
     const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
     if (cloudTs >= localTs - 3000) {
-      const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null,storageUrl:lc?.storageUrl||ct.storageUrl||null};});};
+      const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null,storageUrl:ct.storageUrl||lc?.storageUrl||null};});};
       if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(_mi('onstep_care_themes',d.careThemes)));
       if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(_mi('onstep_makeup_contents',d.makeupContents)));
       if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(_mi('onstep_look_contents',d.lookContents)));

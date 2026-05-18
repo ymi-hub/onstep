@@ -641,13 +641,13 @@ async function loadFromCloud(uid){
 
 async function saveToCloud(){
   const nowTs = Date.now();
-  localStorage.setItem('_onstep_extra_local_ts', nowTs.toString());
+  localStorage.setItem('_onstep_extra_local_ts', (nowTs + 30000).toString());
   if(typeof _broadcastState==='function'){
     _broadcastState('extra');
     _broadcastState('looks');
     _broadcastState('makeupLogs');
   }
-  if(!currentUser) return;
+  if(!currentUser){ localStorage.setItem('_onstep_extra_local_ts', nowTs.toString()); return; }
   try{
     const uid        = currentUser.uid;
     const care       =JSON.parse(localStorage.getItem('onstep_care_themes')       ||'[]');
@@ -682,10 +682,14 @@ async function saveToCloud(){
     localStorage.setItem('onstep_look_contents',     JSON.stringify(looks));
     localStorage.setItem('onstep_looks',             JSON.stringify(looksLog));
     localStorage.setItem('onstep_makeup_logs',       JSON.stringify(makeupLogs));
+    localStorage.setItem('_onstep_extra_local_ts',   nowTs.toString());
     await fbDb.collection('users').doc(uid).collection('extra').doc('data')
       .set({careThemes:careFs,makeupContents:makeupFs,lookContents:looksFs,looks:looksLogFs,makeupLogs:makeupLogsFs,portfolio,
             logScenes:ALL_SCENES,savedAt:new Date(nowTs).toISOString()},{merge:true});
-  }catch(e){ console.warn('saveToCloud:',e); }
+  }catch(e){
+    localStorage.setItem('_onstep_extra_local_ts', nowTs.toString());
+    console.warn('saveToCloud:',e);
+  }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
