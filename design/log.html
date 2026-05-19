@@ -815,7 +815,7 @@ function _renderContentCard(c){
         const icon=!a.imgData?(a.icon||'📦'):'';
         return `<div class="lib-card-prod">
           <div class="lib-prod-img" style="${imgStyle}">${icon}</div>
-          <div class="lib-prod-name">${p.name||''}</div>
+          <div class="lib-prod-name">${a?.name||p.name||''}</div>
         </div>`;
       }).join('')}</div>`
     :'';
@@ -888,7 +888,7 @@ function renderArchiveMain(){
           const icon=!a?.imgData?(a?.icon||p.icon||'📦'):'';
           return `<div class="lib-card-prod">
             <div class="lib-prod-img" style="${imgStyle}">${icon}</div>
-            <div class="lib-prod-name">${p.name||''}</div>
+            <div class="lib-prod-name">${a?.name||p.name||''}</div>
           </div>`;
         }).join('')}</div>`
       :'';
