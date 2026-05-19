@@ -3024,6 +3024,9 @@ let _seModalSlot = null;
 let _seModalRouteId = null;
 
 function openSessionEditor(n) {
+  // se-body를 초기화하여 이전 세션의 입력값이 renderSeBody 재렌더 싱크에 오염되지 않도록 함
+  const seBody = document.getElementById('se-body');
+  if (seBody) seBody.innerHTML = '';
   const isCurrent = (n === state.session);
   let src;
   if (isCurrent) {
