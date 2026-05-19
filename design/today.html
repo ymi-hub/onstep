@@ -33,10 +33,10 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 16px 48px;font-family:'Plus Jakarta Sans','Inter',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
-.phone{width:390px;height:888px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate(0,0)}
-.notch{height:44px;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.phone{width:390px;height:888px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate(0,0);display:flex;flex-direction:column;}
+.notch{height:44px;flex-shrink:0;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
-.scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:var(--bg);overscroll-behavior:contain}
+.scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;background:var(--bg);overscroll-behavior:contain}
 .scroll::-webkit-scrollbar{display:none}
 
 /* Appbar */
@@ -50,16 +50,13 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
 /* Page title */
 .page-title-wrap{padding:24px 16px 4px}
-.page-title{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:50px;font-weight:800;color:var(--ink);line-height:.9;letter-spacing:-.06em}
+.page-title{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:60px;font-weight:900;color:var(--ink);line-height:.9;letter-spacing:-.06em}
 .page-title::after{display:none}
 
 /* ── Weather Row ── */
 .weather-row{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
-.mascot-card{width:66px;height:66px;background:var(--lime);border-radius:20px;border:2px solid var(--lime-border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:44px;line-height:1}
-.weather-card{flex:1;height:69px;background:#FFFFFF;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:4px;position:relative;overflow:hidden}
-.weather-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
-.weather-main-text{font-family:'Gaegu','Inter',sans-serif;font-size:22px;color:var(--ink);line-height:1.25}
-.weather-arrow{position:absolute;right:10px;bottom:10px;width:24px;height:24px;opacity:.15;font-size:18px;display:flex;align-items:center;justify-content:center}
+.mascot-card{width:46px;height:46px;background:#c5ff00;border-radius:10px;border:2px solid #91c000;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:28px;line-height:1}
+.weather-main-text{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--ink);line-height:1}
 
 /* ── Session Hero ── */
 .session-hero{padding:12px 16px 4px}
@@ -73,20 +70,20 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 /* Hash section header */
 .hash-row{display:flex;align-items:baseline;justify-content:space-between;padding:16px 16px 8px}
 .hash-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
-.hash-sub{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
-.hash-edit{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);text-decoration:none;padding-bottom:3px}
+.hash-sub{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--mist)}
+.hash-edit{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--mist);text-decoration:none;padding-bottom:3px}
 .hash-edit:hover{color:var(--ink)}
 
 /* Flow session block */
 .flow-session{padding:0 16px 0}
-.flow-session-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);margin-bottom:2px}
-.flow-session-period{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--mist);margin-bottom:12px}
+.flow-session-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.flow-session-period{font-family:'Inter',sans-serif;font-size:13px;font-weight:400;color:var(--mist);margin-bottom:12px}
 
 /* Session progress card — 이미지 기준 제거 (session-hero로 대체) */
 .flow-progress-card{display:none}
 .flow-progress-row{display:flex;align-items:center;justify-content:space-between}
-.flow-progress-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
-.flow-progress-day{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--mist)}
+.flow-progress-label{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink)}
+.flow-progress-day{font-family:'Inter',sans-serif;font-size:13px;font-weight:400;color:var(--mist)}
 .flow-dots{display:flex;align-items:center;justify-content:space-between}
 .flow-dot{width:10px;height:10px;border-radius:var(--r-full);background:var(--surface-mid);border:none;flex-shrink:0;transition:all .3s;position:relative}
 .flow-dot.filled{background:var(--lime)}
@@ -97,44 +94,44 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .flow-step-hd{display:none} /* 이미지 기준: 헤더 없음, 이미지가 먼저 */
 
 /* Compact multi-card routine strip — 5.5개 노출 */
-.flow-prod-strip{display:flex;overflow-x:auto;scrollbar-width:none;padding:12px 16px 4px;gap:6px}
+.flow-prod-strip{display:flex;overflow-x:auto;scrollbar-width:none;padding:20px 20px 20px;gap:6px}
 .flow-prod-strip::-webkit-scrollbar{display:none}
-.flow-prod-item{flex-shrink:0;width:63px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.flow-prod-item{flex-shrink:0;width:130px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .flow-prod-img{width:100%;aspect-ratio:1/1;background:var(--surface-mid);background-size:100% auto;background-position:top center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:10px}
 .flow-prod-emoji{font-size:28px;opacity:.3;pointer-events:none}
-.flow-prod-check{position:absolute;inset:0;background:rgba(12,16,20,.72);display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;opacity:0;transition:opacity .2s;pointer-events:none;border-radius:10px}
+.flow-prod-check{position:absolute;inset:0;background:rgb(12 16 20 / 30%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;opacity:0;transition:opacity .2s;pointer-events:none;border-radius:10px}
 .flow-prod-item.done .flow-prod-check{opacity:1}
 /* 모닝/나이트 구분 아이콘 — 이미지 좌상단 */
-.flow-slot-badge{position:absolute;top:4px;left:4px;width:16px;height:16px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:8px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:2;pointer-events:none}
+.flow-slot-badge{position:absolute;top:4px;left:4px;width:16px;height:16px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:2;pointer-events:none}
 .flow-slot-badge.morning{background:rgba(255,255,255,.85);box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .flow-slot-badge.night{background:rgba(24,24,27,.7);box-shadow:0 1px 4px rgba(0,0,0,.18)}
 .flow-prod-info{padding:4px 0 0}
-.flow-prod-name{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.flow-prod-name{font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:var(--ink);line-height:1.3;padding-left:0;text-align:center;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .flow-prod-brand{display:none}
 /* scroll dots — 숨김 (다중 카드 노출로 불필요) */
 .flow-prod-dots{display:none}
 .flow-prod-dot{display:none}
 
-/* Step info row — 이미지 기준: 도트 아래에 Step1 + 카운트 */
-.flow-step-info{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 4px}
+/* Step info row — 이미지 기준: 도트 아래에 Day1 + 카운트 */
+.flow-step-info{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px;border-top:1px solid var(--border)}
 .flow-step-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px}
-.flow-step-label-icon{width:16px;height:16px;border-radius:var(--r-full);border:1.5px solid var(--ink);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--ink)}
-.flow-step-count{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--mist)}
+.flow-step-label-icon{width:16px;height:16px;border-radius:var(--r-full);border:1.5px solid var(--ink);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--ink)}
+.flow-step-count{font-family:'Inter',sans-serif;font-size:13px;font-weight:400;color:var(--mist)}
 
 .flow-step-body{padding:4px 16px 20px;display:flex;flex-direction:column;gap:12px}
 .flow-step-tag{display:none}
-.flow-expert-tip{background:#F5FDD4;border-left:3px solid var(--lime);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
-.flow-tip-header{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);display:flex;align-items:center;gap:6px}
+.flow-expert-tip{display:flex;flex-direction:column;align-items:flex-start;padding:16px;gap:10px;margin:0 16px;background:#F5FDD4;border:1px solid rgba(198,244,50,.5);border-radius:var(--r-lg)}
+.flow-tip-header{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:6px}
 .flow-tip-text{font-family:'Inter',sans-serif;font-size:13px;color:var(--sub);line-height:1.6}
-.flow-edit-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none;align-self:flex-start}
+.flow-edit-link{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--mist);text-decoration:none;align-self:flex-end}
 .flow-edit-link:hover{color:var(--ink)}
 
 /* CTA button */
 .flow-cta-wrap{padding:10px 16px 0}
-.flow-cta-btn{width:100%;background:var(--ink);color:#ffffff;border:none;padding:11px 0;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .28s,transform .15s;border-radius:10px}
+.flow-cta-btn{width:100%;background:var(--ink);color:#ffffff;border:none;min-height:52px;padding:0 20px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .28s,transform .15s;border-radius:var(--r-full)}
 .flow-cta-btn:active{transform:scale(.98)}
 .flow-cta-btn.done{background:var(--lime);color:var(--ink);border:2px solid var(--lime-border)}
-.flow-cta-arrow{font-size:12px;color:#fff}
+.flow-cta-arrow{font-size:15px;color:#fff}
 @keyframes btn-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 .flow-cta-btn.shake{animation:btn-shake .35s ease}
 
@@ -142,9 +139,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .allday-section{padding:28px 16px 0;display:flex;flex-direction:column;gap:8px}
 .allday-section-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
 .allday-hd-left{display:flex;flex-direction:column;gap:2px}
-.allday-top-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
-.allday-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
-.allday-top-edit{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none;padding-top:2px}
+.allday-top-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--mist)}
+.allday-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
+.allday-top-edit{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--mist);text-decoration:none;padding-top:2px}
 .allday-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--r-md);cursor:pointer;transition:opacity .2s;box-shadow:var(--shadow)}
 .allday-item.done{opacity:.5}
 .allday-item-left{display:flex;align-items:center;gap:12px}
@@ -152,12 +149,12 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .allday-dot-inner{width:14px;height:14px;background:var(--lime);border-radius:var(--r-full);opacity:0;transition:opacity .2s}
 .allday-item.done .allday-dot{border-color:var(--lime);background:var(--lime)}
 .allday-item.done .allday-dot-inner{opacity:1;background:#0A0A0A}
-.allday-item-name{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--ink)}
+.allday-item-name{font-family:'Inter',sans-serif;font-size:15px;font-weight:400;color:var(--ink)}
 .allday-item.done .allday-item-name{color:var(--mist)}
-.allday-item-meta{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--mist)}
+.allday-item-meta{font-family:'Inter',sans-serif;font-size:13px;font-weight:400;color:var(--mist)}
 .allday-empty{padding:28px 20px;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);text-align:center;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);background:var(--surface-low);line-height:1.6}
 .allday-item-right{display:flex;align-items:center;gap:6px}
-.allday-item-time{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--mist);letter-spacing:.04em}
+.allday-item-time{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--mist)}
 .allday-alarm-icon{font-size:13px;opacity:.4;line-height:1}
 .allday-alarm-icon.ringing{opacity:1;animation:alarmring .4s ease infinite alternate}
 @keyframes alarmring{0%{transform:rotate(-12deg)}100%{transform:rotate(12deg)}}
@@ -170,8 +167,8 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 /* MOTD section */
 .motd-section{padding:28px 16px 0;display:flex;flex-direction:column;gap:16px}
 .motd-section-hd{display:flex;align-items:center;justify-content:space-between}
-.motd-section-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
-.motd-section-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none}
+.motd-section-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
+.motd-section-link{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--mist);text-decoration:none}
 /* Left text + right image strip */
 .motd-body{position:relative;height:186px;overflow:hidden}
 .motd-text-col{position:absolute;left:0;top:0;bottom:0;width:218px;display:flex;flex-direction:column;justify-content:flex-start;padding-right:62px;gap:8px}
@@ -195,20 +192,20 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .motd-theme-hd-row{display:flex;align-items:flex-start;gap:12px;padding:0 0 14px}
 .motd-theme-emoji-lg{font-size:28px;line-height:1;flex-shrink:0;padding-top:2px}
 .motd-theme-name-lg{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink);line-height:1.1;margin-bottom:4px}
-.motd-theme-desc-sm{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);line-height:1.5}
+.motd-theme-desc-sm{font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);line-height:1.5}
 
 /* OOTD section */
 .ootd-section{padding:0 16px}
 .ootd-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.ootd-section-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
-.ootd-section-link{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--mist);text-decoration:none}
+.ootd-section-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
+.ootd-section-link{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--mist);text-decoration:none}
 .ootd-photo-card{border-radius:var(--r-xl);overflow:hidden;cursor:pointer;position:relative;height:256px;background:var(--surface-mid);background-size:auto 100%;background-position:center;background-repeat:no-repeat}
 .ootd-photo-img{width:100%;height:100%;background:var(--surface-mid);background-size:auto 100%;background-position:center;background-repeat:no-repeat;position:relative;display:flex;align-items:center;justify-content:center}
 .ootd-placeholder-icon{font-size:40px;opacity:.3}
 .ootd-check-btn{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:0;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer;z-index:2;transition:background .2s}
 .ootd-check-btn.logged{background:rgba(0,0,0,.6)}
 .ootd-overlay{position:absolute;bottom:0;left:0;right:0;padding:60px 16px 16px;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 50%,transparent 100%);pointer-events:none}
-.ootd-weather{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.05em;color:rgba(255,255,255,.8);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.ootd-weather{font-family:'Inter',sans-serif;font-size:13px;font-weight:400;color:rgba(255,255,255,.8);margin-bottom:4px;display:flex;align-items:center;gap:6px}
 .ootd-caption-text{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:#fff;line-height:1.25}
 
 /* OOTD Log card */
@@ -224,9 +221,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ootd-rec-inner{background:#fff;border-radius:24px 24px 0 0;width:100%;padding:24px 20px 36px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;max-height:88vh;overscroll-behavior:contain}
 .ootd-rec-sheet.open .ootd-rec-inner{transform:translateY(0)}
 .ootd-rec-handle{width:32px;height:4px;background:var(--border-md);border-radius:var(--r-full);margin:0 auto 20px}
-.ootd-rec-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:#0C1014;margin-bottom:16px}
-.ootd-rec-sec-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin-bottom:8px}
-.ootd-rec-sec-label span{font-weight:500;letter-spacing:0;text-transform:none;font-size:9px;margin-left:4px;opacity:.7}
+.ootd-rec-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:#0C1014;margin-bottom:16px}
+.ootd-rec-sec-label{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--mist);margin-bottom:8px}
+.ootd-rec-sec-label span{font-weight:500;letter-spacing:0;text-transform:none;font-size:10px;margin-left:4px;opacity:.7}
 .ootd-rec-theme-list{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-height:180px;overflow-y:auto}
 .ootd-rec-theme-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-md);cursor:pointer;transition:background .15s,border-color .15s;flex-shrink:0}
 .ootd-rec-theme-row.sel{border-color:#0A0A0A;background:var(--surface)}
@@ -237,15 +234,15 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ootd-rec-photo-area{width:100%;height:120px;background:var(--surface-low);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:12px;overflow:hidden;background-size:auto 100%;background-position:center;background-repeat:no-repeat;position:relative}
 .ootd-rec-photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
 .ootd-rec-photo-icon{font-size:26px;opacity:.3}
-.ootd-rec-photo-hint{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist)}
+.ootd-rec-photo-hint{font-family:'Inter',sans-serif;font-size:13px;color:var(--mist)}
 .ootd-rec-note{width:100%;border:1.5px solid var(--border-md);border-radius:var(--r-md);padding:11px 14px;font-family:'Inter',sans-serif;font-size:14px;color:#0C1014;resize:none;height:64px;outline:none;box-sizing:border-box;margin-bottom:16px}
 .ootd-rec-theme-empty{padding:20px 0;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist)}
 .ootd-rec-note:focus{border-color:#0C1014}
 .ootd-rec-note::placeholder{color:#bbb}
 .ootd-rec-btns{display:flex;gap:8px}
-.ootd-rec-cancel{flex:1;height:52px;background:var(--surface-low);color:var(--ink);border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.04em}
+.ootd-rec-cancel{flex:1;height:52px;background:var(--surface-low);color:var(--ink);border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;cursor:pointer}
 .ootd-rec-cancel:active{opacity:.8}
-.ootd-rec-save{flex:2;height:52px;background:#0A0A0A;color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.02em}
+.ootd-rec-save{flex:2;height:52px;background:#0A0A0A;color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer}
 .ootd-rec-save:active{opacity:.8}
 /* OOTD log card — logged state */
 .ootd-log-card-logged{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;transition:background .2s;box-shadow:var(--shadow)}
@@ -253,7 +250,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ootd-log-thumb{width:56px;height:56px;border-radius:var(--r-md);background:var(--surface-mid);background-size:auto 100%;background-position:center;background-repeat:no-repeat;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.4}
 .ootd-log-info{flex:1;min-width:0}
 .ootd-log-note-txt{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
-.ootd-log-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4caf78;margin-top:3px}
+.ootd-log-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:#4caf78;margin-top:3px}
 
 /* FAB */
 .fab{position:absolute;right:16px;bottom:90px;width:52px;height:52px;border-radius:var(--r-full);background:var(--lime);border:2px solid var(--lime-border);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(198,244,50,.45);z-index:50;transition:transform .15s}
@@ -269,16 +266,17 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .nav-item.active .nav-icon{color:#FFFFFF;}
 .nav-item.active .nav-label{color:#FFFFFF;}
 
-.toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--ink);color:#fff;padding:10px 20px;font-size:12px;font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.04em;border-radius:var(--r-full);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;z-index:200}
+.toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--ink);color:#fff;padding:10px 20px;font-size:13px;font-family:'Inter',sans-serif;font-weight:600;border-radius:var(--r-full);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;z-index:200}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 @media(max-width:430px){
-  body{background:var(--bg);padding:0;align-items:stretch}
+  body{background:var(--bg);padding:0;align-items:stretch;height:100dvh;overflow:hidden;}
   .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
   .notch{flex-shrink:0;height:calc(env(safe-area-inset-top,0px) + 10px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
   .notch-bar{display:none}
   .scroll{flex:1;min-height:0;height:auto;}
-  .bottom-nav{border-top:none;}
+  .app-nav{flex-shrink:0;}
+  .bottom-nav{border-top:1px solid rgba(0,0,0,.06);}
   .nav-item{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);}
 }
 
@@ -287,57 +285,73 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 /* Editorial sections */
 .editorial-section{padding:32px 16px 0}
 .editorial-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
-.editorial-hd-tag{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
-.editorial-hd-sub{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--mist);letter-spacing:.02em;text-decoration:none}
+.editorial-hd-tag{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
+.editorial-hd-sub{font-family:'Inter',sans-serif;font-size:13px;font-weight:400;color:var(--mist);text-decoration:none}
 .editorial-hero{position:relative;width:100%;aspect-ratio:1/1;background:var(--surface-mid);border-radius:var(--r-xl);overflow:hidden;cursor:pointer;background-size:auto 100%;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center}
-.editorial-badge{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,.65);color:#fff;font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-sm)}
+.editorial-badge{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,.65);color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-sm)}
 .editorial-gear{position:absolute;top:12px;right:12px;width:30px;height:30px;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;text-decoration:none}
-.editorial-prod-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;gap:8px;margin-top:10px;padding-bottom:2px}
+.editorial-prod-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;gap:8px;margin-top:10px;padding:0 10px 2px 20px}
 .editorial-prod-grid::-webkit-scrollbar{display:none}
-.ed-prod-card{flex-shrink:0;width:calc((100% - 16px) / 3.2);scroll-snap-align:start;cursor:pointer;transition:opacity .2s}
+.ed-prod-card{flex-shrink:0;width:calc((100% - 32px) / 5.2);scroll-snap-align:start;cursor:pointer;transition:opacity .2s}
 .ed-prod-card.done{opacity:.45}
 .ed-prod-plus{display:flex;align-items:center;justify-content:center;width:28px!important;flex-shrink:0}
 .ed-prod-plus-sym{font-size:18px;color:var(--mist);font-weight:300;line-height:1}
 .ed-prod-desc{width:calc((100% - 16px) / 2.2)!important;cursor:default}
 .ed-prod-desc-txt{font-family:'Inter',sans-serif;font-size:11px;color:var(--sub);line-height:1.4;padding:6px 0;word-break:keep-all}
-/* ── 집중케어 블록 레이아웃 ── */
+/* ── 집중케어 카드 디자인 ── */
 #care-today-wrap{display:flex;flex-direction:column;gap:20px}
-.care-block{display:flex;flex-direction:column;gap:10px}
-/* 단일 히어로 이미지 (1개일 때 1:1 정방형 유지) */
-.care-hero{position:relative;width:100%;aspect-ratio:1/1;background:var(--surface-mid);border-radius:var(--r-xl);overflow:hidden;background-size:auto 100%;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;cursor:pointer}
-/* 복수 항목일 때 히어로를 배너 비율(5:2)로 축소 */
-.care-block-multi .care-hero{aspect-ratio:5/2;border-radius:var(--r-lg)}
-/* 복수 항목일 때 테마명 라벨 */
-.care-block-name{display:flex;align-items:center;gap:7px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1}
-.care-block-name-emoji{font-size:18px;line-height:1}
-/* 구분선 (복수 항목 사이) */
-.care-block+.care-block{padding-top:0}
-/* 집중케어 전용 컴팩트 그리드 */
-.care-prod-grid{gap:6px;align-items:center;margin-top:0}
-.care-prod-grid .ed-prod-card{width:68px;align-self:flex-start}
-.care-prod-grid .ed-prod-img{border-radius:var(--r-md)}
-.care-prod-grid .ed-prod-cat{font-size:7px;margin-top:5px}
-.care-prod-grid .ed-prod-name{font-size:10px;font-weight:700;margin-top:1px}
-.care-prod-grid .ed-prod-brand{font-size:9px}
-/* 케어 plus 태그 */
-.care-tag-plus{flex-shrink:0;align-self:center;display:flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--surface-high);border-radius:50%;font-size:12px;color:var(--sub);font-weight:500}
-/* 케어 desc 태그 */
-.care-tag-desc{flex-shrink:0;align-self:center;max-width:110px;padding:6px 8px;background:var(--surface-mid);border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:10px;font-weight:500;color:var(--sub);line-height:1.4;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-/* 케어 카드 보관위치 */
-.care-prod-grid .ed-prod-loc{margin-top:3px;font-size:8px;padding:1px 5px}
+#care-today-section{padding-bottom:16px}
+.care-block{display:flex;flex-direction:column}
+.care-card{background:#fff;border-radius:var(--r-xl);overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)}
+/* 히어로 이미지 영역 */
+.care-hero{position:relative;width:100%;aspect-ratio:4/3;background:var(--surface-mid);border-radius:0;overflow:hidden;background-size:cover;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.care-block-multi .care-hero{aspect-ratio:5/2}
+/* 히어로 그라디언트 오버레이 + 이름 */
+.care-hero-overlay{position:absolute;bottom:0;left:0;right:0;height:65%;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 100%);pointer-events:none}
+.care-hero-emoji-float{position:absolute;top:50%;left:50%;transform:translate(-50%,-70%);font-size:52px;line-height:1;pointer-events:none}
+.care-hero-name{position:absolute;bottom:14px;left:16px;right:16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.1;z-index:1}
+.care-block-multi .care-hero-name{font-size:17px;bottom:10px}
+/* 제품 그리드 — 1열 5개 좌우 스크롤 */
+.care-prod-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:16px;scrollbar-width:none;gap:10px;padding:20px 0;border-top:1px solid rgba(0,0,0,.06)}
+.care-prod-row::-webkit-scrollbar{display:none}
+.care-prod-row::before{content:'';flex-shrink:0;width:16px}
+.care-prod-row::after{content:'';flex-shrink:0;width:16px}
+.care-prod-item{flex-shrink:0;width:130px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:7px}
+.care-prod-thumb{width:100%;aspect-ratio:1/1;background:#EDECE9;border-radius:14px;border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 2px rgba(0,0,0,.05);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.care-prod-thumb span{font-size:32px;line-height:1}
+.care-prod-label{font-size:14px;font-weight:400;color:var(--ink);text-align:center;letter-spacing:-.01em;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* + 와 설명 — 같은 열 인라인 */
+.care-item-plus{width:28px!important;justify-content:center;flex-shrink:0}
+.care-plus-circle{width:28px;height:28px;background:none;border:none;box-shadow:none;border-radius:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:300;color:var(--mist)}
+.care-item-desc{display:flex;width:auto!important;flex-shrink:0;justify-content:center;align-self:center}
+.care-desc-text{display:block;padding:6px 12px;background:#2185fd;border-radius:20px;border:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:400;color:#ffffff;white-space:nowrap;line-height:1}
+/* flow strip 태그 (care-tag-*) — 인라인 칩 */
+.care-tag-plus{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;font-size:14px;font-weight:300;color:var(--mist);align-self:center}
+.care-tag-desc{flex-shrink:0;align-self:center;padding:5px 10px;background:#2185fd;border-radius:16px;border:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:400;color:#fff;white-space:nowrap;line-height:1}
+
+/* OOTD — portrait hero + thumb row + more row */
+.ootd-main-photo{position:relative;width:100%;aspect-ratio:3/4;background:var(--surface-mid);border-radius:var(--r-xl);overflow:hidden;cursor:pointer;background-size:cover;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center}
+.ootd-main-overlay{position:absolute;bottom:0;left:0;right:0;padding:60px 16px 18px;background:linear-gradient(to top,rgba(0,0,0,.56) 0%,transparent 55%);pointer-events:none}
+.ootd-main-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:5px}
+.ootd-main-name{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:#fff;line-height:1.25}
+.ootd-thumb-row{display:flex;overflow-x:auto;scrollbar-width:none;gap:6px;padding:10px 0 6px;scroll-snap-type:x mandatory}
+.ootd-thumb-row::-webkit-scrollbar{display:none}
+.ootd-thumb-item{flex-shrink:0;width:96px;height:96px;border-radius:14px;background:#141414;background-size:contain;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;overflow:hidden;scroll-snap-align:start;cursor:pointer}
+.ootd-more-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink);letter-spacing:.01em}
+.ootd-more-chev{font-size:17px;font-weight:300;color:var(--sub);line-height:1}
 .ed-prod-img{width:100%;aspect-ratio:1/1;background:var(--surface-mid);border-radius:var(--r-lg);background-size:100% auto;background-position:top center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
 .ed-prod-check{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;opacity:0;transition:opacity .2s;border-radius:var(--r-lg)}
 .ed-prod-card.done .ed-prod-check{opacity:1}
-.ed-prod-cat{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-top:8px}
+.ed-prod-cat{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-top:8px}
 .ed-prod-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--ink);line-height:1.2;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ed-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ed-prod-loc{display:inline-flex;align-items:center;gap:3px;margin-top:4px;padding:2px 6px;background:var(--surface);border:1px solid var(--border);border-radius:9999px;font-family:'Inter',sans-serif;font-size:9px;font-weight:600;color:var(--sub);letter-spacing:.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ed-prod-expiry{display:inline-block;margin-left:4px;padding:1px 5px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:9999px;font-family:'Inter',sans-serif;font-size:8px;font-weight:700;color:#B45309;letter-spacing:.03em;vertical-align:middle}
+.ed-prod-loc{display:inline-flex;align-items:center;gap:3px;margin-top:4px;padding:2px 6px;background:var(--surface);border:1px solid var(--border);border-radius:9999px;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--sub);letter-spacing:.02em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed-prod-expiry{display:inline-block;margin-left:4px;padding:1px 5px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:9999px;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;color:#B45309;letter-spacing:.03em;vertical-align:middle}
 .ed-prod-expiry.expired{background:#FEE2E2;border-color:#EF4444;color:#DC2626}
 .editorial-empty{padding:28px 20px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);border:1.5px dashed var(--border-md);border-radius:var(--r-xl);line-height:1.6}
 /* Smart Guide 카드 */
 .smart-guide-card{background:var(--surface);border:1.5px solid var(--lime);border-radius:var(--r-xl);padding:16px;margin-bottom:12px;}
-.smart-guide-eyebrow{display:inline-flex;align-items:center;gap:5px;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--lime-fg);background:var(--lime);padding:3px 10px;border-radius:var(--r-full);margin-bottom:10px;}
+.smart-guide-eyebrow{display:inline-flex;align-items:center;gap:5px;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--lime-fg);background:var(--lime);padding:3px 10px;border-radius:var(--r-full);margin-bottom:10px;}
 .smart-guide-name{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .smart-guide-meta{font-size:11px;color:var(--mist);margin-bottom:12px;}
 .smart-guide-btns{display:flex;gap:8px;}
@@ -346,16 +360,17 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .smart-guide-skip{flex:1;height:42px;background:none;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--mist);cursor:pointer;}
 .smart-guide-skip:active{opacity:.8;}
 /* Record look row */
-.record-look-row{margin-top:14px;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);padding:16px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#fff;transition:background .2s}
+.record-look-row{margin-top:14px;margin-bottom:20px;border:1.5px dashed var(--border-md);border-radius:var(--r-full);min-height:52px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#fff;transition:background .2s}
 .record-look-row:active{background:var(--surface-low)}
 .record-look-icon{width:36px;height:36px;background:var(--surface-mid);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.record-look-text{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);flex:1}
+.record-look-text{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mist);flex:1}
 .record-look-plus{width:30px;height:30px;background:var(--lime);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;color:var(--ink);flex-shrink:0;font-weight:300}
-.record-logged-card{border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;display:flex;align-items:center;gap:12px;margin-top:14px;cursor:pointer;background:#fff;box-shadow:var(--shadow)}
-.record-logged-thumb{width:52px;height:52px;border-radius:var(--r-md);background:var(--surface-mid);background-size:auto 100%;background-position:center;background-repeat:no-repeat;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;opacity:.4}
-.record-logged-info{flex:1;min-width:0}
-.record-logged-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.record-logged-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:#4caf78;margin-top:3px}
+.record-logged-card{margin-top:14px;margin-bottom:20px;border:1.5px solid #4caf78;border-radius:var(--r-full);min-height:52px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#fff;transition:background .2s}
+.record-logged-card:active{background:var(--surface-low)}
+.record-logged-thumb{width:36px;height:36px;border-radius:var(--r-full);background:var(--surface-mid);background-size:auto 100%;background-position:center;background-repeat:no-repeat;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.4}
+.record-logged-info{flex:1;min-width:0;display:flex;align-items:center;white-space:nowrap;overflow:hidden}
+.record-logged-name{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;flex-shrink:1}
+.record-logged-badge{font-size:10px;font-weight:700;color:#4caf78}
 .record-logged-del{width:28px;height:28px;border-radius:var(--r-full);border:none;background:var(--surface-low);color:var(--mist);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .record-logged-del:active{background:#fee2e2;color:#ef4444}
 .ootd-rec-del{width:100%;height:44px;background:none;border:1.5px solid #fee2e2;color:#ef4444;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;letter-spacing:.02em}
@@ -364,11 +379,47 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .allday-top-label{display:none}
 .allday-section{padding:28px 0 0;display:flex;flex-direction:column;gap:0}
 .allday-section-hd{padding:0 16px;margin-bottom:12px;gap:0}
-.allday-title{font-size:22px}
-.allday-top-edit{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.allday-item{border-radius:0;border:none;border-bottom:1px solid var(--border);box-shadow:none;padding:13px 16px}
-.allday-item:first-of-type{border-top:1px solid var(--border)}
-.allday-item-chip{background:var(--surface-low);padding:3px 10px;border-radius:var(--r-full);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:var(--sub);white-space:nowrap}
+
+.allday-top-edit{font-size:11px;font-weight:700;letter-spacing:.04em}
+#allday-items{background:#FFFFFF;border-radius:var(--r-xl);overflow:hidden;margin:0 16px;box-shadow:0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)}
+.allday-item{border-radius:0;border:none;border-bottom:1px solid var(--border);box-shadow:none;padding:13px 16px;background:#FFFFFF;transition:background .18s;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.allday-item:first-of-type{border-top:none}
+.allday-item:last-of-type{border-bottom:none}
+.allday-item.done{background:var(--surface-low)}
+.allday-item-left{display:flex;align-items:center;gap:10px}
+/* Checkbox — colorful per item */
+.allday-cb{width:16px;height:16px;border-radius:4px;border:2px solid var(--border-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;background:#fff}
+.allday-cb.cb-blue  {border-color:#3478F6}
+.allday-cb.cb-green {border-color:#34A853}
+.allday-cb.cb-amber {border-color:#F5A01E}
+.allday-cb.cb-red   {border-color:#E53935}
+.allday-cb.cb-purple{border-color:#9B59B6}
+.allday-item.done .allday-cb.cb-blue  {background:#3478F6;border-color:#3478F6}
+.allday-item.done .allday-cb.cb-green {background:#34A853;border-color:#34A853}
+.allday-item.done .allday-cb.cb-amber {background:#F5A01E;border-color:#F5A01E}
+.allday-item.done .allday-cb.cb-red   {background:#E53935;border-color:#E53935}
+.allday-item.done .allday-cb.cb-purple{background:#9B59B6;border-color:#9B59B6}
+/* Emoji icon */
+.allday-item-icon{font-size:19px;line-height:1;flex-shrink:0;width:26px;text-align:center}
+/* Name */
+.allday-item-name{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--ink);transition:all .18s}
+.allday-item.done .allday-item-name{text-decoration:line-through;color:var(--mist)}
+/* Chip */
+.allday-item-chip{background:var(--surface-low);padding:3px 10px;border-radius:var(--r-full);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--sub);white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:3px}
+.allday-item-chip.alarm-on{background:rgba(197,255,0,.2);color:#5A7000}
+/* Alarm popup overlay */
+#alarm-popup{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.48);align-items:flex-end;justify-content:center}
+#alarm-popup.open{display:flex;animation:alarm-fadein .22s ease}
+@keyframes alarm-fadein{from{opacity:0}to{opacity:1}}
+.alarm-sheet{width:100%;max-width:390px;background:#fff;border-radius:28px 28px 0 0;padding:16px 24px 48px;text-align:center}
+.alarm-sheet-pill{width:36px;height:4px;background:var(--border-md);border-radius:2px;margin:0 auto 20px}
+.alarm-pop-badge{display:inline-block;padding:5px 14px;background:var(--lime);border-radius:var(--r-full);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--lime-fg);margin-bottom:16px}
+.alarm-pop-icon{font-size:56px;line-height:1;margin-bottom:12px}
+.alarm-pop-name{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
+.alarm-pop-time{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--mist);letter-spacing:.08em;margin-bottom:28px}
+.alarm-dismiss-btn{width:100%;padding:15px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-lg);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.04em}
+.alarm-dismiss-btn:active{opacity:.8}
+@keyframes alarmring{0%{transform:rotate(-12deg)}100%{transform:rotate(12deg)}}
 @media(pointer:coarse),(max-width:430px){input,textarea,select{font-size:16px!important}button{min-height:44px}}
 </style>
 </head>
@@ -392,11 +443,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
     <!-- Weather Row -->
     <div class="weather-row">
       <div class="mascot-card" id="weather-mascot">🌿</div>
-      <div class="weather-card">
-        <div class="weather-label">Weather</div>
-        <div class="weather-main-text" id="weather-main-text">로딩 중...</div>
-        <div class="weather-arrow">→</div>
-      </div>
+      <div class="weather-main-text" id="weather-main-text">로딩 중...</div>
     </div>
 
     <!-- Session Hero (이미지 기준: 12TH SESSION + 날짜 + 도트) -->
@@ -408,8 +455,8 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
     <!-- #FLOW header -->
     <div class="hash-row">
-      <div class="hash-label">#루틴</div>
-      <div class="hash-sub" id="flow-slot-label">MORNING RITUAL</div>
+      <div class="hash-label">#Flow</div>
+      <div class="hash-sub" id="flow-slot-label">MORNING</div>
     </div>
 
     <!-- hidden compat elements (JS 참조용, 화면에 미표시) -->
@@ -427,13 +474,13 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
       <!-- Step info row: Step1 · 1/N -->
       <div class="flow-step-info">
         <div class="flow-step-label">
-          <span id="flow-step-badge-icon">Step1</span>
+          <span id="flow-step-badge-icon">Day1</span>
           <span class="flow-step-label-icon" id="flow-step-name-icon">◈</span>
         </div>
         <span class="flow-step-count" id="flow-step-count"></span>
       </div>
       <!-- EXPERT TIP -->
-      <div class="flow-expert-tip" id="flow-expert-tip" style="display:none;margin:0 0 0 0">
+      <div class="flow-expert-tip" id="flow-expert-tip" style="display:none">
         <div class="flow-tip-header">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
           EXPERT TIP
@@ -441,7 +488,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <div class="flow-tip-text" id="flow-tip-text"></div>
       </div>
       <div class="flow-step-body">
-        <a class="flow-edit-link" href="javascript:void(0)" onclick="goToRoutineSetup()">Edit routine →</a>
+        <a class="flow-edit-link" href="javascript:void(0)" onclick="goToRoutineSetup()">Edit →</a>
       </div>
     </div>
 
@@ -456,7 +503,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
     <!-- Special Care -->
     <div class="editorial-section" id="care-today-section" style="display:none">
       <div class="editorial-hd">
-        <div class="editorial-hd-tag">#집중케어</div>
+        <div class="editorial-hd-tag">#INTENSIVE CARE</div>
         <a class="editorial-hd-sub" href="setup.html?panel=care">Edit →</a>
       </div>
       <div id="care-today-wrap"></div>
@@ -475,9 +522,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
     </div>
 
     <!-- #MOTD section -->
-    <div class="editorial-section">
+    <div class="editorial-section" id="motd-editorial-section">
       <div class="editorial-hd">
-        <div class="editorial-hd-tag">#메이크업</div>
+        <div class="editorial-hd-tag">#MAKEUP</div>
         <a class="editorial-hd-sub" href="log.html?tab=makeup" id="motd-hd-sub">Edit →</a>
       </div>
       <div id="smart-guide-motd"></div>
@@ -486,19 +533,18 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
     </div>
 
     <!-- #OOTD section -->
-    <div class="editorial-section" style="padding-bottom:0">
+    <div class="editorial-section" id="ootd-editorial-section" style="padding-bottom:0">
       <div class="editorial-hd">
-        <div class="editorial-hd-tag">#오늘의 룩</div>
+        <div class="editorial-hd-tag">#Today LOOK</div>
         <a class="editorial-hd-sub" href="log.html?tab=lookbook" id="ootd-hd-sub">Edit →</a>
       </div>
       <div id="smart-guide-ootd"></div>
       <div id="ootd-editorial-block"></div>
       <div id="ootd-log-wrap"></div>
     </div>
+  </div><!-- /scroll -->
 
-    <div style="height:20px"></div>
-
-    <div class="app-nav"></div>
+  <div class="app-nav"></div>
 
   <!-- OOTD Record Sheet -->
   <!-- OOTD Theme Picker Sheet -->
@@ -571,6 +617,18 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
       </div>
     </div>
   </div>
+
+  <!-- Alarm Popup -->
+  <div id="alarm-popup" onclick="if(event.target===this)closeAlarmPopup()">
+    <div class="alarm-sheet">
+      <div class="alarm-sheet-pill"></div>
+      <div class="alarm-pop-badge" id="alarm-pop-badge">⏰ 10분 전</div>
+      <div class="alarm-pop-icon" id="alarm-pop-icon">⏰</div>
+      <div class="alarm-pop-name" id="alarm-pop-name"></div>
+      <div class="alarm-pop-time" id="alarm-pop-time"></div>
+      <button class="alarm-dismiss-btn" onclick="closeAlarmPopup()">확인</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -607,13 +665,24 @@ firebase.auth().onAuthStateChanged(user => {
           }
           return;
         }
-        const data = snap.data();
+        const data  = snap.data();
         const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+        const localSession = parseInt(local.session) || 0;
+        const cloudSession = parseInt(data.session)  || 0;
         const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
-        const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
-        if (cloudTs >= localTs) {
+        const cloudTs = data.savedAt  ? new Date(data.savedAt).getTime()  : 0;
+        const useCloud = cloudSession > localSession ||
+                         (cloudSession === localSession && cloudTs >= localTs);
+        if (useCloud) {
           localStorage.setItem(DB_KEY, JSON.stringify(data));
           loadPlan(data);
+        } else {
+          // 로컬 세션이 더 높으면 Firestore에 업로드해서 동기화 유지
+          if (localSession > cloudSession && local.savedAt && currentUser) {
+            fbDb.collection('users').doc(currentUser.uid)
+              .collection('careplan').doc('data').set(local).catch(() => {});
+          }
+          loadPlan(local);
         }
       }, e => console.warn(e));
     // extra/data(테마·룩) 실시간 동기화
@@ -729,9 +798,21 @@ document.addEventListener('visibilitychange', async () => {
     if (snap.exists) {
       const data = snap.data();
       const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+      const localSession = parseInt(local.session) || 0;
+      const cloudSession = parseInt(data.session)  || 0;
       const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
       const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
-      if (cloudTs >= localTs) { localStorage.setItem(DB_KEY, JSON.stringify(data)); loadPlan(data); }
+      const useCloud = cloudSession > localSession ||
+                       (cloudSession === localSession && cloudTs >= localTs);
+      if (useCloud) {
+        localStorage.setItem(DB_KEY, JSON.stringify(data));
+        loadPlan(data);
+      } else {
+        if (localSession > cloudSession && local.savedAt && currentUser) {
+          fbDb.collection('users').doc(currentUser.uid)
+            .collection('careplan').doc('data').set(local).catch(() => {});
+        }
+      }
     }
   } catch(e) {}
   loadExtraFromCloud(currentUser.uid);
@@ -851,10 +932,7 @@ const CAT_LABEL = {
 };
 
 function getTimePeriod() {
-  const h = new Date().getHours();
-  if (h>=5&&h<17) return 'am';   // 5시~17시: 모닝 루틴
-  if (h>=17&&h<21) return 'eve'; // 17시~21시: 나이틀리 루틴
-  return 'night';                 // 21시~5시: 나이틀리 루틴
+  return new Date().getHours() < 12 ? 'am' : 'pm';
 }
 function getTodayKey()      { return new Date().toISOString().slice(0,10); }
 function calcCurrentDay(s)  { return s ? Math.max(1,Math.floor((new Date()-new Date(s))/86400000)+1) : 1; }
@@ -1011,7 +1089,7 @@ function getActiveCycleRoutine(slotData, plan) {
 function renderFlowSession(plan) {
   const period = getTimePeriod();
   const slotLbl = document.getElementById('flow-slot-label');
-  if (slotLbl) slotLbl.textContent = period==='am'?'MORNING RITUAL':'NIGHT RITUAL';
+  if (slotLbl) slotLbl.textContent = period==='am' ? 'MORNING' : 'NIGHT';
 
   if (!plan) { buildHeroDots(1,10); return; }
   const n   = Number(plan.session||1);
@@ -1020,7 +1098,7 @@ function renderFlowSession(plan) {
 
   // Session hero title: "12TH SESSION"
   const titleEl = document.getElementById('session-hero-title');
-  if (titleEl) titleEl.textContent = `${n}${getSuffix(n).toUpperCase()} SESSION`;
+  if (titleEl) titleEl.textContent = `No.${n} SESSION`;
 
   // Session hero date: "2026.4.10-4.20"
   const dateEl = document.getElementById('session-hero-date');
@@ -1092,7 +1170,7 @@ function renderFlowHeroStep(plan) {
   const prodItems = products.filter(p => (p.type||'product') === 'product');
   const badgeEl  = document.getElementById('flow-step-badge-icon');
   const countEl  = document.getElementById('flow-step-count');
-  if (badgeEl) badgeEl.textContent = `Step${activeId}`;
+  if (badgeEl) badgeEl.textContent = `Day${activeId}`;
   if (countEl) countEl.textContent = prodItems.length ? `${prodItems.length} STEPS` : '';
 
   // Product carousel (compact multi-card) — supports typed items (product / desc / plus)
@@ -1101,9 +1179,6 @@ function renderFlowHeroStep(plan) {
     if (!products.length) {
       strip.innerHTML = `<div style="padding:20px 16px;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);line-height:1.6">루틴 제품이 없습니다<br><a href="setup.html" style="font-size:11px;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:.06em;text-transform:uppercase">SET UP ROUTINE →</a></div>`;
     } else {
-      const slotIcon = slot === 'morning'
-        ? `<div class="flow-slot-badge morning">☀️</div>`
-        : `<div class="flow-slot-badge night">🌙</div>`;
       strip.innerHTML = products.map(p => {
         const t = p.type || 'product';
         if (t === 'plus') return `<div class="care-tag-plus">+</div>`;
@@ -1113,7 +1188,6 @@ function renderFlowHeroStep(plan) {
         return `
           <div class="flow-prod-item${isDone?' done':''}" onclick="toggleProdDone(${JSON.stringify(p.name)},'${slot}')">
             <div class="flow-prod-img"${imgSrc?` style="background-image:url(${imgSrc})"`:''}>
-              ${slotIcon}
               ${!imgSrc ? `<span class="flow-prod-emoji">${p.icon||'✨'}</span>` : ''}
               <div class="flow-prod-check">✓</div>
             </div>
@@ -1188,15 +1262,19 @@ function handleMainRoutineBtn() {
   const doneKey = `onstep_flow_done_${today}_${slot}`;
   const doneList= JSON.parse(localStorage.getItem(doneKey)||'[]');
   if (doneList.length >= realProducts.length) {
-    showToast('루틴 완료! ✓');
+    // 완료 상태 → 취소 (undo)
+    localStorage.removeItem(doneKey);
+    showToast('루틴 완료가 취소됐습니다');
+    renderFlowHeroStep(plan);
     return;
   }
 
-  // Mark all remaining products done at once
+  // 미완료 → 전체 완료 처리
   realProducts.forEach(p => { if (!doneList.includes(p.name)) doneList.push(p.name); });
   localStorage.setItem(doneKey, JSON.stringify(doneList));
   recordBoxUsage(realProducts);
   renderFlowHeroStep(plan);
+  showToast('루틴 완료! ✓');
 }
 
 // ── Special Care Today ────────────────────────────────────────
@@ -1219,62 +1297,90 @@ function renderCareToday() {
   wrap.innerHTML = active.map(t => {
     const heroImg = t.baselineImg || t.storageUrl || '';
     const allItems = t.items || [];
-    const grid = allItems.slice(0, 12).map(p => {
-      if (p.type === 'plus') return `<div class="care-tag-plus">+</div>`;
-      if (p.type === 'desc') return `<div class="care-tag-desc">${p.text||''}</div>`;
+
+    const rowHtml = allItems.slice(0, 12).map(p => {
+      if (p.type === 'plus') {
+        return `<div class="care-prod-item care-item-plus"><div class="care-plus-circle">+</div></div>`;
+      }
+      if (p.type === 'desc') {
+        return `<div class="care-prod-item care-item-desc"><div class="care-desc-text">${p.text||''}</div></div>`;
+      }
       const asset = assets.find(a => a.id === p.assetId);
-      const img = asset?.imgData || asset?.storageUrl || p.imgData || p.storageUrl || '';
-      const loc = asset?.locKey ? locs.find(l => l.key === asset.locKey) : null;
-      return `<div class="ed-prod-card">
-        <div class="ed-prod-img"${img ? ` style="background-image:url(${img})"` : ''}>
-          ${!img ? `<span style="font-size:28px;opacity:.25">${t.emoji||'✦'}</span>` : ''}
-        </div>
-        <div class="ed-prod-name">${asset?.name||p.name||''}</div>
-        ${loc ? `<div class="ed-prod-loc">◎ ${loc.name}</div>` : ''}
+      const img   = asset?.imgData || asset?.storageUrl || p.imgData || p.storageUrl || '';
+      const name  = asset?.name || p.name || '';
+      const emoji = asset?.icon || p.icon || t.emoji || '✦';
+      return `<div class="care-prod-item">
+        <div class="care-prod-thumb"${img ? ` style="background-image:url(${img})"` : ''}>${!img ? `<span>${emoji}</span>` : ''}</div>
+        <div class="care-prod-label">${name}</div>
       </div>`;
     }).join('');
 
-    const nameLine = isMulti
-      ? `<div class="care-block-name"><span class="care-block-name-emoji">${t.emoji||'✦'}</span><span>${t.name}</span></div>`
-      : '';
-    const badge = !isMulti
-      ? `<div class="editorial-badge">${t.emoji||'✦'} ${t.name}</div>`
-      : '';
-
-    return `<div class="care-block${isMulti ? ' care-block-multi' : ''}">
-      ${nameLine}
+    return `<div class="care-block care-card${isMulti ? ' care-block-multi' : ''}">
       <div class="care-hero"${heroImg ? ` style="background-image:url(${heroImg})"` : ''}>
-        ${!heroImg ? `<span style="font-size:${isMulti ? 32 : 44}px;opacity:.2">${t.emoji||'✦'}</span>` : ''}
-        ${badge}
+        ${!heroImg ? `<span class="care-hero-emoji-float">${t.emoji||'✦'}</span>` : ''}
+        <div class="care-hero-overlay"></div>
+        <div class="care-hero-name">${t.emoji ? t.emoji+' ' : ''}${t.name||''}</div>
       </div>
-      ${grid ? `<div class="editorial-prod-grid care-prod-grid">${grid}</div>` : ''}
+      ${rowHtml ? `<div class="care-prod-row">${rowHtml}</div>` : ''}
     </div>`;
   }).join('');
 }
 
 // ── ALL DAY / Routine Tracker ─────────────────────────────────
 const TRACKER_KEY = 'onstep_tracker_items';
+
+const _HABIT_ICON_MAP = [
+  ['비타민','💊'],['약','💊'],['영양제','💊'],['철분','💊'],['유산균','🦠'],
+  ['오메가','🐟'],['콜라겐','🌸'],['마그네슘','💎'],
+  ['물','💧'],['수분','💧'],['워터','💧'],
+  ['운동','🏃'],['헬스','🏋️'],['산책','🚶'],['달리기','🏃'],['걷기','🚶'],
+  ['요가','🧘'],['명상','🧘'],['스트레칭','🤸'],['필라테스','🤸'],
+  ['수면','😴'],['잠','😴'],['취침','😴'],
+  ['독서','📖'],['책','📖'],['일기','📝'],['영어','📚'],['공부','📚'],
+  ['커피','☕'],['차','🍵'],['음식','🥗'],['식사','🍽️'],['선크림','☀️'],['자외선','☀️']
+];
+function getHabitIcon(icon, name) {
+  if (icon && icon.trim()) return icon.trim();
+  for (const [k, v] of _HABIT_ICON_MAP) { if ((name||'').includes(k)) return v; }
+  return '✦';
+}
+
 function renderAllDay() {
-  const items    = JSON.parse(localStorage.getItem(TRACKER_KEY)||'[]');
+  const items    = JSON.parse(localStorage.getItem(TRACKER_KEY)||'[]')
+    .sort((a,b) => {
+      const ta = (a.time && a.time !== '00:00') ? a.time : '99:99';
+      const tb = (b.time && b.time !== '00:00') ? b.time : '99:99';
+      return ta.localeCompare(tb);
+    });
   const checksKey= `onstep_ex_checks_${getTodayKey()}`;
   const checks   = JSON.parse(localStorage.getItem(checksKey)||'{}');
   const listEl   = document.getElementById('allday-items');
   if (!listEl) return;
 
+  const section = listEl.closest('.allday-section');
   if (!items.length) {
-    listEl.innerHTML = '<div class="allday-empty">"Setup에서 데일리 루틴을 등록하세요."</div>';
+    if (section) section.style.display = 'none';
+    listEl.innerHTML = '';
     return;
   }
-  listEl.innerHTML = items.map(it => {
-    const done = !!checks[it.id];
-    const timeDisp = it.time ? fmtAllDayTime(it.time) : '';
-    const chipContent = timeDisp || (it.alarm ? '🔔' : '');
+  if (section) section.style.display = '';
+  const CB_COLORS = ['cb-blue','cb-green','cb-amber','cb-red','cb-purple'];
+  listEl.innerHTML = items.map((it, idx) => {
+    const done     = !!checks[it.id];
+    const icon     = getHabitIcon(it.icon, it.name);
+    const timeDisp = (it.time && it.time !== '00:00') ? fmtAllDayTime(it.time) : '';
+    const chipCls  = it.alarm ? 'alarm-on' : '';
+    const cbColor  = CB_COLORS[idx % CB_COLORS.length];
+    const check    = done
+      ? '<svg width="8" height="6" viewBox="0 0 12 9" fill="none"><path d="M1 4.5L4.5 8L11 1" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '';
     return `<div class="allday-item${done?' done':''}" onclick="toggleAllDay('${it.id}')">
       <div class="allday-item-left">
-        <div class="allday-dot"><div class="allday-dot-inner"></div></div>
+        <div class="allday-cb ${cbColor}">${check}</div>
+        <div class="allday-item-icon">${icon}</div>
         <div class="allday-item-name">${it.name}</div>
       </div>
-      ${chipContent ? `<div class="allday-item-chip" id="allday-chip-${it.id}">${it.alarm?`<span id="allday-alarm-${it.id}">${timeDisp||'🔔'}</span>`:timeDisp}</div>` : ''}
+      ${timeDisp ? `<div class="allday-item-chip ${chipCls}" id="allday-chip-${it.id}">${it.alarm?'🔔 ':''}${timeDisp}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -1290,41 +1396,63 @@ function toggleAllDay(id) {
 function fmtAllDayTime(t) {
   if (!t) return '';
   const [h, m] = t.split(':').map(Number);
-  const ap = h >= 12 ? 'PM' : 'AM';
-  const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
 }
 
 // ── Tracker Alarms ────────────────────────────────────────────
 function checkTrackerAlarms() {
   const items = JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]');
-  if (!items.some(it => it.alarm)) return;
-
-  const now  = new Date();
-  const hh   = String(now.getHours()).padStart(2,'0');
-  const mm   = String(now.getMinutes()).padStart(2,'0');
-  const cur  = `${hh}:${mm}`;
+  if (!items.length) return;
+  const checksKey = `onstep_ex_checks_${getTodayKey()}`;
+  const checks    = JSON.parse(localStorage.getItem(checksKey) || '{}');
+  const now       = new Date();
+  const nowMins   = now.getHours() * 60 + now.getMinutes();
 
   items.forEach(it => {
-    if (!it.alarm || it.time !== cur) return;
-    const nKey = `onstep_alarm_fired_${it.id}_${cur}_${getTodayKey()}`;
-    if (localStorage.getItem(nKey)) return;
-    localStorage.setItem(nKey, '1');
+    if (!it.alarm || !it.time) return;
+    if (checks[it.id]) return; // 이미 완료
+    const [h, m]    = it.time.split(':').map(Number);
+    const habitMins = h * 60 + m;
+    const diff      = habitMins - nowMins;
 
-    // Ring animation
-    const iconEl = document.getElementById(`allday-alarm-${it.id}`);
-    if (iconEl) { iconEl.classList.add('ringing'); setTimeout(() => iconEl.classList.remove('ringing'), 5000); }
-
-    // Web Notification
-    if ('Notification' in window && Notification.permission === 'granted') {
-      try {
-        new Notification(`⏰ ${it.name}`, { body: `OnStep · ${fmtAllDayTime(it.time)} 알림`, icon: 'favicon.png' });
-      } catch(e) {}
+    if (diff === 10) {
+      const k = `onstep_alarm_10_${it.id}_${getTodayKey()}`;
+      if (localStorage.getItem(k)) return;
+      localStorage.setItem(k, '1');
+      showAlarmPopup(it, 10);
+    }
+    if (diff === 0) {
+      const k = `onstep_alarm_0_${it.id}_${getTodayKey()}`;
+      if (localStorage.getItem(k)) return;
+      localStorage.setItem(k, '1');
+      showAlarmPopup(it, 0);
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try { new Notification(`⏰ ${it.name}`, { body: `OnStep · ${fmtAllDayTime(it.time)}`, icon: 'logo.png' }); } catch(e) {}
+      }
     }
   });
 }
 
-// Request notification permission once and start alarm interval
+function showAlarmPopup(habit, minsBefore) {
+  const popup = document.getElementById('alarm-popup');
+  if (!popup) return;
+  const icon = getHabitIcon(habit.icon, habit.name);
+  document.getElementById('alarm-pop-badge').textContent =
+    minsBefore > 0 ? `⏰ ${minsBefore}분 전 알람` : '⏰ 지금 시작!';
+  document.getElementById('alarm-pop-icon').textContent  = icon;
+  document.getElementById('alarm-pop-name').textContent  = habit.name;
+  document.getElementById('alarm-pop-time').textContent  = fmtAllDayTime(habit.time);
+  popup.classList.add('open');
+  clearTimeout(window._alarmTimer);
+  window._alarmTimer = setTimeout(closeAlarmPopup, 30000);
+}
+
+function closeAlarmPopup() {
+  const popup = document.getElementById('alarm-popup');
+  if (popup) popup.classList.remove('open');
+  clearTimeout(window._alarmTimer);
+}
+
 (function initAlarms() {
   if ('Notification' in window && Notification.permission === 'default') {
     if (JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]').some(it => it.alarm)) {
@@ -1332,7 +1460,7 @@ function checkTrackerAlarms() {
     }
   }
   setInterval(checkTrackerAlarms, 30000);
-  checkTrackerAlarms(); // run immediately on load
+  checkTrackerAlarms();
 })();
 
 // ── v2 마이그레이션: 3개 저장소 → 2개 통합 ──────────────────
@@ -1383,13 +1511,18 @@ function renderTodayMakeup() {
   const plan  = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
   const block = document.getElementById('motd-theme-block');
   if (!block) return;
+  const motdSection = document.getElementById('motd-editorial-section');
   const theme = getTodaysScheduledTheme(plan);
   if (!theme) {
-    block.innerHTML = `<div class="editorial-empty">오늘 지정된 메이크업 테마가 없습니다.<br><button onclick="openMOTDPicker()" style="all:unset;color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px">라이브러리에서 등록 →</button></div>`;
+    block.innerHTML = '';
     const logWrap = document.getElementById('motd-log-wrap');
     if (logWrap) logWrap.innerHTML = '';
+    const smartGuide = document.getElementById('smart-guide-motd');
+    const hasSmartGuide = smartGuide && smartGuide.innerHTML.trim() !== '';
+    if (motdSection) motdSection.style.display = hasSmartGuide ? '' : 'none';
     return;
   }
+  if (motdSection) motdSection.style.display = '';
   const today = getTodayKey();
   const doneSet = new Set(JSON.parse(localStorage.getItem(`onstep_motd_done_${today}`) || '[]'));
   const products = theme.products || [];
@@ -1612,6 +1745,8 @@ function _renderSmartGuideFor(type, elId) {
   const todayDow = new Date().getDay();
   const dowNames = ['일','월','화','수','목','금','토'];
   const muse = _getBestAutoMuse(type);
+  const sectionId = type === 'MOTD' ? 'motd-editorial-section' : 'ootd-editorial-section';
+  const parentSection = document.getElementById(sectionId);
   if (muse) {
     const log = muse.scheduleLog || [];
     const dowCount = log.filter(e => new Date(e.date + 'T00:00:00').getDay() === todayDow).length;
@@ -1626,6 +1761,7 @@ function _renderSmartGuideFor(type, elId) {
         <button type="button" class="smart-guide-skip" onclick="skipSmartGuide(${muse.id},'${elId}')">건너뛰기</button>
       </div>
     </div>`;
+    if (parentSection) parentSection.style.display = '';
     return;
   }
   if (type === 'OOTD') {
@@ -1644,6 +1780,7 @@ function _renderSmartGuideFor(type, elId) {
           <button type="button" class="smart-guide-skip" onclick="skipSmartLook('${look.date}','${elId}')">건너뛰기</button>
         </div>
       </div>`;
+      if (parentSection) parentSection.style.display = '';
       return;
     }
   }
@@ -1743,41 +1880,46 @@ function skipSmartLook(histId, elId) {
 function renderTodayOOTD() {
   const block = document.getElementById('ootd-editorial-block');
   if (!block) return;
+  const ootdSection = document.getElementById('ootd-editorial-section');
   const lookTheme = getTodaysScheduledLook();
   if (!lookTheme) {
-    block.innerHTML = `<div class="editorial-empty">오늘 지정된 룩 테마가 없습니다.<br><button onclick="openOOTDPicker()" style="all:unset;color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px">라이브러리에서 등록 →</button></div>`;
-    renderOOTDLogCard();
+    block.innerHTML = '';
+    const todayLooks = JSON.parse(localStorage.getItem(LOOKS_KEY)||'[]');
+    const todayLook  = todayLooks.find(l=>l.date===getTodayKey())||null;
+    const logWrap    = document.getElementById('ootd-log-wrap');
+    const smartGuide = document.getElementById('smart-guide-ootd');
+    const hasSmartGuide = smartGuide && smartGuide.innerHTML.trim() !== '';
+    if (todayLook?.logged) {
+      if (ootdSection) ootdSection.style.display = '';
+      renderOOTDLogCard();
+    } else if (hasSmartGuide) {
+      if (ootdSection) ootdSection.style.display = '';
+      if (logWrap) logWrap.innerHTML = '';
+    } else {
+      if (logWrap) logWrap.innerHTML = '';
+      if (ootdSection) ootdSection.style.display = 'none';
+    }
     return;
   }
+  if (ootdSection) ootdSection.style.display = '';
   const heroImg = lookTheme.baselineImg || lookTheme.storageUrl || '';
-  const items = lookTheme.products || lookTheme.items || [];
-  const _ootdAssets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
-  const _ootdLocs   = JSON.parse(localStorage.getItem('onstep_box_locations') || '[]');
-  const grid = items.map(p => {
+  const items = (lookTheme.products || lookTheme.items || []).filter(p => p.type !== 'plus' && p.type !== 'desc');
+  const thumbs = items.map(p => {
     const img = p.imgData || getBoxImgForProduct(p) || '';
-    let asset = p.assetId ? _ootdAssets.find(a => a.id === p.assetId) : null;
-    if (!asset && p.name) asset = _ootdAssets.find(a =>
-      a.name?.toLowerCase() === p.name?.toLowerCase() &&
-      (!p.brand || a.brand?.toLowerCase() === p.brand?.toLowerCase())
-    );
-    const loc    = asset?.locKey ? _ootdLocs.find(l => l.key === asset.locKey) : null;
-    const locTag = loc?.name ? `<div class="ed-prod-loc">◎ ${loc.name}</div>` : '';
-    return `<div class="ed-prod-card">
-      <div class="ed-prod-img"${img?` style="background-image:url(${img})"`:''}>
-        ${!img?`<span style="font-size:28px;opacity:.25">👗</span>`:''}
-      </div>
-      <div class="ed-prod-cat">${(p.category||p.step||'').toUpperCase()}</div>
-      <div class="ed-prod-name">${p.name||''}</div>
-      ${locTag}
+    return `<div class="ootd-thumb-item"${img?` style="background-image:url(${img})"`:''}>
+      ${!img?`<span style="font-size:22px;opacity:.25">👗</span>`:''}
     </div>`;
   }).join('');
   block.innerHTML = `
-    <div class="editorial-hero"${heroImg?` style="background-image:url(${heroImg})"`:''}>
-      ${!heroImg?`<span style="font-size:44px;opacity:.2">👗</span>`:''}
-      <div class="editorial-badge">EDITORIAL CHOICE</div>
+    <div class="ootd-main-photo"${heroImg?` style="background-image:url(${heroImg})"`:''} onclick="openOOTDRecord()">
+      ${!heroImg?`<span style="font-size:48px;opacity:.18">👗</span>`:''}
+      <div class="ootd-main-overlay">
+        <div class="ootd-main-badge">TODAY'S LOOK</div>
+        <div class="ootd-main-name">${lookTheme.name||''}</div>
+      </div>
       <a class="editorial-gear" href="log.html?tab=lookbook&id=${lookTheme.id}" onclick="event.stopPropagation()">⚙</a>
     </div>
-    ${grid?`<div class="editorial-prod-grid">${grid}</div>`:''}`;
+    ${thumbs?`<div class="ootd-thumb-row">${thumbs}</div>`:''}`;
   renderOOTDLogCard();
 }
 
@@ -1793,8 +1935,7 @@ function renderOOTDLogCard() {
     wrap.innerHTML = `<div class="record-logged-card" onclick="openOOTDRecord()">
       <div class="record-logged-thumb" ${thumb}>${!(look.mainPhoto||look.storageUrl)?'📷':''}</div>
       <div class="record-logged-info">
-        <div class="record-logged-name">"${look.note||'오늘의 룩'}"</div>
-        <div class="record-logged-badge">Logged ✓</div>
+        <span class="record-logged-badge">Logged ✓ &nbsp;</span><span class="record-logged-name">${look.note||'오늘의 룩'}</span>
       </div>
       <button type="button" class="record-logged-del" onclick="event.stopPropagation();deleteOOTDRecord()" title="삭제">✕</button>
     </div>`;
@@ -1971,8 +2112,7 @@ function renderMOTDLogCard() {
     wrap.innerHTML = `<div class="record-logged-card" onclick="openMOTDRecord()">
       <div class="record-logged-thumb" ${thumb}>${!(log.mainPhoto||log.storageUrl)?'💄':''}</div>
       <div class="record-logged-info">
-        <div class="record-logged-name">"${log.note||'오늘의 메이크업'}"</div>
-        <div class="record-logged-badge">Logged ✓</div>
+        <span class="record-logged-badge">Logged ✓ &nbsp;</span><span class="record-logged-name">${log.note||'오늘의 메이크업'}</span>
       </div>
       <button type="button" class="record-logged-del" onclick="event.stopPropagation();deleteMOTDRecord()" title="삭제">✕</button>
     </div>`;
@@ -2092,22 +2232,44 @@ const WEATHER_API_KEY = ''; // OpenWeatherMap API 키 입력 (https://openweathe
 const WEATHER_CITY    = 'Seoul';
 const WEATHER_CACHE_MS = 30 * 60 * 1000; // 30분 캐시
 
-function getWeatherMascot(code) {
-  if (!code) return '🌿';
-  if (code >= 200 && code < 300) return '⛈️';
-  if (code >= 300 && code < 400) return '🌧️';
-  if (code >= 500 && code < 600) return '🌧️';
-  if (code >= 600 && code < 700) return '❄️';
-  if (code >= 700 && code < 800) return '🌫️';
-  if (code === 800) return '☀️';
-  if (code === 801) return '🌤️';
-  if (code >= 802) return '☁️';
-  return '🌿';
+function getWeatherInfo(code) {
+  const c = code || 0;
+  // wttr.in 코드
+  if (c === 113) return {emoji:'☀️', desc:'맑음'};
+  if (c === 116) return {emoji:'🌤️', desc:'구름 조금'};
+  if (c === 119) return {emoji:'☁️', desc:'구름 많음'};
+  if (c === 122) return {emoji:'☁️', desc:'흐림'};
+  if (c === 143 || c === 248 || c === 260) return {emoji:'🌫️', desc:'안개'};
+  if (c === 176) return {emoji:'🌦️', desc:'빗방울'};
+  if (c === 179 || c === 182 || c === 185) return {emoji:'🌨️', desc:'진눈깨비'};
+  if (c === 200) return {emoji:'⛈️', desc:'뇌우'};
+  if (c === 227 || c === 230) return {emoji:'❄️', desc:'눈보라'};
+  if (c >= 263 && c <= 266) return {emoji:'🌦️', desc:'이슬비'};
+  if (c >= 281 && c <= 284) return {emoji:'🌧️', desc:'어는 비'};
+  if (c >= 293 && c <= 314) return {emoji:'🌧️', desc:'비'};
+  if (c >= 317 && c <= 320) return {emoji:'🌧️', desc:'진눈깨비'};
+  if (c >= 323 && c <= 338) return {emoji:'❄️', desc:'눈'};
+  if (c === 350 || c === 374 || c === 377) return {emoji:'❄️', desc:'싸라기눈'};
+  if (c >= 353 && c <= 359) return {emoji:'🌧️', desc:'소나기'};
+  if (c >= 362 && c <= 365) return {emoji:'🌧️', desc:'진눈깨비'};
+  if (c >= 368 && c <= 371) return {emoji:'❄️', desc:'눈 소나기'};
+  if (c === 386 || c === 389) return {emoji:'⛈️', desc:'뇌우'};
+  if (c === 392 || c === 395) return {emoji:'⛈️', desc:'뇌우·눈'};
+  // OpenWeatherMap 코드
+  if (c >= 200 && c < 300) return {emoji:'⛈️', desc:'뇌우'};
+  if (c >= 300 && c < 400) return {emoji:'🌧️', desc:'이슬비'};
+  if (c >= 500 && c < 600) return {emoji:'🌧️', desc:'비'};
+  if (c >= 600 && c < 700) return {emoji:'❄️', desc:'눈'};
+  if (c >= 700 && c < 800) return {emoji:'🌫️', desc:'안개'};
+  if (c === 800) return {emoji:'☀️', desc:'맑음'};
+  if (c === 801) return {emoji:'🌤️', desc:'구름 조금'};
+  if (c >= 802) return {emoji:'☁️', desc:'흐림'};
+  return {emoji:'🌿', desc:'맑음'};
 }
 
 async function initWeather() {
   let cached;
-  try { const d = JSON.parse(localStorage.getItem('onstep_weather_v2')||''); if (Date.now() - d.ts < WEATHER_CACHE_MS) cached = d; } catch(e) {}
+  try { const d = JSON.parse(localStorage.getItem('onstep_weather_v3')||''); if (Date.now() - d.ts < WEATHER_CACHE_MS) cached = d; } catch(e) {}
 
   if (cached) {
     renderWeather(cached); return;
@@ -2128,7 +2290,7 @@ async function initWeather() {
         desc: cur.lang_ko?.[0]?.value || cur.weatherDesc[0]?.value || '맑음',
         code: parseInt(cur.weatherCode),
       };
-      localStorage.setItem('onstep_weather_v2', JSON.stringify(w));
+      localStorage.setItem('onstep_weather_v3', JSON.stringify(w));
       renderWeather(w);
     } catch(e) {
       renderWeatherFallback();
@@ -2148,7 +2310,7 @@ async function initWeather() {
       desc: d.weather[0]?.description || '맑음',
       code: d.weather[0]?.id || 800,
     };
-    localStorage.setItem('onstep_weather_v2', JSON.stringify(w));
+    localStorage.setItem('onstep_weather_v3', JSON.stringify(w));
     renderWeather(w);
   } catch(e) {
     renderWeatherFallback();
@@ -2156,23 +2318,20 @@ async function initWeather() {
 }
 
 function renderWeather(w) {
-  const mascot  = document.getElementById('weather-mascot');
-  const mainEl  = document.getElementById('weather-main-text');
-  const h = new Date().getHours();
-  const period = h < 12 ? '아침' : h < 18 ? '오후' : '저녁';
-  if (mascot) mascot.textContent = getWeatherMascot(w.code);
-  if (mainEl) mainEl.textContent = `${period} ${w.temp}° 습도 ${w.humidity}%`;
+  const mascot = document.getElementById('weather-mascot');
+  const mainEl = document.getElementById('weather-main-text');
+  const info = getWeatherInfo(w.code);
+  if (mascot) mascot.textContent = info.emoji;
+  if (mainEl) mainEl.textContent = `${info.desc}  ${w.temp}° · 습도 ${w.humidity}%`;
   const ootdEl = document.getElementById('ootd-weather');
-  if (ootdEl) ootdEl.textContent = `${getWeatherMascot(w.code)} ${w.temp}° · 습도 ${w.humidity}%`;
+  if (ootdEl) ootdEl.textContent = `${info.emoji} ${w.temp}° · 습도 ${w.humidity}%`;
 }
 
 function renderWeatherFallback() {
   const mascot = document.getElementById('weather-mascot');
   const mainEl = document.getElementById('weather-main-text');
-  const h = new Date().getHours();
-  const period = h < 12 ? '아침' : h < 18 ? '오후' : '저녁';
   if (mascot) mascot.textContent = '🌿';
-  if (mainEl) mainEl.textContent = `${period} --° 습도 --%`;
+  if (mainEl) mainEl.textContent = `--° · 습도 --%`;
 }
 
 function showToast(msg) {
@@ -2205,6 +2364,7 @@ window.addEventListener('storage', e => {
   if(e.key==='onstep_look_contents'){   renderTodayOOTD();   renderSmartGuide(); }
   if(e.key==='onstep_looks'){           renderTodayOOTD(); }
   if(e.key==='onstep_care_themes'){     renderCareToday(); }
+  if(e.key===DB_KEY){                   loadPlan(JSON.parse(localStorage.getItem(DB_KEY)||'null')); }
 });
 </script>
 </body>

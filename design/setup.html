@@ -33,13 +33,13 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-start;padding:24px 16px 48px;font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
-.phone{width:390px;height:888px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate(0,0);}
-.notch{height:44px;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
+.phone{width:390px;height:888px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate(0,0);display:flex;flex-direction:column;}
+.notch{height:44px;flex-shrink:0;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
-.scroll{height:844px;overflow-y:auto;scrollbar-width:none;background:var(--bg);overscroll-behavior:contain}
+.scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;background:var(--bg);overscroll-behavior:contain}
 .scroll::-webkit-scrollbar{display:none}
 @media(pointer:coarse),(max-width:430px){
-  body{background:var(--bg);padding:0}
+  body{background:var(--bg);padding:0;align-items:stretch;height:100dvh;overflow:hidden;}
   .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
   .notch{flex-shrink:0;height:calc(env(safe-area-inset-top,0px) + 12px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
   .notch-bar{display:none}
@@ -63,7 +63,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .appbar-menu span{height:1.5px;background:var(--ink);border-radius:2px}
 .appbar-menu span:nth-child(2){width:68%}
 .appbar-center{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink)}
-.appbar-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink);display:flex;align-items:center;gap:8px}
+.appbar-title{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.02em;color:var(--ink);display:flex;align-items:center;gap:8px}
 .appbar-logo{width:24px;height:24px;border-radius:var(--r-sm);object-fit:cover;filter:grayscale(100%)}
 .appbar-edit{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);background:none;border:none;cursor:pointer;padding:0;letter-spacing:.02em}
 
@@ -90,7 +90,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .rs-hd-left{display:flex;align-items:center;gap:8px}
 .rs-icon{display:none}
 .rs-name{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;color:var(--ink);line-height:1;text-transform:uppercase;letter-spacing:-.01em}
-.rs-badge{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist)}
+.rs-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist)}
 
 /* Step tabs — text style with lime underline */
 .step-tabs{display:flex;gap:0;margin-bottom:0;border-bottom:1px solid var(--border)}
@@ -120,7 +120,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
   display:flex;align-items:center;justify-content:center;font-size:24px;
   overflow:hidden;background-size:100% auto;background-position:top center;background-repeat:no-repeat;
 }
-.prod-card-cat{padding:7px 7px 0;font-family:'Inter',sans-serif;font-size:7px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
+.prod-card-cat{padding:7px 7px 0;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
 .prod-card-name{padding:3px 7px 9px;font-family:'Georgia',serif;font-size:12px;font-style:italic;color:var(--ink);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .prod-card-add{
   flex-shrink:0;width:110px;
@@ -130,7 +130,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 }
 .prod-card-add:active{background:var(--surface-mid)}
 .prod-card-add-plus{font-size:22px;color:var(--border-md);font-weight:300;line-height:1}
-.prod-card-add-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--border-md)}
+.prod-card-add-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--border-md)}
 
 /* LIST toggle + dropdown */
 .prod-list-toggle{
@@ -138,11 +138,11 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
   border:1px solid var(--border-md);border-radius:var(--r-sm);
   background:none;cursor:pointer;
   display:flex;align-items:center;gap:8px;
-  font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--sub);
+  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--sub);
   transition:background .15s;
 }
 .prod-list-toggle:active{background:var(--surface-low)}
-.prod-list-count-badge{background:var(--surface-mid);color:var(--mist);padding:2px 8px;border-radius:var(--r-full);font-size:9px;font-weight:700;letter-spacing:0;margin-right:auto}
+.prod-list-count-badge{background:var(--surface-mid);color:var(--mist);padding:2px 8px;border-radius:var(--r-full);font-size:10px;font-weight:700;letter-spacing:0;margin-right:auto}
 .prod-list-toggle-arrow{font-size:14px;line-height:1;transition:transform .22s;color:var(--mist);margin-left:auto}
 .prod-list-toggle.open .prod-list-toggle-arrow{transform:rotate(180deg)}
 .prod-list-dropdown{overflow:hidden;max-height:0;transition:max-height .32s cubic-bezier(.4,0,.2,1)}
@@ -153,14 +153,14 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .prod-list-item:active{background:var(--surface-low)}
 .prod-list-img{width:40px;height:40px;border-radius:var(--r-sm);background:var(--surface-mid);flex-shrink:0;overflow:hidden;background-size:100% auto;background-position:top center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:17px}
 .prod-list-info{flex:1;min-width:0}
-.prod-list-cat{font-family:'Inter',sans-serif;font-size:7px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:2px}
+.prod-list-cat{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:2px}
 .prod-list-name{font-family:'Georgia',serif;font-size:13px;font-style:italic;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .prod-list-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .prod-list-arrow{color:var(--mist);font-size:14px;flex-shrink:0;font-weight:300}
 
 /* Before photo */
 .before-photo-wrap{margin-top:14px}
-.before-photo-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.before-photo-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .before-photo-label::after{content:'';flex:1;height:1px;background:var(--border)}
 .before-photo-area{
   width:100%;aspect-ratio:3/2;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);
@@ -176,7 +176,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .before-photo-badge{
   position:absolute;bottom:10px;right:10px;
   background:rgba(0,0,0,.55);color:#fff;
-  font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
   padding:4px 9px;border-radius:var(--r-sm);display:none;
 }
 .before-photo-area.has-img .before-photo-badge{display:block}
@@ -186,7 +186,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .empty-configure-btn{padding:11px 24px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
 /* Routine description/tips inputs */
 .routine-inputs{padding:16px 0 0;display:flex;flex-direction:column;gap:12px}
-.routine-input-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
+.routine-input-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
 .routine-input-field{width:100%;border:1.5px solid var(--border-md);border-radius:var(--r-sm);padding:10px 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none;background:var(--surface-low);resize:none;transition:border-color .2s;box-sizing:border-box}
 .routine-input-field:focus{border-color:var(--ink)}
 .routine-input-field::placeholder{color:var(--mist)}
@@ -197,7 +197,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
 /* Expert tip — lime left border */
 .tip-card{background:#F9FFE0;border:1px solid rgba(197,255,0,.35);border-left:3px solid var(--lime);border-radius:var(--r-md);padding:14px 16px 18px;margin-top:20px}
-.tip-card-hd{display:flex;align-items:center;gap:6px;margin-bottom:10px;font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
+.tip-card-hd{display:flex;align-items:center;gap:6px;margin-bottom:10px;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
 .tip-card-input{
   width:100%;border:none;outline:none;background:none;
   font-family:'Inter',sans-serif;font-size:13px;color:var(--sub);line-height:1.65;
@@ -249,7 +249,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .history-arrow{color:var(--mist);font-size:14px;flex-shrink:0;font-weight:300}
 
 /* Bottom nav */
-.bottom-nav{background:var(--bg);display:flex;border-top:1px solid rgba(0,0,0,.06);position:sticky;bottom:0;z-index:10;}
+.bottom-nav{background:var(--bg);display:flex;border-top:1px solid rgba(0,0,0,.06);}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;padding:12px 6px 20px;text-decoration:none;border-radius:20px 20px 0 0;}
 .nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#AAAAAA;}
 .nav-label{font-family:'Space Grotesk','Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#AAAAAA;}
@@ -279,7 +279,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .archive-body{flex:1;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .archive-body::-webkit-scrollbar{display:none}
 .archive-section-hd{padding:28px 20px 16px}
-.archive-hd-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:6px}
+.archive-hd-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:6px}
 .archive-hd-title{font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.01em;margin-bottom:10px}
 .archive-hd-line{width:28px;height:2px;background:var(--ink)}
 
@@ -302,10 +302,10 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ae-row.current .ae-session-num{color:var(--ink)}
 .ae-row-info{flex:1;min-width:0}
 .ae-row-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.ae-now-pill{font-family:'Inter',sans-serif;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--lime);padding:2px 7px;border-radius:9999px;flex-shrink:0}
+.ae-now-pill{font-family:'Inter',sans-serif;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--lime);padding:2px 7px;border-radius:9999px;flex-shrink:0}
 .ae-row-dates{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ae-row-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.ae-tag{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:9999px;background:var(--surface-mid);color:var(--sub);white-space:nowrap}
+.ae-tag{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:9999px;background:var(--surface-mid);color:var(--sub);white-space:nowrap}
 .ae-row.current .ae-tag{background:var(--ink);color:#fff}
 .ae-chevron{color:var(--mist);font-size:16px;line-height:1;transition:transform .2s;flex-shrink:0}
 .ae-row.expanded .ae-chevron{transform:rotate(90deg)}
@@ -317,7 +317,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ae-slot-hd{display:flex;align-items:center;gap:6px;margin-bottom:8px;margin-top:14px}
 .ae-slot-hd:first-child{margin-top:0}
 .ae-slot-icon{font-size:12px;line-height:1}
-.ae-slot-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist)}
+.ae-slot-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist)}
 .ae-step-list{display:flex;flex-direction:column;gap:1px}
 .ae-step-row{display:flex;align-items:center;gap:10px;padding:9px 10px;background:#fff;border:1px solid var(--border);border-radius:var(--r-sm)}
 .ae-step-row:first-child{border-radius:var(--r-sm) var(--r-sm) 0 0}
@@ -327,7 +327,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ae-step-info{flex:1;min-width:0}
 .ae-step-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ae-step-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px}
-.ae-step-cat{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:9999px;background:var(--surface-low);color:var(--sub);white-space:nowrap;flex-shrink:0}
+.ae-step-cat{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:9999px;background:var(--surface-low);color:var(--sub);white-space:nowrap;flex-shrink:0}
 .ae-detail-empty{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:6px 0}
 .ae-detail-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
 .ae-detail-edit-btn{width:100%;margin-top:14px;padding:12px;border:none;border-radius:var(--r-md);background:var(--ink);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
@@ -340,9 +340,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .sd-slot-section:last-child{margin-bottom:0}
 .sd-slot-hd{display:flex;align-items:center;gap:6px;padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:8px}
 .sd-slot-icon{font-size:12px;line-height:1}
-.sd-slot-label{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);flex:1}
-.sd-slot-cnt{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;color:var(--mist);background:var(--surface-mid);padding:2px 8px;border-radius:9999px}
-.sd-day-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin:8px 0 5px;opacity:.7}
+.sd-slot-label{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);flex:1}
+.sd-slot-cnt{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--mist);background:var(--surface-mid);padding:2px 8px;border-radius:9999px}
+.sd-day-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin:8px 0 5px;opacity:.7}
 .sd-name-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}
 .sd-name-bar{font-family:'Inter',sans-serif;font-size:14px;font-weight:400;color:var(--ink);background:var(--surface);border-radius:var(--r-sm);padding:8px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 
@@ -363,7 +363,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .sched-thumb-dot{position:absolute;bottom:4px;right:4px;width:6px;height:6px;border-radius:var(--r-full);background:var(--ink);display:none}
 .sched-cell.has-data .sched-thumb-dot{display:block}
 .sched-thumb-plus{font-size:18px;color:var(--border-md)}
-.sched-day-num{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--mist)}
+.sched-day-num{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--mist)}
 .sched-cell.has-data .sched-day-num{color:var(--ink)}
 /* Makeup themes */
 .mkp-theme{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:12px;transition:border-color .2s;box-shadow:var(--shadow)}
@@ -371,20 +371,20 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .mkp-theme-hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .mkp-theme-emoji{font-size:18px;line-height:1;flex-shrink:0}
 .mkp-theme-name{font-family:'Space Grotesk',sans-serif;font-size:17px;color:var(--ink);flex:1}
-.mkp-sched-badge{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:#fff;padding:3px 7px;border-radius:var(--r-sm);flex-shrink:0}
-.mkp-inspo-badge{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--surface-mid);color:var(--mist);padding:3px 7px;border-radius:var(--r-sm);flex-shrink:0}
+.mkp-sched-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:#fff;padding:3px 7px;border-radius:var(--r-sm);flex-shrink:0}
+.mkp-inspo-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--surface-mid);color:var(--mist);padding:3px 7px;border-radius:var(--r-sm);flex-shrink:0}
 .mkp-theme-desc{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);line-height:1.5;margin-bottom:10px}
 .mkp-prod-list{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
 .mkp-prod-row{display:flex;align-items:baseline;gap:6px}
-.mkp-prod-step{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--border-md);min-width:44px;flex-shrink:0}
+.mkp-prod-step{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--border-md);min-width:44px;flex-shrink:0}
 .mkp-prod-name{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--ink);flex:1}
 .mkp-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);flex-shrink:0}
-.mkp-day-label{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:7px}
+.mkp-day-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:7px}
 /* Date chips + add button */
 .mkp-date-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:2px}
-.mkp-date-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.06em;background:var(--ink);color:#fff;padding:3px 8px;border-radius:var(--r-sm)}
+.mkp-date-chip{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;background:var(--ink);color:#fff;padding:3px 8px;border-radius:var(--r-sm)}
 .mkp-date-chip.more{background:var(--surface-mid);color:var(--mist)}
-.mkp-add-date-btn{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--mist);border:1.5px dashed var(--border);background:none;padding:3px 9px;border-radius:var(--r-sm);cursor:pointer;transition:border-color .15s,color .15s}
+.mkp-add-date-btn{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mist);border:1.5px dashed var(--border);background:none;padding:3px 9px;border-radius:var(--r-sm);cursor:pointer;transition:border-color .15s,color .15s}
 .mkp-add-date-btn:active{border-color:var(--ink);color:var(--ink)}
 .mkp-del-btn{background:none;border:none;font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);cursor:pointer;padding:0;margin-top:8px;text-decoration:underline}
 /* Makeup Theme Add Sheet */
@@ -412,7 +412,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .mkp-cal-month{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:400;color:var(--ink)}
 .mkp-cal-arrow{background:none;border:none;font-size:18px;color:var(--mist);cursor:pointer;padding:4px 10px;line-height:1}
 .mkp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.mkp-cal-hd{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);text-align:center;padding:4px 0 8px}
+.mkp-cal-hd{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);text-align:center;padding:4px 0 8px}
 .mkp-cal-cell{height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);cursor:pointer;transition:background .15s;-webkit-tap-highlight-color:transparent}
 .mkp-cal-cell.empty{pointer-events:none}
 .mkp-cal-cell.today{font-weight:700}
@@ -425,7 +425,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
   display:flex;align-items:center;gap:8px;padding:12px 16px;
   background:var(--ink);border-radius:var(--r-md);margin-bottom:16px;
 }
-.step-today-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.step-today-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6)}
 .step-today-val{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--lime);flex:1;text-align:right}
 
 /* Archive bottom */
@@ -452,7 +452,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .edit-handle{width:36px;height:4px;background:var(--border-md);border-radius:2px;margin:0 auto 16px}
 .edit-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink);margin-bottom:20px}
 .edit-field-group{margin-bottom:16px}
-.edit-field-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
+.edit-field-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
 .edit-input{
   width:100%;padding:10px 12px;border:1.5px solid var(--border-md);
   border-radius:var(--r-sm);background:var(--surface-low);font-family:'Inter',sans-serif;
@@ -478,10 +478,10 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .se-body{flex:1;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .se-body::-webkit-scrollbar{display:none}
 .se-section{padding:20px 16px 0}
-.se-section-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:10px}
+.se-section-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:10px}
 .se-date-card{background:var(--surface-low);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:10px;margin-bottom:0}
 .se-field{display:flex;flex-direction:column;gap:5px}
-.se-field label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
+.se-field label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
 .se-input{width:100%;padding:10px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--ink);background:#fff;outline:none;box-sizing:border-box;transition:border-color .15s}
 .se-input:focus{border-color:var(--ink)}
 .se-date-row{display:flex;gap:8px;align-items:center}
@@ -497,7 +497,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .se-prod-info{flex:1;min-width:0}
 .se-prod-name{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .se-prod-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist)}
-.se-prod-cat{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:9999px;background:var(--surface-low);color:var(--sub);white-space:nowrap;flex-shrink:0}
+.se-prod-cat{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:9999px;background:var(--surface-low);color:var(--sub);white-space:nowrap;flex-shrink:0}
 .se-remove-btn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--mist);font-size:14px;flex-shrink:0;transition:color .15s}
 .se-remove-btn:hover{color:#E53E3E}
 .se-add-form{background:var(--surface-low);border:1.5px dashed var(--border-md);border-radius:var(--r-sm);padding:12px;margin-top:8px;display:flex;flex-direction:column;gap:8px}
@@ -521,14 +521,14 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .modal-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--ink)}
 .modal-close{width:32px;height:32px;border-radius:var(--r-sm);background:var(--surface-low);border:1px solid var(--border);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sub)}
 .form-group{margin-bottom:14px}
-.form-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
+.form-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
 .form-input{width:100%;padding:10px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);background:var(--surface-low);font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);outline:none;transition:border-color .2s}
 .form-input:focus{border-bottom-color:var(--ink)}
 .form-input::placeholder{color:var(--mist)}
 .category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
 .cat-btn{padding:10px 4px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface-low);text-align:center;cursor:pointer;transition:all .2s}
 .cat-btn .cat-icon{font-size:18px;display:block;margin-bottom:3px}
-.cat-btn .cat-name{font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sub)}
+.cat-btn .cat-name{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sub)}
 .cat-btn.selected{border-color:var(--ink);background:var(--surface)}
 .cat-btn.selected .cat-name{color:var(--ink)}
 .prod-img-area{height:72px;border:1.5px dashed var(--border-md);border-radius:var(--r-sm);cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--surface-low)}
@@ -569,8 +569,8 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
 /* 카테고리 편집/추가 */
 .cat-section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.cat-edit-toggle{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);background:var(--surface-low);border:1px solid var(--border);border-radius:var(--r-sm);padding:4px 9px;cursor:pointer}
-.cat-add-toggle{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lime-fg);background:var(--lime);border:none;border-radius:var(--r-sm);padding:4px 9px;cursor:pointer}
+.cat-edit-toggle{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);background:var(--surface-low);border:1px solid var(--border);border-radius:var(--r-sm);padding:4px 9px;cursor:pointer}
+.cat-add-toggle{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lime-fg);background:var(--lime);border:none;border-radius:var(--r-sm);padding:4px 9px;cursor:pointer}
 .cat-add-row{display:flex;align-items:center;gap:6px;margin-top:8px}
 .cat-add-inp{flex:1;padding:8px 10px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);outline:none;background:var(--surface-low)}
 .cat-add-inp:focus{border-color:var(--ink)}
@@ -579,7 +579,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .cat-del-btn{position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:var(--ink);color:#fff;border:none;border-radius:9999px;font-size:10px;display:none;align-items:center;justify-content:center;cursor:pointer;line-height:1;z-index:2}
 .category-grid.edit-mode .cat-del-btn{display:flex}
 .category-grid.edit-mode .cat-btn{opacity:.85}
-.cat-name-inp{width:100%;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sub);text-align:center;outline:none;padding:0;cursor:text;min-width:0}
+.cat-name-inp{width:100%;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sub);text-align:center;outline:none;padding:0;cursor:text;min-width:0}
 .cat-btn.selected .cat-name-inp{color:var(--ink)}
 
 /* Box Search Full Panel */
@@ -613,7 +613,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .bp-item-info{flex:1;min-width:0}
 .bp-item-name{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bp-item-brand{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);margin-top:2px}
-.bp-item-cat{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin-top:3px}
+.bp-item-cat{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin-top:3px}
 .bp-item-check{width:22px;height:22px;border-radius:9999px;border:1.5px solid var(--border-md);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink);flex-shrink:0;opacity:0;background:transparent;transition:all .15s}
 .bp-item.selected .bp-item-check{opacity:1;background:var(--lime);border-color:var(--lime-dark)}
 .bp-empty{padding:48px 20px;text-align:center;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);line-height:1.6}
@@ -626,18 +626,18 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-panel.active{display:block}
 /* Baseline photo */
 .baseline-wrap{padding:20px 20px 0}
-.baseline-lbl{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:8px}
+.baseline-lbl{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:8px}
 .baseline-photo{height:130px;border:1.5px dashed var(--border-md);border-radius:var(--r-md);background:var(--surface-low);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;overflow:hidden;background-size:auto 100%;background-position:center;background-repeat:no-repeat;position:relative;transition:border-color .2s}
 .baseline-photo.has-img{border-style:solid;border-color:var(--ink)}
 .baseline-photo-text{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
-.baseline-photo-edit{position:absolute;bottom:7px;right:9px;font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.9);background:rgba(0,0,0,.5);padding:3px 8px;border-radius:var(--r-sm);display:none}
+.baseline-photo-edit{position:absolute;bottom:7px;right:9px;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.9);background:rgba(0,0,0,.5);padding:3px 8px;border-radius:var(--r-sm);display:none}
 .baseline-photo.has-img .baseline-photo-edit{display:block}
 /* ok button */
 .ok-btn{width:100%;height:54px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;letter-spacing:.02em;cursor:pointer;transition:opacity .18s;display:block;margin-bottom:12px}
 .ok-btn:active{opacity:.8}
 /* Content panel hero */
 .ct-hero{padding:24px 20px 12px}
-.ct-hero-type{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:4px}
+.ct-hero-type{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:4px}
 .ct-hero-title{font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:800;color:var(--ink);line-height:.9;letter-spacing:-.02em;margin-bottom:8px}
 .ct-hero-sub{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);line-height:1.5}
 /* Content cards */
@@ -648,7 +648,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-card-hd{display:flex;align-items:center;gap:10px;margin-bottom:6px}
 .ct-card-emoji{font-size:20px;line-height:1;flex-shrink:0}
 .ct-card-name{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--ink);flex:1}
-.ct-card-badge{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:var(--r-sm);flex-shrink:0}
+.ct-card-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:var(--r-sm);flex-shrink:0}
 .ct-card-badge.on{background:var(--ink);color:#fff}
 .ct-card-badge.off{background:var(--surface-mid);color:var(--mist)}
 .ct-card-desc{font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);line-height:1.5;margin-bottom:10px}
@@ -656,11 +656,11 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-card-items::-webkit-scrollbar{display:none}
 .ct-card-item-wrap{flex-shrink:0;width:40px;text-align:center}
 .ct-card-item-img{width:40px;height:40px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:100% auto;background-position:top center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:15px;overflow:hidden;margin-bottom:3px}
-.ct-card-item-nm{font-family:'Inter',sans-serif;font-size:8px;font-weight:600;color:var(--ink);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ct-card-item-nm{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--ink);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .ct-card-item-plus{flex-shrink:0;width:16px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mist);font-weight:300;padding-bottom:14px}
-.ct-card-item-desc{flex-shrink:0;max-width:72px;font-family:'Inter',sans-serif;font-size:8px;color:var(--sub);line-height:1.35;padding:4px 6px;background:var(--surface-low);border-radius:var(--r-sm);align-self:flex-start;word-break:keep-all}
+.ct-card-item-desc{flex-shrink:0;max-width:72px;font-family:'Inter',sans-serif;font-size:10px;color:var(--sub);line-height:1.35;padding:4px 6px;background:var(--surface-low);border-radius:var(--r-sm);align-self:flex-start;word-break:keep-all}
 .ct-card-dates{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
-.ct-date-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;background:var(--ink);color:#fff;padding:3px 8px;border-radius:var(--r-sm);letter-spacing:.04em}
+.ct-date-chip{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;background:var(--ink);color:#fff;padding:3px 8px;border-radius:var(--r-sm);letter-spacing:.04em}
 .ct-card-actions{padding:10px 16px 12px;border-top:1px solid var(--border);display:flex;gap:8px}
 .ct-card-ok-btn{flex:1;padding:10px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:opacity .15s}
 .ct-card-ok-btn:active{opacity:.75}
@@ -681,7 +681,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-sheet-hd-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink)}
 .ct-sheet-close{width:28px;height:28px;border-radius:var(--r-sm);background:var(--surface-mid);border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sub)}
 .ct-sheet-sec{padding:16px 20px 0}
-.ct-sheet-sec-lbl{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
+.ct-sheet-sec-lbl{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
 .ct-sheet-baseline{height:110px;border:1.5px dashed var(--border-md);border-radius:var(--r-md);background:var(--surface-low);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;overflow:hidden;background-size:auto 100%;background-position:center;background-repeat:no-repeat;transition:all .2s}
 .ct-sheet-baseline.has-img{border-style:solid;border-color:var(--ink)}
 .ct-sheet-baseline-text{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
@@ -722,12 +722,17 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 /* 루틴 편집 타입드 아이템 */
 .rs-chip-list{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px 4px}
 .rs-chip{display:inline-flex;align-items:center;gap:5px;cursor:default;position:relative}
-.rs-chip--prod{background:#fff;border:1px solid var(--border);padding:4px 6px 4px 4px;border-radius:10px;box-shadow:var(--shadow)}
+.rs-chip--prod{background:#fff;border:1px solid var(--border);padding:5px 10px 5px 5px;border-radius:10px;box-shadow:var(--shadow)}
 .rs-chip-img{width:30px;height:30px;border-radius:7px;background:var(--surface-mid);background-size:100% auto;background-position:top center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden}
 .rs-chip-name{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72px}
 .rs-chip--plus{width:28px;height:28px;border:1.5px dashed var(--border-md);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mist);font-weight:300;flex-shrink:0;cursor:pointer}
-.rs-chip--desc{background:var(--surface-mid);border-radius:var(--r-sm);padding:5px 8px;font-family:'Inter',sans-serif;font-size:10px;color:var(--sub);line-height:1.4;max-width:120px;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.rs-chip-del{font-size:9px;color:var(--mist);flex-shrink:0;cursor:pointer;line-height:1;margin-left:2px}
+.rs-chip--desc{background:#2185fd;border-radius:16px;border:1px solid rgba(0,0,0,.06);padding:5px 10px;font-family:'Inter',sans-serif;font-size:12px;font-weight:400;color:#fff;white-space:nowrap;line-height:1;display:inline-flex;align-items:center;gap:4px}
+.rs-chip-del{font-size:10px;color:var(--mist);flex-shrink:0;cursor:pointer;line-height:1;margin-left:2px}
+.rs-chip--desc .rs-chip-del{color:rgba(255,255,255,.7)}
+.rs-chip--drag-over{outline:2px solid var(--lime);outline-offset:2px}
+.rs-chip[draggable]{cursor:grab}
+.routine-mid-save{width:calc(100% - 32px);margin:0 16px 12px;padding:11px;background:var(--surface);border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.routine-mid-save:active{background:var(--lime);color:var(--lime-fg);border-color:var(--lime)}
 .rs-act-row{display:flex;gap:6px;padding:8px 16px 14px;flex-wrap:wrap}
 .rs-act-btn{border:1.5px solid var(--border-md);border-radius:var(--r-full);padding:6px 14px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--sub);background:transparent;cursor:pointer;transition:all .15s;white-space:nowrap}
 .rs-act-btn:active{border-color:var(--ink);color:var(--ink)}
@@ -757,7 +762,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-act-btn{padding:7px 14px;border:1.5px solid var(--border-md);border-radius:var(--r-full);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--ink);background:var(--surface);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
 .ct-act-btn:active{background:var(--ink);color:#fff;border-color:var(--ink)}
 .ct-act-plus{border-style:dashed;min-width:36px;text-align:center}
-.ct-tip-lbl{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);margin-bottom:8px}
+.ct-tip-lbl{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);margin-bottom:8px}
 .ct-desc-inline-row{display:flex;gap:6px;margin-top:8px}
 .ct-desc-inline-inp{flex:1;padding:8px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);background:#fff;outline:none;transition:border-color .18s}
 .ct-desc-inline-inp:focus{border-color:var(--ink)}
@@ -767,12 +772,12 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-tpo-chip{padding:7px 14px;border:1.5px solid var(--border);border-radius:var(--r-full);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--mist);cursor:pointer;transition:all .15s;background:var(--surface)}
 .ct-tpo-chip.active{background:var(--ink);border-color:var(--ink);color:#fff}
 .ct-dates-wrap{display:flex;flex-wrap:wrap;gap:5px}
-.ct-date-del-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;background:var(--ink);color:#fff;padding:4px 9px;border-radius:var(--r-sm);cursor:pointer;letter-spacing:.04em}
-.ct-date-add-chip{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;border:1.5px dashed var(--border-md);background:none;padding:4px 10px;border-radius:var(--r-sm);color:var(--mist);cursor:pointer;transition:all .15s}
+.ct-date-del-chip{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;background:var(--ink);color:#fff;padding:4px 9px;border-radius:var(--r-sm);cursor:pointer;letter-spacing:.04em}
+.ct-date-add-chip{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;border:1.5px dashed var(--border-md);background:none;padding:4px 10px;border-radius:var(--r-sm);color:var(--mist);cursor:pointer;transition:all .15s}
 .ct-date-add-chip:active{border-color:var(--ink);color:var(--ink)}
 .ct-period-row{display:flex;align-items:flex-end;gap:10px}
 .ct-period-field{flex:1;display:flex;flex-direction:column;gap:5px}
-.ct-period-lbl{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
+.ct-period-lbl{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
 .ct-period-inp{width:100%;border:none;border-bottom:1.5px solid var(--border-md);background:transparent;font-family:'Inter',sans-serif;font-size:17px;color:var(--ink);padding:4px 0;outline:none}
 .ct-period-inp:focus{border-bottom-color:var(--ink)}
 .ct-period-sep{font-size:18px;color:var(--mist);flex-shrink:0;padding-bottom:6px}
@@ -791,7 +796,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-cal-month{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:400;color:var(--ink)}
 .ct-cal-arrow{background:none;border:none;font-size:18px;color:var(--mist);cursor:pointer;padding:4px 10px;line-height:1}
 .ct-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.ct-cal-hd{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);text-align:center;padding:4px 0 8px}
+.ct-cal-hd{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);text-align:center;padding:4px 0 8px}
 .ct-cal-cell{height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);cursor:pointer;transition:background .15s;-webkit-tap-highlight-color:transparent}
 .ct-cal-cell.empty{pointer-events:none}
 .ct-cal-cell.today{font-weight:700}
@@ -806,11 +811,11 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
 /* ══ Tracker Panel ══ */
 .tracker-hero{padding:28px 16px 20px;border-bottom:1px solid var(--border);position:relative}
-.tracker-hero-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px}
-.tracker-hero-title{font-family:'Space Grotesk',sans-serif;font-size:48px;font-weight:800;color:var(--ink);line-height:.95;letter-spacing:-.02em;text-transform:uppercase}
+.tracker-hero-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px}
+.tracker-hero-title{font-family:'Space Grotesk',sans-serif;font-size:48px;font-weight:900;color:var(--ink);line-height:.95;letter-spacing:-.02em;text-transform:uppercase}
 .tracker-hero-sub{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);margin-top:12px;line-height:1.5}
 .tracker-add-section{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
-.tracker-add-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:12px}
+.tracker-add-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:12px}
 .tracker-add-form{display:flex;flex-direction:column;gap:10px}
 .tracker-add-name{width:100%;padding:12px 14px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);background:#fff;outline:none;transition:border-color .18s}
 .tracker-add-name:focus{border-color:var(--ink)}
@@ -820,22 +825,80 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .tracker-add-btn{padding:12px 20px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:opacity .18s}
 .tracker-add-btn:active{opacity:.8}
 .tracker-list-section{padding:20px 16px 32px}
-.tracker-list-label{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:12px}
-.tracker-item{display:flex;align-items:center;gap:12px;padding:14px 14px;background:#fff;border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:8px;box-shadow:var(--shadow)}
-.tracker-item-icon{font-size:16px;line-height:1;flex-shrink:0;opacity:.25}
+.tracker-list-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:12px}
+/* 흰 라운드 카드 컨테이너 */
+#tracker-list{background:#fff;border-radius:var(--r-xl);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)}
+.tracker-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:none;border-bottom:1px solid var(--border);border-radius:0;margin-bottom:0;box-shadow:none}
+.tracker-item:last-child{border-bottom:none}
+/* 아이콘 — 컬러 이모지 노출 */
+.tracker-item-icon{width:36px;height:36px;border-radius:10px;background:var(--surface-low);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;opacity:1}
 .tracker-item-info{flex:1;min-width:0}
 .tracker-item-name{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tracker-item-time{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--mist);margin-top:2px}
-.tracker-alarm-btn{background:none;border:none;cursor:pointer;padding:6px;border-radius:var(--r-sm);font-size:17px;opacity:.25;transition:opacity .2s}
-.tracker-alarm-btn.active{opacity:1}
-.tracker-del-btn{background:none;border:none;cursor:pointer;padding:6px;border-radius:var(--r-sm);font-size:13px;color:var(--mist);opacity:.4;transition:opacity .2s,color .2s}
-.tracker-del-btn:hover{opacity:1;color:var(--error)}
+.tracker-item-time{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--mist);letter-spacing:.04em}
+.tracker-alarm-btn{display:none}
+.tracker-del-btn{width:28px;height:28px;background:var(--surface-low);border:none;border-radius:50%;cursor:pointer;font-size:12px;color:var(--mist);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .18s,color .18s}
+.tracker-del-btn:hover{background:#fee2e2;color:#ef4444}
 .tracker-empty{padding:36px 16px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist);line-height:1.6;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);background:var(--surface-low)}
+/* 아이콘 입력 */
+.tracker-icon-input{width:48px;padding:11px 6px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-size:22px;text-align:center;background:#fff;outline:none;transition:border-color .18s;flex-shrink:0}
+.tracker-icon-input:focus{border-color:var(--ink)}
+/* 전체 습관 풀 */
+.habit-pool-section{padding:20px 16px 0}
+.habit-pool-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:12px}
+.habit-pool-list{background:#fff;border-radius:var(--r-xl);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)}
+.habit-pool-item{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border-bottom:1px solid var(--border)}
+.habit-pool-item:last-child{border-bottom:none}
+.habit-pool-icon{width:36px;height:36px;border-radius:10px;background:var(--surface-low);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
+.habit-pool-info{flex:1;min-width:0}
+.habit-pool-name{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.habit-pool-time{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--mist);letter-spacing:.04em}
+.habit-go-btn{padding:6px 11px;background:var(--surface-low);border:none;border-radius:var(--r-full);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--sub);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s,color .15s}
+.habit-go-btn:active{opacity:.7}
+.habit-release-btn{padding:6px 11px;background:var(--lime);border:none;border-radius:var(--r-full);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--lime-fg);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.habit-del-btn{width:26px;height:26px;background:none;border:none;border-radius:50%;cursor:pointer;font-size:14px;color:var(--mist);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* DAILY HABITS 섹션 */
+.daily-habits-section{padding:20px 16px 32px}
+.daily-habits-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.daily-habits-badge{background:var(--lime);color:var(--lime-fg);padding:2px 8px;border-radius:var(--r-full);font-size:10px;font-weight:700;letter-spacing:.04em}
+/* 반복 타입 선택 */
+.repeat-type-row{display:flex;gap:6px}
+.repeat-type-btn{flex:1;padding:9px 4px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--sub);background:#fff;cursor:pointer;transition:all .15s;text-align:center}
+.repeat-type-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+/* 조건부 필드 */
+.tracker-cond-field{display:none;margin-top:0}
+.tracker-cond-field.visible{display:block}
+.tracker-date-input{width:100%;padding:12px 14px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ink);background:#fff;outline:none}
+.tracker-date-input:focus{border-color:var(--ink)}
+.weekday-row{display:flex;gap:5px;justify-content:space-between}
+.weekday-btn{flex:1;height:38px;border-radius:var(--r-full);border:1.5px solid var(--border-md);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--sub);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+.weekday-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+/* 습관 반복 배지 */
+.habit-repeat-badge{padding:2px 7px;border-radius:var(--r-full);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.04em;flex-shrink:0}
+.habit-repeat-badge.allday{background:var(--surface-mid);color:var(--sub)}
+.habit-repeat-badge.daily{background:rgba(197,255,0,.22);color:#4A6000}
+.habit-repeat-badge.once{background:rgba(52,120,246,.1);color:#1D5DB5}
+.habit-repeat-badge.scheduled{background:rgba(155,89,182,.1);color:#7B4DAA}
+/* 습관 풀 Today 체크박스 */
+.habit-today-cb{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;transition:all .18s}
+.habit-today-cb:active{opacity:.7}
+/* 편집 버튼 */
+.habit-edit-btn{width:28px;height:28px;border-radius:50%;background:none;border:none;cursor:pointer;color:var(--mist);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.habit-edit-btn:active{background:var(--surface-mid)}
+/* 습관 편집 시트 */
+.habit-edit-overlay{position:absolute;inset:0;z-index:310;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .25s}
+.habit-edit-overlay.open{opacity:1;pointer-events:auto}
+.habit-edit-sheet{position:absolute;bottom:0;left:0;right:0;z-index:311;background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);padding:10px 20px 48px;max-height:88%;overflow-y:auto}
+.habit-edit-sheet.open{transform:translateY(0)}
+.habit-edit-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--ink);margin-bottom:20px}
+.habit-del-confirm-btn{width:100%;padding:14px;background:#fee2e2;color:#dc2626;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:.02em}
+.habit-del-confirm-btn:active{opacity:.8}
+.habit-edit-save-btn{width:100%;padding:14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.02em}
+.habit-edit-save-btn:active{opacity:.8}
 
 /* ══ Setup Hub ══ */
 .hub-header{padding:28px 16px 20px;border-bottom:1px solid var(--border)}
 .hub-header-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:4px}
-.hub-header-title{font-family:'Space Grotesk',sans-serif;font-size:60px;font-weight:800;color:var(--ink);line-height:.9;letter-spacing:-.02em;margin-bottom:4px}
+.hub-header-title{font-family:'Space Grotesk',sans-serif;font-size:60px;font-weight:900;color:var(--ink);line-height:.9;letter-spacing:-.02em;margin-bottom:4px}
 .hub-header-title::after{content:'';display:block;width:40px;height:4px;background:var(--lime);border-radius:2px;margin-top:8px}
 .hub-header-sub{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);margin-top:14px;line-height:1.6}
 /* Hub grid (2-col masonry) */
@@ -846,9 +909,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .hub-gc:active{transform:scale(.97)}
 .hub-gc-img{width:100%;aspect-ratio:1/1;background:var(--surface-low)}
 .hub-gc-body{padding:10px 12px 0}
-.hub-gc-badge{display:inline-block;font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;background:var(--lime);color:var(--ink);padding:3px 8px;border-radius:4px;margin-bottom:7px;text-transform:uppercase}
+.hub-gc-badge{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;background:var(--lime);color:var(--ink);padding:3px 8px;border-radius:4px;margin-bottom:7px;text-transform:uppercase}
 .hub-gc-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:800;color:var(--ink);line-height:1.2;margin-bottom:3px;letter-spacing:-.01em}
-.hub-gc-sub{font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);padding-bottom:10px}
+.hub-gc-sub{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);padding-bottom:10px}
 .hub-gc-cta{border-top:1px solid var(--border);padding:10px 12px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--ink)}
 /* Hub count badge (legacy support) */
 .hub-card-count{display:none}
@@ -982,9 +1045,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
       <!-- Session Hero -->
       <div class="routine-hero">
         <div style="position:absolute;top:18px;right:18px;font-size:36px;opacity:.08;transform:rotate(15deg);line-height:1">✦</div>
-        <div style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px">CURRENT SESSION</div>
+        <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px">CURRENT SESSION</div>
         <div class="session-title" id="session-title-display">SESSION</div>
-        <div style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-top:12px;margin-bottom:6px">INTERVAL</div>
+        <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-top:12px;margin-bottom:6px">INTERVAL</div>
         <div class="session-date-edit-row">
           <input type="date" id="session-period-start-input" class="session-date-inp" onchange="updatePeriodDate('start',this.value)">
           <span class="session-date-sep">—</span>
@@ -1030,6 +1093,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
             placeholder=""
             oninput="updateRoutineTip('morning',this.value)"></textarea>
         </div>
+        <button class="routine-mid-save" onclick="saveRoutineMid()">✓ MORNING 저장</button>
       </div>
 
       <!-- Night Routine Section -->
@@ -1074,6 +1138,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
             placeholder=""
             oninput="updateRoutineTip('nightly',this.value)"></textarea>
         </div>
+        <button class="routine-mid-save" onclick="saveRoutineMid()">✓ NIGHT 저장</button>
       </div>
 
       <!-- Hidden: publish/draft trigger -->
@@ -1091,7 +1156,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <div style="height:3px;background:var(--surface-high);border-radius:2px;overflow:hidden;margin-top:4px">
           <div id="step-progress-bar" style="height:100%;background:var(--lime);border-radius:2px;width:50%;transition:width .5s"></div>
         </div>
-        <div style="font-family:'Inter',sans-serif;font-size:9px;color:var(--mist);margin-top:4px;letter-spacing:.06em">루틴 사이클 진행률</div>
+        <div style="font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:4px;letter-spacing:.06em">루틴 사이클 진행률</div>
       </div>
 
       <!-- Session Before Photo -->
@@ -1130,7 +1195,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <div class="ct-hero-title">집중케어</div>
         <div class="ct-hero-sub">케어 프로그램 설계 · BOX 뷰티 제품 매핑 · 기간 & 스케줄 설정</div>
       </div>
-      <div id="setup-care-count" style="padding:4px 20px 0;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
+      <div id="setup-care-count" style="padding:4px 20px 0;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
       <div class="ct-list" id="setup-care-list"></div>
       <div class="ct-add-wrap">
         <div class="ct-add-btn" onclick="openCtSheet('care')">
@@ -1154,7 +1219,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <div class="ct-hero-title">메이크업북</div>
         <div class="ct-hero-sub">테마별 화장법 설계 · BOX 뷰티 제품 매핑 · Today 스케줄 연동</div>
       </div>
-      <div id="setup-mkp-count" style="padding:4px 20px 0;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
+      <div id="setup-mkp-count" style="padding:4px 20px 0;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
       <div class="ct-list" id="setup-mkp-list"></div>
       <div class="ct-add-wrap">
         <div class="ct-add-btn" onclick="openCtSheet('makeup')">
@@ -1178,7 +1243,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <div class="ct-hero-title">룩북</div>
         <div class="ct-hero-sub">T.P.O 기반 코디 설계 · BOX 패션·액세서리 매핑 · Today OOTD 연동</div>
       </div>
-      <div id="setup-look-count" style="padding:4px 20px 0;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
+      <div id="setup-look-count" style="padding:4px 20px 0;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
       <div class="ct-list" id="setup-look-list"></div>
       <div class="ct-add-wrap">
         <div class="ct-add-btn" onclick="openCtSheet('look')">
@@ -1193,7 +1258,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
   <div class="setup-panel" id="setup-panel-tracker">
     <div class="panel-appbar">
       <button class="panel-back" onclick="closeSetupPanel()" style="font-size:18px;font-weight:400">✕</button>
-      <div style="background:var(--lime);color:var(--ink);font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:var(--r-full)">EDIT MODE</div>
+      <div style="background:var(--lime);color:var(--ink);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:var(--r-full)">EDIT MODE</div>
       <div style="width:44px"></div>
     </div>
     <div class="panel-body">
@@ -1208,22 +1273,105 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
       <div class="tracker-add-section">
         <div class="tracker-add-label">NEW HABIT</div>
         <div class="tracker-add-form">
-          <input class="tracker-add-name" id="tracker-new-name" type="text" placeholder="습관 이름 (예: 모닝 워터 한 잔)" maxlength="40"
-            onkeydown="if(event.key==='Enter')addTrackerItem()">
-          <div class="tracker-add-row">
-            <input class="tracker-time-input" id="tracker-new-time" type="time" value="08:00">
-            <button class="tracker-add-btn" onclick="addTrackerItem()">+ ADD</button>
+          <div class="tracker-add-row" style="gap:8px">
+            <input class="tracker-icon-input" id="tracker-new-icon" type="text" placeholder="✦" maxlength="2">
+            <input class="tracker-add-name" id="tracker-new-name" type="text" placeholder="습관 이름 (예: 모닝 워터 한 잔)" maxlength="40" style="flex:1"
+              onkeydown="if(event.key==='Enter')addHabit()">
+          </div>
+          <!-- 반복 타입 -->
+          <div class="repeat-type-row">
+            <button type="button" class="repeat-type-btn active" data-type="allday" onclick="setRepeatType('allday')">종일</button>
+            <button type="button" class="repeat-type-btn" data-type="once" onclick="setRepeatType('once')">1회성</button>
+            <button type="button" class="repeat-type-btn" data-type="daily" onclick="setRepeatType('daily')">매일</button>
+            <button type="button" class="repeat-type-btn" data-type="scheduled" onclick="setRepeatType('scheduled')">일정등록</button>
+          </div>
+          <!-- 1회성 날짜 -->
+          <div class="tracker-cond-field" id="once-date-field">
+            <input class="tracker-date-input" id="tracker-new-date" type="date">
+          </div>
+          <!-- 일정등록 요일 -->
+          <div class="tracker-cond-field" id="scheduled-wd-field">
+            <div class="weekday-row">
+              <button type="button" class="weekday-btn" data-wd="0" onclick="toggleWeekday(0)">일</button>
+              <button type="button" class="weekday-btn" data-wd="1" onclick="toggleWeekday(1)">월</button>
+              <button type="button" class="weekday-btn" data-wd="2" onclick="toggleWeekday(2)">화</button>
+              <button type="button" class="weekday-btn" data-wd="3" onclick="toggleWeekday(3)">수</button>
+              <button type="button" class="weekday-btn" data-wd="4" onclick="toggleWeekday(4)">목</button>
+              <button type="button" class="weekday-btn" data-wd="5" onclick="toggleWeekday(5)">금</button>
+              <button type="button" class="weekday-btn" data-wd="6" onclick="toggleWeekday(6)">토</button>
+            </div>
+          </div>
+          <!-- 시간(선택) + 알람(선택) + ADD -->
+          <div class="tracker-cond-field visible" id="time-alarm-field">
+            <div class="tracker-add-row">
+              <input class="tracker-time-input" id="tracker-new-time" type="time" value="00:00">
+              <label style="display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--sub);cursor:pointer;flex-shrink:0;white-space:nowrap">
+                <input type="checkbox" id="tracker-new-alarm" style="width:15px;height:15px;accent-color:var(--ink)"> 알람
+              </label>
+              <button class="tracker-add-btn" onclick="addHabit()">+ ADD</button>
+            </div>
+          </div>
+          <!-- 종일 타입: ADD 버튼만 -->
+          <div class="tracker-cond-field" id="allday-add-field">
+            <button class="tracker-add-btn" style="width:100%" onclick="addHabit()">+ ADD</button>
           </div>
         </div>
       </div>
-      <!-- Save + List -->
-      <div class="tracker-list-section">
-        <button onclick="saveTrackerItems()" style="width:100%;padding:14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-bottom:20px">SAVE TO TODAY</button>
-        <div class="tracker-list-label">DAILY HABITS</div>
+      <!-- 전체 습관 풀 -->
+      <div class="habit-pool-section">
+        <div class="habit-pool-label">전체 습관 목록</div>
+        <div id="habit-pool-list"></div>
+      </div>
+      <!-- DAILY HABITS -->
+      <div class="daily-habits-section">
+        <div class="daily-habits-label">DAILY HABITS <span class="daily-habits-badge">TODAY</span></div>
         <div id="tracker-list"></div>
       </div>
     </div>
     <div class="app-nav"></div>
+
+    <!-- 습관 편집 시트 -->
+    <div class="habit-edit-overlay" id="habit-edit-overlay" onclick="closeHabitEdit()"></div>
+    <div class="habit-edit-sheet" id="habit-edit-sheet">
+      <div class="edit-handle"></div>
+      <div class="habit-edit-title">습관 편집</div>
+      <div class="tracker-add-form">
+        <div class="tracker-add-row" style="gap:8px">
+          <input class="tracker-icon-input" id="habit-edit-icon" type="text" placeholder="✦" maxlength="2">
+          <input class="tracker-add-name" id="habit-edit-name" type="text" placeholder="습관 이름" maxlength="40" style="flex:1">
+        </div>
+        <div class="repeat-type-row">
+          <button type="button" class="repeat-type-btn" data-edit-type="allday" onclick="setEditRepeatType('allday')">종일</button>
+          <button type="button" class="repeat-type-btn" data-edit-type="once" onclick="setEditRepeatType('once')">1회성</button>
+          <button type="button" class="repeat-type-btn" data-edit-type="daily" onclick="setEditRepeatType('daily')">매일</button>
+          <button type="button" class="repeat-type-btn" data-edit-type="scheduled" onclick="setEditRepeatType('scheduled')">일정등록</button>
+        </div>
+        <div class="tracker-cond-field" id="edit-once-date-field">
+          <input class="tracker-date-input" id="habit-edit-date" type="date">
+        </div>
+        <div class="tracker-cond-field" id="edit-scheduled-wd-field">
+          <div class="weekday-row">
+            <button type="button" class="weekday-btn" data-edit-wd="0" onclick="toggleEditWeekday(0)">일</button>
+            <button type="button" class="weekday-btn" data-edit-wd="1" onclick="toggleEditWeekday(1)">월</button>
+            <button type="button" class="weekday-btn" data-edit-wd="2" onclick="toggleEditWeekday(2)">화</button>
+            <button type="button" class="weekday-btn" data-edit-wd="3" onclick="toggleEditWeekday(3)">수</button>
+            <button type="button" class="weekday-btn" data-edit-wd="4" onclick="toggleEditWeekday(4)">목</button>
+            <button type="button" class="weekday-btn" data-edit-wd="5" onclick="toggleEditWeekday(5)">금</button>
+            <button type="button" class="weekday-btn" data-edit-wd="6" onclick="toggleEditWeekday(6)">토</button>
+          </div>
+        </div>
+        <div class="tracker-cond-field visible" id="edit-time-alarm-field">
+          <div class="tracker-add-row">
+            <input class="tracker-time-input" id="habit-edit-time" type="time" value="00:00">
+            <label style="display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--sub);cursor:pointer;flex-shrink:0;white-space:nowrap">
+              <input type="checkbox" id="habit-edit-alarm" style="width:15px;height:15px;accent-color:var(--ink)"> 알람
+            </label>
+          </div>
+        </div>
+      </div>
+      <button class="habit-edit-save-btn" onclick="saveHabitEdit()" style="margin-top:20px">저장</button>
+      <button class="habit-del-confirm-btn" onclick="deleteHabitFromEdit()">삭제</button>
+    </div>
   </div><!-- /setup-panel-tracker -->
 
   <!-- SESSION ARCHIVE Overlay -->
@@ -1415,7 +1563,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
     <div class="se-appbar">
       <button class="se-back" onclick="closeSessionEditor()">‹</button>
       <div class="se-appbar-title" id="se-panel-title">세션 편집</div>
-      <button class="se-save-btn" onclick="saveSessionEditor()">SAVE</button>
+      <div style="width:40px"></div>
     </div>
     <div class="se-body" id="se-body"></div>
   </div>
@@ -1456,7 +1604,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
       </div>
     </div>
     <div class="form-group">
-      <div class="form-label">제품 이미지 <span style="color:var(--mist);font-size:9px;font-weight:400;letter-spacing:0">(선택)</span></div>
+      <div class="form-label">제품 이미지 <span style="color:var(--mist);font-size:10px;font-weight:400;letter-spacing:0">(선택)</span></div>
       <div class="prod-img-area" onclick="showImgPickSheet(d=>previewProdImgData(d),480,0.68)">
         <div id="prod-img-preview" class="prod-img-preview"></div>
         <div class="prod-img-placeholder" id="prod-img-placeholder"><span>📷</span><span style="margin-left:6px">이미지 추가</span></div>
@@ -1589,9 +1737,15 @@ firebase.auth().onAuthStateChanged(user => {
       .onSnapshot(snap => {
         if (!snap.exists) return;
         const s = snap.data();
-        if (s.trackerItems && Array.isArray(s.trackerItems)) {
-          trackerItems = s.trackerItems;
-          localStorage.setItem(TRACKER_KEY, JSON.stringify(trackerItems));
+        if (s.allHabits && Array.isArray(s.allHabits)) {
+          allHabits = s.allHabits;
+          localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+          _syncTrackerItems();
+          renderTrackerList();
+        } else if (s.trackerItems && Array.isArray(s.trackerItems)) {
+          allHabits = s.trackerItems.map(it => ({ ...it, icon: it.icon||'', todayActive: true }));
+          localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+          _syncTrackerItems();
           renderTrackerList();
         }
       }, e => console.warn('settings onSnapshot:', e));
@@ -1701,14 +1855,19 @@ async function loadFromCloud(uid) {
     const settingsSnap = await userRef.collection('settings').doc('data').get();
     if (settingsSnap.exists) {
       const s = settingsSnap.data();
-      if (s.trackerItems && Array.isArray(s.trackerItems)) {
-        trackerItems = s.trackerItems;
-        localStorage.setItem(TRACKER_KEY, JSON.stringify(trackerItems));
+      if (s.allHabits && Array.isArray(s.allHabits)) {
+        allHabits = s.allHabits;
+        localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+        _syncTrackerItems();
+        renderTrackerList();
+      } else if (s.trackerItems && Array.isArray(s.trackerItems)) {
+        allHabits = s.trackerItems.map(it => ({ ...it, icon: it.icon||'', todayActive: true }));
+        localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+        _syncTrackerItems();
         renderTrackerList();
       }
     } else {
-      // Firestore 비어있음 → 로컬 데이터 업로드
-      const local = JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]');
+      const local = JSON.parse(localStorage.getItem(HABITS_KEY) || '[]');
       if (local.length) await saveTrackerToCloud();
     }
 
@@ -2041,7 +2200,7 @@ function openSetupPanel(type) {
   if (type === 'care')    renderCtCareList();
   if (type === 'makeup')  renderCtMkpList();
   if (type === 'look')    renderCtLookList();
-  if (type === 'tracker') { loadTrackerItems(); renderTrackerList(); }
+  if (type === 'tracker') { loadTrackerItems(); _autoActivateDaily(); _syncTrackerItems(); renderTrackerList(); }
 }
 function closeSetupPanel() {
   if (_currentPanel) {
@@ -2113,10 +2272,10 @@ function updateHero() {
   const startInp = document.getElementById('session-period-start-input');
   const endInp   = document.getElementById('session-period-end-input');
   const pubBtn   = document.getElementById('publish-btn');
-  if (titleEl) titleEl.textContent = n ? `${n}${getSuffix(n).toUpperCase()} SESSION` : '— SESSION';
+  if (titleEl) titleEl.textContent = n ? `No.${n} SESSION` : '— SESSION';
   if (startInp) startInp.value = state.periodStart || '';
   if (endInp)   endInp.value   = state.periodEnd   || '';
-  if (pubBtn && n) pubBtn.textContent = `PUBLISH ${n}${getSuffix(n).toUpperCase()} SESSION`;
+  if (pubBtn && n) pubBtn.textContent = `PUBLISH No.${n} SESSION`;
 }
 
 function updatePeriodDate(which, value) {
@@ -2133,14 +2292,12 @@ function pickTime(slot) {
 function updateTimeDisplay(slot, val) {
   if (!val) return;
   const [h, m] = val.split(':').map(Number);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12  = h > 12 ? h-12 : h === 0 ? 12 : h;
   const pad = n => String(n).padStart(2,'0');
   const vEl = document.getElementById(`${slot}-time-display`);
   const aEl = document.getElementById(`${slot}-time-ampm`);
   const iEl = document.getElementById(`${slot}-time`);
-  if (vEl) vEl.textContent = `${pad(h12)}:${pad(m)}`;
-  if (aEl) aEl.textContent = ampm;
+  if (vEl) vEl.textContent = `${pad(h)}:${pad(m)}`;
+  if (aEl) aEl.textContent = '';
   if (iEl) iEl.value = val;
   if (slot === 'morning') state.morningTime = val;
   else state.nightlyTime = val;
@@ -2165,6 +2322,110 @@ function pickStep(slot, id) {
 function updateRoutineTip(slot, val) {
   const cur = state[slot].routines.find(r => r.id === state[slot].active);
   if (cur) cur.tip = val;
+}
+
+// ── Drag-to-Reorder ───────────────────────────────────────────
+let _td = null;
+
+function _tdStart(e, slot, idx, type) {
+  const t = e.touches[0];
+  const el = e.currentTarget;
+  const r = el.getBoundingClientRect();
+  _td = { slot, idx, type, el, cl: null, toIdx: idx,
+    ox: t.clientX - r.left, oy: t.clientY - r.top,
+    startX: t.clientX, startY: t.clientY, moved: false, r };
+}
+
+function _tdMove(e) {
+  if (!_td) return;
+  const t = e.touches[0];
+  if (!_td.moved && (Math.abs(t.clientX - _td.startX) > 6 || Math.abs(t.clientY - _td.startY) > 6)) {
+    _td.moved = true;
+    const el = _td.el, r = _td.r;
+    const cl = el.cloneNode(true);
+    cl.style.cssText = `position:fixed;z-index:9999;pointer-events:none;opacity:.85;`
+      + `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;`
+      + `box-shadow:0 8px 24px rgba(0,0,0,.2);transform:scale(1.06);transition:none`;
+    document.body.appendChild(cl);
+    el.style.visibility = 'hidden';
+    _td.cl = cl;
+  }
+  if (!_td.moved) return;
+  if (e.cancelable) e.preventDefault();
+  _td.cl.style.left = (t.clientX - _td.ox) + 'px';
+  _td.cl.style.top  = (t.clientY - _td.oy) + 'px';
+  _td.cl.style.display = 'none';
+  const under = document.elementFromPoint(t.clientX, t.clientY);
+  _td.cl.style.display = '';
+  const chip = under?.closest('[data-di]');
+  document.querySelectorAll('[data-di]').forEach(c => c.classList.remove('rs-chip--drag-over'));
+  if (chip && chip !== _td.el) {
+    _td.toIdx = parseInt(chip.dataset.di);
+    chip.classList.add('rs-chip--drag-over');
+  }
+}
+
+function _tdEnd() {
+  if (!_td) return;
+  document.querySelectorAll('[data-di]').forEach(c => c.classList.remove('rs-chip--drag-over'));
+  if (_td.cl) _td.cl.remove();
+  const { slot, idx, toIdx, type, el, moved } = _td;
+  _td = null;
+  el.style.visibility = '';
+  if (!moved || idx === toIdx) return;
+  _reorderItems(slot, idx, toIdx, type);
+}
+
+function _mdStart(e, slot, idx, type) {
+  e.dataTransfer.effectAllowed = 'move';
+  _td = { slot, idx, type, toIdx: idx, el: e.currentTarget };
+  setTimeout(() => { if (_td?.el) _td.el.style.opacity = '0.35'; }, 0);
+}
+
+function _mdOver(e, slot, toIdx) {
+  e.preventDefault();
+  if (!_td || _td.slot !== slot) return;
+  _td.toIdx = toIdx;
+  document.querySelectorAll('[data-di]').forEach(c => c.classList.remove('rs-chip--drag-over'));
+  e.currentTarget.classList.add('rs-chip--drag-over');
+}
+
+function _mdEnd(e) {
+  if (!_td?.el) return;
+  _td.el.style.opacity = '';
+  document.querySelectorAll('[data-di]').forEach(c => c.classList.remove('rs-chip--drag-over'));
+  _td = null;
+}
+
+function _mdDrop(e, slot, toIdx, type) {
+  e.preventDefault();
+  if (!_td || _td.slot !== slot) return;
+  const idx = _td.idx;
+  document.querySelectorAll('[data-di]').forEach(c => {
+    c.classList.remove('rs-chip--drag-over');
+    c.style.opacity = '';
+  });
+  _td = null;
+  if (idx === toIdx) return;
+  _reorderItems(slot, idx, toIdx, type);
+}
+
+function _reorderItems(slot, from, to, type) {
+  if (type === 'rs') {
+    const prods = getActiveProducts(slot);
+    const [m] = prods.splice(from, 1);
+    prods.splice(to, 0, m);
+    setActiveProducts(slot, prods);
+    persistPlan(false);
+    renderGrid(slot);
+  } else {
+    const r = seGetActiveRoutine(slot);
+    if (r) {
+      const [m] = r.products.splice(from, 1);
+      r.products.splice(to, 0, m);
+    }
+    renderSeBody();
+  }
 }
 
 // ── Grid render ───────────────────────────────────────────────
@@ -2196,14 +2457,15 @@ function renderGrid(slot) {
 
   const chipHtml = items.map((item, idx) => {
     const t = item.type || 'product';
+    const da = `data-di="${idx}" draggable="true" ondragstart="_mdStart(event,'${slot}',${idx},'rs')" ondragover="_mdOver(event,'${slot}',${idx})" ondragend="_mdEnd(event)" ondrop="_mdDrop(event,'${slot}',${idx},'rs')" ontouchstart="_tdStart(event,'${slot}',${idx},'rs')" ontouchmove="_tdMove(event)" ontouchend="_tdEnd(event)"`;
     if (t === 'plus') {
-      return `<div class="rs-chip rs-chip--plus" onclick="rsRemoveItem('${slot}',${idx})" title="탭하면 삭제">+</div>`;
+      return `<div class="rs-chip rs-chip--plus" ${da} onclick="rsRemoveItem('${slot}',${idx})" title="탭하면 삭제">+</div>`;
     }
     if (t === 'desc') {
-      return `<div class="rs-chip rs-chip--desc">${item.text||''}<span class="rs-chip-del" onclick="event.stopPropagation();rsRemoveItem('${slot}',${idx})"> ✕</span></div>`;
+      return `<div class="rs-chip rs-chip--desc" ${da}>${item.text||''}<span class="rs-chip-del" onclick="event.stopPropagation();rsRemoveItem('${slot}',${idx})"> ✕</span></div>`;
     }
     const img = item.imgData || item.storageUrl || '';
-    return `<div class="rs-chip rs-chip--prod" onclick="openModal('${slot}',${item.id})">
+    return `<div class="rs-chip rs-chip--prod" ${da} onclick="openModal('${slot}',${item.id})">
       <div class="rs-chip-img" ${img ? `style="background-image:url(${img})"` : ''}>${!img ? (item.icon||'✨') : ''}</div>
       <div class="rs-chip-name">${item.name||''}</div>
       <span class="rs-chip-del" onclick="event.stopPropagation();rsRemoveItem('${slot}',${idx})">✕</span>
@@ -2332,7 +2594,7 @@ function renderRoutineSessionList() {
     <div class="ae-row${s.isCurrent ? ' current' : ''}" id="rs-row-${n}" onclick="toggleRsRow(${n})">
       <div class="ae-session-num">#${String(n).padStart(2,'0')}</div>
       <div class="ae-row-info">
-        <div class="ae-row-title">${n}${sfx} SESSION${(s.isCurrent && _isSessionNow(s)) ? ' <span class="ae-now-pill">NOW</span>' : ''}</div>
+        <div class="ae-row-title">No.${n} SESSION${(s.isCurrent && _isSessionNow(s)) ? ' <span class="ae-now-pill">NOW</span>' : ''}</div>
         <div class="ae-row-dates">${fmt(s.periodStart)} – ${fmt(s.periodEnd)}</div>
       </div>
       <div class="ae-row-right">${tagsHtml}<span class="ae-chevron">›</span></div>
@@ -2404,7 +2666,7 @@ function renderHistory() {
     <div class="ae-row" id="hi-row-${n}" onclick="toggleHiRow(${n})">
       <div class="ae-session-num">#${String(n).padStart(2,'0')}</div>
       <div class="ae-row-info">
-        <div class="ae-row-title">${n}${sfx} SESSION</div>
+        <div class="ae-row-title">No.${n} SESSION</div>
         <div class="ae-row-dates">${fmt(s.periodStart)} – ${fmt(s.periodEnd)}</div>
       </div>
       <div class="ae-row-right">${tagsHtml}<span class="ae-chevron">›</span></div>
@@ -2525,7 +2787,7 @@ function renderArchiveList(sessions) {
       <div class="ae-session-num">#${String(n).padStart(2,'0')}</div>
       <div class="ae-row-info">
         <div class="ae-row-title">
-          ${n}${sfx} SESSION
+          No.${n} SESSION
           ${s.isCurrent ? '<span class="ae-now-pill">NOW</span>' : ''}
         </div>
         <div class="ae-row-dates">${fmtDate(s.periodStart)} – ${fmtDate(s.periodEnd)}</div>
@@ -2624,6 +2886,34 @@ async function saveRoutineChanges() {
   await persistPlan(true);
   showToast('✓ 루틴이 저장됐습니다');
   closeRoutineEditPanel();
+}
+
+async function saveRoutineMid() {
+  ['morning','nightly'].forEach(slot => {
+    const tipEl = document.getElementById(`${slot}-tip`);
+    if (tipEl) {
+      const cur = state[slot]?.routines?.find(r => r.id === state[slot].active);
+      if (cur) cur.tip = tipEl.value;
+    }
+  });
+  await persistPlan(false);
+  showToast('✓ 저장됐습니다');
+}
+
+function seIntermediateSave() {
+  if (!_seEdit) return;
+  ['morning','nightly'].forEach(slot => {
+    const tipEl = document.getElementById(`se-tip-${slot}`);
+    const routine = seGetActiveRoutine(slot);
+    if (tipEl && routine) routine.tip = tipEl.value;
+  });
+  const numEl = document.getElementById('se-num');
+  const startEl = document.getElementById('se-start');
+  const endEl = document.getElementById('se-end');
+  if (numEl?.value)   _seEdit.data.session     = parseInt(numEl.value)  || _seEdit.data.session;
+  if (startEl?.value) _seEdit.data.periodStart = startEl.value;
+  if (endEl?.value)   _seEdit.data.periodEnd   = endEl.value;
+  showToast('✓ 중간 저장됐습니다');
 }
 
 let _editingSessionNum = null; // null = new session, N = edit session N
@@ -2789,10 +3079,11 @@ function renderSeBody() {
 
   const _seChipHtml = (slot, prods) => prods.map((item, idx) => {
     const t = item.type || 'product';
-    if (t === 'plus') return `<div class="rs-chip rs-chip--plus" onclick="seRsRemoveItem('${slot}',${idx})" title="탭하면 삭제">+</div>`;
-    if (t === 'desc') return `<div class="rs-chip rs-chip--desc">${item.text||''}<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})"> ✕</span></div>`;
+    const da = `data-di="${idx}" draggable="true" ondragstart="_mdStart(event,'${slot}',${idx},'se')" ondragover="_mdOver(event,'${slot}',${idx})" ondragend="_mdEnd(event)" ondrop="_mdDrop(event,'${slot}',${idx},'se')" ontouchstart="_tdStart(event,'${slot}',${idx},'se')" ontouchmove="_tdMove(event)" ontouchend="_tdEnd(event)"`;
+    if (t === 'plus') return `<div class="rs-chip rs-chip--plus" ${da} onclick="seRsRemoveItem('${slot}',${idx})" title="탭하면 삭제">+</div>`;
+    if (t === 'desc') return `<div class="rs-chip rs-chip--desc" ${da}>${item.text||''}<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})"> ✕</span></div>`;
     const img = item.imgData || item.storageUrl || '';
-    return `<div class="rs-chip rs-chip--prod">
+    return `<div class="rs-chip rs-chip--prod" ${da}>
       <div class="rs-chip-img" ${img ? `style="background-image:url(${img})"` : ''}>${!img ? (item.icon||'✨') : ''}</div>
       <div class="rs-chip-name">${item.name||''}</div>
       <span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span>
@@ -2854,6 +3145,7 @@ function renderSeBody() {
         <textarea class="tip-card-input" id="se-tip-${slot}" rows="2" placeholder=""
           oninput="seUpdateTip('${slot}',this.value)">${tip}</textarea>
       </div>
+      <button class="routine-mid-save" onclick="seIntermediateSave()" style="margin-top:8px">✓ 중간 저장</button>
     </div>`;
   };
 
@@ -3283,7 +3575,7 @@ function saveSessionEditor() {
 // ── Publish / Draft ───────────────────────────────────────────
 function publishSession() {
   persistPlan(true);
-  showToast(`✓ ${state.session}${getSuffix(state.session)} 세션이 발행됐습니다`);
+  showToast(`✓ No.${state.session} 세션이 발행됐습니다`);
 }
 
 function saveDraft() {
@@ -4218,7 +4510,7 @@ function renderCtLookList() {
     const dateChips = (t.scheduledDates||[]).slice(0,3).map(d =>
       `<span class="ct-date-chip">${d.slice(5).replace('-','/')}</span>`).join('');
     const tpoHtml = (t.tpo||[]).map(tp =>
-      `<span style="font-family:'Inter',sans-serif;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--surface-mid);color:var(--sub);padding:2px 7px;border-radius:var(--r-sm)">${tp}</span>`
+      `<span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--surface-mid);color:var(--sub);padding:2px 7px;border-radius:var(--r-sm)">${tp}</span>`
     ).join(' ');
     const itemsHtml = (t.products||t.items||[]).slice(0,6).map(p => {
       const asset = getBoxAssets().find(a => a.id === p.assetId);
@@ -4827,87 +5119,339 @@ function exportData() {
 }
 
 // ── Routine Tracker ───────────────────────────────────────────
+const HABITS_KEY  = 'onstep_tracker_habits';
 const TRACKER_KEY = 'onstep_tracker_items';
-let trackerItems = [];
+let allHabits = [];
+
+const HABIT_ICON_MAP = [
+  ['비타민','💊'],['약','💊'],['영양제','💊'],['철분','💊'],['유산균','🦠'],
+  ['오메가','🐟'],['콜라겐','🌸'],['마그네슘','💎'],
+  ['물','💧'],['수분','💧'],['워터','💧'],
+  ['운동','🏃'],['헬스','🏋️'],['산책','🚶'],['달리기','🏃'],['걷기','🚶'],
+  ['요가','🧘'],['명상','🧘'],['스트레칭','🤸'],['필라테스','🤸'],
+  ['수면','😴'],['잠','😴'],['취침','😴'],
+  ['독서','📖'],['책','📖'],['일기','📝'],['영어','📚'],['공부','📚'],
+  ['커피','☕'],['차','🍵'],['음식','🥗'],['식사','🍽️'],['선크림','☀️'],['자외선','☀️']
+];
+function getHabitIcon(icon, name) {
+  if (icon && icon.trim()) return icon.trim();
+  for (const [k, v] of HABIT_ICON_MAP) { if ((name||'').includes(k)) return v; }
+  return '✦';
+}
+function fmtHabitTime(t) {
+  if (!t) return '종일';
+  const [h, m] = t.split(':').map(Number);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
 
 function loadTrackerItems() {
-  const raw = localStorage.getItem(TRACKER_KEY);
-  if (raw) {
-    trackerItems = JSON.parse(raw);
-    return;
+  // allHabits 우선, 없으면 기존 trackerItems에서 마이그레이션
+  const raw = localStorage.getItem(HABITS_KEY);
+  if (raw) { allHabits = JSON.parse(raw); return; }
+  const old = JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]');
+  if (old.length) {
+    allHabits = old.map(it => ({ ...it, icon: '', todayActive: true }));
+    localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
   }
-  // 이전 버전 마이그레이션: onstep_care_plan.exercise.items → 별도 키
-  const plan = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-  trackerItems = (plan.exercise?.items || []).map(it => ({
-    id: it.id ?? Date.now() + Math.random(),
-    name: it.name || '',
-    time: it.time || '',
-    alarm: !!it.alarm
-  }));
-  if (trackerItems.length) localStorage.setItem(TRACKER_KEY, JSON.stringify(trackerItems));
+  // legacy exercise 마이그레이션
+  if (!allHabits.length) {
+    const plan = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+    allHabits = (plan.exercise?.items || []).map(it => ({
+      id: it.id ?? Date.now() + Math.random(),
+      icon: '', name: it.name || '', time: it.time || '', alarm: !!it.alarm, todayActive: true
+    }));
+    if (allHabits.length) localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+  }
 }
 
-function saveTrackerItems() {
+function _autoActivateDaily() {
+  // '매일'·'일정등록' 타입 습관은 날짜 조건에 맞으면 자동 todayActive:true
+  const today   = new Date().toISOString().slice(0, 10);
+  const todayWD = new Date().getDay();
+  const lastKey = 'onstep_daily_auto_' + today;
+  if (localStorage.getItem(lastKey)) return;
+  let changed = false;
+  allHabits.forEach(h => {
+    const rt = h.repeatType || 'allday';
+    if (rt === 'daily' && !h.todayActive)                                       { h.todayActive = true; changed = true; }
+    if (rt === 'scheduled' && (h.weekdays||[]).includes(todayWD) && !h.todayActive) { h.todayActive = true; changed = true; }
+    if (rt === 'once' && h.scheduleDate === today && !h.todayActive)            { h.todayActive = true; changed = true; }
+  });
+  if (changed) {
+    localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+    localStorage.setItem(lastKey, '1');
+  }
+}
+
+function _syncTrackerItems() {
+  // todayActive 플래그만 기준으로 동기화
+  const active = allHabits.filter(h => h.todayActive);
+  localStorage.setItem(TRACKER_KEY, JSON.stringify(active));
+  return active;
+}
+
+async function saveTrackerToCloud() {
+  const active = _syncTrackerItems();
+  if (typeof _broadcastState === 'function') _broadcastState('tracker');
+  if (!currentUser) return;
   try {
-    localStorage.setItem(TRACKER_KEY, JSON.stringify(trackerItems));
-    saveTrackerToCloud();
-    showToast('✓ Routine Tracker 저장됐습니다 — Today에 반영됩니다');
-  } catch(e) {
-    showToast('⚠️ 저장 실패 — 저장공간이 부족합니다');
-  }
+    await fbDb.collection('users').doc(currentUser.uid)
+      .collection('settings').doc('data')
+      .set({ allHabits, trackerItems: active, savedAt: new Date().toISOString() }, { merge: true });
+  } catch(e) { console.warn('Tracker cloud save:', e); }
 }
 
-function addTrackerItem() {
-  const nameEl = document.getElementById('tracker-new-name');
-  const timeEl = document.getElementById('tracker-new-time');
+let _newRepeatType = 'allday';
+let _newWeekdays   = [];
+
+function setRepeatType(type) {
+  _newRepeatType = type;
+  document.querySelectorAll('[data-type]').forEach(btn => {
+    if (btn.classList.contains('repeat-type-btn'))
+      btn.classList.toggle('active', btn.dataset.type === type);
+  });
+  const isAllday    = type === 'allday';
+  const isOnce      = type === 'once';
+  const isScheduled = type === 'scheduled';
+  const onceEl   = document.getElementById('once-date-field');
+  const wdEl     = document.getElementById('scheduled-wd-field');
+  const timeEl   = document.getElementById('time-alarm-field');
+  const addbtnEl = document.getElementById('allday-add-field');
+  if (onceEl)   onceEl.classList.toggle('visible', isOnce);
+  if (wdEl)     wdEl.classList.toggle('visible', isScheduled);
+  if (timeEl)   timeEl.classList.toggle('visible', !isAllday);
+  if (addbtnEl) addbtnEl.classList.toggle('visible', isAllday);
+}
+
+function toggleWeekday(wd) {
+  const idx = _newWeekdays.indexOf(wd);
+  if (idx >= 0) _newWeekdays.splice(idx, 1);
+  else          _newWeekdays.push(wd);
+  document.querySelectorAll('.weekday-btn[data-wd]').forEach(btn => {
+    btn.classList.toggle('active', _newWeekdays.includes(Number(btn.dataset.wd)));
+  });
+}
+
+function addHabit() {
+  const iconEl  = document.getElementById('tracker-new-icon');
+  const nameEl  = document.getElementById('tracker-new-name');
+  const timeEl  = document.getElementById('tracker-new-time');
+  const dateEl  = document.getElementById('tracker-new-date');
+  const alarmEl = document.getElementById('tracker-new-alarm');
   const name = nameEl.value.trim();
   if (!name) { nameEl.focus(); return; }
-  trackerItems.push({ id: Date.now(), name, time: timeEl.value || '', alarm: false });
-  nameEl.value = '';
-  timeEl.value = '08:00';
-  renderTrackerList();
+  const isAllday = _newRepeatType === 'allday';
+  allHabits.push({
+    id: Date.now(),
+    icon: (iconEl.value||'').trim(),
+    name,
+    time: isAllday ? '' : (timeEl ? timeEl.value : ''),
+    alarm: (!isAllday && alarmEl) ? alarmEl.checked : false,
+    repeatType:   _newRepeatType,
+    scheduleDate: _newRepeatType === 'once'      ? (dateEl ? dateEl.value : '') : '',
+    weekdays:     _newRepeatType === 'scheduled' ? [..._newWeekdays] : [],
+    todayActive: false
+  });
+  iconEl.value = ''; nameEl.value = '';
+  if (timeEl) timeEl.value = '00:00';
+  if (alarmEl) alarmEl.checked = false;
+  _newRepeatType = 'allday'; _newWeekdays = [];
+  setRepeatType('allday');
+  localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+  _syncTrackerItems();
+  saveTrackerToCloud();
+  renderHabitPool();
+  renderDailyHabits();
+  showToast('✓ 습관이 추가됐습니다');
 }
 
-function deleteTrackerItem(id) {
-  trackerItems = trackerItems.filter(it => it.id !== id);
-  renderTrackerList();
+// ── 습관 편집 ──────────────────────────────────────────────────
+let _editingHabitId = null;
+let _editRepeatType = 'allday';
+let _editWeekdays   = [];
+
+function openHabitEdit(id) {
+  const h = allHabits.find(h => h.id == id);
+  if (!h) return;
+  _editingHabitId = id;
+  _editRepeatType = h.repeatType || 'allday';
+  _editWeekdays   = [...(h.weekdays || [])];
+  document.getElementById('habit-edit-icon').value  = h.icon  || '';
+  document.getElementById('habit-edit-name').value  = h.name  || '';
+  document.getElementById('habit-edit-time').value  = h.time  || '00:00';
+  document.getElementById('habit-edit-alarm').checked = !!h.alarm;
+  const dateEl = document.getElementById('habit-edit-date');
+  if (dateEl) dateEl.value = h.scheduleDate || '';
+  setEditRepeatType(_editRepeatType);
+  document.querySelectorAll('[data-edit-wd]').forEach(btn => {
+    btn.classList.toggle('active', _editWeekdays.includes(Number(btn.dataset.editWd)));
+  });
+  document.getElementById('habit-edit-overlay').classList.add('open');
+  document.getElementById('habit-edit-sheet').classList.add('open');
 }
 
-function toggleTrackerAlarm(id) {
-  const item = trackerItems.find(it => it.id === id);
-  if (!item) return;
-  item.alarm = !item.alarm;
-  renderTrackerList();
-  if (item.alarm && 'Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
+function closeHabitEdit() {
+  document.getElementById('habit-edit-overlay').classList.remove('open');
+  document.getElementById('habit-edit-sheet').classList.remove('open');
+  _editingHabitId = null;
+}
+
+function setEditRepeatType(type) {
+  _editRepeatType = type;
+  document.querySelectorAll('[data-edit-type]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.editType === type);
+  });
+  const isAllday    = type === 'allday';
+  const isOnce      = type === 'once';
+  const isScheduled = type === 'scheduled';
+  const onceEl   = document.getElementById('edit-once-date-field');
+  const wdEl     = document.getElementById('edit-scheduled-wd-field');
+  const timeEl   = document.getElementById('edit-time-alarm-field');
+  if (onceEl) onceEl.classList.toggle('visible', isOnce);
+  if (wdEl)   wdEl.classList.toggle('visible', isScheduled);
+  if (timeEl) timeEl.classList.toggle('visible', !isAllday);
+}
+
+function toggleEditWeekday(wd) {
+  const idx = _editWeekdays.indexOf(wd);
+  if (idx >= 0) _editWeekdays.splice(idx, 1);
+  else          _editWeekdays.push(wd);
+  document.querySelectorAll('[data-edit-wd]').forEach(btn => {
+    btn.classList.toggle('active', _editWeekdays.includes(Number(btn.dataset.editWd)));
+  });
+}
+
+function saveHabitEdit() {
+  const h = allHabits.find(h => h.id == _editingHabitId);
+  if (!h) return;
+  const name = document.getElementById('habit-edit-name').value.trim();
+  if (!name) return;
+  const isAllday = _editRepeatType === 'allday';
+  h.icon        = document.getElementById('habit-edit-icon').value.trim();
+  h.name        = name;
+  h.repeatType  = _editRepeatType;
+  h.time        = isAllday ? '' : document.getElementById('habit-edit-time').value;
+  h.alarm       = !isAllday && document.getElementById('habit-edit-alarm').checked;
+  h.scheduleDate = _editRepeatType === 'once' ? document.getElementById('habit-edit-date').value : '';
+  h.weekdays     = _editRepeatType === 'scheduled' ? [..._editWeekdays] : [];
+  localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+  _syncTrackerItems();
+  saveTrackerToCloud();
+  renderHabitPool();
+  renderDailyHabits();
+  closeHabitEdit();
+  showToast('✓ 저장됐습니다');
+}
+
+function deleteHabitFromEdit() {
+  allHabits = allHabits.filter(h => h.id != _editingHabitId);
+  localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+  _syncTrackerItems();
+  saveTrackerToCloud();
+  renderHabitPool();
+  renderDailyHabits();
+  closeHabitEdit();
+  showToast('삭제됐습니다');
+}
+
+function toggleTodayActive(id) {
+  const h = allHabits.find(h => h.id === id);
+  if (!h) return;
+  h.todayActive = !h.todayActive;
+  localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+  saveTrackerToCloud();
+  renderHabitPool();
+  renderDailyHabits();
+}
+
+function deleteHabit(id) {
+  allHabits = allHabits.filter(h => h.id !== id);
+  localStorage.setItem(HABITS_KEY, JSON.stringify(allHabits));
+  saveTrackerToCloud();
+  renderHabitPool();
+  renderDailyHabits();
+}
+
+function renderHabitPool() {
+  const el = document.getElementById('habit-pool-list');
+  if (!el) return;
+  const WD_NAMES = ['일','월','화','수','목','금','토'];
+  const pool = allHabits.filter(h => !h.todayActive);
+  if (!pool.length) {
+    el.innerHTML = '<div style="padding:16px;font-size:12px;color:var(--mist);text-align:center;font-family:\'Inter\',sans-serif">전체 습관이 오늘 활성화됨</div>';
+    return;
   }
+  el.innerHTML = pool.map(h => {
+    const rt = h.repeatType || 'allday';
+    let badge = '';
+    if      (rt === 'allday')    badge = `<span class="habit-repeat-badge allday">종일</span>`;
+    else if (rt === 'daily')     badge = `<span class="habit-repeat-badge daily">매일</span>`;
+    else if (rt === 'once')      badge = `<span class="habit-repeat-badge once">${h.scheduleDate||'1회성'}</span>`;
+    else if (rt === 'scheduled') {
+      const wds = (h.weekdays||[]).map(d => WD_NAMES[d]).join('·');
+      badge = `<span class="habit-repeat-badge scheduled">${wds||'요일미정'}</span>`;
+    }
+    const timeStr = (h.time && h.time !== '00:00') ? fmtHabitTime(h.time) : '';
+    return `<div class="habit-pool-item">
+      <div class="habit-today-cb" onclick="event.stopPropagation();toggleTodayActive(${h.id})" title="오늘 활성화"></div>
+      <div class="habit-pool-icon">${getHabitIcon(h.icon, h.name)}</div>
+      <div class="habit-pool-info" onclick="openHabitEdit(${h.id})" style="cursor:pointer">
+        <div class="habit-pool-name" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${h.name} ${badge}</div>
+        <div class="habit-pool-time">${timeStr}${h.alarm?' 🔔':''}</div>
+      </div>
+      <button class="habit-edit-btn" onclick="openHabitEdit(${h.id})">✎</button>
+    </div>`;
+  }).join('');
 }
 
+function renderDailyHabits() {
+  const el = document.getElementById('tracker-list');
+  if (!el) return;
+  const WD_NAMES = ['일','월','화','수','목','금','토'];
+  // DAILY HABITS = todayActive:true 인 습관만
+  const active = allHabits.filter(h => h.todayActive)
+    .sort((a,b) => {
+      const ta = (a.time && a.time !== '00:00') ? a.time : '99:99';
+      const tb = (b.time && b.time !== '00:00') ? b.time : '99:99';
+      return ta.localeCompare(tb);
+    });
+
+  if (!active.length) {
+    el.innerHTML = '<div style="padding:20px 16px;font-size:12px;color:var(--mist);text-align:center;font-family:\'Inter\',sans-serif;border:1.5px dashed var(--border-md);border-radius:var(--r-lg)">매일 타입 습관을 추가하거나 Today Go → 로 활성화하세요</div>';
+    return;
+  }
+  el.innerHTML = `<div style="background:#fff;border-radius:var(--r-xl);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)">` +
+    active.map(h => {
+      const rt = h.repeatType || 'allday';
+      let badge = '';
+      if      (rt === 'allday')    badge = `<span class="habit-repeat-badge allday">종일</span>`;
+      else if (rt === 'daily')     badge = `<span class="habit-repeat-badge daily">매일</span>`;
+      else if (rt === 'once')      badge = `<span class="habit-repeat-badge once">1회</span>`;
+      else if (rt === 'scheduled') {
+        const wds = (h.weekdays||[]).map(d => WD_NAMES[d]).join('·');
+        badge = `<span class="habit-repeat-badge scheduled">${wds}</span>`;
+      }
+      const releaseBtn = `<button class="habit-release-btn" onclick="toggleTodayActive(${h.id})">해제</button>`;
+      return `<div class="tracker-item">
+        <div class="tracker-item-icon">${getHabitIcon(h.icon, h.name)}</div>
+        <div class="tracker-item-info" style="flex:1;min-width:0">
+          <div class="tracker-item-name">${h.name}</div>
+          <div style="display:flex;gap:6px;margin-top:3px;align-items:center">
+            ${(h.time && h.time !== '00:00') ? `<span class="tracker-item-time">${fmtHabitTime(h.time)}</span>` : ''}
+            ${h.alarm ? '<span style="font-size:11px">🔔</span>' : ''}
+          </div>
+        </div>
+        ${releaseBtn}
+      </div>`;
+    }).join('') + `</div>`;
+}
+
+function renderTrackerList() { renderHabitPool(); renderDailyHabits(); }
+function saveTrackerItems() { saveTrackerToCloud(); showToast('✓ 저장됐습니다'); }
 function fmtTime12h(t) {
   if (!t) return '—';
   const [h, m] = t.split(':').map(Number);
-  const ap = h >= 12 ? 'PM' : 'AM';
-  const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ap}`;
-}
-
-function renderTrackerList() {
-  const el = document.getElementById('tracker-list');
-  if (!el) return;
-  if (!trackerItems.length) {
-    el.innerHTML = '<div class="tracker-empty">등록된 습관이 없습니다.<br>위에서 새 습관을 추가해 보세요.</div>';
-    return;
-  }
-  el.innerHTML = trackerItems.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko')).map(it => `
-    <div class="tracker-item">
-      <div class="tracker-item-icon">◎</div>
-      <div class="tracker-item-info">
-        <div class="tracker-item-name">${it.name}</div>
-        <div class="tracker-item-time">${fmtTime12h(it.time)}</div>
-      </div>
-      <button class="tracker-alarm-btn${it.alarm ? ' active' : ''}" onclick="toggleTrackerAlarm(${it.id})" title="${it.alarm ? '알림 끄기' : '알림 켜기'}">🔔</button>
-      <button class="tracker-del-btn" onclick="deleteTrackerItem(${it.id})">✕</button>
-    </div>`).join('');
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
 }
 
 (function _migrateV2() {
