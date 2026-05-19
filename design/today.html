@@ -56,6 +56,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 /* ── Weather Row ── */
 .weather-row{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
 .mascot-card{width:46px;height:46px;background:#c5ff00;border-radius:10px;border:2px solid #91c000;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:28px;line-height:1}
+.weather-info{display:flex;flex-direction:column;gap:3px}
+.weather-location{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--mist);letter-spacing:.04em;line-height:1;display:flex;align-items:center;gap:4px}
+.weather-location svg{flex-shrink:0}
 .weather-main-text{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--ink);line-height:1}
 
 /* ── Session Hero ── */
@@ -443,7 +446,13 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
     <!-- Weather Row -->
     <div class="weather-row">
       <div class="mascot-card" id="weather-mascot">🌿</div>
-      <div class="weather-main-text" id="weather-main-text">로딩 중...</div>
+      <div class="weather-info">
+        <div class="weather-location" id="weather-location" style="display:none">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          <span id="weather-location-text"></span>
+        </div>
+        <div class="weather-main-text" id="weather-main-text">로딩 중...</div>
+      </div>
     </div>
 
     <!-- Session Hero (이미지 기준: 12TH SESSION + 날짜 + 도트) -->
@@ -2228,9 +2237,9 @@ function saveMOTDRecord() {
 }
 
 // ── Weather ───────────────────────────────────────────────────
-const WEATHER_API_KEY = ''; // OpenWeatherMap API 키 입력 (https://openweathermap.org/api)
-const WEATHER_CITY    = 'Seoul';
-const WEATHER_CACHE_MS = 30 * 60 * 1000; // 30분 캐시
+const WEATHER_API_KEY  = ''; // OpenWeatherMap API 키 (https://openweathermap.org/api)
+const WEATHER_CITY     = 'Seoul';
+const WEATHER_CACHE_MS = 30 * 60 * 1000;
 
 function getWeatherInfo(code) {
   const c = code || 0;
@@ -2267,62 +2276,83 @@ function getWeatherInfo(code) {
   return {emoji:'🌿', desc:'맑음'};
 }
 
+async function _getCoords() {
+  if (!navigator.geolocation) return null;
+  try {
+    return await new Promise((res, rej) =>
+      navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000, maximumAge: 300000 }));
+  } catch(e) { return null; }
+}
+
+async function _getLocationName(lat, lon) {
+  try {
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=12&accept-language=ko`,
+      { headers: { 'User-Agent': 'OnStep-App/1.0' } }
+    );
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    return d.address?.city_district || d.address?.suburb || d.address?.borough
+      || d.address?.city || d.address?.county || d.address?.state || '';
+  } catch(e) { return ''; }
+}
+
 async function initWeather() {
   let cached;
   try { const d = JSON.parse(localStorage.getItem('onstep_weather_v3')||''); if (Date.now() - d.ts < WEATHER_CACHE_MS) cached = d; } catch(e) {}
+  if (cached) { renderWeather(cached); return; }
 
-  if (cached) {
-    renderWeather(cached); return;
-  }
+  const pos = await _getCoords();
+  const lat  = pos?.coords.latitude  ?? null;
+  const lon  = pos?.coords.longitude ?? null;
+
+  // 위치명: geolocation 성공 시 Nominatim 역지오코딩
+  let location = '';
+  if (lat && lon) location = await _getLocationName(lat, lon);
 
   if (!WEATHER_API_KEY) {
-    // fallback: wttr.in (no key needed)
+    const query = (lat && lon) ? `${lat},${lon}` : WEATHER_CITY;
     try {
-      const res = await fetch(`https://wttr.in/${WEATHER_CITY}?format=j1`);
-      if (!res.ok) throw new Error('wttr fail');
+      const res = await fetch(`https://wttr.in/${query}?format=j1`);
+      if (!res.ok) throw new Error();
       const d = await res.json();
       const cur = d.current_condition[0];
-      const w = {
-        ts: Date.now(),
-        temp: Math.round(cur.temp_C),
-        feels: Math.round(cur.FeelsLikeC),
-        humidity: cur.humidity,
-        desc: cur.lang_ko?.[0]?.value || cur.weatherDesc[0]?.value || '맑음',
-        code: parseInt(cur.weatherCode),
-      };
+      if (!location) {
+        const area = d.nearest_area?.[0];
+        location = [area?.areaName?.[0]?.value, area?.region?.[0]?.value].filter(Boolean).join(' · ');
+      }
+      const w = { ts: Date.now(), temp: Math.round(cur.temp_C), feels: Math.round(cur.FeelsLikeC),
+        humidity: cur.humidity, desc: cur.lang_ko?.[0]?.value || cur.weatherDesc[0]?.value || '맑음',
+        code: parseInt(cur.weatherCode), location };
       localStorage.setItem('onstep_weather_v3', JSON.stringify(w));
       renderWeather(w);
-    } catch(e) {
-      renderWeatherFallback();
-    }
+    } catch(e) { renderWeatherFallback(); }
     return;
   }
 
   try {
-    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${WEATHER_CITY}&appid=${WEATHER_API_KEY}&units=metric&lang=kr`);
-    if (!res.ok) throw new Error('OWM fail');
+    const query = (lat && lon) ? `lat=${lat}&lon=${lon}` : `q=${WEATHER_CITY}`;
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?${query}&appid=${WEATHER_API_KEY}&units=metric&lang=kr`);
+    if (!res.ok) throw new Error();
     const d = await res.json();
-    const w = {
-      ts: Date.now(),
-      temp: Math.round(d.main.temp),
-      feels: Math.round(d.main.feels_like),
-      humidity: d.main.humidity,
-      desc: d.weather[0]?.description || '맑음',
-      code: d.weather[0]?.id || 800,
-    };
+    if (!location) location = d.name || '';
+    const w = { ts: Date.now(), temp: Math.round(d.main.temp), feels: Math.round(d.main.feels_like),
+      humidity: d.main.humidity, desc: d.weather[0]?.description || '맑음',
+      code: d.weather[0]?.id || 800, location };
     localStorage.setItem('onstep_weather_v3', JSON.stringify(w));
     renderWeather(w);
-  } catch(e) {
-    renderWeatherFallback();
-  }
+  } catch(e) { renderWeatherFallback(); }
 }
 
 function renderWeather(w) {
   const mascot = document.getElementById('weather-mascot');
   const mainEl = document.getElementById('weather-main-text');
+  const locWrap = document.getElementById('weather-location');
+  const locText = document.getElementById('weather-location-text');
   const info = getWeatherInfo(w.code);
   if (mascot) mascot.textContent = info.emoji;
   if (mainEl) mainEl.textContent = `${info.desc}  ${w.temp}° · 습도 ${w.humidity}%`;
+  if (locText && w.location) { locText.textContent = w.location; locWrap.style.display = 'flex'; }
   const ootdEl = document.getElementById('ootd-weather');
   if (ootdEl) ootdEl.textContent = `${info.emoji} ${w.temp}° · 습도 ${w.humidity}%`;
 }

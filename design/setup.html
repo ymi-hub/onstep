@@ -2063,6 +2063,7 @@ window.addEventListener('load', () => {
   const panel = params.get('panel');
   const slot  = params.get('slot');
   if (panel) {
+    history.replaceState(null, '', location.pathname); // 파라미터 즉시 제거 (새로고침 시 재진입 방지)
     openSetupPanel(panel);
     const edit = params.get('edit');
     if (panel === 'routine' && edit === '1') {
