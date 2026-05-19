@@ -2413,6 +2413,43 @@ function getLocs()    { return JSON.parse(localStorage.getItem(LOCS_KEY)   || '[
 function saveAssets(a){ localStorage.setItem(ASSETS_KEY, JSON.stringify(a)); saveBoxToCloud(); if(typeof _broadcastState==='function') _broadcastState('box_assets'); }
 function saveLocs(l)  { localStorage.setItem(LOCS_KEY,   JSON.stringify(l)); saveBoxToCloud(); if(typeof _broadcastState==='function') _broadcastState('box_assets'); }
 
+// 제품 이름·브랜드 변경 시 care plan / themes 의 embedded 복사본 일괄 동기화
+function _propagateAssetMeta(assetId, newName, newBrand) {
+  const _upd = (products) => {
+    if (!Array.isArray(products)) return false;
+    let hit = false;
+    products.forEach(p => {
+      if (p.assetId === assetId) { p.name = newName; p.brand = newBrand || ''; hit = true; }
+    });
+    return hit;
+  };
+  try {
+    const plan = JSON.parse(localStorage.getItem('onstep_care_plan') || '{}');
+    let c = false;
+    ['morning','nightly'].forEach(s => (plan[s]?.routines||[]).forEach(r => { if(_upd(r.products)) c=true; }));
+    (plan.history||[]).forEach(h => ['morning','nightly'].forEach(s => (h[s]?.routines||[]).forEach(r => { if(_upd(r.products)) c=true; })));
+    if (c) localStorage.setItem('onstep_care_plan', JSON.stringify(plan));
+  } catch(e) {}
+  try {
+    const th = JSON.parse(localStorage.getItem('onstep_care_themes')||'[]');
+    let c = false;
+    th.forEach(t => { if(_upd(t.products)) c=true; });
+    if (c) localStorage.setItem('onstep_care_themes', JSON.stringify(th));
+  } catch(e) {}
+  try {
+    const mt = JSON.parse(localStorage.getItem('onstep_makeup_themes')||'{"themes":[]}');
+    let c = false;
+    (mt.themes||[]).forEach(t => { if(_upd(t.products)) c=true; });
+    if (c) localStorage.setItem('onstep_makeup_themes', JSON.stringify(mt));
+  } catch(e) {}
+  try {
+    const lt = JSON.parse(localStorage.getItem('onstep_look_themes')||'[]');
+    let c = false;
+    lt.forEach(t => { if(_upd(t.products||t.items||[])) c=true; });
+    if (c) localStorage.setItem('onstep_look_themes', JSON.stringify(lt));
+  } catch(e) {}
+}
+
 // ── Sample data ───────────────────────────────────────────────
 function initSampleData() {
   if (getAssets().length) return;
@@ -4653,7 +4690,10 @@ function saveAsset() {
   if (_editingAssetId !== null) {
     // 수정 모드
     const idx = assets.findIndex(a => a.id === _editingAssetId);
-    if (idx !== -1) _buildFields(assets[idx]);
+    if (idx !== -1) {
+      _buildFields(assets[idx]);
+      _propagateAssetMeta(_editingAssetId, name, brand);
+    }
     saveAssets(assets);
   } else {
     // 신규 등록

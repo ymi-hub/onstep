@@ -1771,6 +1771,27 @@ window.addEventListener('DOMContentLoaded', () => {
     if (ctRes && ctRes.children.length) renderCtBoxResults(document.getElementById('ct-box-inp')?.value || '');
     renderCtCareList();
     renderCtChips();
+
+    // 루틴 편집 패널 열려있으면 care plan 다시 로드 후 재렌더
+    if (document.getElementById('setup-panel-routine-edit')?.classList.contains('open')) {
+      const fresh = JSON.parse(localStorage.getItem('onstep_care_plan') || '{}');
+      if (fresh && Object.keys(fresh).length) applyPlanData(fresh);
+      renderAll();
+    }
+    // 세션 편집 패널(se-panel)이 열려있으면 _seEdit.data 제품명 갱신 후 재렌더
+    if (document.getElementById('se-panel')?.classList.contains('open') && _seEdit) {
+      const boxAssets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+      ['morning','nightly'].forEach(slot => {
+        (_seEdit.data[slot]?.routines||[]).forEach(r => {
+          (r.products||[]).forEach(p => {
+            if (p.assetId == null) return;
+            const a = boxAssets.find(x => x.id === p.assetId);
+            if (a) { p.name = a.name; p.brand = a.brand || ''; }
+          });
+        });
+      });
+      renderSeBody();
+    }
   });
 });
 
