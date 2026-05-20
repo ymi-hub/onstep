@@ -1925,9 +1925,10 @@ async function saveTrackerToCloud() {
   if (typeof _broadcastState === 'function') _broadcastState('tracker');
   if (!currentUser) return;
   try {
+    const items = JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]');
     await fbDb.collection('users').doc(currentUser.uid)
       .collection('settings').doc('data')
-      .set({ trackerItems, savedAt: new Date().toISOString() }, { merge: true });
+      .set({ trackerItems: items, savedAt: new Date().toISOString() }, { merge: true });
   } catch(e) { console.warn('Tracker cloud save:', e); }
 }
 
@@ -2125,28 +2126,32 @@ window.addEventListener('load', () => {
 });
 
 // 로컬과 클라우드 careplan을 병합 — 세션은 절대 유실되지 않도록
-// local 우선(편집 내용 보존), cloud에만 있는 세션은 추가
+// session 번호가 높은 쪽을 base로 사용 (동일하면 타임스탬프 기준)
 function _mergePlan(local, cloud) {
   if (!local || !local.savedAt) return cloud;
   if (!cloud || !cloud.savedAt) return local;
-  const localTs  = new Date(local.savedAt).getTime();
-  const cloudTs  = new Date(cloud.savedAt).getTime();
-  // current session: 최신 기준 (더 새로 저장된 쪽)
-  const base = cloudTs >= localTs ? cloud : local;
+  const localSession = parseInt(local.session) || 0;
+  const cloudSession = parseInt(cloud.session) || 0;
+  const localTs = new Date(local.savedAt).getTime();
+  const cloudTs = new Date(cloud.savedAt).getTime();
+  // session 번호 높은 쪽 우선 — 타임스탬프만으로 결정하면 낮은 번호가 "최신"으로 덮어쓰는 버그 발생
+  const cloudWins = cloudSession > localSession ||
+                    (cloudSession === localSession && cloudTs >= localTs);
+  const base  = cloudWins ? cloud : local;
+  const other = cloudWins ? local  : cloud;
   // history 병합: 세션 번호 기준 dedup, local 우선
   const map = new Map();
   (cloud.history||[]).forEach(s => { if (s.session) map.set(Number(s.session), s); });
   (local.history||[]).forEach(s => { if (s.session) map.set(Number(s.session), s); });
   // 현재 세션(base가 아닌 쪽)도 history에 포함해 유실 방지
-  const otherCurrent = cloudTs >= localTs ? local : cloud;
-  if (otherCurrent.session && otherCurrent.session !== base.session) {
-    const n = Number(otherCurrent.session);
+  if (other.session && other.session !== base.session) {
+    const n = Number(other.session);
     if (!map.has(n)) map.set(n, {
-      session: otherCurrent.session,
-      periodStart: otherCurrent.periodStart,
-      periodEnd: otherCurrent.periodEnd,
-      morning: otherCurrent.morning,
-      nightly: otherCurrent.nightly
+      session: other.session,
+      periodStart: other.periodStart,
+      periodEnd: other.periodEnd,
+      morning: other.morning,
+      nightly: other.nightly
     });
   }
   return { ...base, history: Array.from(map.values()) };
@@ -2621,7 +2626,7 @@ function toggleProdList(slot) {
 
 // ── History ───────────────────────────────────────────────────
 function _isSessionNow(s) {
-  if (!s.periodStart) return true;
+  if (!s.periodStart) return false;
   const today = new Date().toISOString().slice(0,10);
   return today >= s.periodStart && today <= (s.periodEnd || s.periodStart);
 }
@@ -2689,10 +2694,10 @@ function renderRoutineSessionList() {
     }
 
     html += `
-    <div class="ae-row${s.isCurrent ? ' current' : ''}" id="rs-row-${n}" onclick="toggleRsRow(${n})">
+    <div class="ae-row${_isSessionNow(s) ? ' current' : ''}" id="rs-row-${n}" onclick="toggleRsRow(${n})">
       <div class="ae-session-num">#${String(n).padStart(2,'0')}</div>
       <div class="ae-row-info">
-        <div class="ae-row-title">No.${n} SESSION${(s.isCurrent && _isSessionNow(s)) ? ' <span class="ae-now-pill">NOW</span>' : ''}</div>
+        <div class="ae-row-title">No.${n} SESSION${_isSessionNow(s) ? ' <span class="ae-now-pill">NOW</span>' : ''}</div>
         <div class="ae-row-dates">${fmt(s.periodStart)} – ${fmt(s.periodEnd)}</div>
       </div>
       <div class="ae-row-right">${tagsHtml}<span class="ae-chevron">›</span></div>
@@ -2894,12 +2899,12 @@ function renderArchiveList(sessions) {
       : '<div class="ae-detail-empty">등록된 제품이 없습니다</div>';
 
     html += `
-    <div class="ae-row${s.isCurrent?' current':''}" id="ae-row-${n}" onclick="toggleAeRow(${n})">
+    <div class="ae-row${_isSessionNow(s) ? ' current' : ''}" id="ae-row-${n}" onclick="toggleAeRow(${n})">
       <div class="ae-session-num">#${String(n).padStart(2,'0')}</div>
       <div class="ae-row-info">
         <div class="ae-row-title">
           No.${n} SESSION
-          ${(s.isCurrent && _isSessionNow(s)) ? '<span class="ae-now-pill">NOW</span>' : ''}
+          ${_isSessionNow(s) ? '<span class="ae-now-pill">NOW</span>' : ''}
         </div>
         <div class="ae-row-dates">${fmtDate(s.periodStart)} – ${fmtDate(s.periodEnd)}</div>
       </div>
@@ -3145,7 +3150,29 @@ function saveEditSheet() {
   if (!newN || !s || !e) { showToast('회차 번호와 기간을 모두 입력해주세요'); return; }
 
   if (_editingSessionNum === -1) {
-    // 새 세션: 현재 세션을 history에 보관 후 초기화
+    const _todayStr = getTodayKey ? getTodayKey() : new Date().toISOString().slice(0,10);
+    // 과거 일정(종료일 < 오늘) → history에만 추가, 현재 세션 변경 없음
+    if (e < _todayStr) {
+      if (!state.history) state.history = [];
+      // 동일 회차 번호 중복 방지
+      const dupIdx = state.history.findIndex(h => Number(h.session) === newN);
+      if (dupIdx >= 0) { showToast(`${newN}회차는 이미 존재합니다`); return; }
+      state.history.push({
+        session:     newN,
+        periodStart: s,
+        periodEnd:   e,
+        morning:     { active: 1, routines: [{ id: 1, products: [], tip: '' }] },
+        nightly:     { active: 1, routines: [{ id: 1, products: [], tip: '' }] },
+        published:   false
+      });
+      closeEditSheet();
+      persistPlan(state.published || false);
+      renderArchiveEntries();
+      renderRoutineSessionList();
+      showToast(`${newN}회차 일정이 아카이브에 추가됐습니다`);
+      return;
+    }
+    // 현재/미래 일정 → 기존 세션을 history에 보관 후 새 세션으로 전환
     if (state.session) {
       if (!state.history) state.history = [];
       state.history.push({
