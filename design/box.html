@@ -17,7 +17,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="shared.js"></script>
 <link rel="stylesheet" href="shared.css">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <style>
 /* ════════════════════════════════════
    SERENE RITUALS — Box / Inventory
@@ -39,7 +39,7 @@
 body{
   background:#E8E6E0; display:flex; justify-content:center; align-items:flex-start;
   min-height:100vh; padding:24px 16px 48px;
-  font-family:'Inter',sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased;
 }
 .phone{
   width:390px; background:var(--bg); border-radius:48px;
@@ -78,20 +78,20 @@ body{
 /* ── Page hero ── */
 .page-hero{padding:20px 16px 6px;}
 .page-hero-label{
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:600;
   letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:4px;
 }
 .page-hero-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:6px;}
 .page-hero-title{
-  font-family:'Space Grotesk',sans-serif; font-size:60px; font-weight:900;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:60px; font-weight:900;
   color:var(--ink); line-height:.9; letter-spacing:-.02em;
 }
 .page-hero-title::after{content:'';display:block;width:40px;height:4px;background:var(--lime);border-radius:2px;margin-top:8px;}
 .page-hero-count{
-  font-family:'Inter',sans-serif; font-size:11px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; font-weight:600;
   color:var(--mist); padding-bottom:6px; letter-spacing:.04em;
 }
-.page-hero-sub{font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding-bottom:18px;}
+.page-hero-sub{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--mist);padding-bottom:18px;}
 
 /* ── Domain tab bar ── */
 .domain-tabs{
@@ -104,7 +104,7 @@ body{
 .domain-tabs::-webkit-scrollbar{display:none;}
 .domain-tab{
   flex:1; text-align:center; padding:11px 14px 10px;
-  font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:13px; font-weight:700;
   letter-spacing:.02em; text-transform:uppercase; color:var(--mist);
   cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; flex-shrink:0;
   transition:all .18s;
@@ -121,7 +121,7 @@ body{
 .cat-chip{
   flex-shrink:0; padding:5px 12px; border-radius:var(--r-full);
   border:1.5px solid var(--border); background:transparent;
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.08em; text-transform:uppercase;
   color:var(--sub); cursor:pointer; transition:all .18s;
   white-space:nowrap;
@@ -139,7 +139,7 @@ body{
 }
 .mag-badge{
   position:absolute;top:14px;left:14px;background:#fff;color:var(--ink);
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
   padding:5px 12px;border-radius:var(--r-full);box-shadow:0 2px 8px rgba(0,0,0,.12);
 }
 .mag-hero-info{padding:12px 0 4px;}
@@ -152,18 +152,18 @@ body{
   display:flex;align-items:center;justify-content:center;overflow:hidden;
 }
 .mag-small-info{padding:8px 0 0;}
-.mag-brand{font-family:'Georgia',serif;font-size:14px;font-style:italic;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.mag-name{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--ink);margin-bottom:8px;line-height:1.3;}
+.mag-brand{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-style:italic;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mag-name{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:500;color:var(--ink);margin-bottom:8px;line-height:1.3;}
 .mag-stock-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:8px;margin-top:2px;}
-.mag-stock-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lime-dark);}
-.mag-stock-val{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--mist);}
+.mag-stock-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lime-dark);}
+.mag-stock-val{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:var(--mist);}
 /* Promo card */
 .promo-card{
   margin:14px 16px 6px;border:2px solid var(--lime);border-radius:var(--r-lg);
   padding:12px 14px;display:flex;align-items:center;gap:12px;background:#fff;
 }
 .promo-avatar{width:44px;height:44px;background:var(--lime);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
-.promo-text{flex:1;font-family:'Inter',sans-serif;font-style:italic;font-size:13px;color:var(--ink);line-height:1.4;}
+.promo-text{flex:1;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-style:italic;font-size:13px;color:var(--ink);line-height:1.4;}
 .promo-icon{font-size:22px;flex-shrink:0;}
 
 /* Product photo */
@@ -176,26 +176,26 @@ body{
 .ac-cat-chip{
   position:absolute; bottom:8px; left:8px;
   background:rgba(26,28,28,.72); color:#fff; border-radius:var(--r-sm);
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.12em; text-transform:uppercase; padding:3px 7px;
   backdrop-filter:blur(6px);
 }
 .ac-season-chip{
   position:absolute; top:8px; right:8px;
   background:rgba(255,255,255,.82); color:var(--ink); border-radius:var(--r-sm);
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.1em; text-transform:uppercase; padding:2px 6px;
 }
 
 /* Info below photo */
 .ac-info{padding:10px 12px 12px;}
 .ac-brand{
-  font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:500;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:500;
   letter-spacing:.08em; text-transform:uppercase; color:var(--mist); margin-bottom:2px;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .ac-name{
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.04em; text-transform:uppercase; color:var(--ink);
   margin-bottom:6px; line-height:1.3;
   overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
@@ -207,7 +207,7 @@ body{
 .ac-expiry-fill.mid{background:var(--amber);}
 .ac-expiry-fill.low{background:var(--error);}
 .ac-expiry-label{
-  font-family:'Inter',sans-serif; font-size:10px; color:var(--mist);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; color:var(--mist);
   margin-top:3px;
 }
 /* ── Residual engine (dual-mode bar) ── */
@@ -216,33 +216,33 @@ body{
 .res-fill.fresh{background:var(--lime);}
 .res-fill.mid{background:var(--amber);}
 .res-fill.low{background:var(--error);}
-.res-meta{display:flex;justify-content:space-between;font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:2px;letter-spacing:.04em;}
+.res-meta{display:flex;justify-content:space-between;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist);margin-top:2px;letter-spacing:.04em;}
 .stock-dots{display:flex;gap:2px;margin-top:4px;flex-wrap:wrap;align-items:center;}
 .stock-dot{width:5px;height:5px;border-radius:50%;background:var(--border-md);flex-shrink:0;}
 .stock-dot.filled{background:var(--ink);}
 /* Detail residual mode tabs */
 .res-mode-row{display:flex;gap:6px;margin-bottom:12px;}
-.res-mode-tab{flex:1;padding:7px 0;border:1.5px solid var(--border);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);text-align:center;cursor:pointer;transition:all .18s;}
+.res-mode-tab{flex:1;padding:7px 0;border:1.5px solid var(--border);border-radius:var(--r-md);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);text-align:center;cursor:pointer;transition:all .18s;}
 .res-mode-tab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
 .res-mode-fields{display:flex;flex-direction:column;gap:10px;}
-.res-use-btn{padding:7px 14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:opacity .18s;}
+.res-use-btn{padding:7px 14px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:opacity .18s;}
 .res-use-btn:active{opacity:.75;}
 /* Add form residual section */
 .add-res-mode-row{display:flex;gap:6px;margin:8px 0;}
-.add-res-tab{flex:1;padding:9px 0;border:1.5px solid #C5C6CA;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#44474A;text-align:center;cursor:pointer;background:transparent;transition:all .18s;}
+.add-res-tab{flex:1;padding:9px 0;border:1.5px solid #C5C6CA;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#44474A;text-align:center;cursor:pointer;background:transparent;transition:all .18s;}
 .add-res-tab.active{background:#000;color:#fff;border-color:#000;}
 
 /* ── Unit pills (pkg / item unit selector) ── */
-.unit-pill{padding:5px 10px;border-radius:9999px;border:1.5px solid #C5C6CA;background:transparent;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;color:#44474A;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.unit-pill{padding:5px 10px;border-radius:9999px;border:1.5px solid #C5C6CA;background:transparent;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;color:#44474A;cursor:pointer;transition:all .18s;white-space:nowrap;}
 .unit-pill.active{background:#0C1014;color:#fff;border-color:#0C1014;}
 
 /* ── Frequency pills (하루횟수 / 사용주기) ── */
-.freq-pill{padding:6px 12px;border-radius:9999px;border:1.5px solid #C5C6CA;background:transparent;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;color:#44474A;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.freq-pill{padding:6px 12px;border-radius:9999px;border:1.5px solid #C5C6CA;background:transparent;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;color:#44474A;cursor:pointer;transition:all .18s;white-space:nowrap;}
 .freq-pill.active{background:#0C1014;color:#fff;border-color:#0C1014;}
 
 /* ── Quick action buttons (복용/보정) in card ── */
 .quick-action-row{display:flex;gap:6px;margin-top:8px;}
-.quick-btn{flex:1;height:36px;border:1.5px solid var(--border-md);border-radius:var(--r-md);background:transparent;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;transition:all .15s;}
+.quick-btn{flex:1;height:36px;border:1.5px solid var(--border-md);border-radius:var(--r-md);background:transparent;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;transition:all .15s;}
 .quick-btn.consume{background:var(--ink);color:#fff;border-color:var(--ink);}
 .quick-btn:active{opacity:.75;}
 
@@ -253,11 +253,11 @@ body{
 }
 .empty-icon{font-size:40px;opacity:.55;margin-bottom:12px;line-height:1;}
 .empty-label{
-  font-family:'Space Grotesk',sans-serif; font-size:14px;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:14px;
   color:var(--sub); line-height:1.55; font-weight:600;
 }
 .empty-hint{
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:600;
   letter-spacing:.06em; color:var(--mist); margin-top:6px;
 }
 
@@ -272,7 +272,7 @@ body{
   transition:transform .18s;
 }
 .fab:active{transform:scale(.92);}
-.toast{position:absolute;bottom:96px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--ink);color:#fff;padding:10px 20px;font-size:12px;font-family:'Space Grotesk','Inter',sans-serif;font-weight:600;letter-spacing:.04em;border-radius:var(--r-full);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;z-index:200}
+.toast{position:absolute;bottom:96px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--ink);color:#fff;padding:10px 20px;font-size:12px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-weight:600;letter-spacing:.04em;border-radius:var(--r-full);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;z-index:200}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── Bottom nav ── */
@@ -285,8 +285,8 @@ body{
   background:var(--surface-mid);background-size:auto 100%;background-position:center;background-repeat:no-repeat;
   display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
 }
-.space-group-name{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink);flex:1;}
-.space-group-count{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);}
+.space-group-name{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--ink);flex:1;}
+.space-group-count{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist);}
 .space-items-row{
   display:flex;gap:10px;padding:0 14px 14px;
   overflow-x:auto;scrollbar-width:none;}
@@ -299,7 +299,7 @@ body{
   border:1px solid var(--border);filter:grayscale(15%);
 }
 .space-asset-name{
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;
   color:var(--sub);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:58px;
 }
 .space-divider{width:1px;height:100%;background:var(--border);flex-shrink:0;}
@@ -309,7 +309,7 @@ body{
 .space-add-loc-btn{
   display:flex;align-items:center;gap:8px;width:100%;padding:14px 16px;
   background:transparent;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);
-  font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--sub);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--sub);
   cursor:pointer;text-align:left;
 }
 .space-add-loc-btn:active{background:var(--surface);}
@@ -334,12 +334,12 @@ body{
   display:flex;align-items:center;justify-content:center;
 }
 .loc-panel-title{
-  font-family:'Inter',sans-serif;font-size:13px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;
   letter-spacing:.04em;color:var(--ink);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .loc-panel-edit-btn{
   padding:6px 12px;border:1px solid var(--border-md);border-radius:var(--r-full);
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;
   color:var(--sub);background:transparent;cursor:pointer;flex-shrink:0;
 }
 .loc-panel-scroll{
@@ -355,17 +355,17 @@ body{
 .loc-edit-section{padding:16px;background:var(--surface);border-bottom:1px solid var(--border);}
 .loc-name-inp{
   width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-md);
-  font-family:'Inter',sans-serif;font-size:15px;color:var(--ink);outline:none;background:#fff;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:15px;color:var(--ink);outline:none;background:#fff;
 }
 .loc-name-inp:focus{border-color:var(--ink);}
 .loc-save-btn{
   flex:1;height:40px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);
-  font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;
 }
 .loc-del-btn{
   height:40px;padding:0 14px;background:transparent;color:var(--error);
   border:1px solid var(--error);border-radius:var(--r-sm);
-  font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;
 }
 .loc-stats-bar{
   display:flex;align-items:center;gap:16px;padding:12px 16px;
@@ -374,7 +374,7 @@ body{
 .loc-search-inp{
   width:100%;padding:9px 14px;
   border:1px solid var(--border);border-radius:var(--r-full);
-  font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:var(--ink);
   outline:none;background:var(--surface);
 }
 .loc-search-inp:focus{border-color:var(--ink);}
@@ -389,26 +389,26 @@ body{
   flex-shrink:0;background-size:100% auto;background-position:top center;background-repeat:no-repeat;
   display:flex;align-items:center;justify-content:center;font-size:18px;
 }
-.loc-item-brand{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);text-transform:uppercase;letter-spacing:.06em;}
-.loc-item-name{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.loc-item-brand{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist);text-transform:uppercase;letter-spacing:.06em;}
+.loc-item-name{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .loc-item-meta{display:flex;gap:6px;align-items:center;margin-top:2px;}
-.loc-cat-chip{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;background:var(--surface);padding:2px 6px;border-radius:2px;color:var(--sub);}
-.loc-use-count{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);}
+.loc-cat-chip{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;background:var(--surface);padding:2px 6px;border-radius:2px;color:var(--sub);}
+.loc-use-count{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist);}
 .loc-load-more-btn{
   width:100%;padding:14px;background:transparent;border:none;cursor:pointer;
-  font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--sub);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--sub);
   border-top:1px solid var(--border);
 }
 .loc-add-here-wrap{position:absolute;bottom:0;left:0;right:0;padding:10px 16px 16px;background:#fff;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;}
 .loc-add-here-btn{
   width:100%;height:48px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-md);
-  font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;
 }
 
-.bottom-nav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);}
+.bottom-nav{background:var(--bg);display:flex;border-top:1px solid rgba(0,0,0,.06);}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;padding:12px 6px 20px;text-decoration:none;border-radius:20px 20px 0 0;}
 .nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#AAAAAA;}
-.nav-label{font-family:'Space Grotesk','Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#AAAAAA;}
+.nav-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#AAAAAA;}
 .nav-item.active{background:#0A0A0A;}
 .nav-item.active .nav-icon{color:#FFFFFF;}
 .nav-item.active .nav-label{color:#FFFFFF;}
@@ -444,7 +444,7 @@ body{
   padding:16px 20px 14px; border-bottom:1px solid var(--border); flex-shrink:0;
 }
 .sheet-hd-title{
-  font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:18px; font-weight:700;
   color:var(--ink); flex:1;
 }
 .sheet-close-btn{
@@ -462,32 +462,32 @@ body{
 .detail-hero-edit{
   position:absolute;bottom:12px;right:12px;
   background:rgba(0,0,0,.55);color:#fff;border-radius:var(--r-sm);
-  padding:5px 10px; font-family:'Inter',sans-serif;
-  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 10px; font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
 }
 .detail-breadcrumb{
   display:flex; align-items:center; gap:5px;
   padding:12px 20px 0;
 }
 .detail-bc-item{
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.12em; text-transform:uppercase; color:var(--mist);
 }
-.detail-bc-sep{font-size:10px;color:var(--border-md);}
+.detail-bc-sep{font-size:11px;color:var(--border-md);}
 .detail-main-info{padding:10px 20px 16px;}
 .detail-brand{
-  font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:500;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:14px; font-weight:500;
   letter-spacing:.06em; text-transform:uppercase; color:var(--mist); margin-bottom:3px;
 }
 .detail-name{
-  font-family:'Inter',sans-serif; font-size:17px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:17px; font-weight:700;
   letter-spacing:.02em; text-transform:uppercase; color:var(--ink); line-height:1.2;
 }
 
 /* Expiry section */
 .detail-section{padding:14px 20px; border-top:1px solid var(--border);}
 .detail-section-label{
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.16em; text-transform:uppercase; color:var(--mist); margin-bottom:10px;
 }
 .expiry-bar-full{
@@ -499,10 +499,10 @@ body{
 .expiry-bar-fill.low{background:var(--error);}
 .expiry-meta-row{display:flex;justify-content:space-between;align-items:center;}
 .expiry-meta-left{
-  font-family:'Inter',sans-serif; font-size:11px; font-weight:600; color:var(--ink);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; font-weight:600; color:var(--ink);
 }
 .expiry-meta-right{
-  font-family:'Inter',sans-serif; font-size:10px; color:var(--mist);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; color:var(--mist);
 }
 
 /* Qty bar */
@@ -513,19 +513,19 @@ body{
 }
 .qty-pip.filled{background:var(--lime);}
 .qty-label{
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:600;
   color:var(--mist); margin-top:5px;
 }
 
 /* Price + link row */
 .detail-price-row{display:flex;align-items:center;gap:10px;margin-top:12px;}
 .detail-price{
-  font-family:'Inter',sans-serif; font-size:14px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:14px; font-weight:700;
   color:var(--ink); flex:1;
 }
 .detail-link-btn{
   padding:7px 14px; border:1.5px solid var(--border-md); border-radius:var(--r-full);
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.1em; text-transform:uppercase; color:var(--sub);
   cursor:pointer; background:transparent; text-decoration:none;
   display:flex;align-items:center;gap:4px;
@@ -545,13 +545,13 @@ body{
 }
 .storage-location-photo:active .storage-edit-hint{opacity:1;}
 .storage-edit-hint span{
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:700;
   letter-spacing:.12em; text-transform:uppercase; color:#fff;
 }
 .storage-name-input{
   width:100%; padding:10px 12px;
   border:1.5px solid var(--border); border-radius:var(--r-md);
-  font-family:'Inter',sans-serif; font-size:13px; color:var(--ink);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:13px; color:var(--ink);
   background:transparent; outline:none; transition:border-color .2s;
 }
 .storage-name-input:focus{border-color:var(--ink);}
@@ -560,7 +560,7 @@ body{
 .storage-shared-chip{
   padding:5px 10px; border-radius:var(--r-full);
   border:1.5px solid var(--border); background:var(--surface-low);
-  font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; font-weight:600;
   letter-spacing:.06em; color:var(--sub); cursor:pointer;
   transition:all .18s;
 }
@@ -570,7 +570,7 @@ body{
 .detail-action-row{display:flex;gap:8px;padding:16px 20px 8px;border-top:1px solid var(--border);}
 .detail-edit-btn{
   flex:1; height:52px; background:var(--ink); color:#fff; border:none;
-  border-radius:var(--r-md); font-family:'Space Grotesk',sans-serif;
+  border-radius:var(--r-md); font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;
   font-size:15px; font-weight:700; letter-spacing:.02em;
   cursor:pointer; transition:opacity .2s;
 }
@@ -586,7 +586,7 @@ body{
    ════════════════════════════════════ */
 .add-step{padding:0 20px;}
 .add-step-title{
-  font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:400;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:17px; font-weight:400;
   color:var(--ink); padding:18px 0 14px;
 }
 
@@ -600,10 +600,10 @@ body{
 .domain-pick-card.selected{border-color:var(--ink);background:var(--ink);}
 .dpc-icon{font-size:24px;margin-bottom:6px;}
 .dpc-label{
-  font-family:'Inter',sans-serif; font-size:11px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; font-weight:700;
   letter-spacing:.1em; text-transform:uppercase; color:var(--ink); margin-bottom:2px;
 }
-.dpc-sub{font-family:'Inter',sans-serif; font-size:10px; color:var(--mist);}
+.dpc-sub{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; color:var(--mist);}
 .domain-pick-card.selected .dpc-label,.domain-pick-card.selected .dpc-sub{color:#fff;}
 .domain-pick-card.selected .dpc-icon{filter:invert(1);}
 
@@ -611,7 +611,7 @@ body{
 .type-tabs{display:flex;gap:6px;margin-bottom:12px;}
 .type-tab{
   flex:1;padding:8px 0;border:1.5px solid var(--border);border-radius:var(--r-md);
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;color:var(--mist);
   text-align:center;cursor:pointer;transition:all .18s;
 }
@@ -621,7 +621,7 @@ body{
 .add-cat-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
 .add-cat-chip{
   padding:6px 14px;border-radius:var(--r-full);border:1.5px solid var(--border);
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.08em;text-transform:uppercase;color:var(--sub);
   cursor:pointer;transition:all .18s;
 }
@@ -630,14 +630,14 @@ body{
 /* Form fields */
 .form-row{display:flex;gap:8px;margin-bottom:10px;}
 .form-label{
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.14em;text-transform:uppercase;color:var(--mist);
   margin-bottom:5px;
 }
 .form-input{
   width:100%;padding:11px 13px;
   border:1.5px solid var(--border);border-radius:var(--r-md);
-  font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:var(--ink);
   background:var(--surface);outline:none;transition:border-color .2s;
 }
 .form-input:focus{border-color:var(--ink);}
@@ -658,7 +658,7 @@ body{
 .photo-upload-block:active{border-color:var(--ink);}
 .photo-upload-icon{font-size:24px;color:var(--border-md);}
 .photo-upload-label{
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;color:var(--border-md);
 }
 .photo-upload-overlay{
@@ -672,7 +672,7 @@ body{
 .storage-existing-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
 .storage-loc-chip{
   padding:6px 12px;border-radius:var(--r-full);border:1.5px solid var(--border);
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.06em;color:var(--sub);cursor:pointer;transition:all .18s;
   display:flex;align-items:center;gap:5px;
 }
@@ -686,28 +686,28 @@ body{
 }
 .or-line{flex:1;height:1px;background:var(--border);}
 .or-text{
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.14em;text-transform:uppercase;color:var(--border-md);
 }
 
 /* Save button */
 .sheet-save-btn{
   width:100%;height:52px;background:var(--ink);color:#fff;border:none;
-  border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;
+  border-radius:var(--r-md);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;
   font-size:15px;font-weight:700;letter-spacing:.02em;
   cursor:pointer;transition:opacity .2s;margin-top:6px;
 }
 .sheet-save-btn:active{opacity:.75;}
 .page-save-btn{
   width:100%;height:52px;background:var(--ink);color:#fff;border:none;
-  border-radius:var(--r-md);font-family:'Space Grotesk',sans-serif;
+  border-radius:var(--r-md);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;
   font-size:15px;font-weight:700;letter-spacing:.02em;
   cursor:pointer;transition:opacity .2s;
 }
 .page-save-btn:active{opacity:.75;}
 .sheet-back-btn{
   padding:8px 0;background:none;border:none;cursor:pointer;
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;
   letter-spacing:.1em;text-transform:uppercase;color:var(--mist);
   display:flex;align-items:center;gap:4px;margin-bottom:4px;
 }
@@ -716,7 +716,7 @@ body{
 .season-chips{display:flex;gap:6px;flex-wrap:wrap;}
 .season-chip{
   padding:5px 12px;border-radius:var(--r-full);border:1.5px solid var(--border);
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;
   transition:all .18s;
 }
@@ -726,30 +726,30 @@ body{
 .det-row{display:flex;gap:8px;}
 .det-field-group{flex:1;margin-bottom:10px;}
 .det-field-label{
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:4px;
 }
 .det-input{
   width:100%;padding:9px 12px;
   border:1.5px solid var(--border);border-radius:var(--r-md);
-  font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--ink);
   background:var(--surface-low);outline:none;transition:border-color .2s;
 }
 .det-input:focus{border-color:var(--ink);background:var(--surface);}
 .det-input::placeholder{color:var(--border-md);}
-.det-input-brand{font-family:'Space Grotesk',sans-serif;font-size:15px;}
+.det-input-brand{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:15px;}
 .det-input-name{font-weight:700;font-size:14px;letter-spacing:.02em;text-transform:uppercase;}
 .det-cat-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .det-cat-chip{
   padding:5px 12px;border-radius:var(--r-full);border:1.5px solid var(--border);
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;transition:all .18s;
 }
 .det-cat-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
 .det-type-tabs{display:flex;gap:6px;margin-bottom:10px;}
 .det-type-tab{
   flex:1;padding:7px 0;border:1.5px solid var(--border);border-radius:var(--r-md);
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;color:var(--mist);
   text-align:center;cursor:pointer;transition:all .18s;
 }
@@ -757,7 +757,7 @@ body{
 .det-season-chips{display:flex;gap:6px;flex-wrap:wrap;}
 .det-season-chip{
   padding:5px 12px;border-radius:var(--r-full);border:1.5px solid var(--border);
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;transition:all .18s;
 }
 .det-season-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
@@ -772,7 +772,7 @@ body{
 .box-search-inp{
   width:100%; padding:9px 40px 9px 14px;
   border:1.5px solid var(--border); border-radius:var(--r-full);
-  font-family:'Inter',sans-serif; font-size:13px; color:var(--ink);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:13px; color:var(--ink);
   background:var(--surface); outline:none; transition:border-color .2s;
 }
 .box-search-inp:focus{border-color:var(--ink);}
@@ -785,7 +785,7 @@ body{
 .box-search-clear{
   position:absolute; right:10px; top:50%; transform:translateY(-50%);
   width:20px; height:20px; border:none; background:var(--surface-mid);
-  border-radius:9999px; cursor:pointer; font-size:11px; color:var(--mist);
+  border-radius:9999px; cursor:pointer; font-size:12px; color:var(--mist);
   display:flex; align-items:center; justify-content:center;
 }
 
@@ -794,8 +794,9 @@ body{
   .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
   .notch{flex-shrink:0;height:calc(env(safe-area-inset-top,0px)+10px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0;}
   .notch-bar{display:none;}
-  .scroll{flex:1;min-height:0;height:auto;}
-  .bottom-nav{border-top:none;}
+  .scroll{flex:1;min-height:0;overflow-y:auto;height:auto;}
+  .app-nav{flex-shrink:0;background:var(--bg);}
+  .bottom-nav{border-top:1px solid rgba(0,0,0,.06);}
   .nav-item{padding-bottom:calc(env(safe-area-inset-bottom,0px)+14px);}
   .fab{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px)+76px);right:18px;}
   button{min-height:44px}
@@ -812,7 +813,7 @@ body{
 .subtype-row.show{display:flex;}
 .subtype-row::-webkit-scrollbar{display:none;}
 .subtype-tab{
-  padding:9px 18px 8px;font-family:'Space Grotesk',sans-serif;
+  padding:9px 18px 8px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;
   font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
   color:var(--mist);cursor:pointer;border-bottom:2px solid transparent;
   white-space:nowrap;transition:all .18s;flex-shrink:0;
@@ -831,7 +832,7 @@ body{
 }
 .cat-chips-scroll::-webkit-scrollbar{display:none;}
 .cat-chip-cnt{
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   background:rgba(10,10,10,.1);border-radius:9999px;
   padding:1px 5px;margin-left:2px;
 }
@@ -859,7 +860,7 @@ body{
 }
 .view-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
 .sort-select{
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.06em;text-transform:uppercase;color:var(--sub);
   border:1.5px solid var(--border);border-radius:var(--r-sm);
   background:#fff;padding:5px 10px;cursor:pointer;outline:none;
@@ -880,7 +881,7 @@ body{
 .gallery-name-bar{
   position:absolute;bottom:0;left:0;right:0;padding:22px 5px 4px;
   background:linear-gradient(transparent,rgba(0,0,0,.65));
-  font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   color:#fff;letter-spacing:.04em;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
@@ -891,14 +892,14 @@ body{
 .gallery-res-fill.low{background:var(--error);}
 .gallery-low-badge{
   position:absolute;top:4px;right:4px;background:var(--error);color:#fff;
-  border-radius:3px;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  border-radius:3px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   padding:2px 4px;
 }
 
 /* ════ List view ════ */
 .list-view-wrap{padding:0 0 80px;}
 .list-group-hd{
-  padding:8px 16px 6px;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  padding:8px 16px 6px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.16em;text-transform:uppercase;color:var(--mist);
   background:var(--surface);border-bottom:1px solid var(--border);
 }
@@ -914,27 +915,27 @@ body{
 }
 .list-info{flex:1;min-width:0;}
 .list-brand{
-  font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:500;
   letter-spacing:.06em;text-transform:uppercase;color:var(--mist);
 }
 .list-name{
-  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--ink);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--ink);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .list-cat-tag{
-  display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+  display:inline-block;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;color:var(--mist);
   background:var(--surface-mid);padding:2px 5px;border-radius:3px;margin-top:2px;
 }
-.list-use-cnt{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-top:1px;}
+.list-use-cnt{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist);margin-top:1px;}
 .list-res-col{width:44px;flex-shrink:0;}
 .list-res-bar{height:3px;background:var(--surface-high);border-radius:2px;overflow:hidden;}
 .list-res-fill{height:100%;border-radius:2px;}
 .list-res-fill.fresh{background:var(--lime);}
 .list-res-fill.mid{background:var(--amber);}
 .list-res-fill.low{background:var(--error);}
-.list-res-pct{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);text-align:right;margin-top:2px;}
-.list-qty{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--mist);text-align:right;}
+.list-res-pct{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist);text-align:right;margin-top:2px;}
+.list-qty{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:var(--mist);text-align:right;}
 
 /* ════ Category manage sheet ════ */
 .cat-manage-sheet{
@@ -947,7 +948,7 @@ body{
   display:flex;align-items:center;padding:14px 16px;
   border-bottom:1px solid var(--border);flex-shrink:0;gap:12px;
 }
-.cat-manage-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--ink);flex:1;}
+.cat-manage-title{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--ink);flex:1;}
 .cat-manage-close{
   width:32px;height:32px;border:none;background:var(--surface-mid);
   border-radius:var(--r-sm);cursor:pointer;font-size:14px;color:var(--sub);
@@ -958,7 +959,7 @@ body{
 }
 .cat-manage-stabs::-webkit-scrollbar{display:none;}
 .cat-manage-stab{
-  padding:9px 14px 8px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
+  padding:9px 14px 8px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;
   letter-spacing:.06em;text-transform:uppercase;color:var(--mist);cursor:pointer;
   border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;flex-shrink:0;
 }
@@ -969,12 +970,12 @@ body{
 .cat-manage-dot{width:8px;height:8px;border-radius:50%;background:var(--lime);flex-shrink:0;}
 .cat-manage-name-inp{
   flex:1;border:none;border-bottom:1px solid transparent;
-  font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--ink);
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:500;color:var(--ink);
   background:transparent;outline:none;padding:2px 0;transition:border-color .15s;
 }
 .cat-manage-name-inp:focus{border-bottom-color:var(--ink);}
 .cat-manage-name-inp[readonly]{color:var(--mist);}
-.cat-manage-cnt{font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);flex-shrink:0;min-width:24px;text-align:right;}
+.cat-manage-cnt{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist);flex-shrink:0;min-width:24px;text-align:right;}
 .cat-manage-del{
   width:28px;height:28px;border:none;background:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;color:var(--border-md);
@@ -987,15 +988,15 @@ body{
 }
 .cat-manage-new-inp{
   flex:1;border:1.5px solid var(--border);border-radius:var(--r-sm);
-  padding:9px 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);
+  padding:9px 12px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:var(--ink);
   background:transparent;outline:none;transition:border-color .15s;
 }
 .cat-manage-new-inp:focus{border-color:var(--ink);}
 .cat-manage-new-inp::placeholder{color:var(--border-md);}
 .cat-manage-add-btn{
   padding:9px 16px;background:var(--ink);color:#fff;border:none;
-  border-radius:var(--r-sm);font-family:'Inter',sans-serif;
-  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:var(--r-sm);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
   cursor:pointer;flex-shrink:0;transition:opacity .15s;
 }
 .cat-manage-add-btn:active{opacity:.75;}
@@ -1020,11 +1021,11 @@ body{
   margin-bottom:16px;flex-shrink:0;
 }
 .ap-cat-manage-hd-title{
-  font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:#0C1014;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:#0C1014;
 }
 .ap-cat-manage-apply{
   background:none;border:none;cursor:pointer;
-  font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;
   letter-spacing:.08em;color:#0C1014;
 }
 .ap-cat-manage-close{
@@ -1039,7 +1040,7 @@ body{
   padding:10px 0;border-bottom:1px solid #E5E7EB;
 }
 .ap-cat-manage-row-label{
-  font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:#0C1014;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:500;color:#0C1014;
 }
 .ap-cat-manage-row-actions{display:flex;gap:4px;}
 .ap-cat-manage-action{
@@ -1048,7 +1049,7 @@ body{
 }
 .ap-cat-manage-action:active{background:#F0F0EE;}
 .ap-cat-manage-add-link{
-  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:600;
   color:#0C1014;background:none;border:none;cursor:pointer;
   text-align:left;padding:14px 0 4px;flex-shrink:0;
   display:flex;align-items:center;gap:6px;
@@ -1062,24 +1063,24 @@ body{
   color:#0C1014;text-align:center;line-height:1.1;
 }
 .ap-new-cat-sub{
-  font-family:'Inter',sans-serif;font-size:11px;color:#9CA3AF;text-align:center;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:#9CA3AF;text-align:center;
 }
 .ap-new-cat-inp{
   width:100%;border:none;border-bottom:1px solid #C5C6CA;padding:8px 0;
-  font-family:'Inter',sans-serif;font-size:16px;color:#0C1014;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:16px;color:#0C1014;
   outline:none;background:transparent;
 }
 .ap-new-cat-inp::placeholder{color:#C5C6CA;}
-.ap-new-cat-inp-hint{font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;}
+.ap-new-cat-inp-hint{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:#9CA3AF;}
 .ap-new-cat-confirm{
   width:100%;height:44px;background:#0C1014;color:#FFFFFF;
   border:none;cursor:pointer;border-radius:2px;
-  font-family:'Inter',sans-serif;font-size:14px;font-weight:600;letter-spacing:.04em;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:600;letter-spacing:.04em;
 }
 .ap-new-cat-cancel{
   width:100%;height:44px;background:transparent;color:#0C1014;
   border:1px solid #C5C6CA;cursor:pointer;border-radius:2px;
-  font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:600;
 }
 
 /* ════════════════════════════════════
@@ -1117,11 +1118,11 @@ body{
 
 /* ── Header ── */
 .add-page-title{
-  font-family:'Inter',sans-serif; font-size:32px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:32px; font-weight:600;
   letter-spacing:-0.96px; color:#0C1014; line-height:38px; margin-bottom:4px;
 }
 .add-page-subtitle{
-  font-family:'Inter',sans-serif; font-size:14px; font-weight:400;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:14px; font-weight:400;
   color:#44474A; line-height:20px;
 }
 
@@ -1143,7 +1144,7 @@ body{
 .add-domain-seg-btn{
   flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;
   padding:12px 0; height:36px;
-  font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; font-weight:600;
   letter-spacing:1.2px; text-transform:uppercase; text-align:center;
   color:#44474A; background:transparent; border:none; cursor:pointer;
   transition:all .15s;
@@ -1154,7 +1155,7 @@ body{
 
 /* Override add-type-tab for classification (Skincare/Makeup) */
 .add-class-tab{
-  font-family:'Inter',sans-serif; font-size:20px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:20px; font-weight:600;
   letter-spacing:-0.48px; color:#44474A;
   cursor:pointer; opacity:.4; transition:opacity .2s;
   white-space:nowrap; background:none; border:none; padding:0;
@@ -1179,17 +1180,17 @@ body{
 }
 .add-img-block.has-img .add-img-placeholder{ opacity:0; }
 .add-img-label{
-  font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; font-weight:600;
   letter-spacing:1.2px; text-transform:uppercase; color:#44474A;
 }
 .add-img-sublabel{
-  font-family:'Inter',sans-serif; font-size:10px; color:#9CA3AF;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:11px; color:#9CA3AF;
   letter-spacing:.3px;
 }
 .add-img-change-btn{
   position:absolute; bottom:10px; right:10px; display:none;
   background:rgba(0,0,0,.5); border:none; border-radius:16px;
-  padding:5px 12px; font-family:'Inter',sans-serif; font-size:11px;
+  padding:5px 12px; font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px;
   font-weight:600; color:#fff; cursor:pointer; pointer-events:none;
 }
 .add-img-block.has-img .add-img-change-btn{ display:block; }
@@ -1200,18 +1201,18 @@ body{
   margin-bottom:4px;
 }
 .add-field-label{
-  font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; font-weight:600;
   letter-spacing:0.6px; text-transform:uppercase; color:#44474A;
 }
 .add-field-hint{
-  font-family:'Inter',sans-serif; font-size:12px; font-weight:400;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; font-weight:400;
   letter-spacing:0.24px; color:rgba(12,16,20,.4);
 }
 /* underline input */
 .add-underline-input{
   width:100%; border:none; border-bottom:1px solid #6B7280;
   background:#FFFFFF; outline:none;
-  font-family:'Inter',sans-serif; font-size:16px; color:#0C1014;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:16px; color:#0C1014;
   padding:10px 12px; height:40px; transition:border-color .2s;
 }
 .add-underline-input:focus{ border-bottom-color:#0C1014; }
@@ -1220,14 +1221,14 @@ body{
 .add-date-input{
   flex:1; border:none; border-bottom:1px solid #6B7280;
   background:#FFFFFF; outline:none;
-  font-family:'Inter',sans-serif; font-size:18px; color:#1A1C1C;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:18px; color:#1A1C1C;
   padding:6px 12px; height:41px;
 }
 /* bordered box input (SOURCE) */
 .add-box-input{
   width:100%; border:1px solid #C5C6CA;
   background:transparent; outline:none;
-  font-family:'Inter',sans-serif; font-size:18px; color:#0C1014;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:18px; color:#0C1014;
   padding:11px 12px; height:48px; transition:border-color .2s;
 }
 .add-box-input:focus{ border-color:#0C1014; }
@@ -1235,7 +1236,7 @@ body{
 
 /* ── Section title ── */
 .add-section-title{
-  font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:800;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:32px; font-weight:800;
   color:#1A1C1C; line-height:38px; letter-spacing:-.02em;
 }
 /* border-top divider below section title */
@@ -1251,12 +1252,12 @@ body{
   border-bottom:1px solid #C5C6CA; padding:0 0 4px;
 }
 .add-cat-header-label{
-  font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; font-weight:600;
   letter-spacing:0.6px; text-transform:uppercase; color:#44474A;
 }
 .add-type-tabs{ display:flex; gap:16px; }
 .add-type-tab{
-  font-family:'Inter',sans-serif; font-size:24px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:24px; font-weight:600;
   letter-spacing:-0.48px; color:#44474A;
   cursor:pointer; opacity:.4; transition:opacity .2s;
   white-space:nowrap;
@@ -1271,7 +1272,7 @@ body{
 .add-cat-pill{
   height:22px; padding:0 16px;
   border:1px solid #C5C6CA; background:transparent;
-  font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; font-weight:600;
   letter-spacing:0.6px; text-transform:uppercase;
   color:#44474A; cursor:pointer;
   display:flex; align-items:center; transition:all .15s;
@@ -1284,7 +1285,7 @@ body{
   display:flex; align-items:center; background:#FFFFFF; position:relative;
 }
 .add-stock-display{
-  flex:1; font-family:'Inter',sans-serif; font-size:16px; color:#6B7280;
+  flex:1; font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:16px; color:#6B7280;
   padding:0 12px; user-select:none;
 }
 .add-stock-btns{ display:flex; flex-shrink:0; }
@@ -1302,12 +1303,12 @@ body{
   display:flex; align-items:center; background:#FFFFFF; isolation:isolate;
 }
 .add-price-prefix{
-  font-family:'Inter',sans-serif; font-size:16px; color:#44474A;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:16px; color:#44474A;
   padding:0 4px 0 24px; flex-shrink:0;
 }
 .add-price-input{
   flex:1; border:none; background:transparent; outline:none;
-  font-family:'Inter',sans-serif; font-size:16px; color:#0C1014;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:16px; color:#0C1014;
   padding:0 12px 0 4px; height:100%;
 }
 .add-price-input::placeholder{ color:#6B7280; }
@@ -1317,7 +1318,7 @@ body{
   width:100%; height:106px;
   background:#F3F3F4; border:1px solid #C5C6CA; border-radius:var(--r-md);
   padding:16px 16px 64px;
-  font-family:'Inter',sans-serif; font-size:16px; color:#0C1014;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:16px; color:#0C1014;
   line-height:24px; outline:none; resize:none; transition:border-color .2s;
 }
 .add-notes:focus{ border-color:#0C1014; }
@@ -1327,23 +1328,23 @@ body{
 .add-step-block{border-bottom:1px solid var(--border);padding:20px var(--gutter) 24px;}
 .add-step-block:last-of-type{border-bottom:none;}
 .add-step-num-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-.add-step-num{width:24px;height:24px;border-radius:var(--r-sm);background:var(--ink);color:#fff;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.add-step-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);}
+.add-step-num{width:24px;height:24px;border-radius:var(--r-sm);background:var(--ink);color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.add-step-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);}
 .add-domain-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.add-domain-btn{padding:10px 0;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);background:transparent;cursor:pointer;transition:all .15s;}
+.add-domain-btn{padding:10px 0;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);background:transparent;cursor:pointer;transition:all .15s;}
 .add-domain-btn.active{border-color:var(--ink);background:var(--ink);color:#fff;}
 .add-domain-btn:not(.active):hover{border-color:var(--ink);color:var(--ink);}
-.add-photo-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:6px;}
+.add-photo-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:6px;}
 .add-required-star{color:var(--error);}
 .add-photo-block{height:90px;background:var(--surface-low);border:1.5px dashed var(--border-md);border-radius:var(--r-md);cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background-size:auto 100%;background-position:center;background-repeat:no-repeat;transition:border-color .2s;}
 .add-photo-block:hover{border-color:var(--ink);}
 .add-photo-block.has-img .add-photo-inner{opacity:0;}
 .add-photo-block.storage-ok{border-color:var(--green);border-style:solid;}
 .add-photo-inner{display:flex;flex-direction:column;align-items:center;gap:5px;}
-.add-photo-hint{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mist);}
+.add-photo-hint{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mist);}
 .add-common-field{margin-bottom:20px;}
 .add-scene-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
-.add-scene-tag{padding:5px 12px;border:1.5px solid var(--border);border-radius:var(--r-full);font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:var(--sub);background:transparent;cursor:pointer;transition:all .15s;}
+.add-scene-tag{padding:5px 12px;border:1.5px solid var(--border);border-radius:var(--r-full);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:var(--sub);background:transparent;cursor:pointer;transition:all .15s;}
 .add-scene-tag.active{background:var(--ink);border-color:var(--ink);color:#fff;}
 
 /* ── Action buttons ── */
@@ -1351,7 +1352,7 @@ body{
 .add-submit-btn{
   width:100%; height:56px; background:var(--ink); color:#FFFFFF;
   border:none; border-radius:var(--r-md);
-  font-family:'Inter',sans-serif; font-size:16px; font-weight:600;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:16px; font-weight:600;
   cursor:pointer; transition:opacity .2s;
 }
 .add-submit-btn:active{ opacity:.75; }
@@ -1359,7 +1360,7 @@ body{
 .add-cancel-btn{
   width:100%; height:56px; background:#FFFFFF; color:#0C1014;
   border:1px solid #C5C6CA; border-radius:var(--r-md);
-  font-family:'Inter',sans-serif; font-size:16px; font-weight:400;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:16px; font-weight:400;
   cursor:pointer;
 }
 .add-cancel-btn:active{ background:var(--surface-low); }
@@ -1393,7 +1394,7 @@ body{
 }
 .cat-select-overlay.open .cat-select-sheet{ transform:translateY(0); }
 .cat-select-title{
-  font-family:'Space Grotesk',sans-serif; font-size:34px; font-weight:800;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:34px; font-weight:800;
   letter-spacing:-.02em; color:#0C1014; text-align:left; line-height:1;
 }
 .cat-search-wrap{
@@ -1404,7 +1405,7 @@ body{
 .cat-search-icon{ width:16px; height:16px; flex-shrink:0; opacity:.45; }
 .cat-search-input{
   flex:1; border:none; background:transparent; outline:none;
-  font-family:'Inter',sans-serif; font-size:14px; color:#0C1014;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:14px; color:#0C1014;
 }
 .cat-search-input::placeholder{ color:#9E9E9E; }
 .cat-list{ overflow-y:auto; flex:1; display:flex; flex-direction:column; }
@@ -1424,7 +1425,7 @@ body{
   content:''; width:10px; height:10px; border-radius:var(--r-full); background:#0C1014;
 }
 .cat-row-name{
-  flex:1; font-family:'Inter',sans-serif; font-size:16px; font-weight:400;
+  flex:1; font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:16px; font-weight:400;
   color:#1A1C1C; cursor:pointer;
 }
 .cat-row-name.selected{ font-weight:600; color:#0C1014; }
@@ -1442,7 +1443,7 @@ body{
   display:flex; align-items:center; justify-content:center; gap:8px;
   padding:14px; border:1.5px dashed #C5C6CA; border-radius:var(--r-md);
   cursor:pointer; background:transparent; width:100%;
-  font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; font-weight:700;
   letter-spacing:.12em; text-transform:uppercase; color:#44474A;
   transition:background .15s;
 }
@@ -1450,14 +1451,14 @@ body{
 .cat-modal-actions{ display:flex; gap:12px; }
 .cat-cancel-btn{
   flex:1; height:54px; border:1.5px solid #C5C6CA; border-radius:var(--r-md);
-  background:#FFFFFF; font-family:'Space Grotesk',sans-serif; font-size:14px;
+  background:#FFFFFF; font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:14px;
   font-weight:700; letter-spacing:.1em; text-transform:uppercase;
   color:#0C1014; cursor:pointer;
 }
 .cat-apply-btn{
   flex:1; height:54px; border:none; border-radius:var(--r-md);
   background:var(--ink); color:#FFFFFF;
-  font-family:'Space Grotesk',sans-serif; font-size:14px;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:14px;
   font-weight:700; letter-spacing:.1em; text-transform:uppercase;
   cursor:pointer; transition:opacity .15s;
 }
@@ -1487,27 +1488,27 @@ body{
   color:#9E9E9E; font-size:18px;
 }
 .cat-new-title{
-  font-family:'Space Grotesk',sans-serif; font-size:30px; font-weight:800;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:30px; font-weight:800;
   letter-spacing:-.02em; color:#0C1014; margin-bottom:4px;
 }
 .cat-new-sub{
-  font-family:'Inter',sans-serif; font-size:12px; letter-spacing:.15em;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; letter-spacing:.15em;
   color:#9E9E9E; margin-bottom:20px;
 }
 .cat-new-input{
   width:100%; border:none; border-bottom:1px solid #9E9E9E;
-  padding:10px 0; font-family:'Inter',sans-serif; font-size:18px;
+  padding:10px 0; font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:18px;
   color:#0C1014; outline:none; background:transparent;
   margin-bottom:8px;
 }
 .cat-new-input::placeholder{ color:#C5C6CA; }
 .cat-new-hint{
-  font-family:'Inter',sans-serif; font-size:12px; color:#9E9E9E;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:12px; color:#9E9E9E;
   margin-bottom:24px;
 }
 .cat-new-add-btn{
   width:100%; height:54px; background:var(--ink); color:#FFFFFF;
-  border:none; border-radius:var(--r-md); font-family:'Space Grotesk',sans-serif;
+  border:none; border-radius:var(--r-md); font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;
   font-size:16px; font-weight:700; cursor:pointer;
   margin-bottom:12px; transition:opacity .15s;
 }
@@ -1515,7 +1516,7 @@ body{
 .cat-new-cancel-btn{
   width:100%; height:54px; background:#FFFFFF; color:#0C1014;
   border:1px solid #C5C6CA; border-radius:var(--r-md);
-  font-family:'Inter',sans-serif; font-size:16px; font-weight:400; cursor:pointer;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:16px; font-weight:400; cursor:pointer;
 }
 @media(pointer:coarse),(max-width:430px){input,textarea,select{font-size:16px!important}}
 </style>
@@ -1569,9 +1570,6 @@ body{
     <!-- Category header: chips + manage button -->
     <div class="cat-header-row" id="cat-header-row">
       <div class="cat-chips-scroll" id="cat-chips-row"></div>
-      <button class="cat-manage-trigger" onclick="openCatManage()" title="카테고리 관리">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-      </button>
     </div>
 
     <!-- View / Sort toolbar -->
@@ -1629,7 +1627,7 @@ body{
       <button class="add-page-back" onclick="closeAdd()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       </button>
-      <span id="add-page-bar-title" style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#44474A">ADD PRODUCT</span>
+      <span id="add-page-bar-title" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#44474A">ADD PRODUCT</span>
       <div style="width:36px"></div>
     </div>
 
@@ -1663,16 +1661,16 @@ body{
           <!-- DATE OF PURCHASE + SET EXPIRY (1열 2컬럼) -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px">
             <div>
-              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">DATE OF PURCHASE</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">DATE OF PURCHASE</div>
               <div style="position:relative;border-bottom:1px solid #6B7280;padding:4px 0;cursor:pointer;min-height:36px" onclick="_openDatePicker('add-purchase-date')">
-                <div id="add-purchase-date-display" style="font-family:'Inter',sans-serif;font-size:15px;color:#9CA3AF;min-height:24px;line-height:1.6;pointer-events:none">날짜 선택</div>
+                <div id="add-purchase-date-display" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:15px;color:#9CA3AF;min-height:24px;line-height:1.6;pointer-events:none">날짜 선택</div>
                 <input id="add-purchase-date" type="date" style="position:absolute;inset:0;width:100%;height:100%;opacity:0.01;cursor:pointer;font-size:16px" onchange="_syncDateDisp('add-purchase-date','add-purchase-date-display')" />
               </div>
             </div>
             <div>
-              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">SET EXPIRY</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">SET EXPIRY</div>
               <div style="position:relative;border-bottom:1px solid #6B7280;padding:4px 0;cursor:pointer;min-height:36px" onclick="_openDatePicker('add-expiry')">
-                <div id="add-expiry-display" style="font-family:'Inter',sans-serif;font-size:15px;color:#9CA3AF;min-height:24px;line-height:1.6;pointer-events:none">날짜 선택</div>
+                <div id="add-expiry-display" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:15px;color:#9CA3AF;min-height:24px;line-height:1.6;pointer-events:none">날짜 선택</div>
                 <input id="add-expiry" type="date" style="position:absolute;inset:0;width:100%;height:100%;opacity:0.01;cursor:pointer;font-size:16px" onchange="_syncDateDisp('add-expiry','add-expiry-display')" />
               </div>
             </div>
@@ -1681,29 +1679,29 @@ body{
           <!-- PRODUCT NAME (underline) -->
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
             <div style="display:flex;justify-content:space-between">
-              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PRODUCT NAME</div>
-              <div style="font-family:'Inter',sans-serif;font-size:10px;color:#44474A;opacity:.7">*필수</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PRODUCT NAME</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:#44474A;opacity:.7">*필수</div>
             </div>
             <input id="add-name" class="add-underline-input" placeholder="제품명" style="border-bottom:1px solid #C5C6CA;height:42px;padding:8px 0 4px 10px;font-size:18px" />
           </div>
 
           <!-- PRICE -->
           <div style="margin-bottom:16px">
-            <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">PRICE</div>
+            <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">PRICE</div>
             <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px;gap:8px">
-              <span style="font-family:'Inter',sans-serif;font-size:18px;color:#44474A">₩</span>
-              <input id="add-price" type="text" inputmode="numeric" pattern="[0-9,]*" oninput="formatPriceInput(this)" style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" placeholder="0" />
+              <span style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:18px;color:#44474A">₩</span>
+              <input id="add-price" type="text" inputmode="numeric" pattern="[0-9,]*" oninput="formatPriceInput(this)" style="flex:1;border:none;background:transparent;outline:none;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" placeholder="0" />
             </div>
           </div>
 
           <!-- BRAND NAME + SOURCE (1열 2컬럼) -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
             <div style="display:flex;flex-direction:column;gap:6px">
-              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">BRAND NAME</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">BRAND NAME</div>
               <input id="add-brand" class="add-underline-input" placeholder="뷰티지아나" style="border-bottom:1px solid #C5C6CA;height:42px;padding:8px 0 4px 10px;font-size:15px" />
             </div>
             <div style="display:flex;flex-direction:column;gap:6px">
-              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">SOURCE</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">SOURCE</div>
               <input id="add-source" class="add-underline-input" placeholder="공구/매장" style="border-bottom:1px solid #C5C6CA;height:42px;padding:8px 0 4px 10px;font-size:15px" />
             </div>
           </div>
@@ -1711,11 +1709,11 @@ body{
           <!-- PURCHASE URL -->
           <div style="margin-bottom:8px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PURCHASE URL</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PURCHASE URL</div>
               <svg width="20" height="10" viewBox="0 0 24 12" fill="#44474A"><path d="M3.9 6c0-1.71 1.39-3.1 3.1-3.1h4V1H7C4.24 1 2 3.24 2 6s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 7h8V5H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V11h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
             </div>
             <div style="display:flex;align-items:center;border-bottom:1px solid #C5C6CA;padding:0 0 4px">
-              <input id="add-purchase-url" style="flex:1;border:none;background:transparent;outline:none;font-family:'Inter',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" placeholder="aesop.com" />
+              <input id="add-purchase-url" style="flex:1;border:none;background:transparent;outline:none;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:18px;color:#1A1C1C;padding:4px 0" placeholder="aesop.com" />
             </div>
           </div>
         </div>
@@ -1731,7 +1729,7 @@ body{
       <!-- PRIMARY CLASSIFICATION -->
       <div id="ap-class-row" style="display:flex;flex-direction:column;gap:16px;padding-top:16px">
         <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;padding:0 0 4px;border-bottom:1px solid #C5C6CA">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PRIMARY CLASSIFICATION</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">PRIMARY CLASSIFICATION</div>
           <div style="display:flex;align-items:center;gap:12px">
             <!-- Beauty only: Skincare/Makeup toggle -->
             <div id="beauty-type-toggle" style="display:flex;gap:16px">
@@ -1752,25 +1750,25 @@ body{
       <!-- FASHION fields -->
       <div id="step3-fashion" style="display:none;border-top:1px solid #C5C6CA;padding-top:20px;margin-top:4px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A">SCENE TAGS</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A">SCENE TAGS</div>
           <button onclick="openSceneTagManage()" style="width:20px;height:20px;background:#18181B;border:none;cursor:pointer;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="태그 관리">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
           </button>
         </div>
         <div class="add-scene-tags" id="add-scene-tags"></div>
         <div style="margin-top:16px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">MATERIAL</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">MATERIAL</div>
           <input class="add-underline-input" id="add-material" placeholder="예: 코튼, 린넨, 울" style="border-bottom:1px solid #C5C6CA" />
         </div>
         <div style="margin-top:16px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">CARE GUIDE</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">CARE GUIDE</div>
           <input class="add-underline-input" id="add-care-guide" placeholder="예: 손세탁, 드라이 클리닝" style="border-bottom:1px solid #C5C6CA" />
         </div>
       </div>
 
       <!-- ACC fields -->
       <div id="step3-acc" style="display:none;border-top:1px solid #C5C6CA;padding-top:20px;margin-top:4px">
-        <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">MATERIAL TYPE</div>
+        <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">MATERIAL TYPE</div>
         <div class="add-scene-tags" id="add-material-tags">
           <button class="add-scene-tag" data-tag="금" onclick="toggleMaterialTag(this)">금</button>
           <button class="add-scene-tag" data-tag="은" onclick="toggleMaterialTag(this)">은</button>
@@ -1780,7 +1778,7 @@ body{
           <button class="add-scene-tag" data-tag="기타" onclick="toggleMaterialTag(this)">기타</button>
         </div>
         <div style="margin-top:16px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">SPECIAL NOTE</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">SPECIAL NOTE</div>
           <textarea class="add-notes" id="add-special-note" placeholder="보존 상태, 수선 이력 등…" rows="3"></textarea>
         </div>
       </div>
@@ -1788,14 +1786,14 @@ body{
       <!-- Makeup fields -->
       <div id="step3-makeup" style="display:none;border-top:1px solid #C5C6CA;padding-top:20px;margin-top:4px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A">SCENE TAGS</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A">SCENE TAGS</div>
           <button onclick="openSceneTagManage()" style="width:20px;height:20px;background:#18181B;border:none;cursor:pointer;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="태그 관리">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
           </button>
         </div>
         <div class="add-scene-tags" id="add-makeup-scene-tags"></div>
         <div style="margin-top:16px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">SPECIAL NOTE</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:8px">SPECIAL NOTE</div>
           <textarea class="add-notes" id="add-makeup-special-note" placeholder="보존 상태, 사용감 메모 등…" rows="3"></textarea>
         </div>
       </div>
@@ -1809,48 +1807,48 @@ body{
 
         <!-- GROUP 2: 수량 구조 -->
         <div style="margin-bottom:24px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:14px">수량 구조</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:14px">수량 구조</div>
           <!-- 패키지 수 + 수량 — 2열 1행 -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
             <!-- 패키지 수 (박스) -->
             <div style="min-width:0;overflow:hidden">
-              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">패키지 수 · 박스</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">패키지 수 · 박스</div>
               <div style="border-bottom:1.5px solid #C5C6CA;padding-bottom:4px">
                 <input id="add-pkg-count" type="number" min="1" value="1" oninput="updateQuantityCalc()"
-                  style="width:100%;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:20px;color:#1A1C1C;outline:none;padding:4px 0;text-align:center" />
+                  style="width:100%;border:none;background:transparent;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:20px;color:#1A1C1C;outline:none;padding:4px 0;text-align:center" />
               </div>
             </div>
             <!-- 수량 -->
             <div style="min-width:0;overflow:hidden">
-              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">수량 · 개</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">수량 · 개</div>
               <div style="border-bottom:1.5px solid #C5C6CA;padding-bottom:4px">
                 <input id="add-unit-per" type="number" min="1" value="1" oninput="updateQuantityCalc()"
-                  style="width:100%;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:20px;color:#1A1C1C;outline:none;padding:4px 0;text-align:center" />
+                  style="width:100%;border:none;background:transparent;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:20px;color:#1A1C1C;outline:none;padding:4px 0;text-align:center" />
               </div>
             </div>
           </div>
           <!-- 총 수량 미리보기 -->
           <div id="qty-calc-preview" style="display:flex;align-items:center;gap:6px;background:#F5F5F3;border-radius:6px;padding:9px 12px">
-            <span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF">총 수량</span>
-            <span id="qty-calc-total" style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#0C1014;margin-left:auto">1개</span>
+            <span style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF">총 수량</span>
+            <span id="qty-calc-total" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#0C1014;margin-left:auto">1개</span>
           </div>
         </div>
 
         <!-- 사용 기간: 시작일 + 분량 -->
         <div style="margin-bottom:24px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:12px">사용 기간</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:12px">사용 기간</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px">
             <div>
-              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:4px">시작일</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:4px">시작일</div>
               <div style="position:relative;border-bottom:1.5px solid #C5C6CA;padding:4px 0;cursor:pointer;min-height:32px" onclick="_openDatePicker('add-start-date')">
-                <div id="add-start-date-display" style="font-family:'Inter',sans-serif;font-size:14px;color:#9CA3AF;min-height:22px;line-height:1.6;pointer-events:none">0000.00.00</div>
+                <div id="add-start-date-display" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;color:#9CA3AF;min-height:22px;line-height:1.6;pointer-events:none">0000.00.00</div>
                 <input id="add-start-date" type="date" style="position:absolute;inset:0;width:100%;height:100%;opacity:0.01;cursor:pointer;font-size:16px" onchange="_syncDateDisp('add-start-date','add-start-date-display');updateUsagePreview()" oninput="_syncDateDisp('add-start-date','add-start-date-display');updateUsagePreview()" />
               </div>
             </div>
             <div>
-              <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:4px">분량</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:4px">분량</div>
               <input id="add-duration-value" type="number" min="0" value="0" oninput="updateUsagePreview()"
-                style="width:100%;border:none;border-bottom:1.5px solid #C5C6CA;background:transparent;font-family:'Inter',sans-serif;font-size:20px;color:#1A1C1C;outline:none;padding:4px 0;text-align:center" />
+                style="width:100%;border:none;border-bottom:1.5px solid #C5C6CA;background:transparent;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:20px;color:#1A1C1C;outline:none;padding:4px 0;text-align:center" />
             </div>
           </div>
           <div style="display:flex;gap:6px" id="duration-unit-group">
@@ -1862,11 +1860,11 @@ body{
 
         <!-- GROUP 3: 사용 패턴 -->
         <div style="margin-bottom:24px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:2px">사용 패턴</div>
-          <div style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-bottom:14px">소진 예측에 사용됩니다</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:2px">사용 패턴</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:#9CA3AF;margin-bottom:14px">소진 예측에 사용됩니다</div>
           <!-- 하루 횟수 -->
           <div style="margin-bottom:14px">
-            <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">하루 횟수</div>
+            <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">하루 횟수</div>
             <div style="display:flex;gap:5px;flex-wrap:wrap" id="uses-per-day-group">
               <button class="freq-pill active" onclick="pickUsesPerDay(this,1)">1회</button>
               <button class="freq-pill" onclick="pickUsesPerDay(this,2)">2회</button>
@@ -1876,7 +1874,7 @@ body{
           </div>
           <!-- 사용 주기 -->
           <div style="margin-bottom:14px">
-            <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">사용 주기</div>
+            <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:6px">사용 주기</div>
             <div style="display:flex;gap:5px;flex-wrap:wrap" id="frequency-group">
               <button class="freq-pill active" onclick="pickFrequency(this,'매일',7)">매일</button>
               <button class="freq-pill" onclick="pickFrequency(this,'주중',5)">주중</button>
@@ -1888,32 +1886,32 @@ body{
           <!-- 예상 소진 미리보기 -->
           <div id="usage-preview-card" style="background:#F5F5F3;border-radius:8px;padding:12px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF">예상 소진</span>
-              <span id="usage-preview-date" style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#0C1014">0000.00.00</span>
+              <span style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF">예상 소진</span>
+              <span id="usage-preview-date" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:#0C1014">0000.00.00</span>
             </div>
             <div style="height:3px;background:#E5E7EB;border-radius:2px;overflow:hidden">
               <div id="usage-preview-bar" style="height:100%;width:100%;background:#0C1014;border-radius:2px;transition:width .3s"></div>
             </div>
             <div style="display:flex;justify-content:space-between;margin-top:5px">
-              <span id="usage-preview-days" style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF">— 일 남음</span>
-              <span id="usage-preview-daily" style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF">일 소비: —회</span>
+              <span id="usage-preview-days" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:#9CA3AF">— 일 남음</span>
+              <span id="usage-preview-daily" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:#9CA3AF">일 소비: —회</span>
             </div>
           </div>
         </div>
 
         <!-- GROUP 4: 현재 잔량 (개수 기반) -->
         <div style="margin-bottom:24px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:2px">현재 잔량</div>
-          <div style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;margin-bottom:10px">기본값: 총 수량 (새 제품이면 수정 불필요)</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#44474A;margin-bottom:2px">현재 잔량</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:#9CA3AF;margin-bottom:10px">기본값: 총 수량 (새 제품이면 수정 불필요)</div>
           <div style="display:flex;align-items:center;gap:8px;border-bottom:1.5px solid #C5C6CA;padding-bottom:4px;margin-bottom:10px">
             <input id="add-remaining" type="number" min="0" step="1" value="1" oninput="this.dataset.userEdited='1';updateRemainingPreview()"
-              style="flex:1;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:22px;font-weight:600;color:#1A1C1C;outline:none;padding:4px 0" />
-            <span style="font-family:'Inter',sans-serif;font-size:14px;color:#44474A;flex-shrink:0">개</span>
+              style="flex:1;border:none;background:transparent;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:22px;font-weight:600;color:#1A1C1C;outline:none;padding:4px 0" />
+            <span style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;color:#44474A;flex-shrink:0">개</span>
           </div>
           <div style="height:4px;background:#E5E7EB;border-radius:2px;overflow:hidden">
             <div id="add-remaining-bar" style="height:100%;width:100%;background:#0C1014;border-radius:2px;transition:width .3s"></div>
           </div>
-          <div id="add-remaining-pct" style="font-family:'Inter',sans-serif;font-size:10px;color:#9CA3AF;text-align:right;margin-top:4px">100%</div>
+          <div id="add-remaining-pct" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:#9CA3AF;text-align:right;margin-top:4px">100%</div>
         </div>
 
       </div>
@@ -1935,18 +1933,18 @@ body{
           <div style="display:flex;flex-direction:row;align-items:center;padding:16px;gap:16px">
             <svg width="18" height="22" viewBox="0 0 24 24" fill="#44474A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
             <div style="display:flex;flex-direction:column;gap:4px">
-              <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">CURRENT LOCATION <span style="font-size:10px;font-weight:600;color:#44474A;opacity:.7;text-transform:lowercase;letter-spacing:.02em">현재 위치</span></div>
-              <div id="ap-location-name" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:400;color:#1A1C1C">안방 드레스룸 A-1</div>
+              <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">CURRENT LOCATION <span style="font-size:11px;font-weight:600;color:#44474A;opacity:.7;text-transform:lowercase;letter-spacing:.02em">현재 위치</span></div>
+              <div id="ap-location-name" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:16px;font-weight:400;color:#1A1C1C">안방 드레스룸 A-1</div>
             </div>
           </div>
         </div>
-        <div id="add-storage-error" style="display:none;font-family:'Inter',sans-serif;font-size:10px;color:var(--error);font-weight:600;letter-spacing:.04em">★ Storage Photo를 추가하세요</div>
+        <div id="add-storage-error" style="display:none;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--error);font-weight:600;letter-spacing:.04em">★ Storage Photo를 추가하세요</div>
 
         <!-- Location picker button -->
         <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">보관 위치</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:#44474A">보관 위치</div>
           <button type="button" onclick="openLocPicker()" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;border-bottom:1px solid #C5C6CA;padding:8px 0;cursor:pointer;min-height:36px">
-            <span id="add-loc-display" style="font-family:'Inter',sans-serif;font-size:15px;color:#9CA3AF">위치 선택</span>
+            <span id="add-loc-display" style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:15px;color:#9CA3AF">위치 선택</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#9CA3AF"><path d="M6 9l6 6 6-6"/></svg>
           </button>
         </div>
@@ -1955,7 +1953,7 @@ body{
       <!-- SAVE CHANGES button (Figma: black bg, 44px height, letter-spacing 1.2px) -->
       <div style="padding:48px 0 0;display:flex;flex-direction:column;gap:12px">
         <button type="button" id="add-submit-btn" class="page-save-btn" onclick="saveAsset()">저장</button>
-        <button type="button" id="add-delete-btn" onclick="_deleteEditingAsset()" style="display:none;width:100%;height:44px;border:1px solid #EF4444;background:transparent;color:#EF4444;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer">삭제</button>
+        <button type="button" id="add-delete-btn" onclick="_deleteEditingAsset()" style="display:none;width:100%;height:44px;border:1px solid #EF4444;background:transparent;color:#EF4444;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer">삭제</button>
       </div>
 
     </div><!-- /add-page-scroll -->
@@ -2066,7 +2064,7 @@ body{
     <!-- Bottom buttons -->
     <div class="loc-add-here-wrap">
       <button class="loc-add-here-btn" onclick="openLocProductPicker()" id="loc-link-btn">+ 이 위치에 제품 추가</button>
-      <button id="loc-edit-btn" onclick="openLocEditSheet()" style="width:100%;height:40px;background:transparent;border:1px solid var(--border-md);border-radius:var(--r-md);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--sub);cursor:pointer">편집</button>
+      <button id="loc-edit-btn" onclick="openLocEditSheet()" style="width:100%;height:40px;background:transparent;border:1px solid var(--border-md);border-radius:var(--r-md);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--sub);cursor:pointer">편집</button>
     </div>
 
     <!-- 위치 편집 바텀시트 (loc-panel 내부) -->
@@ -2076,33 +2074,33 @@ body{
           <div style="width:36px;height:4px;background:#E5E7EB;border-radius:2px"></div>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px 16px">
-          <span style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;color:#1A1C1C">위치 편집</span>
+          <span style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;color:#1A1C1C">위치 편집</span>
           <button onclick="closeLocEditSheet()" style="width:32px;height:32px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6B7280">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
         <div style="padding:0 20px 16px">
-          <div style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9CA3AF;margin-bottom:8px">위치 이름</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9CA3AF;margin-bottom:8px">위치 이름</div>
           <div style="display:flex;gap:8px;align-items:center">
             <input id="loc-name-inp" class="loc-name-inp" placeholder="예: 안방 화장대" style="flex:1">
-            <button onclick="saveLocName()" style="height:44px;padding:0 18px;background:#1A1C1C;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">저장</button>
+            <button onclick="saveLocName()" style="height:44px;padding:0 18px;background:#1A1C1C;color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">저장</button>
           </div>
         </div>
         <div style="padding:0 20px 16px">
-          <button onclick="changeLocPhoto()" style="width:100%;height:44px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#44474A;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+          <button onclick="changeLocPhoto()" style="width:100%;height:44px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:#44474A;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             사진 변경
           </button>
         </div>
         <div id="loc-edit-del-wrap" style="border-top:1px solid #F3F4F6;padding:12px 20px 24px">
           <div id="loc-del-step1">
-            <button onclick="showLocDelConfirm()" style="width:100%;height:44px;background:transparent;border:1px solid #EF4444;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:#EF4444;cursor:pointer">위치 삭제</button>
+            <button onclick="showLocDelConfirm()" style="width:100%;height:44px;background:transparent;border:1px solid #EF4444;border-radius:8px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#EF4444;cursor:pointer">위치 삭제</button>
           </div>
           <div id="loc-del-step2" style="display:none">
-            <div style="font-family:'Inter',sans-serif;font-size:12px;color:#991B1B;margin-bottom:10px;line-height:1.5">이 위치의 제품들은 '위치 미지정'으로 변경됩니다. 삭제할까요?</div>
+            <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:#991B1B;margin-bottom:10px;line-height:1.5">이 위치의 제품들은 '위치 미지정'으로 변경됩니다. 삭제할까요?</div>
             <div style="display:flex;gap:8px">
-              <button onclick="executeDeleteLoc()" style="flex:1;height:44px;background:#EF4444;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer">삭제 확인</button>
-              <button onclick="hideLocDelConfirm()" style="flex:1;height:44px;background:transparent;color:#6B7280;border:1px solid #D1D5DB;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer">취소</button>
+              <button onclick="executeDeleteLoc()" style="flex:1;height:44px;background:#EF4444;color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer">삭제 확인</button>
+              <button onclick="hideLocDelConfirm()" style="flex:1;height:44px;background:transparent;color:#6B7280;border:1px solid #D1D5DB;border-radius:8px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer">취소</button>
             </div>
           </div>
         </div>
@@ -2114,12 +2112,12 @@ body{
     <div style="width:100%;max-height:75vh;background:#fff;border-radius:16px 16px 0 0;display:flex;flex-direction:column">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #F3F4F6;flex-shrink:0">
         <button onclick="closeLocProductPicker()" style="width:32px;height:32px;background:none;border:none;cursor:pointer;font-size:16px;color:#6B7280">✕</button>
-        <span style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em">제품 불러오기</span>
+        <span style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em">제품 불러오기</span>
         <div style="width:32px"></div>
       </div>
       <div style="padding:10px 16px;border-bottom:1px solid #F3F4F6;flex-shrink:0">
         <input type="search" id="loc-product-search" placeholder="제품명 검색..." oninput="renderLocProductPickerList()"
-          style="width:100%;height:36px;border:1px solid #E5E7EB;border-radius:20px;padding:0 14px;font-family:'Inter',sans-serif;font-size:13px;outline:none;background:#F9FAFB">
+          style="width:100%;height:36px;border:1px solid #E5E7EB;border-radius:20px;padding:0 14px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;outline:none;background:#F9FAFB">
       </div>
       <div id="loc-product-picker-list" style="overflow-y:auto;flex:1;overscroll-behavior:contain"></div>
     </div>
@@ -2572,10 +2570,10 @@ function renderSpaceMap() {
   const addBtn = _addLocOpen
     ? `<div style="display:flex;gap:8px;align-items:center;padding:10px 4px">
         <input id="new-loc-inp" type="text" placeholder="예: 안방 화장대" maxlength="30"
-          style="flex:1;height:40px;border:none;border-bottom:1.5px solid #1A1C1C;background:transparent;font-family:'Inter',sans-serif;font-size:14px;outline:none;padding:0 4px"
+          style="flex:1;height:40px;border:none;border-bottom:1.5px solid #1A1C1C;background:transparent;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;outline:none;padding:0 4px"
           onkeydown="if(event.key==='Enter')confirmSpaceNewLoc();if(event.key==='Escape')cancelNewLoc()" />
-        <button onclick="confirmSpaceNewLoc()" style="height:40px;padding:0 16px;background:#1A1C1C;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
-        <button onclick="cancelNewLoc()" style="height:40px;padding:0 12px;background:transparent;color:#9CA3AF;border:1px solid #E5E7EB;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer">취소</button>
+        <button onclick="confirmSpaceNewLoc()" style="height:40px;padding:0 16px;background:#1A1C1C;color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
+        <button onclick="cancelNewLoc()" style="height:40px;padding:0 12px;background:transparent;color:#9CA3AF;border:1px solid #E5E7EB;border-radius:8px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;cursor:pointer">취소</button>
       </div>`
     : `<button class="space-add-loc-btn" onclick="addNewLocation()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -2583,7 +2581,7 @@ function renderSpaceMap() {
       </button>`;
 
   if (!Object.keys(grouped).length) {
-    map.innerHTML = addBtn + `<div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--mist);padding:16px;text-align:center">위치를 추가하고 제품을 분류해보세요</div>`;
+    map.innerHTML = addBtn + `<div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--mist);padding:16px;text-align:center">위치를 추가하고 제품을 분류해보세요</div>`;
     return;
   }
 
@@ -2602,18 +2600,18 @@ function renderSpaceMap() {
     }).join('');
     const moreCount = items.length > 6 ? items.length - 6 : 0;
     const morePill  = moreCount > 0
-      ? `<div class="space-asset-thumb"><div class="space-asset-img" style="background:var(--surface-high);display:flex;align-items:center;justify-content:center"><span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;color:var(--sub)">+${moreCount}</span></div></div>`
+      ? `<div class="space-asset-thumb"><div class="space-asset-img" style="background:var(--surface-high);display:flex;align-items:center;justify-content:center"><span style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--sub)">+${moreCount}</span></div></div>`
       : '';
     return `<div class="space-group" onclick="openLocPanel('${locKey}')">
       <div class="space-group-hd">
         <div class="space-group-photo" style="${photoStyle}">${!locPhoto ? '📦' : ''}</div>
         <div style="flex:1;min-width:0">
           <div class="space-group-name">${locName}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:10px;color:var(--mist)">${items.length}개 제품</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist)">${items.length}개 제품</div>
         </div>
         <svg class="space-group-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
-      <div class="space-items-row">${thumbsHtml}${morePill}${!thumbsHtml?'<span style="font-family:\'Inter\',sans-serif;font-size:11px;color:var(--mist)">아이템 없음</span>':''}</div>
+      <div class="space-items-row">${thumbsHtml}${morePill}${!thumbsHtml?'<span style="font-family:\'Inter\',sans-serif;font-size:12px;color:var(--mist)">아이템 없음</span>':''}</div>
     </div>`;
   }).join('');
 
@@ -2683,8 +2681,8 @@ function renderLocItems() {
     all.forEach(a => { byDomain[a.domain] = (byDomain[a.domain]||0)+1; });
     const domainStr = Object.entries(byDomain).map(([d,n]) => `${d} ${n}`).join(' · ');
     stats.innerHTML = `
-      <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--ink)">${all.length}</div>
-      <div style="font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);line-height:1.4">제품<br>${domainStr||'—'}</div>`;
+      <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--ink)">${all.length}</div>
+      <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--mist);line-height:1.4">제품<br>${domainStr||'—'}</div>`;
   }
 
   const page    = all.slice(0, locOffset + LOC_PAGE);
@@ -2693,7 +2691,7 @@ function renderLocItems() {
   if (!items) return;
 
   if (!page.length) {
-    items.innerHTML = `<div style="padding:32px 16px;text-align:center;font-family:'Inter',sans-serif;font-size:12px;color:var(--mist)">${q ? '검색 결과가 없습니다' : '이 위치에 등록된 제품이 없습니다'}</div>`;
+    items.innerHTML = `<div style="padding:32px 16px;text-align:center;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--mist)">${q ? '검색 결과가 없습니다' : '이 위치에 등록된 제품이 없습니다'}</div>`;
   } else {
     items.innerHTML = page.map(a => {
       const cat     = CAT_LABELS[a.catKey] || a.catKey || '—';
@@ -2837,7 +2835,7 @@ function renderLocProductPickerList() {
       + thumb
       + '<div style="flex:1;min-width:0">'
       + '<div style="font-family:\'Inter\',sans-serif;font-size:13px;font-weight:600;color:#1A1C1C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (a.name||'') + '</div>'
-      + '<div style="font-family:\'Inter\',sans-serif;font-size:11px;color:#9CA3AF;margin-top:2px">' + (a.brand||'') + (a.brand && a.catKey ? ' · ' : '') + (a.catKey||'') + '</div>'
+      + '<div style="font-family:\'Inter\',sans-serif;font-size:12px;color:#9CA3AF;margin-top:2px">' + (a.brand||'') + (a.brand && a.catKey ? ' · ' : '') + (a.catKey||'') + '</div>'
       + '</div>'
       + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'
       + '</div>';
@@ -3350,7 +3348,7 @@ function openDetail(id) {
           <div class="expiry-meta-left" style="font-size:20px;font-weight:700">${remDisplay}</div>
           <div class="expiry-meta-right">${pct}% · 총 ${totDisplay}</div>
         </div>
-        <div style="font-family:'Inter',sans-serif;font-size:10px;color:var(--mist);margin-bottom:12px">${depLine}</div>
+        <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist);margin-bottom:12px">${depLine}</div>
         <div style="display:flex;gap:8px">
           <button class="quick-btn consume" style="height:44px;flex:2;font-size:12px" onclick="recordUse(${id})">사용 −1개</button>
           <button class="quick-btn" style="height:44px;flex:1;font-size:12px" onclick="openAdjustSheet(${id})">보정</button>
@@ -3391,7 +3389,7 @@ function openDetail(id) {
         </div>
         <div style="margin-top:8px">
           <div class="det-field-label" style="margin-bottom:4px">사용 주기</div>
-          <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--ink)">${asset.frequencyType||'매일'}${depInfo?` · 일 소비량 ${depInfo.avgDaily.toFixed(1)}${unit}`:''}</div>
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:var(--ink)">${asset.frequencyType||'매일'}${depInfo?` · 일 소비량 ${depInfo.avgDaily.toFixed(1)}${unit}`:''}</div>
         </div>
       </div>`;
     } else {
@@ -3443,7 +3441,7 @@ function openDetail(id) {
       <div class="det-cat-chips">
         ${MAT_TYPES.map(m =>
           `<div class="det-cat-chip${(asset.materialType||'')=== m?' active':''}"
-                onclick="detUpdateField(${id},'materialType','${m}')" style="font-size:11px">${m}</div>`).join('')}
+                onclick="detUpdateField(${id},'materialType','${m}')" style="font-size:12px">${m}</div>`).join('')}
       </div>
     </div>
     <div class="detail-section">
@@ -3529,9 +3527,9 @@ function openDetail(id) {
     <div class="detail-section" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px">
       <div>
         <div class="detail-section-label" style="margin-bottom:2px">루틴 사용 기록</div>
-        <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--ink)">${asset.useCount} times</div>
+        <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:22px;color:var(--ink)">${asset.useCount} times</div>
       </div>
-      ${asset.lastUsed ? `<div style="font-family:'Inter',sans-serif;font-size:11px;color:var(--mist);text-align:right">마지막 사용<br><span style="color:var(--ink);font-weight:600">${fmtDate(asset.lastUsed)}</span></div>` : ''}
+      ${asset.lastUsed ? `<div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--mist);text-align:right">마지막 사용<br><span style="color:var(--ink);font-weight:600">${fmtDate(asset.lastUsed)}</span></div>` : ''}
     </div>` : ''}
 
     <!-- Source + Notes -->
@@ -4782,7 +4780,7 @@ function renderCatManageBody() {
   if (footer) footer.style.display = editable ? '' : 'none';
 
   if (!cats.length) {
-    body.innerHTML = `<div style="padding:32px 16px;text-align:center;font-family:'Inter',sans-serif;font-size:13px;color:var(--mist)">카테고리가 없습니다<br><span style="font-size:11px">아래에서 추가하세요</span></div>`;
+    body.innerHTML = `<div style="padding:32px 16px;text-align:center;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:var(--mist)">카테고리가 없습니다<br><span style="font-size:12px">아래에서 추가하세요</span></div>`;
     return;
   }
   body.innerHTML = cats.map(c => {
@@ -4794,7 +4792,7 @@ function renderCatManageBody() {
            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
          </button>` : '';
     const brokenBadge = broken
-      ? `<span style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#fff;background:#ba1a1a;padding:2px 6px;border-radius:4px;flex-shrink:0">이름 입력</span>` : '';
+      ? `<span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#fff;background:#ba1a1a;padding:2px 6px;border-radius:4px;flex-shrink:0">이름 입력</span>` : '';
     return `<div class="cat-manage-item" id="catm-item-${c}" style="${broken?'background:#fff5f5':''}">
       <div class="cat-manage-dot" style="${broken?'background:#ba1a1a':''}"></div>
       <input class="cat-manage-name-inp" data-key="${c}"

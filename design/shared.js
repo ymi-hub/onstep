@@ -223,6 +223,7 @@ const _NAV_SVG = {
 function initNav(activeTab) {
   const mounts = document.querySelectorAll('.app-nav');
   if (!mounts.length) return;
+
   const tabs = [
     { id: 'today', href: 'today.html', label: 'Today' },
     { id: 'log',   href: 'log.html',   label: 'Log'   },
