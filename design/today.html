@@ -324,12 +324,12 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .care-prod-thumb span{font-size:32px;line-height:1}
 .care-prod-label{font-size:14px;font-weight:400;color:var(--ink);text-align:center;letter-spacing:-.01em;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* + 와 설명 — 같은 열 인라인 */
-.care-item-plus{width:28px!important;justify-content:center;flex-shrink:0}
-.care-plus-circle{width:28px;height:28px;background:none;border:none;box-shadow:none;border-radius:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:300;color:var(--mist)}
+.care-item-plus, .care-item-minus{width:28px!important;justify-content:center;flex-shrink:0}
+.care-plus-circle, .care-minus-circle{width:28px;height:28px;background:none;border:none;box-shadow:none;border-radius:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:300;color:var(--mist)}
 .care-item-desc{display:flex;width:auto!important;flex-shrink:0;justify-content:center;align-self:center}
 .care-desc-text{display:block;padding:6px 12px;background:#2185fd;border-radius:20px;border:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:400;color:#ffffff;white-space:nowrap;line-height:1}
 /* flow strip 태그 (care-tag-*) — 인라인 칩 */
-.care-tag-plus{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;font-size:14px;font-weight:300;color:var(--mist);align-self:center}
+.care-tag-plus, .care-tag-minus{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;font-size:14px;font-weight:300;color:var(--mist);align-self:center}
 .care-tag-desc{flex-shrink:0;align-self:center;padding:5px 10px;background:#2185fd;border-radius:16px;border:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:400;color:#fff;white-space:nowrap;line-height:1}
 
 /* OOTD — portrait hero + thumb row + more row */
@@ -642,12 +642,12 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
 <script>
 firebase.initializeApp({
-  apiKey:"AIzaSyBdKnyU8t0XrQsT_EhKS2nk9zOKwjxoquk",
-  authDomain:"onstep-lifeos.firebaseapp.com",
-  projectId:"onstep-lifeos",
-  storageBucket:"onstep-lifeos.firebasestorage.app",
-  messagingSenderId:"333501649998",
-  appId:"1:333501649998:web:4eebd8b84a32ea8a581f1f"
+  apiKey:"AIzaSyCwi1Lh0yD2kCpAYl--1UDkyjs5TVRfqGM",
+  authDomain:"onstep-lifeos-v2-adee2.firebaseapp.com",
+  projectId:"onstep-lifeos-v2",
+  storageBucket:"onstep-lifeos-v2.firebasestorage.app",
+  messagingSenderId:"996802662742",
+  appId:"1:996802662742:web:1d957ab5e6d8b54134c6f7"
 });
 const fbAuth = firebase.auth();
 const fbDb   = firebase.firestore();
@@ -1191,6 +1191,7 @@ function renderFlowHeroStep(plan) {
       strip.innerHTML = products.map(p => {
         const t = p.type || 'product';
         if (t === 'plus') return `<div class="care-tag-plus">+</div>`;
+        if (t === 'minus') return `<div class="care-tag-minus">-</div>`;
         if (t === 'desc') return `<div class="care-tag-desc">${p.text||''}</div>`;
         const isDone = doneSet.has(p.name);
         const imgSrc = getBoxImgForProduct(p);
@@ -1310,6 +1311,9 @@ function renderCareToday() {
     const rowHtml = allItems.slice(0, 12).map(p => {
       if (p.type === 'plus') {
         return `<div class="care-prod-item care-item-plus"><div class="care-plus-circle">+</div></div>`;
+      }
+      if (p.type === 'minus') {
+        return `<div class="care-prod-item care-item-minus"><div class="care-minus-circle">-</div></div>`;
       }
       if (p.type === 'desc') {
         return `<div class="care-prod-item care-item-desc"><div class="care-desc-text">${p.text||''}</div></div>`;
@@ -1918,7 +1922,7 @@ function renderTodayOOTD() {
   }
   if (ootdSection) ootdSection.style.display = '';
   const heroImg = lookTheme.baselineImg || lookTheme.storageUrl || '';
-  const items = (lookTheme.products || lookTheme.items || []).filter(p => p.type !== 'plus' && p.type !== 'desc');
+  const items = (lookTheme.products || lookTheme.items || []).filter(p => p.type !== 'plus' && p.type !== 'minus' && p.type !== 'desc');
   const thumbs = items.map(p => {
     const img = p.imgData || getBoxImgForProduct(p) || '';
     return `<div class="ootd-thumb-item"${img?` style="background-image:url(${img})"`:''}>
