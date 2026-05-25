@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>OnStep · Routine</title>
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+<link rel="icon" type="image/png" href="logo-v2.png">
+<link rel="apple-touch-icon" href="logo-v2.png">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -661,7 +661,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-card-item-wrap{flex-shrink:0;width:40px;text-align:center}
 .ct-card-item-img{width:40px;height:40px;border-radius:var(--r-sm);background:var(--surface-mid);background-size:100% auto;background-position:top center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:15px;overflow:hidden;margin-bottom:3px}
 .ct-card-item-nm{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:var(--ink);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.ct-card-item-plus, .ct-card-item-minus{flex-shrink:0;width:16px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mist);font-weight:300;padding-bottom:14px}
+.ct-card-item-plus{flex-shrink:0;width:16px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mist);font-weight:300;padding-bottom:14px}
 .ct-card-item-desc{flex-shrink:0;max-width:72px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--sub);line-height:1.35;padding:4px 6px;background:var(--surface-low);border-radius:var(--r-sm);align-self:flex-start;word-break:keep-all}
 .ct-card-dates{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
 .ct-date-chip{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;background:var(--ink);color:#fff;padding:3px 8px;border-radius:var(--r-sm);letter-spacing:.04em}
@@ -733,7 +733,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .rs-chip-name{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72px}
 .rs-chip--plus{width:72px;height:72px;border:1.5px solid rgba(197,255,0,.6);border-radius:10px;background:rgba(197,255,0,.1);display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:300;color:var(--ink);flex-shrink:0;cursor:default;position:relative;overflow:visible}
 .rs-chip--plus .rs-chip-del{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;z-index:1;margin-left:0;line-height:1}
-.rs-chip--minus{width:72px;height:72px;border:1.5px solid rgba(33,133,253,.6);border-radius:10px;background:rgba(33,133,253,.08);display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:300;color:var(--ink);flex-shrink:0;cursor:default;position:relative;overflow:visible}
+.rs-chip--minus{width:72px;height:72px;border:1.5px solid rgba(10,132,255,.6);border-radius:10px;background:rgba(10,132,255,.1);display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:300;color:var(--ink);flex-shrink:0;cursor:default;position:relative;overflow:visible}
 .rs-chip--minus .rs-chip-del{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;z-index:1;margin-left:0;line-height:1}
 .rs-chip--desc{min-width:72px;max-width:150px;height:72px;background:#e3e3e3;border-radius:10px;border:1px solid rgba(0,0,0,.06);box-shadow:var(--shadow);padding:8px 10px;display:inline-flex;align-items:center;justify-content:center;align-self:center;flex-shrink:0;position:relative}
 .rs-chip-desc-text{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:400;color:#0c0c0a;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word;text-align:center}
@@ -748,7 +748,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .rs-act-row{display:flex;gap:6px;padding:8px 16px 14px;flex-wrap:wrap}
 .rs-act-btn{border:1.5px solid var(--border-md);border-radius:var(--r-full);padding:6px 14px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--sub);background:transparent;cursor:pointer;transition:all .15s;white-space:nowrap}
 .rs-act-btn:active{border-color:var(--ink);color:var(--ink)}
-.rs-act-btn--plus, .rs-act-btn--minus{border-style:dashed;min-width:36px;text-align:center;padding:6px 10px}
+.rs-act-btn--minus{border-style:dashed;min-width:36px;text-align:center;padding:6px 10px;border-color:rgba(10,132,255,.6);color:rgba(10,132,255,1)}
+.rs-act-btn--minus:active{border-color:rgba(10,132,255,1);background:rgba(10,132,255,.1)}
+.rs-act-btn--plus{border-style:dashed;min-width:36px;text-align:center;padding:6px 10px}
 .rs-desc-row{display:flex;align-items:center;gap:6px;padding:0 16px 12px}
 .rs-desc-inp{flex:1;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px 10px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;color:var(--ink);background:#fff;outline:none}
 .rs-desc-ok{padding:8px 14px;border:none;border-radius:var(--r-sm);background:var(--ink);color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
@@ -768,7 +770,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-chip--product .ct-chip-img{background:rgba(255,255,255,.15)}
 .ct-chip--product .ct-chip-del{color:rgba(255,255,255,.5)}
 .ct-chip--product-missing{border:1.5px dashed var(--border-md);color:var(--sub)}
-.ct-chip--plus, .ct-chip--minus{border:1.5px dashed var(--border-md);color:var(--mist);font-weight:700;padding:5px 12px}
+.ct-chip--plus{border:1.5px dashed var(--border-md);color:var(--mist);font-weight:700;padding:5px 12px}
 .ct-chip--desc{background:var(--surface-low);border-color:var(--border)}
 .ct-action-row{display:flex;gap:6px;margin-top:8px}
 .ct-act-btn{padding:7px 14px;border:1.5px solid var(--border-md);border-radius:var(--r-full);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--ink);background:var(--surface);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
@@ -950,7 +952,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
     <!-- AppBar -->
     <div class="appbar">
       <div class="appbar-menu"><span></span><span></span><span></span></div>
-      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer"><img src="logo.png" alt="OnStep" class="appbar-logo">OnStep</div>
+      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer"><img src="logo-v2.png" alt="OnStep" class="appbar-logo">OnStep</div>
       <div id="auth-avatar" data-auth-avatar onclick="handleAuthClick()" style="width:32px;height:32px;border-radius:9999px;background:var(--surface-mid);border:1.5px solid var(--border);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg></div>
     </div>
 
@@ -1452,7 +1454,6 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
           <button class="ct-act-btn" onclick="ctAddProductStart('main',event)">+ 제품</button>
           <button class="ct-act-btn" onclick="ctAddDescStart('main')">+ 설명</button>
           <button class="ct-act-btn ct-act-plus" onclick="ctAddPlusChip('main')">+</button>
-          <button class="ct-act-btn ct-act-plus" onclick="ctAddMinusChip('main')">-</button>
         </div>
         <div class="ct-desc-inline-row" id="ct-desc-inline-row" style="display:none">
           <input class="ct-desc-inline-inp" id="ct-desc-inline-inp" type="text" placeholder="설명 텍스트 입력..."
@@ -1473,7 +1474,6 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
           <button class="ct-act-btn" onclick="ctAddProductStart('tip',event)">+ 제품</button>
           <button class="ct-act-btn" onclick="ctAddDescStart('tip')">+ 설명</button>
           <button class="ct-act-btn ct-act-plus" onclick="ctAddPlusChip('tip')">+</button>
-          <button class="ct-act-btn ct-act-plus" onclick="ctAddMinusChip('tip')">-</button>
         </div>
         <div class="ct-desc-inline-row" id="ct-tip-desc-inline-row" style="display:none">
           <input class="ct-desc-inline-inp" id="ct-tip-desc-inline-inp" type="text" placeholder="TIP 설명 텍스트 입력..."
@@ -1673,12 +1673,12 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 <script>
 // ── Firebase ──────────────────────────────────────────────────
 firebase.initializeApp({
-  apiKey:"AIzaSyCwi1Lh0yD2kCpAYl--1UDkyjs5TVRfqGM",
-  authDomain:"onstep-lifeos-v2-adee2.firebaseapp.com",
-  projectId:"onstep-lifeos-v2",
-  storageBucket:"onstep-lifeos-v2.firebasestorage.app",
-  messagingSenderId:"996802662742",
-  appId:"1:996802662742:web:1d957ab5e6d8b54134c6f7"
+  apiKey: "AIzaSyCwi1Lh0yD2kCpAYl--1UDkyjs5TVRfqGM",
+  authDomain: "onstep-lifeos-v2-adee2.firebaseapp.com",
+  projectId: "onstep-lifeos-v2",
+  storageBucket: "onstep-lifeos-v2.firebasestorage.app",
+  messagingSenderId: "996802662742",
+  appId: "1:996802662742:web:1d957ab5e6d8b54134c6f7"
 });
 const fbAuth = firebase.auth();
 const fbDb   = firebase.firestore();
@@ -1929,9 +1929,10 @@ async function saveTrackerToCloud() {
   if (typeof _broadcastState === 'function') _broadcastState('tracker');
   if (!currentUser) return;
   try {
+    const items = JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]');
     await fbDb.collection('users').doc(currentUser.uid)
       .collection('settings').doc('data')
-      .set({ trackerItems, savedAt: new Date().toISOString() }, { merge: true });
+      .set({ trackerItems: items, savedAt: new Date().toISOString() }, { merge: true });
   } catch(e) { console.warn('Tracker cloud save:', e); }
 }
 
@@ -2129,28 +2130,32 @@ window.addEventListener('load', () => {
 });
 
 // 로컬과 클라우드 careplan을 병합 — 세션은 절대 유실되지 않도록
-// local 우선(편집 내용 보존), cloud에만 있는 세션은 추가
+// session 번호가 높은 쪽을 base로 사용 (동일하면 타임스탬프 기준)
 function _mergePlan(local, cloud) {
   if (!local || !local.savedAt) return cloud;
   if (!cloud || !cloud.savedAt) return local;
-  const localTs  = new Date(local.savedAt).getTime();
-  const cloudTs  = new Date(cloud.savedAt).getTime();
-  // current session: 최신 기준 (더 새로 저장된 쪽)
-  const base = cloudTs >= localTs ? cloud : local;
+  const localSession = parseInt(local.session) || 0;
+  const cloudSession = parseInt(cloud.session) || 0;
+  const localTs = new Date(local.savedAt).getTime();
+  const cloudTs = new Date(cloud.savedAt).getTime();
+  // session 번호 높은 쪽 우선 — 타임스탬프만으로 결정하면 낮은 번호가 "최신"으로 덮어쓰는 버그 발생
+  const cloudWins = cloudSession > localSession ||
+                    (cloudSession === localSession && cloudTs >= localTs);
+  const base  = cloudWins ? cloud : local;
+  const other = cloudWins ? local  : cloud;
   // history 병합: 세션 번호 기준 dedup, local 우선
   const map = new Map();
   (cloud.history||[]).forEach(s => { if (s.session) map.set(Number(s.session), s); });
   (local.history||[]).forEach(s => { if (s.session) map.set(Number(s.session), s); });
   // 현재 세션(base가 아닌 쪽)도 history에 포함해 유실 방지
-  const otherCurrent = cloudTs >= localTs ? local : cloud;
-  if (otherCurrent.session && otherCurrent.session !== base.session) {
-    const n = Number(otherCurrent.session);
+  if (other.session && other.session !== base.session) {
+    const n = Number(other.session);
     if (!map.has(n)) map.set(n, {
-      session: otherCurrent.session,
-      periodStart: otherCurrent.periodStart,
-      periodEnd: otherCurrent.periodEnd,
-      morning: otherCurrent.morning,
-      nightly: otherCurrent.nightly
+      session: other.session,
+      periodStart: other.periodStart,
+      periodEnd: other.periodEnd,
+      morning: other.morning,
+      nightly: other.nightly
     });
   }
   return { ...base, history: Array.from(map.values()) };
@@ -2581,8 +2586,8 @@ function renderGrid(slot) {
     <div class="rs-act-row">
       <button class="rs-act-btn" onclick="openRoutineEditSearch('${slot}')">+ 제품</button>
       <button class="rs-act-btn" onclick="rsOpenDesc('${slot}')">+ 설명</button>
-      <button class="rs-act-btn rs-act-btn--plus" onclick="rsAddPlusItem('${slot}')">+</button>
       <button class="rs-act-btn rs-act-btn--minus" onclick="rsAddMinusItem('${slot}')">-</button>
+      <button class="rs-act-btn rs-act-btn--plus" onclick="rsAddPlusItem('${slot}')">+</button>
     </div>
     <div class="rs-desc-row" id="rs-desc-${slot}" style="display:none">
       <input class="rs-desc-inp" id="rs-desc-inp-${slot}" type="text" placeholder="설명 텍스트 입력..."
@@ -2629,7 +2634,7 @@ function toggleProdList(slot) {
 
 // ── History ───────────────────────────────────────────────────
 function _isSessionNow(s) {
-  if (!s.periodStart) return true;
+  if (!s.periodStart) return false;
   const today = new Date().toISOString().slice(0,10);
   return today >= s.periodStart && today <= (s.periodEnd || s.periodStart);
 }
@@ -2697,10 +2702,10 @@ function renderRoutineSessionList() {
     }
 
     html += `
-    <div class="ae-row${s.isCurrent ? ' current' : ''}" id="rs-row-${n}" onclick="toggleRsRow(${n})">
+    <div class="ae-row${_isSessionNow(s) ? ' current' : ''}" id="rs-row-${n}" onclick="toggleRsRow(${n})">
       <div class="ae-session-num">#${String(n).padStart(2,'0')}</div>
       <div class="ae-row-info">
-        <div class="ae-row-title">No.${n} SESSION${(s.isCurrent && _isSessionNow(s)) ? ' <span class="ae-now-pill">NOW</span>' : ''}</div>
+        <div class="ae-row-title">No.${n} SESSION${_isSessionNow(s) ? ' <span class="ae-now-pill">NOW</span>' : ''}</div>
         <div class="ae-row-dates">${fmt(s.periodStart)} – ${fmt(s.periodEnd)}</div>
       </div>
       <div class="ae-row-right">${tagsHtml}<span class="ae-chevron">›</span></div>
@@ -2902,12 +2907,12 @@ function renderArchiveList(sessions) {
       : '<div class="ae-detail-empty">등록된 제품이 없습니다</div>';
 
     html += `
-    <div class="ae-row${s.isCurrent?' current':''}" id="ae-row-${n}" onclick="toggleAeRow(${n})">
+    <div class="ae-row${_isSessionNow(s) ? ' current' : ''}" id="ae-row-${n}" onclick="toggleAeRow(${n})">
       <div class="ae-session-num">#${String(n).padStart(2,'0')}</div>
       <div class="ae-row-info">
         <div class="ae-row-title">
           No.${n} SESSION
-          ${(s.isCurrent && _isSessionNow(s)) ? '<span class="ae-now-pill">NOW</span>' : ''}
+          ${_isSessionNow(s) ? '<span class="ae-now-pill">NOW</span>' : ''}
         </div>
         <div class="ae-row-dates">${fmtDate(s.periodStart)} – ${fmtDate(s.periodEnd)}</div>
       </div>
@@ -3153,7 +3158,29 @@ function saveEditSheet() {
   if (!newN || !s || !e) { showToast('회차 번호와 기간을 모두 입력해주세요'); return; }
 
   if (_editingSessionNum === -1) {
-    // 새 세션: 현재 세션을 history에 보관 후 초기화
+    const _todayStr = getTodayKey ? getTodayKey() : new Date().toISOString().slice(0,10);
+    // 과거 일정(종료일 < 오늘) → history에만 추가, 현재 세션 변경 없음
+    if (e < _todayStr) {
+      if (!state.history) state.history = [];
+      // 동일 회차 번호 중복 방지
+      const dupIdx = state.history.findIndex(h => Number(h.session) === newN);
+      if (dupIdx >= 0) { showToast(`${newN}회차는 이미 존재합니다`); return; }
+      state.history.push({
+        session:     newN,
+        periodStart: s,
+        periodEnd:   e,
+        morning:     { active: 1, routines: [{ id: 1, products: [], tip: '' }] },
+        nightly:     { active: 1, routines: [{ id: 1, products: [], tip: '' }] },
+        published:   false
+      });
+      closeEditSheet();
+      persistPlan(state.published || false);
+      renderArchiveEntries();
+      renderRoutineSessionList();
+      showToast(`${newN}회차 일정이 아카이브에 추가됐습니다`);
+      return;
+    }
+    // 현재/미래 일정 → 기존 세션을 history에 보관 후 새 세션으로 전환
     if (state.session) {
       if (!state.history) state.history = [];
       state.history.push({
@@ -3308,8 +3335,8 @@ function renderSeBody() {
         <div class="rs-act-row">
           <button class="rs-act-btn" onclick="seRsOpenSearch('${slot}')">+ 제품</button>
           <button class="rs-act-btn" onclick="seRsOpenDesc('${slot}')">+ 설명</button>
-          <button class="rs-act-btn rs-act-btn--plus" onclick="seRsAddPlus('${slot}')">+</button>
           <button class="rs-act-btn rs-act-btn--minus" onclick="seRsAddMinus('${slot}')">-</button>
+          <button class="rs-act-btn rs-act-btn--plus" onclick="seRsAddPlus('${slot}')">+</button>
         </div>
         <div class="rs-desc-row" id="se-desc-row-${slot}" style="display:none">
           <input class="rs-desc-inp" id="se-desc-inp-${slot}" type="text" placeholder="설명 텍스트 입력..."
@@ -3435,8 +3462,8 @@ function seRenderChips(slot) {
     <div class="rs-act-row">
       <button class="rs-act-btn" onclick="seRsOpenSearch('${slot}')">+ 제품</button>
       <button class="rs-act-btn" onclick="seRsOpenDesc('${slot}')">+ 설명</button>
-      <button class="rs-act-btn rs-act-btn--plus" onclick="seRsAddPlus('${slot}')">+</button>
       <button class="rs-act-btn rs-act-btn--minus" onclick="seRsAddMinus('${slot}')">-</button>
+      <button class="rs-act-btn rs-act-btn--plus" onclick="seRsAddPlus('${slot}')">+</button>
     </div>
     <div class="rs-desc-row" id="se-desc-row-${slot}" style="display:none">
       <input class="rs-desc-inp" id="se-desc-inp-${slot}" type="text" placeholder="설명 텍스트 입력..."
@@ -3840,6 +3867,7 @@ function openModal(slot, editId = null) {
   modal.editId = editId;
   selectedBoxAssetId = null;
   bpSelectedId = null;
+  bpSelectedIds.clear();
   catEditMode = false;
   const grid = document.getElementById('category-grid');
   if (grid) grid.classList.remove('edit-mode');
@@ -3915,8 +3943,7 @@ const BP_FASHION_CATS = ['top','bottom','outer','shoes','bag','acc'];
 const BP_ACC_CATS     = ['jewelry','watch','belt','sunglasses','hat','other'];
 
 function setBpDomain(d) {
-  _bpDomain = d; _bpSubcat = 'all'; bpSelectedId = null;
-  bpSelectedIds.clear();
+  _bpDomain = d; _bpSubcat = 'all'; bpSelectedId = null; bpSelectedIds.clear();
   ['beauty','fashion','acc'].forEach(x => document.getElementById('bpd-'+x)?.classList.toggle('active', x===d));
   _renderBpSubcats();
   renderBpList(document.getElementById('bp-search-inp')?.value || '');
@@ -3957,6 +3984,7 @@ function _renderBpSubcats() {
 function openBoxPanel() {
   bpSelectedId = selectedBoxAssetId;
   bpSelectedIds.clear();
+  if (bpSelectedId) bpSelectedIds.add(bpSelectedId);
   _bpExpanded  = false;
   _bpDomain    = 'beauty';
   _bpSubcat    = 'all';
@@ -3980,6 +4008,7 @@ function openBpForReplace(slot, prodId) {
   _bpReplaceId   = prodId;
   bpSelectedId   = p?.assetId || null;
   bpSelectedIds.clear();
+  if (bpSelectedId) bpSelectedIds.add(bpSelectedId);
   _bpExpanded    = false;
   _bpDomain      = 'beauty';
   _bpSubcat      = 'all';
@@ -4052,7 +4081,7 @@ function renderBpList(q) {
   const showAll = _bpExpanded || !!q.trim();
   const visible = showAll ? filtered : filtered.slice(0, 12);
   const rows = visible.map(a => {
-    const isSel = _bpContext === 'routine' ? bpSelectedIds.has(a.id) : bpSelectedId === a.id;
+    const isSel = _bpContext === 'routine' ? bpSelectedIds.has(a.id) : (bpSelectedId === a.id);
     const imgStyle = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl});background-size:100% auto;background-position:top center;background-repeat:no-repeat` : '';
     const icon = CAT[a.catKey]?.icon || '✨';
     const catLabel = (CAT[a.catKey]?.label || a.catKey || '').toUpperCase();
@@ -4080,8 +4109,11 @@ function selectBpItem(id) {
     } else {
       bpSelectedIds.add(id);
     }
+    bpSelectedId = bpSelectedIds.size > 0 ? Array.from(bpSelectedIds)[0] : null;
   } else {
     bpSelectedId = bpSelectedId === id ? null : id;
+    bpSelectedIds.clear();
+    if (bpSelectedId !== null) bpSelectedIds.add(bpSelectedId);
   }
   renderBpList(document.getElementById('bp-search-inp')?.value || '');
   updateBpConfirm();
@@ -4089,9 +4121,14 @@ function selectBpItem(id) {
 
 function updateBpConfirm() {
   const btn = document.getElementById('bp-confirm');
-  if (btn) {
-    const hasSel = _bpContext === 'routine' ? bpSelectedIds.size > 0 : !!bpSelectedId;
-    btn.classList.toggle('active', hasSel);
+  if (!btn) return;
+  if (_bpContext === 'routine') {
+    const count = bpSelectedIds.size;
+    btn.classList.toggle('active', count > 0);
+    btn.textContent = count > 0 ? `추가하기 (${count}개)` : '추가하기';
+  } else {
+    btn.classList.toggle('active', !!bpSelectedId);
+    btn.textContent = '추가하기';
   }
 }
 
@@ -4100,12 +4137,13 @@ function confirmBoxPanel() {
 
   if (_bpContext === 'routine') {
     if (bpSelectedIds.size === 0) return;
-    for (const assetId of bpSelectedIds) {
-      const asset = assets.find(a => a.id === assetId);
-      if (asset) {
-        _addAssetToRoutine(asset);
-      }
-    }
+    const selectedAssets = [];
+    bpSelectedIds.forEach(id => {
+      const asset = assets.find(a => a.id === id);
+      if (asset) selectedAssets.push(asset);
+    });
+    if (selectedAssets.length === 0) return;
+    _addAssetsToRoutine(selectedAssets);
     closeBoxPanel();
     return;
   }
@@ -4165,6 +4203,59 @@ function _replaceProductInRoutine(asset) {
     persistPlan(false);
   }
   showToast(`${meta.icon} ${asset.name} 변경됨`);
+}
+
+function _addAssetsToRoutine(selectedAssets) {
+  const slot    = _bpSeSlot;
+  const routeId = _bpSeRouteId;
+  if (slot === null) return;
+
+  if (_seEdit) {
+    const routine = (_seEdit.data[slot]?.routines || []).find(r => r.id === routeId)
+                 || _seEdit.data[slot]?.routines?.[0];
+    if (!routine) return;
+
+    selectedAssets.forEach((asset, idx) => {
+      const meta = CAT[asset.catKey] || { icon:'✨' };
+      const prodObj = {
+        id: Date.now() + idx,
+        catKey: asset.catKey || 'skincare',
+        name: asset.name, brand: asset.brand || '',
+        icon: meta.icon, imgData: asset.imgData || null,
+        storageUrl: asset.storageUrl || null, assetId: asset.id
+      };
+      routine.products.push(prodObj);
+    });
+    renderSeBody();
+  } else {
+    const prods = getActiveProducts(slot);
+    const availableSlots = MAX - prods.length;
+    if (availableSlots <= 0) {
+      showToast(`최대 ${MAX}개까지 등록 가능합니다`);
+      return;
+    }
+    const toAdd = selectedAssets.slice(0, availableSlots);
+    toAdd.forEach((asset, idx) => {
+      const meta = CAT[asset.catKey] || { icon:'✨' };
+      const prodObj = {
+        id: Date.now() + idx,
+        catKey: asset.catKey || 'skincare',
+        name: asset.name, brand: asset.brand || '',
+        icon: meta.icon, imgData: asset.imgData || null,
+        storageUrl: asset.storageUrl || null, assetId: asset.id
+      };
+      prods.push(prodObj);
+    });
+    setActiveProducts(slot, prods);
+    renderGrid(slot);
+    persistPlan(false);
+
+    if (selectedAssets.length > availableSlots) {
+      showToast(`일부 제품이 제외되었습니다 (최대 ${MAX}개 제한)`);
+      return;
+    }
+  }
+  showToast(`선택한 제품 ${selectedAssets.length}개가 추가되었습니다.`);
 }
 
 function _addAssetToRoutine(asset) {
@@ -4638,7 +4729,6 @@ function renderCtCareList() {
       : '';
     const itemsHtml = (t.items||[]).slice(0, 8).map(p => {
       if (p.type === 'plus') return `<div class="ct-card-item-plus">+</div>`;
-      if (p.type === 'minus') return `<div class="ct-card-item-minus">-</div>`;
       if (p.type === 'desc') return `<div class="ct-card-item-desc">${p.text||''}</div>`;
       const asset = getBoxAssets().find(a => a.id === p.assetId);
       const imgSrc = asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl||'';
@@ -5138,9 +5228,6 @@ function _renderTypedChip(item, idx, section) {
   if (item.type === 'plus') {
     return `<div class="ct-chip ct-chip--plus">+<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
   }
-  if (item.type === 'minus') {
-    return `<div class="ct-chip ct-chip--minus">-<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
-  }
   if (item.type === 'desc') {
     return `<div class="ct-chip ct-chip--desc">${item.text}<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
   }
@@ -5221,11 +5308,6 @@ function ctConfirmDesc(section) {
 function ctAddPlusChip(section) {
   const target = section === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
   target.push({ type: 'plus' });
-  renderCtChips();
-}
-function ctAddMinusChip(section) {
-  const target = section === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
-  target.push({ type: 'minus' });
   renderCtChips();
 }
 
@@ -5333,14 +5415,12 @@ function saveCtContent() {
       ? ctSheetState.items.map(item => item.type === 'product'
           ? { type:'product', assetId: item.assetId, name: item.name, brand: item.brand||'' }
           : item.type === 'plus' ? { type:'plus' }
-          : item.type === 'minus' ? { type:'minus' }
           : { type:'desc', text: item.text||'' })
       : ctSheetState.items.map(({assetId, name: n, brand}) => ({assetId, name: n, brand: brand||''}));
     const cleanTipItems = ctSheetState.type === 'care'
       ? ctSheetState.tipItems.map(item => item.type === 'product'
           ? { type:'product', assetId: item.assetId, name: item.name, brand: item.brand||'' }
           : item.type === 'plus' ? { type:'plus' }
-          : item.type === 'minus' ? { type:'minus' }
           : { type:'desc', text: item.text||'' })
       : [];
     if (ctSheetState.type === 'care') {

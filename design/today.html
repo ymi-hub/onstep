@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>OnStep · Today</title>
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+<link rel="icon" type="image/png" href="logo-v2.png">
+<link rel="apple-touch-icon" href="logo-v2.png">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -36,7 +36,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .phone{width:390px;height:888px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate(0,0);display:flex;flex-direction:column;}
 .notch{height:44px;flex-shrink:0;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
-.scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;background:var(--bg);overscroll-behavior:contain}
+.scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:var(--bg);overscroll-behavior:contain}
 .scroll::-webkit-scrollbar{display:none}
 
 /* Appbar */
@@ -97,10 +97,10 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .flow-step-hd{display:none} /* 이미지 기준: 헤더 없음, 이미지가 먼저 */
 
 /* Compact multi-card routine strip — 5.5개 노출 */
-.flow-prod-strip{display:flex;overflow-x:auto;scrollbar-width:none;padding:20px 20px 20px;gap:6px}
-.flow-prod-strip::-webkit-scrollbar{display:none}
+.flow-prod-strip{display:flex;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;padding:20px 20px 20px;gap:6px}
+.flow-prod-strip::-webkit-scrollbar{display:none;width:0;height:0}
 .flow-prod-item{flex-shrink:0;width:130px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.flow-prod-img{width:100%;aspect-ratio:1/1;background:var(--surface-mid);background-size:100% auto;background-position:top center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:10px}
+.flow-prod-img{width:100%;aspect-ratio:1/1;background:#f0efec;background-size:100% auto;background-position:top center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:10px}
 .flow-prod-emoji{font-size:28px;opacity:.3;pointer-events:none}
 .flow-prod-check{position:absolute;inset:0;background:rgb(12 16 20 / 30%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;opacity:0;transition:opacity .2s;pointer-events:none;border-radius:10px}
 .flow-prod-item.done .flow-prod-check{opacity:1}
@@ -124,14 +124,16 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .flow-step-body{padding:4px 16px 20px;display:flex;flex-direction:column;gap:12px}
 .flow-step-tag{display:none}
 .flow-expert-tip{display:flex;flex-direction:column;align-items:flex-start;padding:16px;gap:10px;margin:0 16px;background:#F5FDD4;border:1px solid rgba(198,244,50,.5);border-radius:var(--r-lg)}
+.flow-expert-tip.no-tip{background:none;border:none;border-top:3px solid #c5ff00;border-radius:0;padding:0;margin:0 16px;gap:0}
+.flow-expert-tip.no-tip *{display:none}
 .flow-tip-header{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:6px}
 .flow-tip-text{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:var(--sub);line-height:1.6}
 .flow-edit-link{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--mist);text-decoration:none;align-self:flex-end}
 .flow-edit-link:hover{color:var(--ink)}
 
 /* CTA button */
-.flow-cta-wrap{padding:10px 16px 0}
-.flow-cta-btn{width:100%;background:var(--ink);color:#ffffff;border:none;min-height:52px;padding:0 20px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .28s,transform .15s;border-radius:var(--r-full)}
+.flow-cta-wrap{padding:8px 16px 16px}
+.flow-cta-btn{width:100%;background:var(--ink);color:#ffffff;border:none;min-height:40px;padding:0 16px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .28s,transform .15s;border-radius:var(--r-full)}
 .flow-cta-btn:active{transform:scale(.98)}
 .flow-cta-btn.done{background:var(--lime);color:var(--ink);border:2px solid var(--lime-border)}
 .flow-cta-arrow{font-size:15px;color:#fff}
@@ -324,12 +326,12 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .care-prod-thumb span{font-size:32px;line-height:1}
 .care-prod-label{font-size:14px;font-weight:400;color:var(--ink);text-align:center;letter-spacing:-.01em;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* + 와 설명 — 같은 열 인라인 */
-.care-item-plus, .care-item-minus{width:28px!important;justify-content:center;flex-shrink:0}
-.care-plus-circle, .care-minus-circle{width:28px;height:28px;background:none;border:none;box-shadow:none;border-radius:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:300;color:var(--mist)}
+.care-item-plus{width:28px!important;justify-content:center;flex-shrink:0}
+.care-plus-circle{width:28px;height:28px;background:none;border:none;box-shadow:none;border-radius:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:300;color:var(--mist)}
 .care-item-desc{display:flex;width:auto!important;flex-shrink:0;justify-content:center;align-self:center}
 .care-desc-text{display:block;padding:6px 12px;background:#2185fd;border-radius:20px;border:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:400;color:#ffffff;white-space:nowrap;line-height:1}
 /* flow strip 태그 (care-tag-*) — 인라인 칩 */
-.care-tag-plus, .care-tag-minus{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;font-size:14px;font-weight:300;color:var(--mist);align-self:center}
+.care-tag-plus{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;font-size:14px;font-weight:300;color:var(--mist);align-self:center}
 .care-tag-desc{flex-shrink:0;align-self:center;padding:5px 10px;background:#2185fd;border-radius:16px;border:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:400;color:#fff;white-space:nowrap;line-height:1}
 
 /* OOTD — portrait hero + thumb row + more row */
@@ -433,7 +435,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
     <div class="appbar">
       <div class="appbar-menu"><span></span><span></span><span></span></div>
-      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer"><img src="logo.png" alt="OnStep" class="appbar-logo">OnStep</div>
+      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer"><img src="logo-v2.png" alt="OnStep" class="appbar-logo">OnStep</div>
       <div id="auth-avatar" data-auth-avatar onclick="handleAuthClick()" title="로그인하여 동기화">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
       </div>
@@ -499,23 +501,12 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
       <div class="flow-step-body">
         <a class="flow-edit-link" href="javascript:void(0)" onclick="goToRoutineSetup()">Edit →</a>
       </div>
-    </div>
-
-    <!-- CHECK ROUTINE CTA -->
-    <div class="flow-cta-wrap">
-      <button class="flow-cta-btn" id="main-check-btn" onclick="handleMainRoutineBtn()">
-        <span id="cta-label">CHECK ROUTINE</span>
-        <svg id="cta-arrow" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-    </div>
-
-    <!-- Special Care -->
-    <div class="editorial-section" id="care-today-section" style="display:none">
-      <div class="editorial-hd">
-        <div class="editorial-hd-tag">#INTENSIVE CARE</div>
-        <a class="editorial-hd-sub" href="setup.html?panel=care">Edit →</a>
+      <div class="flow-cta-wrap">
+        <button class="flow-cta-btn" id="main-check-btn" onclick="handleMainRoutineBtn()">
+          <span id="cta-label">CHECK ROUTINE</span>
+          <svg id="cta-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
       </div>
-      <div id="care-today-wrap"></div>
     </div>
 
     <!-- Routine Tracker -->
@@ -528,6 +519,15 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <a class="allday-top-edit" href="setup.html?panel=tracker">Edit →</a>
       </div>
       <div id="allday-items"></div>
+    </div>
+
+    <!-- Special Care -->
+    <div class="editorial-section" id="care-today-section" style="display:none">
+      <div class="editorial-hd">
+        <div class="editorial-hd-tag">#INTENSIVE CARE</div>
+        <a class="editorial-hd-sub" href="setup.html?panel=care">Edit →</a>
+      </div>
+      <div id="care-today-wrap"></div>
     </div>
 
     <!-- #MOTD section -->
@@ -642,31 +642,31 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
 <script>
 firebase.initializeApp({
-  apiKey:"AIzaSyCwi1Lh0yD2kCpAYl--1UDkyjs5TVRfqGM",
-  authDomain:"onstep-lifeos-v2-adee2.firebaseapp.com",
-  projectId:"onstep-lifeos-v2",
-  storageBucket:"onstep-lifeos-v2.firebasestorage.app",
-  messagingSenderId:"996802662742",
-  appId:"1:996802662742:web:1d957ab5e6d8b54134c6f7"
+  apiKey: "AIzaSyCwi1Lh0yD2kCpAYl--1UDkyjs5TVRfqGM",
+  authDomain: "onstep-lifeos-v2-adee2.firebaseapp.com",
+  projectId: "onstep-lifeos-v2",
+  storageBucket: "onstep-lifeos-v2.firebasestorage.app",
+  messagingSenderId: "996802662742",
+  appId: "1:996802662742:web:1d957ab5e6d8b54134c6f7"
 });
 const fbAuth = firebase.auth();
 const fbDb   = firebase.firestore();
-let currentUser = null, unsubscribe = null, _unsubExtra = null, _unsubBox = null;
+let currentUser = null, unsubscribe = null, _unsubExtra = null, _unsubBox = null, _unsubSettings = null;
 
 firebase.auth().onAuthStateChanged(user => {
   currentUser = user;
   _updateAuthAvatar(user);
-  if (unsubscribe)   { unsubscribe();   unsubscribe   = null; }
-  if (_unsubExtra)   { _unsubExtra();   _unsubExtra   = null; }
-  if (_unsubBox)     { _unsubBox();     _unsubBox     = null; }
+  if (unsubscribe)    { unsubscribe();    unsubscribe    = null; }
+  if (_unsubExtra)    { _unsubExtra();    _unsubExtra    = null; }
+  if (_unsubBox)      { _unsubBox();      _unsubBox      = null; }
+  if (_unsubSettings) { _unsubSettings(); _unsubSettings = null; }
   if (user) {
     loadExtraFromCloud(user.uid);
-    // careplan 실시간 동기화
+    // careplan 실시간 동기화 — _mergePlan으로 session 번호 높은 쪽 우선
     unsubscribe = fbDb.collection('users').doc(user.uid)
       .collection('careplan').doc('data')
       .onSnapshot(snap => {
         if (!snap.exists) {
-          // Firestore 비어있음 → 로컬 데이터 업로드
           const local = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
           if (local && local.savedAt && currentUser) {
             fbDb.collection('users').doc(currentUser.uid)
@@ -674,24 +674,17 @@ firebase.auth().onAuthStateChanged(user => {
           }
           return;
         }
-        const data  = snap.data();
-        const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-        const localSession = parseInt(local.session) || 0;
-        const cloudSession = parseInt(data.session)  || 0;
-        const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
-        const cloudTs = data.savedAt  ? new Date(data.savedAt).getTime()  : 0;
-        const useCloud = cloudSession > localSession ||
-                         (cloudSession === localSession && cloudTs >= localTs);
-        if (useCloud) {
-          localStorage.setItem(DB_KEY, JSON.stringify(data));
-          loadPlan(data);
-        } else {
-          // 로컬 세션이 더 높으면 Firestore에 업로드해서 동기화 유지
-          if (localSession > cloudSession && local.savedAt && currentUser) {
-            fbDb.collection('users').doc(currentUser.uid)
-              .collection('careplan').doc('data').set(local).catch(() => {});
-          }
-          loadPlan(local);
+        const data   = snap.data();
+        const local  = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
+        const merged = _mergePlan(local, data);
+        localStorage.setItem(DB_KEY, JSON.stringify(merged));
+        loadPlan(merged);
+        // merged가 cloud보다 session 수 많으면 cloud에도 업데이트
+        const cloudTotal  = (data.session||0) + (data.history||[]).length;
+        const mergedTotal = (merged.session||0) + (merged.history||[]).length;
+        if (mergedTotal > cloudTotal && currentUser) {
+          fbDb.collection('users').doc(currentUser.uid)
+            .collection('careplan').doc('data').set(merged).catch(() => {});
         }
       }, e => console.warn(e));
     // extra/data(테마·룩) 실시간 동기화
@@ -750,6 +743,26 @@ firebase.auth().onAuthStateChanged(user => {
         renderTodayMakeup();
         renderTodayOOTD();
       }, e => console.warn('box onSnapshot:', e));
+    // settings/data — trackerItems + trackerChecks 실시간 동기화
+    _unsubSettings = fbDb.collection('users').doc(user.uid)
+      .collection('settings').doc('data')
+      .onSnapshot(snap => {
+        if (!snap.exists) return;
+        const d = snap.data();
+        if (d.trackerItems) localStorage.setItem(TRACKER_KEY, JSON.stringify(d.trackerItems));
+        if (d.trackerChecks && typeof d.trackerChecks === 'object') {
+          const todayKey = getTodayKey();
+          // 오늘 날짜 체크 상태만 처리 (cloud 우선)
+          if (d.trackerChecks[todayKey]) {
+            const cloudChecks = d.trackerChecks[todayKey];
+            const k = `onstep_ex_checks_${todayKey}`;
+            const local = JSON.parse(localStorage.getItem(k) || '{}');
+            // cloud 값 우선, local에만 있는 항목도 보존
+            localStorage.setItem(k, JSON.stringify({ ...local, ...cloudChecks }));
+          }
+        }
+        renderAllDay();
+      }, e => console.warn('settings onSnapshot:', e));
   }
 });
 
@@ -805,27 +818,43 @@ document.addEventListener('visibilitychange', async () => {
   try {
     const snap = await fbDb.collection('users').doc(currentUser.uid).collection('careplan').doc('data').get();
     if (snap.exists) {
-      const data = snap.data();
-      const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-      const localSession = parseInt(local.session) || 0;
-      const cloudSession = parseInt(data.session)  || 0;
-      const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
-      const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
-      const useCloud = cloudSession > localSession ||
-                       (cloudSession === localSession && cloudTs >= localTs);
-      if (useCloud) {
-        localStorage.setItem(DB_KEY, JSON.stringify(data));
-        loadPlan(data);
-      } else {
-        if (localSession > cloudSession && local.savedAt && currentUser) {
-          fbDb.collection('users').doc(currentUser.uid)
-            .collection('careplan').doc('data').set(local).catch(() => {});
-        }
+      const data   = snap.data();
+      const local  = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
+      const merged = _mergePlan(local, data);
+      localStorage.setItem(DB_KEY, JSON.stringify(merged));
+      loadPlan(merged);
+      const cloudTotal  = (data.session||0) + (data.history||[]).length;
+      const mergedTotal = (merged.session||0) + (merged.history||[]).length;
+      if (mergedTotal > cloudTotal && currentUser) {
+        fbDb.collection('users').doc(currentUser.uid)
+          .collection('careplan').doc('data').set(merged).catch(() => {});
       }
     }
   } catch(e) {}
   loadExtraFromCloud(currentUser.uid);
 });
+
+// careplan 병합 — session 번호 높은 쪽 우선 (타임스탬프만으로 결정하면 낮은 번호가 덮어쓰는 버그 발생)
+function _mergePlan(local, cloud) {
+  if (!local || !local.savedAt) return cloud || {};
+  if (!cloud || !cloud.savedAt) return local;
+  const localSession = parseInt(local.session) || 0;
+  const cloudSession = parseInt(cloud.session) || 0;
+  const localTs = new Date(local.savedAt).getTime();
+  const cloudTs = new Date(cloud.savedAt).getTime();
+  const cloudWins = cloudSession > localSession ||
+                    (cloudSession === localSession && cloudTs >= localTs);
+  const base  = cloudWins ? cloud : local;
+  const other = cloudWins ? local  : cloud;
+  const map = new Map();
+  (cloud.history||[]).forEach(s => { if (s.session) map.set(Number(s.session), s); });
+  (local.history||[]).forEach(s => { if (s.session) map.set(Number(s.session), s); });
+  if (other.session && other.session !== base.session) {
+    const n = Number(other.session);
+    if (!map.has(n)) map.set(n, { session:other.session, periodStart:other.periodStart, periodEnd:other.periodEnd, morning:other.morning, nightly:other.nightly });
+  }
+  return { ...base, history: Array.from(map.values()) };
+}
 
 const DB_KEY         = 'onstep_care_plan';
 const LOOKS_KEY      = 'onstep_looks';
@@ -941,7 +970,7 @@ const CAT_LABEL = {
 };
 
 function getTimePeriod() {
-  return new Date().getHours() < 12 ? 'am' : 'pm';
+  return new Date().getHours() < 18 ? 'am' : 'pm';
 }
 function getTodayKey()      { return new Date().toISOString().slice(0,10); }
 function calcCurrentDay(s)  { return s ? Math.max(1,Math.floor((new Date()-new Date(s))/86400000)+1) : 1; }
@@ -1098,7 +1127,7 @@ function getActiveCycleRoutine(slotData, plan) {
 function renderFlowSession(plan) {
   const period = getTimePeriod();
   const slotLbl = document.getElementById('flow-slot-label');
-  if (slotLbl) slotLbl.textContent = period==='am' ? '☀ MORNING' : '🌙 NIGHT';
+  if (slotLbl) slotLbl.textContent = period==='am' ? '☀ MORNING  ·  ~18:00' : '🌙 NIGHT  ·  18:00~';
 
   if (!plan) { buildHeroDots(1,10); return; }
   const n   = Number(plan.session||1);
@@ -1191,7 +1220,6 @@ function renderFlowHeroStep(plan) {
       strip.innerHTML = products.map(p => {
         const t = p.type || 'product';
         if (t === 'plus') return `<div class="care-tag-plus">+</div>`;
-        if (t === 'minus') return `<div class="care-tag-minus">-</div>`;
         if (t === 'desc') return `<div class="care-tag-desc">${p.text||''}</div>`;
         const isDone = doneSet.has(p.name);
         const imgSrc = getBoxImgForProduct(p);
@@ -1210,12 +1238,14 @@ function renderFlowHeroStep(plan) {
     }
   }
 
-  // Expert tip — tip 없어도 영역 항상 노출
+  // Expert tip — 내용 있으면 카드, 없으면 2px 라인
   const tipArea = document.getElementById('flow-expert-tip');
   const tipText = document.getElementById('flow-tip-text');
   if (tipArea && tipText) {
     tipText.textContent = tip || '';
     tipArea.style.display = '';
+    if (tip) tipArea.classList.remove('no-tip');
+    else tipArea.classList.add('no-tip');
   }
 
   updateCTABtn(doneSet.size, prodItems.length);
@@ -1312,9 +1342,6 @@ function renderCareToday() {
       if (p.type === 'plus') {
         return `<div class="care-prod-item care-item-plus"><div class="care-plus-circle">+</div></div>`;
       }
-      if (p.type === 'minus') {
-        return `<div class="care-prod-item care-item-minus"><div class="care-minus-circle">-</div></div>`;
-      }
       if (p.type === 'desc') {
         return `<div class="care-prod-item care-item-desc"><div class="care-desc-text">${p.text||''}</div></div>`;
       }
@@ -1399,11 +1426,24 @@ function renderAllDay() {
 }
 
 function toggleAllDay(id) {
-  const k = `onstep_ex_checks_${getTodayKey()}`;
+  const today = getTodayKey();
+  const k = `onstep_ex_checks_${today}`;
   const c = JSON.parse(localStorage.getItem(k)||'{}');
   c[id] = !c[id];
   localStorage.setItem(k, JSON.stringify(c));
   renderAllDay();
+  if (currentUser) {
+    const _settingsRef = fbDb.collection('users').doc(currentUser.uid)
+      .collection('settings').doc('data');
+    // update()로 deep merge: trackerChecks.DATE 필드만 업데이트 → 다른 날짜 데이터 보존
+    _settingsRef.update({
+      [`trackerChecks.${today}`]: c,
+      savedAt: new Date().toISOString()
+    }).catch(() => {
+      // 문서 없으면 set으로 생성
+      _settingsRef.set({ trackerChecks: { [today]: c }, savedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+    });
+  }
 }
 
 function fmtAllDayTime(t) {
@@ -1440,7 +1480,7 @@ function checkTrackerAlarms() {
       localStorage.setItem(k, '1');
       showAlarmPopup(it, 0);
       if ('Notification' in window && Notification.permission === 'granted') {
-        try { new Notification(`⏰ ${it.name}`, { body: `OnStep · ${fmtAllDayTime(it.time)}`, icon: 'logo.png' }); } catch(e) {}
+        try { new Notification(`⏰ ${it.name}`, { body: `OnStep · ${fmtAllDayTime(it.time)}`, icon: 'logo-v2.png' }); } catch(e) {}
       }
     }
   });
@@ -1922,7 +1962,7 @@ function renderTodayOOTD() {
   }
   if (ootdSection) ootdSection.style.display = '';
   const heroImg = lookTheme.baselineImg || lookTheme.storageUrl || '';
-  const items = (lookTheme.products || lookTheme.items || []).filter(p => p.type !== 'plus' && p.type !== 'minus' && p.type !== 'desc');
+  const items = (lookTheme.products || lookTheme.items || []).filter(p => p.type !== 'plus' && p.type !== 'desc');
   const thumbs = items.map(p => {
     const img = p.imgData || getBoxImgForProduct(p) || '';
     return `<div class="ootd-thumb-item"${img?` style="background-image:url(${img})"`:''}>
@@ -2388,8 +2428,28 @@ function showToast(msg) {
 
 // ── Load plan ─────────────────────────────────────────────────
 function loadPlan(plan) {
-  renderFlowSession(plan);
-  renderFlowHeroStep(plan);
+  if (!plan) { renderFlowSession(plan); renderFlowHeroStep(plan); return; }
+  const today = getTodayKey();
+  // state.session 기간이 오늘을 포함하면 그대로 사용
+  const mainActive = isSessionActive(plan);
+  if (mainActive.active) {
+    renderFlowSession(plan);
+    renderFlowHeroStep(plan);
+    return;
+  }
+  // state.session 비활성 → history에서 오늘 포함하는 세션 탐색
+  const histActive = (plan.history || []).find(h => {
+    if (!h.periodStart) return false;
+    return today >= h.periodStart && today <= (h.periodEnd || h.periodStart);
+  });
+  if (histActive) {
+    const effectivePlan = { ...plan, ...histActive };
+    renderFlowSession(effectivePlan);
+    renderFlowHeroStep(effectivePlan);
+  } else {
+    renderFlowSession(plan);
+    renderFlowHeroStep(plan);
+  }
 }
 
 window.addEventListener('load', () => {
