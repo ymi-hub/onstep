@@ -751,12 +751,6 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .rs-act-btn--minus{border-style:dashed;min-width:36px;text-align:center;padding:6px 10px;border-color:rgba(10,132,255,.6);color:rgba(10,132,255,1)}
 .rs-act-btn--minus:active{border-color:rgba(10,132,255,1);background:rgba(10,132,255,.1)}
 .rs-act-btn--plus{border-style:dashed;min-width:36px;text-align:center;padding:6px 10px}
-.rs-act-btn--desc-blue{border-color:rgba(10,132,255,.6);color:rgba(10,132,255,1)}
-.rs-act-btn--desc-blue:active{border-color:rgba(10,132,255,1);background:rgba(10,132,255,.1)}
-.rs-act-btn--desc-lime{border-color:rgba(197,255,0,.9);color:#4A6000}
-.rs-act-btn--desc-lime:active{border-color:var(--lime);background:rgba(197,255,0,.18)}
-.rs-tip-header{display:inline-flex;align-items:center;padding:8px 20px;background:var(--lime);color:#0C0C0A;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;margin-top:14px}
-.rs-tip-area{border-top:1px solid var(--border);margin-top:4px}
 .rs-desc-row{display:flex;align-items:center;gap:6px;padding:0 16px 12px}
 .rs-desc-inp{flex:1;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px 10px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;color:var(--ink);background:#fff;outline:none}
 .rs-desc-ok{padding:8px 14px;border:none;border-radius:var(--r-sm);background:var(--ink);color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
@@ -2254,7 +2248,7 @@ function deleteRoutineDay(slot, id) {
 function addRoutineDay(slot) {
   const routines = state[slot].routines;
   const newId    = Math.max(...routines.map(r => r.id)) + 1;
-  routines.push({ id: newId, products: [], tipItems: [], tip: '' });
+  routines.push({ id: newId, products: [], tip: '' });
   state[slot].active = newId;
   renderStepTabs(slot);
   renderGrid(slot);
@@ -2587,47 +2581,19 @@ function renderGrid(slot) {
     </div>`;
   }).join('');
 
-  const tipItems = getTipItems(slot);
-  const tipChipHtml = tipItems.map((item, idx) => {
-    const t = item.type || 'product';
-    if (t === 'plus')  return `<div class="rs-chip rs-chip--plus">+<span class="rs-chip-del" onclick="rsTipRemoveItem('${slot}',${idx})">✕</span></div>`;
-    if (t === 'minus') return `<div class="rs-chip rs-chip--minus">→<span class="rs-chip-del" onclick="rsTipRemoveItem('${slot}',${idx})">✕</span></div>`;
-    if (t === 'desc')  return `<div class="rs-chip rs-chip--desc"><div class="rs-chip-desc-text">${item.text||''}</div><span class="rs-chip-del" onclick="rsTipRemoveItem('${slot}',${idx})">✕</span></div>`;
-    return `<div class="rs-chip rs-chip--prod">
-      <div class="rs-chip-name">${item.name||''}</div>
-      <span class="rs-chip-del" onclick="event.stopPropagation();rsTipRemoveItem('${slot}',${idx})">✕</span>
-    </div>`;
-  }).join('');
-
   grid.innerHTML = `
     ${chipHtml ? `<div class="rs-chip-list">${chipHtml}</div>` : ''}
     <div class="rs-act-row">
       <button class="rs-act-btn" onclick="openRoutineEditSearch('${slot}')">+ 제품</button>
-      <button class="rs-act-btn rs-act-btn--desc-blue" onclick="rsOpenDesc('${slot}')">+ 설명</button>
+      <button class="rs-act-btn" onclick="rsOpenDesc('${slot}')">+ 설명</button>
+      <button class="rs-act-btn rs-act-btn--minus" onclick="rsAddMinusItem('${slot}')">-</button>
       <button class="rs-act-btn rs-act-btn--plus" onclick="rsAddPlusItem('${slot}')">+</button>
-      <button class="rs-act-btn rs-act-btn--minus" onclick="rsAddMinusItem('${slot}')">→</button>
     </div>
     <div class="rs-desc-row" id="rs-desc-${slot}" style="display:none">
       <input class="rs-desc-inp" id="rs-desc-inp-${slot}" type="text" placeholder="설명 텍스트 입력..."
         onkeydown="if(event.key==='Enter')rsConfirmDesc('${slot}');else if(event.key==='Escape')rsCancelDesc('${slot}')">
       <button class="rs-desc-ok" onclick="rsConfirmDesc('${slot}')">추가</button>
       <button class="rs-desc-cancel" onclick="rsCancelDesc('${slot}')">✕</button>
-    </div>
-    <div class="rs-tip-area">
-      <div class="rs-tip-header">TIP</div>
-      ${tipChipHtml ? `<div class="rs-chip-list">${tipChipHtml}</div>` : ''}
-      <div class="rs-act-row">
-        <button class="rs-act-btn" onclick="openRoutineTipSearch('${slot}')">+ 제품</button>
-        <button class="rs-act-btn rs-act-btn--desc-lime" onclick="rsTipOpenDesc('${slot}')">+ 설명</button>
-        <button class="rs-act-btn rs-act-btn--plus" onclick="rsTipAddPlusItem('${slot}')">+</button>
-        <button class="rs-act-btn rs-act-btn--minus" onclick="rsTipAddMinusItem('${slot}')">→</button>
-      </div>
-      <div class="rs-desc-row" id="rs-tip-desc-${slot}" style="display:none">
-        <input class="rs-desc-inp" id="rs-tip-desc-inp-${slot}" type="text" placeholder="TIP 설명 텍스트 입력..."
-          onkeydown="if(event.key==='Enter')rsTipConfirmDesc('${slot}');else if(event.key==='Escape')rsTipCancelDesc('${slot}')">
-        <button class="rs-desc-ok" onclick="rsTipConfirmDesc('${slot}')">추가</button>
-        <button class="rs-desc-cancel" onclick="rsTipCancelDesc('${slot}')">✕</button>
-      </div>
     </div>`;
 
   renderProdList(slot);
@@ -3445,7 +3411,7 @@ function seAddRoutineDay(slot) {
   const routines = _seEdit.data[slot]?.routines || [];
   if (routines.length >= 3) return;
   const newId = Math.max(...routines.map(r => r.id), 0) + 1;
-  routines.push({ id: newId, products: [], tipItems: [], tip: '' });
+  routines.push({ id: newId, products: [], tip: '' });
   _seEdit.data[slot].routines = routines;
   _seActiveSlot[slot] = newId;
   renderSeBody();
@@ -3765,107 +3731,6 @@ function rsRemoveItem(slot, idx) {
   const prods = getActiveProducts(slot);
   prods.splice(idx, 1);
   setActiveProducts(slot, prods);
-  renderGrid(slot);
-  persistPlan(false);
-}
-
-// ── TIP 헬퍼 ────────────────────────────────────────────────
-function getTipItems(slot) {
-  const activeId = state[slot]?.active;
-  const routine  = (state[slot]?.routines || []).find(r => r.id === activeId);
-  if (!routine) return [];
-  if (!routine.tipItems) routine.tipItems = [];
-  return routine.tipItems;
-}
-function setTipItems(slot, items) {
-  const activeId = state[slot]?.active;
-  const idx = (state[slot]?.routines || []).findIndex(r => r.id === activeId);
-  if (idx !== -1) {
-    if (!state[slot].routines[idx].tipItems) state[slot].routines[idx].tipItems = [];
-    state[slot].routines[idx].tipItems = items;
-  }
-}
-
-// ── TIP 액션 함수 ─────────────────────────────────────────
-function openRoutineTipSearch(slot) {
-  _bpContext   = 'routineTip';
-  _bpSeSlot    = slot;
-  _bpSeRouteId = null;
-  bpSelectedId = null;
-  bpSelectedIds.clear();
-  _bpExpanded  = false;
-  _bpDomain    = 'beauty';
-  _bpSubcat    = 'all';
-  const inp = document.getElementById('bp-search-inp');
-  if (inp) inp.value = '';
-  ['beauty','fashion','acc'].forEach(x => document.getElementById('bpd-'+x)?.classList.toggle('active', x==='beauty'));
-  document.getElementById('bp-overlay').classList.add('open');
-  setTimeout(() => {
-    try { _renderBpSubcats(); } catch(_) {}
-    try { renderBpList(''); } catch(_) {}
-    updateBpConfirm();
-    document.getElementById('bp-search-inp')?.focus();
-  }, 50);
-}
-function rsTipOpenDesc(slot) {
-  const row = document.getElementById(`rs-tip-desc-${slot}`);
-  const inp = document.getElementById(`rs-tip-desc-inp-${slot}`);
-  if (!row) return;
-  row.style.display = 'flex';
-  setTimeout(() => inp?.focus(), 50);
-}
-function rsTipCancelDesc(slot) {
-  const row = document.getElementById(`rs-tip-desc-${slot}`);
-  const inp = document.getElementById(`rs-tip-desc-inp-${slot}`);
-  if (row) row.style.display = 'none';
-  if (inp) inp.value = '';
-}
-function rsTipConfirmDesc(slot) {
-  const inp  = document.getElementById(`rs-tip-desc-inp-${slot}`);
-  const text = (inp?.value || '').trim();
-  if (!text) { rsTipCancelDesc(slot); return; }
-  const items = getTipItems(slot);
-  items.push({ type: 'desc', text, id: Date.now() });
-  setTipItems(slot, items);
-  renderGrid(slot);
-  persistPlan(false);
-  rsTipCancelDesc(slot);
-}
-function rsTipAddPlusItem(slot) {
-  const items = getTipItems(slot);
-  items.push({ type: 'plus', id: Date.now() });
-  setTipItems(slot, items);
-  renderGrid(slot);
-  persistPlan(false);
-}
-function rsTipAddMinusItem(slot) {
-  const items = getTipItems(slot);
-  items.push({ type: 'minus', id: Date.now() });
-  setTipItems(slot, items);
-  renderGrid(slot);
-  persistPlan(false);
-}
-function rsTipRemoveItem(slot, idx) {
-  const items = getTipItems(slot);
-  items.splice(idx, 1);
-  setTipItems(slot, items);
-  renderGrid(slot);
-  persistPlan(false);
-}
-function _addAssetsToRoutineTip(selectedAssets) {
-  const slot = _bpSeSlot;
-  if (slot === null) return;
-  const items = getTipItems(slot);
-  selectedAssets.forEach((asset, i) => {
-    const meta = CAT[asset.catKey] || { icon:'✨' };
-    items.push({
-      id: Date.now() + i, catKey: asset.catKey || 'skincare',
-      name: asset.name, brand: asset.brand || '',
-      icon: meta.icon, imgData: asset.imgData || null,
-      storageUrl: asset.storageUrl || null, assetId: asset.id
-    });
-  });
-  setTipItems(slot, items);
   renderGrid(slot);
   persistPlan(false);
 }
@@ -4238,7 +4103,7 @@ function renderBpList(q) {
 }
 
 function selectBpItem(id) {
-  if (_bpContext === 'routine' || _bpContext === 'routineTip') {
+  if (_bpContext === 'routine') {
     if (bpSelectedIds.has(id)) {
       bpSelectedIds.delete(id);
     } else {
@@ -4257,7 +4122,7 @@ function selectBpItem(id) {
 function updateBpConfirm() {
   const btn = document.getElementById('bp-confirm');
   if (!btn) return;
-  if (_bpContext === 'routine' || _bpContext === 'routineTip') {
+  if (_bpContext === 'routine') {
     const count = bpSelectedIds.size;
     btn.classList.toggle('active', count > 0);
     btn.textContent = count > 0 ? `추가하기 (${count}개)` : '추가하기';
@@ -4270,7 +4135,7 @@ function updateBpConfirm() {
 function confirmBoxPanel() {
   const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
 
-  if (_bpContext === 'routine' || _bpContext === 'routineTip') {
+  if (_bpContext === 'routine') {
     if (bpSelectedIds.size === 0) return;
     const selectedAssets = [];
     bpSelectedIds.forEach(id => {
@@ -4278,11 +4143,7 @@ function confirmBoxPanel() {
       if (asset) selectedAssets.push(asset);
     });
     if (selectedAssets.length === 0) return;
-    if (_bpContext === 'routineTip') {
-      _addAssetsToRoutineTip(selectedAssets);
-    } else {
-      _addAssetsToRoutine(selectedAssets);
-    }
+    _addAssetsToRoutine(selectedAssets);
     closeBoxPanel();
     return;
   }
