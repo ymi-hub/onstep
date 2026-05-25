@@ -927,14 +927,16 @@ function getBoxAssets() { return JSON.parse(localStorage.getItem('onstep_box_ass
 
 function getBoxImgForProduct(p) {
   const assets = getBoxAssets();
-  const assetId = p.assetId ?? p.id;
-  if (assetId != null) {
-    const a = assets.find(a => a.id === assetId);
+  // assetId 직접 연결 (p.id는 루틴 내부 ID라 box asset ID와 다름)
+  if (p.assetId != null) {
+    const a = assets.find(a => a.id === p.assetId);
     if (a?.imgData || a?.storageUrl) return a.imgData || a.storageUrl;
   }
+  // 공백 제거 후 소문자 정규화로 퍼지 이름 매칭 ("구해줘앰플" ↔ "구해줘 앰플")
+  const norm = s => (s || '').toLowerCase().replace(/\s+/g, '');
   const a = assets.find(a =>
-    a.name?.toLowerCase() === p.name?.toLowerCase() &&
-    (!p.brand || a.brand?.toLowerCase() === p.brand?.toLowerCase())
+    norm(a.name) === norm(p.name) &&
+    (!p.brand || norm(a.brand) === norm(p.brand))
   );
   return a?.imgData || a?.storageUrl || p.imgData || p.storageUrl || null;
 }

@@ -3150,7 +3150,7 @@ function saveEditSheet() {
   if (!newN || !s || !e) { showToast('회차 번호와 기간을 모두 입력해주세요'); return; }
 
   if (_editingSessionNum === -1) {
-    const _todayStr = getTodayKey ? getTodayKey() : new Date().toISOString().slice(0,10);
+    const _todayStr = new Date().toISOString().slice(0,10);
     // 과거 일정(종료일 < 오늘) → history에만 추가, 현재 세션 변경 없음
     if (e < _todayStr) {
       if (!state.history) state.history = [];

@@ -119,7 +119,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .archive-empty-sub{font-size:12px;color:var(--mist);line-height:1.6;}
 
 /* FAB */
-.fab{position:absolute;bottom:80px;right:18px;width:48px;height:48px;background:var(--ink);border-radius:var(--r-full);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.28);z-index:20;transition:transform .15s;}
+.fab{position:absolute;bottom:80px;right:18px;width:48px;height:48px;background:var(--lime);color:var(--ink);border-radius:var(--r-full);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(197,255,0,.4);z-index:20;transition:transform .15s;}
 .fab:active{transform:scale(.92);}
 
 /* Bottom nav */
@@ -583,6 +583,7 @@ firebase.auth().onAuthStateChanged(user=>{
             return{...cl,mainPhoto:lc?.mainPhoto||null};
           })));
         }
+        if(d.museItems)      localStorage.setItem('onstep_muse_items',        JSON.stringify(d.museItems));
         if(d.portfolio)      localStorage.setItem('onstep_planned_portfolio',JSON.stringify(d.portfolio));
         if(d.logScenes && Array.isArray(d.logScenes)){
           ALL_SCENES=d.logScenes;
