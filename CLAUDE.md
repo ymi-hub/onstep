@@ -17,7 +17,8 @@
 - `design/shared.js`  — 공통 유틸: 네비게이션, 이미지압축, Auth, CMS, BroadcastChannel
 - `design/manifest.json` — PWA 매니페스트 (홈 화면 추가, 아이콘: logo.png)
 
-배포: Firebase Hosting → <https://onstep-lifeos.web.app>
+배포: Firebase Hosting → <https://onstep-lifeos-v2-adee2.web.app>  
+배포 명령: `firebase deploy --only hosting --project onstep-lifeos-v2`
 
 ## 기술 스택
 
@@ -140,7 +141,7 @@ config/
 
 ## 개발 규칙
 
-1. **배포**: 파일 수정 후 반드시 `firebase deploy --only hosting`
+1. **배포**: 파일 수정 후 반드시 `firebase deploy --only hosting --project onstep-lifeos-v2`
 2. **JS 신택스 체크**: 배포 전 `node -e "new Function(scriptBlock)"` 검증
 3. **새 지속 데이터 추가 시**: localStorage 저장 + Firestore 동기화 함수 함께 구현
 4. **CMS 텍스트**: 앱 내 편집이 필요한 텍스트는 `data-cms-key="키"` 속성 부여
