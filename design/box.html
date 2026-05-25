@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>OnStep · Box</title>
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+<link rel="icon" type="image/png" href="logo-v2.png">
+<link rel="apple-touch-icon" href="logo-v2.png">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -69,8 +69,6 @@ body{
 }
 .appbar-logo{width:24px;height:24px;border-radius:var(--r-sm);object-fit:cover;filter:grayscale(100%);}
 .appbar-right{display:flex;align-items:center;gap:10px;}
-.appbar-add{width:34px;height:34px;background:var(--lime);color:var(--ink);border:none;border-radius:var(--r-full);font-size:20px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;flex-shrink:0;}
-.appbar-add:active{transform:scale(.9);}
 #auth-avatar{
   width:32px;height:32px;border-radius:9999px;background:var(--surface-mid);
   border:1.5px solid var(--border);overflow:hidden;cursor:pointer;
@@ -1531,11 +1529,8 @@ body{
     <!-- Appbar -->
     <div class="appbar">
       <div class="appbar-menu"><span></span><span></span><span></span></div>
-      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer"><img src="logo.png" alt="OnStep" class="appbar-logo">OnStep</div>
-      <div class="appbar-right">
-        <button class="appbar-add" onclick="openAdd()" title="제품 추가">＋</button>
-        <div id="auth-avatar" data-auth-avatar onclick="handleAuthClick()" title="로그인하여 동기화"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg></div>
-      </div>
+      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer"><img src="logo-v2.png" alt="OnStep" class="appbar-logo">OnStep</div>
+      <div id="auth-avatar" data-auth-avatar onclick="handleAuthClick()" title="로그인하여 동기화"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg></div>
     </div>
 
     <!-- Page hero -->
@@ -1609,7 +1604,8 @@ body{
   <!-- Bottom nav -->
   <div class="app-nav"></div>
 
-  <!-- FAB removed — + button moved to appbar -->
+  <!-- FAB -->
+  <button class="fab" onclick="openAdd()">＋</button>
   <div class="toast" id="toast"></div>
 
   <!-- ── Detail Sheet ── -->
@@ -2189,12 +2185,12 @@ body{
 <script>
 // ── Firebase ──────────────────────────────────────────────────
 firebase.initializeApp({
-  apiKey:"AIzaSyBdKnyU8t0XrQsT_EhKS2nk9zOKwjxoquk",
-  authDomain:"onstep-lifeos.firebaseapp.com",
-  projectId:"onstep-lifeos",
-  storageBucket:"onstep-lifeos.firebasestorage.app",
-  messagingSenderId:"333501649998",
-  appId:"1:333501649998:web:4eebd8b84a32ea8a581f1f"
+  apiKey: "AIzaSyCwi1Lh0yD2kCpAYl--1UDkyjs5TVRfqGM",
+  authDomain: "onstep-lifeos-v2-adee2.firebaseapp.com",
+  projectId: "onstep-lifeos-v2",
+  storageBucket: "onstep-lifeos-v2.firebasestorage.app",
+  messagingSenderId: "996802662742",
+  appId: "1:996802662742:web:1d957ab5e6d8b54134c6f7"
 });
 const fbAuth = firebase.auth();
 const fbDb   = firebase.firestore();
@@ -2416,17 +2412,12 @@ function saveAssets(a){ localStorage.setItem(ASSETS_KEY, JSON.stringify(a)); sav
 function saveLocs(l)  { localStorage.setItem(LOCS_KEY,   JSON.stringify(l)); saveBoxToCloud(); if(typeof _broadcastState==='function') _broadcastState('box_assets'); }
 
 // 제품 이름·브랜드 변경 시 care plan / themes 의 embedded 복사본 일괄 동기화
-function _propagateAssetMeta(assetId, oldName, newName, newBrand) {
-  const norm = s => (s || '').toLowerCase().replace(/\s+/g, '');
-  const normOld = norm(oldName);
+function _propagateAssetMeta(assetId, newName, newBrand) {
   const _upd = (products) => {
     if (!Array.isArray(products)) return false;
     let hit = false;
     products.forEach(p => {
-      // assetId 직접 연결 또는 이름 퍼지 매칭 (공백 제거 후 비교)
-      if (p.assetId === assetId || (normOld && norm(p.name) === normOld)) {
-        p.name = newName; p.brand = newBrand || ''; hit = true;
-      }
+      if (p.assetId === assetId) { p.name = newName; p.brand = newBrand || ''; hit = true; }
     });
     return hit;
   };
@@ -2435,10 +2426,7 @@ function _propagateAssetMeta(assetId, oldName, newName, newBrand) {
     let c = false;
     ['morning','nightly'].forEach(s => (plan[s]?.routines||[]).forEach(r => { if(_upd(r.products)) c=true; }));
     (plan.history||[]).forEach(h => ['morning','nightly'].forEach(s => (h[s]?.routines||[]).forEach(r => { if(_upd(r.products)) c=true; })));
-    if (c) {
-      localStorage.setItem('onstep_care_plan', JSON.stringify(plan));
-      if (typeof _broadcastState === 'function') _broadcastState('schedule');
-    }
+    if (c) localStorage.setItem('onstep_care_plan', JSON.stringify(plan));
   } catch(e) {}
   try {
     const th = JSON.parse(localStorage.getItem('onstep_care_themes')||'[]');
@@ -3683,8 +3671,6 @@ function saveDetailChanges(id) {
   if (!asset) return;
 
   const v = id => document.getElementById(id)?.value.trim() ?? '';
-  const _oldName  = asset.name;
-  const _oldBrand = asset.brand;
   asset.brand        = v('det-brand');
   asset.name         = v('det-name') || asset.name;
   asset.price        = v('det-price');
@@ -3731,7 +3717,6 @@ function saveDetailChanges(id) {
     asset.locKey = key;
   }
 
-  _propagateAssetMeta(id, _oldName, asset.name, asset.brand);
   saveAssets(assets);
   document.getElementById('detail-sheet-title').textContent = asset.name;
 
@@ -4704,10 +4689,8 @@ function saveAsset() {
     // 수정 모드
     const idx = assets.findIndex(a => a.id === _editingAssetId);
     if (idx !== -1) {
-      const _prevName = assets[idx].name;
-      const _prevBrand = assets[idx].brand;
       _buildFields(assets[idx]);
-      _propagateAssetMeta(_editingAssetId, _prevName, name, brand);
+      _propagateAssetMeta(_editingAssetId, name, brand);
     }
     saveAssets(assets);
   } else {

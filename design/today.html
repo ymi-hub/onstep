@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>OnStep · Today</title>
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+<link rel="icon" type="image/png" href="logo-v2.png">
+<link rel="apple-touch-icon" href="logo-v2.png">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -435,7 +435,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
     <div class="appbar">
       <div class="appbar-menu"><span></span><span></span><span></span></div>
-      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer"><img src="logo.png" alt="OnStep" class="appbar-logo">OnStep</div>
+      <div class="appbar-title" onclick="location.href='today.html'" style="cursor:pointer"><img src="logo-v2.png" alt="OnStep" class="appbar-logo">OnStep</div>
       <div id="auth-avatar" data-auth-avatar onclick="handleAuthClick()" title="로그인하여 동기화">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/></svg>
       </div>
@@ -642,12 +642,12 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
 <script>
 firebase.initializeApp({
-  apiKey:"AIzaSyBdKnyU8t0XrQsT_EhKS2nk9zOKwjxoquk",
-  authDomain:"onstep-lifeos.firebaseapp.com",
-  projectId:"onstep-lifeos",
-  storageBucket:"onstep-lifeos.firebasestorage.app",
-  messagingSenderId:"333501649998",
-  appId:"1:333501649998:web:4eebd8b84a32ea8a581f1f"
+  apiKey: "AIzaSyCwi1Lh0yD2kCpAYl--1UDkyjs5TVRfqGM",
+  authDomain: "onstep-lifeos-v2-adee2.firebaseapp.com",
+  projectId: "onstep-lifeos-v2",
+  storageBucket: "onstep-lifeos-v2.firebasestorage.app",
+  messagingSenderId: "996802662742",
+  appId: "1:996802662742:web:1d957ab5e6d8b54134c6f7"
 });
 const fbAuth = firebase.auth();
 const fbDb   = firebase.firestore();
@@ -927,16 +927,14 @@ function getBoxAssets() { return JSON.parse(localStorage.getItem('onstep_box_ass
 
 function getBoxImgForProduct(p) {
   const assets = getBoxAssets();
-  // assetId 직접 연결 (p.id는 루틴 내부 ID라 box asset ID와 다름)
-  if (p.assetId != null) {
-    const a = assets.find(a => a.id === p.assetId);
+  const assetId = p.assetId ?? p.id;
+  if (assetId != null) {
+    const a = assets.find(a => a.id === assetId);
     if (a?.imgData || a?.storageUrl) return a.imgData || a.storageUrl;
   }
-  // 공백 제거 후 소문자 정규화로 퍼지 이름 매칭 ("구해줘앰플" ↔ "구해줘 앰플")
-  const norm = s => (s || '').toLowerCase().replace(/\s+/g, '');
   const a = assets.find(a =>
-    norm(a.name) === norm(p.name) &&
-    (!p.brand || norm(a.brand) === norm(p.brand))
+    a.name?.toLowerCase() === p.name?.toLowerCase() &&
+    (!p.brand || a.brand?.toLowerCase() === p.brand?.toLowerCase())
   );
   return a?.imgData || a?.storageUrl || p.imgData || p.storageUrl || null;
 }
@@ -1482,7 +1480,7 @@ function checkTrackerAlarms() {
       localStorage.setItem(k, '1');
       showAlarmPopup(it, 0);
       if ('Notification' in window && Notification.permission === 'granted') {
-        try { new Notification(`⏰ ${it.name}`, { body: `OnStep · ${fmtAllDayTime(it.time)}`, icon: 'logo.png' }); } catch(e) {}
+        try { new Notification(`⏰ ${it.name}`, { body: `OnStep · ${fmtAllDayTime(it.time)}`, icon: 'logo-v2.png' }); } catch(e) {}
       }
     }
   });

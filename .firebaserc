@@ -1,5 +1,16 @@
 {
   "projects": {
-    "default": "onstep-lifeos"
+    "default": "onstep-lifeos-v2",
+    "v1": "onstep-lifeos",
+    "v2": "onstep-lifeos-v2"
+  },
+  "targets": {
+    "onstep-lifeos-v2": {
+      "hosting": {
+        "v2": [
+          "onstep-lifeos-v2-adee2"
+        ]
+      }
+    }
   }
 }
