@@ -12,6 +12,9 @@
 <meta name="apple-mobile-web-app-title" content="OnStep">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#FFFFFF">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -97,7 +100,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .flow-step-hd{display:none} /* 이미지 기준: 헤더 없음, 이미지가 먼저 */
 
 /* Compact multi-card routine strip — 5.5개 노출 */
-.flow-prod-strip{display:flex;overflow-x:auto;scrollbar-width:none;padding:20px 20px 20px;gap:6px}
+.flow-prod-strip{display:flex;overflow-x:auto;scrollbar-width:none;padding:20px 20px 20px;gap:6px;align-items:center}
 .flow-prod-strip::-webkit-scrollbar{display:none}
 .flow-prod-item{flex-shrink:0;width:130px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .flow-prod-img{width:100%;aspect-ratio:1/1;background:var(--surface-mid);background-size:100% auto;background-position:top center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:10px}
@@ -116,10 +119,12 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .flow-prod-dot{display:none}
 
 /* Step info row — 이미지 기준: 도트 아래에 Day1 + 카운트 */
-.flow-step-info{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px;border-top:1px solid var(--border)}
+.flow-step-info{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px;border-bottom:1px solid var(--border)}
 .flow-step-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px}
 .flow-step-label-icon{width:16px;height:16px;border-radius:var(--r-full);border:1.5px solid var(--ink);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--ink)}
 .flow-step-count{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:400;color:var(--mist)}
+/* Day1/Day2 배지 — 블랙 바탕 라임 텍스트 (회차일정관리 ae-day-pill과 동일 스타일) */
+#flow-step-badge-icon{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:#0C0C0A;color:#A6D900;padding:3px 10px;border-radius:9999px;display:inline-block}
 
 .flow-step-body{padding:4px 16px 20px;display:flex;flex-direction:column;gap:12px}
 .flow-step-tag{display:none}
@@ -328,8 +333,19 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .care-plus-circle, .care-minus-circle{width:28px;height:28px;background:none;border:none;box-shadow:none;border-radius:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:300;color:var(--mist)}
 .care-item-desc{display:flex;width:auto!important;flex-shrink:0;justify-content:center;align-self:center}
 .care-desc-text{display:block;padding:6px 12px;background:#2185fd;border-radius:20px;border:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:400;color:#ffffff;white-space:nowrap;line-height:1}
-/* flow strip 태그 (care-tag-*) — 인라인 칩 */
-.care-tag-plus, .care-tag-minus{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;font-size:14px;font-weight:300;color:var(--mist);align-self:center}
+.care-tag-plus{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:36px;height:22px;border-radius:12px;font-size:12px;font-weight:800;background:rgba(33, 150, 243, 0.12);color:#1976d2;align-self:center}
+.care-tip-sec{border-top:1px solid rgba(0,0,0,.06)}
+.care-tip-sec-head{padding:12px 16px 0}
+.care-tip-tag{display:inline-flex;align-items:center;background:var(--lime);color:var(--ink);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:800;letter-spacing:.08em;padding:3px 10px;border-radius:9999px}
+.care-tip-prod-item{flex-shrink:0;width:70px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:5px}
+.care-tip-prod-item .care-prod-thumb{border-radius:10px}
+.care-tip-prod-item .care-prod-label{font-size:11px}
+.care-tip-sec .care-prod-row{border-top:none;padding-top:8px;padding-bottom:16px}
+.care-expert-tip{padding:14px 16px 18px;background:#F9FFE0;border-top:1px solid rgba(197,255,0,.35)}
+.care-expert-tip-hd{display:flex;align-items:center;gap:6px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#4E7D00;margin-bottom:10px}
+.care-expert-tip-text{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:var(--sub);line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.care-tag-minus{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:36px;height:22px;border-radius:12px;font-size:12px;font-weight:800;background:rgba(255, 152, 0, 0.2);color:#E65100;align-self:center}
+.care-tag-tip{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:22px;border-radius:12px;font-size:12px;font-weight:800;background:rgba(197, 255, 0, 0.22);color:#4E7D00;align-self:center;padding:0 8px;white-space:nowrap}
 .care-tag-desc{flex-shrink:0;align-self:center;padding:5px 10px;background:#2185fd;border-radius:16px;border:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:400;color:#fff;white-space:nowrap;line-height:1}
 
 /* OOTD — portrait hero + thumb row + more row */
@@ -478,16 +494,17 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 
     <!-- Skincare step section — 이미지 기준: 헤더 없음 -->
     <div class="flow-step-card" id="flow-step-card">
-      <div class="flow-prod-strip" id="flow-prod-strip"></div>
-      <div class="flow-prod-dots" id="flow-prod-dots"></div>
-      <!-- Step info row: Step1 · 1/N -->
+      <!-- Step info row: 제품 스트립 상단 -->
       <div class="flow-step-info">
         <div class="flow-step-label">
           <span id="flow-step-badge-icon">Day1</span>
-          <span class="flow-step-label-icon" id="flow-step-name-icon">◈</span>
         </div>
         <span class="flow-step-count" id="flow-step-count"></span>
       </div>
+      <div class="flow-prod-strip" id="flow-prod-strip"></div>
+      <div class="flow-prod-dots" id="flow-prod-dots"></div>
+      <!-- TIP section (tipItems) — EXPERT TIP 위 -->
+      <div class="flow-tip-sec" id="flow-tip-sec" style="display:none"></div>
       <!-- EXPERT TIP -->
       <div class="flow-expert-tip" id="flow-expert-tip" style="display:none">
         <div class="flow-tip-header">
@@ -498,27 +515,17 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
       </div>
       <div class="flow-step-body">
         <a class="flow-edit-link" href="javascript:void(0)" onclick="goToRoutineSetup()">Edit →</a>
+        <!-- CHECK ROUTINE CTA — 카드 안 Edit 아래 -->
+        <div style="padding:0 0 4px">
+          <button class="flow-cta-btn" id="main-check-btn" onclick="handleMainRoutineBtn()">
+            <span id="cta-label">CHECK ROUTINE</span>
+            <svg id="cta-arrow" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- CHECK ROUTINE CTA -->
-    <div class="flow-cta-wrap">
-      <button class="flow-cta-btn" id="main-check-btn" onclick="handleMainRoutineBtn()">
-        <span id="cta-label">CHECK ROUTINE</span>
-        <svg id="cta-arrow" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-    </div>
-
-    <!-- Special Care -->
-    <div class="editorial-section" id="care-today-section" style="display:none">
-      <div class="editorial-hd">
-        <div class="editorial-hd-tag">#INTENSIVE CARE</div>
-        <a class="editorial-hd-sub" href="setup.html?panel=care">Edit →</a>
-      </div>
-      <div id="care-today-wrap"></div>
-    </div>
-
-    <!-- Routine Tracker -->
+    <!-- Routine Tracker — 루틴케어 박스 바로 아래 -->
     <div class="allday-section">
       <div class="allday-section-hd">
         <div class="allday-hd-left">
@@ -528,6 +535,15 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <a class="allday-top-edit" href="setup.html?panel=tracker">Edit →</a>
       </div>
       <div id="allday-items"></div>
+    </div>
+
+    <!-- Special Care -->
+    <div class="editorial-section" id="care-today-section" style="display:none">
+      <div class="editorial-hd">
+        <div class="editorial-hd-tag">#INTENSIVE CARE</div>
+        <a class="editorial-hd-sub" href="setup.html?panel=care">Edit →</a>
+      </div>
+      <div id="care-today-wrap"></div>
     </div>
 
     <!-- #MOTD section -->
@@ -659,6 +675,19 @@ firebase.auth().onAuthStateChanged(user => {
   if (unsubscribe)   { unsubscribe();   unsubscribe   = null; }
   if (_unsubExtra)   { _unsubExtra();   _unsubExtra   = null; }
   if (_unsubBox)     { _unsubBox();     _unsubBox     = null; }
+  if (!user) {
+    // 로그아웃 시 localStorage 초기화 + UI 리셋 (무한루프 방지)
+    [DB_KEY,'onstep_care_themes','onstep_makeup_themes','onstep_look_themes',
+     'onstep_looks','onstep_muse_items','onstep_planned_portfolio','onstep_log_scenes',
+     'onstep_box_assets','onstep_box_locations','onstep_box_cats','onstep_tracker_items']
+      .forEach(k => localStorage.removeItem(k));
+    if (!sessionStorage.getItem('_logout_reload')) {
+      sessionStorage.setItem('_logout_reload', '1');
+      location.reload();
+    }
+    return;
+  }
+  sessionStorage.removeItem('_logout_reload');
   if (user) {
     loadExtraFromCloud(user.uid);
     // careplan 실시간 동기화
@@ -674,24 +703,17 @@ firebase.auth().onAuthStateChanged(user => {
           }
           return;
         }
-        const data  = snap.data();
-        const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-        const localSession = parseInt(local.session) || 0;
-        const cloudSession = parseInt(data.session)  || 0;
-        const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
-        const cloudTs = data.savedAt  ? new Date(data.savedAt).getTime()  : 0;
-        const useCloud = cloudSession > localSession ||
-                         (cloudSession === localSession && cloudTs >= localTs);
-        if (useCloud) {
-          localStorage.setItem(DB_KEY, JSON.stringify(data));
-          loadPlan(data);
-        } else {
-          // 로컬 세션이 더 높으면 Firestore에 업로드해서 동기화 유지
-          if (localSession > cloudSession && local.savedAt && currentUser) {
-            fbDb.collection('users').doc(currentUser.uid)
-              .collection('careplan').doc('data').set(local).catch(() => {});
-          }
-          loadPlan(local);
+        const data   = snap.data();
+        const local  = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
+        const merged = _mergePlan(local, data);
+        const cloudSessions  = (data.session||0)   + (data.history||[]).length;
+        const mergedSessions = (merged.session||0) + (merged.history||[]).length;
+        localStorage.setItem(DB_KEY, JSON.stringify(merged));
+        loadPlan(merged);
+        // 로컬에 cloud보다 많은 세션이 있으면 Firestore에 역업로드
+        if (mergedSessions > cloudSessions && currentUser) {
+          fbDb.collection('users').doc(currentUser.uid)
+            .collection('careplan').doc('data').set(merged).catch(() => {});
         }
       }, e => console.warn(e));
     // extra/data(테마·룩) 실시간 동기화
@@ -703,24 +725,35 @@ firebase.auth().onAuthStateChanged(user => {
         const localTs = parseInt(localStorage.getItem('_onstep_extra_local_ts') || '0');
         const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
         if (cloudTs >= localTs - 3000) {
-          const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null,storageUrl:ct.storageUrl||lc?.storageUrl||null};});};
-          if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(_mi('onstep_care_themes',d.careThemes)));
-          if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(_mi('onstep_makeup_contents',d.makeupContents)));
-          if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(_mi('onstep_look_contents',d.lookContents)));
-          if (d.portfolio)       localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
+          // union merge: cloud 기준 + local에만 있는 항목 보존, 이미지 필드 로컬에서 복원
+          const _mi = (key, arr) => {
+            const loc = JSON.parse(localStorage.getItem(key)||'[]');
+            return _mergeArrById(arr, loc).map(ct => {
+              const lc = loc.find(t => t.id === ct.id);
+              return {...ct, baselineImg: lc?.baselineImg||null, storageUrl: ct.storageUrl||lc?.storageUrl||null};
+            });
+          };
+          if (d.careThemes)     localStorage.setItem('onstep_care_themes',       JSON.stringify(_mi('onstep_care_themes', d.careThemes)));
+          if (d.makeupContents) localStorage.setItem('onstep_makeup_contents',   JSON.stringify(_mi('onstep_makeup_contents', d.makeupContents)));
+          if (d.lookContents)   localStorage.setItem('onstep_look_contents',     JSON.stringify(_mi('onstep_look_contents', d.lookContents)));
+          if (d.portfolio)      localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
           if (d.looks) {
             const ll = JSON.parse(localStorage.getItem(LOOKS_KEY) || '[]');
-            localStorage.setItem(LOOKS_KEY, JSON.stringify(d.looks.map(cl => {
-              const loc = ll.find(l => l.date === cl.date);
-              return { ...cl, mainPhoto: loc?.mainPhoto || null };
-            })));
+            localStorage.setItem(LOOKS_KEY, JSON.stringify(
+              _mergeArrById(d.looks, ll, 'date').map(cl => {
+                const loc = ll.find(l => l.date === cl.date);
+                return {...cl, mainPhoto: loc?.mainPhoto || null};
+              })
+            ));
           }
           if (d.makeupLogs) {
             const ll = JSON.parse(localStorage.getItem(MAKEUP_LOGS_KEY) || '[]');
-            localStorage.setItem(MAKEUP_LOGS_KEY, JSON.stringify(d.makeupLogs.map(cl => {
-              const lc = ll.find(l => l.date === cl.date);
-              return { ...cl, mainPhoto: lc?.mainPhoto || null };
-            })));
+            localStorage.setItem(MAKEUP_LOGS_KEY, JSON.stringify(
+              _mergeArrById(d.makeupLogs, ll, 'date').map(cl => {
+                const lc = ll.find(l => l.date === cl.date);
+                return {...cl, mainPhoto: lc?.mainPhoto || null};
+              })
+            ));
           }
         }
         renderTodayMakeup();
@@ -738,12 +771,22 @@ firebase.auth().onAuthStateChanged(user => {
         const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
         if (cloudTs >= localTs - 3000) {
           if (d.assets) {
-            const localAssets=JSON.parse(localStorage.getItem('onstep_box_assets')||'[]');
-            localStorage.setItem('onstep_box_assets', JSON.stringify(d.assets.map(ca=>{const la=localAssets.find(a=>a.id===ca.id);return{...ca,imgData:la?.imgData||null,storageImgData:la?.storageImgData||null};})));
+            const localAssets = JSON.parse(localStorage.getItem('onstep_box_assets')||'[]');
+            localStorage.setItem('onstep_box_assets', JSON.stringify(
+              _mergeArrById(d.assets, localAssets).map(ca => {
+                const la = localAssets.find(a => a.id === ca.id);
+                return {...ca, imgData: la?.imgData||null, storageImgData: la?.storageImgData||null};
+              })
+            ));
           }
           if (d.locations) {
-            const localLocs=JSON.parse(localStorage.getItem('onstep_box_locations')||'[]');
-            localStorage.setItem('onstep_box_locations', JSON.stringify(d.locations.map(cl=>{const ll=localLocs.find(l=>l.id===cl.id);return{...cl,imgData:ll?.imgData||null};})));
+            const localLocs = JSON.parse(localStorage.getItem('onstep_box_locations')||'[]');
+            localStorage.setItem('onstep_box_locations', JSON.stringify(
+              _mergeArrById(d.locations, localLocs).map(cl => {
+                const ll = localLocs.find(l => l.id === cl.id);
+                return {...cl, imgData: ll?.imgData||null};
+              })
+            ));
           }
         }
         renderCareToday();
@@ -805,22 +848,16 @@ document.addEventListener('visibilitychange', async () => {
   try {
     const snap = await fbDb.collection('users').doc(currentUser.uid).collection('careplan').doc('data').get();
     if (snap.exists) {
-      const data = snap.data();
-      const local = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
-      const localSession = parseInt(local.session) || 0;
-      const cloudSession = parseInt(data.session)  || 0;
-      const localTs = local.savedAt ? new Date(local.savedAt).getTime() : 0;
-      const cloudTs = data.savedAt ? new Date(data.savedAt).getTime() : 0;
-      const useCloud = cloudSession > localSession ||
-                       (cloudSession === localSession && cloudTs >= localTs);
-      if (useCloud) {
-        localStorage.setItem(DB_KEY, JSON.stringify(data));
-        loadPlan(data);
-      } else {
-        if (localSession > cloudSession && local.savedAt && currentUser) {
-          fbDb.collection('users').doc(currentUser.uid)
-            .collection('careplan').doc('data').set(local).catch(() => {});
-        }
+      const data   = snap.data();
+      const local  = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
+      const merged = _mergePlan(local, data);
+      const cloudSessions  = (data.session||0)   + (data.history||[]).length;
+      const mergedSessions = (merged.session||0) + (merged.history||[]).length;
+      localStorage.setItem(DB_KEY, JSON.stringify(merged));
+      loadPlan(merged);
+      if (mergedSessions > cloudSessions && currentUser) {
+        fbDb.collection('users').doc(currentUser.uid)
+          .collection('careplan').doc('data').set(merged).catch(() => {});
       }
     }
   } catch(e) {}
@@ -866,24 +903,34 @@ async function loadExtraFromCloud(uid) {
     const localTs = parseInt(localStorage.getItem('_onstep_extra_local_ts') || '0');
     const cloudTs = d.savedAt ? new Date(d.savedAt).getTime() : 0;
     if (cloudTs >= localTs - 3000) {
-      const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null,storageUrl:ct.storageUrl||lc?.storageUrl||null};});};
-      if (d.careThemes)      localStorage.setItem('onstep_care_themes',       JSON.stringify(_mi('onstep_care_themes',d.careThemes)));
-      if (d.makeupContents)  localStorage.setItem('onstep_makeup_contents',   JSON.stringify(_mi('onstep_makeup_contents',d.makeupContents)));
-      if (d.lookContents)    localStorage.setItem('onstep_look_contents',     JSON.stringify(_mi('onstep_look_contents',d.lookContents)));
-      if (d.portfolio)       localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
+      const _mi = (key, arr) => {
+        const loc = JSON.parse(localStorage.getItem(key)||'[]');
+        return _mergeArrById(arr, loc).map(ct => {
+          const lc = loc.find(t => t.id === ct.id);
+          return {...ct, baselineImg: lc?.baselineImg||null, storageUrl: ct.storageUrl||lc?.storageUrl||null};
+        });
+      };
+      if (d.careThemes)     localStorage.setItem('onstep_care_themes',       JSON.stringify(_mi('onstep_care_themes', d.careThemes)));
+      if (d.makeupContents) localStorage.setItem('onstep_makeup_contents',   JSON.stringify(_mi('onstep_makeup_contents', d.makeupContents)));
+      if (d.lookContents)   localStorage.setItem('onstep_look_contents',     JSON.stringify(_mi('onstep_look_contents', d.lookContents)));
+      if (d.portfolio)      localStorage.setItem('onstep_planned_portfolio', JSON.stringify(d.portfolio));
       if (d.looks) {
         const ll = JSON.parse(localStorage.getItem(LOOKS_KEY) || '[]');
-        localStorage.setItem(LOOKS_KEY, JSON.stringify(d.looks.map(cl => {
-          const loc = ll.find(l => l.date === cl.date);
-          return { ...cl, mainPhoto: loc?.mainPhoto || null };
-        })));
+        localStorage.setItem(LOOKS_KEY, JSON.stringify(
+          _mergeArrById(d.looks, ll, 'date').map(cl => {
+            const loc = ll.find(l => l.date === cl.date);
+            return {...cl, mainPhoto: loc?.mainPhoto || null};
+          })
+        ));
       }
       if (d.makeupLogs) {
         const ll = JSON.parse(localStorage.getItem(MAKEUP_LOGS_KEY) || '[]');
-        localStorage.setItem(MAKEUP_LOGS_KEY, JSON.stringify(d.makeupLogs.map(cl => {
-          const lc = ll.find(l => l.date === cl.date);
-          return { ...cl, mainPhoto: lc?.mainPhoto || null };
-        })));
+        localStorage.setItem(MAKEUP_LOGS_KEY, JSON.stringify(
+          _mergeArrById(d.makeupLogs, ll, 'date').map(cl => {
+            const lc = ll.find(l => l.date === cl.date);
+            return {...cl, mainPhoto: lc?.mainPhoto || null};
+          })
+        ));
       }
     }
     renderTodayMakeup();
@@ -941,7 +988,8 @@ const CAT_LABEL = {
 };
 
 function getTimePeriod() {
-  return new Date().getHours() < 12 ? 'am' : 'pm';
+  const h = new Date().getHours();
+  return (h >= 4 && h < 18) ? 'am' : 'pm'; // 04:00 MORNING, 18:00 NIGHT
 }
 function getTodayKey()      { return new Date().toISOString().slice(0,10); }
 function calcCurrentDay(s)  { return s ? Math.max(1,Math.floor((new Date()-new Date(s))/86400000)+1) : 1; }
@@ -1190,9 +1238,10 @@ function renderFlowHeroStep(plan) {
     } else {
       strip.innerHTML = products.map(p => {
         const t = p.type || 'product';
-        if (t === 'plus') return `<div class="care-tag-plus">+</div>`;
-        if (t === 'minus') return `<div class="care-tag-minus">-</div>`;
-        if (t === 'desc') return `<div class="care-tag-desc">${p.text||''}</div>`;
+        if (t === 'plus')  return `<div class="care-tag-plus">+</div>`;
+        if (t === 'minus') return `<div class="care-tag-minus">→</div>`;
+        if (t === 'tip')   return `<div class="care-tag-tip">${p.text||'TIP'}</div>`;
+        if (t === 'desc')  return `<div class="care-tag-desc">${p.text||''}</div>`;
         const isDone = doneSet.has(p.name);
         const imgSrc = getBoxImgForProduct(p);
         return `
@@ -1210,12 +1259,112 @@ function renderFlowHeroStep(plan) {
     }
   }
 
-  // Expert tip — tip 없어도 영역 항상 노출
+  // TIP 섹션 (tipItems) — flow-tip-sec
+  const flowTipSec = document.getElementById('flow-tip-sec');
+  if (flowTipSec) {
+    const tipItemsArr = routine?.tipItems || [];
+    const hasTip = tipItemsArr.some(p =>
+      ((!p.type || p.type === 'product') && (p.assetId || p.name)) ||
+      ((p.type === 'tip' || p.type === 'desc') && (p.text||'').trim())
+    );
+    if (hasTip) {
+      const flowAssets = JSON.parse(localStorage.getItem('onstep_box_assets')||'[]');
+      const tipRowHtml = tipItemsArr.map(p => {
+        if (p.type === 'plus') return `<div class="care-tag-plus">+</div>`;
+        if (p.type === 'minus') return `<div class="care-tag-minus">→</div>`;
+        if (p.type === 'tip')  return `<div class="care-tag-tip">${p.text||'TIP'}</div>`;
+        if (p.type === 'desc') return `<div class="care-tag-desc">${p.text||''}</div>`;
+        const fa   = flowAssets.find(a => a.id === p.assetId);
+        const img  = fa?.imgData || fa?.storageUrl || p.imgData || p.storageUrl || '';
+        const name = fa?.name || p.name || '';
+        const emoji= fa?.icon || p.icon || '✦';
+        return `<div class="care-tip-prod-item">
+          <div class="care-prod-thumb"${img?` style="background-image:url(${img})"`:''}>
+            ${!img?`<span>${emoji}</span>`:''}
+          </div>
+          <div class="care-prod-label">${name}</div>
+        </div>`;
+      }).join('');
+      flowTipSec.style.display = '';
+      flowTipSec.innerHTML = `<div class="care-tip-sec">
+        <div class="care-tip-sec-head"><span class="care-tip-tag">TIP</span></div>
+        <div style="display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:10px;padding:8px 16px 16px;align-items:flex-start">${tipRowHtml}</div>
+      </div>`;
+    } else {
+      flowTipSec.style.display = 'none';
+      flowTipSec.innerHTML = '';
+    }
+  }
+
+  // Expert tip — EXPERT TIP 텍스트 팁과 독자적인 type === 'tip' 텍스트 팁들을 동시에 하이브리드로 표출
   const tipArea = document.getElementById('flow-expert-tip');
   const tipText = document.getElementById('flow-tip-text');
   if (tipArea && tipText) {
-    tipText.textContent = tip || '';
-    tipArea.style.display = '';
+    let html = '';
+    
+    let highlightedTip = tip || '';
+    if (highlightedTip && highlightedTip.trim()) {
+      const namesSet = new Set();
+      
+      // 1) 현재 루틴 제품명 수집
+      const realProds = products.filter(p => !p.type || p.type === 'product');
+      realProds.forEach(p => { if(p.name) namesSet.add(p.name.trim()); });
+      
+      // 2) 역대 모든 세션(history) + 현재 세션 전체 루틴 제품명 수집
+      try {
+        const carePlan = JSON.parse(localStorage.getItem('onstep_care_plan') || 'null');
+        if (carePlan) {
+          const allSessions = [...(carePlan.history || []),
+            { morning: carePlan.morning, nightly: carePlan.nightly }];
+          allSessions.forEach(s => {
+            ['morning', 'nightly'].forEach(slotKey => {
+              (s[slotKey]?.routines || []).forEach(r => {
+                (r.products || []).forEach(p => {
+                  if ((!p.type || p.type === 'product') && p.name) {
+                    namesSet.add(p.name.trim());
+                  }
+                });
+              });
+            });
+          });
+        }
+      } catch(_) {}
+
+      // 3) BOX 자산 전체 제품명 수집
+      try {
+        const allBox = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
+        allBox.forEach(p => {
+          if (p.name) namesSet.add(p.name.trim());
+        });
+      } catch(_) {}
+      
+      const prodNames = [...namesSet].filter(Boolean);
+      prodNames.sort((a, b) => b.length - a.length); // 긴 제품명 우선 치환
+      
+      prodNames.forEach(name => {
+        const noSpaceName = name.replace(/\s+/g, '');
+        if (!noSpaceName) return;
+        
+        const chars = [...noSpaceName].map(c => c.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
+        const pattern = chars.join('\\s*');
+        const regex = new RegExp(pattern, 'gi');
+        
+        highlightedTip = highlightedTip.replace(regex, (matched) => {
+          return `<strong style="color:#4E7D00;font-weight:800;background:rgba(197,255,0,0.12);padding:1px 5px;border-radius:4px;border:1px solid rgba(197,255,0,0.3);display:inline-block;margin:0 1px">${matched}</strong>`;
+        });
+      });
+      
+      html += `<div style="font-size:13px;color:var(--sub);line-height:1.65;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;margin-bottom:10px;text-align:left">${highlightedTip}</div>`;
+    }
+    
+
+    
+    if (html) {
+      tipText.innerHTML = html;
+      tipArea.style.display = '';
+    } else {
+      tipArea.style.display = 'none';
+    }
   }
 
   updateCTABtn(doneSet.size, prodItems.length);
@@ -1247,14 +1396,25 @@ function updateCTABtn(done, total) {
   const arrow  = document.getElementById('cta-arrow');
   if (!btn) return;
   const arrowSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
-  if (total===0)            { label.textContent='CHECK ROUTINE'; if(arrow)arrow.innerHTML=arrowSvg; btn.classList.remove('done'); }
-  else if (done>=total)     { label.textContent='Log It — Complete ✓'; if(arrow)arrow.innerHTML=''; btn.classList.add('done'); }
-  else if (done>0)          { label.textContent=`${done}/${total} · CHECK ROUTINE`; if(arrow)arrow.innerHTML=arrowSvg; btn.classList.remove('done'); }
-  else                      { label.textContent='CHECK ROUTINE'; if(arrow)arrow.innerHTML=arrowSvg; btn.classList.remove('done'); }
+  /* 2-state: 전체완료 = 라임, 나머지 = 블랙 */
+  const isDone = total > 0 && done >= total;
+  if (isDone) {
+    label.textContent = '✓ CHECKED';
+    if (arrow) arrow.innerHTML = '';
+    btn.classList.add('done');
+  } else {
+    label.textContent = 'CHECK ROUTINE';
+    if (arrow) arrow.innerHTML = arrowSvg;
+    btn.classList.remove('done');
+  }
 }
 
 function goToRoutineSetup() {
-  location.href = `setup.html?panel=routine&edit=1`;
+  const plan     = JSON.parse(localStorage.getItem(DB_KEY)||'null');
+  const period   = getTimePeriod();
+  const slot     = period==='am' ? 'morning' : 'nightly';
+  const activeId = plan ? getActiveCycleRoutine(plan[slot], plan) : 1;
+  location.href  = `setup.html?panel=se&slot=${slot}&activeDay=${activeId}`;
 }
 
 function handleMainRoutineBtn() {
@@ -1265,26 +1425,47 @@ function handleMainRoutineBtn() {
   const slotData = plan[slot];
   const activeId = getActiveCycleRoutine(slotData, plan);
   const products = slotData?.routines?.find(r=>r.id===activeId)?.products||[];
-  if (!products.length) return;
 
   const realProducts = products.filter(p => (p.type||'product') === 'product');
   const today   = getTodayKey();
   const doneKey = `onstep_flow_done_${today}_${slot}`;
   const doneList= JSON.parse(localStorage.getItem(doneKey)||'[]');
-  if (doneList.length >= realProducts.length) {
-    // 완료 상태 → 취소 (undo)
-    localStorage.removeItem(doneKey);
-    showToast('루틴 완료가 취소됐습니다');
-    renderFlowHeroStep(plan);
-    return;
-  }
+  const btn     = document.getElementById('main-check-btn');
+  const label   = document.getElementById('cta-label');
+  const arrow   = document.getElementById('cta-arrow');
+  const arrowSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
 
-  // 미완료 → 전체 완료 처리
-  realProducts.forEach(p => { if (!doneList.includes(p.name)) doneList.push(p.name); });
-  localStorage.setItem(doneKey, JSON.stringify(doneList));
-  recordBoxUsage(realProducts);
-  renderFlowHeroStep(plan);
-  showToast('루틴 완료! ✓');
+  // 현재 완료 상태 판단: 제품이 있고 모두 체크됨
+  const isCurrentlyDone = realProducts.length > 0 && doneList.length >= realProducts.length;
+
+  if (isCurrentlyDone) {
+    // ── 해제 ──
+    localStorage.removeItem(doneKey);
+    // 버튼 즉시 업데이트
+    if (btn)   { btn.classList.remove('done'); btn.style.background=''; btn.style.color=''; btn.style.border=''; }
+    if (label) label.textContent = 'CHECK ROUTINE';
+    if (arrow) arrow.innerHTML = arrowSvg;
+    // 제품카드 체크 해제
+    document.querySelectorAll('.flow-prod-item').forEach(el => el.classList.remove('done'));
+    showToast('루틴 체크가 해제됐습니다');
+  } else {
+    // ── 전체 완료 ──
+    const newList = realProducts.length > 0 ? realProducts.map(p => p.name) : ['_checked_'];
+    localStorage.setItem(doneKey, JSON.stringify(newList));
+    // 버튼 즉시 업데이트 — inline style로 확실히 덮어씀
+    if (btn) {
+      btn.classList.add('done');
+      btn.style.background = 'var(--lime)';
+      btn.style.color      = 'var(--ink)';
+      btn.style.border     = '2px solid var(--lime-border)';
+    }
+    if (label) label.textContent = '✓ CHECKED';
+    if (arrow) arrow.innerHTML = '';
+    // 제품카드 전체 체크
+    document.querySelectorAll('.flow-prod-item').forEach(el => el.classList.add('done'));
+    recordBoxUsage(realProducts);
+    showToast('루틴 완료! ✓');
+  }
 }
 
 // ── Special Care Today ────────────────────────────────────────
@@ -1310,13 +1491,16 @@ function renderCareToday() {
 
     const rowHtml = allItems.slice(0, 12).map(p => {
       if (p.type === 'plus') {
-        return `<div class="care-prod-item care-item-plus"><div class="care-plus-circle">+</div></div>`;
+        return `<div class="care-tag-plus">+</div>`;
       }
       if (p.type === 'minus') {
-        return `<div class="care-prod-item care-item-minus"><div class="care-minus-circle">-</div></div>`;
+        return `<div class="care-tag-minus">→</div>`;
+      }
+      if (p.type === 'tip') {
+        return `<div class="care-tag-tip">${p.text || 'TIP'}</div>`;
       }
       if (p.type === 'desc') {
-        return `<div class="care-prod-item care-item-desc"><div class="care-desc-text">${p.text||''}</div></div>`;
+        return `<div class="care-tag-desc">${p.text||''}</div>`;
       }
       const asset = assets.find(a => a.id === p.assetId);
       const img   = asset?.imgData || asset?.storageUrl || p.imgData || p.storageUrl || '';
@@ -1328,6 +1512,59 @@ function renderCareToday() {
       </div>`;
     }).join('');
 
+    // ── TIP SECTION (tipItems) — 메인 row 위에 노출 ─────────────
+    let tipSectionHtml = '';
+    const tipItems = t.tipItems || [];
+    const hasTipContent = tipItems.some(p =>
+      ((!p.type || p.type === 'product') && (p.assetId || p.name)) ||
+      ((p.type === 'tip' || p.type === 'desc') && (p.text||'').trim())
+    );
+    if (hasTipContent) {
+      const tipRowHtml = tipItems.map(p => {
+        if (p.type === 'plus') return `<div class="care-tag-plus">+</div>`;
+        if (p.type === 'minus') return `<div class="care-tag-minus">→</div>`;
+        if (p.type === 'tip') return `<div class="care-tag-tip">${p.text || 'TIP'}</div>`;
+        if (p.type === 'desc') return `<div class="care-tag-desc">${p.text||''}</div>`;
+        const asset = assets.find(a => a.id === p.assetId);
+        const img = asset?.imgData || asset?.storageUrl || p.imgData || p.storageUrl || '';
+        const name = asset?.name || p.name || '';
+        const emoji = asset?.icon || p.icon || t.emoji || '✦';
+        return `<div class="care-tip-prod-item">
+          <div class="care-prod-thumb"${img ? ` style="background-image:url(${img})"` : ''}>${!img ? `<span>${emoji}</span>` : ''}</div>
+          <div class="care-prod-label">${name}</div>
+        </div>`;
+      }).join('');
+      tipSectionHtml = `<div class="care-tip-sec">
+        <div class="care-tip-sec-head"><span class="care-tip-tag">TIP</span></div>
+        <div class="care-prod-row">${tipRowHtml}</div>
+      </div>`;
+    }
+
+    // ── EXPERT TIP ──────────────────────────────────────────────
+    let expertTipHtml = '';
+    const rawTip = (t.expertTip || '').trim();
+    if (rawTip) {
+      // 제품명 하이라이팅
+      const prodItems = allItems.filter(p => !p.type || p.type === 'product');
+      let tipText = rawTip.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const names = prodItems.map(p => {
+        const a = assets.find(x => x.id === p.assetId);
+        return (a?.name || p.name || '').trim();
+      }).filter(Boolean).sort((a,b) => b.length - a.length);
+      names.forEach(name => {
+        const esc = name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+        tipText = tipText.replace(new RegExp(esc,'gi'), m =>
+          `<strong style="color:#4E7D00;font-weight:800;background:rgba(197,255,0,0.28);padding:1px 5px;border-radius:4px;border:1px solid rgba(197,255,0,0.35);display:inline-block;margin:0 1px">${m}</strong>`);
+      });
+      expertTipHtml = `<div class="care-expert-tip">
+        <div class="care-expert-tip-hd">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          EXPERT TIP
+        </div>
+        <div class="care-expert-tip-text">${tipText.replace(/\n/g,'<br>')}</div>
+      </div>`;
+    }
+
     return `<div class="care-block care-card${isMulti ? ' care-block-multi' : ''}">
       <div class="care-hero"${heroImg ? ` style="background-image:url(${heroImg})"` : ''}>
         ${!heroImg ? `<span class="care-hero-emoji-float">${t.emoji||'✦'}</span>` : ''}
@@ -1335,6 +1572,8 @@ function renderCareToday() {
         <div class="care-hero-name">${t.emoji ? t.emoji+' ' : ''}${t.name||''}</div>
       </div>
       ${rowHtml ? `<div class="care-prod-row">${rowHtml}</div>` : ''}
+      ${tipSectionHtml}
+      ${expertTipHtml}
     </div>`;
   }).join('');
 }

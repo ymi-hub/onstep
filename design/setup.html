@@ -12,6 +12,9 @@
 <meta name="apple-mobile-web-app-title" content="OnStep">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#FFFFFF">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -336,19 +339,26 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ae-detail-action-row .ae-detail-edit-btn{margin-top:0;flex:unset}
 .ae-detail-del-btn{padding:12px;border:1.5px solid var(--border);border-radius:var(--r-md);background:transparent;color:var(--sub);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .15s;width:100%;text-align:center}
 .ae-detail-del-btn:active{background:rgba(255,82,82,.06);border-color:#ff5252;color:#ff5252}
-.ae-name-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;margin:4px 0 8px}
-.ae-name-item{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:var(--ink);padding:6px 8px;background:#fff;border:1px solid var(--border);border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ae-name-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:4px 0 8px}
+.ae-name-item{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:400;color:var(--ink);padding:5px 6px;background:#fff;border:1px solid var(--border);border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ae-day-pill{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:#0c0c0a;color:#a6d900;padding:2px 8px;border-radius:9999px;display:inline-block;margin:6px 0 3px}
-/* Session detail — 3-column name grid */
-.sd-slot-section{margin-bottom:12px}
+/* Session detail — DAY 2-column layout */
+.sd-slot-section{margin-bottom:14px}
 .sd-slot-section:last-child{margin-bottom:0}
 .sd-slot-hd{display:flex;align-items:center;gap:6px;padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:8px}
 .sd-slot-icon{font-size:12px;line-height:1}
 .sd-slot-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);flex:1}
 .sd-slot-cnt{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:var(--mist);background:var(--surface-mid);padding:2px 8px;border-radius:9999px}
-.sd-day-label{display:none}
-.sd-name-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}
-.sd-name-bar{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:16px;font-weight:400;color:var(--ink);background:#fff;border-radius:var(--r-sm);padding:8px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+/* DAY 가로 2열 행 */
+.sd-days-row{display:grid;gap:1px;background:#0c0c0a;border-radius:var(--r-md);overflow:hidden;margin-bottom:6px}
+.sd-days-row:last-child{margin-bottom:0}
+/* DAY 단일 컬럼 */
+.sd-day-col{background:var(--bg);padding:10px 10px 10px;display:flex;flex-direction:column;min-width:0}
+.sd-day-col-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;background:#0c0c0a;color:#a6d900;padding:2px 8px;border-radius:9999px;display:inline-block;margin-bottom:6px;align-self:flex-start}
+/* 제품명 (이름만) */
+.sd-prod-name{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:var(--ink);padding:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.6}
+/* TIP 구분선 라벨 */
+.sd-tip-divider{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4E7D00;background:rgba(197,255,0,.22);padding:2px 7px;border-radius:9999px;display:inline-block;margin:6px 0 3px;align-self:flex-start}
 
 /* Archive — no results */
 .ae-no-results{padding:40px 20px;text-align:center;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:var(--mist);line-height:1.6}
@@ -479,8 +489,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .se-back{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink);flex-shrink:0;padding:0}
 .se-appbar-title{flex:1;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:.02em;color:var(--ink);text-align:center}
 .se-save-btn{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:none;border:none;cursor:pointer;padding:6px 2px}
-.se-body{flex:1;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.se-body{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .se-body::-webkit-scrollbar{display:none}
+.se-footer{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg)}
 .se-section{padding:20px 16px 0}
 .se-section-label{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:10px}
 .se-date-card{background:var(--surface-low);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:10px;margin-bottom:0}
@@ -598,7 +609,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .bp-search-inp{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:var(--ink);outline:none;background:var(--surface-low)}
 .bp-search-inp:focus{border-color:var(--ink)}
 .bp-count{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist);margin-top:6px;letter-spacing:.04em}
-.bp-list{flex:1;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.bp-list{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .bp-list::-webkit-scrollbar{display:none}
 /* BOX picker — domain + subcat filter */
 .bp-domain-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg)}
@@ -673,6 +684,32 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-add-wrap{padding:4px 20px 24px}
 .ct-add-btn{border:1.5px dashed var(--border-md);border-radius:var(--r-md);padding:16px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);transition:all .15s}
 .ct-add-btn:active{border-color:var(--ink);color:var(--ink)}
+/* ── ct-card 내부 care 제품 표시 (today.html care 스타일과 동일) ── */
+.ct-care-hero{position:relative;width:100%;height:90px;background:var(--surface-mid);background-size:cover;background-position:center;overflow:hidden;display:flex;align-items:flex-end}
+.ct-care-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.68) 0%,transparent 100%)}
+.ct-care-hero-name{position:relative;z-index:1;padding:8px 14px;color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.ct-care-hero-emoji{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:26px;line-height:1}
+.ct-care-prod-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:14px;scrollbar-width:none;gap:8px;padding:14px 0;border-top:1px solid rgba(0,0,0,.06)}
+.ct-care-prod-row::-webkit-scrollbar{display:none}
+.ct-care-prod-row::before{content:'';flex-shrink:0;width:14px}
+.ct-care-prod-row::after{content:'';flex-shrink:0;width:14px}
+.ct-care-prod-item{flex-shrink:0;width:80px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:5px}
+.ct-care-prod-thumb{width:100%;aspect-ratio:1/1;background:#EDECE9;border-radius:10px;border:1px solid rgba(0,0,0,.06);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.ct-care-prod-thumb span{font-size:22px;line-height:1}
+.ct-care-prod-label{font-size:11px;font-weight:400;color:var(--ink);text-align:center;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct-care-tag-plus,.ct-care-tag-minus{flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--mist);padding:0 2px;align-self:center;padding-bottom:20px}
+.ct-care-tag-tip{flex-shrink:0;background:rgba(197,255,0,.2);border:1px solid rgba(132,176,0,.3);border-radius:6px;padding:3px 6px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:#4E7D00;align-self:flex-start;margin-top:4px}
+.ct-care-tag-desc{flex-shrink:0;max-width:68px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;color:var(--sub);line-height:1.3;padding:4px 6px;background:var(--surface-low);border-radius:var(--r-sm);align-self:flex-start;word-break:keep-all}
+.ct-care-tip-sec{border-top:1px solid rgba(0,0,0,.06)}
+.ct-care-tip-sec-head{padding:10px 14px 0}
+.ct-care-tip-tag{display:inline-flex;align-items:center;background:var(--lime);color:var(--ink);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:800;letter-spacing:.08em;padding:2px 9px;border-radius:9999px}
+.ct-care-tip-item{flex-shrink:0;width:60px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ct-care-tip-item .ct-care-prod-thumb{border-radius:8px}
+.ct-care-tip-item .ct-care-prod-label{font-size:10px}
+.ct-care-tip-sec .ct-care-prod-row{border-top:none;padding-top:6px;padding-bottom:12px}
+.ct-care-expert-tip{padding:12px 14px 14px;background:#F9FFE0;border-top:1px solid rgba(197,255,0,.35)}
+.ct-care-expert-tip-hd{display:flex;align-items:center;gap:5px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#4E7D00;margin-bottom:8px}
+.ct-care-expert-tip-text{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--sub);line-height:1.6;white-space:pre-wrap;word-break:break-word}
 /* Content Add Sheet */
 .ct-sheet-ov{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:120;opacity:0;pointer-events:none;transition:opacity .3s;display:flex;align-items:flex-end}
 .ct-sheet-ov.open{opacity:1;pointer-events:auto}
@@ -731,12 +768,15 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .rs-chip--prod .rs-chip-del{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;margin-left:0;line-height:1;cursor:pointer;z-index:1}
 .rs-chip-img{width:30px;height:30px;border-radius:7px;background:var(--surface-mid);background-size:100% auto;background-position:top center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden}
 .rs-chip-name{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72px}
-.rs-chip--plus{width:72px;height:72px;border:1.5px solid rgba(197,255,0,.6);border-radius:10px;background:rgba(197,255,0,.1);display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:300;color:var(--ink);flex-shrink:0;cursor:default;position:relative;overflow:visible}
+.rs-chip--plus{width:72px;height:72px;border:1.5px solid rgba(33, 150, 243, 0.4);border-radius:10px;background:rgba(33, 150, 243, 0.08);display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:300;color:#1976d2;flex-shrink:0;cursor:default;position:relative;overflow:visible}
 .rs-chip--plus .rs-chip-del{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;z-index:1;margin-left:0;line-height:1}
-.rs-chip--minus{width:72px;height:72px;border:1.5px solid rgba(33,133,253,.6);border-radius:10px;background:rgba(33,133,253,.08);display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:300;color:var(--ink);flex-shrink:0;cursor:default;position:relative;overflow:visible}
+.rs-chip--minus{width:72px;height:72px;border:1.5px solid rgba(255, 152, 0, 0.4);border-radius:10px;background:rgba(255, 152, 0, 0.1);display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:300;color:#E65100;flex-shrink:0;cursor:default;position:relative;overflow:visible}
 .rs-chip--minus .rs-chip-del{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;z-index:1;margin-left:0;line-height:1}
 .rs-chip--desc{min-width:72px;max-width:150px;height:72px;background:#e3e3e3;border-radius:10px;border:1px solid rgba(0,0,0,.06);box-shadow:var(--shadow);padding:8px 10px;display:inline-flex;align-items:center;justify-content:center;align-self:center;flex-shrink:0;position:relative}
 .rs-chip-desc-text{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:400;color:#0c0c0a;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word;text-align:center}
+.rs-chip--tip{min-width:72px;max-width:150px;height:72px;background:rgba(197,255,0,.1);border:1.5px solid rgba(132,176,0,.4);border-radius:10px;padding:8px 10px;display:inline-flex;align-items:center;justify-content:center;align-self:center;flex-shrink:0;position:relative}
+.rs-chip-tip-text{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:#4E7D00;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word;text-align:center}
+.rs-chip--tip .rs-chip-del{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;margin-left:0;line-height:1;cursor:pointer;z-index:1}
 .rs-chip-del{font-size:11px;color:var(--mist);flex-shrink:0;cursor:pointer;line-height:1;margin-left:2px}
 .rs-chip--desc .rs-chip-del{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;margin-left:0;line-height:1;cursor:pointer;z-index:1}
 .rs-chip--drag-over{outline:2px solid var(--lime);outline-offset:2px}
@@ -745,10 +785,14 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .rs-chip[draggable] .rs-chip-name,.rs-chip[draggable] .rs-chip-img{user-select:none;-webkit-user-select:none;pointer-events:none}
 .routine-mid-save{width:calc(100% - 32px);margin:0 16px 12px;padding:11px;background:var(--surface);border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
 .routine-mid-save:active{background:var(--lime);color:var(--lime-fg);border-color:var(--lime)}
-.rs-act-row{display:flex;gap:6px;padding:8px 16px 14px;flex-wrap:wrap}
-.rs-act-btn{border:1.5px solid var(--border-md);border-radius:var(--r-full);padding:6px 14px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--sub);background:transparent;cursor:pointer;transition:all .15s;white-space:nowrap}
-.rs-act-btn:active{border-color:var(--ink);color:var(--ink)}
-.rs-act-btn--plus, .rs-act-btn--minus{border-style:dashed;min-width:36px;text-align:center;padding:6px 10px}
+.rs-act-row{display:flex;gap:6px;padding:8px 16px 14px;flex-wrap:wrap;align-items:center}
+.rs-act-btn{height:32px!important;padding:0 14px!important;display:inline-flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;border-radius:var(--r-full);background:transparent;cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1;box-sizing:border-box}
+.rs-act-btn--prod{border:1.5px solid rgba(0,0,0,0.4);background:rgba(0,0,0,0.04);color:#000}
+.rs-act-btn--desc{border:1.5px solid rgba(117,117,117,0.4);background:rgba(117,117,117,0.08);color:#616161}
+.rs-act-btn--tip{border:1.5px solid rgba(132,176,0,0.4);background:rgba(197,255,0,0.1);color:#4E7D00}
+.rs-act-btn--plus, .rs-act-btn--minus{border-style:dashed;width:48px!important;height:32px!important;padding:0!important;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--r-full);font-size:16px!important;line-height:1;flex-shrink:0;box-sizing:border-box}
+.rs-act-btn--plus{border-color:rgba(33, 150, 243, 0.4);background:rgba(33, 150, 243, 0.08);color:#1976d2}
+.rs-act-btn--minus{border-color:rgba(255, 152, 0, 0.4);background:rgba(255, 152, 0, 0.1);color:#E65100;border-style:solid}
 .rs-desc-row{display:flex;align-items:center;gap:6px;padding:0 16px 12px}
 .rs-desc-inp{flex:1;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px 10px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;color:var(--ink);background:#fff;outline:none}
 .rs-desc-ok{padding:8px 14px;border:none;border-radius:var(--r-sm);background:var(--ink);color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
@@ -770,11 +814,13 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-chip--product-missing{border:1.5px dashed var(--border-md);color:var(--sub)}
 .ct-chip--plus, .ct-chip--minus{border:1.5px dashed var(--border-md);color:var(--mist);font-weight:700;padding:5px 12px}
 .ct-chip--desc{background:var(--surface-low);border-color:var(--border)}
+.ct-chip--tip{background:rgba(197,255,0,0.1);border:1.5px solid rgba(132,176,0,0.3);color:#4E7D00}
 .ct-action-row{display:flex;gap:6px;margin-top:8px}
 .ct-act-btn{padding:7px 14px;border:1.5px solid var(--border-md);border-radius:var(--r-full);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--ink);background:var(--surface);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
 .ct-act-btn:active{background:var(--ink);color:#fff;border-color:var(--ink)}
 .ct-act-plus{border-style:dashed;min-width:36px;text-align:center}
 .ct-tip-lbl{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);margin-bottom:8px}
+#ct-items-lbl{color:var(--sub)}
 .ct-desc-inline-row{display:flex;gap:6px;margin-top:8px}
 .ct-desc-inline-inp{flex:1;padding:8px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-md);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--ink);background:#fff;outline:none;transition:border-color .18s}
 .ct-desc-inline-inp:focus{border-color:var(--ink)}
@@ -1045,154 +1091,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
     <div class="app-nav"></div>
   </div><!-- /setup-panel-routine -->
 
-  <!-- ══ SUB-PANEL: ROUTINE EDIT (3단계 — 현재 세션 전용) ══ -->
-  <div class="setup-panel" id="setup-panel-routine-edit">
-    <div class="panel-appbar">
-      <button class="panel-back" onclick="closeRoutineEditPanel()">←</button>
-      <div class="panel-appbar-center">EDIT SESSION</div>
-      <div style="width:40px"></div>
-    </div>
-    <div class="panel-body">
-
-      <!-- Session Hero -->
-      <div class="routine-hero">
-        <div style="position:absolute;top:18px;right:18px;font-size:36px;opacity:.08;transform:rotate(15deg);line-height:1">✦</div>
-        <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:10px">CURRENT SESSION</div>
-        <div class="session-title" id="session-title-display">SESSION</div>
-        <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-top:12px;margin-bottom:6px">INTERVAL</div>
-        <div class="session-date-edit-row">
-          <input type="date" id="session-period-start-input" class="session-date-inp" onchange="updatePeriodDate('start',this.value)">
-          <span class="session-date-sep">—</span>
-          <input type="date" id="session-period-end-input" class="session-date-inp" onchange="updatePeriodDate('end',this.value)">
-        </div>
-      </div>
-      <input type="file" id="baseline-input" accept="image/*" style="display:none" onchange="onBaselineFile(this)">
-
-      <!-- Morning Routine Section -->
-      <div class="routine-section">
-        <div class="rs-hd">
-          <div class="rs-hd-left"><span class="rs-name">MORNING</span></div>
-          <span class="rs-badge" id="morning-active-badge">A.M. ROUTINE</span>
-        </div>
-        <div class="step-tabs" id="morning-step-tabs"></div>
-        <div class="time-section" onclick="pickTime('morning')">
-          <span style="font-size:14px">⏰</span>
-          <div class="time-big">
-            <span class="time-value" id="morning-time-display">08:00</span>
-            <span class="time-ampm" id="morning-time-ampm">AM</span>
-          </div>
-          <input type="time" id="morning-time" value="08:00"
-            style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
-            onchange="updateTimeDisplay('morning',this.value);persistPlan(state.published||false)">
-        </div>
-        <div class="prod-scroll-strip" id="morning-grid" ondragover="event.preventDefault()"></div>
-        <div class="rs-inline-search" id="rs-search-morning">
-          <div class="rs-search-row">
-            <input class="rs-search-inp" id="rs-inp-morning" type="text" placeholder="제품명 · 브랜드 검색..."
-              oninput="renderRsResults('morning',this.value)">
-            <span class="rs-search-close" onclick="closeRsSearch('morning')">✕</span>
-          </div>
-          <div class="rs-search-results" id="rs-results-morning">
-            <div class="rs-search-placeholder">BOX에서 제품을 검색하세요</div>
-          </div>
-        </div>
-        <div class="tip-card">
-          <div class="tip-card-hd">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            EXPERT TIP
-          </div>
-          <textarea class="tip-card-input" id="morning-tip" rows="2"
-            placeholder=""
-            oninput="updateRoutineTip('morning',this.value)"></textarea>
-        </div>
-        <button class="routine-mid-save" onclick="saveRoutineMid('morning')">✓ MORNING 저장</button>
-      </div>
-
-      <!-- Night Routine Section -->
-      <div class="routine-section">
-        <div class="rs-hd">
-          <div class="rs-hd-left"><span class="rs-name">NIGHT</span></div>
-          <span class="rs-badge" id="nightly-active-badge">P.M. ROUTINE</span>
-        </div>
-        <div class="step-tabs" id="nightly-step-tabs"></div>
-        <div class="time-section" onclick="pickTime('nightly')">
-          <span style="font-size:14px">🌙</span>
-          <div class="time-big">
-            <span class="time-value" id="nightly-time-display">10:00</span>
-            <span class="time-ampm" id="nightly-time-ampm">PM</span>
-          </div>
-          <input type="time" id="nightly-time" value="22:00"
-            style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"
-            onchange="updateTimeDisplay('nightly',this.value);persistPlan(state.published||false)">
-        </div>
-        <div class="prod-scroll-strip" id="nightly-grid" ondragover="event.preventDefault()"></div>
-        <div class="rs-inline-search" id="rs-search-nightly">
-          <div class="rs-search-row">
-            <input class="rs-search-inp" id="rs-inp-nightly" type="text" placeholder="제품명 · 브랜드 검색..."
-              oninput="renderRsResults('nightly',this.value)">
-            <span class="rs-search-close" onclick="closeRsSearch('nightly')">✕</span>
-          </div>
-          <div class="rs-search-results" id="rs-results-nightly">
-            <div class="rs-search-placeholder">BOX에서 제품을 검색하세요</div>
-          </div>
-        </div>
-        <div id="nightly-empty" class="empty-state-wrap">
-          <div class="empty-state-text">No products assigned.<br>Configure your night routine steps.</div>
-          <button class="empty-configure-btn" onclick="openModal('nightly')">CONFIGURE</button>
-        </div>
-        <div class="page-dots" id="nightly-dots"></div>
-        <div class="tip-card" id="nightly-tip-card">
-          <div class="tip-card-hd">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            EXPERT TIP
-          </div>
-          <textarea class="tip-card-input" id="nightly-tip" rows="2"
-            placeholder=""
-            oninput="updateRoutineTip('nightly',this.value)"></textarea>
-        </div>
-        <button class="routine-mid-save" onclick="saveRoutineMid('nightly')">✓ NIGHT 저장</button>
-      </div>
-
-      <!-- Hidden: publish/draft trigger -->
-      <div style="display:none">
-        <button id="publish-btn" onclick="activateContent('routine')"></button>
-        <div id="history-list"></div>
-      </div>
-
-      <!-- Today's Day Badge + Progress Bar -->
-      <div id="step-today-wrap" style="display:none;padding:16px 16px 4px">
-        <div class="step-today-badge">
-          <span class="step-today-label">TODAY</span>
-          <span id="step-today-val" class="step-today-val">DAY 1</span>
-        </div>
-        <div style="height:3px;background:var(--surface-high);border-radius:2px;overflow:hidden;margin-top:4px">
-          <div id="step-progress-bar" style="height:100%;background:var(--lime);border-radius:2px;width:50%;transition:width .5s"></div>
-        </div>
-        <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;color:var(--mist);margin-top:4px;letter-spacing:.06em">루틴 사이클 진행률</div>
-      </div>
-
-      <!-- Session Before Photo -->
-      <div style="padding:24px 16px 8px">
-        <div class="before-photo-label">SESSION BEFORE PHOTO</div>
-        <label class="before-photo-area" id="session-before-area" for="session-before-input">
-          <div class="before-photo-preview" id="session-before-preview"></div>
-          <span class="before-photo-icon">📷</span>
-          <span class="before-photo-hint">Add Before Photo</span>
-          <span class="before-photo-badge">CHANGE</span>
-        </label>
-        <input type="file" id="session-before-input" accept="image/*" style="display:none"
-          onchange="onBeforePhoto('session',this)">
-      </div>
-
-      <!-- Save CTA -->
-      <div class="routine-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button class="publish-btn" onclick="saveRoutineChanges()" style="background:var(--lime);color:var(--lime-fg);letter-spacing:.06em;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;height:52px">SAVE ROUTINE →</button>
-        <button class="ae-detail-del-btn" onclick="clearCurrentRoutine()" style="height:52px;padding:0;margin:0">초기화</button>
-      </div>
-
-    </div><!-- /panel-body -->
-    <div class="app-nav"></div>
-  </div><!-- /setup-panel-routine-edit -->
+  <!-- EDIT SESSION 패널 제거: today.html Edit → 버튼은 se-panel(세션 편집)으로 직접 연결됨 -->
 
   <!-- ══ SUB-PANEL: 집중케어 ══ -->
   <div class="setup-panel" id="setup-panel-care">
@@ -1207,13 +1106,14 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <div class="ct-hero-title">집중케어</div>
         <div class="ct-hero-sub">케어 프로그램 설계 · BOX 뷰티 제품 매핑 · 기간 & 스케줄 설정</div>
       </div>
-      <div id="setup-care-count" style="padding:4px 20px 0;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
-      <div class="ct-list" id="setup-care-list"></div>
-      <div class="ct-add-wrap">
+      <!-- 새 집중케어 설계 버튼 — 상단 -->
+      <div class="ct-add-wrap" style="padding:8px 20px 4px">
         <div class="ct-add-btn" onclick="openCtSheet('care')">
           <span style="font-size:16px;line-height:1">+</span> 새 집중케어 설계
         </div>
       </div>
+      <div id="setup-care-count" style="padding:4px 20px 0;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
+      <div class="ct-list" id="setup-care-list"></div>
     </div>
     <div class="app-nav"></div>
   </div><!-- /setup-panel-care -->
@@ -1446,19 +1346,28 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <textarea class="ct-desc-inp" id="ct-desc" rows="2" placeholder="간단한 설명 (선택)..."></textarea>
       </div>
       <div class="ct-sheet-sec">
-        <span class="ct-sheet-sec-lbl" id="ct-items-lbl">아이템 매핑 (BOX 뷰티)</span>
-        <div class="ct-chips" id="ct-selected-chips"></div>
-        <div class="ct-action-row" id="ct-action-row" style="display:none">
-          <button class="ct-act-btn" onclick="ctAddProductStart('main',event)">+ 제품</button>
-          <button class="ct-act-btn" onclick="ctAddDescStart('main')">+ 설명</button>
-          <button class="ct-act-btn ct-act-plus" onclick="ctAddPlusChip('main')">+</button>
-          <button class="ct-act-btn ct-act-plus" onclick="ctAddMinusChip('main')">-</button>
+        <span class="ct-sheet-sec-lbl" id="ct-items-lbl">— 아이템 매핑 <span style="font-size:11px;font-weight:400;color:var(--mist)">(BOX 뷰티)</span></span>
+        <div id="ct-selected-chips"></div>
+        <!-- 루틴케어 편집 스타일 버튼 -->
+        <div class="rs-act-row" id="ct-action-row" style="display:none;padding:8px 0 4px">
+          <button class="rs-act-btn rs-act-btn--prod" onclick="ctAddProductStart('main',event)">+ 제품</button>
+          <button class="rs-act-btn rs-act-btn--desc" onclick="ctAddDescStart('main')">+ 설명</button>
+          <button class="rs-act-btn rs-act-btn--tip" onclick="ctAddTipStart('main')">+ TIP</button>
+          <button class="rs-act-btn rs-act-btn--plus" onclick="ctAddPlusChip('main')">+</button>
+          <button class="rs-act-btn rs-act-btn--minus" onclick="ctAddMinusChip('main')">→</button>
         </div>
-        <div class="ct-desc-inline-row" id="ct-desc-inline-row" style="display:none">
-          <input class="ct-desc-inline-inp" id="ct-desc-inline-inp" type="text" placeholder="설명 텍스트 입력..."
+        <div class="rs-desc-row" id="ct-desc-inline-row" style="display:none;padding:0;margin-top:6px">
+          <input class="rs-desc-inp" id="ct-desc-inline-inp" type="text" placeholder="설명 텍스트 입력..."
             onkeydown="if(event.key==='Enter')ctConfirmDesc('main');else if(event.key==='Escape')ctCancelDesc('main')">
-          <button class="ct-desc-inline-ok" onclick="ctConfirmDesc('main')">추가</button>
-          <button class="ct-desc-inline-cancel" onclick="ctCancelDesc('main')">✕</button>
+          <button class="rs-desc-ok" onclick="ctConfirmDesc('main')">추가</button>
+          <button class="rs-desc-cancel" onclick="ctCancelDesc('main')">✕</button>
+        </div>
+        <div class="rs-desc-row" id="ct-main-tip-row" style="display:none;padding:0;margin-top:6px">
+          <input id="ct-main-tip-inp" type="text" placeholder="팁 텍스트 입력..."
+            onkeydown="if(event.key==='Enter')ctConfirmTipItem('main');else if(event.key==='Escape')ctCancelTipItem('main')"
+            style="flex:1;border:1.5px solid rgba(132,176,0,0.3);border-radius:var(--r-sm);padding:8px 10px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:#4E7D00;background:rgba(197,255,0,0.04);outline:none">
+          <button onclick="ctConfirmTipItem('main')" style="padding:8px 14px;border:none;border-radius:var(--r-sm);background:#84B000;color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
+          <button onclick="ctCancelTipItem('main')" style="padding:8px;border:none;background:transparent;color:var(--mist);font-size:16px;cursor:pointer;line-height:1">✕</button>
         </div>
         <div class="ct-box-wrap" id="ct-box-wrap">
           <input class="ct-box-inp" id="ct-box-inp" type="text" placeholder="제품명·브랜드 검색..."
@@ -1468,18 +1377,26 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
       </div>
       <div class="ct-sheet-sec" id="ct-tip-sec" style="display:none">
         <div class="ct-tip-lbl">— TIP <span style="font-size:11px;font-weight:400;color:var(--mist)">(내용 있을 때만 Today 표시)</span></div>
-        <div class="ct-chips" id="ct-tip-chips"></div>
-        <div class="ct-action-row">
-          <button class="ct-act-btn" onclick="ctAddProductStart('tip',event)">+ 제품</button>
-          <button class="ct-act-btn" onclick="ctAddDescStart('tip')">+ 설명</button>
-          <button class="ct-act-btn ct-act-plus" onclick="ctAddPlusChip('tip')">+</button>
-          <button class="ct-act-btn ct-act-plus" onclick="ctAddMinusChip('tip')">-</button>
+        <div id="ct-tip-chips"></div>
+        <div class="rs-act-row" style="padding:8px 0 4px">
+          <button class="rs-act-btn rs-act-btn--prod" onclick="ctAddProductStart('tip',event)">+ 제품</button>
+          <button class="rs-act-btn rs-act-btn--desc" onclick="ctAddDescStart('tip')">+ 설명</button>
+          <button class="rs-act-btn rs-act-btn--tip" onclick="ctAddTipStart('tip')">+ TIP</button>
+          <button class="rs-act-btn rs-act-btn--plus" onclick="ctAddPlusChip('tip')">+</button>
+          <button class="rs-act-btn rs-act-btn--minus" onclick="ctAddMinusChip('tip')">→</button>
         </div>
-        <div class="ct-desc-inline-row" id="ct-tip-desc-inline-row" style="display:none">
-          <input class="ct-desc-inline-inp" id="ct-tip-desc-inline-inp" type="text" placeholder="TIP 설명 텍스트 입력..."
+        <div class="rs-desc-row" id="ct-tip-desc-inline-row" style="display:none;padding:0;margin-top:6px">
+          <input class="rs-desc-inp" id="ct-tip-desc-inline-inp" type="text" placeholder="TIP 설명 텍스트 입력..."
             onkeydown="if(event.key==='Enter')ctConfirmDesc('tip');else if(event.key==='Escape')ctCancelDesc('tip')">
-          <button class="ct-desc-inline-ok" onclick="ctConfirmDesc('tip')">추가</button>
-          <button class="ct-desc-inline-cancel" onclick="ctCancelDesc('tip')">✕</button>
+          <button class="rs-desc-ok" onclick="ctConfirmDesc('tip')">추가</button>
+          <button class="rs-desc-cancel" onclick="ctCancelDesc('tip')">✕</button>
+        </div>
+        <div class="rs-desc-row" id="ct-tip-tip-row" style="display:none;padding:0;margin-top:6px">
+          <input id="ct-tip-tip-inp" type="text" placeholder="팁 텍스트 입력..."
+            onkeydown="if(event.key==='Enter')ctConfirmTipItem('tip');else if(event.key==='Escape')ctCancelTipItem('tip')"
+            style="flex:1;border:1.5px solid rgba(132,176,0,0.3);border-radius:var(--r-sm);padding:8px 10px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:#4E7D00;background:rgba(197,255,0,0.04);outline:none">
+          <button onclick="ctConfirmTipItem('tip')" style="padding:8px 14px;border:none;border-radius:var(--r-sm);background:#84B000;color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
+          <button onclick="ctCancelTipItem('tip')" style="padding:8px;border:none;background:transparent;color:var(--mist);font-size:16px;cursor:pointer;line-height:1">✕</button>
         </div>
       </div>
       <div class="ct-sheet-sec" id="ct-tpo-sec" style="display:none">
@@ -1502,6 +1419,21 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
           <button class="ct-date-add-chip" onclick="openCtCal()">+ 날짜 추가</button>
         </div>
       </div>
+      <!-- EXPERT TIP card — care type only, 케어기간 상단 -->
+      <div class="ct-sheet-sec" id="ct-expert-tip-card" style="display:none">
+        <div class="tip-card" style="position:relative;margin:0">
+          <div class="tip-card-hd" style="display:flex;align-items:center;gap:6px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;color:#4E7D00">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            EXPERT TIP
+          </div>
+          <textarea class="tip-card-input" id="ct-expert-tip-inp" rows="3" placeholder="루틴에 관한 전용 팁 설명 입력..."
+            oninput="ctUpdateExpertTip(this.value)" onblur="ctCloseExpertTipInput()"
+            style="margin-top:4px;display:none;width:100%;box-sizing:border-box"></textarea>
+          <div id="ct-expert-tip-display" onclick="ctOpenExpertTipInput()"
+            style="margin-top:4px;min-height:36px;padding:8px 10px;background:rgba(197,255,0,0.04);border:1.5px solid rgba(132,176,0,0.25);border-radius:var(--r-sm);font-size:13px;color:var(--sub);line-height:1.65;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;text-align:left;white-space:pre-wrap;cursor:pointer"></div>
+        </div>
+      </div>
+
       <!-- care: 기간 범위 -->
       <div class="ct-sheet-sec" id="ct-period-sec" style="display:none">
         <span class="ct-sheet-sec-lbl">케어 기간</span>
@@ -1583,6 +1515,11 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
       <div style="width:40px"></div>
     </div>
     <div class="se-body" id="se-body"></div>
+    <div class="se-footer">
+      <button class="publish-btn" onclick="saveSessionEditor()" style="background:var(--lime);color:var(--lime-fg);letter-spacing:.06em;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;height:48px">SAVE ROUTINE →</button>
+      <button class="ae-detail-del-btn" onclick="deleteSeSession()" style="height:48px;padding:0 16px;margin:0">삭제</button>
+    </div>
+    <div class="app-nav"></div>
   </div>
 
 <!-- Product modal -->
@@ -1664,6 +1601,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
   <!-- Sub-cat chips -->
   <div class="bp-subcat-row" id="bp-subcat-row"></div>
   <div class="bp-list" id="bp-list"></div>
+  <div class="app-nav"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1687,13 +1625,22 @@ let _unsubExtra = null, _unsubCareplan = null, _unsubSettings = null, _unsubBox 
 
 function _applyBoxSnap(d) {
   if (d.assets) {
-    const localAssets=JSON.parse(localStorage.getItem('onstep_box_assets')||'[]');
-    const merged=d.assets.map(ca=>{const la=localAssets.find(a=>a.id===ca.id);return{...ca,imgData:la?.imgData||null,storageImgData:la?.storageImgData||null};});
-    localStorage.setItem('onstep_box_assets', JSON.stringify(merged));
+    const localAssets = JSON.parse(localStorage.getItem('onstep_box_assets')||'[]');
+    localStorage.setItem('onstep_box_assets', JSON.stringify(
+      _mergeArrById(d.assets, localAssets).map(ca => {
+        const la = localAssets.find(a => a.id === ca.id);
+        return {...ca, imgData: la?.imgData||null, storageImgData: la?.storageImgData||null};
+      })
+    ));
   }
   if (d.locations) {
-    const localLocs=JSON.parse(localStorage.getItem('onstep_box_locations')||'[]');
-    localStorage.setItem('onstep_box_locations', JSON.stringify(d.locations.map(cl=>{const ll=localLocs.find(l=>l.id===cl.id);return{...cl,imgData:ll?.imgData||null};})));
+    const localLocs = JSON.parse(localStorage.getItem('onstep_box_locations')||'[]');
+    localStorage.setItem('onstep_box_locations', JSON.stringify(
+      _mergeArrById(d.locations, localLocs).map(cl => {
+        const ll = localLocs.find(l => l.id === cl.id);
+        return {...cl, imgData: ll?.imgData||null};
+      })
+    ));
   }
   if (d.boxCats)   localStorage.setItem('onstep_box_cats',      JSON.stringify(d.boxCats));
   if (d.catLabels) {
@@ -1713,6 +1660,18 @@ firebase.auth().onAuthStateChanged(user => {
   _updateAuthAvatar(user);
   [_unsubExtra, _unsubCareplan, _unsubSettings, _unsubBox].forEach(fn => fn && fn());
   _unsubExtra = _unsubCareplan = _unsubSettings = _unsubBox = null;
+  if (!user) {
+    ['onstep_care_plan','onstep_care_themes','onstep_makeup_themes','onstep_look_themes',
+     'onstep_looks','onstep_muse_items','onstep_planned_portfolio','onstep_log_scenes',
+     'onstep_box_assets','onstep_box_locations','onstep_box_cats','onstep_tracker_items']
+      .forEach(k => localStorage.removeItem(k));
+    if (!sessionStorage.getItem('_logout_reload')) {
+      sessionStorage.setItem('_logout_reload', '1');
+      location.reload();
+    }
+    return;
+  }
+  sessionStorage.removeItem('_logout_reload');
   if (user) {
     loadFromCloud(user.uid);
     const userRef = fbDb.collection('users').doc(user.uid);
@@ -1831,11 +1790,7 @@ document.addEventListener('visibilitychange', () => {
   _lastSyncTs = now;
   loadFromCloud(currentUser.uid);
 });
-function handleAuthClick() {
-  const _auth = typeof fbAuth !== 'undefined' ? fbAuth : firebase.auth();
-  if (currentUser) { if(confirm(`${currentUser.displayName||currentUser.email}\n로그아웃?`)) _auth.signOut(); }
-  else _auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>alert(e.message));
-}
+// handleAuthClick → shared.js 공통 버전 사용 (_authPopupOpen 가드 포함)
 function updateArchiveAvatar(user) {
   const el = document.getElementById('archive-avatar');
   if (!el) return;
@@ -2109,52 +2064,30 @@ window.addEventListener('load', () => {
     saveThemesToStorage();
     renderAll();
   }
-  // URL 파라미터로 패널 자동 오픈 (today.html의 "Edit routine →" 클릭 시)
+  // URL 파라미터로 패널 자동 오픈 (today.html의 "Edit →" 클릭 시)
   const params = new URLSearchParams(location.search);
   const panel = params.get('panel');
   const slot  = params.get('slot');
   if (panel) {
     history.replaceState(null, '', location.pathname); // 파라미터 즉시 제거 (새로고침 시 재진입 방지)
-    openSetupPanel(panel);
-    const edit = params.get('edit');
-    if (panel === 'routine' && edit === '1') {
-      setTimeout(() => openRoutineEditPanel(), 120);
-    } else if (slot) {
-      setTimeout(() => {
-        const el = document.getElementById(`${slot}-grid`);
-        if (el) el.closest('.routine-section')?.scrollIntoView({ behavior:'smooth', block:'start' });
-      }, 400);
+    if (panel === 'se' || (panel === 'routine' && params.get('edit') === '1')) {
+      // today.html Edit → 버튼: 현재 세션 편집 패널(세션 편집) 직접 오픈
+      const urlActiveDay  = parseInt(params.get('activeDay')) || null;
+      const urlActiveSlot = params.get('slot') || null;
+      setTimeout(() => openSessionEditor(state.session, urlActiveDay, urlActiveSlot), 300);
+    } else {
+      openSetupPanel(panel);
+      if (slot) {
+        setTimeout(() => {
+          const el = document.getElementById(`${slot}-grid`);
+          if (el) el.closest('.routine-section')?.scrollIntoView({ behavior:'smooth', block:'start' });
+        }, 400);
+      }
     }
   }
 });
 
-// 로컬과 클라우드 careplan을 병합 — 세션은 절대 유실되지 않도록
-// local 우선(편집 내용 보존), cloud에만 있는 세션은 추가
-function _mergePlan(local, cloud) {
-  if (!local || !local.savedAt) return cloud;
-  if (!cloud || !cloud.savedAt) return local;
-  const localTs  = new Date(local.savedAt).getTime();
-  const cloudTs  = new Date(cloud.savedAt).getTime();
-  // current session: 최신 기준 (더 새로 저장된 쪽)
-  const base = cloudTs >= localTs ? cloud : local;
-  // history 병합: 세션 번호 기준 dedup, local 우선
-  const map = new Map();
-  (cloud.history||[]).forEach(s => { if (s.session) map.set(Number(s.session), s); });
-  (local.history||[]).forEach(s => { if (s.session) map.set(Number(s.session), s); });
-  // 현재 세션(base가 아닌 쪽)도 history에 포함해 유실 방지
-  const otherCurrent = cloudTs >= localTs ? local : cloud;
-  if (otherCurrent.session && otherCurrent.session !== base.session) {
-    const n = Number(otherCurrent.session);
-    if (!map.has(n)) map.set(n, {
-      session: otherCurrent.session,
-      periodStart: otherCurrent.periodStart,
-      periodEnd: otherCurrent.periodEnd,
-      morning: otherCurrent.morning,
-      nightly: otherCurrent.nightly
-    });
-  }
-  return { ...base, history: Array.from(map.values()) };
-}
+// _mergePlan, _mergeArrById → shared.js 공통 유틸로 제공됨
 
 function applyPlanData(saved) {
   const mig = r => {
@@ -2413,7 +2346,7 @@ let _td = null;
 
 function _pdStart(e, slot, idx, type) {
   if (e.pointerType === 'mouse') return;
-  if (e.cancelable) e.preventDefault(); // 브라우저 스크롤 가로채기 방지
+  if (e.cancelable) e.preventDefault();
   try { window.getSelection()?.removeAllRanges(); } catch(_) {}
   const el = e.currentTarget;
   try { el.setPointerCapture(e.pointerId); } catch(_) {}
@@ -2421,16 +2354,17 @@ function _pdStart(e, slot, idx, type) {
   _pd = { slot, idx, type, el, cl: null, toIdx: idx,
     ox: e.clientX - r.left, oy: e.clientY - r.top,
     startX: e.clientX, startY: e.clientY, moved: false, pid: e.pointerId };
-  el.addEventListener('pointermove', _pdMove);
-  el.addEventListener('pointerup',   _pdEnd);
-  el.addEventListener('pointercancel', _pdEnd);
+  // document에 등록 — pointer capture 실패해도 전체 화면에서 이벤트 수신
+  document.addEventListener('pointermove',   _pdMove,   { passive: false });
+  document.addEventListener('pointerup',     _pdEnd,    { once: false });
+  document.addEventListener('pointercancel', _pdEnd,    { once: false });
 }
 
 function _pdMove(e) {
   if (!_pd || e.pointerId !== _pd.pid) return;
-  if (!_pd.moved && (Math.abs(e.clientX - _pd.startX) > 8 || Math.abs(e.clientY - _pd.startY) > 8)) {
+  if (e.cancelable) e.preventDefault(); // 스크롤 차단 (드래그 중)
+  if (!_pd.moved && (Math.abs(e.clientX - _pd.startX) > 6 || Math.abs(e.clientY - _pd.startY) > 6)) {
     _pd.moved = true;
-    if (e.cancelable) e.preventDefault(); // 드래그 확정 후에만 스크롤 차단
     const r = _pd.el.getBoundingClientRect();
     const cl = _pd.el.cloneNode(true);
     cl.style.cssText = `position:fixed;z-index:9999;pointer-events:none;opacity:.88;`
@@ -2442,15 +2376,18 @@ function _pdMove(e) {
     _pd.cl = cl;
   }
   if (!_pd.moved) return;
-  if (e.cancelable) e.preventDefault();
   _pd.cl.style.left = (e.clientX - _pd.ox) + 'px';
   _pd.cl.style.top  = (e.clientY - _pd.oy) + 'px';
-  _pd.cl.style.display = 'none';
+  // 드롭 대상 감지: 클론 임시 숨겨 아래 요소 인식
+  _pd.cl.style.visibility = 'hidden';
   const under = document.elementFromPoint(e.clientX, e.clientY);
-  _pd.cl.style.display = '';
+  _pd.cl.style.visibility = '';
+  // 같은 섹션의 chip만 drop 대상으로 인정 (slot 일치)
   const chip = under?.closest('[data-di]');
   document.querySelectorAll('[data-di]').forEach(c => c.classList.remove('rs-chip--drag-over'));
   if (chip && chip !== _pd.el) {
+    // slot 확인: 같은 섹션의 칩만 허용
+    const chipSlot = chip.getAttribute('data-slot') || chip.closest('[data-section-slot]')?.dataset?.sectionSlot;
     _pd.toIdx = parseInt(chip.dataset.di);
     chip.classList.add('rs-chip--drag-over');
   }
@@ -2458,18 +2395,17 @@ function _pdMove(e) {
 
 function _pdEnd(e) {
   if (!_pd || e.pointerId !== _pd.pid) return;
-  const el = _pd.el;
-  el.removeEventListener('pointermove', _pdMove);
-  el.removeEventListener('pointerup',   _pdEnd);
-  el.removeEventListener('pointercancel', _pdEnd);
+  document.removeEventListener('pointermove',   _pdMove);
+  document.removeEventListener('pointerup',     _pdEnd);
+  document.removeEventListener('pointercancel', _pdEnd);
   document.querySelectorAll('[data-di]').forEach(c => c.classList.remove('rs-chip--drag-over'));
   if (_pd.cl) _pd.cl.remove();
   const { slot, idx, toIdx, type, moved } = _pd;
+  const el = _pd.el;
   _pd = null;
   el.style.opacity = '';
   el.style.visibility = '';
   if (!moved || idx === toIdx) {
-    // touch에서 setPointerCapture가 click 억제 시 직접 dispatch (detached 요소 방어)
     if (e.pointerType !== 'mouse') {
       setTimeout(() => { if (document.contains(el)) el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); }, 0);
     }
@@ -2521,13 +2457,30 @@ function _reorderItems(slot, from, to, type) {
     setActiveProducts(slot, prods);
     persistPlan(false);
     renderGrid(slot);
+  } else if (type === 'ct') {
+    const section = slot === 'ct-tip' ? 'tip' : 'main';
+    const target = section === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
+    const [m] = target.splice(from, 1);
+    target.splice(to, 0, m);
+    renderCtChips();
+  } else if (type === 'se-tip') {
+    // se-panel TIP 섹션 tipItems 재정렬
+    const actualSlot = slot.replace(/-tip$/, '');
+    const r = seGetActiveRoutine(actualSlot);
+    if (r) {
+      if (!r.tipItems) r.tipItems = [];
+      const [m] = r.tipItems.splice(from, 1);
+      r.tipItems.splice(to, 0, m);
+    }
+    seRenderTipChips(actualSlot);
   } else {
+    // se-panel 메인 products 재정렬
     const r = seGetActiveRoutine(slot);
     if (r) {
       const [m] = r.products.splice(from, 1);
       r.products.splice(to, 0, m);
     }
-    renderSeBody();
+    seRenderChips(slot);
   }
 }
 
@@ -2654,22 +2607,40 @@ function renderRoutineSessionList() {
   }
 
   const fmt = d => (d || '').replace(/-/g, '.');
-  const nameGrid = prods => `<div class="sd-name-grid">${prods.map(p=>`<div class="sd-name-bar">${CAT[p.catKey]?.icon||'✦'} ${p.name||''}</div>`).join('')}</div>`;
-  const slotSection = (icon, label, d1, d2) => {
-    const p1 = d1.filter(i => (i.type||'product') === 'product');
-    const p2 = d2.filter(i => (i.type||'product') === 'product');
-    if (!p1.length && !p2.length) return '';
-    const hasDay2 = p2.length > 0;
-    const cnt = p1.length + p2.length;
+  const slotSection = (icon, label, slotData) => {
+    const routines = slotData?.routines || [];
+    // 제품이 있는 DAY만 수집
+    const days = routines.map(r => {
+      const prods    = (r.products  || []).filter(i => (i.type||'product') === 'product');
+      const tipProds = (r.tipItems  || []).filter(i => (i.type||'product') === 'product');
+      return { id: r.id, prods, tipProds };
+    }).filter(d => d.prods.length > 0);
+    if (!days.length) return '';
+
+    const totalSteps = days.reduce((sum, d) => sum + d.prods.length, 0);
+    const multiDay   = days.length > 1;
+
+    const dayColHtml = (d, idx) => `<div class="sd-day-col" style="${idx > 0 ? 'border-left:1px solid #0c0c0a;' : ''}">
+      ${multiDay ? `<span class="sd-day-col-label">DAY ${d.id}</span>` : ''}
+      <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:6px">${d.prods.length} STEPS</div>
+      ${d.prods.map(p => `<div class="sd-prod-name">${p.name||''}</div>`).join('')}
+      ${d.tipProds.length ? `<span class="sd-tip-divider">TIP</span>${d.tipProds.map(p=>`<div class="sd-prod-name">${p.name||''}</div>`).join('')}` : ''}
+    </div>`;
+
+    // 첫 2개 DAY → 좌우 2열, DAY 3 이상 → 별도 행
+    const firstRow  = days.slice(0, 2);
+    const extraRows = days.slice(2);
+    let daysHtml = `<div class="sd-days-row" style="grid-template-columns:repeat(${firstRow.length},1fr)">${firstRow.map((d, idx) => dayColHtml(d, idx)).join('')}</div>`;
+    extraRows.forEach(d => {
+      daysHtml += `<div class="sd-days-row" style="grid-template-columns:1fr">${dayColHtml(d, 0)}</div>`;
+    });
+
     return `<div class="sd-slot-section">
       <div class="sd-slot-hd">
-        <span class="sd-slot-icon">${icon}</span>
-        <span class="sd-slot-label">${label}</span>
-        <span class="sd-slot-cnt">${cnt} STEPS</span>
+        <span class="sd-slot-label">${icon} ${label}</span>
+        <span class="sd-slot-cnt">${totalSteps} STEPS</span>
       </div>
-      ${hasDay2 ? '<div><span class="ae-day-pill">DAY 1</span></div>' : ''}
-      ${p1.length ? nameGrid(p1) : ''}
-      ${hasDay2 && p2.length ? `<div><span class="ae-day-pill">DAY 2</span></div>${nameGrid(p2)}` : ''}
+      ${daysHtml}
     </div>`;
   };
 
@@ -2683,12 +2654,8 @@ function renderRoutineSessionList() {
     const nProds = (s.nightly?.routines || []).flatMap(r => (r.products||[]).filter(i=>(i.type||'product')==='product'));
     const tags = [...(mProds.length ? [`☀ ${mProds.length}`] : []), ...(nProds.length ? [`🌙 ${nProds.length}`] : [])];
     const tagsHtml = tags.map(t => `<span class="ae-tag">${t}</span>`).join('');
-    const mDay1 = s.morning?.routines?.find(r=>r.id===1)?.products||[];
-    const mDay2 = s.morning?.routines?.find(r=>r.id===2)?.products||[];
-    const nDay1 = s.nightly?.routines?.find(r=>r.id===1)?.products||[];
-    const nDay2 = s.nightly?.routines?.find(r=>r.id===2)?.products||[];
     const detailBody = (mProds.length || nProds.length)
-      ? slotSection('☀', 'MORNING', mDay1, mDay2) + slotSection('🌙', 'NIGHT', nDay1, nDay2)
+      ? slotSection('☀', 'MORNING', s.morning) + slotSection('🌙', 'NIGHT', s.nightly)
       : '<div class="ae-detail-empty">등록된 제품이 없습니다</div>';
 
     if (yr !== lastYear) {
@@ -2857,22 +2824,48 @@ function renderArchiveList(sessions) {
   const getYear = d => (d||'').slice(0,4) || '—';
   const CAT_LABEL = { toner:'토너', serum:'세럼', ampoule:'앰플', booster:'부스터', cream:'크림', pack:'팩', mist:'미스트', etc:'기타' };
 
-  const nameGrid = prods => {
-    const items = (prods||[]).filter(p => (p.type||'product') === 'product');
-    if (!items.length) return '';
-    return `<div class="ae-name-grid">${items.map(p => `<div class="ae-name-item">${p.name||''}</div>`).join('')}</div>`;
-  };
-
   const slotSection = (icon, label, routines) => {
-    const filled = (routines||[]).filter(r => (r.products||[]).some(p => (p.type||'product') === 'product'));
-    if (!filled.length) return '';
-    const multi = filled.length > 1;
-    const rows = filled.map((r, i) => {
-      const g = nameGrid(r.products);
-      return g ? (multi ? `<div><span class="ae-day-pill">DAY ${r.id||i+1}</span></div>` : '') + g : '';
-    }).filter(Boolean).join('');
-    if (!rows) return '';
-    return `<div class="ae-slot-hd"><span class="ae-slot-icon">${icon}</span><span class="ae-slot-label">${label}</span></div>${rows}`;
+    const days = (routines||[]).map((r, i) => {
+      const prods    = (r.products  ||[]).filter(p => (p.type||'product') === 'product');
+      const tipProds = (r.tipItems  ||[]).filter(p => (p.type||'product') === 'product');
+      return { id: r.id || i+1, prods, tipProds };
+    }).filter(d => d.prods.length > 0);
+    if (!days.length) return '';
+    const totalSteps = days.reduce((sum, d) => sum + d.prods.length, 0);
+    const multiDay   = days.length > 1;
+
+    const dayColHtml = (d, idx) => `<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;${idx === 0 ? 'padding-right:10px;' : 'padding-left:10px;'}">
+      ${multiDay ? `<span class="ae-day-pill">DAY ${d.id}</span>` : ''}
+      <div style="${idx > 0 ? 'border-left:1px solid #0c0c0a;padding-left:10px;margin-left:-10px;' : ''}display:flex;flex-direction:column;gap:4px;">
+        <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:2px;text-align:right">${d.prods.length} STEPS</div>
+        <div class="ae-name-grid" style="grid-template-columns:1fr">
+          ${d.prods.map(p => `<div class="ae-name-item">${p.name||''}</div>`).join('')}
+        </div>
+        ${d.tipProds.length ? `<div style="margin-top:6px;background:rgba(197,255,0,.10);border:1px solid rgba(197,255,0,.45);border-radius:var(--r-sm);padding:8px">
+          <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#4E7D00;margin-bottom:5px">TIP</div>
+          <div class="ae-name-grid" style="grid-template-columns:1fr">
+            ${d.tipProds.map(p => `<div class="ae-name-item">${p.name||''}</div>`).join('')}
+          </div>
+        </div>` : ''}
+      </div>
+    </div>`;
+
+    const firstRow  = days.slice(0, 2);
+    const extraRows = days.slice(2);
+    let daysHtml = `<div style="display:flex;gap:0;align-items:flex-start">${firstRow.map((d, idx) => dayColHtml(d, idx)).join('')}</div>`;
+    extraRows.forEach(d => {
+      daysHtml += `<div style="margin-top:8px">${dayColHtml(d)}</div>`;
+    });
+
+    return `
+      <div class="ae-slot-card" style="background:#fff;border:1px solid var(--border);border-radius:var(--r-md);padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);padding-bottom:6px">
+          <span style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--sub)">${icon} ${label}</span>
+          <span class="sd-slot-cnt" style="margin-left:auto">${totalSteps} STEPS</span>
+        </div>
+        ${daysHtml}
+      </div>
+    `;
   };
 
   let html = '';
@@ -2898,7 +2891,7 @@ function renderArchiveList(sessions) {
     const tagsHtml = tags.map(t => `<span class="ae-tag">${t}</span>`).join('');
 
     const detailBody = (mCnt || nCnt)
-      ? slotSection('☀️', 'MORNING', mRoutines) + slotSection('🌙', 'NIGHT', nRoutines)
+      ? slotSection('☀', 'MORNING', mRoutines) + slotSection('🌙', 'NIGHT', nRoutines)
       : '<div class="ae-detail-empty">등록된 제품이 없습니다</div>';
 
     html += `
@@ -3090,17 +3083,37 @@ async function saveRoutineMid(slot) {
 
 function seIntermediateSave(slot) {
   if (!_seEdit) return;
+  // 1) tip textarea 값 동기화
   ['morning','nightly'].forEach(s => {
     const tipEl = document.getElementById(`se-tip-${s}`);
     const routine = seGetActiveRoutine(s);
     if (tipEl && routine) routine.tip = tipEl.value;
   });
-  const numEl = document.getElementById('se-num');
+  // 2) 세션/일정 입력값 동기화
+  const numEl   = document.getElementById('se-num');
   const startEl = document.getElementById('se-start');
-  const endEl = document.getElementById('se-end');
-  if (numEl?.value)   _seEdit.data.session     = parseInt(numEl.value)  || _seEdit.data.session;
+  const endEl   = document.getElementById('se-end');
+  const mTimeEl = document.getElementById('se-morning-time');
+  const nTimeEl = document.getElementById('se-nightly-time');
+  if (numEl?.value)   _seEdit.data.session     = parseInt(numEl.value) || _seEdit.data.session;
   if (startEl?.value) _seEdit.data.periodStart = startEl.value;
   if (endEl?.value)   _seEdit.data.periodEnd   = endEl.value;
+  if (mTimeEl?.value) _seEdit.data.morningTime = mTimeEl.value;
+  if (nTimeEl?.value) _seEdit.data.nightlyTime = nTimeEl.value;
+  // 3) state 반영 + 실제 저장
+  if (_seEdit.isCurrent) {
+    state.session     = _seEdit.data.session;
+    state.periodStart = _seEdit.data.periodStart;
+    state.periodEnd   = _seEdit.data.periodEnd;
+    state.morningTime = _seEdit.data.morningTime;
+    state.nightlyTime = _seEdit.data.nightlyTime;
+    state.morning     = _seEdit.data.morning;
+    state.nightly     = _seEdit.data.nightly;
+  } else {
+    const idx = (state.history || []).findIndex(h => h.session === _seEdit.origN);
+    if (idx !== -1) state.history[idx] = _seEdit.data;
+  }
+  persistPlan(state.published || false);
   const label = slot === 'morning' ? 'MORNING' : 'NIGHT';
   showToast(`✓ ${label} 저장됐습니다`);
 }
@@ -3210,8 +3223,9 @@ let _seEdit = null;
 let _seActiveSlot = { morning: 1, nightly: 1 };
 let _seModalSlot = null;
 let _seModalRouteId = null;
+let _bpTargetProdId = null;
 
-function openSessionEditor(n) {
+function openSessionEditor(n, activeDay = null, activeSlot = null) {
   // se-body를 초기화하여 이전 세션의 입력값이 renderSeBody 재렌더 싱크에 오염되지 않도록 함
   const seBody = document.getElementById('se-body');
   if (seBody) seBody.innerHTML = '';
@@ -3234,11 +3248,20 @@ function openSessionEditor(n) {
     if (!_seEdit.data[slot].routines) _seEdit.data[slot].routines = [{id:1,products:[],tip:''}];
     if (!_seEdit.data[slot].routines[0]) _seEdit.data[slot].routines[0] = {id:1,products:[],tip:''};
     if (!_seEdit.data[slot].routines[0].products) _seEdit.data[slot].routines[0].products = [];
-    _seActiveSlot[slot] = _seEdit.data[slot].routines[0].id || 1;
+    // activeDay: today.html에서 넘어온 현재 Day 번호로 활성 탭 설정
+    const defaultId = _seEdit.data[slot].routines[0].id || 1;
+    _seActiveSlot[slot] = (activeSlot === slot && activeDay) ? activeDay : defaultId;
   });
   document.getElementById('se-panel-title').textContent = `${n}회차 편집`;
   renderSeBody();
-  document.getElementById('se-panel').classList.add('open');
+  
+  window.scrollTo(0, 0);
+  const panel = document.getElementById('se-panel');
+  if (panel) {
+    panel.scrollTop = 0;
+    panel.classList.add('open');
+  }
+  document.body.style.overflow = 'hidden';
 }
 
 function editSessionFromArchive(n, isCurrent) {
@@ -3248,6 +3271,7 @@ function editSessionFromArchive(n, isCurrent) {
 
 function closeSessionEditor() {
   document.getElementById('se-panel').classList.remove('open');
+  document.body.style.overflow = '';
   _seEdit = null;
   openArchive();
 }
@@ -3265,20 +3289,10 @@ function renderSeBody() {
   if (_e?.value)  _seEdit.data.periodEnd   = _e.value;
   if (_mt?.value) _seEdit.data.morningTime = _mt.value;
   if (_nt?.value) _seEdit.data.nightlyTime = _nt.value;
+  // Note: EXPERT TIP 보존은 sePickTab에서 탭 전환 전에 처리하므로 여기서는 생략
+  // (여기서 처리하면 _seActiveSlot이 이미 새 탭으로 변경된 후라 잘못된 루틴에 덮어쓰게 됨)
   const d = _seEdit.data;
   const CAT_LABEL = { toner:'토너',serum:'세럼',ampoule:'앰플',booster:'부스터',cream:'크림',pack:'팩',mist:'미스트',etc:'기타' };
-
-  const _seChipHtml = (slot, prods) => prods.map((item, idx) => {
-    const t = item.type || 'product';
-    const da = `data-di="${idx}" draggable="true" ondragstart="_mdStart(event,'${slot}',${idx},'se')" ondragover="_mdOver(event,'${slot}',${idx})" ondragend="_mdEnd(event)" ondrop="_mdDrop(event,'${slot}',${idx},'se')" onpointerdown="_pdStart(event,'${slot}',${idx},'se')"`;
-    if (t === 'plus') return `<div class="rs-chip rs-chip--plus" ${da}>+<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span></div>`;
-    if (t === 'minus') return `<div class="rs-chip rs-chip--minus" ${da}>-<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span></div>`;
-    if (t === 'desc') return `<div class="rs-chip rs-chip--desc" ${da}><div class="rs-chip-desc-text">${item.text||''}</div><span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span></div>`;
-    return `<div class="rs-chip rs-chip--prod" ${da}>
-      <div class="rs-chip-name">${item.name||''}</div>
-      <span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span>
-    </div>`;
-  }).join('');
 
   const slotBlock = (icon, label, slot) => {
     const routines = d[slot]?.routines || [];
@@ -3286,15 +3300,15 @@ function renderSeBody() {
     const activeRoutine = routines.find(r => r.id === activeId) || routines[0];
     const prods = activeRoutine?.products || [];
     const tip   = activeRoutine?.tip || '';
-    const chipHtml = _seChipHtml(slot, prods);
+    const chipHtml = '';
 
-    const tabsHtml = `<div style="display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+    const tabsHtml = `<div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
         ${routines.map(r =>
           `<button onclick="sePickTab('${slot}',${r.id})"
-            style="padding:5px ${routines.length>1?'10px':'14px'} 5px 14px;border-radius:9999px;border:1.5px solid ${r.id===activeId?'var(--ink)':'var(--border)'};background:${r.id===activeId?'var(--ink)':'transparent'};color:${r.id===activeId?'#fff':'var(--sub)'};font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;cursor:pointer;min-height:0;transition:all .15s;display:inline-flex;align-items:center;gap:5px">DAY ${r.id}${routines.length>1?`<span onclick="event.stopPropagation();seRemoveRoutineDay('${slot}',${r.id})" style="font-size:13px;line-height:1;opacity:.55;cursor:pointer">×</span>`:''}</button>`
+            style="padding:8px ${routines.length>1?'10px':'16px'} 8px 16px;border-radius:9999px;border:1.5px solid ${r.id===activeId?'var(--ink)':'var(--border)'};background:${r.id===activeId?'var(--ink)':'transparent'};color:${r.id===activeId?'#fff':'var(--sub)'};font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer;min-height:0;transition:all .15s;display:inline-flex;align-items:center;gap:8px">DAY ${r.id}${routines.length>1?`<span onclick="event.stopPropagation();seRemoveRoutineDay('${slot}',${r.id})" style="font-size:16px;line-height:1;opacity:.65;cursor:pointer;padding:0 4px">×</span>`:''}</button>`
         ).join('')}
         ${routines.length < 3 ? `<button onclick="seAddRoutineDay('${slot}')"
-          style="padding:5px 12px;border-radius:9999px;border:1.5px dashed var(--border);background:transparent;color:var(--mist);font-size:14px;cursor:pointer;min-height:0;line-height:1">+</button>` : ''}
+          style="padding:8px 16px;border-radius:9999px;border:1.5px dashed var(--border);background:transparent;color:var(--mist);font-size:16px;cursor:pointer;min-height:0;line-height:1">+</button>` : ''}
       </div>`;
 
     return `
@@ -3303,39 +3317,49 @@ function renderSeBody() {
         <div class="rs-hd-left"><span class="rs-name">${label.toUpperCase()}</span></div>
       </div>
       ${tabsHtml}
+
+      <!-- ── 아이템 매핑 섹션 ── -->
+      <div style="font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.04em;padding:0 0 6px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif">
+        — 아이템 매핑 <span style="font-size:11px;font-weight:400;color:var(--mist)">(BOX 뷰티)</span>
+      </div>
       <div id="se-chips-${slot}">
-        ${chipHtml ? `<div class="rs-chip-list" ondragover="event.preventDefault()">${chipHtml}</div>` : ''}
         <div class="rs-act-row">
-          <button class="rs-act-btn" onclick="seRsOpenSearch('${slot}')">+ 제품</button>
-          <button class="rs-act-btn" onclick="seRsOpenDesc('${slot}')">+ 설명</button>
+          <button class="rs-act-btn rs-act-btn--prod" onclick="seRsOpenSearch('${slot}')">+ 제품</button>
+          <button class="rs-act-btn rs-act-btn--desc" onclick="seRsOpenDesc('${slot}')">+ 설명</button>
+          <button class="rs-act-btn rs-act-btn--tip" onclick="seRsOpenTip('${slot}')">+ TIP</button>
           <button class="rs-act-btn rs-act-btn--plus" onclick="seRsAddPlus('${slot}')">+</button>
-          <button class="rs-act-btn rs-act-btn--minus" onclick="seRsAddMinus('${slot}')">-</button>
-        </div>
-        <div class="rs-desc-row" id="se-desc-row-${slot}" style="display:none">
-          <input class="rs-desc-inp" id="se-desc-inp-${slot}" type="text" placeholder="설명 텍스트 입력..."
-            onkeydown="if(event.key==='Enter')seRsConfirmDesc('${slot}');else if(event.key==='Escape')seRsCancelDesc('${slot}')">
-          <button class="rs-desc-ok" onclick="seRsConfirmDesc('${slot}')">추가</button>
-          <button class="rs-desc-cancel" onclick="seRsCancelDesc('${slot}')">✕</button>
+          <button class="rs-act-btn rs-act-btn--minus" onclick="seRsAddMinus('${slot}')">→</button>
         </div>
       </div>
-      <div class="rs-inline-search" id="se-rs-search-${slot}" style="margin-top:8px">
-        <div class="rs-search-row">
-          <input class="rs-search-inp" id="se-rs-inp-${slot}" type="text" placeholder="제품명 · 브랜드 검색..."
-            oninput="seRsRenderResults('${slot}',this.value)">
-          <span class="rs-search-close" onclick="seRsCloseSearch('${slot}')">✕</span>
-        </div>
-        <div class="rs-search-results" id="se-rs-results-${slot}">
-          <div class="rs-search-placeholder">BOX에서 제품을 검색하세요</div>
+
+      <!-- ── TIP 섹션 ── -->
+      <div style="font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.04em;padding:14px 0 6px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;border-top:1px solid rgba(0,0,0,.05);margin-top:10px">
+        — TIP <span style="font-size:11px;font-weight:400;color:var(--mist)">(내용 있을 때만 Today 표시)</span>
+      </div>
+      <div id="se-tip-chips-${slot}">
+        <div class="rs-act-row">
+          <button class="rs-act-btn rs-act-btn--prod" onclick="seRsOpenTipSearch('${slot}')">+ 제품</button>
+          <button class="rs-act-btn rs-act-btn--desc" onclick="seRsOpenTipDesc('${slot}')">+ 설명</button>
+          <button class="rs-act-btn rs-act-btn--tip" onclick="seRsOpenTipTip('${slot}')">+ TIP</button>
+          <button class="rs-act-btn rs-act-btn--plus" onclick="seRsAddTipPlus('${slot}')">+</button>
+          <button class="rs-act-btn rs-act-btn--minus" onclick="seRsAddTipMinus('${slot}')">→</button>
         </div>
       </div>
-      <div class="tip-card" style="margin-top:12px">
-        <div class="tip-card-hd">
+
+      <!-- ── EXPERT TIP ── -->
+      <div class="tip-card" style="margin-top:12px;position:relative" id="se-tip-card-container-${slot}">
+        <div class="tip-card-hd" style="display:flex;align-items:center;gap:6px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.08em;color:#4E7D00">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
           EXPERT TIP
         </div>
-        <textarea class="tip-card-input" id="se-tip-${slot}" rows="2" placeholder=""
-          oninput="seUpdateTip('${slot}',this.value)">${tip}</textarea>
+        <textarea class="tip-card-input" id="se-tip-${slot}" rows="2" placeholder="루틴에 관한 전용 팁 설명 입력..."
+          oninput="seUpdateTip('${slot}',this.value)"
+          onblur="seCloseTipInput('${slot}')"
+          style="margin-top:4px;display:none;width:100%;box-sizing:border-box">${tip}</textarea>
+        <div class="tip-card-display" id="se-tip-display-${slot}" onclick="seOpenTipInput('${slot}')"
+          style="margin-top:4px;min-height:36px;padding:8px 10px;background:rgba(197,255,0,0.04);border:1.5px solid rgba(132,176,0,0.25);border-radius:var(--r-sm);font-size:13px;color:var(--sub);line-height:1.65;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;text-align:left;white-space:pre-wrap;cursor:pointer"></div>
       </div>
+
       <button class="routine-mid-save" onclick="seIntermediateSave('${slot}')" style="margin-top:8px">✓ ${slot === 'morning' ? 'MORNING' : 'NIGHT'} 저장</button>
     </div>`;
   };
@@ -3372,19 +3396,36 @@ function renderSeBody() {
       </div>
       ${slotBlock('☀️','MORNING','morning')}
       ${slotBlock('🌙','NIGHT','nightly')}
-      <div style="padding:24px 16px 40px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button class="publish-btn" onclick="saveSessionEditor()" style="background:var(--lime);color:var(--lime-fg);letter-spacing:.06em;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;height:52px">SAVE ROUTINE →</button>
-        <button class="ae-detail-del-btn" onclick="deleteSeSession()" style="height:52px;padding:0;margin:0">세션 삭제</button>
-      </div>
+      <div style="padding:12px 0 16px"></div>
     </div>`;
+  seRenderChips('morning');
+  seRenderChips('nightly');
+  seRenderTipChips('morning');
+  seRenderTipChips('nightly');
+  try {
+    const d = _seEdit.data;
+    const mActive = _seActiveSlot['morning'] || d['morning']?.routines[0]?.id || 1;
+    const mRoutine = d['morning']?.routines.find(r => r.id === mActive);
+    seRenderTipPreview('morning', mRoutine?.tip || '');
+    
+    const nActive = _seActiveSlot['nightly'] || d['nightly']?.routines[0]?.id || 1;
+    const nRoutine = d['nightly']?.routines.find(r => r.id === nActive);
+    seRenderTipPreview('nightly', nRoutine?.tip || '');
+  } catch(_) {}
 }
 
 function seAddRoutineDay(slot) {
   if (!_seEdit) return;
+  // 탭 전환 전 현재 tip 저장
+  const tipElBefore = document.getElementById(`se-tip-${slot}`);
+  if (tipElBefore) {
+    const cur = seGetActiveRoutine(slot);
+    if (cur) cur.tip = tipElBefore.value;
+  }
   const routines = _seEdit.data[slot]?.routines || [];
   if (routines.length >= 3) return;
   const newId = Math.max(...routines.map(r => r.id), 0) + 1;
-  routines.push({ id: newId, products: [], tip: '' });
+  routines.push({ id: newId, products: [], tipItems: [], tip: '' });
   _seEdit.data[slot].routines = routines;
   _seActiveSlot[slot] = newId;
   renderSeBody();
@@ -3392,6 +3433,13 @@ function seAddRoutineDay(slot) {
 
 function seRemoveRoutineDay(slot, id) {
   if (!_seEdit) return;
+  if (!confirm(`DAY ${id} 일정을 삭제하시겠습니까?`)) return;
+  // 탭 전환 전 현재 tip 저장
+  const tipElBefore = document.getElementById(`se-tip-${slot}`);
+  if (tipElBefore) {
+    const cur = seGetActiveRoutine(slot);
+    if (cur) cur.tip = tipElBefore.value;
+  }
   const routines = _seEdit.data[slot]?.routines || [];
   if (routines.length <= 1) return;
   _seEdit.data[slot].routines = routines.filter(r => r.id !== id);
@@ -3402,6 +3450,12 @@ function seRemoveRoutineDay(slot, id) {
 }
 
 function sePickTab(slot, id) {
+  // 탭 전환 전에 현재 활성 루틴의 tip 값 저장 (전환 후 renderSeBody에서 잘못된 루틴에 덮어쓰는 것 방지)
+  const tipElBefore = document.getElementById(`se-tip-${slot}`);
+  if (tipElBefore) {
+    const oldRoutine = seGetActiveRoutine(slot);
+    if (oldRoutine) oldRoutine.tip = tipElBefore.value;
+  }
   _seActiveSlot[slot] = id;
   renderSeBody();
 }
@@ -3416,13 +3470,15 @@ function seGetActiveRoutine(slot) {
 function seRenderChips(slot) {
   if (!_seEdit) return;
   const routine = seGetActiveRoutine(slot);
-  const prods = routine?.products || [];
+  const prods = (routine?.products || []).filter(p => p.name || p.type);
   const chipHtml = prods.map((item, idx) => {
     const t = item.type || 'product';
     const da = `data-di="${idx}" draggable="true" ondragstart="_mdStart(event,'${slot}',${idx},'se')" ondragover="_mdOver(event,'${slot}',${idx})" ondragend="_mdEnd(event)" ondrop="_mdDrop(event,'${slot}',${idx},'se')" onpointerdown="_pdStart(event,'${slot}',${idx},'se')"`;
     if (t === 'plus') return `<div class="rs-chip rs-chip--plus" ${da}>+<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span></div>`;
-    if (t === 'minus') return `<div class="rs-chip rs-chip--minus" ${da}>-<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span></div>`;
+    if (t === 'minus') return `<div class="rs-chip rs-chip--minus" ${da}>→<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span></div>`;
     if (t === 'desc') return `<div class="rs-chip rs-chip--desc" ${da}><div class="rs-chip-desc-text">${item.text||''}</div><span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span></div>`;
+    if (t === 'tip') return `<div class="rs-chip rs-chip--tip" ${da}><div class="rs-chip-tip-text">${item.text||''}</div><span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span></div>`;
+    
     return `<div class="rs-chip rs-chip--prod" ${da} onclick="openBpForReplace('${slot}',${item.id})">
       <div class="rs-chip-name">${item.name||''}</div>
       <span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveItem('${slot}',${idx})">✕</span>
@@ -3433,17 +3489,199 @@ function seRenderChips(slot) {
   el.innerHTML = `
     ${chipHtml ? `<div class="rs-chip-list" ondragover="event.preventDefault()">${chipHtml}</div>` : ''}
     <div class="rs-act-row">
-      <button class="rs-act-btn" onclick="seRsOpenSearch('${slot}')">+ 제품</button>
-      <button class="rs-act-btn" onclick="seRsOpenDesc('${slot}')">+ 설명</button>
+      <button class="rs-act-btn rs-act-btn--prod" onclick="seRsOpenSearch('${slot}')">+ 제품</button>
+      <button class="rs-act-btn rs-act-btn--desc" onclick="seRsOpenDesc('${slot}')">+ 설명</button>
+      <button class="rs-act-btn rs-act-btn--tip" onclick="seRsOpenTip('${slot}')">+ TIP</button>
       <button class="rs-act-btn rs-act-btn--plus" onclick="seRsAddPlus('${slot}')">+</button>
-      <button class="rs-act-btn rs-act-btn--minus" onclick="seRsAddMinus('${slot}')">-</button>
+      <button class="rs-act-btn rs-act-btn--minus" onclick="seRsAddMinus('${slot}')">→</button>
     </div>
-    <div class="rs-desc-row" id="se-desc-row-${slot}" style="display:none">
+    <div class="rs-desc-row" id="se-desc-row-${slot}" style="display:none;margin-top:8px">
       <input class="rs-desc-inp" id="se-desc-inp-${slot}" type="text" placeholder="설명 텍스트 입력..."
-        onkeydown="if(event.key==='Enter')seRsConfirmDesc('${slot}');else if(event.key==='Escape')seRsCancelDesc('${slot}')">
-      <button class="rs-desc-ok" onclick="seRsConfirmDesc('${slot}')">추가</button>
-      <button class="rs-desc-cancel" onclick="seRsCancelDesc('${slot}')">✕</button>
+        onkeydown="if(event.key==='Enter')seRsConfirmDesc('${slot}');else if(event.key==='Escape')seRsCancelDesc('${slot}')"
+        style="flex:1;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px 10px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;color:var(--ink);background:#fff;outline:none">
+      <button class="rs-desc-ok" onclick="seRsConfirmDesc('${slot}')" style="padding:8px 14px;border:none;border-radius:var(--r-sm);background:var(--ink);color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
+      <button class="rs-desc-cancel" onclick="seRsCancelDesc('${slot}')" style="padding:8px;border:none;background:transparent;color:var(--mist);font-size:16px;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <div class="rs-tip-row" id="se-tip-row-${slot}" style="display:none;margin-top:8px">
+      <input class="rs-tip-inp" id="se-tip-inp-${slot}" type="text" placeholder="팁 텍스트 입력..."
+        onkeydown="if(event.key==='Enter')seRsConfirmTip('${slot}');else if(event.key==='Escape')seRsCancelTip('${slot}')"
+        style="flex:1;border:1.5px solid rgba(132, 176, 0, 0.3);border-radius:var(--r-sm);padding:8px 10px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;color:#4E7D00;background:rgba(197,255,0,0.04);outline:none">
+      <button class="rs-tip-ok" onclick="seRsConfirmTip('${slot}')" style="padding:8px 14px;border:none;border-radius:var(--r-sm);background:#84B000;color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
+      <button class="rs-tip-cancel" onclick="seRsCancelTip('${slot}')" style="padding:8px;border:none;background:transparent;color:var(--mist);font-size:16px;cursor:pointer;line-height:1">✕</button>
     </div>`;
+  try {
+    const tipVal = routine?.tip || '';
+    seRenderTipPreview(slot, tipVal);
+  } catch(_) {}
+}
+
+// ── TIP 섹션 렌더링 (tipItems 배열) ─────────────────────────────
+function seRenderTipChips(slot) {
+  if (!_seEdit) return;
+  const routine = seGetActiveRoutine(slot);
+  const tipItems = (routine?.tipItems || []).filter(p => p.name || p.type);
+  const tipSlot = `${slot}-tip`; // 메인 섹션과 슬롯 구분
+  const chipHtml = tipItems.map((item, idx) => {
+    const t = item.type || 'product';
+    const da = `data-di="${idx}" draggable="true" ondragstart="_mdStart(event,'${tipSlot}',${idx},'se-tip')" ondragover="_mdOver(event,'${tipSlot}',${idx})" ondragend="_mdEnd(event)" ondrop="_mdDrop(event,'${tipSlot}',${idx},'se-tip')" onpointerdown="_pdStart(event,'${tipSlot}',${idx},'se-tip')"`;
+    if (t === 'plus') return `<div class="rs-chip rs-chip--plus" ${da}>+<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveTipItem('${slot}',${idx})">✕</span></div>`;
+    if (t === 'minus') return `<div class="rs-chip rs-chip--minus" ${da}>→<span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveTipItem('${slot}',${idx})">✕</span></div>`;
+    if (t === 'desc') return `<div class="rs-chip rs-chip--desc" ${da}><div class="rs-chip-desc-text">${item.text||''}</div><span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveTipItem('${slot}',${idx})">✕</span></div>`;
+    if (t === 'tip') return `<div class="rs-chip rs-chip--tip" ${da}><div class="rs-chip-tip-text">${item.text||''}</div><span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveTipItem('${slot}',${idx})">✕</span></div>`;
+    return `<div class="rs-chip rs-chip--prod" ${da}>
+      <div class="rs-chip-name">${item.name||''}</div>
+      <span class="rs-chip-del" onclick="event.stopPropagation();seRsRemoveTipItem('${slot}',${idx})">✕</span>
+    </div>`;
+  }).join('');
+  const el = document.getElementById(`se-tip-chips-${slot}`);
+  if (!el) return;
+  el.innerHTML = `
+    ${chipHtml ? `<div class="rs-chip-list" ondragover="event.preventDefault()">${chipHtml}</div>` : ''}
+    <div class="rs-act-row">
+      <button class="rs-act-btn rs-act-btn--prod" onclick="seRsOpenTipSearch('${slot}')">+ 제품</button>
+      <button class="rs-act-btn rs-act-btn--desc" onclick="seRsOpenTipDesc('${slot}')">+ 설명</button>
+      <button class="rs-act-btn rs-act-btn--tip" onclick="seRsOpenTipTip('${slot}')">+ TIP</button>
+      <button class="rs-act-btn rs-act-btn--plus" onclick="seRsAddTipPlus('${slot}')">+</button>
+      <button class="rs-act-btn rs-act-btn--minus" onclick="seRsAddTipMinus('${slot}')">→</button>
+    </div>
+    <div class="rs-desc-row" id="se-tip-desc-row-${slot}" style="display:none;margin-top:8px">
+      <input class="rs-desc-inp" id="se-tip-desc-inp-${slot}" type="text" placeholder="설명 텍스트 입력..."
+        onkeydown="if(event.key==='Enter')seRsConfirmTipDesc('${slot}');else if(event.key==='Escape')seRsCancelTipDesc('${slot}')"
+        style="flex:1;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px 10px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;color:var(--ink);background:#fff;outline:none">
+      <button onclick="seRsConfirmTipDesc('${slot}')" style="padding:8px 14px;border:none;border-radius:var(--r-sm);background:var(--ink);color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
+      <button onclick="seRsCancelTipDesc('${slot}')" style="padding:8px;border:none;background:transparent;color:var(--mist);font-size:16px;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <div class="rs-tip-row" id="se-tip-tip-row-${slot}" style="display:none;margin-top:8px">
+      <input class="rs-tip-inp" id="se-tip-tip-inp-${slot}" type="text" placeholder="팁 텍스트 입력..."
+        onkeydown="if(event.key==='Enter')seRsConfirmTipTip('${slot}');else if(event.key==='Escape')seRsCancelTipTip('${slot}')"
+        style="flex:1;border:1.5px solid rgba(132,176,0,0.3);border-radius:var(--r-sm);padding:8px 10px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;color:#4E7D00;background:rgba(197,255,0,0.04);outline:none">
+      <button onclick="seRsConfirmTipTip('${slot}')" style="padding:8px 14px;border:none;border-radius:var(--r-sm);background:#84B000;color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">추가</button>
+      <button onclick="seRsCancelTipTip('${slot}')" style="padding:8px;border:none;background:transparent;color:var(--mist);font-size:16px;cursor:pointer;line-height:1">✕</button>
+    </div>`;
+}
+
+// TIP 섹션 핸들러
+function seRsOpenTipSearch(slot) {
+  if (!_seEdit) return;
+  _sePanelFromBp = true;
+  document.getElementById('se-panel').classList.remove('open');
+  _bpContext   = 'routine-tip';
+  _bpSeSlot    = slot;
+  _bpSeRouteId = _seActiveSlot[slot] || 1;
+  bpSelectedId = null; bpSelectedIds.clear();
+  _bpExpanded = false; _bpDomain = 'beauty'; _bpSubcat = 'all';
+  const inp = document.getElementById('bp-search-inp');
+  if (inp) inp.value = '';
+  ['beauty','fashion','acc'].forEach(x => document.getElementById('bpd-'+x)?.classList.toggle('active', x==='beauty'));
+  _renderBpSubcats(); renderBpList(''); updateBpConfirm();
+  document.getElementById('bp-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('bp-search-inp')?.focus(), 300);
+}
+function seRsOpenTipDesc(slot) {
+  const row = document.getElementById(`se-tip-desc-row-${slot}`);
+  const inp = document.getElementById(`se-tip-desc-inp-${slot}`);
+  if (!row) return;
+  row.style.display = 'flex';
+  setTimeout(() => inp?.focus(), 50);
+}
+function seRsCancelTipDesc(slot) {
+  const row = document.getElementById(`se-tip-desc-row-${slot}`);
+  const inp = document.getElementById(`se-tip-desc-inp-${slot}`);
+  if (row) row.style.display = 'none';
+  if (inp) inp.value = '';
+}
+function seRsConfirmTipDesc(slot) {
+  const inp = document.getElementById(`se-tip-desc-inp-${slot}`);
+  const text = (inp?.value || '').trim();
+  if (!text) { seRsCancelTipDesc(slot); return; }
+  const routine = seGetActiveRoutine(slot);
+  if (!routine) return;
+  if (!routine.tipItems) routine.tipItems = [];
+  routine.tipItems.push({ type: 'desc', text, id: Date.now() });
+  seRenderTipChips(slot);
+  seRsCancelTipDesc(slot);
+}
+function seRsOpenTipTip(slot) {
+  const row = document.getElementById(`se-tip-tip-row-${slot}`);
+  const inp = document.getElementById(`se-tip-tip-inp-${slot}`);
+  if (!row) return;
+  row.style.display = 'flex';
+  setTimeout(() => inp?.focus(), 50);
+}
+function seRsCancelTipTip(slot) {
+  const row = document.getElementById(`se-tip-tip-row-${slot}`);
+  const inp = document.getElementById(`se-tip-tip-inp-${slot}`);
+  if (row) row.style.display = 'none';
+  if (inp) inp.value = '';
+}
+function seRsConfirmTipTip(slot) {
+  const inp = document.getElementById(`se-tip-tip-inp-${slot}`);
+  const text = (inp?.value || '').trim();
+  if (!text) { seRsCancelTipTip(slot); return; }
+  const routine = seGetActiveRoutine(slot);
+  if (!routine) return;
+  if (!routine.tipItems) routine.tipItems = [];
+  routine.tipItems.push({ type: 'tip', text, id: Date.now() });
+  seRenderTipChips(slot);
+  seRsCancelTipTip(slot);
+}
+function seRsAddTipPlus(slot) {
+  const routine = seGetActiveRoutine(slot);
+  if (!routine) return;
+  if (!routine.tipItems) routine.tipItems = [];
+  routine.tipItems.push({ type: 'plus', id: Date.now() });
+  seRenderTipChips(slot);
+}
+function seRsAddTipMinus(slot) {
+  const routine = seGetActiveRoutine(slot);
+  if (!routine) return;
+  if (!routine.tipItems) routine.tipItems = [];
+  routine.tipItems.push({ type: 'minus', id: Date.now() });
+  seRenderTipChips(slot);
+}
+function seRsRemoveTipItem(slot, idx) {
+  const routine = seGetActiveRoutine(slot);
+  if (!routine || !routine.tipItems) return;
+  routine.tipItems.splice(idx, 1);
+  seRenderTipChips(slot);
+}
+
+function seOpenAddTipProduct(slot, itemId) {
+  if (!_seEdit) return;
+  _sePanelFromBp = true;
+  _bpTargetProdId = itemId;
+  document.getElementById('se-panel').classList.remove('open');
+  
+  _bpContext   = 'se-add-tip';
+  _bpSeSlot    = slot;
+  _bpSeRouteId = _seActiveSlot[slot] || 1;
+  bpSelectedId = null;
+  bpSelectedIds.clear();
+  _bpExpanded  = false;
+  _bpDomain    = 'beauty';
+  _bpSubcat    = 'all';
+  
+  const inp = document.getElementById('bp-search-inp');
+  if (inp) inp.value = '';
+  ['beauty','fashion','acc'].forEach(x => document.getElementById('bpd-'+x)?.classList.toggle('active', x==='beauty'));
+  _renderBpSubcats();
+  renderBpList('');
+  updateBpConfirm();
+  document.getElementById('bp-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('bp-search-inp')?.focus(), 300);
+}
+
+function seRemoveLinkedTip(slot, itemId) {
+  if (!_seEdit) return;
+  const routine = seGetActiveRoutine(slot);
+  if (routine) {
+    const prod = routine.products.find(p => String(p.id) === String(itemId));
+    if (prod) {
+      delete prod.tipProductId;
+      delete prod.tipProductName;
+      seRenderChips(slot);
+    }
+  }
 }
 
 let _sePanelFromBp = false;
@@ -3546,6 +3784,29 @@ function seRsConfirmDesc(slot) {
   seRenderChips(slot);
   seRsCancelDesc(slot);
 }
+function seRsOpenTip(slot) {
+  const row = document.getElementById(`se-tip-row-${slot}`);
+  const inp = document.getElementById(`se-tip-inp-${slot}`);
+  if (!row) return;
+  row.style.display = 'flex';
+  setTimeout(() => inp?.focus(), 50);
+}
+function seRsCancelTip(slot) {
+  const row = document.getElementById(`se-tip-row-${slot}`);
+  const inp = document.getElementById(`se-tip-inp-${slot}`);
+  if (row) row.style.display = 'none';
+  if (inp) inp.value = '';
+}
+function seRsConfirmTip(slot) {
+  const inp = document.getElementById(`se-tip-inp-${slot}`);
+  const text = (inp?.value || '').trim();
+  if (!text) { seRsCancelTip(slot); return; }
+  const routine = seGetActiveRoutine(slot);
+  if (!routine) return;
+  routine.products.push({ type: 'tip', text, id: Date.now() });
+  seRenderChips(slot);
+  seRsCancelTip(slot);
+}
 function seRsAddPlus(slot) {
   const routine = seGetActiveRoutine(slot);
   if (!routine) return;
@@ -3561,6 +3822,62 @@ function seRsAddMinus(slot) {
 function seUpdateTip(slot, value) {
   const routine = seGetActiveRoutine(slot);
   if (routine) routine.tip = value;
+  seRenderTipPreview(slot, value);
+}
+
+function seOpenTipInput(slot) {
+  const inp  = document.getElementById(`se-tip-${slot}`);
+  const disp = document.getElementById(`se-tip-display-${slot}`);
+  if (!inp || !disp) return;
+  if (inp.style.display !== 'none') return; // 이미 열려 있음
+  inp.style.display = 'block';
+  // display는 숨기지 않고 아래에서 PREVIEW로 유지
+  seRenderTipPreview(slot, inp.value);
+  inp.focus();
+}
+
+function seCloseTipInput(slot) {
+  const inp  = document.getElementById(`se-tip-${slot}`);
+  const disp = document.getElementById(`se-tip-display-${slot}`);
+  if (!inp || !disp) return;
+  inp.style.display = 'none';
+  seRenderTipPreview(slot, inp.value);
+}
+
+function seRenderTipPreview(slot, val) {
+  const disp = document.getElementById(`se-tip-display-${slot}`);
+  const inp  = document.getElementById(`se-tip-${slot}`);
+  if (!disp) return;
+  const isEditing = inp && inp.style.display !== 'none';
+  if (!val || !val.trim()) {
+    disp.innerHTML = isEditing
+      ? '' // textarea가 placeholder 역할
+      : `<span style="color:var(--mist)">루틴에 관한 전용 팁 설명 입력... (탭하여 입력)</span>`;
+    return;
+  }
+  // ── 하이라이트할 제품명 수집 ──
+  const nameSet = new Set();
+  // 1) 현재 루틴 제품
+  const routine = seGetActiveRoutine(slot);
+  (routine?.products || []).filter(p => !p.type || p.type === 'product')
+    .forEach(p => { if (p.name) nameSet.add(p.name.trim()); });
+  // 2) 전체 BOX 자산 (올바른 키: onstep_box_assets)
+  try {
+    JSON.parse(localStorage.getItem('onstep_box_assets') || '[]')
+      .forEach(a => { if (a.name) nameSet.add(a.name.trim()); });
+  } catch(_) {}
+  // ── HTML 이스케이프 후 하이라이팅 ──
+  let html = val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  [...nameSet].filter(Boolean).sort((a,b) => b.length - a.length).forEach(name => {
+    const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    html = html.replace(new RegExp(esc, 'gi'), m =>
+      `<mark style="background:rgba(197,255,0,0.35);color:#3a5a00;border-radius:3px;padding:0 2px">${m}</mark>`);
+  });
+  html = html.replace(/\n/g, '<br>');
+  const prefix = isEditing
+    ? `<div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mist);margin-bottom:4px;text-transform:uppercase">↳ Preview</div>`
+    : '';
+  disp.innerHTML = prefix + html;
 }
 
 function openRoutineEditSearch(slot) {
@@ -4037,7 +4354,7 @@ function renderBpList(q) {
   if (!filtered.length) {
     const domainLabel = { beauty:'뷰티', fashion:'패션', acc:'악세서리' };
     const qTrim = q.trim();
-    const registerRow = (_bpContext === 'routine' || _bpContext === 'ct' || _bpContext === 'replace') && qTrim
+    const registerRow = (_bpContext === 'routine' || _bpContext === 'routine-tip' || _bpContext === 'ct' || _bpContext === 'replace') && qTrim
       ? `<div class="bp-item" style="cursor:pointer" onclick="bpRegisterAndAdd('${qTrim.replace(/'/g,"\\'").replace(/</g,'&lt;')}')">
           <div class="bp-item-img" style="background:var(--surface-low);font-size:20px;display:flex;align-items:center;justify-content:center;color:var(--mist)">+</div>
           <div class="bp-item-info">
@@ -4052,7 +4369,7 @@ function renderBpList(q) {
   const showAll = _bpExpanded || !!q.trim();
   const visible = showAll ? filtered : filtered.slice(0, 12);
   const rows = visible.map(a => {
-    const isSel = _bpContext === 'routine' ? bpSelectedIds.has(a.id) : bpSelectedId === a.id;
+    const isSel = (_bpContext === 'routine' || _bpContext === 'routine-tip' || _bpContext === 'ct') ? bpSelectedIds.has(a.id) : bpSelectedId === a.id;
     const imgStyle = (a.imgData||a.storageUrl) ? `background-image:url(${a.imgData||a.storageUrl});background-size:100% auto;background-position:top center;background-repeat:no-repeat` : '';
     const icon = CAT[a.catKey]?.icon || '✨';
     const catLabel = (CAT[a.catKey]?.label || a.catKey || '').toUpperCase();
@@ -4074,7 +4391,7 @@ function renderBpList(q) {
 }
 
 function selectBpItem(id) {
-  if (_bpContext === 'routine') {
+  if (_bpContext === 'routine' || _bpContext === 'routine-tip' || _bpContext === 'ct') {
     if (bpSelectedIds.has(id)) {
       bpSelectedIds.delete(id);
     } else {
@@ -4090,7 +4407,7 @@ function selectBpItem(id) {
 function updateBpConfirm() {
   const btn = document.getElementById('bp-confirm');
   if (btn) {
-    const hasSel = _bpContext === 'routine' ? bpSelectedIds.size > 0 : !!bpSelectedId;
+    const hasSel = (_bpContext === 'routine' || _bpContext === 'routine-tip' || _bpContext === 'se-add-tip' || _bpContext === 'ct') ? bpSelectedIds.size > 0 : !!bpSelectedId;
     btn.classList.toggle('active', hasSel);
   }
 }
@@ -4098,13 +4415,50 @@ function updateBpConfirm() {
 function confirmBoxPanel() {
   const assets = JSON.parse(localStorage.getItem('onstep_box_assets') || '[]');
 
+  if (_bpContext === 'se-add-tip') {
+    if (bpSelectedIds.size === 0) return;
+    const slot = _bpSeSlot;
+    const routine = seGetActiveRoutine(slot);
+    if (routine && _bpTargetProdId) {
+      const firstSelId = Array.from(bpSelectedIds)[0];
+      const asset = assets.find(a => a.id === firstSelId);
+      if (asset) {
+        const prod = routine.products.find(p => String(p.id) === String(_bpTargetProdId));
+        if (prod) {
+          prod.tipProductId = asset.id;
+          prod.tipProductName = asset.name;
+        }
+      }
+    }
+    closeBoxPanel();
+    renderSeBody();
+    return;
+  }
+
   if (_bpContext === 'routine') {
     if (bpSelectedIds.size === 0) return;
     for (const assetId of bpSelectedIds) {
       const asset = assets.find(a => a.id === assetId);
-      if (asset) {
-        _addAssetToRoutine(asset);
-      }
+      if (asset) _addAssetToRoutine(asset);
+    }
+    closeBoxPanel();
+    return;
+  }
+
+  if (_bpContext === 'routine-tip') {
+    if (bpSelectedIds.size === 0) return;
+    for (const assetId of bpSelectedIds) {
+      const asset = assets.find(a => a.id === assetId);
+      if (asset) _addAssetToRoutineTip(asset);
+    }
+    closeBoxPanel();
+    return;
+  }
+
+  if (_bpContext === 'ct') {
+    if (bpSelectedIds.size === 0) return;
+    for (const assetId of bpSelectedIds) {
+      addCtItem(assetId);
     }
     closeBoxPanel();
     return;
@@ -4193,6 +4547,23 @@ function _addAssetToRoutine(asset) {
     persistPlan(false);
   }
   showToast(`${meta.icon} ${asset.name} 추가됨`);
+}
+
+function _addAssetToRoutineTip(asset) {
+  if (!_seEdit || !_bpSeSlot) return;
+  const routine = seGetActiveRoutine(_bpSeSlot);
+  if (!routine) return;
+  if (!routine.tipItems) routine.tipItems = [];
+  const meta = CAT[asset.catKey] || { icon:'✨' };
+  routine.tipItems.push({
+    type: 'product', id: Date.now() + Math.random(),
+    catKey: asset.catKey || 'skincare',
+    name: asset.name, brand: asset.brand || '',
+    icon: meta.icon, imgData: asset.imgData || null,
+    storageUrl: asset.storageUrl || null, assetId: asset.id
+  });
+  seRenderTipChips(_bpSeSlot);
+  showToast(`${meta.icon} ${asset.name} TIP 추가됨`);
 }
 
 function bpRegisterAndAdd(name) {
@@ -4618,55 +4989,157 @@ function saveNewTheme() {
   showToast(`"${name}" 테마 추가됨`);
 }
 
-// ── Care List (집중케어 패널) ─────────────────────────────────
+// ── Care List (집중케어 패널) — 회차일정관리 방식 목록화 ────────
 function renderCtCareList() {
   const el = document.getElementById('setup-care-list');
   if (!el) return;
-  const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]').sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko'));
+  const today = new Date().toISOString().slice(0,10);
+  const care  = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]').sort((a,b) => {
+    const aA = a.scheduledPeriod ? (a.scheduledPeriod.start <= today && today <= (a.scheduledPeriod.end||a.scheduledPeriod.start)) : false;
+    const bA = b.scheduledPeriod ? (b.scheduledPeriod.start <= today && today <= (b.scheduledPeriod.end||b.scheduledPeriod.start)) : false;
+    if (aA !== bA) return aA ? -1 : 1;
+    return (a.name||'').localeCompare(b.name||'','ko');
+  });
   const cntEl = document.getElementById('setup-care-count');
   if (cntEl) cntEl.textContent = care.length ? `${care.length}개 프로그램 등록됨` : '';
   if (!care.length) {
-    el.innerHTML = `<div style="padding:8px 0 4px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--mist);text-align:center">등록된 케어 프로그램이 없습니다</div>`;
+    el.innerHTML = `<div style="padding:40px 20px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--mist);text-align:center;line-height:1.8">등록된 케어 프로그램이 없습니다<br>위 버튼으로 새 집중케어를 추가하세요</div>`;
     return;
   }
-  const today = new Date().toISOString().slice(0,10);
+  const assets = getBoxAssets();
+
   el.innerHTML = care.map(t => {
-    const p = t.scheduledPeriod;
-    const isPublished = p ? (p.start <= today && today <= (p.end || p.start)) : false;
-    const dateChips = p
-      ? `<span class="ct-date-chip">${p.start ? p.start.slice(5).replace('-','/') : '—'} → ${p.end ? p.end.slice(5).replace('-','/') : '—'}</span>`
+    const p        = t.scheduledPeriod;
+    const isActive = p ? (p.start <= today && today <= (p.end || p.start)) : false;
+    const heroImg  = t.baselineImg || t.storageUrl || '';
+    const allItems = t.items || [];
+    const tipItems = t.tipItems || [];
+
+    // ── 컴팩트 행: 날짜 / 제품 수
+    const dateStr = p && p.start
+      ? `${p.start.slice(5).replace('-','/')} → ${(p.end||p.start).slice(5).replace('-','/')}`
+      : '기간 미설정';
+    const prodCount = allItems.filter(i => !i.type || i.type === 'product').length;
+    const tipCount  = tipItems.filter(i => !i.type || i.type === 'product').length;
+    const countTags = [
+      prodCount ? `<span class="ae-tag">${prodCount}개 제품</span>` : '',
+      tipCount  ? `<span class="ae-tag">TIP ${tipCount}</span>` : ''
+    ].filter(Boolean).join('');
+
+    // ── 히어로 (ae-detail 상단 full-bleed)
+    const heroSection = heroImg
+      ? `<div class="ct-care-hero" style="background-image:url(${heroImg});border-radius:0;height:80px;margin:-14px -16px 0">
+          <div class="ct-care-hero-overlay"></div>
+          <div class="ct-care-hero-name">${t.emoji ? t.emoji+' ' : ''}${t.name||''}</div>
+        </div>`
       : '';
-    const itemsHtml = (t.items||[]).slice(0, 8).map(p => {
-      if (p.type === 'plus') return `<div class="ct-card-item-plus">+</div>`;
-      if (p.type === 'minus') return `<div class="ct-card-item-minus">-</div>`;
-      if (p.type === 'desc') return `<div class="ct-card-item-desc">${p.text||''}</div>`;
-      const asset = getBoxAssets().find(a => a.id === p.assetId);
-      const imgSrc = asset?.imgData||asset?.storageUrl||p.imgData||p.storageUrl||'';
-      return `<div class="ct-card-item-wrap">
-        <div class="ct-card-item-img" style="${imgSrc?`background-image:url(${imgSrc})`:''}">${!imgSrc?'✦':''}</div>
-        <div class="ct-card-item-nm">${asset?.name||p.name||''}</div>
+
+    // ── 제품 row
+    const rowHtml = allItems.map(item => {
+      if (item.type === 'plus')  return `<div class="ct-care-tag-plus">+</div>`;
+      if (item.type === 'minus') return `<div class="ct-care-tag-minus">→</div>`;
+      if (item.type === 'tip')   return `<div class="ct-care-tag-tip">${item.text||'TIP'}</div>`;
+      if (item.type === 'desc')  return `<div class="ct-care-tag-desc">${item.text||''}</div>`;
+      const asset = assets.find(a => a.id === item.assetId);
+      const img   = asset?.imgData || asset?.storageUrl || item.imgData || item.storageUrl || '';
+      const name  = asset?.name || item.name || '';
+      const emoji = asset?.icon || item.icon || t.emoji || '✦';
+      return `<div class="ct-care-prod-item">
+        <div class="ct-care-prod-thumb"${img?` style="background-image:url(${img})"`:''}>${!img?`<span>${emoji}</span>`:''}</div>
+        <div class="ct-care-prod-label">${name}</div>
       </div>`;
     }).join('');
-    return `<div class="ct-card${isPublished?' published':''}">
-      <div class="ct-card-body">
-        <div class="ct-card-hd">
-          <span class="ct-card-emoji">${t.emoji||'✦'}</span>
-          <span class="ct-card-name">${t.name}</span>
-          <span class="ct-card-badge ${isPublished?'on':'off'}">${isPublished?'ACTIVE':'DRAFT'}</span>
+
+    // ── TIP 섹션
+    let tipHtml = '';
+    const hasTip = tipItems.some(item =>
+      ((!item.type || item.type === 'product') && (item.assetId || item.name)) ||
+      ((item.type === 'tip' || item.type === 'desc') && (item.text||'').trim())
+    );
+    if (hasTip) {
+      const tipRowHtml = tipItems.map(item => {
+        if (item.type === 'plus')  return `<div class="ct-care-tag-plus">+</div>`;
+        if (item.type === 'minus') return `<div class="ct-care-tag-minus">→</div>`;
+        if (item.type === 'tip')   return `<div class="ct-care-tag-tip">${item.text||'TIP'}</div>`;
+        if (item.type === 'desc')  return `<div class="ct-care-tag-desc">${item.text||''}</div>`;
+        const asset = assets.find(a => a.id === item.assetId);
+        const img   = asset?.imgData || asset?.storageUrl || item.imgData || item.storageUrl || '';
+        const name  = asset?.name || item.name || '';
+        const emoji = asset?.icon || item.icon || t.emoji || '✦';
+        return `<div class="ct-care-tip-item">
+          <div class="ct-care-prod-thumb"${img?` style="background-image:url(${img})"`:''}>${!img?`<span>${emoji}</span>`:''}</div>
+          <div class="ct-care-prod-label">${name}</div>
+        </div>`;
+      }).join('');
+      tipHtml = `<div class="ct-care-tip-sec">
+        <div class="ct-care-tip-sec-head"><span class="ct-care-tip-tag">TIP</span></div>
+        <div class="ct-care-prod-row">${tipRowHtml}</div>
+      </div>`;
+    }
+
+    // ── EXPERT TIP (제품명 하이라이팅 포함)
+    let expertTipHtml = '';
+    const rawTip = (t.expertTip || '').trim();
+    if (rawTip) {
+      const prodItems = allItems.filter(x => !x.type || x.type === 'product');
+      let tipText = rawTip.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const names = prodItems.map(x => {
+        const a = assets.find(y => y.id === x.assetId);
+        return (a?.name || x.name || '').trim();
+      }).filter(Boolean).sort((a,b) => b.length - a.length);
+      names.forEach(name => {
+        const esc = name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+        tipText = tipText.replace(new RegExp(esc,'gi'), m =>
+          `<strong style="color:#4E7D00;font-weight:800;background:rgba(197,255,0,0.28);padding:1px 4px;border-radius:4px;border:1px solid rgba(197,255,0,0.35);display:inline-block;margin:0 1px">${m}</strong>`
+        );
+      });
+      expertTipHtml = `<div class="ct-care-expert-tip">
+        <div class="ct-care-expert-tip-hd">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          EXPERT TIP
         </div>
-        ${t.description?`<div class="ct-card-desc">${t.description}</div>`:''}
-        ${itemsHtml?`<div class="ct-card-items">${itemsHtml}</div>`:''}
-        ${dateChips?`<div class="ct-card-dates">${dateChips}</div>`:''}
+        <div class="ct-care-expert-tip-text">${tipText.replace(/\n/g,'<br>')}</div>
+      </div>`;
+    }
+
+    // ── 액션 버튼
+    const actionsHtml = isActive
+      ? `<button class="ae-detail-edit-btn" onclick="event.stopPropagation();editCtContent('care',${t.id})">EDIT ROUTINE →</button>`
+      : `<div class="ae-detail-action-row">
+           <button class="ae-detail-del-btn" onclick="event.stopPropagation();careGoToday(${t.id})">TODAY GO →</button>
+           <button class="ae-detail-edit-btn" onclick="event.stopPropagation();careEditWithToday(${t.id})">EDIT →</button>
+         </div>`;
+
+    return `
+    <div class="ae-row${isActive?' current':''}" id="care-row-${t.id}" onclick="toggleCareRow(${t.id})">
+      <div class="ae-session-num" style="font-size:20px;min-width:28px;line-height:1">${t.emoji||'✦'}</div>
+      <div class="ae-row-info">
+        <div class="ae-row-title" style="font-size:17px">${t.name||'(이름 없음)'}${isActive?' <span class="ae-now-pill">ACTIVE</span>':''}</div>
+        <div class="ae-row-dates">${dateStr}</div>
       </div>
-      <div class="ct-card-actions">
-        ${isPublished
-          ? `<button class="ct-card-ok-btn" onclick="editCtContent('care',${t.id})">EDIT ROUTINE →</button>`
-          : `<button class="ct-card-edit-btn" style="flex:1" onclick="careGoToday(${t.id})">Today Go →</button>
-             <button class="ct-card-ok-btn" onclick="careEditWithToday(${t.id})">EDIT ROUTINE →</button>`
-        }
+      <div class="ae-row-right">${countTags}<span class="ae-chevron">›</span></div>
+    </div>
+    <div class="ae-detail" id="care-detail-${t.id}">
+      ${heroSection}
+      <div class="ae-detail-inner" style="${heroSection?'padding-top:14px':''}">
+        ${t.description?`<div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.6">${t.description}</div>`:''}
+        ${rowHtml ? `<div class="ct-care-prod-row" style="margin:0 -16px;padding-left:0;padding-right:0">${rowHtml}</div>` : ''}
+        ${tipHtml}
+        ${expertTipHtml}
+        ${actionsHtml}
       </div>
     </div>`;
   }).join('');
+}
+
+function toggleCareRow(id) {
+  const detail = document.getElementById(`care-detail-${id}`);
+  const row    = document.getElementById(`care-row-${id}`);
+  if (!detail) return;
+  const isOpen = detail.classList.contains('open');
+  document.querySelectorAll('#setup-care-list .ae-detail.open').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('#setup-care-list .ae-row.expanded').forEach(r => r.classList.remove('expanded'));
+  if (!isOpen) { detail.classList.add('open'); row?.classList.add('expanded'); }
 }
 
 function activateCare(id) {
@@ -4915,17 +5388,18 @@ function deleteCtContent(type, id) {
 }
 
 // ── Content Add Sheet ──────────────────────────────────────────
-let ctSheetState = { type:'makeup', editId:null, baselineImg:null, storageUrl:null, storageHash:'', items:[], tipItems:[], dates:[], tpo:[] };
+let ctSheetState = { type:'makeup', editId:null, baselineImg:null, storageUrl:null, storageHash:'', items:[], tipItems:[], dates:[], tpo:[], expertTip:'' };
 let ctCalState   = { year: new Date().getFullYear(), month: new Date().getMonth() };
 let _ctBoxExpanded = false;
 let _ctActiveSection = 'main';
 
 function openCtSheet(type, editId = null) {
-  ctSheetState = { type, editId, baselineImg:null, storageUrl:null, storageHash:'', items:[], tipItems:[], dates:[], tpo:[] };
+  ctSheetState = { type, editId, baselineImg:null, storageUrl:null, storageHash:'', items:[], tipItems:[], dates:[], tpo:[], expertTip:'' };
   const titleMap = { care:'집중케어 설계', makeup:'메이크업 테마 설계', look:'룩 설계' };
   document.getElementById('ct-sheet-title').textContent = titleMap[type] || '설계';
-  const itemsMap = { care:'아이템 매핑 (BOX 뷰티)', makeup:'아이템 매핑 (BOX 뷰티)', look:'아이템 매핑 (BOX 패션·ACC)' };
-  document.getElementById('ct-items-lbl').textContent = itemsMap[type] || '아이템 매핑 (BOX)';
+  const _sub = '<span style="font-size:11px;font-weight:400;color:var(--mist)">';
+  const itemsMap = { care:`— 아이템 매핑 ${_sub}(BOX 뷰티)</span>`, makeup:`— 아이템 매핑 ${_sub}(BOX 뷰티)</span>`, look:`— 아이템 매핑 ${_sub}(BOX 패션·ACC)</span>` };
+  document.getElementById('ct-items-lbl').innerHTML = itemsMap[type] || '— 아이템 매핑';
   document.getElementById('ct-tpo-sec').style.display = type === 'look' ? '' : 'none';
   document.getElementById('ct-dates-sec').style.display = type === 'care' ? 'none' : '';
   document.getElementById('ct-period-sec').style.display = type === 'care' ? '' : 'none';
@@ -4938,8 +5412,15 @@ function openCtSheet(type, editId = null) {
   document.getElementById('ct-box-wrap').style.display = isCare ? 'none' : '';
   document.getElementById('ct-action-row').style.display = isCare ? '' : 'none';
   document.getElementById('ct-tip-sec').style.display = isCare ? '' : 'none';
+  document.getElementById('ct-expert-tip-card').style.display = isCare ? '' : 'none';
   document.getElementById('ct-desc-inline-row').style.display = 'none';
   document.getElementById('ct-tip-desc-inline-row').style.display = 'none';
+  document.getElementById('ct-main-tip-row').style.display = 'none';
+  document.getElementById('ct-tip-tip-row').style.display = 'none';
+  const _ctETInp = document.getElementById('ct-expert-tip-inp');
+  if (_ctETInp) { _ctETInp.style.display = 'none'; _ctETInp.value = ''; }
+  const _ctETDisp = document.getElementById('ct-expert-tip-display');
+  if (_ctETDisp) _ctETDisp.innerHTML = '<span style="color:var(--mist)">루틴에 관한 전용 팁 설명 입력...</span>';
   document.getElementById('ct-box-inp').value = '';
   document.getElementById('ct-box-results').innerHTML = '';
   _ctBoxExpanded = false;
@@ -4970,6 +5451,7 @@ function openCtSheet(type, editId = null) {
       if (t) {
         ctSheetState.items = (t.items||[]).map(p => ({...p}));
         ctSheetState.tipItems = (t.tipItems||[]).map(p => ({...p}));
+        ctSheetState.expertTip = t.expertTip || '';
       }
     } else if (type === 'makeup') {
       const contents = JSON.parse(localStorage.getItem('onstep_makeup_contents') || '[]');
@@ -5007,6 +5489,7 @@ function openCtSheet(type, editId = null) {
       });
       renderCtChips();
       renderCtDates();
+      if (type === 'care') _ctRenderExpertTipDisplay();
     }
   }
   document.getElementById('ct-sheet-ov').classList.add('open');
@@ -5127,6 +5610,85 @@ function removeCtItemByIdx(section, idx) {
   renderCtChips();
 }
 
+// ── ct-sheet care: rs-chip style chip render with drag ─────────
+function _renderCtCareChip(item, idx, section) {
+  const da = `data-di="${idx}" draggable="true" ondragstart="_mdStart(event,'ct-${section}',${idx},'ct')" ondragover="_mdOver(event,'ct-${section}',${idx})" ondragend="_mdEnd(event)" ondrop="_mdDrop(event,'ct-${section}',${idx},'ct')" onpointerdown="_pdStart(event,'ct-${section}',${idx},'ct')"`;
+  const t = item.type || 'product';
+  if (t === 'plus') return `<div class="rs-chip rs-chip--plus" ${da}>+<span class="rs-chip-del" onclick="event.stopPropagation();removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+  if (t === 'minus') return `<div class="rs-chip rs-chip--minus" ${da}>→<span class="rs-chip-del" onclick="event.stopPropagation();removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+  if (t === 'desc') return `<div class="rs-chip rs-chip--desc" ${da}><div class="rs-chip-desc-text">${item.text||''}</div><span class="rs-chip-del" onclick="event.stopPropagation();removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+  if (t === 'tip') return `<div class="rs-chip rs-chip--tip" ${da}><div class="rs-chip-tip-text">${item.text||''}</div><span class="rs-chip-del" onclick="event.stopPropagation();removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+  const asset = getBoxAssets().find(a => a.id === item.assetId);
+  const displayName = asset?.name || item.name || '';
+  return `<div class="rs-chip rs-chip--prod" ${da}>
+    <div class="rs-chip-name">${displayName}</div>
+    <span class="rs-chip-del" onclick="event.stopPropagation();removeCtItemByIdx('${section}',${idx})">✕</span>
+  </div>`;
+}
+
+// ── EXPERT TIP functions ────────────────────────────────────────
+function ctOpenExpertTipInput() {
+  const inp  = document.getElementById('ct-expert-tip-inp');
+  const disp = document.getElementById('ct-expert-tip-display');
+  if (!inp || !disp) return;
+  if (inp.style.display !== 'none') return; // 이미 열려 있음
+  inp.value = ctSheetState.expertTip || '';
+  inp.style.display = 'block';
+  // display는 숨기지 않고 아래에서 PREVIEW로 유지
+  _ctRenderExpertTipDisplay();
+  setTimeout(() => inp.focus(), 50);
+}
+function ctUpdateExpertTip(value) {
+  ctSheetState.expertTip = value;
+  _ctRenderExpertTipDisplay();
+}
+function ctCloseExpertTipInput() {
+  const inp  = document.getElementById('ct-expert-tip-inp');
+  const disp = document.getElementById('ct-expert-tip-display');
+  if (!inp || !disp) return;
+  inp.style.display = 'none';
+  _ctRenderExpertTipDisplay();
+}
+function _ctRenderExpertTipDisplay() {
+  const disp = document.getElementById('ct-expert-tip-display');
+  const inp  = document.getElementById('ct-expert-tip-inp');
+  if (!disp) return;
+  const text = ctSheetState.expertTip || '';
+  const isEditing = inp && inp.style.display !== 'none';
+  if (!text) {
+    disp.innerHTML = isEditing
+      ? '' // textarea가 placeholder 역할
+      : '<span style="color:var(--mist)">루틴에 관한 전용 팁 설명 입력...</span>';
+    return;
+  }
+  const products = ctSheetState.items.filter(i => i.type === 'product');
+  const highlighted = _ctHighlightProductNames(text, products);
+  const prefix = isEditing
+    ? `<div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--mist);margin-bottom:4px;text-transform:uppercase">↳ Preview</div>`
+    : '';
+  disp.innerHTML = prefix + highlighted;
+}
+function _ctHighlightProductNames(text, products) {
+  if (!text) return '';
+  let result = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const assets = getBoxAssets();
+  const nameSet = new Set();
+  // ct-sheet에 등록된 아이템 이름
+  products.forEach(p => {
+    const asset = assets.find(a => a.id === p.assetId);
+    const n = (asset?.name || p.name || '').trim();
+    if (n) nameSet.add(n);
+  });
+  // 전체 BOX 자산 이름 (붙여넣기 시 등록된 모든 제품 하이라이트)
+  assets.forEach(a => { if (a.name) nameSet.add(a.name.trim()); });
+  const names = [...nameSet].filter(Boolean).sort((a,b) => b.length - a.length);
+  names.forEach(name => {
+    const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp(esc, 'gi'), m => `<mark style="background:rgba(197,255,0,0.35);color:#3a5a00;border-radius:3px;padding:0 2px">${m}</mark>`);
+  });
+  return result.replace(/\n/g, '<br>');
+}
+
 function _renderTypedChip(item, idx, section) {
   if (item.type === 'product') {
     const asset = getBoxAssets().find(a => a.id === item.assetId);
@@ -5139,10 +5701,13 @@ function _renderTypedChip(item, idx, section) {
     return `<div class="ct-chip ct-chip--plus">+<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
   }
   if (item.type === 'minus') {
-    return `<div class="ct-chip ct-chip--minus">-<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+    return `<div class="ct-chip ct-chip--minus">→<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
   }
   if (item.type === 'desc') {
     return `<div class="ct-chip ct-chip--desc">${item.text}<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
+  }
+  if (item.type === 'tip') {
+    return `<div class="ct-chip ct-chip--tip">💡 ${item.text}<span class="ct-chip-del" onclick="removeCtItemByIdx('${section}',${idx})">✕</span></div>`;
   }
   return '';
 }
@@ -5151,17 +5716,26 @@ function renderCtChips() {
   const el = document.getElementById('ct-selected-chips');
   if (el) {
     if (ctSheetState.type === 'care') {
-      el.innerHTML = ctSheetState.items.map((item, idx) => _renderTypedChip(item, idx, 'main')).join('');
+      const chipHtml = ctSheetState.items.map((item, idx) => _renderCtCareChip(item, idx, 'main')).join('');
+      el.innerHTML = chipHtml ? `<div class="rs-chip-list" ondragover="event.preventDefault()">${chipHtml}</div>` : '';
     } else {
-      el.innerHTML = ctSheetState.items.map(p =>
-        `<div class="ct-chip"><div class="ct-chip-img" style="${(p.imgData||p.storageUrl)?`background-image:url(${p.imgData||p.storageUrl});background-size:100% auto;background-position:top center;background-repeat:no-repeat`:''}">${!(p.imgData||p.storageUrl)?'✦':''}</div>${p.name}<span class="ct-chip-del" onclick="removeCtItem(${p.assetId})">✕</span></div>`
-      ).join('');
+      el.innerHTML = ctSheetState.items.map(p => {
+        const img = p.imgData||p.storageUrl||'';
+        return `<div class="ct-chip"><div class="ct-chip-img" style="${img?`background-image:url(${img});background-size:100% auto;background-position:top center;background-repeat:no-repeat`:''}">${!img?'✦':''}</div>${p.name}<span class="ct-chip-del" onclick="removeCtItem(${p.assetId})">✕</span></div>`;
+      }).join('');
     }
   }
   const tipEl = document.getElementById('ct-tip-chips');
   if (tipEl) {
-    tipEl.innerHTML = ctSheetState.tipItems.map((item, idx) => _renderTypedChip(item, idx, 'tip')).join('');
+    if (ctSheetState.type === 'care') {
+      const chipHtml = ctSheetState.tipItems.map((item, idx) => _renderCtCareChip(item, idx, 'tip')).join('');
+      tipEl.innerHTML = chipHtml ? `<div class="rs-chip-list" ondragover="event.preventDefault()">${chipHtml}</div>` : '';
+    } else {
+      tipEl.innerHTML = ctSheetState.tipItems.map((item, idx) => _renderTypedChip(item, idx, 'tip')).join('');
+    }
   }
+  // refresh EXPERT TIP display
+  if (ctSheetState.type === 'care') _ctRenderExpertTipDisplay();
 }
 
 function _closeCtBoxWrap() {
@@ -5177,6 +5751,25 @@ function _closeCtBoxWrap() {
 function ctAddProductStart(section, e) {
   if (e) e.stopPropagation();
   _ctActiveSection = section || 'main';
+  if (ctSheetState.type === 'care') {
+    // care: open full-screen BOX import panel
+    bpSelectedId = null;
+    bpSelectedIds.clear();
+    _bpExpanded = false;
+    _bpDomain = 'beauty';
+    _bpSubcat = 'all';
+    _bpContext = 'ct';
+    const inp = document.getElementById('bp-search-inp');
+    if (inp) inp.value = '';
+    ['beauty','fashion','acc'].forEach(x => document.getElementById('bpd-'+x)?.classList.toggle('active', x==='beauty'));
+    _renderBpSubcats();
+    renderBpList('');
+    updateBpConfirm();
+    document.getElementById('bp-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('bp-search-inp')?.focus(), 300);
+    return;
+  }
+  // non-care: inline search
   const wrap = document.getElementById('ct-box-wrap');
   if (!wrap) return;
   wrap.style.display = '';
@@ -5226,6 +5819,37 @@ function ctAddPlusChip(section) {
 function ctAddMinusChip(section) {
   const target = section === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
   target.push({ type: 'minus' });
+  renderCtChips();
+}
+// + TIP 인라인 입력
+function ctAddTipStart(section) {
+  _ctActiveSection = section || 'main';
+  const rowId = section === 'tip' ? 'ct-tip-tip-row' : 'ct-main-tip-row';
+  const inpId = section === 'tip' ? 'ct-tip-tip-inp' : 'ct-main-tip-inp';
+  const row = document.getElementById(rowId);
+  if (row) row.style.display = '';
+  setTimeout(() => document.getElementById(inpId)?.focus(), 80);
+}
+function ctCancelTipItem(section) {
+  const rowId = section === 'tip' ? 'ct-tip-tip-row' : 'ct-main-tip-row';
+  const inpId = section === 'tip' ? 'ct-tip-tip-inp' : 'ct-main-tip-inp';
+  const inp = document.getElementById(inpId);
+  if (inp) inp.value = '';
+  const row = document.getElementById(rowId);
+  if (row) row.style.display = 'none';
+}
+function ctConfirmTipItem(section) {
+  section = section || 'main';
+  const inpId = section === 'tip' ? 'ct-tip-tip-inp' : 'ct-main-tip-inp';
+  const rowId = section === 'tip' ? 'ct-tip-tip-row' : 'ct-main-tip-row';
+  const inp = document.getElementById(inpId);
+  const text = (inp?.value || '').trim();
+  if (!text) { inp?.focus(); return; }
+  const target = section === 'tip' ? ctSheetState.tipItems : ctSheetState.items;
+  target.push({ type: 'tip', text });
+  inp.value = '';
+  const row = document.getElementById(rowId);
+  if (row) row.style.display = 'none';
   renderCtChips();
 }
 
@@ -5329,19 +5953,17 @@ function saveCtContent() {
   const desc  = document.getElementById('ct-desc').value.trim();
 
   try {
+    const _cleanTypedItem = item => item.type === 'product'
+      ? { type:'product', assetId: item.assetId, name: item.name, brand: item.brand||'' }
+      : item.type === 'plus' ? { type:'plus' }
+      : item.type === 'minus' ? { type:'minus' }
+      : item.type === 'tip' ? { type:'tip', text: item.text||'' }
+      : { type:'desc', text: item.text||'' };
     const cleanItems = ctSheetState.type === 'care'
-      ? ctSheetState.items.map(item => item.type === 'product'
-          ? { type:'product', assetId: item.assetId, name: item.name, brand: item.brand||'' }
-          : item.type === 'plus' ? { type:'plus' }
-          : item.type === 'minus' ? { type:'minus' }
-          : { type:'desc', text: item.text||'' })
+      ? ctSheetState.items.map(_cleanTypedItem)
       : ctSheetState.items.map(({assetId, name: n, brand}) => ({assetId, name: n, brand: brand||''}));
     const cleanTipItems = ctSheetState.type === 'care'
-      ? ctSheetState.tipItems.map(item => item.type === 'product'
-          ? { type:'product', assetId: item.assetId, name: item.name, brand: item.brand||'' }
-          : item.type === 'plus' ? { type:'plus' }
-          : item.type === 'minus' ? { type:'minus' }
-          : { type:'desc', text: item.text||'' })
+      ? ctSheetState.tipItems.map(_cleanTypedItem)
       : [];
     if (ctSheetState.type === 'care') {
       const care = JSON.parse(localStorage.getItem('onstep_care_themes') || '[]');
@@ -5349,7 +5971,7 @@ function saveCtContent() {
       const periodEnd   = document.getElementById('ct-period-end').value;
       const scheduledPeriod = (periodStart || periodEnd) ? { start: periodStart || '', end: periodEnd || periodStart || '' } : null;
       const _hasNewImg = !!ctSheetState.baselineImg;
-      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, tipItems: cleanTipItems, scheduledPeriod, baselineImg: ctSheetState.baselineImg || null, storageUrl: _hasNewImg ? null : (ctSheetState.storageUrl || null), storageHash: _hasNewImg ? '' : (ctSheetState.storageHash || ''), updatedAt: new Date().toISOString() };
+      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, tipItems: cleanTipItems, expertTip: ctSheetState.expertTip || '', scheduledPeriod, baselineImg: ctSheetState.baselineImg || null, storageUrl: _hasNewImg ? null : (ctSheetState.storageUrl || null), storageHash: _hasNewImg ? '' : (ctSheetState.storageHash || ''), updatedAt: new Date().toISOString() };
       if (ctSheetState.editId) {
         const idx = care.findIndex(x => x.id === ctSheetState.editId);
         if (idx !== -1) care[idx] = obj; else care.push(obj);

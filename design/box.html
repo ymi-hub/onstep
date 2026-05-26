@@ -12,6 +12,9 @@
 <meta name="apple-mobile-web-app-title" content="OnStep">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#FAFAF8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -343,7 +346,7 @@ body{
   color:var(--sub);background:transparent;cursor:pointer;flex-shrink:0;
 }
 .loc-panel-scroll{
-  flex:1;overflow-y:auto;scrollbar-width:none;padding-top:56px;padding-bottom:160px;
+  flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding-top:56px;padding-bottom:160px;
 }
 .loc-panel-scroll::-webkit-scrollbar{display:none;}
 .loc-hero{
@@ -1586,10 +1589,10 @@ body{
         </button>
       </div>
       <select class="sort-select" id="sort-select" onchange="setSort(this.value)">
-        <option value="added">최근 추가순</option>
-        <option value="uses">사용 빈도순</option>
+        <option value="added">최신 추가순</option>
+        <option value="name">제품명</option>
+        <option value="uses">사용 빈도수</option>
         <option value="brand">브랜드순</option>
-        <option value="price">가격순</option>
       </select>
     </div>
 
@@ -1950,10 +1953,16 @@ body{
         </div>
       </div>
 
-      <!-- SAVE CHANGES button (Figma: black bg, 44px height, letter-spacing 1.2px) -->
-      <div style="padding:48px 0 0;display:flex;flex-direction:column;gap:12px">
-        <button type="button" id="add-submit-btn" class="page-save-btn" onclick="saveAsset()">저장</button>
-        <button type="button" id="add-delete-btn" onclick="_deleteEditingAsset()" style="display:none;width:100%;height:44px;border:1px solid #EF4444;background:transparent;color:#EF4444;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer">삭제</button>
+      <!-- 액션 버튼: 신규=저장|취소, 수정=수정|삭제 (좌우 배치) -->
+      <div style="padding:48px 0 0">
+        <div id="add-btn-new" style="display:flex;gap:8px">
+          <button type="button" class="page-save-btn" onclick="saveAsset()" style="flex:1">저장</button>
+          <button type="button" onclick="closeAdd()" style="flex:1;height:52px;border:1.5px solid var(--border-md);background:transparent;color:var(--sub);border-radius:var(--r-md);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer">취소</button>
+        </div>
+        <div id="add-btn-edit" style="display:none;gap:8px">
+          <button type="button" class="page-save-btn" onclick="saveAsset()" style="flex:1">수정</button>
+          <button type="button" onclick="_deleteEditingAsset()" style="flex:1;height:52px;border:1.5px solid #EF4444;background:transparent;color:#EF4444;border-radius:var(--r-md);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer">삭제</button>
+        </div>
       </div>
 
     </div><!-- /add-page-scroll -->
@@ -2122,7 +2131,7 @@ body{
       <div id="loc-product-picker-list" style="overflow-y:auto;flex:1;overscroll-behavior:contain"></div>
     </div>
   </div>
-
+  <div class="app-nav"></div>
   </div><!-- /loc-panel -->
 
   <!-- Category Manage Sheet -->
@@ -2214,6 +2223,18 @@ firebase.auth().onAuthStateChanged(u => {
   currentUser = u;
   _updateAuthAvatar(u);
   if (_unsubBox) { _unsubBox(); _unsubBox = null; }
+  if (!u) {
+    ['onstep_box_assets','onstep_box_locations','onstep_box_cats',
+     'onstep_care_plan','onstep_care_themes','onstep_makeup_themes','onstep_look_themes',
+     'onstep_looks','onstep_muse_items','onstep_planned_portfolio','onstep_log_scenes','onstep_tracker_items']
+      .forEach(k => localStorage.removeItem(k));
+    if (!sessionStorage.getItem('_logout_reload')) {
+      sessionStorage.setItem('_logout_reload', '1');
+      location.reload();
+    }
+    return;
+  }
+  sessionStorage.removeItem('_logout_reload');
   if (u) {
     // 실시간 리스너 — 다른 기기에서 저장 시 자동 반영
     _unsubBox = fbDb.collection('users').doc(u.uid).collection('box').doc('data')
@@ -2226,17 +2247,21 @@ firebase.auth().onAuthStateChanged(u => {
         if (cloudTs >= localTs - 3000) {
           if (d.assets) {
             const localAssets = JSON.parse(localStorage.getItem(ASSETS_KEY)||'[]');
-            localStorage.setItem(ASSETS_KEY, JSON.stringify(d.assets.map(ca => {
-              const la = localAssets.find(a => a.id === ca.id);
-              return {...ca, imgData: la?.imgData||null, storageImgData: la?.storageImgData||null};
-            })));
+            localStorage.setItem(ASSETS_KEY, JSON.stringify(
+              _mergeArrById(d.assets, localAssets).map(ca => {
+                const la = localAssets.find(a => a.id === ca.id);
+                return {...ca, imgData: la?.imgData||null, storageImgData: la?.storageImgData||null};
+              })
+            ));
           }
           if (d.locations) {
             const localLocs = JSON.parse(localStorage.getItem(LOCS_KEY)||'[]');
-            localStorage.setItem(LOCS_KEY, JSON.stringify(d.locations.map(cl => {
-              const ll = localLocs.find(l => (l.key||l.id) === (cl.key||cl.id));
-              return {...cl, imgData: ll?.imgData||null};
-            })));
+            localStorage.setItem(LOCS_KEY, JSON.stringify(
+              _mergeArrById(d.locations, localLocs).map(cl => {
+                const ll = localLocs.find(l => (l.key||l.id) === (cl.key||cl.id));
+                return {...cl, imgData: ll?.imgData||null};
+              })
+            ));
           }
           if (d.boxCats) {
             if (d.boxCats.beauty)  BEAUTY_CATS  = d.boxCats.beauty;
@@ -2277,17 +2302,21 @@ document.addEventListener('visibilitychange', async () => {
     if (cloudTs >= localTs - 3000) {
       if (d.assets) {
         const localAssets = JSON.parse(localStorage.getItem(ASSETS_KEY)||'[]');
-        localStorage.setItem(ASSETS_KEY, JSON.stringify(d.assets.map(ca => {
-          const la = localAssets.find(a => a.id === ca.id);
-          return {...ca, imgData: la?.imgData||null, storageImgData: la?.storageImgData||null};
-        })));
+        localStorage.setItem(ASSETS_KEY, JSON.stringify(
+          _mergeArrById(d.assets, localAssets).map(ca => {
+            const la = localAssets.find(a => a.id === ca.id);
+            return {...ca, imgData: la?.imgData||null, storageImgData: la?.storageImgData||null};
+          })
+        ));
       }
       if (d.locations) {
         const localLocs = JSON.parse(localStorage.getItem(LOCS_KEY)||'[]');
-        localStorage.setItem(LOCS_KEY, JSON.stringify(d.locations.map(cl => {
-          const ll = localLocs.find(l => l.id === cl.id);
-          return {...cl, imgData: ll?.imgData||null};
-        })));
+        localStorage.setItem(LOCS_KEY, JSON.stringify(
+          _mergeArrById(d.locations, localLocs).map(cl => {
+            const ll = localLocs.find(l => l.id === cl.id);
+            return {...cl, imgData: ll?.imgData||null};
+          })
+        ));
       }
       if (d.boxCats) {
         if (d.boxCats.beauty)  BEAUTY_CATS  = d.boxCats.beauty;
@@ -2996,13 +3025,11 @@ function getSortedFilteredAssets() {
     assets = [...getFilteredAssets(curDomain, curCat)];
   }
   switch (curSort) {
+    case 'added': assets.sort((a,b) => { const da=new Date(a.addedDate||0), db=new Date(b.addedDate||0); return db-da||(b.id||0)-(a.id||0); }); break;
+    case 'name':  assets.sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko')); break;
     case 'uses':  assets.sort((a,b) => (b.useCount||0) - (a.useCount||0)); break;
     case 'brand': assets.sort((a,b) => (a.brand||'').localeCompare(b.brand||'')); break;
-    case 'price': {
-      const p = s => parseInt((s+'').replace(/[^0-9]/g,''))||0;
-      assets.sort((a,b) => p(b.price) - p(a.price)); break;
-    }
-    default: assets.sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));
+    default:      assets.sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));
   }
   return assets;
 }
@@ -3230,22 +3257,11 @@ function renderList(assets, grid) {
       groups[k].push(a);
     });
     Object.entries(groups).sort(([a],[b])=>a.localeCompare(b,'ko')).forEach(([brand, items]) => {
-      items.sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko'));
       html += `<div class="list-group-hd">${brand} · ${items.length}개</div>`;
       html += items.map(_listRow).join('');
     });
   } else {
-    const groups = {};
-    assets.forEach(a => {
-      const k = a.catKey || 'other';
-      if (!groups[k]) groups[k] = [];
-      groups[k].push(a);
-    });
-    Object.entries(groups).sort(([a],[b])=>(CAT_LABELS[a]||a).localeCompare(CAT_LABELS[b]||b,'ko')).forEach(([catKey, items]) => {
-      items.sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko'));
-      html += `<div class="list-group-hd">${(CAT_LABELS[catKey]||catKey).toUpperCase()} · ${items.length}개</div>`;
-      html += items.map(_listRow).join('');
-    });
+    html = assets.map(_listRow).join('');
   }
   grid.innerHTML = `<div class="list-view-wrap">${html}</div>`;
 }
@@ -3817,13 +3833,13 @@ function openEditAsset(id) {
 }
 
 function _syncEditModeUI() {
-  const isEdit = _editingAssetId !== null;
-  const titleEl   = document.getElementById('add-page-bar-title');
-  const submitBtn = document.getElementById('add-submit-btn');
-  const deleteBtn = document.getElementById('add-delete-btn');
-  if (titleEl)   titleEl.textContent = isEdit ? 'EDIT PRODUCT' : 'ADD PRODUCT';
-  if (submitBtn) { submitBtn.textContent = isEdit ? '변경 저장' : '저장'; submitBtn.disabled = false; submitBtn.style.background = ''; }
-  if (deleteBtn) deleteBtn.style.display = isEdit ? '' : 'none';
+  const isEdit  = _editingAssetId !== null;
+  const titleEl = document.getElementById('add-page-bar-title');
+  const btnNew  = document.getElementById('add-btn-new');
+  const btnEdit = document.getElementById('add-btn-edit');
+  if (titleEl)  titleEl.textContent   = isEdit ? 'EDIT PRODUCT' : 'ADD PRODUCT';
+  if (btnNew)   btnNew.style.display  = isEdit ? 'none' : 'flex';
+  if (btnEdit)  btnEdit.style.display = isEdit ? 'flex' : 'none';
 }
 
 function _populateEditForm(asset) {

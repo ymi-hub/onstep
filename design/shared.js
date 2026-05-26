@@ -200,13 +200,18 @@ function _updateAuthAvatar(user) {
 }
 
 // 로그인/로그아웃 (각 페이지의 fbAuth, currentUser 전역변수 사용)
+let _authPopupOpen = false;
 function handleAuthClick() {
   const _auth = typeof fbAuth !== 'undefined' ? fbAuth : firebase.auth();
   const _user = typeof currentUser !== 'undefined' ? currentUser : null;
   if (_user) {
     if (confirm(`${_user.displayName || _user.email}\n로그아웃?`)) _auth.signOut();
   } else {
-    _auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => alert(e.message));
+    if (_authPopupOpen) return;
+    _authPopupOpen = true;
+    _auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .catch(e => { if (e.code !== 'auth/cancelled-popup-request') alert(e.message); })
+      .finally(() => { _authPopupOpen = false; });
   }
 }
 
@@ -308,6 +313,41 @@ function _cmsSave() {
       _cmsKey = null;
     })
     .catch(e => { if (typeof showToast === 'function') showToast('오류: ' + e.message); });
+}
+
+// ═══ 데이터 병합 유틸리티 ════════════════════════════════════
+// careplan local/cloud 병합 — 세션 유실 없이 history 완전 보존
+function _mergePlan(local, cloud) {
+  if (!local || !local.savedAt) return cloud || {};
+  if (!cloud || !cloud.savedAt) return local;
+  const localTs = new Date(local.savedAt).getTime();
+  const cloudTs = new Date(cloud.savedAt).getTime();
+  // 현재 세션: 더 최신 쪽 기준
+  const base = cloudTs >= localTs ? cloud : local;
+  // history: 세션 번호 기준 dedup, local 우선 (로컬 편집 내용 보존)
+  const map = new Map();
+  (cloud.history||[]).forEach(function(s){ if(s.session) map.set(Number(s.session), s); });
+  (local.history||[]).forEach(function(s){ if(s.session) map.set(Number(s.session), s); });
+  // base가 아닌 쪽의 현재 세션도 history에 포함해 유실 방지
+  const other = cloudTs >= localTs ? local : cloud;
+  if (other.session && other.session !== base.session) {
+    const n = Number(other.session);
+    if (!map.has(n)) map.set(n, {
+      session: other.session, periodStart: other.periodStart,
+      periodEnd: other.periodEnd, morning: other.morning, nightly: other.nightly
+    });
+  }
+  return Object.assign({}, base, { history: Array.from(map.values()) });
+}
+
+// 배열을 ID 기준 union merge — cloud 항목 기준 + local에만 있는 항목 보존
+// (cloud에서 삭제된 항목은 제외, local에 새로 추가된 항목은 유지)
+function _mergeArrById(cloudArr, localArr, idKey) {
+  idKey = idKey || 'id';
+  if (!Array.isArray(cloudArr)) return Array.isArray(localArr) ? localArr : [];
+  if (!Array.isArray(localArr)) return cloudArr;
+  const cloudIds = new Set(cloudArr.map(function(c){ return c[idKey]; }).filter(Boolean));
+  return cloudArr.concat(localArr.filter(function(l){ return l[idKey] && !cloudIds.has(l[idKey]); }));
 }
 
 // ═══ Reactive State (BroadcastChannel) ═══════════════════════

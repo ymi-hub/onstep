@@ -12,6 +12,9 @@
 <meta name="apple-mobile-web-app-title" content="OnStep">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#FAFAF8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -119,7 +122,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .archive-empty-sub{font-size:12px;color:var(--mist);line-height:1.6;}
 
 /* FAB */
-.fab{position:absolute;bottom:80px;right:18px;width:48px;height:48px;background:var(--ink);border-radius:var(--r-full);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.28);z-index:20;transition:transform .15s;}
+.fab{position:absolute;bottom:80px;right:18px;width:48px;height:48px;background:var(--lime);border-radius:var(--r-full);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(197,255,0,.4);z-index:20;transition:transform .15s;}
 .fab:active{transform:scale(.92);}
 
 /* Bottom nav */
@@ -140,7 +143,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .detail-back{background:none;border:none;font-size:18px;font-weight:700;color:var(--ink);cursor:pointer;padding:0;}
 .detail-edit-btn{background:none;border:1.5px solid var(--border-card);border-radius:var(--r-sm);font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink);cursor:pointer;padding:5px 12px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;}
 .detail-appbar-label{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);}
-.detail-body{flex:1;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;}
+.detail-body{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;}
 .detail-body::-webkit-scrollbar{display:none;}
 .detail-hero{width:100%;height:256px;background:var(--surface);background-size:auto 100%;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;}
 .detail-content{padding:20px 20px 8px;}
@@ -379,7 +382,7 @@ textarea.field-in{resize:none;height:72px;line-height:1.6;}
 
   <!-- FAB -->
   <button type="button" class="fab" onclick="openAddSheet()" title="컨텐츠 추가">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
 
   <!-- Detail panel -->
@@ -391,6 +394,7 @@ textarea.field-in{resize:none;height:72px;line-height:1.6;}
     </div>
     <div class="detail-body" id="detail-body"></div>
     <div class="detail-actions" id="detail-actions"></div>
+    <div class="app-nav"></div>
   </div>
   <input type="file" id="edit-img-input" accept="image/*" class="hidden" onchange="handleEditImg(this)">
 
@@ -487,6 +491,7 @@ textarea.field-in{resize:none;height:72px;line-height:1.6;}
         <button type="button" class="archive-del-btn" id="archive-del-btn" onclick="deleteSelected()" disabled>삭제</button>
       </div>
     </div>
+    <div class="app-nav"></div>
   </div>
 
   <!-- BOX Product Picker panel -->
@@ -512,6 +517,7 @@ textarea.field-in{resize:none;height:72px;line-height:1.6;}
       <button type="button" class="sh-cancel" onclick="closeBoxPicker()">취소</button>
       <button type="button" class="detail-main-btn lime" onclick="confirmBoxPick()">선택 완료 (<span id="bp-sel-count">0</span>)</button>
     </div>
+    <div class="app-nav"></div>
   </div>
 
 
@@ -540,7 +546,17 @@ firebase.auth().onAuthStateChanged(user=>{
   if(!user){
     _boxAssetsCache=null;
     ALL_SCENES=[..._DEFAULT_SCENES];
+    ['onstep_care_plan','onstep_care_themes','onstep_makeup_themes','onstep_look_themes',
+     'onstep_looks','onstep_muse_items','onstep_planned_portfolio','onstep_log_scenes',
+     'onstep_box_assets','onstep_box_locations','onstep_box_cats','onstep_tracker_items']
+      .forEach(k => localStorage.removeItem(k));
+    if(!sessionStorage.getItem('_logout_reload')){
+      sessionStorage.setItem('_logout_reload','1');
+      location.reload();
+    }
+    return;
   }
+  sessionStorage.removeItem('_logout_reload');
   if(user){
     loadFromCloud(user.uid);
     _unsubBox=fbDb.collection('users').doc(user.uid).collection('box').doc('data')
@@ -563,7 +579,8 @@ firebase.auth().onAuthStateChanged(user=>{
       .onSnapshot(snap=>{
         if(!snap.exists) return;
         const d=snap.data();
-        const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return arr.map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null};});};
+        // union merge: cloud 기준 + local에만 있는 항목 보존
+        const _mi=(key,arr)=>{const loc=JSON.parse(localStorage.getItem(key)||'[]');return _mergeArrById(arr,loc).map(ct=>{const lc=loc.find(t=>t.id===ct.id);return{...ct,baselineImg:lc?.baselineImg||null};});};
         if(d.makeupContents) localStorage.setItem('onstep_makeup_contents', JSON.stringify(_mi('onstep_makeup_contents',d.makeupContents)));
         else if(d.makeupThemes) localStorage.setItem('onstep_makeup_contents', JSON.stringify(d.makeupThemes?.themes||[]));
         if(d.lookContents)   localStorage.setItem('onstep_look_contents',   JSON.stringify(_mi('onstep_look_contents',d.lookContents)));
@@ -571,17 +588,15 @@ firebase.auth().onAuthStateChanged(user=>{
         if(d.careThemes)     localStorage.setItem('onstep_care_themes',     JSON.stringify(_mi('onstep_care_themes',d.careThemes)));
         if(d.looks) {
           const ll=JSON.parse(localStorage.getItem('onstep_looks')||'[]');
-          localStorage.setItem('onstep_looks', JSON.stringify(d.looks.map(cl=>{
-            const loc=ll.find(l=>l.date===cl.date);
-            return {...cl, mainPhoto:loc?.mainPhoto||null};
-          })));
+          localStorage.setItem('onstep_looks', JSON.stringify(
+            _mergeArrById(d.looks,ll,'date').map(cl=>{const loc=ll.find(l=>l.date===cl.date);return{...cl,mainPhoto:loc?.mainPhoto||null};})
+          ));
         }
         if(d.makeupLogs) {
           const ll=JSON.parse(localStorage.getItem('onstep_makeup_logs')||'[]');
-          localStorage.setItem('onstep_makeup_logs', JSON.stringify(d.makeupLogs.map(cl=>{
-            const lc=ll.find(l=>l.date===cl.date);
-            return{...cl,mainPhoto:lc?.mainPhoto||null};
-          })));
+          localStorage.setItem('onstep_makeup_logs', JSON.stringify(
+            _mergeArrById(d.makeupLogs,ll,'date').map(cl=>{const lc=ll.find(l=>l.date===cl.date);return{...cl,mainPhoto:lc?.mainPhoto||null};})
+          ));
         }
         if(d.portfolio)      localStorage.setItem('onstep_planned_portfolio',JSON.stringify(d.portfolio));
         if(d.logScenes && Array.isArray(d.logScenes)){
@@ -711,13 +726,7 @@ document.addEventListener('visibilitychange', () => {
   _lastSyncTs = now;
   loadFromCloud(currentUser.uid);
 });
-function handleAuthClick(){
-  if(currentUser){
-    if(confirm(`${currentUser.displayName||currentUser.email}\n로그아웃할까요?`)) fbAuth.signOut();
-  }else{
-    fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>alert('로그인 오류: '+e.message));
-  }
-}
+// handleAuthClick → shared.js 공통 버전 사용 (_authPopupOpen 가드 포함)
 
 // ── TPO Scenes (logScenes kept for cloud sync) ────────────────────
 const _SCENE_KEY='onstep_log_scenes';
