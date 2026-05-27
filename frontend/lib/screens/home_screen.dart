@@ -22,12 +22,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final guide = await apiService.getFlowGuide();
-      setState(() { _guide = guide; _loading = false; });
+      setState(() {
+        _guide = guide;
+        _loading = false;
+      });
     } catch (e) {
-      setState(() { _error = e.toString(); _loading = false; });
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
     }
   }
 
@@ -106,7 +115,8 @@ class _PhaseHeader extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.thermostat, size: 16, color: theme.colorScheme.primary),
+              Icon(Icons.thermostat,
+                  size: 16, color: theme.colorScheme.primary),
               const SizedBox(width: 4),
               Text(
                 '${guide.weather!.temp.toStringAsFixed(0)}°C · '
@@ -138,9 +148,10 @@ class _OneActionCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.15),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -193,9 +204,10 @@ class _ForcedRoutineBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withOpacity(0.12),
+        color: theme.colorScheme.primary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.4)),
+        border:
+            Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [
@@ -204,7 +216,8 @@ class _ForcedRoutineBanner extends StatelessWidget {
           Expanded(
             child: Text(message, style: theme.textTheme.bodyMedium),
           ),
-          Icon(Icons.arrow_forward_ios, size: 14, color: theme.colorScheme.primary),
+          Icon(Icons.arrow_forward_ios,
+              size: 14, color: theme.colorScheme.primary),
         ],
       ),
     );
@@ -220,10 +233,14 @@ class _BottomNav extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _NavBtn(icon: Icons.home_rounded, label: '홈', isActive: true, theme: theme),
-        _NavBtn(icon: Icons.checkroom, label: '자산', isActive: false, theme: theme),
-        _NavBtn(icon: Icons.bar_chart, label: 'ROI', isActive: false, theme: theme),
-        _NavBtn(icon: Icons.settings, label: '설정', isActive: false, theme: theme),
+        _NavBtn(
+            icon: Icons.home_rounded, label: '홈', isActive: true, theme: theme),
+        _NavBtn(
+            icon: Icons.checkroom, label: '자산', isActive: false, theme: theme),
+        _NavBtn(
+            icon: Icons.bar_chart, label: 'ROI', isActive: false, theme: theme),
+        _NavBtn(
+            icon: Icons.settings, label: '설정', isActive: false, theme: theme),
       ],
     );
   }
@@ -243,13 +260,17 @@ class _NavBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.4);
+    final color = isActive
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurface.withValues(alpha: 0.4);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, color: color, size: 26),
         const SizedBox(height: 4),
-        Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+        Text(label,
+            style: TextStyle(
+                fontSize: 11, color: color, fontWeight: FontWeight.w600)),
       ],
     );
   }

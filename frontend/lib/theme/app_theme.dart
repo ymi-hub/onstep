@@ -12,19 +12,19 @@ TimePhase currentPhase() {
 
 /// AM/PM/저녁/밤 별로 배경·강조색·텍스트색이 자동 전환
 class OnStepTheme {
-  static const _amBg = Color(0xFFFFF8F0);       // 따뜻한 크림
-  static const _amPrimary = Color(0xFFFF8C42);   // 선라이즈 오렌지
+  static const _amBg = Color(0xFFFFF8F0); // 따뜻한 크림
+  static const _amPrimary = Color(0xFFFF8C42); // 선라이즈 오렌지
   static const _amSurface = Color(0xFFFFEDD5);
 
-  static const _pmBg = Color(0xFFF0F4FF);        // 맑은 하늘
-  static const _pmPrimary = Color(0xFF3D6FFF);   // 포커스 블루
+  static const _pmBg = Color(0xFFF0F4FF); // 맑은 하늘
+  static const _pmPrimary = Color(0xFF3D6FFF); // 포커스 블루
   static const _pmSurface = Color(0xFFE0E9FF);
 
-  static const _eveningBg = Color(0xFF1A1A2E);   // 딥 네이비
+  static const _eveningBg = Color(0xFF1A1A2E); // 딥 네이비
   static const _eveningPrimary = Color(0xFFE94F6B); // 이브닝 로즈
   static const _eveningSurface = Color(0xFF2D2D4A);
 
-  static const _nightBg = Color(0xFF0D0D1A);     // 미드나잇
+  static const _nightBg = Color(0xFF0D0D1A); // 미드나잇
   static const _nightPrimary = Color(0xFF7B68EE); // 라벤더 퍼플
   static const _nightSurface = Color(0xFF1A1A2E);
 
@@ -77,7 +77,7 @@ class OnStepTheme {
         brightness: brightness,
         primary: primary,
         onPrimary: Colors.white,
-        secondary: primary.withOpacity(0.7),
+        secondary: primary.withValues(alpha: 0.7),
         onSecondary: Colors.white,
         surface: surface,
         onSurface: onBg,
@@ -91,12 +91,17 @@ class OnStepTheme {
       ),
       textTheme: TextTheme(
         displayLarge: TextStyle(
-          fontSize: 32, fontWeight: FontWeight.w800, color: onBg, height: 1.2,
+          fontSize: 32,
+          fontWeight: FontWeight.w800,
+          color: onBg,
+          height: 1.2,
         ),
         titleLarge: TextStyle(
-          fontSize: 20, fontWeight: FontWeight.w700, color: onBg,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: onBg,
         ),
-        bodyMedium: TextStyle(fontSize: 15, color: onBg.withOpacity(0.8)),
+        bodyMedium: TextStyle(fontSize: 15, color: onBg.withValues(alpha: 0.8)),
         labelLarge: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
     );

@@ -74,8 +74,20 @@ body{
 .nav-item.active .nav-icon{color:#FFFFFF;}
 .nav-item.active .nav-label{color:#FFFFFF;}
 
+/* ── 데스크톱: iPhone 16 Pro 실제 화면 기준 (393×852) ── */
+@media(min-width:431px){
+  html{overflow-y:auto;}
+  body{display:block!important;height:auto!important;overflow:visible!important;background:#E8E6E0;padding:40px 16px 80px;}
+  .phone{margin:0 auto;width:393px;height:852px;border-radius:44px;box-shadow:0 8px 48px rgba(0,0,0,.22),0 0 0 1px rgba(0,0,0,.07)!important;contain:none;overflow:hidden;}
+  .notch{display:none;}
+  .app-nav{flex-shrink:0;margin-top:0;}
+  .scroll{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent;}
+  .scroll::-webkit-scrollbar{display:block;width:3px;}
+  .scroll::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:2px;}
+}
+
 /* ── Mobile ── */
-@media(pointer:coarse),(max-width:430px){
+@media(max-width:430px){
   body{background:var(--bg);padding:0;align-items:stretch;height:100dvh;overflow:hidden;}
   .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
   .notch{flex-shrink:0;height:calc(env(safe-area-inset-top,0px) + 10px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
@@ -149,7 +161,7 @@ body{
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── 모바일 입력폼 font-size 강제 16px (확대 방지) ── */
-@media(pointer:coarse),(max-width:430px){
+@media(max-width:430px){
   input,textarea,select{font-size:16px!important}
   button{min-height:44px}
 }

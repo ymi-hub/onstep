@@ -207,13 +207,35 @@ function handleAuthClick() {
   if (_user) {
     if (confirm(`${_user.displayName || _user.email}\n로그아웃?`)) _auth.signOut();
   } else {
-    if (_authPopupOpen) return;
+    if (_authPopupOpen) {
+      console.warn('Google auth already in progress');
+      return;
+    }
+    const provider = new firebase.auth.GoogleAuthProvider();
+    console.log('handleAuthClick: starting Google sign-in with popup');
     _authPopupOpen = true;
-    _auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .catch(e => { if (e.code !== 'auth/cancelled-popup-request') alert(e.message); })
+    _auth.signInWithPopup(provider)
+      .then(result => {
+        console.log('handleAuthClick: popup sign-in result', result);
+      })
+      .catch(e => {
+        console.warn('handleAuthClick: popup failed', e.code, e.message);
+        if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
+          console.warn('Popup blocked, falling back to redirect:', e.code);
+          _authPopupOpen = false;
+          _auth.signInWithRedirect(provider).catch(err => {
+            console.warn('handleAuthClick: redirect failed', err.code, err.message);
+            if (err.code !== 'auth/cancelled-popup-request') alert(err.message);
+          });
+        } else if (e.code !== 'auth/cancelled-popup-request') {
+          alert(e.message);
+        }
+      })
       .finally(() => { _authPopupOpen = false; });
   }
 }
+window.handleAuthClick = handleAuthClick;
+window._handleAuthClick = handleAuthClick;
 
 // ═══ 하단 네비게이션 ══════════════════════════════════════════
 const _NAV_SVG = {
@@ -294,7 +316,7 @@ function _initTutorialOverlay() {
         <div style="font-size:44px;line-height:1;margin-bottom:24px">✦</div>
         <div style="font-size:24px;font-weight:800;color:#0C0C0A;letter-spacing:-.025em;line-height:1.3;margin-bottom:12px">지금 바로 시작할<br>준비가 됐나요?</div>
         <div style="font-size:13px;color:#9A9490;line-height:1.7;margin-bottom:40px">Google 계정으로 시작하면<br>모든 기기에서 자동 동기화됩니다.</div>
-        <button onclick="_handleAuthClick()" style="${BTN_STYLE}">${G_SVG}Google로 시작하기</button>
+        <button onclick="(window._handleAuthClick||window.handleAuthClick)()" style="${BTN_STYLE}">${G_SVG}Google로 시작하기</button>
         <div style="margin-top:16px;font-size:10px;color:#C0BDB8;letter-spacing:.06em;text-transform:uppercase">OnStep v2.4 · Your Life OS</div>
       </div>
     </div>`

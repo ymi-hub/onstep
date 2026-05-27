@@ -48,7 +48,7 @@ body{
   width:390px; background:var(--bg); border-radius:48px;
   box-shadow:0 0 0 1px rgba(255,255,255,.6) inset, 0 40px 100px rgba(0,0,0,.22);
   overflow:hidden; position:relative; transform:translate(0,0);
-  height:888px; display:flex; flex-direction:column;
+  height:min(888px,calc(100dvh - 72px)); display:flex; flex-direction:column;
 }
 .notch{height:44px;flex-shrink:0;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1;}
@@ -792,7 +792,19 @@ body{
   display:flex; align-items:center; justify-content:center;
 }
 
-@media(pointer:coarse),(max-width:430px){
+/* ── 데스크톱: iPhone 16 Pro 실제 화면 기준 (393×852) ── */
+@media(min-width:431px){
+  html{overflow-y:auto;}
+  body{display:block;height:auto;overflow:visible;background:#E8E6E0;padding:40px 16px 80px;}
+  .phone{margin:0 auto;width:393px;height:852px;border-radius:44px;box-shadow:0 8px 48px rgba(0,0,0,.22),0 0 0 1px rgba(0,0,0,.07);contain:none;display:flex;flex-direction:column;}
+  .notch{display:none;}
+  .app-nav{flex-shrink:0;}
+  .scroll,.bp-list{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .scroll::-webkit-scrollbar,.bp-list::-webkit-scrollbar{display:block;width:3px}
+  .scroll::-webkit-scrollbar-thumb,.bp-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:2px}
+}
+
+@media(max-width:430px){
   body{background:var(--bg);padding:0;align-items:stretch;height:100dvh;overflow:hidden;}
   .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
   .notch{flex-shrink:0;height:calc(env(safe-area-inset-top,0px)+10px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0;}
@@ -1521,7 +1533,7 @@ body{
   border:1px solid #C5C6CA; border-radius:var(--r-md);
   font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif; font-size:16px; font-weight:400; cursor:pointer;
 }
-@media(pointer:coarse),(max-width:430px){input,textarea,select{font-size:16px!important}}
+@media(max-width:430px){input,textarea,select{font-size:16px!important}}
 </style>
 </head>
 <body>

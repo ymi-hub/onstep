@@ -38,7 +38,10 @@ class _AssetsScreenState extends State<AssetsScreen>
   Future<void> _load() async {
     setState(() => _loading = true);
     final assets = await apiService.getAssets(category: _category);
-    setState(() { _assets = assets; _loading = false; });
+    setState(() {
+      _assets = assets;
+      _loading = false;
+    });
   }
 
   @override
@@ -120,7 +123,9 @@ class _AssetList extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.add_box_outlined, size: 56, color: theme.colorScheme.primary.withOpacity(0.4)),
+            Icon(Icons.add_box_outlined,
+                size: 56,
+                color: theme.colorScheme.primary.withValues(alpha: 0.4)),
             const SizedBox(height: 16),
             const Text('아이템을 추가해서 자산을 쌓아보세요'),
           ],
@@ -184,9 +189,13 @@ class _AssetTileState extends State<_AssetTile> {
     setState(() => _saving = true);
     await widget.onPatch(widget.asset.id, {
       'name': _nameCtrl.text.trim(),
-      'purchase_price': double.tryParse(_priceCtrl.text) ?? widget.asset.purchasePrice,
+      'purchase_price':
+          double.tryParse(_priceCtrl.text) ?? widget.asset.purchasePrice,
     });
-    setState(() { _saving = false; _editing = false; });
+    setState(() {
+      _saving = false;
+      _editing = false;
+    });
   }
 
   @override
@@ -215,11 +224,13 @@ class _AssetTileState extends State<_AssetTile> {
                         )
                       : GestureDetector(
                           onTap: () => setState(() => _editing = true),
-                          child: Text(a.name, style: theme.textTheme.titleLarge),
+                          child:
+                              Text(a.name, style: theme.textTheme.titleLarge),
                         ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
+                  icon: Icon(Icons.add_circle_outline,
+                      color: theme.colorScheme.primary),
                   tooltip: '착용 기록',
                   onPressed: () => widget.onUse(a.id),
                 ),
@@ -266,7 +277,8 @@ class _AssetTileState extends State<_AssetTile> {
                   const SizedBox(width: 12),
                   _saving
                       ? const SizedBox(
-                          width: 24, height: 24,
+                          width: 24,
+                          height: 24,
                           child: CircularProgressIndicator(strokeWidth: 2))
                       : Row(
                           children: [
@@ -308,7 +320,7 @@ class _StatChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: highlight
-            ? theme.colorScheme.primary.withOpacity(0.15)
+            ? theme.colorScheme.primary.withValues(alpha: 0.15)
             : theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(10),
       ),
@@ -316,14 +328,18 @@ class _StatChip extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+            style: TextStyle(
+                fontSize: 10,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
           ),
           Text(
             value,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: highlight ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+              color: highlight
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurface,
             ),
           ),
         ],
@@ -351,7 +367,9 @@ class _AddAssetSheetState extends State<_AddAssetSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: 24, right: 24, top: 24,
+        left: 24,
+        right: 24,
+        top: 24,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       child: Column(
@@ -362,18 +380,21 @@ class _AddAssetSheetState extends State<_AddAssetSheet> {
           const SizedBox(height: 20),
           TextField(
             controller: _nameCtrl,
-            decoration: const InputDecoration(labelText: '이름', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+                labelText: '이름', border: OutlineInputBorder()),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _brandCtrl,
-            decoration: const InputDecoration(labelText: '브랜드 (선택)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+                labelText: '브랜드 (선택)', border: OutlineInputBorder()),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _priceCtrl,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: '구매가 (₩)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+                labelText: '구매가 (₩)', border: OutlineInputBorder()),
           ),
           const SizedBox(height: 20),
           SizedBox(

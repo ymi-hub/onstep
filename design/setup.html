@@ -36,12 +36,12 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-start;padding:24px 16px 48px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
-.phone{width:390px;height:888px;background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate3d(0,0,0);contain:paint;display:flex;flex-direction:column;}
+.phone{width:390px;height:min(888px,calc(100dvh - 72px));background:var(--bg);border-radius:48px;box-shadow:0 0 0 1px rgba(255,255,255,.6) inset,0 40px 100px rgba(0,0,0,.22);overflow:hidden;position:relative;transform:translate3d(0,0,0);contain:paint;display:flex;flex-direction:column;}
 .notch{height:44px;flex-shrink:0;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;}
 .notch-bar{width:126px;height:5px;background:var(--ink);border-radius:3px;opacity:.1}
 .scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;background:var(--bg);overscroll-behavior:contain}
 .scroll::-webkit-scrollbar{display:none}
-@media(pointer:coarse),(max-width:430px){
+@media(max-width:430px){
   body{background:var(--bg);padding:0;align-items:stretch;height:100dvh;overflow:hidden;}
   .phone{width:100%;border-radius:0;box-shadow:none;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
   .notch{flex-shrink:0;height:calc(env(safe-area-inset-top,0px) + 12px);padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
@@ -54,6 +54,23 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
   .modal{width:100%}
   .toast{bottom:calc(env(safe-area-inset-bottom,0px) + 80px)}
   button{min-height:44px}
+}
+
+/* ── 데스크톱: iPhone 16 Pro 실제 화면 기준 (393×852) ── */
+@media(min-width:431px){
+  /* body를 block으로 → 브라우저 외부 스크롤 보장 */
+  html{overflow-y:auto;}
+  body{display:block;height:auto;overflow:visible;background:#E8E6E0;padding:40px 16px 80px;}
+  /* phone 센터 고정, 높이 고정 */
+  .phone{margin:0 auto;width:393px;height:852px;border-radius:44px;box-shadow:0 8px 48px rgba(0,0,0,.22),0 0 0 1px rgba(0,0,0,.07);contain:none;display:flex;flex-direction:column;}
+  .notch{display:none;}
+  /* 하단 네비: .scroll 안에 있으므로 sticky */
+  #main-bottom-nav{position:sticky;bottom:0;z-index:20;background:var(--bg);}
+  .app-nav{flex-shrink:0;}
+  /* 내부 스크롤바 표시 */
+  .scroll,.panel-body,.se-body,.archive-body,.bp-list{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .scroll::-webkit-scrollbar,.panel-body::-webkit-scrollbar,.se-body::-webkit-scrollbar,.archive-body::-webkit-scrollbar,.bp-list::-webkit-scrollbar{display:block;width:3px}
+  .scroll::-webkit-scrollbar-thumb,.panel-body::-webkit-scrollbar-thumb,.se-body::-webkit-scrollbar-thumb,.archive-body::-webkit-scrollbar-thumb,.bp-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:2px}
 }
 
 /* ── AppBar ── */
@@ -991,7 +1008,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .panel-body{flex:1;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
 .panel-body::-webkit-scrollbar{display:none}
 .panel-bnav{background:#FFFFFF;display:flex;border-top:1px solid rgba(0,0,0,.06);flex-shrink:0;}
-@media(pointer:coarse),(max-width:430px){input,textarea,select{font-size:16px!important}}
+@media(max-width:430px){input,textarea,select{font-size:16px!important}}
 </style>
 </head>
 <body>
