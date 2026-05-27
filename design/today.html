@@ -319,6 +319,10 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .care-hero-emoji-float{position:absolute;top:50%;left:50%;transform:translate(-50%,-70%);font-size:52px;line-height:1;pointer-events:none}
 .care-hero-name{position:absolute;bottom:14px;left:16px;right:16px;color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.1;z-index:1}
 .care-block-multi .care-hero-name{font-size:17px;bottom:10px}
+/* 이미지 없을 때 제목 텍스트 전용 헤더 */
+.care-title-only{display:flex;align-items:center;gap:8px;padding:16px 16px 14px}
+.care-title-only-emoji{font-size:20px;line-height:1;flex-shrink:0}
+.care-title-only-name{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1.2}
 /* 제품 그리드 — 1열 5개 좌우 스크롤 */
 .care-prod-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:16px;scrollbar-width:none;gap:10px;padding:20px 0;border-top:1px solid rgba(0,0,0,.06)}
 .care-prod-row::-webkit-scrollbar{display:none}
@@ -341,6 +345,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .care-tip-prod-item .care-prod-thumb{border-radius:10px}
 .care-tip-prod-item .care-prod-label{font-size:11px}
 .care-tip-sec .care-prod-row{border-top:none;padding-top:8px;padding-bottom:16px}
+.care-source-link{display:flex;align-items:center;gap:6px;padding:10px 16px;border-top:1px solid var(--border);text-decoration:none;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.04em;background:rgba(0,0,0,.02);transition:background .12s}
+.care-source-link:active{background:var(--surface-mid)}
+.care-source-domain{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400;color:var(--mist)}
 .care-expert-tip{padding:14px 16px 18px;background:#F9FFE0;border-top:1px solid rgba(197,255,0,.35)}
 .care-expert-tip-hd{display:flex;align-items:center;gap:6px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#4E7D00;margin-bottom:10px}
 .care-expert-tip-text{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;color:var(--sub);line-height:1.65;white-space:pre-wrap;word-break:break-word}
@@ -398,9 +405,16 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .allday-top-label{display:none}
 .allday-section{padding:28px 0 0;display:flex;flex-direction:column;gap:0}
 .allday-section-hd{padding:0 16px;margin-bottom:12px;gap:0}
-
 .allday-top-edit{font-size:11px;font-weight:700;letter-spacing:.04em}
 #allday-items{background:#FFFFFF;border-radius:var(--r-xl);overflow:hidden;margin:0 16px;box-shadow:0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)}
+/* Routine Tracker — flow-step-card 내장 오버라이드 */
+.flow-step-card .allday-section{padding:0;border-top:1px solid var(--border)}
+.flow-step-card .allday-section-hd{padding:10px 16px;margin-bottom:0;flex-direction:row;align-items:center}
+.flow-step-card .allday-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
+.flow-step-card #allday-items{margin:0;border-radius:0;box-shadow:none;background:transparent}
+.flow-step-card .allday-item{background:transparent;border:none;border-top:1px solid var(--border);padding:10px 16px}
+.flow-step-card .allday-item.done{background:var(--surface-low)}
+.flow-step-card .allday-empty{margin:8px 16px 12px;font-size:12px;padding:14px;border-radius:var(--r-md)}
 .allday-item{border-radius:0;border:none;border-bottom:1px solid var(--border);box-shadow:none;padding:13px 16px;background:#FFFFFF;transition:background .18s;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
 .allday-item:first-of-type{border-top:none}
 .allday-item:last-of-type{border-bottom:none}
@@ -523,25 +537,21 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
           </button>
         </div>
       </div>
-    </div>
-
-    <!-- Routine Tracker — 루틴케어 박스 바로 아래 -->
-    <div class="allday-section">
-      <div class="allday-section-hd">
-        <div class="allday-hd-left">
-          <div class="allday-top-label">ALL DAY</div>
+      <!-- Routine Tracker — 카드 하단 내장 -->
+      <div class="allday-section">
+        <div class="allday-section-hd">
           <div class="allday-title">Routine Tracker</div>
+          <a class="allday-top-edit" href="setup.html?panel=tracker">Edit →</a>
         </div>
-        <a class="allday-top-edit" href="setup.html?panel=tracker">Edit →</a>
+        <div id="allday-items"></div>
       </div>
-      <div id="allday-items"></div>
     </div>
 
     <!-- Special Care -->
     <div class="editorial-section" id="care-today-section" style="display:none">
       <div class="editorial-hd">
         <div class="editorial-hd-tag">#INTENSIVE CARE</div>
-        <a class="editorial-hd-sub" href="setup.html?panel=care">Edit →</a>
+        <a class="editorial-hd-sub" href="setup.html?panel=care">List →</a>
       </div>
       <div id="care-today-wrap"></div>
     </div>
@@ -560,7 +570,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
     <!-- #OOTD section -->
     <div class="editorial-section" id="ootd-editorial-section" style="padding-bottom:0">
       <div class="editorial-hd">
-        <div class="editorial-hd-tag">#Today LOOK</div>
+        <div class="editorial-hd-tag">#OOTD</div>
         <a class="editorial-hd-sub" href="log.html?tab=lookbook" id="ootd-hd-sub">Edit →</a>
       </div>
       <div id="smart-guide-ootd"></div>
@@ -1565,15 +1575,27 @@ function renderCareToday() {
       </div>`;
     }
 
+    const srcUrl = (t.sourceUrl||'').trim();
+    const sourceLinkHtml = srcUrl ? (() => {
+      let domain = srcUrl;
+      try { domain = new URL(srcUrl).hostname; } catch(e){}
+      return `<a class="care-source-link" href="${srcUrl}" target="_blank" rel="noopener"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>SOURCE<span class="care-source-domain">${domain}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
+    })() : '';
+    const headerHtml = heroImg
+      ? `<div class="care-hero" style="background-image:url(${heroImg})">
+          <div class="care-hero-overlay"></div>
+          <div class="care-hero-name">${t.emoji ? t.emoji+' ' : ''}${t.name||''}</div>
+        </div>`
+      : `<div class="care-title-only">
+          ${t.emoji ? `<span class="care-title-only-emoji">${t.emoji}</span>` : ''}
+          <span class="care-title-only-name">${t.name||''}</span>
+        </div>`;
     return `<div class="care-block care-card${isMulti ? ' care-block-multi' : ''}">
-      <div class="care-hero"${heroImg ? ` style="background-image:url(${heroImg})"` : ''}>
-        ${!heroImg ? `<span class="care-hero-emoji-float">${t.emoji||'✦'}</span>` : ''}
-        <div class="care-hero-overlay"></div>
-        <div class="care-hero-name">${t.emoji ? t.emoji+' ' : ''}${t.name||''}</div>
-      </div>
+      ${headerHtml}
       ${rowHtml ? `<div class="care-prod-row">${rowHtml}</div>` : ''}
       ${tipSectionHtml}
       ${expertTipHtml}
+      ${sourceLinkHtml}
     </div>`;
   }).join('');
 }

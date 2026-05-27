@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -685,7 +685,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-add-btn{border:1.5px dashed var(--border-md);border-radius:var(--r-md);padding:16px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);transition:all .15s}
 .ct-add-btn:active{border-color:var(--ink);color:var(--ink)}
 /* ── ct-card 내부 care 제품 표시 (today.html care 스타일과 동일) ── */
-.ct-care-hero{position:relative;width:100%;height:90px;background:var(--surface-mid);background-size:cover;background-position:center;overflow:hidden;display:flex;align-items:flex-end}
+.ct-care-hero{position:relative;width:100%;height:90px;background:var(--surface-mid);background-size:auto 100%;background-position:center center;background-repeat:no-repeat;overflow:hidden;display:flex;align-items:flex-end;flex-shrink:0}
 .ct-care-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.68) 0%,transparent 100%)}
 .ct-care-hero-name{position:relative;z-index:1;padding:8px 14px;color:#fff;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
 .ct-care-hero-emoji{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:26px;line-height:1}
@@ -697,9 +697,10 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-care-prod-thumb{width:100%;aspect-ratio:1/1;background:#EDECE9;border-radius:10px;border:1px solid rgba(0,0,0,.06);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .ct-care-prod-thumb span{font-size:22px;line-height:1}
 .ct-care-prod-label{font-size:11px;font-weight:400;color:var(--ink);text-align:center;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ct-care-tag-plus,.ct-care-tag-minus{flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--mist);padding:0 2px;align-self:center;padding-bottom:20px}
-.ct-care-tag-tip{flex-shrink:0;background:rgba(197,255,0,.2);border:1px solid rgba(132,176,0,.3);border-radius:6px;padding:3px 6px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:#4E7D00;align-self:flex-start;margin-top:4px}
-.ct-care-tag-desc{flex-shrink:0;max-width:68px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;color:var(--sub);line-height:1.3;padding:4px 6px;background:var(--surface-low);border-radius:var(--r-sm);align-self:flex-start;word-break:keep-all}
+.ct-care-tag-plus{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:36px;height:22px;border-radius:12px;font-size:12px;font-weight:800;background:rgba(33,150,243,.12);color:#1976d2;align-self:center}
+.ct-care-tag-minus{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:36px;height:22px;border-radius:12px;font-size:12px;font-weight:800;background:rgba(255,152,0,.2);color:#E65100;align-self:center}
+.ct-care-tag-tip{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:22px;border-radius:12px;font-size:12px;font-weight:800;background:rgba(197,255,0,.22);color:#4E7D00;align-self:center;padding:0 8px;white-space:nowrap}
+.ct-care-tag-desc{flex-shrink:0;align-self:center;padding:5px 10px;background:#2185fd;border-radius:16px;border:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:400;color:#fff;white-space:nowrap;line-height:1}
 .ct-care-tip-sec{border-top:1px solid rgba(0,0,0,.06)}
 .ct-care-tip-sec-head{padding:10px 14px 0}
 .ct-care-tip-tag{display:inline-flex;align-items:center;background:var(--lime);color:var(--ink);font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:10px;font-weight:800;letter-spacing:.08em;padding:2px 9px;border-radius:9999px}
@@ -707,6 +708,9 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-care-tip-item .ct-care-prod-thumb{border-radius:8px}
 .ct-care-tip-item .ct-care-prod-label{font-size:10px}
 .ct-care-tip-sec .ct-care-prod-row{border-top:none;padding-top:6px;padding-bottom:12px}
+.ct-care-source-link{display:flex;align-items:center;gap:6px;padding:9px 16px;border-top:1px solid var(--border);text-decoration:none;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.04em;background:var(--surface-low);transition:background .12s}
+.ct-care-source-link:active{background:var(--surface-mid)}
+.ct-care-source-domain{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400;color:var(--mist)}
 .ct-care-expert-tip{padding:12px 14px 14px;background:#F9FFE0;border-top:1px solid rgba(197,255,0,.35)}
 .ct-care-expert-tip-hd{display:flex;align-items:center;gap:5px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#4E7D00;margin-bottom:8px}
 .ct-care-expert-tip-text{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--sub);line-height:1.6;white-space:pre-wrap;word-break:break-word}
@@ -723,8 +727,10 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
 .ct-sheet-close{width:28px;height:28px;border-radius:var(--r-sm);background:var(--surface-mid);border:none;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sub)}
 .ct-sheet-sec{padding:16px 20px 0}
 .ct-sheet-sec-lbl{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-bottom:8px;display:block}
-.ct-sheet-baseline{height:110px;border:1.5px dashed var(--border-md);border-radius:var(--r-md);background:var(--surface-low);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;overflow:hidden;background-size:auto 100%;background-position:center;background-repeat:no-repeat;transition:all .2s}
+.ct-sheet-baseline{position:relative;height:110px;border:1.5px dashed var(--border-md);border-radius:var(--r-md);background:var(--surface-low);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;overflow:hidden;background-size:auto 100%;background-position:center;background-repeat:no-repeat;transition:all .2s}
 .ct-sheet-baseline.has-img{border-style:solid;border-color:var(--ink)}
+.ct-baseline-del{display:none;position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);border:none;color:#fff;font-size:13px;line-height:1;cursor:pointer;align-items:center;justify-content:center;z-index:2;flex-shrink:0}
+.ct-sheet-baseline.has-img .ct-baseline-del{display:flex}
 .ct-sheet-baseline-text{font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mist)}
 .ct-name-row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
 .ct-emoji-inp{width:48px;height:44px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:20px;text-align:center;outline:none;background:var(--surface-low)}
@@ -1106,13 +1112,20 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
         <div class="ct-hero-title">집중케어</div>
         <div class="ct-hero-sub">케어 프로그램 설계 · BOX 뷰티 제품 매핑 · 기간 & 스케줄 설정</div>
       </div>
-      <!-- 새 집중케어 설계 버튼 — 상단 -->
+      <!-- 검색바 -->
+      <div class="archive-search-bar">
+        <div class="archive-search-wrap">
+          <svg class="archive-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="archive-search-input" type="text" id="care-search" placeholder="케어 이름 · 설명 검색…" oninput="filterCareList(this.value)" autocomplete="off">
+        </div>
+        <span class="archive-count-badge" id="care-count-badge"></span>
+      </div>
+      <!-- 새 집중케어 설계 버튼 -->
       <div class="ct-add-wrap" style="padding:8px 20px 4px">
         <div class="ct-add-btn" onclick="openCtSheet('care')">
           <span style="font-size:16px;line-height:1">+</span> 새 집중케어 설계
         </div>
       </div>
-      <div id="setup-care-count" style="padding:4px 20px 0;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)"></div>
       <div class="ct-list" id="setup-care-list"></div>
     </div>
     <div class="app-nav"></div>
@@ -1331,6 +1344,7 @@ body{background:#E8E6E0;display:flex;justify-content:center;align-items:flex-sta
       <div class="ct-sheet-sec">
         <span class="ct-sheet-sec-lbl">BASELINE 레퍼런스</span>
         <div class="ct-sheet-baseline" id="ct-sheet-baseline" onclick="pickCtBaseline()">
+          <button class="ct-baseline-del" onclick="event.stopPropagation();clearCtBaseline()">✕</button>
           <span style="font-size:22px;opacity:.25">📷</span>
           <span class="ct-sheet-baseline-text">레퍼런스 사진 추가</span>
         </div>
@@ -1980,74 +1994,20 @@ const CAT = {
 };
 
 // ── State ─────────────────────────────────────────────────────
-// ── Real product sample data (5 per routine) ──────────────────
-const SAMPLE_MORNING_S1 = [
-  { id:1001, catKey:'toner',   name:'델마토너',    brand:'뷰티지아나',       icon:'💧', imgData:null },
-  { id:1002, catKey:'serum',   name:'델마세럼',       brand:'뷰티지아나',    icon:'🔬', imgData:null },
-  { id:1003, catKey:'ampoule', name:'오션앰플',   brand:'뷰티지아나',      icon:'🧪', imgData:null },
-  { id:1004, catKey:'cream',   name:'버터크림',          brand:'뷰티지아나',     icon:'🫙', imgData:null },
-  { id:1005, catKey:'mist',    name:'크림미스트',                    brand:'뷰티지아나',      icon:'🌫️', imgData:null },
-];
-const SAMPLE_MORNING_S2 = [
-  { id:1011, catKey:'booster', name:'오션부스터',       brand:'뷰티지아나',   icon:'⚡', imgData:null },
-  { id:1012, catKey:'serum',   name:'버터세럼',         brand:'뷰티지아나',        icon:'🔬', imgData:null },
-  { id:1013, catKey:'cream',   name:'버터크림',   brand:'뷰티지아나',    icon:'🫙', imgData:null },
-];
-const SAMPLE_NIGHTLY = [
-  { id:2001, catKey:'pack',    name:'쑥 팩',       brand:'뷰티지아나',   icon:'🎭', imgData:null },
-  { id:2002, catKey:'toner',   name:'델마토너', brand:'뷰티지아나', icon:'💧', imgData:null },
-  { id:2003, catKey:'serum',   name:'델마세럼',       brand:'뷰티지아나', icon:'🔬', imgData:null },
-  { id:2004, catKey:'cream',   name:'델마크림',   brand:'뷰티지아나',       icon:'🫙', imgData:null },
-  { id:2005, catKey:'ampoule', name:'오션앰플',            brand:'뷰티지아나',         icon:'🧪', imgData:null },
-];
-// ── State ─────────────────────────────────────────────────────
 let lookSchedule   = {};
 let makeupSchedule = { themes: [] };
 
 let state = {
-  session: 12,
-  periodStart: '2026-04-10',
-  periodEnd:   '2026-04-20',
+  session: 1,
+  periodStart: '',
+  periodEnd:   '',
   morningTime: '08:00',
   nightlyTime: '22:00',
-  morning: {
-    active: 1,
-    routines: [
-      { id:1, products: SAMPLE_MORNING_S1.map(p=>({...p})), tip:'Apply the toner while the skin is still slightly damp for maximum hydration absorption.' },
-      { id:2, products: SAMPLE_MORNING_S2.map(p=>({...p})), tip:'Alternating with retinol on Step 2 days enhances cell turnover without irritation.' }
-    ]
-  },
-  nightly: {
-    active: 1,
-    routines: [
-      { id:1, products: SAMPLE_NIGHTLY.map(p=>({...p})), tip:'Double cleansing is essential at night to remove pollutants and SPF effectively.' },
-      { id:2, products:[], tip:'' }
-    ]
-  },
-  history: [
-    {
-      session:11, periodStart:'2026-03-20', periodEnd:'2026-04-09',
-      morning:{ routines:[{id:1,products:[
-        {id:2001,catKey:'serum',name:'Vitamin C Brightening Serum',brand:'Kiehl\'s',icon:'🔬',imgData:null},
-        {id:2002,catKey:'cream',name:'Ultra Facial Cream',brand:'Kiehl\'s',icon:'🫙',imgData:null}
-      ],tip:''}]},
-      nightly:{ routines:[{id:1,products:[
-        {id:2003,catKey:'etc',name:'Facial Treatment Oil',brand:'SK-II',icon:'✨',imgData:null}
-      ],tip:''}]}
-    },
-    {
-      session:10, periodStart:'2026-02-28', periodEnd:'2026-03-19',
-      morning:{ routines:[{id:1,products:[
-        {id:3001,catKey:'serum',name:'Serum Foundation SPF35',brand:'Giorgio Armani',icon:'🔬',imgData:null}
-      ],tip:''}]},
-      nightly:{ routines:[{id:1,products:[
-        {id:3002,catKey:'etc',name:'Advanced Night Repair',brand:'Estée Lauder',icon:'✨',imgData:null},
-        {id:3003,catKey:'pack',name:'Sleeping Mask',brand:'LANEIGE',icon:'🎭',imgData:null}
-      ],tip:''}]}
-    },
-    { session:9, periodStart:'2026-02-05', periodEnd:'2026-02-27',
-      morning:{routines:[{id:1,products:[],tip:''}]}, nightly:{routines:[{id:1,products:[],tip:''}]} }
-  ]
+  morning: { active: 1, routines: [{ id:1, products:[], tip:'' }] },
+  nightly: { active: 1, routines: [{ id:1, products:[], tip:'' }] },
+  history: [],
+  published: false,
+  savedAt: ''
 };
 
 let modal = { slot:null, editId:null };
@@ -4989,7 +4949,7 @@ function saveNewTheme() {
   showToast(`"${name}" 테마 추가됨`);
 }
 
-// ── Care List (집중케어 패널) — 회차일정관리 방식 목록화 ────────
+// ── Care List (집중케어 패널) — 카드 목록 ─────────────────────
 function renderCtCareList() {
   const el = document.getElementById('setup-care-list');
   if (!el) return;
@@ -5000,146 +4960,97 @@ function renderCtCareList() {
     if (aA !== bA) return aA ? -1 : 1;
     return (a.name||'').localeCompare(b.name||'','ko');
   });
-  const cntEl = document.getElementById('setup-care-count');
-  if (cntEl) cntEl.textContent = care.length ? `${care.length}개 프로그램 등록됨` : '';
+  // 검색어 초기화 및 카운트 배지
+  const searchEl = document.getElementById('care-search');
+  if (searchEl) searchEl.value = '';
+  const badge = document.getElementById('care-count-badge');
+  if (badge) badge.textContent = '';
   if (!care.length) {
-    el.innerHTML = `<div style="padding:40px 20px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--mist);text-align:center;line-height:1.8">등록된 케어 프로그램이 없습니다<br>위 버튼으로 새 집중케어를 추가하세요</div>`;
+    el.innerHTML = '<div style="padding:40px 20px;font-family:\'Plus Jakarta Sans\',\'Space Grotesk\',sans-serif;font-size:12px;color:var(--mist);text-align:center;line-height:1.8">등록된 케어 프로그램이 없습니다<br>위 버튼으로 새 집중케어를 추가하세요</div>';
     return;
   }
   const assets = getBoxAssets();
-
   el.innerHTML = care.map(t => {
     const p        = t.scheduledPeriod;
     const isActive = p ? (p.start <= today && today <= (p.end || p.start)) : false;
     const heroImg  = t.baselineImg || t.storageUrl || '';
     const allItems = t.items || [];
     const tipItems = t.tipItems || [];
-
-    // ── 컴팩트 행: 날짜 / 제품 수
-    const dateStr = p && p.start
-      ? `${p.start.slice(5).replace('-','/')} → ${(p.end||p.start).slice(5).replace('-','/')}`
-      : '기간 미설정';
-    const prodCount = allItems.filter(i => !i.type || i.type === 'product').length;
-    const tipCount  = tipItems.filter(i => !i.type || i.type === 'product').length;
-    const countTags = [
-      prodCount ? `<span class="ae-tag">${prodCount}개 제품</span>` : '',
-      tipCount  ? `<span class="ae-tag">TIP ${tipCount}</span>` : ''
-    ].filter(Boolean).join('');
-
-    // ── 히어로 (ae-detail 상단 full-bleed)
+    // hero: 이미지 있으면 200px, 없으면 숨김
     const heroSection = heroImg
-      ? `<div class="ct-care-hero" style="background-image:url(${heroImg});border-radius:0;height:80px;margin:-14px -16px 0">
-          <div class="ct-care-hero-overlay"></div>
-          <div class="ct-care-hero-name">${t.emoji ? t.emoji+' ' : ''}${t.name||''}</div>
-        </div>`
+      ? `<div class="ct-care-hero" style="background-image:url(${heroImg});height:200px;background-size:auto 100%;background-position:center center;background-repeat:no-repeat"><div class="ct-care-hero-overlay"></div><div class="ct-care-hero-name">${t.emoji ? t.emoji+' ' : ''}${t.name||''}</div></div>`
       : '';
-
-    // ── 제품 row
+    // 메타
+    const dateStr = p && p.start ? `${p.start.slice(5).replace('-','/')} → ${(p.end||p.start).slice(5).replace('-','/')}` : '';
+    const metaSection = `<div class="ct-card-body"><div class="ct-card-hd">${!heroImg?`<span class="ct-card-emoji">${t.emoji||'✦'}</span>`:''}<span class="ct-card-name">${t.name||''}</span><span class="ct-card-badge ${isActive?'on':'off'}">${isActive?'ACTIVE':'DRAFT'}</span></div>${dateStr?`<div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--mist);margin-bottom:4px">${dateStr}</div>`:''} ${t.description?`<div class="ct-card-desc">${t.description}</div>`:''}</div>`;
+    // 제품 row
     const rowHtml = allItems.map(item => {
-      if (item.type === 'plus')  return `<div class="ct-care-tag-plus">+</div>`;
-      if (item.type === 'minus') return `<div class="ct-care-tag-minus">→</div>`;
+      if (item.type === 'plus')  return '<div class="ct-care-tag-plus">+</div>';
+      if (item.type === 'minus') return '<div class="ct-care-tag-minus">→</div>';
       if (item.type === 'tip')   return `<div class="ct-care-tag-tip">${item.text||'TIP'}</div>`;
       if (item.type === 'desc')  return `<div class="ct-care-tag-desc">${item.text||''}</div>`;
       const asset = assets.find(a => a.id === item.assetId);
       const img   = asset?.imgData || asset?.storageUrl || item.imgData || item.storageUrl || '';
       const name  = asset?.name || item.name || '';
       const emoji = asset?.icon || item.icon || t.emoji || '✦';
-      return `<div class="ct-care-prod-item">
-        <div class="ct-care-prod-thumb"${img?` style="background-image:url(${img})"`:''}>${!img?`<span>${emoji}</span>`:''}</div>
-        <div class="ct-care-prod-label">${name}</div>
-      </div>`;
+      return `<div class="ct-care-prod-item"><div class="ct-care-prod-thumb"${img?` style="background-image:url(${img})"`:''}>` + (!img?`<span>${emoji}</span>`:'') + `</div><div class="ct-care-prod-label">${name}</div></div>`;
     }).join('');
-
-    // ── TIP 섹션
+    // TIP 섹션
     let tipHtml = '';
-    const hasTip = tipItems.some(item =>
-      ((!item.type || item.type === 'product') && (item.assetId || item.name)) ||
-      ((item.type === 'tip' || item.type === 'desc') && (item.text||'').trim())
-    );
+    const hasTip = tipItems.some(item => ((!item.type||item.type==='product')&&(item.assetId||item.name)) || ((item.type==='tip'||item.type==='desc')&&(item.text||'').trim()));
     if (hasTip) {
       const tipRowHtml = tipItems.map(item => {
-        if (item.type === 'plus')  return `<div class="ct-care-tag-plus">+</div>`;
-        if (item.type === 'minus') return `<div class="ct-care-tag-minus">→</div>`;
+        if (item.type === 'plus')  return '<div class="ct-care-tag-plus">+</div>';
+        if (item.type === 'minus') return '<div class="ct-care-tag-minus">→</div>';
         if (item.type === 'tip')   return `<div class="ct-care-tag-tip">${item.text||'TIP'}</div>`;
         if (item.type === 'desc')  return `<div class="ct-care-tag-desc">${item.text||''}</div>`;
         const asset = assets.find(a => a.id === item.assetId);
         const img   = asset?.imgData || asset?.storageUrl || item.imgData || item.storageUrl || '';
         const name  = asset?.name || item.name || '';
         const emoji = asset?.icon || item.icon || t.emoji || '✦';
-        return `<div class="ct-care-tip-item">
-          <div class="ct-care-prod-thumb"${img?` style="background-image:url(${img})"`:''}>${!img?`<span>${emoji}</span>`:''}</div>
-          <div class="ct-care-prod-label">${name}</div>
-        </div>`;
+        return `<div class="ct-care-tip-item"><div class="ct-care-prod-thumb"${img?` style="background-image:url(${img})"`:''}>` + (!img?`<span>${emoji}</span>`:'') + `</div><div class="ct-care-prod-label">${name}</div></div>`;
       }).join('');
-      tipHtml = `<div class="ct-care-tip-sec">
-        <div class="ct-care-tip-sec-head"><span class="ct-care-tip-tag">TIP</span></div>
-        <div class="ct-care-prod-row">${tipRowHtml}</div>
-      </div>`;
+      tipHtml = `<div class="ct-care-tip-sec"><div class="ct-care-tip-sec-head"><span class="ct-care-tip-tag">TIP</span></div><div class="ct-care-prod-row">${tipRowHtml}</div></div>`;
     }
-
-    // ── EXPERT TIP (제품명 하이라이팅 포함)
+    // EXPERT TIP
     let expertTipHtml = '';
     const rawTip = (t.expertTip || '').trim();
     if (rawTip) {
       const prodItems = allItems.filter(x => !x.type || x.type === 'product');
       let tipText = rawTip.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      const names = prodItems.map(x => {
-        const a = assets.find(y => y.id === x.assetId);
-        return (a?.name || x.name || '').trim();
-      }).filter(Boolean).sort((a,b) => b.length - a.length);
-      names.forEach(name => {
-        const esc = name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-        tipText = tipText.replace(new RegExp(esc,'gi'), m =>
-          `<strong style="color:#4E7D00;font-weight:800;background:rgba(197,255,0,0.28);padding:1px 4px;border-radius:4px;border:1px solid rgba(197,255,0,0.35);display:inline-block;margin:0 1px">${m}</strong>`
-        );
-      });
-      expertTipHtml = `<div class="ct-care-expert-tip">
-        <div class="ct-care-expert-tip-hd">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-          EXPERT TIP
-        </div>
-        <div class="ct-care-expert-tip-text">${tipText.replace(/\n/g,'<br>')}</div>
-      </div>`;
+      prodItems.map(x => { const a = assets.find(y => y.id === x.assetId); return (a?.name || x.name || '').trim(); })
+        .filter(Boolean).sort((a,b) => b.length - a.length)
+        .forEach(name => { const esc = name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); tipText = tipText.replace(new RegExp(esc,'gi'), m => `<strong style="color:#4E7D00;font-weight:800;background:rgba(197,255,0,0.28);padding:1px 4px;border-radius:4px;border:1px solid rgba(197,255,0,0.35);display:inline-block;margin:0 1px">${m}</strong>`); });
+      expertTipHtml = `<div class="ct-care-expert-tip"><div class="ct-care-expert-tip-hd"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> EXPERT TIP</div><div class="ct-care-expert-tip-text">${tipText.replace(/\n/g,'<br>')}</div></div>`;
     }
-
-    // ── 액션 버튼
+    // SOURCE 링크
+    let sourceLinkHtml = '';
+    const srcUrl = (t.sourceUrl||'').trim();
+    if (srcUrl) {
+      let domain = srcUrl; try { domain = new URL(srcUrl).hostname; } catch(e){}
+      sourceLinkHtml = `<a class="ct-care-source-link" href="${srcUrl}" target="_blank" rel="noopener"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>SOURCE<span class="ct-care-source-domain">${domain}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
+    }
+    // 액션 버튼
     const actionsHtml = isActive
-      ? `<button class="ae-detail-edit-btn" onclick="event.stopPropagation();editCtContent('care',${t.id})">EDIT ROUTINE →</button>`
-      : `<div class="ae-detail-action-row">
-           <button class="ae-detail-del-btn" onclick="event.stopPropagation();careGoToday(${t.id})">TODAY GO →</button>
-           <button class="ae-detail-edit-btn" onclick="event.stopPropagation();careEditWithToday(${t.id})">EDIT →</button>
-         </div>`;
-
-    return `
-    <div class="ae-row${isActive?' current':''}" id="care-row-${t.id}" onclick="toggleCareRow(${t.id})">
-      <div class="ae-session-num" style="font-size:20px;min-width:28px;line-height:1">${t.emoji||'✦'}</div>
-      <div class="ae-row-info">
-        <div class="ae-row-title" style="font-size:17px">${t.name||'(이름 없음)'}${isActive?' <span class="ae-now-pill">ACTIVE</span>':''}</div>
-        <div class="ae-row-dates">${dateStr}</div>
-      </div>
-      <div class="ae-row-right">${countTags}<span class="ae-chevron">›</span></div>
-    </div>
-    <div class="ae-detail" id="care-detail-${t.id}">
-      ${heroSection}
-      <div class="ae-detail-inner" style="${heroSection?'padding-top:14px':''}">
-        ${t.description?`<div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.6">${t.description}</div>`:''}
-        ${rowHtml ? `<div class="ct-care-prod-row" style="margin:0 -16px;padding-left:0;padding-right:0">${rowHtml}</div>` : ''}
-        ${tipHtml}
-        ${expertTipHtml}
-        ${actionsHtml}
-      </div>
-    </div>`;
+      ? '<button class="ct-card-ok-btn" onclick="editCtContent(\'care\',' + t.id + ')">EDIT ROUTINE →</button>'
+      : '<button class="ct-card-edit-btn" style="flex:1" onclick="careGoToday(' + t.id + ')">TODAY GO →</button><button class="ct-card-ok-btn" onclick="careEditWithToday(' + t.id + ')">EDIT →</button>';
+    return `<div class="ct-card${isActive?' published':''}">` + heroSection + metaSection + (rowHtml ? `<div class="ct-care-prod-row">${rowHtml}</div>` : '') + tipHtml + expertTipHtml + sourceLinkHtml + `<div class="ct-card-actions">${actionsHtml}</div></div>`;
   }).join('');
 }
 
-function toggleCareRow(id) {
-  const detail = document.getElementById(`care-detail-${id}`);
-  const row    = document.getElementById(`care-row-${id}`);
-  if (!detail) return;
-  const isOpen = detail.classList.contains('open');
-  document.querySelectorAll('#setup-care-list .ae-detail.open').forEach(d => d.classList.remove('open'));
-  document.querySelectorAll('#setup-care-list .ae-row.expanded').forEach(r => r.classList.remove('expanded'));
-  if (!isOpen) { detail.classList.add('open'); row?.classList.add('expanded'); }
+function filterCareList(q) {
+  const cards = document.querySelectorAll('#setup-care-list .ct-card');
+  const badge = document.getElementById('care-count-badge');
+  let visible = 0;
+  const lq = (q||'').toLowerCase().trim();
+  cards.forEach(card => {
+    const name = (card.querySelector('.ct-card-name')?.textContent || '').toLowerCase();
+    const desc = (card.querySelector('.ct-card-desc')?.textContent || '').toLowerCase();
+    const match = !lq || name.includes(lq) || desc.includes(lq);
+    card.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+  if (badge) badge.textContent = lq ? `${visible}개` : '';
 }
 
 function activateCare(id) {
@@ -5508,6 +5419,17 @@ function pickCtBaseline() {
     const txt = el.querySelector('.ct-sheet-baseline-text');
     if (txt) txt.style.display = 'none';
   }, 600, 0.68);
+}
+function clearCtBaseline() {
+  ctSheetState.baselineImg = null;
+  ctSheetState.storageUrl  = null;
+  ctSheetState.storageHash = '';
+  const el = document.getElementById('ct-sheet-baseline');
+  if (!el) return;
+  el.style.backgroundImage = '';
+  el.classList.remove('has-img');
+  const txt = el.querySelector('.ct-sheet-baseline-text');
+  if (txt) txt.style.display = '';
 }
 function onCtBaselineFile(input) {
   if (!input.files[0]) return;
@@ -5971,7 +5893,8 @@ function saveCtContent() {
       const periodEnd   = document.getElementById('ct-period-end').value;
       const scheduledPeriod = (periodStart || periodEnd) ? { start: periodStart || '', end: periodEnd || periodStart || '' } : null;
       const _hasNewImg = !!ctSheetState.baselineImg;
-      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, tipItems: cleanTipItems, expertTip: ctSheetState.expertTip || '', scheduledPeriod, baselineImg: ctSheetState.baselineImg || null, storageUrl: _hasNewImg ? null : (ctSheetState.storageUrl || null), storageHash: _hasNewImg ? '' : (ctSheetState.storageHash || ''), updatedAt: new Date().toISOString() };
+      const sourceUrl  = (document.getElementById('ct-source-url')?.value || '').trim();
+      const obj = { id: ctSheetState.editId || Date.now(), name, emoji, description: desc, items: cleanItems, tipItems: cleanTipItems, expertTip: ctSheetState.expertTip || '', sourceUrl, scheduledPeriod, baselineImg: ctSheetState.baselineImg || null, storageUrl: _hasNewImg ? null : (ctSheetState.storageUrl || null), storageHash: _hasNewImg ? '' : (ctSheetState.storageHash || ''), updatedAt: new Date().toISOString() };
       if (ctSheetState.editId) {
         const idx = care.findIndex(x => x.id === ctSheetState.editId);
         if (idx !== -1) care[idx] = obj; else care.push(obj);

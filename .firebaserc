@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "onstep-lifeos-v2",
+    "default": "onstep-lifeos",
     "v1": "onstep-lifeos",
     "v2": "onstep-lifeos-v2"
   },

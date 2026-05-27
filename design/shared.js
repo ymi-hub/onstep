@@ -244,6 +244,110 @@ function initNav(activeTab) {
       </a>`).join('') +
     '</div>';
   mounts.forEach(mount => { mount.innerHTML = html; });
+  _initTutorialOverlay();
+}
+
+// ═══ Tutorial / Onboarding Overlay (3-Step Swipe) ═════════════
+// 로그인하지 않은 상태에서 .phone 전체를 덮는 3스텝 스와이프 온보딩
+function _initTutorialOverlay() {
+  if (document.getElementById('_tutorial-overlay')) return;
+  const phone = document.querySelector('.phone');
+  if (!phone) return;
+
+  let curStep = 0;
+  const G_SVG = `<svg width="18" height="18" viewBox="0 0 18 18" style="flex-shrink:0"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>`;
+  const BTN_STYLE = `width:100%;padding:16px;background:#0C0C0A;color:#fff;border:none;border-radius:14px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:14px;font-weight:700;letter-spacing:.03em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;box-shadow:0 2px 14px rgba(0,0,0,.2)`;
+  const FEAT_ROW = (tag, title, desc) => `<div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(12,12,10,.06)">
+    <div style="font-size:9px;font-weight:800;letter-spacing:.14em;color:#9A9490;text-transform:uppercase;width:36px;flex-shrink:0;text-align:center">${tag}</div>
+    <div style="flex:1"><div style="font-size:14px;font-weight:700;color:#0C0C0A;margin-bottom:2px">${title}</div><div style="font-size:12px;color:#9A9490;line-height:1.4">${desc}</div></div>
+  </div>`;
+
+  const slides = [
+    /* ─ Step 1: Identity ─ */
+    `<div style="display:flex;flex-direction:column;height:100%;padding:0 28px 0">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:12px">
+        <img src="logo.png" style="width:72px;height:72px;border-radius:20px;margin-bottom:20px;box-shadow:0 6px 24px rgba(0,0,0,.14)">
+        <div style="font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:38px;font-weight:800;letter-spacing:-.04em;color:#0C0C0A;line-height:.95;margin-bottom:8px">OnStep</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#9A9490;margin-bottom:36px">YOUR LIFE OS</div>
+        <div style="font-size:21px;font-weight:800;color:#0C0C0A;letter-spacing:-.025em;line-height:1.35;margin-bottom:14px">고민의 시간을 삭제하고<br>내일의 나를 자산화한다.</div>
+        <div style="font-size:13px;color:#9A9490;line-height:1.75;font-weight:400">Zero Setting.<br>Life 관리는 리스트에서 즉시.</div>
+      </div>
+    </div>`,
+
+    /* ─ Step 2: Features ─ */
+    `<div style="display:flex;flex-direction:column;height:100%;padding:0 28px">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#9A9490;margin-bottom:10px">4가지로 완성되는 라이프 OS</div>
+        <div style="font-size:24px;font-weight:800;color:#0C0C0A;letter-spacing:-.025em;line-height:1.2;margin-bottom:24px">하나의 앱으로<br>전부 관리한다.</div>
+        <div style="border-top:1px solid rgba(12,12,10,.06)">
+          ${FEAT_ROW('TODAY','루틴 체크 & 집중케어','아침·저녁 루틴을 체크하고 오늘 케어 플랜 한눈에')}
+          ${FEAT_ROW('BOX','뷰티 자산 관리','제품 구매·사용량·소진 주기 자동 추적')}
+          ${FEAT_ROW('LOG','메이크업 & 룩 아카이브','MOTD·OOTD 기록, 씬별 뮤즈 라이브러리')}
+          ${FEAT_ROW('SETUP','루틴 세션 & 집중케어 설정','세션 편집, 집중케어 테마·스케줄 관리')}
+        </div>
+      </div>
+    </div>`,
+
+    /* ─ Step 3: Start ─ */
+    `<div style="display:flex;flex-direction:column;height:100%;padding:0 28px">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+        <div style="font-size:44px;line-height:1;margin-bottom:24px">✦</div>
+        <div style="font-size:24px;font-weight:800;color:#0C0C0A;letter-spacing:-.025em;line-height:1.3;margin-bottom:12px">지금 바로 시작할<br>준비가 됐나요?</div>
+        <div style="font-size:13px;color:#9A9490;line-height:1.7;margin-bottom:40px">Google 계정으로 시작하면<br>모든 기기에서 자동 동기화됩니다.</div>
+        <button onclick="_handleAuthClick()" style="${BTN_STYLE}">${G_SVG}Google로 시작하기</button>
+        <div style="margin-top:16px;font-size:10px;color:#C0BDB8;letter-spacing:.06em;text-transform:uppercase">OnStep v2.4 · Your Life OS</div>
+      </div>
+    </div>`
+  ];
+
+  const ov = document.createElement('div');
+  ov.id = '_tutorial-overlay';
+  ov.style.cssText = 'display:none;position:absolute;inset:0;background:#FAFAF8;z-index:150;overflow:hidden';
+  ov.innerHTML = `
+  <div id="_tut-slides" style="display:flex;width:300%;height:calc(100% - 64px);transition:transform .38s cubic-bezier(.4,0,.2,1)">
+    <div style="width:33.3333%;height:100%;overflow-y:auto">${slides[0]}</div>
+    <div style="width:33.3333%;height:100%;overflow-y:auto">${slides[1]}</div>
+    <div style="width:33.3333%;height:100%;overflow-y:auto">${slides[2]}</div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#FAFAF8;border-top:1px solid rgba(12,12,10,.06)">
+    <div id="_tut-dots" style="display:flex;gap:7px;align-items:center">
+      <div id="_tut-d0" style="width:20px;height:6px;border-radius:3px;background:#0C0C0A;transition:all .28s"></div>
+      <div id="_tut-d1" style="width:6px;height:6px;border-radius:3px;background:#D8D6CF;transition:all .28s"></div>
+      <div id="_tut-d2" style="width:6px;height:6px;border-radius:3px;background:#D8D6CF;transition:all .28s"></div>
+    </div>
+    <button id="_tut-next" onclick="_tutNext()" style="padding:11px 22px;background:#0C0C0A;color:#fff;border:none;border-radius:10px;font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.04em;min-height:40px">다음 →</button>
+  </div>`;
+  phone.appendChild(ov);
+
+  window._tutGoTo = function(n) {
+    curStep = Math.max(0, Math.min(2, n));
+    const sl = document.getElementById('_tut-slides');
+    if (sl) sl.style.transform = `translateX(${-curStep * 33.3333}%)`;
+    [0,1,2].forEach(i => {
+      const d = document.getElementById(`_tut-d${i}`);
+      if (d) { d.style.width = i===curStep ? '20px' : '6px'; d.style.background = i===curStep ? '#0C0C0A' : '#D8D6CF'; }
+    });
+    const nb = document.getElementById('_tut-next');
+    if (nb) nb.style.display = curStep === 2 ? 'none' : '';
+  };
+  window._tutNext = function() { _tutGoTo(curStep + 1); };
+
+  /* 좌우 스와이프 */
+  let _tx = 0, _ty = 0;
+  ov.addEventListener('touchstart', e => { _tx = e.touches[0].clientX; _ty = e.touches[0].clientY; }, {passive:true});
+  ov.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - _tx;
+    const dy = e.changedTouches[0].clientY - _ty;
+    if (Math.abs(dx) > Math.abs(dy) * 1.4 && Math.abs(dx) > 44) {
+      if (dx < 0) _tutGoTo(curStep + 1);
+      else        _tutGoTo(curStep - 1);
+    }
+  }, {passive:true});
+
+  firebase.auth().onAuthStateChanged(user => {
+    ov.style.display = user ? 'none' : 'block';
+    if (!user) _tutGoTo(0);
+  });
 }
 
 // ═══ CMS 텍스트 콘텐츠 실시간 Sync ══════════════════════════

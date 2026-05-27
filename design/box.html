@@ -2477,8 +2477,9 @@ function _propagateAssetMeta(assetId, newName, newBrand) {
   } catch(e) {}
 }
 
-// ── Sample data ───────────────────────────────────────────────
+// ── Sample data (disabled) ────────────────────────────────────
 function initSampleData() {
+  return; // 샘플 데이터 비활성화 — 튜토리얼 화면으로 대체
   if (getAssets().length) return;
   const today = new Date();
   const addD  = (n) => { const d=new Date(today); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
@@ -4912,7 +4913,6 @@ function showToast(msg) {
 
 // ── Init ──────────────────────────────────────────────────────
 window.addEventListener('load', () => {
-  initSampleData();
   setDomain('beauty');
 });
 </script>
