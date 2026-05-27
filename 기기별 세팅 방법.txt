@@ -1,0 +1,110 @@
+═══════════════════════════════════════════
+OnStep 개발 환경 세팅 가이드 (새 맥 기준)
+═══════════════════════════════════════════
+
+STEP 1 — Homebrew 설치
+───────────────────────
+터미널 여는 법: Cmd + Space → "terminal" → Enter
+
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+설치 중 맥 비밀번호 입력 (화면에 안 보이는 게 정상)
+완료 후 Next steps에 나오는 eval 명령어 실행
+
+
+STEP 2 — Node.js 설치
+───────────────────────
+brew install node
+
+확인:
+node --version   ← v20 이상이면 정상
+
+
+STEP 3 — Git 설정
+───────────────────
+git config --global user.name "webyoung"
+git config --global user.email "webyoung0@gmail.com"
+
+
+STEP 4 — GitHub 인증
+──────────────────────
+brew install gh
+
+토큰 발급:
+1. https://github.com/settings/tokens/new 접속
+2. Note: mac (아무 이름)
+3. Expiration: No expiration
+4. 체크: repo, read:org, workflow
+5. Generate token 클릭 → 토큰 복사 (ghp_...)
+
+인증:
+echo "ghp_여기에토큰" | gh auth login --with-token
+
+확인:
+gh auth status   ← Logged in 나오면 성공
+
+
+STEP 5 — 레포 클론
+────────────────────
+mkdir -p ~/Projects
+cd ~/Projects
+git clone https://github.com/ymi-hub/onstep.git
+
+
+STEP 6 — Firebase CLI
+───────────────────────
+npm install -g firebase-tools
+firebase login   ← 브라우저에서 webyoung0@gmail.com 로그인
+
+확인:
+firebase projects:list   ← onstep-lifeos 보이면 성공
+
+
+STEP 7 — VS Code
+──────────────────
+brew install --cask visual-studio-code
+
+VS Code 열기:
+code ~/Projects/onstep
+
+Extension 설치:
+Cmd + Shift + X → "Claude Code" 검색 → Install
+
+
+STEP 8 — Claude Code CLI
+──────────────────────────
+npm install -g @anthropic-ai/claude-code
+
+cd ~/Projects/onstep
+claude   ← Anthropic 계정으로 인증
+
+
+STEP 9 — alias 설정 (편의)
+────────────────────────────
+echo 'alias work="cd ~/Projects/onstep && git pull && code ."' >> ~/.zshrc
+source ~/.zshrc
+
+이제 터미널에서 work 만 치면 자동으로 pull + VS Code 열림
+
+
+═══════════════════════════════════════════
+매일 작업 규칙
+═══════════════════════════════════════════
+
+시작할 때:
+git pull
+
+끝낼 때:
+git add .
+git commit -m "작업 내용"
+git push
+
+기기 상관없이 동일한 규칙 적용
+
+
+═══════════════════════════════════════════
+배포
+═══════════════════════════════════════════
+
+firebase deploy --only hosting
+→ https://onstep-lifeos.web.app 에 반영됨
