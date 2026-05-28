@@ -1,26 +1,65 @@
+/* Google Fonts — THERMAL 디자인 시스템 서체 */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * THERMAL Design System v1.0
+ * design/shared.css 토큰 기반 — Tailwind v4 @theme 블록으로 등록
+ * 사용법: bg-bg, text-ink, text-mist, bg-lime, rounded-xl 등
+ */
+@theme {
+  /* ── 색상 팔레트 ── */
+  --color-bg: #FAFAF8;
+  --color-surface: #F4F4F0;
+  --color-surface-low: #EEEDE9;
+  --color-surface-mid: #E4E2DC;
+  --color-surface-high: #D8D6CF;
+  --color-surface-inv: #0C0C0A;
+  --color-ink: #0C0C0A;
+  --color-sub: #4A4846;
+  --color-mist: #9A9490;
+  --color-lime: #C5FF00;
+  --color-lime-dark: #A6D900;
+  --color-lime-fg: #0C0C0A;
+  --color-error: #D93025;
+  --color-green: #1E6B4A;
+  --color-amber: #B45309;
+
+  /* ── 서체 ── */
+  --font-sans: 'Plus Jakarta Sans', 'Space Grotesk', ui-sans-serif, sans-serif;
+
+  /* ── 테두리 반경 ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── 기본 리셋 & body ── */
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #E8E6E0;
+  color: #0C0C0A;
+  font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── 모바일 입력 확대 방지 ── */
+@media (max-width: 430px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  button {
+    min-height: 44px;
+  }
 }
