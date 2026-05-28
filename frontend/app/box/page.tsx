@@ -20,8 +20,17 @@ import {
   doc,
   orderBy,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  type User,
+} from 'firebase/auth';
+import { db, auth } from '@/lib/firebase';
 import type { Product } from '@/types/product';
+
+const FALLBACK_USER_ID = 'demo-user';
 
 // ─── 카테고리 상수 ────────────────────────────────────────────────────────────
 // design/box.html의 카테고리 구조를 그대로 반영
@@ -67,7 +76,7 @@ const INITIAL_FORM: FormState = {
 };
 
 // ─── Appbar ──────────────────────────────────────────────────────────────────
-function Appbar() {
+function Appbar({ user, onLogin, onLogout }: { user: User | null; onLogin: () => void; onLogout: () => void }) {
   return (
     <div
       style={{
@@ -116,18 +125,30 @@ function Appbar() {
         OnStep
       </Link>
 
-      {/* 계정 버튼 */}
-      <button
-        style={{
-          width: 32, height: 32, borderRadius: '50%', background: '#EEEDE9',
-          border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-        aria-label="계정"
-      >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style={{ opacity: 0.5 }}>
-          <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z" />
-        </svg>
-      </button>
+      {/* 로그인/로그아웃 버튼 */}
+      {user ? (
+        <button
+          onClick={onLogout}
+          style={{ width: 32, height: 32, borderRadius: '50%', background: '#EEEDE9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: 0 }}
+          title={`${user.displayName ?? user.email} — 클릭하여 로그아웃`}
+        >
+          {user.photoURL ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={user.photoURL} alt="프로필" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style={{ opacity: 0.5 }}>
+              <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z" />
+            </svg>
+          )}
+        </button>
+      ) : (
+        <button
+          onClick={onLogin}
+          style={{ height: 28, padding: '0 10px', borderRadius: 9999, background: '#0C0C0A', border: 'none', cursor: 'pointer', color: '#C5FF00', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700 }}
+        >
+          로그인
+        </button>
+      )}
     </div>
   );
 }
@@ -250,6 +271,10 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
 
 // ─── 메인 BOX 페이지 ─────────────────────────────────────────────────────────
 export default function BoxPage() {
+  // ── 인증 상태 ──
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   // 제품 데이터 상태
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -267,18 +292,27 @@ export default function BoxPage() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [saving, setSaving] = useState(false);
 
-  // ── Firestore 실시간 구독 ──────────────────────────────────────────────────
-  // onSnapshot: Firestore 데이터 변경 시 자동으로 products 업데이트
-  // 컴포넌트가 언마운트될 때 구독 해제 (return () => unsub())
+  // 현재 userId: 로그인된 UID, 없으면 fallback
+  const userId = user?.uid ?? FALLBACK_USER_ID;
+
+  // ── Firebase Auth 감지 ──
   useEffect(() => {
-    // Firebase가 설정되지 않은 경우 (env 미설정) → 빈 목록으로 진행
+    if (!auth) { setAuthLoading(false); return; }
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setAuthLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
+  // ── Firestore 실시간 구독 ──────────────────────────────────────────────────
+  // authLoading 완료 후 userId 기준으로 구독 시작
+  useEffect(() => {
+    if (authLoading) return;
     if (!db) {
       setLoading(false);
       return;
     }
-
-    // 💡 임시 userId — Firebase Auth 연동(Stage 5) 후 실제 UID로 교체 예정
-    const userId = 'demo-user';
 
     const q = query(
       collection(db, 'users', userId, 'products'),
@@ -296,14 +330,13 @@ export default function BoxPage() {
         setLoading(false);
       },
       (err) => {
-        // Firebase 미설정 또는 네트워크 오류 시 빈 목록으로 진행
         console.error('Firestore 구독 오류:', err);
         setLoading(false);
       }
     );
 
     return () => unsub();
-  }, []);
+  }, [userId, authLoading]);
 
   // ── 필터링된 제품 목록 ────────────────────────────────────────────────────
   const filtered = products.filter((p) => {
@@ -338,7 +371,6 @@ export default function BoxPage() {
     }
     setSaving(true);
     try {
-      const userId = 'demo-user';
       const now = new Date().toISOString();
 
       await addDoc(collection(db, 'users', userId, 'products'), {
@@ -377,7 +409,6 @@ export default function BoxPage() {
   // ── 제품 삭제 ─────────────────────────────────────────────────────────────
   async function handleDelete(productId: string) {
     if (!db || !confirm('이 제품을 삭제하시겠어요?')) return;
-    const userId = 'demo-user';
     try {
       await deleteDoc(doc(db, 'users', userId, 'products', productId));
     } catch (err) {
@@ -396,10 +427,21 @@ export default function BoxPage() {
     setActiveCategory('ALL');
   }
 
+  const handleLogin = async () => {
+    if (!auth) { alert('Firebase가 설정되지 않았습니다.'); return; }
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+    catch (err) { console.error('[OnStep] 로그인 실패:', err); }
+  };
+  const handleLogout = async () => {
+    if (!auth) return;
+    try { await signOut(auth); setProducts([]); }
+    catch (err) { console.error('[OnStep] 로그아웃 실패:', err); }
+  };
+
   return (
     <div style={{ background: '#FAFAF8', minHeight: '100%', position: 'relative' }}>
       {/* 앱바 */}
-      <Appbar />
+      <Appbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
 
       {/* 페이지 히어로 (design/box.html .page-hero 참고) */}
       <div style={{ padding: '20px 16px 6px' }}>

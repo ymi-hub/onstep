@@ -14,6 +14,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  type User,
+} from 'firebase/auth';
+import {
   collection,
   query,
   onSnapshot,
@@ -23,7 +30,7 @@ import {
   doc,
   orderBy,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import type { Product } from '@/types/product';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
@@ -71,8 +78,7 @@ type EditorDraft = {
 
 // ─── 상수 / 헬퍼 함수 ────────────────────────────────────────────────────────
 
-// 💡 임시 userId — Firebase Auth 연동(Stage 5) 후 실제 UID로 교체
-const USER_ID = 'demo-user';
+const FALLBACK_USER_ID = 'demo-user';
 
 // 빈 DaySlot 생성
 function emptySlot(): DaySlot {
@@ -1612,6 +1618,10 @@ const dateInputStyle: React.CSSProperties = {
 // ─── 메인 컴포넌트 ────────────────────────────────────────────────────────────
 // 뷰 상태 + Firestore CRUD를 관리하는 최상위 컴포넌트
 export default function SetupPage() {
+  // ── 인증 상태 ──
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   // 현재 화면
   const [view, setView] = useState<View>('hub');
 
@@ -1630,15 +1640,28 @@ export default function SetupPage() {
   // 저장 중 플래그
   const [saving, setSaving] = useState(false);
 
-  // ── Firestore 구독: 루틴 세션 ─────────────────────────────────────────────
-  // sessionNumber 오름차순으로 정렬
+  // 현재 userId
+  const userId = user?.uid ?? FALLBACK_USER_ID;
+
+  // ── Firebase Auth 감지 ──
   useEffect(() => {
+    if (!auth) { setAuthLoading(false); return; }
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setAuthLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
+  // ── Firestore 구독: 루틴 세션 ─────────────────────────────────────────────
+  useEffect(() => {
+    if (authLoading) return;
     if (!db) {
       setLoadingSessions(false);
       return;
     }
     const q = query(
-      collection(db, 'users', USER_ID, 'routines'),
+      collection(db, 'users', userId, 'routines'),
       orderBy('sessionNumber', 'asc')
     );
     const unsub = onSnapshot(
@@ -1652,13 +1675,13 @@ export default function SetupPage() {
       () => setLoadingSessions(false)
     );
     return () => unsub();
-  }, []);
+  }, [userId, authLoading]);
 
   // ── Firestore 구독: 제품 목록 (편집기에서 제품 picker에 사용) ────────────
   useEffect(() => {
-    if (!db) return;
+    if (authLoading || !db) return;
     const q = query(
-      collection(db, 'users', USER_ID, 'products'),
+      collection(db, 'users', userId, 'products'),
       orderBy('createdAt', 'desc')
     );
     const unsub = onSnapshot(
@@ -1671,7 +1694,7 @@ export default function SetupPage() {
       () => {}
     );
     return () => unsub();
-  }, []);
+  }, [userId, authLoading]);
 
   // ── 새 세션 시작 ──────────────────────────────────────────────────────────
   function openNewSession() {
@@ -1719,10 +1742,10 @@ export default function SetupPage() {
     try {
       if (draft.id) {
         // 기존 세션 업데이트
-        await updateDoc(doc(db, 'users', USER_ID, 'routines', draft.id), data);
+        await updateDoc(doc(db, 'users', userId, 'routines', draft.id), data);
       } else {
         // 신규 세션 생성
-        await addDoc(collection(db, 'users', USER_ID, 'routines'), {
+        await addDoc(collection(db, 'users', userId, 'routines'), {
           ...data,
           createdAt: now,
         });
@@ -1742,7 +1765,7 @@ export default function SetupPage() {
     if (!draft?.id || !db) return;
     if (!confirm('이 세션을 삭제하시겠어요?')) return;
     try {
-      await deleteDoc(doc(db, 'users', USER_ID, 'routines', draft.id));
+      await deleteDoc(doc(db, 'users', userId, 'routines', draft.id));
       setView('sessions');
       setDraft(null);
     } catch (err) {
