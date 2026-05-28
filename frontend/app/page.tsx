@@ -1286,9 +1286,7 @@ export default function TodayPage() {
       return;
     }
     try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      // onAuthStateChanged에서 자동으로 user 상태 업데이트됨
+      await signInWithPopup(auth, new GoogleAuthProvider());
     } catch (err) {
       console.error('[OnStep] 로그인 실패:', err);
     }

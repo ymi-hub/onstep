@@ -274,6 +274,7 @@ export default function BoxPage() {
   // ── 인증 상태 ──
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // 제품 데이터 상태
   const [products, setProducts] = useState<Product[]>([]);
@@ -432,8 +433,15 @@ export default function BoxPage() {
 
   const handleLogin = async () => {
     if (!auth) { alert('Firebase가 설정되지 않았습니다.'); return; }
-    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
-    catch (err) { console.error('[OnStep] 로그인 실패:', err); }
+    setAuthError(null);
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (err: unknown) {
+      const error = err as { code?: string; message?: string };
+      console.error('[OnStep] 로그인 실패:', error);
+      // 에러를 화면에 표시해 원인 파악
+      setAuthError(`로그인 실패: ${error.code ?? error.message}`);
+    }
   };
   const handleLogout = async () => {
     if (!auth) return;
@@ -445,6 +453,21 @@ export default function BoxPage() {
     <div style={{ background: '#FAFAF8', minHeight: '100%', position: 'relative' }}>
       {/* 앱바 */}
       <Appbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
+
+      {/* 로그인 에러 표시 */}
+      {authError && (
+        <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 16px', fontSize: 13, borderBottom: '1px solid #FCA5A5' }}>
+          {authError}
+          <button onClick={() => setAuthError(null)} style={{ marginLeft: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#991B1B', fontWeight: 700 }}>✕</button>
+        </div>
+      )}
+
+      {/* 비로그인 안내 */}
+      {!authLoading && !user && (
+        <div style={{ background: '#FEF3C7', color: '#92400E', padding: '8px 16px', fontSize: 13, borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span>Google 로그인 후 제품을 관리할 수 있습니다.</span>
+        </div>
+      )}
 
       {/* 페이지 히어로 (design/box.html .page-hero 참고) */}
       <div style={{ padding: '20px 16px 6px' }}>

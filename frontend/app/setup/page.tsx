@@ -15,9 +15,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   onAuthStateChanged,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
   type User,
 } from 'firebase/auth';
 import {
