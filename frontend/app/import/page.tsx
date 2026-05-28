@@ -702,7 +702,7 @@ export default function ImportPage() {
 
   // ── Box 제품 목록 로드 ──
   useEffect(() => {
-    if (authLoading || !db) return;
+    if (authLoading || !user || !db) return;
     getDocs(collection(db, 'users', userId, 'products'))
       .then((snap) => {
         const list = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Product, 'id'>) }));

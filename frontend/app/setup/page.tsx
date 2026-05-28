@@ -1655,7 +1655,10 @@ export default function SetupPage() {
 
   // ── Firestore 구독: 루틴 세션 ─────────────────────────────────────────────
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || !user) {
+      setLoadingSessions(false);
+      return;
+    }
     if (!db) {
       setLoadingSessions(false);
       return;
@@ -1679,7 +1682,7 @@ export default function SetupPage() {
 
   // ── Firestore 구독: 제품 목록 (편집기에서 제품 picker에 사용) ────────────
   useEffect(() => {
-    if (authLoading || !db) return;
+    if (authLoading || !user || !db) return;
     const q = query(
       collection(db, 'users', userId, 'products'),
       orderBy('createdAt', 'desc')

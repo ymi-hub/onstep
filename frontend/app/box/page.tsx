@@ -306,9 +306,12 @@ export default function BoxPage() {
   }, []);
 
   // ── Firestore 실시간 구독 ──────────────────────────────────────────────────
-  // authLoading 완료 후 userId 기준으로 구독 시작
+  // 로그인된 상태에서만 구독 (비로그인 시 Firestore 접근 차단)
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || !user) {
+      setLoading(false);
+      return;
+    }
     if (!db) {
       setLoading(false);
       return;

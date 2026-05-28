@@ -1146,8 +1146,8 @@ export default function TodayPage() {
 
   // ── 데이터 로드 (Auth 상태 확정 후 실행) ──
   useEffect(() => {
-    // authLoading 중에는 userId가 확정되지 않으므로 대기
-    if (authLoading) return;
+    // 로그인된 상태에서만 데이터 로드 (비로그인 시 Firestore 접근 차단)
+    if (authLoading || !user) return;
     // 💡 _db에 캡처: async 함수 내부에서도 TypeScript 타입이 Firestore로 좁혀짐
     const _db = db;
     if (!_db) return;
@@ -1209,7 +1209,7 @@ export default function TodayPage() {
     return () => {
       cancelled = true;
     };
-  }, [userId, authLoading]);
+  }, [userId, authLoading, user]);
 
   // ── 루틴 체크 처리 ──
   // 💡 낙관적 업데이트(optimistic update): 서버 응답 기다리지 않고 UI 먼저 변경

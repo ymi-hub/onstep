@@ -894,7 +894,7 @@ export default function LogPage() {
   // ── 데이터 로드 ──
   // 💡 currentMonth 또는 userId가 바뀔 때마다 해당 월의 로그를 다시 가져옴
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || !user) return;
     const _db = db;
     if (!_db) return;
 
@@ -954,7 +954,7 @@ export default function LogPage() {
 
     load();
     return () => { cancelled = true; };
-  }, [userId, authLoading, currentMonth]);
+  }, [userId, authLoading, user, currentMonth]);
 
   // ── 로그인 / 로그아웃 ──
   const handleLogin = async () => {
