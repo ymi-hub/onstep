@@ -12,7 +12,8 @@ export interface Product {
   name: string;
   brand?: string;
   domain: ProductDomain;
-  subCategory?: string;         // 서브 카테고리 키 (예: "skincare", "makeup", "custom")
+  subCategory?: string;         // 서브 카테고리 키 (예: "skincare", "makeup")
+  category?: string;            // 세부 카테고리 (예: "토너", "세럼", "에센스")
 
   // 용량 정보 (잔여량 계산용)
   packageCount: number;         // 총 패키지 수 (예: 2개)
