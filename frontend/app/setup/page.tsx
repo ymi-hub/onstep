@@ -226,6 +226,17 @@ function HubView({ onOpenSessions }: { onOpenSessions: () => void }) {
     ],
     right: [
       {
+        id: 'ai-import',
+        badge: '#AI',
+        title: 'AI 가져오기',
+        sub: 'TEXT → ROUTINE',
+        cta: '텍스트 붙여넣기 →',
+        bg: 'linear-gradient(135deg,#f0ffe0 0%,#d8ffaa 100%)',
+        emoji: '✨',
+        onClick: null,
+        href: '/import',
+      },
+      {
         id: 'makeup',
         badge: '#MAKEUP',
         title: 'STRATEGY',
@@ -234,6 +245,7 @@ function HubView({ onOpenSessions }: { onOpenSessions: () => void }) {
         bg: 'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)',
         emoji: '💄',
         onClick: null,
+        href: undefined,
       },
       {
         id: 'care',
@@ -244,32 +256,38 @@ function HubView({ onOpenSessions }: { onOpenSessions: () => void }) {
         bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)',
         emoji: '💊',
         onClick: null,
+        href: undefined,
       },
     ],
   };
 
   // 카드 한 장 컴포넌트
+  // href가 있으면 Link로, onClick이 있으면 div+click으로, 둘 다 없으면 비활성 처리
   function HubCard({
     card,
   }: {
-    card: (typeof cards.left)[0];
+    card: (typeof cards.left)[0] | (typeof cards.right)[0];
   }) {
-    const isClickable = !!card.onClick;
-    return (
-      <div
-        onClick={card.onClick ?? undefined}
-        style={{
-          background: '#FFFFFF',
-          border: '1px solid rgba(12,12,10,.07)',
-          borderRadius: 16,
-          overflow: 'hidden',
-          cursor: isClickable ? 'pointer' : 'default',
-          opacity: isClickable ? 1 : 0.55,
-          boxShadow: '0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03)',
-          transition: 'transform .15s',
-        }}
-      >
-        {/* 카드 상단 이미지 영역 (aspect-ratio 1:1.5) */}
+    const isClickable = !!card.onClick || !!(card as { href?: string }).href;
+    const href = (card as { href?: string }).href;
+
+    const cardStyle = {
+      background: '#FFFFFF',
+      border: '1px solid rgba(12,12,10,.07)',
+      borderRadius: 16,
+      overflow: 'hidden',
+      cursor: isClickable ? 'pointer' : 'default',
+      opacity: isClickable ? 1 : 0.55,
+      boxShadow: '0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03)',
+      transition: 'transform .15s',
+      textDecoration: 'none',
+      display: 'block',
+    };
+
+    // 카드 내부 콘텐츠 (공통)
+    const cardContent = (
+      <>
+        {/* 카드 상단 이미지 영역 */}
         <div
           style={{
             width: '100%',
@@ -286,7 +304,6 @@ function HubView({ onOpenSessions }: { onOpenSessions: () => void }) {
 
         {/* 카드 정보 */}
         <div style={{ padding: '10px 12px 0' }}>
-          {/* 배지 (라임색 레이블) */}
           <div
             style={{
               display: 'inline-block',
@@ -304,7 +321,6 @@ function HubView({ onOpenSessions }: { onOpenSessions: () => void }) {
           >
             {card.badge}
           </div>
-          {/* 제목 */}
           <div
             style={{
               fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
@@ -318,7 +334,6 @@ function HubView({ onOpenSessions }: { onOpenSessions: () => void }) {
           >
             {card.title}
           </div>
-          {/* 부제목 */}
           <div
             style={{
               fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
@@ -347,6 +362,24 @@ function HubView({ onOpenSessions }: { onOpenSessions: () => void }) {
         >
           {card.cta}
         </div>
+      </>
+    );
+
+    // href가 있으면 Link 컴포넌트로 감싸기
+    if (href) {
+      return (
+        <Link href={href} style={cardStyle}>
+          {cardContent}
+        </Link>
+      );
+    }
+
+    return (
+      <div
+        onClick={card.onClick ?? undefined}
+        style={cardStyle}
+      >
+        {cardContent}
       </div>
     );
   }

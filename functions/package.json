@@ -1,0 +1,20 @@
+{
+  "name": "onstep-functions",
+  "description": "OnStep Firebase Functions — Gemini API 프록시",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-functions": "^6.0.0",
+    "@google/generative-ai": "^0.21.0"
+  },
+  "devDependencies": {
+    "firebase-admin": "^13.0.0"
+  },
+  "scripts": {
+    "deploy": "firebase deploy --only functions"
+  }
+}
