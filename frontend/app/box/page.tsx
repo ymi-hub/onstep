@@ -16,6 +16,7 @@ import {
   query,
   onSnapshot,
   addDoc,
+  updateDoc,
   deleteDoc,
   doc,
   orderBy,
@@ -29,6 +30,7 @@ import {
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import type { Product } from '@/types/product';
+import UserMenuButton from '@/components/UserMenuButton';
 
 const FALLBACK_USER_ID = 'demo-user';
 
@@ -125,30 +127,7 @@ function Appbar({ user, onLogin, onLogout }: { user: User | null; onLogin: () =>
         OnStep
       </Link>
 
-      {/* 로그인/로그아웃 버튼 */}
-      {user ? (
-        <button
-          onClick={onLogout}
-          style={{ width: 32, height: 32, borderRadius: '50%', background: '#EEEDE9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: 0 }}
-          title={`${user.displayName ?? user.email} — 클릭하여 로그아웃`}
-        >
-          {user.photoURL ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={user.photoURL} alt="프로필" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style={{ opacity: 0.5 }}>
-              <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z" />
-            </svg>
-          )}
-        </button>
-      ) : (
-        <button
-          onClick={onLogin}
-          style={{ height: 28, padding: '0 10px', borderRadius: 9999, background: '#0C0C0A', border: 'none', cursor: 'pointer', color: '#C5FF00', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700 }}
-        >
-          로그인
-        </button>
-      )}
+      <UserMenuButton user={user} onLogin={onLogin} onLogout={onLogout} />
     </div>
   );
 }
@@ -286,8 +265,10 @@ export default function BoxPage() {
   const [subType, setSubType] = useState<'skincare' | 'makeup'>('skincare');
   const [activeCategory, setActiveCategory] = useState('ALL');
 
-  // 제품 추가 폼 열림/닫힘
+  // 제품 추가/편집 폼 열림/닫힘
   const [isAddOpen, setIsAddOpen] = useState(false);
+  // 편집 중인 제품 (null = 신규 추가)
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   // 폼 상태
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
@@ -302,6 +283,7 @@ export default function BoxPage() {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthLoading(false);
+      if (!u) setProducts([]);
     });
     return () => unsub();
   }, []);
@@ -366,22 +348,16 @@ export default function BoxPage() {
   // ── 총 수량 자동 계산 ────────────────────────────────────────────────────
   const totalAmount = form.packageCount * form.unitPerPackage;
 
-  // ── 제품 저장 ─────────────────────────────────────────────────────────────
+  // ── 제품 저장 (신규 추가 or 기존 수정) ──────────────────────────────────
   async function handleSave() {
     if (!form.name.trim()) return;
-    if (!db) {
-      alert('.env.local에 Firebase 설정을 먼저 입력해주세요.');
-      return;
-    }
+    if (!db) { alert('.env.local에 Firebase 설정을 먼저 입력해주세요.'); return; }
     setSaving(true);
     try {
       const now = new Date().toISOString();
-
-      await addDoc(collection(db, 'users', userId, 'products'), {
+      const commonFields = {
         name: form.name.trim(),
         brand: form.brand.trim() || null,
-        domain: activeTab,
-        subCategory: activeTab === 'beauty' ? subType : null,
         category: form.category || null,
         packageCount: form.packageCount,
         unitPerPackage: form.unitPerPackage,
@@ -391,16 +367,28 @@ export default function BoxPage() {
         usesPerDay: form.usesPerDay,
         frequencyType: form.daysPerWeek === 7 ? 'daily' : 'per_week',
         frequencyValue: form.daysPerWeek,
-        currentRemaining: totalAmount,   // 신규 제품은 총량이 현재 잔량
         purchaseDate: form.purchaseDate || null,
         startDate: form.startDate || null,
         expiryDate: form.expiryDate || null,
-        createdAt: now,
         updatedAt: now,
-      });
+      };
 
-      // 저장 성공 → 폼 초기화 + 닫기
+      if (editingProduct) {
+        // 기존 제품 수정 — currentRemaining·createdAt은 유지
+        await updateDoc(doc(db, 'users', userId, 'products', editingProduct.id), commonFields);
+      } else {
+        // 신규 제품 추가
+        await addDoc(collection(db, 'users', userId, 'products'), {
+          ...commonFields,
+          domain: activeTab,
+          subCategory: activeTab === 'beauty' ? subType : null,
+          currentRemaining: totalAmount,
+          createdAt: now,
+        });
+      }
+
       setForm(INITIAL_FORM);
+      setEditingProduct(null);
       setIsAddOpen(false);
     } catch (err) {
       console.error('제품 저장 실패:', err);
@@ -408,6 +396,24 @@ export default function BoxPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  // ── 제품 편집 열기 ────────────────────────────────────────────────────────
+  function openEdit(p: Product) {
+    setForm({
+      name: p.name,
+      brand: p.brand ?? '',
+      category: p.category ?? '',
+      packageCount: p.packageCount ?? 1,
+      unitPerPackage: p.unitPerPackage ?? 1,
+      usesPerDay: p.usesPerDay ?? 1,
+      daysPerWeek: p.frequencyValue ?? 7,
+      purchaseDate: p.purchaseDate ?? '',
+      expiryDate: p.expiryDate ?? '',
+      startDate: p.startDate ?? '',
+    });
+    setEditingProduct(p);
+    setIsAddOpen(true);
   }
 
   // ── 제품 삭제 ─────────────────────────────────────────────────────────────
@@ -435,7 +441,9 @@ export default function BoxPage() {
     if (!auth) { alert('Firebase가 설정되지 않았습니다.'); return; }
     setAuthError(null);
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
     } catch (err: unknown) {
       const error = err as { code?: string; message?: string };
       console.error('[OnStep] 로그인 실패:', error);
@@ -670,11 +678,7 @@ export default function BoxPage() {
             <ProductCard
               key={p.id}
               product={p}
-              onClick={() => {
-                // 💡 Stage 3에서는 삭제만 지원, 상세 보기는 추후 구현
-                // 길게 누르면 삭제 (현재는 클릭 시 삭제 여부 물어봄)
-                handleDelete(p.id);
-              }}
+              onClick={() => openEdit(p)}
             />
           ))}
         </div>
@@ -700,10 +704,10 @@ export default function BoxPage() {
         </button>
       )}
 
-      {/* 제품 추가 전체 화면 오버레이 */}
+      {/* 제품 추가/편집 전체 화면 오버레이 */}
       <AddProductPage
         isOpen={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
+        onClose={() => { setIsAddOpen(false); setEditingProduct(null); setForm(INITIAL_FORM); }}
         domain={activeTab}
         subType={subType}
         form={form}
@@ -712,6 +716,8 @@ export default function BoxPage() {
         cats={cats}
         onSave={handleSave}
         saving={saving}
+        editingProduct={editingProduct}
+        onDelete={editingProduct ? () => { handleDelete(editingProduct.id); setIsAddOpen(false); setEditingProduct(null); } : undefined}
       />
     </div>
   );
@@ -730,6 +736,8 @@ function AddProductPage({
   cats,
   onSave,
   saving,
+  editingProduct,
+  onDelete,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -741,14 +749,21 @@ function AddProductPage({
   cats: string[];
   onSave: () => void;
   saving: boolean;
+  editingProduct: Product | null;
+  onDelete?: () => void;
 }) {
+  const isEditing = !!editingProduct;
   const isNameEmpty = !form.name.trim();
 
   return (
     <div
       style={{
-        // 전체 화면 고정 오버레이
-        position: 'fixed', inset: 0, zIndex: 60,
+        // 앱 컨테이너(430px) 안에 고정
+        position: 'fixed',
+        top: 0, bottom: 0,
+        left: 'max(0px,calc(50vw - 215px))',
+        right: 'max(0px,calc(50vw - 215px))',
+        zIndex: 60,
         background: '#FFFFFF',
         // translateY(100%) = 화면 밖 (아래), translateY(0) = 화면 안
         transform: isOpen ? 'translateY(0)' : 'translateY(100%)',
@@ -790,7 +805,7 @@ function AddProductPage({
             textTransform: 'uppercase', color: '#44474A',
           }}
         >
-          ADD PRODUCT
+          {isEditing ? 'EDIT PRODUCT' : 'ADD PRODUCT'}
         </span>
 
         {/* 우측 빈 공간 (대칭 맞추기) */}
@@ -816,7 +831,7 @@ function AddProductPage({
               color: '#0C1014', lineHeight: '38px', marginBottom: 4,
             }}
           >
-            ADD PRODUCT
+            {isEditing ? 'EDIT PRODUCT' : 'ADD PRODUCT'}
           </div>
           <div
             style={{
@@ -824,7 +839,7 @@ function AddProductPage({
               fontSize: 14, color: '#44474A',
             }}
           >
-            제품 정보를 입력해 인벤토리에 등록하세요.
+            {isEditing ? `"${editingProduct!.name}" 정보를 수정하세요.` : '제품 정보를 입력해 인벤토리에 등록하세요.'}
           </div>
         </div>
 
@@ -1125,6 +1140,21 @@ function AddProductPage({
             취소
           </button>
         </div>
+
+        {/* ── 편집 모드: 삭제 버튼 ── */}
+        {isEditing && onDelete && (
+          <button
+            onClick={onDelete}
+            style={{
+              width: '100%', height: 48, background: 'rgba(186,26,26,.06)',
+              border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12,
+              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+              fontSize: 14, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer',
+            }}
+          >
+            이 제품 삭제
+          </button>
+        )}
       </div>
     </div>
   );

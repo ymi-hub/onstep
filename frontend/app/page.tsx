@@ -13,11 +13,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import UserMenuButton from '@/components/UserMenuButton';
 import { format, differenceInDays, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import {
   collection,
-  getDocs,
+  onSnapshot,
   addDoc,
   updateDoc,
   doc,
@@ -38,35 +39,38 @@ import type { Product } from '@/types/product';
 // ─── 타입 정의 ────────────────────────────────────────────────────────────────
 // setup/page.tsx에서 사용하는 Firestore 데이터 구조와 동일하게 맞춤
 
-// 루틴 1단계
-type Phase = {
-  order: number;
-  productIds: string[];
-  instruction: string;
-  waitMinutes: number;
+// 칩 스트립 아이템 타입
+type RoutineItem =
+  | { type: 'product'; id: string }
+  | { type: 'desc'; text: string }
+  | { type: 'tip'; text: string }
+  | { type: 'plus' }
+  | { type: 'minus' };
+
+// 슬롯의 단일 DAY
+type SlotDay = {
+  id: number;
+  items: RoutineItem[];
+  tipItems: RoutineItem[];
+  expertTip: string;
 };
 
-// 한 시간대(아침 or 저녁)의 단계 목록
-type DaySlot = {
-  phases: Phase[];
+// 아침/저녁 슬롯
+type Slot = {
+  days: SlotDay[];
 };
 
 // 하루(DAY N) 루틴
-type RoutineDay = {
-  dayNumber: number;      // 1, 2, 3, ...
-  morning: DaySlot;
-  evening: DaySlot;
-};
-
 // Firestore에 저장된 루틴 세션 (1개 = 1회차)
 type Session = {
   id: string;
   sessionNumber: number;
-  startDate: string;      // "YYYY-MM-DD"
+  startDate: string;
   endDate: string;
-  morningTime: string;    // "07:30" (24시간 형식)
+  morningTime: string;
   eveningTime: string;
-  days: RoutineDay[];
+  morning: Slot;
+  evening: Slot;
   createdAt: string;
   updatedAt: string;
 };
@@ -90,8 +94,7 @@ function calcTodayDayNumber(session: Session): number {
   const start = parseISO(session.startDate);
   start.setHours(0, 0, 0, 0);
   const diff = Math.max(0, differenceInDays(today, start));
-  const count = session.days.length;
-  if (count === 0) return 1;
+  const count = Math.max(session.morning.days.length, session.evening.days.length, 1);
   return (diff % count) + 1;
 }
 
@@ -111,19 +114,56 @@ function findActiveSession(sessions: Session[]): Session | null {
   return null;
 }
 
-// 구버전 슬롯(productIds+instruction) → phases 구조로 변환
-function migrateSlot(raw: unknown): DaySlot {
+// 구버전 슬롯 → SlotDay[] 변환
+function migrateRawSlot(raw: unknown): SlotDay[] {
   const s = raw as Record<string, unknown>;
-  if (Array.isArray(s.phases)) return { phases: s.phases as Phase[] };
+  if (Array.isArray(s.days)) return s.days as SlotDay[];
+  const items: RoutineItem[] = Array.isArray(s.items) ? s.items as RoutineItem[] : [];
+  if (Array.isArray(s.phases)) {
+    const ph = s.phases as Array<{ productIds?: string[]; instruction?: string }>;
+    ph.forEach((p, i) => {
+      (p.productIds ?? []).forEach((id) => items.push({ type: 'product', id }));
+      if (p.instruction) items.push({ type: 'desc', text: p.instruction });
+      if (i < ph.length - 1) items.push({ type: 'plus' });
+    });
+  }
+  return [{ id: 1, items, tipItems: [], expertTip: (s.expertTip as string) ?? '' }];
+}
+
+// Firestore 문서 → Session (구버전 포맷 자동 변환)
+function migrateSession(raw: Record<string, unknown>, id: string): Session {
+  const r = raw;
+  // 최신 포맷: morning.days, evening.days
+  if (r.morning && (r.morning as Record<string, unknown>).days) {
+    return { id, ...(r as Omit<Session, 'id'>) };
+  }
+  // 구 포맷: days 배열 (RoutineDay[])
+  if (Array.isArray(r.days)) {
+    const days = r.days as Array<{ dayNumber: number; morning: unknown; evening: unknown }>;
+    return {
+      id,
+      sessionNumber: r.sessionNumber as number,
+      startDate: (r.startDate as string) ?? '',
+      endDate: (r.endDate as string) ?? '',
+      morningTime: (r.morningTime as string) ?? '07:30',
+      eveningTime: (r.eveningTime as string) ?? '22:00',
+      morning: { days: days.map((d, i) => ({ ...migrateRawSlot(d.morning)[0], id: i + 1 })) },
+      evening: { days: days.map((d, i) => ({ ...migrateRawSlot(d.evening)[0], id: i + 1 })) },
+      createdAt: (r.createdAt as string) ?? '',
+      updatedAt: (r.updatedAt as string) ?? '',
+    };
+  }
   return {
-    phases: [
-      {
-        order: 1,
-        productIds: (s.productIds as string[]) ?? [],
-        instruction: (s.instruction as string) ?? '',
-        waitMinutes: 0,
-      },
-    ],
+    id,
+    sessionNumber: (r.sessionNumber as number) ?? 1,
+    startDate: (r.startDate as string) ?? '',
+    endDate: (r.endDate as string) ?? '',
+    morningTime: (r.morningTime as string) ?? '07:30',
+    eveningTime: (r.eveningTime as string) ?? '22:00',
+    morning: { days: [{ id: 1, items: [], tipItems: [], expertTip: '' }] },
+    evening: { days: [{ id: 1, items: [], tipItems: [], expertTip: '' }] },
+    createdAt: (r.createdAt as string) ?? '',
+    updatedAt: (r.updatedAt as string) ?? '',
   };
 }
 
@@ -212,61 +252,7 @@ function Appbar({
         OnStep
       </div>
 
-      {/* 유저 아이콘 (로그인 상태에 따라 다르게 표시) */}
-      {user ? (
-        // 로그인됨 — 프로필 사진 or 기본 아이콘 (클릭 시 로그아웃)
-        <button
-          onClick={onLogout}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
-            background: '#EEEDE9',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            padding: 0,
-          }}
-          aria-label="로그아웃"
-          title={`${user.displayName ?? user.email} — 클릭하여 로그아웃`}
-        >
-          {user.photoURL ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={user.photoURL}
-              alt="프로필"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          ) : (
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style={{ opacity: 0.5 }}>
-              <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z" />
-            </svg>
-          )}
-        </button>
-      ) : (
-        // 미로그인 — "로그인" 버튼
-        <button
-          onClick={onLogin}
-          style={{
-            height: 32,
-            padding: '0 12px',
-            borderRadius: 9999,
-            background: '#0C0C0A',
-            border: 'none',
-            cursor: 'pointer',
-            color: '#C5FF00',
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.04em',
-          }}
-        >
-          로그인
-        </button>
-      )}
+      <UserMenuButton user={user} onLogin={onLogin} onLogout={onLogout} />
     </div>
   );
 }
@@ -321,21 +307,21 @@ function SessionHero({
         {session ? (
           // 루틴 있음 — DAY 수만큼 도트 표시
           // 지나간 날: 라임색 / 오늘: 긴 라임 / 앞으로: 회색
-          session.days.map((day) => (
+          Array.from({ length: Math.max(session.morning.days.length, session.evening.days.length) }, (_, i) => i + 1).map((dayNum) => (
             <span
-              key={day.dayNumber}
+              key={dayNum}
               style={{
-                width: day.dayNumber === todayDayNumber ? 20 : 10,
+                width: dayNum === todayDayNumber ? 20 : 10,
                 height: 10,
                 borderRadius: 9999,
                 background:
-                  day.dayNumber < todayDayNumber
-                    ? '#C5FF00'                  // 지나간 날
-                    : day.dayNumber === todayDayNumber
-                    ? '#C5FF00'                  // 오늘 (wider)
-                    : '#D8D6CF',                 // 앞으로
+                  dayNum < todayDayNumber
+                    ? '#C5FF00'
+                    : dayNum === todayDayNumber
+                    ? '#C5FF00'
+                    : '#D8D6CF',
                 boxShadow:
-                  day.dayNumber === todayDayNumber
+                  dayNum === todayDayNumber
                     ? '0 0 0 3px rgba(197,255,0,.25)'
                     : 'none',
                 transition: 'all 0.3s',
@@ -357,7 +343,9 @@ function SessionHero({
 // today.html .flow-step-card: 아침/저녁 탭 + 제품 스트립 + 체크 버튼
 
 function FlowCard({
-  todayDay,
+  todayMorning,
+  todayEvening,
+  todayDayNumber,
   session,
   products,
   tab,
@@ -366,7 +354,9 @@ function FlowCard({
   onCheck,
   saving,
 }: {
-  todayDay: RoutineDay;
+  todayMorning: SlotDay;
+  todayEvening: SlotDay;
+  todayDayNumber: number;
   session: Session;
   products: Map<string, Product>;
   tab: 'morning' | 'evening';
@@ -375,7 +365,7 @@ function FlowCard({
   onCheck: (time: 'morning' | 'evening') => void;
   saving: boolean;
 }) {
-  const slot = tab === 'morning' ? todayDay.morning : todayDay.evening;
+  const slot = tab === 'morning' ? todayMorning : todayEvening;
   const isChecked = tab === 'morning' ? checked.morning : checked.evening;
 
   return (
@@ -413,7 +403,7 @@ function FlowCard({
             borderRadius: 9999,
           }}
         >
-          Day {todayDay.dayNumber}
+          Day {todayDayNumber}
         </span>
         <span
           style={{
@@ -423,7 +413,7 @@ function FlowCard({
             color: '#9A9490',
           }}
         >
-          {slot.phases.reduce((n, p) => n + p.productIds.length, 0)}개 제품 · {slot.phases.length}단계
+          {slot.items.filter(i => i.type === 'product').length}개 제품
         </span>
       </div>
 
@@ -450,7 +440,7 @@ function FlowCard({
               position: 'relative',
             }}
           >
-            {t === 'morning' ? '☀ MORNING' : '🌙 EVENING'}
+            {t === 'morning' ? '☀ MORNING' : '🌙 NIGHT'}
             {/* 이미 체크된 탭에 작은 체크 뱃지 */}
             {(t === 'morning' ? checked.morning : checked.evening) && (
               <span
@@ -477,52 +467,64 @@ function FlowCard({
         ))}
       </div>
 
-      {/* 단계별 제품 + 사용법 */}
-      {slot.phases.length > 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-          {slot.phases.map((phase) => (
-            <div key={phase.order} style={{ borderBottom: '1px solid rgba(12,12,10,.05)' }}>
-              {/* 단계 번호 + 사용법 */}
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, padding: '10px 16px 4px' }}>
-                <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', flexShrink: 0 }}>
-                  STEP {phase.order}
-                </span>
-                {phase.instruction && (
-                  <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#4A4846', lineHeight: 1.4 }}>
-                    {phase.instruction}
-                    {phase.waitMinutes > 0 && (
-                      <span style={{ marginLeft: 6, color: '#9A9490', fontWeight: 600 }}>⏱ {phase.waitMinutes}분</span>
-                    )}
-                  </span>
-                )}
-              </div>
-              {/* 제품 가로 스크롤 */}
-              <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', padding: '6px 16px 12px', gap: 10, alignItems: 'flex-start' }}>
-                {phase.productIds.map((pid) => {
-                  const p = products.get(pid);
-                  return (
-                    <div key={pid} style={{ flexShrink: 0, width: 72, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
-                      <div style={{ width: '100%', aspectRatio: '1/1', background: '#EEEDE9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-                        {isChecked && (
-                          <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, zIndex: 3 }}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                          </div>
-                        )}
-                        <span style={{ fontSize: 20, opacity: 0.4 }}>🧴</span>
-                      </div>
-                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', width: '100%' }}>
-                        {p?.name ?? '?'}
-                      </div>
+      {/* 칩 스트립 + 설명 */}
+      {slot.items.length > 0 ? (
+        <div style={{ padding: '10px 16px 12px' }}>
+          <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
+            {slot.items.map((item, idx) => {
+              if (item.type === 'product') {
+                const p = products.get(item.id);
+                return (
+                  <div key={idx} style={{ flexShrink: 0, width: 72, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
+                    <div style={{ width: 72, height: 72, background: '#EEEDE9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                      {isChecked && (
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, zIndex: 3 }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                        </div>
+                      )}
+                      <span style={{ fontSize: 20, opacity: 0.4 }}>🧴</span>
                     </div>
-                  );
-                })}
-              </div>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', width: '100%' }}>
+                      {p?.name ?? '?'}
+                    </div>
+                  </div>
+                );
+              }
+              if (item.type === 'desc') {
+                return (
+                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', minWidth: 64, maxWidth: 120, height: 72, background: '#E8E6E0', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 8px', opacity: isChecked ? 0.45 : 1 }}>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#4A4846', lineHeight: 1.35, textAlign: 'center', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', wordBreak: 'break-word' }}>{item.text}</span>
+                  </div>
+                );
+              }
+              if (item.type === 'tip') {
+                return (
+                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', minWidth: 64, maxWidth: 120, height: 72, background: 'rgba(197,255,0,.12)', border: '1.5px solid rgba(132,176,0,.3)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 8px', opacity: isChecked ? 0.45 : 1 }}>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#4E7D00', lineHeight: 1.35, textAlign: 'center', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', wordBreak: 'break-word' }}>{item.text}</span>
+                  </div>
+                );
+              }
+              if (item.type === 'plus') {
+                return (
+                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 36, borderRadius: '50%', background: 'rgba(33,150,243,.1)', border: '1.5px solid rgba(33,150,243,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: '#1976D2', opacity: isChecked ? 0.45 : 1 }}>+</div>
+                );
+              }
+              // minus / arrow
+              return (
+                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,152,0,.1)', border: '1.5px solid rgba(255,152,0,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#E65100', opacity: isChecked ? 0.45 : 1 }}>→</div>
+              );
+            })}
+          </div>
+          {/* Expert tip */}
+          {slot.expertTip && (
+            <div style={{ marginTop: 8, padding: '7px 10px', background: 'rgba(197,255,0,.06)', border: '1px solid rgba(132,176,0,.2)', borderRadius: 8 }}>
+              <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#4A7700', lineHeight: 1.5 }}>✦ {slot.expertTip}</span>
             </div>
-          ))}
+          )}
         </div>
       ) : (
         <div style={{ padding: '28px 20px', textAlign: 'center', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 20, lineHeight: 1.6, margin: '16px' }}>
-          이 시간대에 등록된 제품이 없습니다.<br />SETUP에서 단계를 추가해보세요.
+          이 시간대에 등록된 제품이 없습니다.<br />SETUP에서 아이템을 추가해보세요.
         </div>
       )}
 
@@ -571,11 +573,11 @@ function FlowCard({
             '저장 중...'
           ) : isChecked ? (
             <>
-              ✓ {tab === 'morning' ? 'MORNING' : 'EVENING'} 완료
+              ✓ {tab === 'morning' ? 'MORNING' : 'NIGHT'} 완료
             </>
           ) : (
             <>
-              CHECK {tab === 'morning' ? 'MORNING' : 'EVENING'}
+              CHECK {tab === 'morning' ? 'MORNING' : 'NIGHT'}
               <svg
                 width="14"
                 height="14"
@@ -600,11 +602,15 @@ function FlowCard({
 // today.html .allday-section: 아침/저녁 루틴 완료 여부를 리스트 형식으로 보여줌
 
 function RoutineTracker({
-  todayDay,
+  todayMorning,
+  todayEvening,
+  todayDayNumber,
   session,
   checked,
 }: {
-  todayDay: RoutineDay;
+  todayMorning: SlotDay;
+  todayEvening: SlotDay;
+  todayDayNumber: number;
   session: Session;
   checked: CheckState;
 }) {
@@ -613,14 +619,14 @@ function RoutineTracker({
       key: 'morning' as const,
       label: '아침 루틴',
       time: session.morningTime,
-      count: todayDay.morning.phases.reduce((n, p) => n + p.productIds.length, 0),
+      count: todayMorning.items.filter(i => i.type === 'product').length,
       done: checked.morning,
     },
     {
       key: 'evening' as const,
-      label: '저녁 루틴',
+      label: '나이트 루틴',
       time: session.eveningTime,
-      count: todayDay.evening.phases.reduce((n, p) => n + p.productIds.length, 0),
+      count: todayEvening.items.filter(i => i.type === 'product').length,
       done: checked.evening,
     },
   ];
@@ -646,7 +652,7 @@ function RoutineTracker({
               letterSpacing: '0.04em',
             }}
           >
-            Day {todayDay.dayNumber}
+            Day {todayDayNumber}
           </span>
           <span
             style={{
@@ -1015,10 +1021,12 @@ export default function TodayPage() {
   // ── 계산된 값 (파생 상태) ──
   // 오늘 날짜가 포함된 활성 세션
   const activeSession = findActiveSession(sessions);
-  // 오늘이 세션의 몇 번째 DAY인지
+  // 오늘이 세션의 몇 번째 DAY인지 (1-based)
   const todayDayNumber = activeSession ? calcTodayDayNumber(activeSession) : 1;
-  // 오늘 DAY의 루틴 정보
-  const todayDay = activeSession?.days.find((d) => d.dayNumber === todayDayNumber) ?? null;
+  // 오늘 DAY의 아침/저녁 슬롯 (0-based index)
+  const todayDayIdx = todayDayNumber - 1;
+  const todayMorning = activeSession?.morning.days[todayDayIdx] ?? activeSession?.morning.days[0] ?? null;
+  const todayEvening = activeSession?.evening.days[todayDayIdx] ?? activeSession?.evening.days[0] ?? null;
   // 현재 userId (로그인 상태에 따라 실제 UID or 'demo-user')
   const userId = user?.uid ?? FALLBACK_USER_ID;
 
@@ -1034,86 +1042,64 @@ export default function TodayPage() {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setAuthLoading(false);
+      if (!firebaseUser) {
+        setSessions([]);
+        setProducts(new Map());
+        setChecked({ morning: false, evening: false });
+      }
     });
 
     // 컴포넌트 언마운트 시 구독 해제
     return () => unsubscribe();
   }, []);
 
-  // ── 데이터 로드 (Auth 상태 확정 후 실행) ──
+  // ── 실시간 구독 1: 루틴 세션 ──
   useEffect(() => {
-    // 로그인된 상태에서만 데이터 로드 (비로그인 시 Firestore 접근 차단)
-    if (authLoading || !user) return;
-    // 💡 _db에 캡처: async 함수 내부에서도 TypeScript 타입이 Firestore로 좁혀짐
+    if (authLoading || !user || !db) return;
     const _db = db;
-    if (!_db) return;
-
-    let cancelled = false;
     setDataLoading(true);
-
-    const load = async () => {
-      try {
-        // 루틴 세션 로드 (회차 순서대로)
-        const routinesSnap = await getDocs(
-          query(collection(_db, 'users', userId, 'routines'), orderBy('sessionNumber'))
-        );
-        const loadedSessions: Session[] = routinesSnap.docs.map((d) => {
-          const raw = d.data() as Omit<Session, 'id'>;
-          return {
-            id: d.id,
-            ...raw,
-            days: (raw.days ?? []).map((day) => ({
-              ...day,
-              morning: migrateSlot(day.morning),
-              evening: migrateSlot(day.evening),
-            })),
-          };
-        });
-
-        // 제품 로드
-        const productsSnap = await getDocs(collection(_db, 'users', userId, 'products'));
-        const productMap = new Map<string, Product>();
-        productsSnap.docs.forEach((d) =>
-          productMap.set(d.id, { id: d.id, ...(d.data() as Omit<Product, 'id'>) })
-        );
-
-        if (cancelled) return;
-
-        setSessions(loadedSessions);
-        setProducts(productMap);
-
-        // 오늘 이미 체크한 기록 복원
-        // 💡 usageLogs에서 오늘 날짜 + 이 세션 ID로 필터링
-        const activeNow = findActiveSession(loadedSessions);
-        if (activeNow) {
-          const todayStr = getTodayDateStr(); // "YYYY-MM-DD"
-          const logsSnap = await getDocs(
-            query(
-              collection(_db, 'users', userId, 'usageLogs'),
-              where('routineId', '==', activeNow.id),
-              where('dateStr', '==', todayStr)  // 오늘 날짜로 필터
-            )
-          );
-
-          // timeSlot 필드로 아침/저녁 구분
-          const morningDone = logsSnap.docs.some((d) => d.data().timeSlot === 'morning');
-          const eveningDone = logsSnap.docs.some((d) => d.data().timeSlot === 'evening');
-          if (!cancelled) {
-            setChecked({ morning: morningDone, evening: eveningDone });
-          }
-        }
-      } catch (err) {
-        console.error('[OnStep] 데이터 로드 실패:', err);
-      } finally {
-        if (!cancelled) setDataLoading(false);
-      }
-    };
-
-    load();
-    return () => {
-      cancelled = true;
-    };
+    const q = query(collection(_db, 'users', userId, 'routines'), orderBy('sessionNumber', 'desc'));
+    const unsub = onSnapshot(q, (snap) => {
+      setSessions(snap.docs.map((d) => migrateSession(d.data() as Record<string, unknown>, d.id)));
+      setDataLoading(false);
+    }, (err) => {
+      console.error('[OnStep] 루틴 로드 실패:', err);
+      setDataLoading(false);
+    });
+    return () => unsub();
   }, [userId, authLoading, user]);
+
+  // ── 실시간 구독 2: 제품 목록 ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const unsub = onSnapshot(collection(_db, 'users', userId, 'products'), (snap) => {
+      const map = new Map<string, Product>();
+      snap.docs.forEach((d) => map.set(d.id, { id: d.id, ...(d.data() as Omit<Product, 'id'>) }));
+      setProducts(map);
+    }, (err) => console.error('[OnStep] 제품 로드 실패:', err));
+    return () => unsub();
+  }, [userId, authLoading, user]);
+
+  // ── 실시간 구독 3: 오늘 체크 기록 (활성 세션이 결정된 후 구독 시작) ──
+  const activeSessionId = activeSession?.id;
+  useEffect(() => {
+    if (authLoading || !user || !db || !activeSessionId) return;
+    const _db = db;
+    const todayStr = getTodayDateStr();
+    const q = query(
+      collection(_db, 'users', userId, 'usageLogs'),
+      where('routineId', '==', activeSessionId),
+      where('dateStr', '==', todayStr)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setChecked({
+        morning: snap.docs.some((d) => d.data().timeSlot === 'morning'),
+        evening: snap.docs.some((d) => d.data().timeSlot === 'evening'),
+      });
+    }, (err) => console.error('[OnStep] 체크 기록 로드 실패:', err));
+    return () => unsub();
+  }, [userId, authLoading, user, activeSessionId]);
 
   // ── 루틴 체크 처리 ──
   // 💡 낙관적 업데이트(optimistic update): 서버 응답 기다리지 않고 UI 먼저 변경
@@ -1122,10 +1108,12 @@ export default function TodayPage() {
     async (time: 'morning' | 'evening') => {
       // 💡 _db에 캡처: async 내부에서 null 체크가 유지되도록 함
       const _db = db;
-      if (!activeSession || !todayDay || !_db) return;
+      if (!activeSession || !todayMorning || !todayEvening || !_db) return;
 
-      const slot = time === 'morning' ? todayDay.morning : todayDay.evening;
-      const allProductIds = slot.phases.flatMap((p) => p.productIds);
+      const slot = time === 'morning' ? todayMorning : todayEvening;
+      const allProductIds = slot.items
+        .filter((item): item is { type: 'product'; id: string } => item.type === 'product')
+        .map((item) => item.id);
       if (allProductIds.length === 0) return;
 
       setSaving(true);
@@ -1181,7 +1169,7 @@ export default function TodayPage() {
         setSaving(false);
       }
     },
-    [activeSession, todayDay, todayDayNumber, userId, products]
+    [activeSession, todayMorning, todayEvening, todayDayNumber, userId, products]
   );
 
   // ── Google 로그인 ──
@@ -1191,7 +1179,9 @@ export default function TodayPage() {
       return;
     }
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
     } catch (err) {
       console.error('[OnStep] 로그인 실패:', err);
     }
@@ -1267,7 +1257,7 @@ export default function TodayPage() {
               color: '#9A9490',
             }}
           >
-            {activeTab === 'morning' ? '☀ MORNING' : '🌙 EVENING'}
+            {activeTab === 'morning' ? '☀ MORNING' : '🌙 NIGHT'}
           </span>
         </div>
 
@@ -1289,10 +1279,12 @@ export default function TodayPage() {
           >
             루틴 불러오는 중...
           </div>
-        ) : activeSession && todayDay ? (
+        ) : activeSession && todayMorning && todayEvening ? (
           // 오늘 활성 루틴 있음
           <FlowCard
-            todayDay={todayDay}
+            todayMorning={todayMorning}
+            todayEvening={todayEvening}
+            todayDayNumber={todayDayNumber}
             session={activeSession}
             products={products}
             tab={activeTab}
@@ -1307,9 +1299,11 @@ export default function TodayPage() {
         )}
 
         {/* 루틴 트래커 (체크리스트 뷰) — 루틴 있을 때만 표시 */}
-        {!dataLoading && activeSession && todayDay && (
+        {!dataLoading && activeSession && todayMorning && todayEvening && (
           <RoutineTracker
-            todayDay={todayDay}
+            todayMorning={todayMorning}
+            todayEvening={todayEvening}
+            todayDayNumber={todayDayNumber}
             session={activeSession}
             checked={checked}
           />

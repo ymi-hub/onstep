@@ -29,6 +29,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
+import UserMenuButton from '@/components/UserMenuButton';
 import type { Product } from '@/types/product';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
@@ -161,53 +162,7 @@ function Appbar({
         AI 가져오기
       </span>
 
-      {/* 유저 */}
-      {user ? (
-        <button
-          onClick={onLogout}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
-            background: '#EEEDE9',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            padding: 0,
-          }}
-          title={`${user.displayName ?? user.email} — 클릭하여 로그아웃`}
-        >
-          {user.photoURL ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={user.photoURL} alt="프로필" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style={{ opacity: 0.4 }}>
-              <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z" />
-            </svg>
-          )}
-        </button>
-      ) : (
-        <button
-          onClick={onLogin}
-          style={{
-            height: 28,
-            padding: '0 10px',
-            borderRadius: 9999,
-            background: '#0C0C0A',
-            border: 'none',
-            cursor: 'pointer',
-            color: '#C5FF00',
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 11,
-            fontWeight: 700,
-          }}
-        >
-          로그인
-        </button>
-      )}
+      <UserMenuButton user={user} onLogin={onLogin} onLogout={onLogout} />
     </div>
   );
 }
@@ -446,7 +401,7 @@ function ResultSection({
       {/* 루틴 카드 목록 */}
       {[
         { routines: morningRoutines, label: '아침 루틴', icon: '☀️', slot: 'morning' },
-        { routines: eveningRoutines, label: '저녁 루틴', icon: '🌙', slot: 'evening' },
+        { routines: eveningRoutines, label: '나이트 루틴', icon: '🌙', slot: 'evening' },
       ].map(({ routines, label, icon, slot }) =>
         routines.length === 0 ? null : (
           <div
@@ -754,40 +709,51 @@ export default function ImportPage() {
     setPageState('saving');
 
     try {
-      // 파싱 결과 → SETUP 페이지의 Session 구조로 변환
-      //
-      // 💡 변환 방식:
-      // AI 파싱 결과를 phases 구조 그대로 Firestore에 저장
-      // 각 phase: { order, productIds, instruction, waitMinutes }
+      // 파싱 결과 → 칩 스트립 items 구조로 변환
+      // 제품 → product 아이템, 설명 → desc 아이템, phase 사이 → + 구분자
+      // 매핑 안 된 제품은 desc 아이템(이름 표시)으로 저장해 사용자가 나중에 확인 가능
 
-      const buildPhases = (routines: typeof parsedResult.routines, time: 'morning' | 'evening') =>
-        routines
-          .filter((r) => r.time === time)
-          .flatMap((r) => r.phases)
-          .map((p, idx) => ({
-            order: idx + 1,
-            productIds: p.products
-              .map((name) => productMatches.get(name)?.matched?.id)
-              .filter((id): id is string => Boolean(id)),
-            instruction: p.instruction,
-            waitMinutes: p.waitMinutes ?? 0,
-          }));
+      type RoutineItemLocal =
+        | { type: 'product'; id: string }
+        | { type: 'desc'; text: string }
+        | { type: 'plus' };
+
+      const buildItems = (routines: typeof parsedResult.routines, time: 'morning' | 'evening'): RoutineItemLocal[] => {
+        const items: RoutineItemLocal[] = [];
+        const filtered = routines.filter((r) => r.time === time);
+        filtered.forEach((routine) => {
+          routine.phases.forEach((phase, pIdx) => {
+            phase.products.forEach((name) => {
+              const matched = productMatches.get(name)?.matched;
+              if (matched) {
+                items.push({ type: 'product', id: matched.id });
+              } else {
+                items.push({ type: 'desc', text: name }); // 미매핑 제품은 desc 칩으로 보존
+              }
+            });
+            if (phase.instruction) items.push({ type: 'desc', text: phase.instruction });
+            if (pIdx < routine.phases.length - 1) items.push({ type: 'plus' });
+          });
+        });
+        return items;
+      };
 
       const now = new Date().toISOString();
 
+      const startDate = parsedResult.date ?? now.slice(0, 10);
+      // endDate: 시작일로부터 90일 후 (루틴 기간을 모르므로 넉넉하게 설정)
+      const endDateObj = new Date(startDate);
+      endDateObj.setDate(endDateObj.getDate() + 90);
+      const endDate = endDateObj.toISOString().slice(0, 10);
+
       const sessionData = {
         sessionNumber: parsedResult.session,
-        startDate: parsedResult.date ?? now.slice(0, 10),
-        endDate: '',
+        startDate,
+        endDate,
         morningTime: '07:30',
         eveningTime: '22:00',
-        days: [
-          {
-            dayNumber: 1,
-            morning: { phases: buildPhases(parsedResult.routines, 'morning') },
-            evening: { phases: buildPhases(parsedResult.routines, 'evening') },
-          },
-        ],
+        morning: { days: [{ id: 1, items: buildItems(parsedResult.routines, 'morning'), tipItems: [], expertTip: '' }] },
+        evening: { days: [{ id: 1, items: buildItems(parsedResult.routines, 'evening'), tipItems: [], expertTip: '' }] },
         importedByAI: true,
         createdAt: now,
         updatedAt: now,
@@ -806,8 +772,11 @@ export default function ImportPage() {
   // ── 로그인 / 로그아웃 ──
   const handleLogin = async () => {
     if (!auth) { alert('Firebase가 설정되지 않았습니다.'); return; }
-    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
-    catch (err) { console.error('[OnStep] 로그인 실패:', err); }
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
+    } catch (err) { console.error('[OnStep] 로그인 실패:', err); }
   };
 
   const handleLogout = async () => {

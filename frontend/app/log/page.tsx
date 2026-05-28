@@ -26,7 +26,7 @@ import {
 import { ko } from 'date-fns/locale';
 import {
   collection,
-  getDocs,
+  onSnapshot,
   query,
   where,
   orderBy,
@@ -40,6 +40,7 @@ import {
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import type { Product } from '@/types/product';
+import UserMenuButton from '@/components/UserMenuButton';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -157,55 +158,7 @@ function Appbar({
         OnStep
       </div>
 
-      {/* 유저 아이콘 */}
-      {user ? (
-        <button
-          onClick={onLogout}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
-            background: '#EEEDE9',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            padding: 0,
-          }}
-          aria-label="로그아웃"
-          title={`${user.displayName ?? user.email} — 클릭하여 로그아웃`}
-        >
-          {user.photoURL ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={user.photoURL} alt="프로필" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style={{ opacity: 0.5 }}>
-              <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z" />
-            </svg>
-          )}
-        </button>
-      ) : (
-        <button
-          onClick={onLogin}
-          style={{
-            height: 32,
-            padding: '0 12px',
-            borderRadius: 9999,
-            background: '#0C0C0A',
-            border: 'none',
-            cursor: 'pointer',
-            color: '#C5FF00',
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.04em',
-          }}
-        >
-          로그인
-        </button>
-      )}
+      <UserMenuButton user={user} onLogin={onLogin} onLogout={onLogout} />
     </div>
   );
 }
@@ -679,7 +632,7 @@ function DayDetail({
       {/* 아침 / 저녁 카드 (나란히 배치) */}
       <div style={{ display: 'flex', gap: 8, padding: 12 }}>
         {renderSlot('MORNING', '☀', morningUniq, dayLog?.hasMorning ?? false)}
-        {renderSlot('EVENING', '🌙', eveningUniq, dayLog?.hasEvening ?? false)}
+        {renderSlot('NIGHT', '🌙', eveningUniq, dayLog?.hasEvening ?? false)}
       </div>
     </div>
   );
@@ -887,80 +840,66 @@ export default function LogPage() {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthLoading(false);
+      if (!u) { setDayLogs(new Map()); setProducts(new Map()); setSelectedDate(null); }
     });
     return () => unsub();
   }, []);
 
-  // ── 데이터 로드 ──
-  // 💡 currentMonth 또는 userId가 바뀔 때마다 해당 월의 로그를 다시 가져옴
+  // ── 실시간 구독 1: 월별 사용 로그 ──
   useEffect(() => {
-    if (authLoading || !user) return;
+    if (authLoading || !user || !db) return;
     const _db = db;
-    if (!_db) return;
-
-    let cancelled = false;
     setDataLoading(true);
-
-    const load = async () => {
-      try {
-        // 현재 월의 시작일 / 종료일 (문자열)
-        const monthStart = toDateStr(startOfMonth(currentMonth));
-        const monthEnd = toDateStr(endOfMonth(currentMonth));
-
-        // 해당 월의 usageLogs 쿼리
-        // 💡 dateStr 필드로 범위 필터 → 해당 월 기록만 가져옴
-        const logsSnap = await getDocs(
-          query(
-            collection(_db, 'users', userId, 'usageLogs'),
-            where('dateStr', '>=', monthStart),
-            where('dateStr', '<=', monthEnd),
-            orderBy('dateStr', 'asc'),
-          )
-        );
-
-        // 제품 목록 (productId → Product 맵)
-        const productsSnap = await getDocs(collection(_db, 'users', userId, 'products'));
-        const productMap = new Map<string, Product>();
-        productsSnap.docs.forEach((d) =>
-          productMap.set(d.id, { id: d.id, ...(d.data() as Omit<Product, 'id'>) })
-        );
-
-        if (cancelled) return;
-
-        // 날짜별로 로그 그룹핑
-        const logsMap = new Map<string, DayLog>();
-        logsSnap.docs.forEach((d) => {
-          const data = d.data() as Omit<LogEntry, 'id'>;
-          const entry: LogEntry = { id: d.id, ...data };
-          const ds = entry.dateStr;
-
-          if (!logsMap.has(ds)) {
-            logsMap.set(ds, { dateStr: ds, hasMorning: false, hasEvening: false, entries: [] });
-          }
-          const dayLog = logsMap.get(ds)!;
-          dayLog.entries.push(entry);
-          if (entry.timeSlot === 'morning') dayLog.hasMorning = true;
-          if (entry.timeSlot === 'evening') dayLog.hasEvening = true;
-        });
-
-        setDayLogs(logsMap);
-        setProducts(productMap);
-      } catch (err) {
-        console.error('[OnStep] 로그 로드 실패:', err);
-      } finally {
-        if (!cancelled) setDataLoading(false);
-      }
-    };
-
-    load();
-    return () => { cancelled = true; };
+    const monthStart = toDateStr(startOfMonth(currentMonth));
+    const monthEnd = toDateStr(endOfMonth(currentMonth));
+    const q = query(
+      collection(_db, 'users', userId, 'usageLogs'),
+      where('dateStr', '>=', monthStart),
+      where('dateStr', '<=', monthEnd),
+      orderBy('dateStr', 'asc')
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const logsMap = new Map<string, DayLog>();
+      snap.docs.forEach((d) => {
+        const data = d.data() as Omit<LogEntry, 'id'>;
+        const entry: LogEntry = { id: d.id, ...data };
+        const ds = entry.dateStr;
+        if (!logsMap.has(ds)) {
+          logsMap.set(ds, { dateStr: ds, hasMorning: false, hasEvening: false, entries: [] });
+        }
+        const dayLog = logsMap.get(ds)!;
+        dayLog.entries.push(entry);
+        if (entry.timeSlot === 'morning') dayLog.hasMorning = true;
+        if (entry.timeSlot === 'evening') dayLog.hasEvening = true;
+      });
+      setDayLogs(logsMap);
+      setDataLoading(false);
+    }, (err) => {
+      console.error('[OnStep] 로그 로드 실패:', err);
+      setDataLoading(false);
+    });
+    return () => unsub();
   }, [userId, authLoading, user, currentMonth]);
+
+  // ── 실시간 구독 2: 제품 목록 ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const unsub = onSnapshot(collection(_db, 'users', userId, 'products'), (snap) => {
+      const map = new Map<string, Product>();
+      snap.docs.forEach((d) => map.set(d.id, { id: d.id, ...(d.data() as Omit<Product, 'id'>) }));
+      setProducts(map);
+    }, (err) => console.error('[OnStep] 제품 로드 실패:', err));
+    return () => unsub();
+  }, [userId, authLoading, user]);
 
   // ── 로그인 / 로그아웃 ──
   const handleLogin = async () => {
     if (!auth) { alert('Firebase가 설정되지 않았습니다. .env.local을 확인해주세요.'); return; }
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
     } catch (err) {
       console.error('[OnStep] 로그인 실패:', err);
     }

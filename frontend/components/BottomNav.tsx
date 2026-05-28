@@ -63,6 +63,7 @@ export default function BottomNav() {
     if (pathname.startsWith('/log')) return 'log';
     if (pathname.startsWith('/box')) return 'box';
     if (pathname.startsWith('/setup')) return 'setup';
+    if (pathname.startsWith('/import')) return 'setup';
     return 'today';
   })();
 
