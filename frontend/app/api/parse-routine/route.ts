@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
 
   // Gemini API 초기화
   const genAI = new GoogleGenerativeAI(apiKey);
-  // gemini-1.5-flash: 빠르고 무료 한도 1500회/일
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  // gemini-2.5-flash: 무료 한도 500회/일
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
   // 💡 프롬프트 설계:
   //    - 한국어 루틴 텍스트를 구조화된 JSON으로 변환

@@ -38,10 +38,17 @@ import type { Product } from '@/types/product';
 // ─── 타입 정의 ────────────────────────────────────────────────────────────────
 // setup/page.tsx에서 사용하는 Firestore 데이터 구조와 동일하게 맞춤
 
-// 한 시간대(아침 or 저녁)의 제품 묶음 + 사용법
+// 루틴 1단계
+type Phase = {
+  order: number;
+  productIds: string[];
+  instruction: string;
+  waitMinutes: number;
+};
+
+// 한 시간대(아침 or 저녁)의 단계 목록
 type DaySlot = {
-  productIds: string[];   // BOX에서 선택한 제품 ID 목록
-  instruction: string;    // 전체 사용법 메모
+  phases: Phase[];
 };
 
 // 하루(DAY N) 루틴
@@ -102,6 +109,22 @@ function findActiveSession(sessions: Session[]): Session | null {
     if (now >= start && now <= end) return s;
   }
   return null;
+}
+
+// 구버전 슬롯(productIds+instruction) → phases 구조로 변환
+function migrateSlot(raw: unknown): DaySlot {
+  const s = raw as Record<string, unknown>;
+  if (Array.isArray(s.phases)) return { phases: s.phases as Phase[] };
+  return {
+    phases: [
+      {
+        order: 1,
+        productIds: (s.productIds as string[]) ?? [],
+        instruction: (s.instruction as string) ?? '',
+        waitMinutes: 0,
+      },
+    ],
+  };
 }
 
 // 오늘(YYYY-MM-DD) 날짜 문자열 반환
@@ -400,7 +423,7 @@ function FlowCard({
             color: '#9A9490',
           }}
         >
-          {slot.productIds.length}개 제품
+          {slot.phases.reduce((n, p) => n + p.productIds.length, 0)}개 제품 · {slot.phases.length}단계
         </span>
       </div>
 
@@ -454,179 +477,52 @@ function FlowCard({
         ))}
       </div>
 
-      {/* 제품 스트립 — today.html .flow-prod-strip */}
-      {slot.productIds.length > 0 ? (
-        // 💡 스크롤바를 숨기면서 가로 스크롤 가능하게 함
-        <div
-          style={{
-            display: 'flex',
-            overflowX: 'auto',
-            scrollbarWidth: 'none', // Firefox
-            padding: '20px 20px',
-            gap: 12,
-            alignItems: 'flex-start',
-          }}
-        >
-          {slot.productIds.map((pid) => {
-            const p = products.get(pid);
-            return (
-              <div
-                key={pid}
-                style={{
-                  flexShrink: 0,
-                  width: 90,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 6,
-                  opacity: isChecked ? 0.5 : 1,
-                  transition: 'opacity .2s',
-                }}
-              >
-                {/* 제품 썸네일 */}
-                <div
-                  style={{
-                    width: '100%',
-                    aspectRatio: '1/1',
-                    background: '#EEEDE9',
-                    borderRadius: 10,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {/* 시간대 뱃지 (아침=☀, 저녁=🌙) */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 4,
-                      left: 4,
-                      width: 16,
-                      height: 16,
-                      borderRadius: 9999,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 9,
-                      zIndex: 2,
-                      background:
-                        tab === 'morning'
-                          ? 'rgba(255,255,255,.85)'
-                          : 'rgba(24,24,27,.7)',
-                    }}
-                  >
-                    {tab === 'morning' ? '☀' : '🌙'}
-                  </div>
-
-                  {/* 완료 오버레이 */}
-                  {isChecked && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: 'rgba(12,12,10,0.3)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: 10,
-                        zIndex: 3,
-                      }}
-                    >
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </div>
-                  )}
-
-                  {/* 제품 이모지 (이미지 없을 때 placeholder) */}
-                  <span style={{ fontSize: 24, opacity: 0.4 }}>🧴</span>
-                </div>
-
-                {/* 제품 이름 — 없으면 "?" */}
-                <div
-                  style={{
-                    fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                    fontSize: 12,
-                    fontWeight: 400,
-                    color: '#0C0C0A',
-                    textAlign: 'center',
-                    lineHeight: 1.3,
-                    // 2줄 초과 시 ... 처리
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    width: '100%',
-                  }}
-                >
-                  {p?.name ?? '알 수 없는 제품'}
-                </div>
+      {/* 단계별 제품 + 사용법 */}
+      {slot.phases.length > 0 ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          {slot.phases.map((phase) => (
+            <div key={phase.order} style={{ borderBottom: '1px solid rgba(12,12,10,.05)' }}>
+              {/* 단계 번호 + 사용법 */}
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, padding: '10px 16px 4px' }}>
+                <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', flexShrink: 0 }}>
+                  STEP {phase.order}
+                </span>
+                {phase.instruction && (
+                  <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#4A4846', lineHeight: 1.4 }}>
+                    {phase.instruction}
+                    {phase.waitMinutes > 0 && (
+                      <span style={{ marginLeft: 6, color: '#9A9490', fontWeight: 600 }}>⏱ {phase.waitMinutes}분</span>
+                    )}
+                  </span>
+                )}
               </div>
-            );
-          })}
+              {/* 제품 가로 스크롤 */}
+              <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', padding: '6px 16px 12px', gap: 10, alignItems: 'flex-start' }}>
+                {phase.productIds.map((pid) => {
+                  const p = products.get(pid);
+                  return (
+                    <div key={pid} style={{ flexShrink: 0, width: 72, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
+                      <div style={{ width: '100%', aspectRatio: '1/1', background: '#EEEDE9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                        {isChecked && (
+                          <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, zIndex: 3 }}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                          </div>
+                        )}
+                        <span style={{ fontSize: 20, opacity: 0.4 }}>🧴</span>
+                      </div>
+                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', width: '100%' }}>
+                        {p?.name ?? '?'}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
-        // 제품이 없을 때
-        <div
-          style={{
-            padding: '28px 20px',
-            textAlign: 'center',
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 13,
-            color: '#9A9490',
-            border: '1.5px dashed rgba(12,12,10,.14)',
-            borderRadius: 20,
-            lineHeight: 1.6,
-            margin: '16px',
-          }}
-        >
-          이 시간대에 등록된 제품이 없습니다.
-          <br />
-          SETUP에서 제품을 추가해보세요.
-        </div>
-      )}
-
-      {/* EXPERT TIP (사용법 메모) — today.html .flow-expert-tip */}
-      {slot.instruction && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
-            padding: 16,
-            margin: '0 16px',
-            background: '#F5FDD4',
-            border: '1px solid rgba(198,244,50,.5)',
-            borderRadius: 16,
-          }}
-        >
-          <div
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 12,
-              fontWeight: 700,
-              color: '#0C0C0A',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              letterSpacing: '0.04em',
-            }}
-          >
-            💡 EXPERT TIP
-          </div>
-          <div
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 13,
-              color: '#4A4846',
-              lineHeight: 1.6,
-              whiteSpace: 'pre-wrap', // 줄바꿈 유지
-            }}
-          >
-            {slot.instruction}
-          </div>
+        <div style={{ padding: '28px 20px', textAlign: 'center', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 20, lineHeight: 1.6, margin: '16px' }}>
+          이 시간대에 등록된 제품이 없습니다.<br />SETUP에서 단계를 추가해보세요.
         </div>
       )}
 
@@ -717,14 +613,14 @@ function RoutineTracker({
       key: 'morning' as const,
       label: '아침 루틴',
       time: session.morningTime,
-      count: todayDay.morning.productIds.length,
+      count: todayDay.morning.phases.reduce((n, p) => n + p.productIds.length, 0),
       done: checked.morning,
     },
     {
       key: 'evening' as const,
       label: '저녁 루틴',
       time: session.eveningTime,
-      count: todayDay.evening.productIds.length,
+      count: todayDay.evening.phases.reduce((n, p) => n + p.productIds.length, 0),
       done: checked.evening,
     },
   ];
@@ -1161,10 +1057,18 @@ export default function TodayPage() {
         const routinesSnap = await getDocs(
           query(collection(_db, 'users', userId, 'routines'), orderBy('sessionNumber'))
         );
-        const loadedSessions: Session[] = routinesSnap.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<Session, 'id'>),
-        }));
+        const loadedSessions: Session[] = routinesSnap.docs.map((d) => {
+          const raw = d.data() as Omit<Session, 'id'>;
+          return {
+            id: d.id,
+            ...raw,
+            days: (raw.days ?? []).map((day) => ({
+              ...day,
+              morning: migrateSlot(day.morning),
+              evening: migrateSlot(day.evening),
+            })),
+          };
+        });
 
         // 제품 로드
         const productsSnap = await getDocs(collection(_db, 'users', userId, 'products'));
@@ -1221,7 +1125,8 @@ export default function TodayPage() {
       if (!activeSession || !todayDay || !_db) return;
 
       const slot = time === 'morning' ? todayDay.morning : todayDay.evening;
-      if (slot.productIds.length === 0) return;
+      const allProductIds = slot.phases.flatMap((p) => p.productIds);
+      if (allProductIds.length === 0) return;
 
       setSaving(true);
       // UI 먼저 체크 상태로 변경
@@ -1234,7 +1139,7 @@ export default function TodayPage() {
 
         // 각 제품별로 UsageLog 저장 + 잔량 차감
         await Promise.all(
-          slot.productIds.map(async (productId) => {
+          allProductIds.map(async (productId) => {
             const product = products.get(productId);
             const amount = product?.dosePerUse ?? 0;
 

@@ -13,13 +13,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="h-full">
-      <body
-        className="min-h-full flex flex-col"
-        style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif" }}
-      >
-        <main className="flex-1">{children}</main>
-        <BottomNav />
+    <html lang="ko">
+      <body style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif" }}>
+        {/* PC에서도 앱 사이즈(430px)로 가운데 표시 — 바깥은 body의 #E8E6E0 배경 */}
+        <div
+          style={{
+            maxWidth: 430,
+            margin: '0 auto',
+            minHeight: '100dvh',
+            display: 'flex',
+            flexDirection: 'column',
+            background: '#FAFAF8',
+            overflowX: 'hidden',
+            boxShadow: '0 0 60px rgba(0,0,0,0.12)',
+          }}
+        >
+          {/* main이 스크롤 컨테이너 — BottomNav는 항상 하단 고정 */}
+          <main style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+            {children}
+          </main>
+          <BottomNav />
+        </div>
       </body>
     </html>
   );

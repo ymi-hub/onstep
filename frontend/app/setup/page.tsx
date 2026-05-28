@@ -35,11 +35,18 @@ import type { Product } from '@/types/product';
 // 현재 보여줄 화면
 type View = 'hub' | 'sessions' | 'editor';
 
-// 한 시간대(아침/저녁)의 제품 묶음 + 사용법
-// 예: 아침에 토너 → 세럼 → 크림 쓰고 "각 1펌프씩" 이라는 설명
+// 루틴 1단계: 제품 묶음 + 사용법
+// 예: 단계 2 = "델마크림 + 델마크림마스크 섞어 바른 뒤"
+type Phase = {
+  order: number;        // 단계 순서 (1부터)
+  productIds: string[]; // 이 단계에서 쓸 제품 ID 목록
+  instruction: string;  // 이 단계 사용법
+  waitMinutes: number;  // 다음 단계 전 대기 시간(분), 0이면 없음
+};
+
+// 한 시간대(아침/저녁)의 단계 목록
 type DaySlot = {
-  productIds: string[]; // 이 시간대에 쓸 제품들의 Firestore ID
-  instruction: string;  // 전체 사용법 텍스트
+  phases: Phase[];
 };
 
 // 하루 루틴 (DAY 1, DAY 2, ...)
@@ -77,14 +84,35 @@ type EditorDraft = {
 
 const FALLBACK_USER_ID = 'demo-user';
 
+// 빈 Phase 생성
+function emptyPhase(order: number): Phase {
+  return { order, productIds: [], instruction: '', waitMinutes: 0 };
+}
+
 // 빈 DaySlot 생성
 function emptySlot(): DaySlot {
-  return { productIds: [], instruction: '' };
+  return { phases: [] };
 }
 
 // 빈 RoutineDay 생성 (day N번)
 function emptyDay(n: number): RoutineDay {
   return { dayNumber: n, morning: emptySlot(), evening: emptySlot() };
+}
+
+// Firestore에서 읽은 슬롯 데이터가 구버전(productIds+instruction)이면 phases 구조로 변환
+function migrateSlot(raw: unknown): DaySlot {
+  const s = raw as Record<string, unknown>;
+  if (Array.isArray(s.phases)) return { phases: s.phases as Phase[] };
+  return {
+    phases: [
+      {
+        order: 1,
+        productIds: (s.productIds as string[]) ?? [],
+        instruction: (s.instruction as string) ?? '',
+        waitMinutes: 0,
+      },
+    ],
+  };
 }
 
 // 새 세션 초기 상태
@@ -718,8 +746,8 @@ function EditorView({
   // 현재 선택된 DAY 탭 인덱스
   const [activeDayIdx, setActiveDayIdx] = useState(0);
 
-  // 제품 선택 시트: null이면 닫힘, 'morning' 또는 'evening'이면 열림
-  const [pickerSlot, setPickerSlot] = useState<'morning' | 'evening' | null>(null);
+  // 제품 선택 시트: null=닫힘, { slot, phaseIdx }=열림
+  const [pickerSlot, setPickerSlot] = useState<{ slot: 'morning' | 'evening'; phaseIdx: number } | null>(null);
 
   // 제품 검색어
   const [pickerSearch, setPickerSearch] = useState('');
@@ -737,13 +765,15 @@ function EditorView({
   });
 
   // 현재 picker에서 선택된 제품 ID 목록
-  const pickerSelectedIds = pickerSlot ? activeDay[pickerSlot].productIds : [];
+  const pickerSelectedIds = pickerSlot
+    ? (activeDay[pickerSlot.slot].phases[pickerSlot.phaseIdx]?.productIds ?? [])
+    : [];
 
   // DAY 추가
   function addDay() {
     const nextNum = draft.days.length + 1;
     setDraft((d) => d && { ...d, days: [...d.days, emptyDay(nextNum)] });
-    setActiveDayIdx(draft.days.length); // 새로 추가된 DAY로 이동
+    setActiveDayIdx(draft.days.length);
   }
 
   // DAY 삭제 (최소 1개 유지)
@@ -751,25 +781,57 @@ function EditorView({
     if (draft.days.length <= 1) return;
     setDraft((d) => {
       if (!d) return d;
-      // 해당 인덱스 제거 후 dayNumber 재정렬
       const days = d.days
         .filter((_, i) => i !== idx)
         .map((day, i) => ({ ...day, dayNumber: i + 1 }));
       return { ...d, days };
     });
-    // 삭제 후 탭 인덱스 보정 (범위 벗어나지 않도록)
     setActiveDayIdx((i) => Math.min(i, draft.days.length - 2));
   }
 
-  // 특정 시간대의 필드 업데이트
-  // slot: 'morning' | 'evening'
-  // field: 'productIds' | 'instruction'
-  function updateSlot(slot: 'morning' | 'evening', field: keyof DaySlot, value: unknown) {
+  // 특정 시간대의 특정 단계 필드 업데이트
+  function updatePhase(
+    slot: 'morning' | 'evening',
+    phaseIdx: number,
+    field: keyof Phase,
+    value: unknown,
+  ) {
     setDraft((d) => {
       if (!d) return d;
       const days = d.days.map((day, i) => {
         if (i !== activeDayIdx) return day;
-        return { ...day, [slot]: { ...day[slot], [field]: value } };
+        const phases = day[slot].phases.map((ph, j) =>
+          j === phaseIdx ? { ...ph, [field]: value } : ph,
+        );
+        return { ...day, [slot]: { phases } };
+      });
+      return { ...d, days };
+    });
+  }
+
+  // 단계 추가
+  function addPhase(slot: 'morning' | 'evening') {
+    setDraft((d) => {
+      if (!d) return d;
+      const days = d.days.map((day, i) => {
+        if (i !== activeDayIdx) return day;
+        const phases = day[slot].phases;
+        return { ...day, [slot]: { phases: [...phases, emptyPhase(phases.length + 1)] } };
+      });
+      return { ...d, days };
+    });
+  }
+
+  // 단계 삭제 (order 재정렬)
+  function removePhase(slot: 'morning' | 'evening', phaseIdx: number) {
+    setDraft((d) => {
+      if (!d) return d;
+      const days = d.days.map((day, i) => {
+        if (i !== activeDayIdx) return day;
+        const phases = day[slot].phases
+          .filter((_, j) => j !== phaseIdx)
+          .map((ph, j) => ({ ...ph, order: j + 1 }));
+        return { ...day, [slot]: { phases } };
       });
       return { ...d, days };
     });
@@ -778,17 +840,18 @@ function EditorView({
   // 제품 선택 토글 (picker에서 클릭)
   function toggleProduct(productId: string) {
     if (!pickerSlot) return;
-    const current = activeDay[pickerSlot].productIds;
+    const { slot, phaseIdx } = pickerSlot;
+    const current = activeDay[slot].phases[phaseIdx]?.productIds ?? [];
     const updated = current.includes(productId)
-      ? current.filter((id) => id !== productId)   // 이미 있으면 제거
-      : [...current, productId];                     // 없으면 추가
-    updateSlot(pickerSlot, 'productIds', updated);
+      ? current.filter((id) => id !== productId)
+      : [...current, productId];
+    updatePhase(slot, phaseIdx, 'productIds', updated);
   }
 
-  // 제품 제거 (메인 화면에서 × 버튼)
-  function removeProduct(slot: 'morning' | 'evening', productId: string) {
-    const current = activeDay[slot].productIds;
-    updateSlot(slot, 'productIds', current.filter((id) => id !== productId));
+  // 제품 제거 (칩의 × 버튼)
+  function removeProduct(slot: 'morning' | 'evening', phaseIdx: number, productId: string) {
+    const current = activeDay[slot].phases[phaseIdx]?.productIds ?? [];
+    updatePhase(slot, phaseIdx, 'productIds', current.filter((id) => id !== productId));
   }
 
   // ID로 제품 정보 찾기
@@ -889,7 +952,7 @@ function EditorView({
     );
   }
 
-  // ── 시간대 섹션 (Morning / Evening) ──────────────────────────────────────
+  // ── 시간대 섹션 (Morning / Evening) — 단계 목록 ──────────────────────────
   function SlotSection({
     slot,
     label,
@@ -902,129 +965,85 @@ function EditorView({
     const slotData = activeDay[slot];
     return (
       <div style={{ paddingTop: 20 }}>
-        {/* 섹션 헤더 (시간대 이름 + 시간 표시) */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 12,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#0C0C0A',
-            }}
-          >
-            <span>{icon}</span>
-            {label}
+        {/* 섹션 헤더 */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>
+            <span>{icon}</span>{label}
           </div>
-          {/* 시간 표시 */}
-          <div
-            style={{
-              fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-              fontSize: 12,
-              fontWeight: 700,
-              color: '#9A9490',
-            }}
-          >
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#9A9490' }}>
             {slot === 'morning' ? draft.morningTime : draft.eveningTime}
           </div>
         </div>
 
-        {/* 제품 칩 + + 버튼 (design .rs-chip-list) */}
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 8,
-            alignItems: 'flex-end',
-            marginBottom: 12,
-          }}
-        >
-          {/* 선택된 제품들 */}
-          {slotData.productIds.map((pid) => {
-            const prod = findProduct(pid);
-            if (!prod) return null;
-            return (
-              <ProductChip
-                key={pid}
-                product={prod}
-                onRemove={() => removeProduct(slot, pid)}
-              />
-            );
-          })}
-
-          {/* 제품 추가 버튼 (design .rs-chip--plus) */}
-          <button
-            onClick={() => {
-              setPickerSlot(slot);
-              setPickerSearch('');
-            }}
-            style={{
-              width: 72,
-              height: 72,
-              border: '1.5px dashed rgba(33,150,243,.4)',
-              borderRadius: 10,
-              background: 'rgba(33,150,243,.08)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 28,
-              fontWeight: 300,
-              color: '#1976D2',
-              cursor: 'pointer',
-              flexShrink: 0,
-            }}
-            aria-label="제품 추가"
-          >
-            +
-          </button>
-        </div>
-
-        {/* 사용법 입력 */}
-        <div>
-          <div
-            style={{
-              fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '.12em',
-              textTransform: 'uppercase',
-              color: '#9A9490',
-              marginBottom: 6,
-            }}
-          >
-            사용법 메모
+        {/* 단계 카드 목록 */}
+        {slotData.phases.length === 0 && (
+          <div style={{ padding: '16px', textAlign: 'center', fontSize: 13, color: '#9A9490', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, marginBottom: 10 }}>
+            단계를 추가하세요
           </div>
-          <textarea
-            value={slotData.instruction}
-            onChange={(e) => updateSlot(slot, 'instruction', e.target.value)}
-            placeholder="예: 얇게 한 겹 도포, 10분 뒤 흡수..."
-            rows={2}
-            style={{
-              width: '100%',
-              border: '1.5px solid rgba(12,12,10,.14)',
-              borderRadius: 8,
-              padding: '9px 12px',
-              fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-              fontSize: 13,
-              color: '#0C0C0A',
-              background: '#F4F4F0',
-              outline: 'none',
-              resize: 'none',
-              lineHeight: 1.55,
-              boxSizing: 'border-box',
-              transition: 'border-color .18s',
-            }}
-          />
-        </div>
+        )}
+        {slotData.phases.map((phase, phaseIdx) => (
+          <div
+            key={phaseIdx}
+            style={{ background: '#F4F4F0', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, marginBottom: 8, overflow: 'hidden' }}
+          >
+            {/* 단계 헤더: 번호 + 삭제 */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: '1px solid rgba(12,12,10,.07)', background: '#EEEDE9' }}>
+              <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: '#4A4846' }}>
+                단계 {phase.order}
+              </span>
+              <button
+                onClick={() => removePhase(slot, phaseIdx)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#9A9490', lineHeight: 1, padding: '0 2px' }}
+                aria-label="단계 삭제"
+              >×</button>
+            </div>
+
+            {/* 제품 칩 + 추가 버튼 */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'flex-end', padding: '10px 12px 8px' }}>
+              {phase.productIds.map((pid) => {
+                const prod = findProduct(pid);
+                if (!prod) return null;
+                return (
+                  <ProductChip key={pid} product={prod} onRemove={() => removeProduct(slot, phaseIdx, pid)} />
+                );
+              })}
+              <button
+                onClick={() => { setPickerSlot({ slot, phaseIdx }); setPickerSearch(''); }}
+                style={{ width: 56, height: 56, border: '1.5px dashed rgba(33,150,243,.4)', borderRadius: 8, background: 'rgba(33,150,243,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#1976D2', cursor: 'pointer', flexShrink: 0 }}
+                aria-label="제품 추가"
+              >+</button>
+            </div>
+
+            {/* 사용법 + 대기시간 */}
+            <div style={{ display: 'flex', gap: 8, padding: '0 12px 12px', alignItems: 'flex-start' }}>
+              <input
+                value={phase.instruction}
+                onChange={(e) => updatePhase(slot, phaseIdx, 'instruction', e.target.value)}
+                placeholder="사용법 (예: 섞어 바른 뒤)"
+                style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, padding: '7px 10px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#0C0C0A', background: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+                <input
+                  type="number"
+                  min={0}
+                  value={phase.waitMinutes || ''}
+                  onChange={(e) => updatePhase(slot, phaseIdx, 'waitMinutes', Number(e.target.value) || 0)}
+                  placeholder="0"
+                  style={{ width: 52, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, padding: '7px 6px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, textAlign: 'center', color: '#0C0C0A', background: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
+                />
+                <span style={{ fontSize: 10, color: '#9A9490', fontWeight: 600 }}>분 대기</span>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* + 단계 추가 버튼 */}
+        <button
+          onClick={() => addPhase(slot)}
+          style={{ width: '100%', padding: '10px', border: '1.5px dashed rgba(12,12,10,.2)', borderRadius: 10, background: 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#4A4846', cursor: 'pointer' }}
+        >
+          + 단계 추가
+        </button>
       </div>
     );
   }
@@ -1356,7 +1375,7 @@ function EditorView({
                     color: '#0C0C0A',
                   }}
                 >
-                  {pickerSlot === 'morning' ? '☀️ 아침' : '🌙 저녁'} 제품 선택
+                  {pickerSlot?.slot === 'morning' ? '☀️ 아침' : '🌙 저녁'} 단계 {(pickerSlot?.phaseIdx ?? 0) + 1} 제품 선택
                 </div>
                 <button
                   onClick={() => setPickerSlot(null)}
@@ -1668,7 +1687,18 @@ export default function SetupPage() {
       q,
       (snap) => {
         setSessions(
-          snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Session, 'id'>) }))
+          snap.docs.map((d) => {
+            const raw = d.data() as Omit<Session, 'id'>;
+            return {
+              id: d.id,
+              ...raw,
+              days: (raw.days ?? []).map((day) => ({
+                ...day,
+                morning: migrateSlot(day.morning),
+                evening: migrateSlot(day.evening),
+              })),
+            };
+          })
         );
         setLoadingSessions(false);
       },

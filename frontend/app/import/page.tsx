@@ -757,43 +757,21 @@ export default function ImportPage() {
       // 파싱 결과 → SETUP 페이지의 Session 구조로 변환
       //
       // 💡 변환 방식:
-      //   - 모든 morning 루틴 → days[0].morning
-      //   - 모든 evening 루틴 → days[0].evening
-      //   - instruction: 단계별 제품 + 설명을 줄바꿈으로 합침
-      //   - productIds: 매핑된 제품의 Firestore ID (매핑 안 된 건 빈 배열)
+      // AI 파싱 결과를 phases 구조 그대로 Firestore에 저장
+      // 각 phase: { order, productIds, instruction, waitMinutes }
 
-      const morningPhases = parsedResult.routines
-        .filter((r) => r.time === 'morning')
-        .flatMap((r) => r.phases);
-
-      const eveningPhases = parsedResult.routines
-        .filter((r) => r.time === 'evening')
-        .flatMap((r) => r.phases);
-
-      const buildInstruction = (phases: typeof morningPhases) =>
-        phases
-          .map((p) => {
-            const prods = p.products.join(' + ');
-            const instr = p.instruction ? ` — ${p.instruction}` : '';
-            const wait = p.waitMinutes > 0 ? ` (${p.waitMinutes}분 대기)` : '';
-            return `${p.order}. ${prods}${instr}${wait}`;
-          })
-          .join('\n');
-
-      const buildProductIds = (phases: typeof morningPhases) => {
-        const ids: string[] = [];
-        const seen = new Set<string>();
-        phases.forEach((phase) => {
-          phase.products.forEach((name) => {
-            const match = productMatches.get(name);
-            if (match?.matched?.id && !seen.has(match.matched.id)) {
-              ids.push(match.matched.id);
-              seen.add(match.matched.id);
-            }
-          });
-        });
-        return ids;
-      };
+      const buildPhases = (routines: typeof parsedResult.routines, time: 'morning' | 'evening') =>
+        routines
+          .filter((r) => r.time === time)
+          .flatMap((r) => r.phases)
+          .map((p, idx) => ({
+            order: idx + 1,
+            productIds: p.products
+              .map((name) => productMatches.get(name)?.matched?.id)
+              .filter((id): id is string => Boolean(id)),
+            instruction: p.instruction,
+            waitMinutes: p.waitMinutes ?? 0,
+          }));
 
       const now = new Date().toISOString();
 
@@ -806,17 +784,10 @@ export default function ImportPage() {
         days: [
           {
             dayNumber: 1,
-            morning: {
-              productIds: buildProductIds(morningPhases),
-              instruction: buildInstruction(morningPhases),
-            },
-            evening: {
-              productIds: buildProductIds(eveningPhases),
-              instruction: buildInstruction(eveningPhases),
-            },
+            morning: { phases: buildPhases(parsedResult.routines, 'morning') },
+            evening: { phases: buildPhases(parsedResult.routines, 'evening') },
           },
         ],
-        // AI로 가져왔음을 표시 (나중에 필터링이나 표시에 활용 가능)
         importedByAI: true,
         createdAt: now,
         updatedAt: now,
