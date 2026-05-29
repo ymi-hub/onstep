@@ -330,10 +330,13 @@ const WMO_MAP: Record<number, [string, string]> = {
 function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [locName, setLocName] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  // requested: 캐시 복원 또는 버튼 클릭으로 이미 요청한 상태
+  const [requested, setRequested] = useState(false);
 
   useEffect(() => {
-    if (typeof navigator === 'undefined' || !navigator.geolocation) return;
-
+    // 캐시된 날씨가 있으면 버튼 없이 바로 표시
     const cached = typeof localStorage !== 'undefined' ? localStorage.getItem('onstep_weather_v5') : null;
     if (cached) {
       try {
@@ -341,45 +344,99 @@ function WeatherWidget() {
         if (Date.now() - d.ts < 30 * 60 * 1000) {
           setWeather(d.weather);
           setLocName(d.locName);
-          return;
+          setRequested(true);
         }
       } catch { /* ignore */ }
     }
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const { latitude: lat, longitude: lon } = pos.coords;
-      try {
-        const res = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,weathercode&timezone=auto`
-        );
-        const data = await res.json();
-        const code: number = data.current?.weathercode ?? 0;
-        const temp: number = Math.round(data.current?.temperature_2m ?? 0);
-        const [desc, emoji] = WMO_MAP[code] ?? ['알 수 없음', '🌡'];
-        const w: WeatherData = { temp, desc, emoji };
-
-        // 역지오코딩: nominatim (무료)
-        let name = '';
-        try {
-          const geo = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ko`
-          );
-          const gd = await geo.json();
-          name = gd.address?.city || gd.address?.town || gd.address?.county || gd.address?.state || '';
-        } catch { /* skip */ }
-
-        setWeather(w);
-        setLocName(name);
-        if (typeof localStorage !== 'undefined') {
-          localStorage.setItem('onstep_weather_v5', JSON.stringify({ ts: Date.now(), weather: w, locName: name }));
-        }
-      } catch { /* silent fail */ }
-    }, undefined, { timeout: 5000 });
   }, []);
+
+  const fetchWeather = () => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setError('위치 정보를 지원하지 않는 브라우저입니다.');
+      return;
+    }
+    setLoading(true);
+    setRequested(true);
+    setError('');
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        try {
+          // weather_code (언더스코어) 가 현재 Open-Meteo API 표준 필드명
+          const res = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,weather_code&timezone=auto`
+          );
+          const data = await res.json();
+          // weather_code 와 weathercode(구버전) 모두 대응
+          const code: number = data.current?.weather_code ?? data.current?.weathercode ?? 0;
+          const temp: number = Math.round(data.current?.temperature_2m ?? 0);
+          const [desc, emoji] = WMO_MAP[code] ?? ['알 수 없음', '🌡'];
+          const w: WeatherData = { temp, desc, emoji };
+
+          let name = '';
+          try {
+            const geo = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ko`
+            );
+            const gd = await geo.json();
+            name = gd.address?.city || gd.address?.town || gd.address?.county || gd.address?.state || '';
+          } catch { /* 위치명은 없어도 날씨는 표시 */ }
+
+          setWeather(w);
+          setLocName(name);
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('onstep_weather_v5', JSON.stringify({ ts: Date.now(), weather: w, locName: name }));
+          }
+        } catch (e) {
+          console.error('[OnStep] 날씨 fetch 실패:', e);
+          setError('날씨 정보를 가져오지 못했습니다.');
+        }
+        setLoading(false);
+      },
+      (err) => {
+        console.error('[OnStep] 위치 권한 오류:', err.code, err.message);
+        setError(err.code === 1 ? '위치 권한이 거부되었습니다.' : '위치 정보를 가져오지 못했습니다.');
+        setLoading(false);
+      },
+      { timeout: 10000 }
+    );
+  };
+
+  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+
+  // 아직 요청 전 → 버튼 표시 (사용자 제스처로 위치 권한 다이얼로그 유도)
+  if (!requested) {
+    return (
+      <div style={{ padding: '10px 16px 4px' }}>
+        <button
+          onClick={fetchWeather}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: '1.5px solid #D8D4CC', borderRadius: 20, padding: '5px 12px', cursor: 'pointer', fontFamily: f, fontSize: 12, fontWeight: 600, color: '#9A9490', letterSpacing: '.03em' }}
+        >
+          📍 날씨 보기
+        </button>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div style={{ padding: '10px 16px 4px' }}>
+        <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>날씨 불러오는 중…</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: '10px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontFamily: f, fontSize: 12, color: '#C0392B' }}>{error}</span>
+        <button onClick={() => { setError(''); setRequested(false); }} style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 11, color: '#9A9490', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>다시 시도</button>
+      </div>
+    );
+  }
 
   if (!weather) return null;
 
-  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px 4px' }}>
       <div style={{ width: 40, height: 40, background: '#C5FF00', borderRadius: 10, border: '2px solid #91C000', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, lineHeight: 1 }}>
@@ -399,6 +456,13 @@ function WeatherWidget() {
 
 // ─── 세션 히어로 ──────────────────────────────────────────────────────────────
 // today.html .session-hero: 회차 번호 + 날짜 + DAY 진행 도트
+
+// 영어 서수 변환: 1→1st, 2→2nd, 3→3rd, 21→21st 등
+function toOrdinal(n: number): string {
+  const v = n % 100;
+  const suffix = (v >= 11 && v <= 13) ? 'th' : (['st', 'nd', 'rd'][((v - 1) % 10)] ?? 'th');
+  return `${n}${suffix}`;
+}
 
 function SessionHero({
   today,
@@ -425,7 +489,7 @@ function SessionHero({
           lineHeight: 1.2,
         }}
       >
-        {session ? `${session.sessionNumber}회차 SESSION` : '— SESSION'}
+        {session ? `${toOrdinal(session.sessionNumber)} SESSION` : '— SESSION'}
       </div>
 
       {/* 오늘 날짜 + 세션 기간 */}
@@ -717,10 +781,10 @@ function FlowCard({
         </div>
       )}
 
-      {/* 카드 하단: Edit 링크만 (CHECK 버튼 제거 — Routine Tracker가 체크 담당) */}
+      {/* 카드 하단: List 링크 (ROUTINE SETUP 목록으로 이동) */}
       <div style={{ padding: '12px 16px 8px' }}>
         <Link href="/setup#sessions" style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 700, color: '#9A9490', textDecoration: 'none' }}>
-          Edit →
+          List →
         </Link>
       </div>
 
@@ -2025,16 +2089,6 @@ export default function TodayPage() {
             }}
           >
             #Flow
-          </span>
-          <span
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 13,
-              fontWeight: 600,
-              color: '#9A9490',
-            }}
-          >
-            {activeTab === 'morning' ? '☀ 아침' : '🌙 저녁'}
           </span>
         </div>
 

@@ -513,10 +513,7 @@ function SessionsView({
                     {/* 정보 */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: font, fontSize: 20, fontWeight: 400, color: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const }}>
-                        No.{s.sessionNumber}
-                        {s.sessionTag && (
-                          <span style={{ fontFamily: font, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', background: '#E8F5CC', color: '#4E7D00', padding: '2px 8px', borderRadius: 6, flexShrink: 0, border: '1px solid rgba(132,176,0,.3)' }}>{s.sessionTag}</span>
-                        )}
+                        {s.sessionNumber}회 {s.sessionTag || 'SESSION'}
                         {isNow && (
                           <span style={{ fontFamily: font, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase' as const, background: '#0C0C0A', color: '#C5FF00', padding: '2px 7px', borderRadius: 9999, flexShrink: 0 }}>NOW</span>
                         )}
