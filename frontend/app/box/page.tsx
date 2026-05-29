@@ -20,6 +20,8 @@ import {
   deleteDoc,
   doc,
   orderBy,
+  getDoc,
+  getDocs,
 } from 'firebase/firestore';
 import {
   onAuthStateChanged,
@@ -248,6 +250,65 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   );
 }
 
+// ─── 구 box.html catKey → 한국어 카테고리 매핑 ───────────────────────────────
+const CAT_KEY_MAP: Record<string, string> = {
+  toner: '토너', essence: '에센스', serum: '세럼', cream: '크림',
+  cleanser: '클렌저', suncare: '선크림', mask: '마스크팩', eye: '아이크림',
+  foundation: '파운데이션', lip: '립', eye_makeup: '아이',
+  blush: '블러셔', concealer: '컨실러',
+};
+
+// 구 box.html의 users/{uid}/box/data.assets 배열을
+// 신 users/{uid}/products 컬렉션으로 마이그레이션
+async function migrateOldBoxAssets(uid: string): Promise<number> {
+  if (!db) return 0;
+  try {
+    // 이미 신규 products가 있으면 마이그레이션 스킵
+    const existing = await getDocs(collection(db, 'users', uid, 'products'));
+    if (!existing.empty) return 0;
+
+    // 구 box/data 문서 읽기
+    const oldSnap = await getDoc(doc(db, 'users', uid, 'box', 'data'));
+    if (!oldSnap.exists()) return 0;
+
+    const assets: Record<string, unknown>[] = (oldSnap.data().assets ?? []);
+    if (!assets.length) return 0;
+
+    const now = new Date().toISOString();
+    await Promise.all(
+      assets.map((a) =>
+        addDoc(collection(db!, 'users', uid, 'products'), {
+          name:            (a.name as string) || '',
+          brand:           (a.brand as string) || null,
+          domain:          (a.domain as string) || 'beauty',
+          subCategory:     (a.type as string) || null,
+          category:        CAT_KEY_MAP[a.catKey as string] ?? (a.catKey as string) ?? null,
+          packageCount:    Number(a.packageCount) || 1,
+          unitPerPackage:  Number(a.unitPerPackage) || 1,
+          itemUnit:        (a.itemUnit as string) || 'ea',
+          totalAmount:     Number(a.totalAmount) || 1,
+          dosePerUse:      Number(a.dosePerUse) || 1,
+          usesPerDay:      Number(a.usesPerDay) || 1,
+          frequencyType:   Number(a.frequencyValue) === 7 ? 'daily' : 'per_week',
+          frequencyValue:  Number(a.frequencyValue) || 7,
+          currentRemaining: a.currentRemaining != null
+            ? Number(a.currentRemaining)
+            : Number(a.totalAmount) || 1,
+          purchaseDate:    (a.purchaseDate as string) || null,
+          startDate:       (a.startDate as string) || null,
+          expiryDate:      (a.expiryDate as string) || (a.endDate as string) || null,
+          createdAt:       (a.addedDate as string) || now,
+          updatedAt:       now,
+        })
+      )
+    );
+    return assets.length;
+  } catch (e) {
+    console.error('[OnStep] 마이그레이션 오류:', e);
+    return 0;
+  }
+}
+
 // ─── 메인 BOX 페이지 ─────────────────────────────────────────────────────────
 export default function BoxPage() {
   // ── 인증 상태 ──
@@ -273,6 +334,9 @@ export default function BoxPage() {
   // 폼 상태
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [saving, setSaving] = useState(false);
+
+  // 마이그레이션 완료 알림
+  const [migratedCount, setMigratedCount] = useState(0);
 
   // 현재 userId: 로그인된 UID, 없으면 fallback
   const userId = user?.uid ?? FALLBACK_USER_ID;
@@ -323,6 +387,15 @@ export default function BoxPage() {
 
     return () => unsub();
   }, [userId, authLoading]);
+
+  // ── 구 box.html → 신 products 마이그레이션 ────────────────────────────────
+  // 로그인 후 products 컬렉션이 비어있으면 한 번만 실행
+  useEffect(() => {
+    if (!user) return;
+    migrateOldBoxAssets(user.uid).then((count) => {
+      if (count > 0) setMigratedCount(count);
+    });
+  }, [user]);
 
   // ── 필터링된 제품 목록 ────────────────────────────────────────────────────
   const filtered = products.filter((p) => {
@@ -467,6 +540,14 @@ export default function BoxPage() {
         <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 16px', fontSize: 13, borderBottom: '1px solid #FCA5A5' }}>
           {authError}
           <button onClick={() => setAuthError(null)} style={{ marginLeft: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#991B1B', fontWeight: 700 }}>✕</button>
+        </div>
+      )}
+
+      {/* 마이그레이션 완료 배너 */}
+      {migratedCount > 0 && (
+        <div style={{ background: '#D1FAE5', color: '#065F46', padding: '8px 16px', fontSize: 13, borderBottom: '1px solid #6EE7B7', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>이전에 등록한 제품 {migratedCount}개를 가져왔어요 ✓</span>
+          <button onClick={() => setMigratedCount(0)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#065F46', fontWeight: 700 }}>✕</button>
         </div>
       )}
 

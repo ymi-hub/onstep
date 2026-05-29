@@ -150,11 +150,25 @@ ${text}
     const result = await model.generateContent(prompt);
     const responseText = result.response.text().trim();
 
-    // Gemini가 가끔 ```json ... ``` 형식으로 반환할 때 처리
-    const cleanJson = responseText
-      .replace(/^```json\s*/i, '')
-      .replace(/^```\s*/i, '')
-      .replace(/\s*```$/i, '');
+    // Step 1: 마크다운 코드 블록 제거
+    let cleanJson = responseText
+      .replace(/^```json\s*/im, '')
+      .replace(/^```\s*/im, '')
+      .replace(/\s*```\s*$/im, '')
+      .trim();
+
+    // Step 2: 아직 { 로 시작하지 않으면 첫 { ~ 마지막 } 구간 추출
+    if (!cleanJson.startsWith('{')) {
+      const match = cleanJson.match(/\{[\s\S]*\}/);
+      if (!match) {
+        console.error('[OnStep] JSON 미발견. 원본(첫 500자):', responseText.substring(0, 500));
+        return NextResponse.json(
+          { error: 'AI 응답에서 JSON을 찾을 수 없습니다. 다시 시도해주세요.' },
+          { status: 500 }
+        );
+      }
+      cleanJson = match[0];
+    }
 
     const parsed = JSON.parse(cleanJson);
     return NextResponse.json({ result: parsed });
