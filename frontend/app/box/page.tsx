@@ -260,19 +260,30 @@ const CAT_KEY_MAP: Record<string, string> = {
 
 // 구 box.html의 users/{uid}/box/data.assets 배열을
 // 신 users/{uid}/products 컬렉션으로 마이그레이션
-async function migrateOldBoxAssets(uid: string): Promise<number> {
-  if (!db) return 0;
-  try {
-    // 이미 신규 products가 있으면 마이그레이션 스킵
-    const existing = await getDocs(collection(db, 'users', uid, 'products'));
-    if (!existing.empty) return 0;
+// force=true 이면 localStorage 플래그 무시하고 재실행
+async function migrateOldBoxAssets(uid: string, force = false): Promise<{ count: number; error?: string }> {
+  if (!db) return { count: 0, error: 'Firebase 미설정' };
 
+  // 이미 이 기기에서 마이그레이션 완료한 경우 스킵 (강제 실행 아니면)
+  const flagKey = `onstep_migrated_${uid}`;
+  if (!force && typeof localStorage !== 'undefined' && localStorage.getItem(flagKey)) {
+    return { count: 0 };
+  }
+
+  try {
     // 구 box/data 문서 읽기
     const oldSnap = await getDoc(doc(db, 'users', uid, 'box', 'data'));
-    if (!oldSnap.exists()) return 0;
+    if (!oldSnap.exists()) {
+      // 이전 데이터 없음 — 플래그 세팅해서 다음 로그인에 또 시도 안 함
+      if (typeof localStorage !== 'undefined') localStorage.setItem(flagKey, 'done');
+      return { count: 0, error: 'Firestore에 이전 데이터가 없습니다. box.html에서 먼저 로그인해주세요.' };
+    }
 
     const assets: Record<string, unknown>[] = (oldSnap.data().assets ?? []);
-    if (!assets.length) return 0;
+    if (!assets.length) {
+      if (typeof localStorage !== 'undefined') localStorage.setItem(flagKey, 'done');
+      return { count: 0, error: '이전 제품이 0개입니다.' };
+    }
 
     const now = new Date().toISOString();
     await Promise.all(
@@ -302,10 +313,13 @@ async function migrateOldBoxAssets(uid: string): Promise<number> {
         })
       )
     );
-    return assets.length;
+
+    if (typeof localStorage !== 'undefined') localStorage.setItem(flagKey, 'done');
+    return { count: assets.length };
   } catch (e) {
+    const msg = (e as { message?: string }).message ?? String(e);
     console.error('[OnStep] 마이그레이션 오류:', e);
-    return 0;
+    return { count: 0, error: msg };
   }
 }
 
@@ -335,8 +349,9 @@ export default function BoxPage() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [saving, setSaving] = useState(false);
 
-  // 마이그레이션 완료 알림
-  const [migratedCount, setMigratedCount] = useState(0);
+  // 마이그레이션 알림 토스트
+  const [migrationToast, setMigrationToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [migrating, setMigrating] = useState(false);
 
   // 현재 userId: 로그인된 UID, 없으면 fallback
   const userId = user?.uid ?? FALLBACK_USER_ID;
@@ -389,13 +404,36 @@ export default function BoxPage() {
   }, [userId, authLoading]);
 
   // ── 구 box.html → 신 products 마이그레이션 ────────────────────────────────
-  // 로그인 후 products 컬렉션이 비어있으면 한 번만 실행
+  // 로그인 시 localStorage 플래그 확인 후 미이그레이션 시도
   useEffect(() => {
     if (!user) return;
-    migrateOldBoxAssets(user.uid).then((count) => {
-      if (count > 0) setMigratedCount(count);
+    migrateOldBoxAssets(user.uid).then(({ count, error }) => {
+      if (count > 0) {
+        const toast = { msg: `이전 제품 ${count}개 가져오기 완료 ✓`, ok: true };
+        setMigrationToast(toast);
+        setTimeout(() => setMigrationToast(null), 5000);
+      } else if (error) {
+        // 조용한 실패는 콘솔에만 (첫 로그인 시 에러 메시지 안 띄움)
+        console.log('[OnStep] 마이그레이션:', error);
+      }
     });
   }, [user]);
+
+  // 수동 마이그레이션 실행 (버튼 클릭 시)
+  async function handleManualMigrate() {
+    if (!user || migrating) return;
+    setMigrating(true);
+    const { count, error } = await migrateOldBoxAssets(user.uid, true);
+    if (count > 0) {
+      setMigrationToast({ msg: `이전 제품 ${count}개 가져오기 완료 ✓`, ok: true });
+    } else if (error) {
+      setMigrationToast({ msg: `가져오기 실패: ${error}`, ok: false });
+    } else {
+      setMigrationToast({ msg: '가져올 이전 데이터가 없습니다', ok: false });
+    }
+    setMigrating(false);
+    setTimeout(() => setMigrationToast(null), 6000);
+  }
 
   // ── 필터링된 제품 목록 ────────────────────────────────────────────────────
   const filtered = products.filter((p) => {
@@ -540,14 +578,6 @@ export default function BoxPage() {
         <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 16px', fontSize: 13, borderBottom: '1px solid #FCA5A5' }}>
           {authError}
           <button onClick={() => setAuthError(null)} style={{ marginLeft: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#991B1B', fontWeight: 700 }}>✕</button>
-        </div>
-      )}
-
-      {/* 마이그레이션 완료 배너 */}
-      {migratedCount > 0 && (
-        <div style={{ background: '#D1FAE5', color: '#065F46', padding: '8px 16px', fontSize: 13, borderBottom: '1px solid #6EE7B7', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span>이전에 등록한 제품 {migratedCount}개를 가져왔어요 ✓</span>
-          <button onClick={() => setMigratedCount(0)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#065F46', fontWeight: 700 }}>✕</button>
         </div>
       )}
 
@@ -783,6 +813,53 @@ export default function BoxPage() {
         >
           ＋
         </button>
+      )}
+
+      {/* 이전 데이터 가져오기 버튼 (로그인 상태이고 products가 비었을 때) */}
+      {user && !loading && products.length === 0 && !isAddOpen && (
+        <div style={{ padding: '0 16px 16px', textAlign: 'center' }}>
+          <button
+            onClick={handleManualMigrate}
+            disabled={migrating}
+            style={{
+              padding: '8px 18px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.2)',
+              background: 'transparent', cursor: migrating ? 'default' : 'pointer',
+              fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+              fontSize: 12, fontWeight: 600, color: '#9A9490',
+            }}
+          >
+            {migrating ? '가져오는 중...' : '이전 박스 데이터 가져오기'}
+          </button>
+        </div>
+      )}
+
+      {/* Bottom Toast — 마이그레이션 결과 알림 */}
+      {migrationToast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 80,
+            left: 'max(16px,calc(50vw - 199px))',
+            right: 'max(16px,calc(50vw - 199px))',
+            zIndex: 200,
+            background: migrationToast.ok ? '#0C0C0A' : '#991B1B',
+            color: '#fff',
+            borderRadius: 12,
+            padding: '12px 16px',
+            fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+            fontSize: 13, fontWeight: 600,
+            boxShadow: '0 4px 24px rgba(0,0,0,.18)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+          }}
+        >
+          <span>{migrationToast.msg}</span>
+          <button
+            onClick={() => setMigrationToast(null)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.7)', fontSize: 16, padding: 0, flexShrink: 0 }}
+          >
+            ✕
+          </button>
+        </div>
       )}
 
       {/* 제품 추가/편집 전체 화면 오버레이 */}
