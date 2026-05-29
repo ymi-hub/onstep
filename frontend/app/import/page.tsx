@@ -46,12 +46,14 @@ type ParsedRoutine = {
   time: 'morning' | 'evening';
   label: string;               // 예: "아침은", "하루저녁은"
   dayNumber?: number;          // 1 = 기본/첫째날, 2 = 교대/둘째날
+  expertTip?: string | null;   // "이떄는..." 팁 문장
   phases: ParsedPhase[];
 };
 
 type ParsedResult = {
   session: number;
   date: string | null;         // "YYYY-MM-DD" 또는 null
+  tag?: string | null;         // 예: "관리3차"
   routines: ParsedRoutine[];
 };
 
@@ -387,6 +389,11 @@ function ResultSection({
           >
             {result.session}회차
             {result.date ? ` · ${result.date}` : ''}
+            {result.tag && (
+              <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 9999, background: '#0C0C0A', color: '#C5FF00', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em' }}>
+                {result.tag}
+              </span>
+            )}
           </div>
           <div
             style={{
@@ -766,7 +773,7 @@ export default function ImportPage() {
             id: dayNum,
             items: buildItemsFromList(list),
             tipItems: [],
-            expertTip: '',
+            expertTip: list.map((r) => r.expertTip ?? '').filter(Boolean).join(' / '),
           }));
       };
 

@@ -14,7 +14,6 @@ import { NextRequest, NextResponse } from 'next/server';
 // 요청 body: { text: string }   ← 사용자가 붙여넣은 루틴 텍스트
 // 응답 body: { result: ParsedRoutine } 또는 { error: string }
 export async function POST(req: NextRequest) {
-  // 환경변수에서 API 키 가져오기 (서버에서만 접근 가능)
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -23,7 +22,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 요청 본문 파싱
   let text: string;
   try {
     const body = await req.json() as { text?: string };
@@ -36,71 +34,105 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '텍스트를 입력해주세요.' }, { status: 400 });
   }
 
-  // Gemini API 초기화
   const genAI = new GoogleGenerativeAI(apiKey);
-  // gemini-2.5-flash: 무료 한도 500회/일
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-  // 💡 프롬프트 설계:
-  //    - 한국어 루틴 텍스트를 구조화된 JSON으로 변환
-  //    - "-"는 제품 구분자이며, 한국어 연결 어미 뒤에 오는 "-"는 단계 구분자
-  //    - "아침은"/"하루아침은", "저녁은"/"하루저녁은" 패턴으로 dayNumber 결정
-  //    - 마크다운 코드 블록 없이 순수 JSON만 반환하도록 지시
   const prompt = `
 다음 한국어 스킨케어 루틴 텍스트를 분석해서 JSON으로 변환해주세요.
 
-【날짜/회차 추출】
-- "20260522 20차" → date: "2026-05-22", session: 20
-- "20차", "20회차" → session: 20
-- 날짜가 없으면 date: null, 회차가 없으면 session: 1
+━━ 1. 헤더 파싱 ━━
+형식: "{날짜} {N차} ({태그})"   ← 태그는 선택 사항
+예: "20260522 20차 (관리3차)" → date:"2026-05-22", session:20, tag:"관리3차"
+예: "20260522 20차"           → date:"2026-05-22", session:20, tag:null
+날짜 변환: "20260522" → "2026-05-22"
 
-【시간대 레이블 → time + dayNumber 변환】
-- "아침은", "아침1" → time: "morning", dayNumber: 1
-- "하루아침은", "아침2" → time: "morning", dayNumber: 2
-- "저녁은", "저녁1" → time: "evening", dayNumber: 1
-- "하루저녁은", "저녁2" → time: "evening", dayNumber: 2
-- 같은 레이블이 여러 번 나오면 첫 번째 = dayNumber:1, 두 번째 = dayNumber:2
+━━ 2. 섹션 레이블 인식 ━━
+빈 줄 뒤에 단독으로 나타나는 레이블:
+  아침은      → time:"morning", dayNumber:1
+  하루아침은  → time:"morning", dayNumber:2
+  저녁은      → time:"evening", dayNumber:1
+  하루저녁은  → time:"evening", dayNumber:2
+같은 레이블이 여러 번 나오면: 첫 번째=dayNumber:1, 두 번째=dayNumber:2
 
-【단계(phase) 분리 방법】
-"-"는 제품 구분자 또는 단계 구분자입니다.
-새 단계(phase)가 시작되는 경우:
-① 한국어 연결 어미("~하고-", "~고-", "~뒤-", "~바르고-") 뒤의 "-"
-② "N분뒤에띄어내고-" 패턴 (waitMinutes: N 기록 후 새 단계)
-같은 단계에서 "-"로만 연결된 제품들은 하나의 phase에 넣으세요.
+━━ 3. 팁 문장 인식 ━━
+"이떄는", "이때는", "참고로", "주의" 등으로 시작하는 문단
+→ 직전 섹션의 expertTip으로 저장 (routines phases에 포함하지 않음)
 
-【제품 추출 규칙】
-- 제품명은 한국어 고유명사 (예: "구해줘앰플", "인투토너", "기미씨크림", "인미 4종")
-- "+"로 연결된 제품들 → 같은 phase의 products 배열에 분리해서 포함
-- 제품명 뒤 조사("에", "을", "를", "이", "가") 제거 (예: "구해줘앰플에" → "구해줘앰플")
-- 동사/부사("섞어서", "얇게", "두껍게", "펴바르고", "마무리해주세요") → instruction 텍스트
-- 팁/코멘트 문장("이떄는", "참고로", "주의:" 로 시작) → 무시
+━━ 4. 제품 기호 의미 ━━
+⬛ "-" 로 연결된 제품들: 순서대로 하나씩 레이어링 (각자 따로 바름)
+⬛ "+" 로 연결된 제품들: 섞어서 함께 바름
 
-【구체적인 변환 예시】
+예:
+  "버터토너- 델마세럼- 오션크림" → 3개를 순서대로 각자 바름
+  "인투쉘+인투베일을 섞어서" → 2개를 섞어서 함께 바름
+
+━━ 5. 단계(phase) 분리 규칙 ━━
+
+Phase 경계 판별 (새 phase가 시작되는 시점):
+  ① 동작 어미 뒤 "-": "~하고-", "~고-", "~뒤에-", "~바르고-"
+  ② 특수: "N분뒤에띄어내고-" → waitMinutes:N 기록 후 새 phase
+  ③ 마지막 phase: "마무리", "마무리!", "마무리해주세요!" 등으로 끝남 (trailing "-" 없음)
+
+"-"로 나열된 제품 + "+" 로 연결된 제품 그룹이 같은 세그먼트에 있을 때:
+  ① "-"로만 나열된 부분 → Phase A: products 배열에 차례로 포함, instruction:""
+  ② "+"로 연결된 그룹 → Phase B: products 배열에 각각 포함, instruction:"섞어서..."
+
+예:
+"버터토너- 델마세럼- 톡스세럼- 광택세럼- 펄세럼-페를 4종+듀얼리즈+기미가라크림을 섞어서 두껍게 펴바르고-"
+→ Phase A: products:["버터토너","델마세럼","톡스세럼","광택세럼","펄세럼"], instruction:""
+→ Phase B: products:["페를 4종","듀얼리즈","기미가라크림"], instruction:"섞어서 두껍게 펴바르고"
+
+예외: "-"로 나열된 제품들 전체에 "섞어서" 동작이 적용될 때는 하나의 Phase로:
+"인투토너-인투앰플-인투쉘+인투베일을 섞어서 얇게 펴바르고-"
+→ Phase: products:["인투토너","인투앰플","인투쉘","인투베일"], instruction:"섞어서 얇게 펴바르고"
+
+━━ 6. 제품명 추출 규칙 ━━
+- 한국어 고유명사 그대로 보존
+- 조사 제거: "에", "을", "를", "이", "가"
+  예: "구해줘앰플에" → "구해줘앰플", "새살세럼을" → "새살세럼"
+  예: "톡스크림에 톡스세럼" → products:["톡스크림","톡스세럼"]
+- "인미 4종", "페를 4종" 등 수량 포함 이름 → 그대로 보존
+- 동사/부사("섞어서","얇게","두껍게","펴바르고","마무리") → instruction 텍스트
+
+━━ 7. 완전한 예시 변환 ━━
+
 입력:
-"구해줘앰플에 새살세럼 섞어서 얇게 펴바르고- 인투토너-인투앰플-인투쉘+인투베일을 섞어서 얇게 펴바르고-인미리코드팩 20분뒤에띄어내고-델마크림으로 마무리"
+"구해줘앰플에 새살세럼 섞어서 얇게 펴바르고- 인투토너-인투앰플-인투쉘+인투베일을 섞어서 얇게 펴바르고-델마세럼-라이지앰플-블랙크림으로 마무리"
 
 출력 phases:
 [
   {"order":1,"products":["구해줘앰플","새살세럼"],"instruction":"섞어서 얇게 펴바르고","waitMinutes":0},
   {"order":2,"products":["인투토너","인투앰플","인투쉘","인투베일"],"instruction":"섞어서 얇게 펴바르고","waitMinutes":0},
-  {"order":3,"products":["인미리코드팩"],"instruction":"띄어내고","waitMinutes":20},
-  {"order":4,"products":["델마크림"],"instruction":"으로 마무리","waitMinutes":0}
+  {"order":3,"products":["델마세럼","라이지앰플","블랙크림"],"instruction":"으로 마무리","waitMinutes":0}
 ]
 
-【출력 JSON 형식 (이 구조 반드시 준수)】
+입력:
+"버터토너- 델마세럼- 톡스세럼- 펄세럼-페를 4종+듀얼리즈+기미가라크림을 섞어서 두껍게 펴바르고- 인미리코드팩 20분뒤에띄어내고- 델마크림-오션크림으로 마무리!"
+
+출력 phases:
+[
+  {"order":1,"products":["버터토너","델마세럼","톡스세럼","펄세럼"],"instruction":"","waitMinutes":0},
+  {"order":2,"products":["페를 4종","듀얼리즈","기미가라크림"],"instruction":"섞어서 두껍게 펴바르고","waitMinutes":0},
+  {"order":3,"products":["인미리코드팩"],"instruction":"떼어내고","waitMinutes":20},
+  {"order":4,"products":["델마크림","오션크림"],"instruction":"으로 마무리","waitMinutes":0}
+]
+
+━━ 8. 출력 JSON 형식 ━━
 {
   "session": <숫자>,
   "date": "<YYYY-MM-DD 또는 null>",
+  "tag": "<태그 또는 null>",
   "routines": [
     {
       "time": "morning" 또는 "evening",
       "label": "<원문 레이블>",
       "dayNumber": <1 또는 2>,
+      "expertTip": "<팁 문장 또는 null>",
       "phases": [
         {
           "order": <1부터 순서>,
           "products": ["제품명1", "제품명2"],
-          "instruction": "<사용법>",
+          "instruction": "<사용법, 없으면 빈 문자열>",
           "waitMinutes": <대기 분, 없으면 0>
         }
       ]
@@ -108,7 +140,7 @@ export async function POST(req: NextRequest) {
   ]
 }
 
-반드시 순수 JSON만 반환. 마크다운 코드 블록(\`\`\`) 절대 금지. JSON 외 텍스트 포함 금지.
+순수 JSON만 반환. 마크다운 코드 블록(\`\`\`) 절대 금지. JSON 외 텍스트 포함 금지.
 
 입력 텍스트:
 ${text}
