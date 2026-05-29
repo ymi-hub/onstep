@@ -35,6 +35,14 @@ export interface Product {
   startDate?: string;
   expiryDate?: string;
 
+  // 이미지
+  imageUrl?: string;     // Firebase Storage URL (신규) 또는 Cloudinary URL (구 box.html 마이그레이션)
+
+  // 구매 정보
+  price?: string;        // 가격 (예: "₩45,000")
+  source?: string;       // 구매처 (예: "올리브영")
+  purchaseUrl?: string;  // 구매 링크
+
   // 보관 위치
   boxLocation?: string;
 

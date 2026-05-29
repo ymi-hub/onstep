@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   collection,
@@ -30,7 +30,8 @@ import {
   signOut,
   type User,
 } from 'firebase/auth';
-import { db, auth } from '@/lib/firebase';
+import { db, auth, storage } from '@/lib/firebase';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Product } from '@/types/product';
 import UserMenuButton from '@/components/UserMenuButton';
 
@@ -57,13 +58,22 @@ type FormState = {
   name: string;
   brand: string;
   category: string;
-  packageCount: number;    // 패키지 수 (박스)
-  unitPerPackage: number;  // 패키지당 수량
-  usesPerDay: number;      // 하루 사용 횟수
-  daysPerWeek: number;     // 사용 주기 (주당 일수)
-  purchaseDate: string;    // 구매일 (YYYY-MM-DD)
-  expiryDate: string;      // 유통기한
-  startDate: string;       // 사용 시작일
+  packageCount: number;
+  unitPerPackage: number;
+  usesPerDay: number;
+  dosePerUse: number;
+  daysPerWeek: number;
+  purchaseDate: string;
+  expiryDate: string;
+  startDate: string;
+  // 신규 필드
+  price: string;             // 가격 (예: "₩45,000")
+  source: string;            // 구매처
+  purchaseUrl: string;       // 구매 링크
+  currentRemaining: number;  // 현재 잔량 (편집 시 수동 조정)
+  imageFile: File | null;    // 새로 선택한 이미지 파일
+  imagePreview: string;      // base64 미리보기
+  imageUrl: string;          // 기존 이미지 URL
 };
 
 const INITIAL_FORM: FormState = {
@@ -73,10 +83,18 @@ const INITIAL_FORM: FormState = {
   packageCount: 1,
   unitPerPackage: 1,
   usesPerDay: 1,
+  dosePerUse: 1,
   daysPerWeek: 7,
   purchaseDate: '',
   expiryDate: '',
   startDate: '',
+  price: '',
+  source: '',
+  purchaseUrl: '',
+  currentRemaining: 0,
+  imageFile: null,
+  imagePreview: '',
+  imageUrl: '',
 };
 
 // ─── Appbar ──────────────────────────────────────────────────────────────────
@@ -143,16 +161,16 @@ function ProductCard({
   product: Product;
   onClick: () => void;
 }) {
-  // 잔량 비율 계산 (0~1): 총량 대비 현재 잔량
   const fillRate =
     product.totalAmount > 0
       ? Math.min(1, product.currentRemaining / product.totalAmount)
       : 1;
 
-  // 잔량 상태에 따라 색상 변경
-  // fresh(>50%) = 라임 그린, mid(20~50%) = 주황, low(<20%) = 빨강
   const fillColor =
     fillRate > 0.5 ? '#C5FF00' : fillRate > 0.2 ? '#B45309' : '#D93025';
+
+  // Firebase Storage URL 또는 구 box.html Cloudinary URL
+  const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
 
   return (
     <div
@@ -168,20 +186,32 @@ function ProductCard({
         justifyContent: 'center',
       }}
     >
+      {/* 배경 이미지 (있을 때만) */}
+      {imgUrl && (
+        <div
+          style={{
+            position: 'absolute', inset: 0,
+            backgroundImage: `url(${imgUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+      )}
+
       {/* 상단 잔량 바 */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'rgba(255,255,255,.15)' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'rgba(0,0,0,.12)', zIndex: 1 }}>
         <div style={{ height: '100%', width: `${fillRate * 100}%`, background: fillColor }} />
       </div>
 
-      {/* 제품 플레이스홀더 (이미지 없을 때) */}
-      <span style={{ fontSize: 24, opacity: 0.15 }}>✦</span>
+      {/* 제품 플레이스홀더 (이미지 없을 때만) */}
+      {!imgUrl && <span style={{ fontSize: 24, opacity: 0.15 }}>✦</span>}
 
       {/* 하단 제품명 바 (그라데이션 오버레이) */}
       <div
         style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
+          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1,
           padding: '22px 5px 4px',
-          background: 'linear-gradient(transparent, rgba(0,0,0,.65))',
+          background: 'linear-gradient(transparent, rgba(0,0,0,.72))',
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
           fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: '.04em',
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
@@ -194,9 +224,9 @@ function ProductCard({
       {fillRate < 0.2 && (
         <div
           style={{
-            position: 'absolute', top: 4, right: 4,
+            position: 'absolute', top: 6, right: 4, zIndex: 2,
             background: '#D93025', color: '#fff',
-            borderRadius: 3, fontSize: 11, fontWeight: 700, padding: '2px 4px',
+            borderRadius: 3, fontSize: 10, fontWeight: 700, padding: '2px 4px',
           }}
         >
           LOW
@@ -308,6 +338,10 @@ async function migrateOldBoxAssets(uid: string, force = false): Promise<{ count:
           purchaseDate:    (a.purchaseDate as string) || null,
           startDate:       (a.startDate as string) || null,
           expiryDate:      (a.expiryDate as string) || (a.endDate as string) || null,
+          imageUrl:        (a.storageUrl as string) || null,
+          price:           (a.price as string) || null,
+          source:          (a.source as string) || null,
+          purchaseUrl:     (a.purchaseUrl as string) || null,
           createdAt:       (a.addedDate as string) || now,
           updatedAt:       now,
         })
@@ -474,28 +508,44 @@ export default function BoxPage() {
         unitPerPackage: form.unitPerPackage,
         itemUnit: '개',
         totalAmount,
-        dosePerUse: 1,
+        dosePerUse: form.dosePerUse,
         usesPerDay: form.usesPerDay,
         frequencyType: form.daysPerWeek === 7 ? 'daily' : 'per_week',
         frequencyValue: form.daysPerWeek,
         purchaseDate: form.purchaseDate || null,
         startDate: form.startDate || null,
         expiryDate: form.expiryDate || null,
+        price: form.price.trim() || null,
+        source: form.source.trim() || null,
+        purchaseUrl: form.purchaseUrl.trim() || null,
         updatedAt: now,
       };
 
+      let productId: string;
+
       if (editingProduct) {
-        // 기존 제품 수정 — currentRemaining·createdAt은 유지
-        await updateDoc(doc(db, 'users', userId, 'products', editingProduct.id), commonFields);
+        productId = editingProduct.id;
+        await updateDoc(doc(db, 'users', userId, 'products', productId), {
+          ...commonFields,
+          currentRemaining: form.currentRemaining,
+        });
       } else {
-        // 신규 제품 추가
-        await addDoc(collection(db, 'users', userId, 'products'), {
+        const docRef = await addDoc(collection(db, 'users', userId, 'products'), {
           ...commonFields,
           domain: activeTab,
           subCategory: activeTab === 'beauty' ? subType : null,
           currentRemaining: totalAmount,
           createdAt: now,
         });
+        productId = docRef.id;
+      }
+
+      // 새 이미지 파일이 선택된 경우 Firebase Storage에 업로드
+      if (form.imageFile && storage) {
+        const imgRef = storageRef(storage, `users/${userId}/products/${productId}.jpg`);
+        await uploadBytes(imgRef, form.imageFile);
+        const imageUrl = await getDownloadURL(imgRef);
+        await updateDoc(doc(db, 'users', userId, 'products', productId), { imageUrl });
       }
 
       setForm(INITIAL_FORM);
@@ -518,10 +568,18 @@ export default function BoxPage() {
       packageCount: p.packageCount ?? 1,
       unitPerPackage: p.unitPerPackage ?? 1,
       usesPerDay: p.usesPerDay ?? 1,
+      dosePerUse: p.dosePerUse ?? 1,
       daysPerWeek: p.frequencyValue ?? 7,
       purchaseDate: p.purchaseDate ?? '',
       expiryDate: p.expiryDate ?? '',
       startDate: p.startDate ?? '',
+      price: p.price ?? '',
+      source: p.source ?? '',
+      purchaseUrl: p.purchaseUrl ?? '',
+      currentRemaining: p.currentRemaining ?? 0,
+      imageFile: null,
+      imagePreview: '',
+      imageUrl: p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl ?? '',
     });
     setEditingProduct(p);
     setIsAddOpen(true);
@@ -881,7 +939,7 @@ export default function BoxPage() {
   );
 }
 
-// ─── 제품 추가 전체 화면 폼 ───────────────────────────────────────────────────
+// ─── 제품 추가/편집 전체 화면 폼 ─────────────────────────────────────────────
 // design/box.html .add-page 구조 — 아래에서 위로 슬라이드 업 애니메이션
 function AddProductPage({
   isOpen,
@@ -912,18 +970,32 @@ function AddProductPage({
 }) {
   const isEditing = !!editingProduct;
   const isNameEmpty = !form.name.trim();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 이미지 파일 선택 처리
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setForm((f) => ({ ...f, imageFile: file }));
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setForm((f) => ({ ...f, imagePreview: ev.target?.result as string }));
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // 현재 표시할 이미지 (새로 선택한 미리보기 > 기존 URL)
+  const displayImg = form.imagePreview || form.imageUrl;
 
   return (
     <div
       style={{
-        // 앱 컨테이너(430px) 안에 고정
         position: 'fixed',
         top: 0, bottom: 0,
         left: 'max(0px,calc(50vw - 215px))',
         right: 'max(0px,calc(50vw - 215px))',
         zIndex: 60,
         background: '#FFFFFF',
-        // translateY(100%) = 화면 밖 (아래), translateY(0) = 화면 안
         transform: isOpen ? 'translateY(0)' : 'translateY(100%)',
         transition: 'transform .38s cubic-bezier(.4,0,.2,1)',
         overflow: 'hidden',
@@ -933,386 +1005,310 @@ function AddProductPage({
       {/* ── 상단 앱바 ── */}
       <div
         style={{
-          height: 65, background: 'rgba(255,255,255,.92)',
+          height: 56, background: 'rgba(255,255,255,.95)',
           backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
           borderBottom: '1px solid rgba(12,12,10,.07)',
-          display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-          padding: '0 16px 12px', flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 16px', flexShrink: 0,
         }}
       >
-        {/* 뒤로 가기 버튼 */}
         <button
           onClick={onClose}
-          style={{
-            width: 36, height: 36, border: 'none', background: 'none',
-            cursor: 'pointer', color: '#0C0C0A',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
+          style={{ width: 36, height: 36, border: 'none', background: 'none', cursor: 'pointer', color: '#0C0C0A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
-          {/* 왼쪽 화살표 아이콘 */}
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 5l-7 7 7 7" />
           </svg>
         </button>
-
-        {/* 제목 */}
-        <span
-          style={{
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 11, fontWeight: 700, letterSpacing: '.14em',
-            textTransform: 'uppercase', color: '#44474A',
-          }}
-        >
+        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: '#44474A' }}>
           {isEditing ? 'EDIT PRODUCT' : 'ADD PRODUCT'}
         </span>
-
-        {/* 우측 빈 공간 (대칭 맞추기) */}
         <div style={{ width: 36 }} />
       </div>
 
       {/* ── 스크롤 콘텐츠 영역 ── */}
-      <div
-        style={{
-          flex: 1, overflowY: 'auto',
-          padding: '24px 16px 96px',
-          display: 'flex', flexDirection: 'column', gap: 32,
-        }}
-      >
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 0 96px', display: 'flex', flexDirection: 'column' }}>
 
-        {/* 헤더 */}
-        <div>
-          {/* design의 .add-page-title 스타일 */}
-          <div
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 32, fontWeight: 600, letterSpacing: '-0.02em',
-              color: '#0C1014', lineHeight: '38px', marginBottom: 4,
-            }}
-          >
-            {isEditing ? 'EDIT PRODUCT' : 'ADD PRODUCT'}
-          </div>
-          <div
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 14, color: '#44474A',
-            }}
-          >
-            {isEditing ? `"${editingProduct!.name}" 정보를 수정하세요.` : '제품 정보를 입력해 인벤토리에 등록하세요.'}
-          </div>
+        {/* ── 제품 이미지 (design/box.html .add-img-block) ── */}
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          style={{
+            width: '100%', height: 220, cursor: 'pointer', position: 'relative',
+            background: displayImg ? 'transparent' : '#F4F4F0',
+            backgroundImage: displayImg ? `url(${displayImg})` : 'none',
+            backgroundSize: 'cover', backgroundPosition: 'center',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          {!displayImg && (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 8 }}>✦</div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490' }}>
+                ADD PRODUCT IMAGE
+              </div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>
+                탭하여 이미지 추가
+              </div>
+            </div>
+          )}
+          {displayImg && (
+            <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,.55)', color: '#fff', borderRadius: 6, padding: '5px 10px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700 }}>
+              사진 변경
+            </div>
+          )}
+          <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
         </div>
 
-        {/* ── 구매 내역 섹션 ── */}
-        {/* design의 "Purchase history" Newsreader italic 스타일 */}
-        <div>
-          <div
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontStyle: 'italic', fontWeight: 400,
-              fontSize: 32, lineHeight: '38px', color: '#1A1C1C', marginBottom: 8,
-            }}
-          >
-            Purchase history
-          </div>
+        {/* ── 폼 콘텐츠 ── */}
+        <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 32 }}>
 
-          <div
-            style={{
-              borderTop: '1px solid #C5C6CA', paddingTop: 25,
-              display: 'flex', flexDirection: 'column', gap: 16,
-            }}
-          >
-            {/* 구매일 + 유통기한 (2열) */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              <div>
-                <div style={labelStyle}>구매일</div>
-                <input
-                  type="date"
-                  value={form.purchaseDate}
-                  onChange={(e) => setForm((f) => ({ ...f, purchaseDate: e.target.value }))}
-                  style={dateInputStyle}
-                />
-              </div>
-              <div>
-                <div style={labelStyle}>유통기한</div>
-                <input
-                  type="date"
-                  value={form.expiryDate}
-                  onChange={(e) => setForm((f) => ({ ...f, expiryDate: e.target.value }))}
-                  style={dateInputStyle}
-                />
-              </div>
+          {/* ── Purchase history 섹션 ── */}
+          <div>
+            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontStyle: 'italic', fontWeight: 400, fontSize: 28, lineHeight: '36px', color: '#1A1C1C', marginBottom: 8 }}>
+              Purchase history
             </div>
+            <div style={{ borderTop: '1px solid #C5C6CA', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-            {/* 제품명 (필수) */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <div style={labelStyle}>PRODUCT NAME</div>
-                <div
-                  style={{
-                    fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                    fontSize: 11, color: '#44474A', opacity: 0.7,
-                  }}
-                >
-                  *필수
+              {/* 구매일 + 유통기한 */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div>
+                  <div style={labelStyle}>구매일</div>
+                  <input type="date" value={form.purchaseDate} onChange={(e) => setForm((f) => ({ ...f, purchaseDate: e.target.value }))} style={dateInputStyle} />
+                </div>
+                <div>
+                  <div style={labelStyle}>유통기한</div>
+                  <input type="date" value={form.expiryDate} onChange={(e) => setForm((f) => ({ ...f, expiryDate: e.target.value }))} style={dateInputStyle} />
                 </div>
               </div>
-              <input
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="제품명"
-                style={{
-                  ...underlineInputStyle,
-                  fontSize: 18,
-                  borderBottomColor: isNameEmpty ? '#C5C6CA' : '#6B7280',
-                }}
-              />
-            </div>
 
-            {/* 브랜드 + 도메인 (2열) */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              {/* 제품명 (필수) */}
               <div>
-                <div style={labelStyle}>BRAND NAME</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <div style={labelStyle}>PRODUCT NAME</div>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490' }}>*필수</div>
+                </div>
                 <input
-                  value={form.brand}
-                  onChange={(e) => setForm((f) => ({ ...f, brand: e.target.value }))}
-                  placeholder="브랜드명"
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  placeholder="제품명"
+                  style={{ ...underlineInputStyle, fontSize: 18, borderBottomColor: isNameEmpty ? '#C5C6CA' : '#6B7280' }}
+                />
+              </div>
+
+              {/* 브랜드 + 구매처 */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div>
+                  <div style={labelStyle}>BRAND</div>
+                  <input value={form.brand} onChange={(e) => setForm((f) => ({ ...f, brand: e.target.value }))} placeholder="브랜드명" style={{ ...underlineInputStyle, fontSize: 14 }} />
+                </div>
+                <div>
+                  <div style={labelStyle}>구매처</div>
+                  <input value={form.source} onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))} placeholder="올리브영, 쿠팡..." style={{ ...underlineInputStyle, fontSize: 14 }} />
+                </div>
+              </div>
+
+              {/* 도메인 표시 (읽기 전용) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={labelStyle}>DOMAIN</div>
+                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#0C0C0A', textTransform: 'uppercase', background: '#F4F4F0', borderRadius: 4, padding: '3px 8px' }}>
+                  {domain === 'beauty' ? `Beauty · ${subType}` : domain}
+                </div>
+              </div>
+
+              {/* 카테고리 칩 (Beauty만) */}
+              {domain === 'beauty' && cats.length > 0 && (
+                <div>
+                  <div style={{ borderBottom: '1px solid #C5C6CA', paddingBottom: 4, marginBottom: 10 }}>
+                    <div style={labelStyle}>PRIMARY CLASSIFICATION</div>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {cats.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setForm((f) => ({ ...f, category: f.category === cat ? '' : cat }))}
+                        style={{
+                          height: 26, padding: '0 14px',
+                          border: `1.5px solid ${form.category === cat ? '#000' : '#C5C6CA'}`,
+                          background: form.category === cat ? '#000' : 'transparent',
+                          fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                          fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase',
+                          color: form.category === cat ? '#fff' : '#44474A',
+                          cursor: 'pointer', borderRadius: 4, transition: 'all .15s',
+                        }}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── 구매 정보 (가격 + 링크) ── */}
+          <div>
+            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 18, fontWeight: 600, color: '#1A1C1C', marginBottom: 12 }}>Purchase Info</div>
+            <div style={{ borderTop: '1px solid #C5C6CA', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <div style={labelStyle}>PRICE</div>
+                <input
+                  value={form.price}
+                  onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+                  placeholder="₩45,000"
                   style={{ ...underlineInputStyle, fontSize: 15 }}
                 />
               </div>
               <div>
-                <div style={labelStyle}>DOMAIN</div>
-                {/* 현재 선택된 도메인 표시 (BOX 탭 기준으로 이미 선택됨) */}
-                <div
-                  style={{
-                    paddingTop: 10,
-                    fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                    fontSize: 13, fontWeight: 700, color: '#0C0C0A', textTransform: 'uppercase',
-                  }}
-                >
-                  {domain === 'beauty' ? `Beauty · ${subType}` : domain}
-                </div>
-              </div>
-            </div>
-
-            {/* 카테고리 (Beauty 탭일 때만 표시) */}
-            {domain === 'beauty' && cats.length > 0 && (
-              <div>
-                <div
-                  style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    borderBottom: '1px solid #C5C6CA', paddingBottom: 4, marginBottom: 12,
-                  }}
-                >
-                  <div style={labelStyle}>PRIMARY CLASSIFICATION</div>
-                </div>
-                {/* 카테고리 칩 (선택/해제 토글) */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {cats.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setForm((f) => ({ ...f, category: f.category === cat ? '' : cat }))}
-                      style={{
-                        height: 22, padding: '0 16px',
-                        border: `1px solid ${form.category === cat ? '#000' : '#C5C6CA'}`,
-                        background: form.category === cat ? '#000000' : 'transparent',
-                        fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                        fontSize: 12, fontWeight: 600, letterSpacing: '.6px', textTransform: 'uppercase',
-                        color: form.category === cat ? '#FFFFFF' : '#44474A',
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all .15s',
-                      }}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── 재고 / 수량 섹션 (Beauty Skincare 전용) ── */}
-        {/* 뷰티 스킨케어에서만 수량/사용 패턴 입력 */}
-        {domain === 'beauty' && subType === 'skincare' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {/* 섹션 제목 */}
-            <div
-              style={{
-                fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                fontSize: 24, fontWeight: 400, lineHeight: '31px',
-                letterSpacing: '-0.48px', color: '#1A1C1C', marginBottom: 16,
-              }}
-            >
-              Asset Count
-            </div>
-
-            {/* 수량 구조 (패키지 수 × 수량 = 총량) */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ ...labelStyle, marginBottom: 14 }}>수량 구조</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
-                {/* 패키지 수 */}
-                <div>
-                  <div style={{ ...labelStyle, marginBottom: 6 }}>패키지 수 · 박스</div>
-                  <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
-                    <input
-                      type="number"
-                      min={1}
-                      value={form.packageCount}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, packageCount: Math.max(1, Number(e.target.value)) }))
-                      }
-                      style={countInputStyle}
-                    />
-                  </div>
-                </div>
-                {/* 패키지당 수량 */}
-                <div>
-                  <div style={{ ...labelStyle, marginBottom: 6 }}>수량 · 개</div>
-                  <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
-                    <input
-                      type="number"
-                      min={1}
-                      value={form.unitPerPackage}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, unitPerPackage: Math.max(1, Number(e.target.value)) }))
-                      }
-                      style={countInputStyle}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* 총 수량 자동 계산 미리보기 */}
-              {/* design: #qty-calc-preview 카드 */}
-              <div
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  background: '#F5F5F3', borderRadius: 6, padding: '9px 12px',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                    fontSize: 11, fontWeight: 700, letterSpacing: '.1em',
-                    textTransform: 'uppercase', color: '#9CA3AF',
-                  }}
-                >
-                  총 수량
-                </span>
-                <span
-                  style={{
-                    fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                    fontSize: 16, fontWeight: 700, color: '#0C1014', marginLeft: 'auto',
-                  }}
-                >
-                  {totalAmount}개
-                </span>
-              </div>
-            </div>
-
-            {/* 사용 시작일 */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ ...labelStyle, marginBottom: 12 }}>사용 기간</div>
-              <div>
-                <div style={{ ...labelStyle, marginBottom: 4 }}>시작일</div>
+                <div style={labelStyle}>PURCHASE URL</div>
                 <input
-                  type="date"
-                  value={form.startDate}
-                  onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))}
-                  style={{ ...dateInputStyle, borderBottomColor: '#C5C6CA' }}
+                  value={form.purchaseUrl}
+                  onChange={(e) => setForm((f) => ({ ...f, purchaseUrl: e.target.value }))}
+                  placeholder="https://..."
+                  inputMode="url"
+                  style={{ ...underlineInputStyle, fontSize: 13 }}
                 />
               </div>
             </div>
+          </div>
 
-            {/* 사용 패턴 (하루 횟수 + 사용 주기) */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ ...labelStyle, marginBottom: 2 }}>사용 패턴</div>
-              <div
-                style={{
-                  fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                  fontSize: 11, color: '#9CA3AF', marginBottom: 14,
-                }}
-              >
-                소진 예측에 사용됩니다
+          {/* ── Asset Count 섹션 (Beauty Skincare 전용) ── */}
+          {domain === 'beauty' && subType === 'skincare' && (
+            <div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 22, fontWeight: 400, letterSpacing: '-0.02em', color: '#1A1C1C', marginBottom: 12 }}>
+                Asset Count
               </div>
+              <div style={{ borderTop: '1px solid #C5C6CA', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-              {/* 하루 횟수 */}
-              <div style={{ marginBottom: 14 }}>
-                <div style={{ ...labelStyle, marginBottom: 6 }}>하루 횟수</div>
-                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                  {[1, 2, 3, 4].map((n) => (
-                    <button
-                      key={n}
-                      onClick={() => setForm((f) => ({ ...f, usesPerDay: n }))}
-                      style={pillStyle(form.usesPerDay === n)}
-                    >
-                      {n === 4 ? '4+회' : `${n}회`}
-                    </button>
-                  ))}
+                {/* 패키지 수 × 수량 = 총량 */}
+                <div>
+                  <div style={{ ...labelStyle, marginBottom: 10 }}>수량 구조</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 8, alignItems: 'center', marginBottom: 10 }}>
+                    <div>
+                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>패키지 수</div>
+                      <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
+                        <input type="number" min={1} value={form.packageCount} onChange={(e) => setForm((f) => ({ ...f, packageCount: Math.max(1, Number(e.target.value)) }))} style={countInputStyle} />
+                      </div>
+                    </div>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 18, color: '#C5C6CA', paddingTop: 14 }}>×</span>
+                    <div>
+                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>개당 수량</div>
+                      <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
+                        <input type="number" min={1} value={form.unitPerPackage} onChange={(e) => setForm((f) => ({ ...f, unitPerPackage: Math.max(1, Number(e.target.value)) }))} style={countInputStyle} />
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', background: '#F5F5F3', borderRadius: 6, padding: '8px 12px' }}>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>총 수량</span>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014', marginLeft: 'auto' }}>{totalAmount}개</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* 사용 주기 */}
-              <div>
-                <div style={{ ...labelStyle, marginBottom: 6 }}>사용 주기</div>
-                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                  {FREQ_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.label}
-                      onClick={() => setForm((f) => ({ ...f, daysPerWeek: opt.daysPerWeek }))}
-                      style={pillStyle(form.daysPerWeek === opt.daysPerWeek)}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+                {/* 시작일 */}
+                <div>
+                  <div style={labelStyle}>사용 시작일</div>
+                  <input type="date" value={form.startDate} onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))} style={dateInputStyle} />
+                </div>
+
+                {/* 현재 잔량 (편집 모드에서만 표시) */}
+                {isEditing && (
+                  <div>
+                    <div style={{ ...labelStyle, marginBottom: 6 }}>현재 잔량</div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                      <input
+                        type="number"
+                        min={0}
+                        value={form.currentRemaining}
+                        onChange={(e) => setForm((f) => ({ ...f, currentRemaining: Math.max(0, Number(e.target.value)) }))}
+                        style={{ ...countInputStyle, textAlign: 'left', fontSize: 22, width: 80 }}
+                      />
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>개 / {totalAmount}개</span>
+                    </div>
+                    {/* 잔량 프로그레스 바 */}
+                    <div style={{ marginTop: 6, height: 4, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${Math.min(100, (form.currentRemaining / Math.max(1, totalAmount)) * 100)}%`, background: '#C5FF00', transition: 'width .3s' }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* 사용 패턴 */}
+                <div>
+                  <div style={{ ...labelStyle, marginBottom: 2 }}>사용 패턴</div>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 14 }}>소진 예측에 사용됩니다</div>
+
+                  {/* 1회 사용량 */}
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ ...labelStyle, marginBottom: 8 }}>1회 사용량</div>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                      {[1, 2, 3, 4].map((n) => (
+                        <button key={n} onClick={() => setForm((f) => ({ ...f, dosePerUse: n }))} style={pillStyle(form.dosePerUse === n)}>
+                          {n === 4 ? '4+펌' : `${n}펌`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 하루 횟수 */}
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ ...labelStyle, marginBottom: 8 }}>하루 횟수</div>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                      {[1, 2, 3, 4].map((n) => (
+                        <button key={n} onClick={() => setForm((f) => ({ ...f, usesPerDay: n }))} style={pillStyle(form.usesPerDay === n)}>
+                          {n === 4 ? '4+회' : `${n}회`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 사용 주기 */}
+                  <div>
+                    <div style={{ ...labelStyle, marginBottom: 8 }}>사용 주기</div>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                      {FREQ_OPTIONS.map((opt) => (
+                        <button key={opt.label} onClick={() => setForm((f) => ({ ...f, daysPerWeek: opt.daysPerWeek }))} style={pillStyle(form.daysPerWeek === opt.daysPerWeek)}>
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ── 저장 / 취소 ── */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={onSave}
+              disabled={saving || isNameEmpty}
+              style={{
+                flex: 1, height: 52,
+                background: isNameEmpty ? '#D8D6CF' : '#0C0C0A',
+                color: '#fff', border: 'none', borderRadius: 12,
+                fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                fontSize: 15, fontWeight: 700, cursor: isNameEmpty ? 'default' : 'pointer',
+              }}
+            >
+              {saving ? '저장 중...' : '저장'}
+            </button>
+            <button
+              onClick={onClose}
+              style={{ flex: 1, height: 52, background: '#fff', color: '#0C1014', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, cursor: 'pointer' }}
+            >
+              취소
+            </button>
           </div>
-        )}
 
-        {/* ── 저장 / 취소 버튼 ── */}
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={onSave}
-            disabled={saving || isNameEmpty}
-            style={{
-              flex: 1, height: 52,
-              background: isNameEmpty ? '#D8D6CF' : '#0C0C0A',
-              color: '#fff', border: 'none', borderRadius: 12,
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 15, fontWeight: 700, letterSpacing: '.02em',
-              cursor: isNameEmpty ? 'default' : 'pointer',
-              transition: 'opacity .2s',
-            }}
-          >
-            {saving ? '저장 중...' : '저장'}
-          </button>
-          <button
-            onClick={onClose}
-            style={{
-              flex: 1, height: 52, background: '#FFFFFF', color: '#0C1014',
-              border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12,
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 15, fontWeight: 400, cursor: 'pointer',
-            }}
-          >
-            취소
-          </button>
+          {/* ── 편집 모드: 삭제 버튼 ── */}
+          {isEditing && onDelete && (
+            <button
+              onClick={onDelete}
+              style={{ width: '100%', height: 48, background: 'rgba(186,26,26,.06)', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer' }}
+            >
+              이 제품 삭제
+            </button>
+          )}
         </div>
-
-        {/* ── 편집 모드: 삭제 버튼 ── */}
-        {isEditing && onDelete && (
-          <button
-            onClick={onDelete}
-            style={{
-              width: '100%', height: 48, background: 'rgba(186,26,26,.06)',
-              border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12,
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 14, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer',
-            }}
-          >
-            이 제품 삭제
-          </button>
-        )}
       </div>
     </div>
   );
