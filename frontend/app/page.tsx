@@ -95,6 +95,22 @@ type Habit = {
   weekdays?: number[];
 };
 
+// 집중케어 / 메이크업 CT 아이템 타입 (setup/page.tsx CtItem과 동일)
+type CtItem = {
+  id: string;
+  ctType: 'care' | 'makeup' | 'lookbook';
+  emoji: string;
+  name: string;
+  desc: string;
+  items: RoutineItem[];
+  tipItems: RoutineItem[];
+  expertTip?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  dates?: string[];
+  published: boolean;
+};
+
 // OOTD 오늘의 룩 기록 타입
 type OOTDLog = {
   id: string;
@@ -503,7 +519,7 @@ function FlowCard({
               position: 'relative',
             }}
           >
-            {t === 'morning' ? '☀ MORNING' : '🌙 NIGHT'}
+            {t === 'morning' ? '☀ 아침' : '🌙 저녁'}
             {/* 이미 체크된 탭에 작은 체크 뱃지 */}
             {(t === 'morning' ? checked.morning : checked.evening) && (
               <span
@@ -1088,6 +1104,124 @@ function OOTDSection({
   );
 }
 
+// ─── 집중케어 섹션 ───────────────────────────────────────────────────────────
+// design/today.html #care-today-section 구조 참고
+
+function CareSection({ items, products }: { items: CtItem[]; products: Map<string, Product> }) {
+  if (items.length === 0) return null;
+  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+  return (
+    <div style={{ padding: '28px 16px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>#Intensive Care</span>
+        <a href="/setup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>List →</a>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {items.map((item) => {
+          const prodIds = item.items
+            .filter((r): r is { type: 'product'; id: string } => r.type === 'product')
+            .map((r) => r.id);
+          return (
+            <div key={item.id} style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
+              {/* 헤더 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 16px 12px' }}>
+                <span style={{ fontSize: 20 }}>{item.emoji}</span>
+                <span style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{item.name}</span>
+              </div>
+              {/* 제품 스크롤 */}
+              {prodIds.length > 0 && (
+                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 10, padding: '0 0 16px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+                  <div style={{ flexShrink: 0, width: 16 }} />
+                  {prodIds.map((pid) => {
+                    const p = products.get(pid);
+                    return (
+                      <div key={pid} style={{ flexShrink: 0, width: 90, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, paddingTop: 12 }}>
+                        <div style={{ width: '100%', aspectRatio: '1/1', background: '#EDECE9', borderRadius: 12, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                          {p?.imageUrl
+                            ? <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            : <span style={{ fontSize: 24, opacity: 0.3 }}>🧴</span>
+                          }
+                        </div>
+                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: '#0C0C0A', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {p?.name ?? pid}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <div style={{ flexShrink: 0, width: 16 }} />
+                </div>
+              )}
+              {/* 전문가 팁 */}
+              {item.expertTip && (
+                <div style={{ padding: '12px 16px 14px', background: '#F9FFE0', borderTop: '1px solid rgba(197,255,0,.35)' }}>
+                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#4E7D00', marginBottom: 6 }}>✦ EXPERT TIP</div>
+                  <div style={{ fontFamily: f, fontSize: 13, color: '#4A4846', lineHeight: 1.65 }}>{item.expertTip}</div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── 메이크업 섹션 ───────────────────────────────────────────────────────────
+// design/today.html #motd-editorial-section 구조 참고
+
+function MakeupSection({ items, products }: { items: CtItem[]; products: Map<string, Product> }) {
+  if (items.length === 0) return null;
+  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+  return (
+    <div style={{ padding: '28px 16px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>#Makeup</span>
+        <a href="/setup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>Edit →</a>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {items.map((item) => {
+          const prodIds = item.items
+            .filter((r): r is { type: 'product'; id: string } => r.type === 'product')
+            .map((r) => r.id);
+          return (
+            <div key={item.id} style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 16px 12px' }}>
+                <span style={{ fontSize: 20 }}>{item.emoji}</span>
+                <div>
+                  <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A' }}>{item.name}</div>
+                  {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{item.desc}</div>}
+                </div>
+              </div>
+              {prodIds.length > 0 && (
+                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 10, padding: '0 0 16px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+                  <div style={{ flexShrink: 0, width: 16 }} />
+                  {prodIds.map((pid) => {
+                    const p = products.get(pid);
+                    return (
+                      <div key={pid} style={{ flexShrink: 0, width: 90, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, paddingTop: 12 }}>
+                        <div style={{ width: '100%', aspectRatio: '1/1', background: '#EDECE9', borderRadius: 12, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                          {p?.imageUrl
+                            ? <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            : <span style={{ fontSize: 24, opacity: 0.3 }}>💄</span>
+                          }
+                        </div>
+                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: '#0C0C0A', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {p?.name ?? pid}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <div style={{ flexShrink: 0, width: 16 }} />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── OOTD 기록 바텀 시트 ──────────────────────────────────────────────────────
 
 function OOTDRecordSheet({
@@ -1283,6 +1417,10 @@ export default function TodayPage() {
   const [ootdPhotoPreview, setOotdPhotoPreview] = useState('');
   const [ootdSaving, setOotdSaving] = useState(false);
 
+  // ── CT 섹션 상태 ──
+  const [careItems, setCareItems] = useState<CtItem[]>([]);
+  const [makeupItems, setMakeupItems] = useState<CtItem[]>([]);
+
   // ── 계산된 값 (파생 상태) ──
   // 오늘 날짜가 포함된 활성 세션
   const activeSession = findActiveSession(sessions);
@@ -1290,6 +1428,22 @@ export default function TodayPage() {
   const todayHabits = habits.filter(isHabitToday);
   // 오늘이 세션의 몇 번째 DAY인지 (1-based)
   const todayDayNumber = activeSession ? calcTodayDayNumber(activeSession) : 1;
+  // 오늘 활성 CT 아이템 필터링
+  const todayStr0 = getTodayDateStr();
+  const activeCareItems = careItems.filter((item) => {
+    if (!item.published) return false;
+    if (item.periodStart && item.periodEnd) {
+      return todayStr0 >= item.periodStart && todayStr0 <= item.periodEnd;
+    }
+    return true;
+  });
+  const activeMakeupItems = makeupItems.filter((item) => {
+    if (!item.published) return false;
+    if (item.dates && item.dates.length > 0) {
+      return item.dates.includes(todayStr0);
+    }
+    return true;
+  });
   // 오늘 DAY의 아침/저녁 슬롯 (0-based index)
   const todayDayIdx = todayDayNumber - 1;
   const todayMorning = activeSession?.morning.days[todayDayIdx] ?? activeSession?.morning.days[0] ?? null;
@@ -1421,6 +1575,21 @@ export default function TodayPage() {
     }, (err) => console.error('[OnStep] 습관 기록 로드 실패:', err));
     return () => unsub();
   }, [userId, authLoading, user]);
+
+  // ── 집중케어 / 메이크업 CT 구독 ──
+  useEffect(() => {
+    const _db = db;
+    if (authLoading || !_db) return;
+    const makeUnsub = (col: string, setter: (v: CtItem[]) => void) => {
+      const q = query(collection(_db, 'users', userId, col));
+      return onSnapshot(q, (snap) => {
+        setter(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CtItem)));
+      }, (err) => console.error(`[OnStep] ${col} 로드 실패:`, err));
+    };
+    const u1 = makeUnsub('careItems', setCareItems);
+    const u2 = makeUnsub('makeupItems', setMakeupItems);
+    return () => { u1(); u2(); };
+  }, [userId, authLoading]);
 
   // ── 루틴 체크 처리 ──
   // 💡 낙관적 업데이트(optimistic update): 서버 응답 기다리지 않고 UI 먼저 변경
@@ -1760,7 +1929,7 @@ export default function TodayPage() {
               color: '#9A9490',
             }}
           >
-            {activeTab === 'morning' ? '☀ MORNING' : '🌙 NIGHT'}
+            {activeTab === 'morning' ? '☀ 아침' : '🌙 저녁'}
           </span>
         </div>
 
@@ -1806,6 +1975,12 @@ export default function TodayPage() {
           // 오늘 날짜에 해당하는 루틴 없음
           <RoutineEmptyCard />
         )}
+
+        {/* 집중케어 섹션 — 오늘 기간에 해당하는 published 아이템 */}
+        <CareSection items={activeCareItems} products={products} />
+
+        {/* 메이크업 섹션 — 오늘 날짜에 해당하는 published 아이템 */}
+        <MakeupSection items={activeMakeupItems} products={products} />
 
         {/* OOTD 섹션 */}
         <OOTDSection
