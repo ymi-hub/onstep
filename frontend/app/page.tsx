@@ -23,6 +23,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  getDocs,
   doc,
   query,
   orderBy,
@@ -80,6 +81,19 @@ type Session = {
 
 // 오늘 아침/저녁 각각 체크됐는지 여부
 type CheckState = { morning: boolean; evening: boolean; };
+
+// 습관 트래커 타입 (setup/page.tsx와 동일 구조)
+type RepeatType = 'allday' | 'once' | 'daily' | 'scheduled';
+type Habit = {
+  id: string;
+  icon: string;
+  name: string;
+  repeatType: RepeatType;
+  time: string;
+  alarm: boolean;
+  date?: string;
+  weekdays?: number[];
+};
 
 // OOTD 오늘의 룩 기록 타입
 type OOTDLog = {
@@ -186,6 +200,16 @@ function migrateSession(raw: Record<string, unknown>, id: string): Session {
 function getTodayDateStr(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// 오늘 수행해야 하는 습관인지 판별
+function isHabitToday(h: Habit): boolean {
+  const todayWD = new Date().getDay();
+  const todayStr = getTodayDateStr();
+  if (h.repeatType === 'allday' || h.repeatType === 'daily') return true;
+  if (h.repeatType === 'once') return h.date === todayStr;
+  if (h.repeatType === 'scheduled') return (h.weekdays ?? []).includes(todayWD);
+  return false;
 }
 
 // ─── Appbar ──────────────────────────────────────────────────────────────────
@@ -354,6 +378,24 @@ function SessionHero({
   );
 }
 
+// expertTip 텍스트에서 제품명을 찾아 라임 강조 인라인 JSX로 변환
+function highlightProductNames(text: string, products: Map<string, Product>): React.ReactNode {
+  if (!text || products.size === 0) return text;
+  // 제품명을 길이 내림차순 정렬 (긴 이름 먼저 매칭해야 "델마세럼" vs "델마" 충돌 방지)
+  const names = Array.from(products.values())
+    .map(p => p.name)
+    .sort((a, b) => b.length - a.length);
+  // 정규식 이스케이프 후 OR 패턴 생성
+  const escaped = names.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const pattern = new RegExp(`(${escaped.join('|')})`, 'g');
+  const parts = text.split(pattern);
+  return parts.map((part, i) =>
+    names.includes(part)
+      ? <span key={i} style={{ background: 'rgba(197,255,0,.28)', color: '#3A6000', borderRadius: 4, padding: '0 3px', fontWeight: 700 }}>{part}</span>
+      : part
+  );
+}
+
 // ─── 루틴 플로우 카드 ─────────────────────────────────────────────────────────
 // today.html .flow-step-card: 아침/저녁 탭 + 제품 스트립 + 체크 버튼
 
@@ -366,8 +408,11 @@ function FlowCard({
   tab,
   onTabChange,
   checked,
-  onCheck,
+  onToggle,
   saving,
+  todayHabits,
+  habitChecked,
+  onToggleHabit,
 }: {
   todayMorning: SlotDay;
   todayEvening: SlotDay;
@@ -377,8 +422,11 @@ function FlowCard({
   tab: 'morning' | 'evening';
   onTabChange: (t: 'morning' | 'evening') => void;
   checked: CheckState;
-  onCheck: (time: 'morning' | 'evening') => void;
+  onToggle: (time: 'morning' | 'evening') => void;
   saving: boolean;
+  todayHabits: Habit[];
+  habitChecked: Set<string>;
+  onToggleHabit: (id: string) => void;
 }) {
   const slot = tab === 'morning' ? todayMorning : todayEvening;
   const isChecked = tab === 'morning' ? checked.morning : checked.evening;
@@ -506,34 +554,43 @@ function FlowCard({
                 );
               }
               if (item.type === 'desc') {
+                // care-tag-desc: 파란 pill
                 return (
-                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', minWidth: 64, maxWidth: 120, height: 72, background: '#E8E6E0', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 8px', opacity: isChecked ? 0.45 : 1 }}>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#4A4846', lineHeight: 1.35, textAlign: 'center', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', wordBreak: 'break-word' }}>{item.text}</span>
+                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '5px 10px', background: '#2185fd', borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', fontSize: 12, fontWeight: 400, color: '#fff', whiteSpace: 'nowrap', lineHeight: 1, opacity: isChecked ? 0.45 : 1, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif" }}>
+                    {item.text}
                   </div>
                 );
               }
               if (item.type === 'tip') {
+                // care-tag-tip: 라임 pill
                 return (
-                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', minWidth: 64, maxWidth: 120, height: 72, background: 'rgba(197,255,0,.12)', border: '1.5px solid rgba(132,176,0,.3)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 8px', opacity: isChecked ? 0.45 : 1 }}>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#4E7D00', lineHeight: 1.35, textAlign: 'center', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', wordBreak: 'break-word' }}>{item.text}</span>
+                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '0 8px', minWidth: 36, height: 22, background: 'rgba(197,255,0,.22)', borderRadius: 12, fontSize: 12, fontWeight: 800, color: '#4E7D00', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap', opacity: isChecked ? 0.45 : 1, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif" }}>
+                    {item.text || 'TIP'}
                   </div>
                 );
               }
               if (item.type === 'plus') {
+                // care-tag-plus: 파란 작은 chip
                 return (
-                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 36, borderRadius: '50%', background: 'rgba(33,150,243,.1)', border: '1.5px solid rgba(33,150,243,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: '#1976D2', opacity: isChecked ? 0.45 : 1 }}>+</div>
+                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(33,150,243,.12)', color: '#1976D2', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, opacity: isChecked ? 0.45 : 1 }}>+</div>
                 );
               }
-              // minus / arrow
+              // minus: 주황 chip
               return (
-                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,152,0,.1)', border: '1.5px solid rgba(255,152,0,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#E65100', opacity: isChecked ? 0.45 : 1 }}>→</div>
+                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(255,152,0,.2)', color: '#E65100', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, opacity: isChecked ? 0.45 : 1 }}>→</div>
               );
             })}
           </div>
-          {/* Expert tip */}
+          {/* EXPERT TIP — design .flow-expert-tip 스타일 */}
           {slot.expertTip && (
-            <div style={{ marginTop: 8, padding: '7px 10px', background: 'rgba(197,255,0,.06)', border: '1px solid rgba(132,176,0,.2)', borderRadius: 8 }}>
-              <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#4A7700', lineHeight: 1.5 }}>✦ {slot.expertTip}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 16, marginTop: 4 }}>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                EXPERT TIP
+              </div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#4A4846', lineHeight: 1.6 }}>
+                {highlightProductNames(slot.expertTip, products)}
+              </div>
             </div>
           )}
         </div>
@@ -543,249 +600,135 @@ function FlowCard({
         </div>
       )}
 
-      {/* 카드 하단: Edit 링크 + CHECK 버튼 */}
-      <div style={{ padding: '16px 16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <Link
-          href="/setup"
-          style={{
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#9A9490',
-            textDecoration: 'none',
-          }}
-        >
+      {/* 카드 하단: Edit 링크만 (CHECK 버튼 제거 — Routine Tracker가 체크 담당) */}
+      <div style={{ padding: '12px 16px 8px' }}>
+        <Link href="/setup" style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 700, color: '#9A9490', textDecoration: 'none' }}>
           Edit →
         </Link>
-
-        {/* CHECK ROUTINE 버튼 */}
-        {/* 💡 isChecked: 라임 배경 / 미체크: 블랙 배경 */}
-        <button
-          onClick={() => !isChecked && !saving && onCheck(tab)}
-          disabled={isChecked || saving}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            height: 48,
-            width: '100%',
-            background: isChecked ? '#C5FF00' : '#0C0C0A',
-            color: isChecked ? '#0C0C0A' : '#FFFFFF',
-            border: isChecked ? '2px solid #84B000' : 'none',
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 13,
-            fontWeight: 800,
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            borderRadius: 9999,
-            cursor: isChecked ? 'default' : saving ? 'wait' : 'pointer',
-            transition: 'all .28s',
-            opacity: saving ? 0.7 : 1,
-          }}
-        >
-          {saving ? (
-            '저장 중...'
-          ) : isChecked ? (
-            <>
-              ✓ {tab === 'morning' ? 'MORNING' : 'NIGHT'} 완료
-            </>
-          ) : (
-            <>
-              CHECK {tab === 'morning' ? 'MORNING' : 'NIGHT'}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </>
-          )}
-        </button>
       </div>
-    </div>
-  );
-}
 
-// ─── 루틴 트래커 (체크리스트 뷰) ─────────────────────────────────────────────
-// today.html .allday-section: 아침/저녁 루틴 완료 여부를 리스트 형식으로 보여줌
-
-function RoutineTracker({
-  todayMorning,
-  todayEvening,
-  todayDayNumber,
-  session,
-  checked,
-}: {
-  todayMorning: SlotDay;
-  todayEvening: SlotDay;
-  todayDayNumber: number;
-  session: Session;
-  checked: CheckState;
-}) {
-  const items = [
-    {
-      key: 'morning' as const,
-      label: '아침 루틴',
-      time: session.morningTime,
-      count: todayMorning.items.filter(i => i.type === 'product').length,
-      done: checked.morning,
-    },
-    {
-      key: 'evening' as const,
-      label: '나이트 루틴',
-      time: session.eveningTime,
-      count: todayEvening.items.filter(i => i.type === 'product').length,
-      done: checked.evening,
-    },
-  ];
-
-  return (
-    <div style={{ padding: '28px 16px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
-      {/* 섹션 헤더 */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          marginBottom: 4,
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <span
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 12,
-              fontWeight: 600,
-              color: '#9A9490',
-              letterSpacing: '0.04em',
-            }}
-          >
-            Day {todayDayNumber}
-          </span>
-          <span
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 22,
-              fontWeight: 800,
-              color: '#0C0C0A',
-            }}
-          >
+      {/* ─── Routine Tracker — design .allday-section 완전 적용 ─────────────── */}
+      <div style={{ borderTop: '1px solid rgba(12,12,10,.07)' }}>
+        {/* 헤더: "Routine Tracker" + "List →" */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px' }}>
+          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#9A9490' }}>
             Routine Tracker
           </span>
+          <Link href="/setup" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', color: '#9A9490', textDecoration: 'none' }}>
+            List →
+          </Link>
         </div>
-        <Link
-          href="/setup"
-          style={{
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 13,
-            fontWeight: 600,
-            color: '#9A9490',
-            textDecoration: 'none',
-            paddingTop: 2,
-          }}
-        >
-          Edit →
-        </Link>
-      </div>
 
-      {/* 아침 / 저녁 체크 아이템 */}
-      {items.map((item) => (
-        <div
-          key={item.key}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '14px 16px',
-            background: '#FFFFFF',
-            border: '1px solid rgba(12,12,10,.07)',
-            borderRadius: 12,
-            boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.03)',
-            // 완료된 아이템은 흐리게 처리
-            opacity: item.done ? 0.5 : 1,
-            transition: 'opacity .2s',
-          }}
-        >
-          {/* 좌: 체크 원 + 텍스트 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {/* 체크 원 — today.html .allday-dot */}
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 9999,
-                border: `2px solid ${item.done ? '#C5FF00' : 'rgba(12,12,10,.14)'}`,
-                background: item.done ? '#C5FF00' : 'transparent',
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all .2s',
-              }}
-            >
-              {item.done && (
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#0A0A0A"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              )}
-            </div>
-
-            <div>
-              <div
-                style={{
-                  fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                  fontSize: 15,
-                  fontWeight: 400,
-                  color: item.done ? '#9A9490' : '#0C0C0A',
-                }}
-              >
-                {item.label}
-              </div>
-              <div
-                style={{
-                  fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                  fontSize: 12,
-                  color: '#9A9490',
-                  marginTop: 2,
-                }}
-              >
-                {item.count}개 제품
-              </div>
-            </div>
+        {/* allday-items: 디자인 기준 컬러 체크박스 */}
+        {/* CB_COLORS 순환 — morning=cb-blue, evening=cb-green */}
+        {saving && (
+          <div style={{ padding: '6px 16px 8px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490' }}>
+            저장 중...
           </div>
-
-          {/* 우: 알람 시각 */}
-          <span
+        )}
+        {[
+          {
+            key: 'morning' as const,
+            label: '아침 스킨케어',
+            icon: '☀️',
+            time: session.morningTime,
+            count: todayMorning.items.filter(i => i.type === 'product').length,
+            done: checked.morning,
+            // CB_COLORS[0] = cb-blue
+            color: '#3478F6',
+          },
+          {
+            key: 'evening' as const,
+            label: '저녁 스킨케어',
+            icon: '🌙',
+            time: session.eveningTime,
+            count: todayEvening.items.filter(i => i.type === 'product').length,
+            done: checked.evening,
+            // CB_COLORS[1] = cb-green
+            color: '#34A853',
+          },
+        ].map((item) => (
+          <div
+            key={item.key}
+            onClick={() => !saving && onToggle(item.key)}
             style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 13,
-              fontWeight: 600,
-              color: '#9A9490',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '13px 16px',
+              borderTop: '1px solid rgba(12,12,10,.07)',
+              cursor: saving ? 'wait' : 'pointer',
+              background: item.done ? '#EEEDE9' : '#FFFFFF',
+              transition: 'background .18s',
             }}
           >
-            {item.time}
-          </span>
-        </div>
-      ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div
+                style={{
+                  width: 16, height: 16, borderRadius: 4,
+                  border: `2px solid ${item.color}`,
+                  background: item.done ? item.color : '#fff',
+                  flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s',
+                }}
+              >
+                {item.done && (
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </div>
+              <span style={{ fontSize: 19, lineHeight: 1, width: 26, textAlign: 'center', flexShrink: 0 }}>{item.icon}</span>
+              <div>
+                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 500, color: item.done ? '#9A9490' : '#0C0C0A', textDecoration: item.done ? 'line-through' : 'none', transition: 'all .18s' }}>
+                  {item.label}
+                </div>
+                {item.count > 0 && (
+                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490', marginTop: 1 }}>
+                    {item.count}개 제품
+                  </div>
+                )}
+              </div>
+            </div>
+            {item.time && (
+              <div style={{ background: 'rgba(197,255,0,.2)', padding: '3px 10px', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#5A7000', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+                🔔 {item.time}
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* ── Habits from ROUTINE TRACKER setup ── */}
+        {todayHabits.map((h) => {
+          const isDone = habitChecked.has(h.id);
+          return (
+            <div
+              key={h.id}
+              onClick={() => !saving && onToggleHabit(h.id)}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 16px', borderTop: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isDone ? '#EEEDE9' : '#FFFFFF', transition: 'background .18s' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 16, height: 16, borderRadius: 4, border: '2px solid #9A9490', background: isDone ? '#9A9490' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                  {isDone && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                </div>
+                <span style={{ fontSize: 19, lineHeight: 1, width: 26, textAlign: 'center', flexShrink: 0 }}>{h.icon || '✦'}</span>
+                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 500, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', transition: 'all .18s' }}>
+                  {h.name}
+                </div>
+              </div>
+              {h.time && h.repeatType !== 'allday' && (
+                <div style={{ background: 'rgba(197,255,0,.2)', padding: '3px 10px', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#5A7000', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  🔔 {h.time}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
+
+// RoutineTracker는 FlowCard 내부로 통합되었습니다.
 
 // ─── 루틴 없을 때 빈 상태 카드 ─────────────────────────────────────────────────
 
@@ -1100,6 +1043,7 @@ function OOTDRecordSheet({
   onNoteChange,
   photoPreview,
   onPhotoChange,
+  onPhotoFile,
   onSave,
   onDelete,
   saving,
@@ -1113,11 +1057,33 @@ function OOTDRecordSheet({
   onNoteChange: (v: string) => void;
   photoPreview: string;
   onPhotoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onPhotoFile: (file: File) => void;
   onSave: () => void;
   onDelete: () => void;
   saving: boolean;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Ctrl/Cmd + V 클립보드 이미지 붙여넣기 (시트가 열려 있을 때만)
+  useEffect(() => {
+    if (!open) return;
+    function onPaste(e: ClipboardEvent) {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          const blob = item.getAsFile();
+          if (blob) {
+            onPhotoFile(new File([blob], 'pasted-image.png', { type: blob.type }));
+            e.preventDefault();
+            break;
+          }
+        }
+      }
+    }
+    document.addEventListener('paste', onPaste);
+    return () => document.removeEventListener('paste', onPaste);
+  }, [open, onPhotoFile]);
 
   return (
     <>
@@ -1169,7 +1135,7 @@ function OOTDRecordSheet({
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 26, opacity: 0.3 }}>📷</span>
-              <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490' }}>탭하여 사진 추가</span>
+              <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490' }}>탭하여 추가 · 붙여넣기(⌘V)</span>
             </div>
           )}
         </div>
@@ -1246,6 +1212,11 @@ export default function TodayPage() {
   const [checked, setChecked] = useState<CheckState>({ morning: false, evening: false });
   const [saving, setSaving] = useState(false);
 
+  // ── 습관 상태 ──
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [habitChecked, setHabitChecked] = useState<Set<string>>(new Set());
+  const [habitLogs, setHabitLogs] = useState<{ id: string; habitId: string }[]>([]);
+
   // ── OOTD 상태 ──
   const [ootdLog, setOotdLog] = useState<OOTDLog | null>(null);
   const [ootdSheetOpen, setOotdSheetOpen] = useState(false);
@@ -1258,6 +1229,8 @@ export default function TodayPage() {
   // ── 계산된 값 (파생 상태) ──
   // 오늘 날짜가 포함된 활성 세션
   const activeSession = findActiveSession(sessions);
+  // 오늘 수행해야 하는 습관
+  const todayHabits = habits.filter(isHabitToday);
   // 오늘이 세션의 몇 번째 DAY인지 (1-based)
   const todayDayNumber = activeSession ? calcTodayDayNumber(activeSession) : 1;
   // 오늘 DAY의 아침/저녁 슬롯 (0-based index)
@@ -1358,6 +1331,40 @@ export default function TodayPage() {
     return () => unsub();
   }, [userId, authLoading, user]);
 
+  // ── 실시간 구독 5: 습관 목록 ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const q = query(collection(_db, 'users', userId, 'habits'));
+    const unsub = onSnapshot(q, (snap) => {
+      setHabits(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Habit, 'id'>) })));
+    }, (err) => console.error('[OnStep] 습관 로드 실패:', err));
+    return () => unsub();
+  }, [userId, authLoading, user]);
+
+  // ── 실시간 구독 6: 오늘 습관 완료 기록 ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const todayStr = getTodayDateStr();
+    const q = query(
+      collection(_db, 'users', userId, 'habitLogs'),
+      where('dateStr', '==', todayStr)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const checked = new Set<string>();
+      const logs: { id: string; habitId: string }[] = [];
+      snap.docs.forEach((d) => {
+        const data = d.data() as { habitId: string };
+        checked.add(data.habitId);
+        logs.push({ id: d.id, habitId: data.habitId });
+      });
+      setHabitChecked(checked);
+      setHabitLogs(logs);
+    }, (err) => console.error('[OnStep] 습관 기록 로드 실패:', err));
+    return () => unsub();
+  }, [userId, authLoading, user]);
+
   // ── 루틴 체크 처리 ──
   // 💡 낙관적 업데이트(optimistic update): 서버 응답 기다리지 않고 UI 먼저 변경
   //    실패 시 롤백
@@ -1429,6 +1436,97 @@ export default function TodayPage() {
     [activeSession, todayMorning, todayEvening, todayDayNumber, userId, products]
   );
 
+  // ── 루틴 체크 해제 (두 번째 클릭) ──
+  const handleUncheck = useCallback(
+    async (time: 'morning' | 'evening') => {
+      const _db = db;
+      if (!activeSession || !_db || !user) return;
+
+      setSaving(true);
+      setChecked((prev) => ({ ...prev, [time]: false }));
+
+      const todayStr = getTodayDateStr();
+
+      try {
+        const q = query(
+          collection(_db, 'users', userId, 'usageLogs'),
+          where('routineId', '==', activeSession.id),
+          where('dateStr', '==', todayStr),
+          where('timeSlot', '==', time)
+        );
+        const snap = await getDocs(q);
+
+        await Promise.all(
+          snap.docs.map(async (logDoc) => {
+            const data = logDoc.data() as { productId: string; amount: number };
+
+            await deleteDoc(logDoc.ref);
+
+            if (data.amount > 0) {
+              const product = products.get(data.productId);
+              if (product) {
+                const newRemaining = product.currentRemaining + data.amount;
+                await updateDoc(doc(_db, 'users', userId, 'products', data.productId), {
+                  currentRemaining: newRemaining,
+                  updatedAt: new Date().toISOString(),
+                });
+                setProducts((prev) => {
+                  const next = new Map(prev);
+                  next.set(data.productId, { ...product, currentRemaining: newRemaining });
+                  return next;
+                });
+              }
+            }
+          })
+        );
+      } catch (err) {
+        console.error('[OnStep] 루틴 체크 해제 실패:', err);
+        setChecked((prev) => ({ ...prev, [time]: true }));
+      } finally {
+        setSaving(false);
+      }
+    },
+    [activeSession, userId, user, products]
+  );
+
+  // ── 루틴 토글 (1번 클릭 = 완료, 2번 클릭 = 해제) ──
+  const handleToggle = useCallback(
+    (time: 'morning' | 'evening') => {
+      if (saving) return;
+      const isDone = time === 'morning' ? checked.morning : checked.evening;
+      if (isDone) {
+        handleUncheck(time);
+      } else {
+        handleCheck(time);
+      }
+    },
+    [saving, checked, handleCheck, handleUncheck]
+  );
+
+  // ── 습관 토글 (완료/해제) ──
+  const handleToggleHabit = useCallback(
+    async (habitId: string) => {
+      const _db = db;
+      if (!_db || !user) return;
+      const todayStr = getTodayDateStr();
+      try {
+        if (habitChecked.has(habitId)) {
+          const log = habitLogs.find((l) => l.habitId === habitId);
+          if (log) await deleteDoc(doc(_db, 'users', userId, 'habitLogs', log.id));
+        } else {
+          await addDoc(collection(_db, 'users', userId, 'habitLogs'), {
+            habitId,
+            dateStr: todayStr,
+            completedAt: new Date().toISOString(),
+          });
+        }
+      } catch (err) {
+        console.error('[OnStep] 습관 토글 실패:', err);
+      }
+    },
+    [user, userId, habitChecked, habitLogs]
+  );
+
   // ── Google 로그인 ──
   const handleLogin = async () => {
     if (!auth) {
@@ -1474,12 +1572,15 @@ export default function TodayPage() {
     setOotdSheetOpen(true);
   };
 
-  // ── OOTD 사진 선택 ──
-  const handleOOTDPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // ── OOTD 사진 적용 (파일 선택 + 붙여넣기 공통) ──
+  const handleOOTDPhotoFile = useCallback((file: File) => {
     setOotdPhotoFile(file);
     setOotdPhotoPreview(URL.createObjectURL(file));
+  }, []);
+
+  const handleOOTDPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleOOTDPhotoFile(file);
   };
 
   // ── OOTD 저장 ──
@@ -1624,23 +1725,15 @@ export default function TodayPage() {
             tab={activeTab}
             onTabChange={setActiveTab}
             checked={checked}
-            onCheck={handleCheck}
+            onToggle={handleToggle}
             saving={saving}
+            todayHabits={todayHabits}
+            habitChecked={habitChecked}
+            onToggleHabit={handleToggleHabit}
           />
         ) : (
           // 오늘 날짜에 해당하는 루틴 없음
           <RoutineEmptyCard />
-        )}
-
-        {/* 루틴 트래커 (체크리스트 뷰) — 루틴 있을 때만 표시 */}
-        {!dataLoading && activeSession && todayMorning && todayEvening && (
-          <RoutineTracker
-            todayMorning={todayMorning}
-            todayEvening={todayEvening}
-            todayDayNumber={todayDayNumber}
-            session={activeSession}
-            checked={checked}
-          />
         )}
 
         {/* OOTD 섹션 */}
@@ -1665,6 +1758,7 @@ export default function TodayPage() {
         onNoteChange={setOotdNote}
         photoPreview={ootdPhotoPreview}
         onPhotoChange={handleOOTDPhotoChange}
+        onPhotoFile={handleOOTDPhotoFile}
         onSave={handleSaveOOTD}
         onDelete={handleDeleteOOTD}
         saving={ootdSaving}

@@ -1,5 +1,5 @@
 // 뷰티박스 제품 도메인 카테고리
-export type ProductDomain = 'beauty' | 'fashion' | 'acc';
+export type ProductDomain = 'beauty' | 'fashion' | 'acc' | 'health';
 
 // 뷰티 서브카테고리 (box/data.boxCats.beauty)
 export type BeautySubCategory = 'skincare' | 'makeup';
