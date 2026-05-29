@@ -339,7 +339,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
 
 // ─── SESSIONS 뷰 ─────────────────────────────────────────────────────────────
 function SessionsView({
-  sessions, products, loading, onBack, onNew, onEdit,
+  sessions, products, loading, onBack, onNew, onEdit, onUpdateNumber,
 }: {
   sessions: Session[];
   products: Product[];
@@ -347,6 +347,7 @@ function SessionsView({
   onBack: () => void;
   onNew: () => void;
   onEdit: (s: Session) => void;
+  onUpdateNumber: (id: string, num: number) => void;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -513,7 +514,24 @@ function SessionsView({
                     {/* 정보 */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: font, fontSize: 20, fontWeight: 400, color: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const }}>
-                        {s.sessionNumber}회 {s.sessionTag || 'SESSION'}
+                        {/* 회차 번호 인라인 편집 — 숫자만 클릭해서 수정 */}
+                        <input
+                          type="number"
+                          defaultValue={s.sessionNumber}
+                          min={1}
+                          onClick={(e) => e.stopPropagation()}
+                          onFocus={(e) => { e.stopPropagation(); (e.target as HTMLInputElement).select(); }}
+                          onBlur={(e) => {
+                            const v = Math.max(1, parseInt(e.target.value) || 1);
+                            if (v !== s.sessionNumber) onUpdateNumber(s.id, v);
+                          }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); e.stopPropagation(); }}
+                          style={{ width: `${Math.max(String(s.sessionNumber).length, 1) + 1}ch`, fontFamily: font, fontSize: 20, fontWeight: 400, color: '#0C0C0A', background: 'transparent', border: 'none', borderBottom: '1.5px solid #D8D4CC', outline: 'none', padding: '0 2px', textAlign: 'right', MozAppearance: 'textfield' } as React.CSSProperties}
+                        />
+                        회
+                        {s.sessionTag && (
+                          <span style={{ fontFamily: font, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', background: '#E8F5CC', color: '#4E7D00', padding: '2px 8px', borderRadius: 6, flexShrink: 0, border: '1px solid rgba(132,176,0,.3)' }}>{s.sessionTag}</span>
+                        )}
                         {isNow && (
                           <span style={{ fontFamily: font, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase' as const, background: '#0C0C0A', color: '#C5FF00', padding: '2px 7px', borderRadius: 9999, flexShrink: 0 }}>NOW</span>
                         )}
@@ -1903,6 +1921,15 @@ export default function SetupPage() {
     goView('editor');
   }
 
+  async function handleUpdateSessionNumber(id: string, num: number) {
+    if (!user || !db) return;
+    try {
+      await updateDoc(doc(db, 'users', userId, 'routines', id), { sessionNumber: num, updatedAt: new Date().toISOString() });
+    } catch (err) {
+      console.error('[OnStep] 회차 번호 수정 실패:', err);
+    }
+  }
+
   function openEdit(session: Session) {
     setDraft({ id: session.id, sessionNumber: session.sessionNumber, sessionTag: session.sessionTag ?? '', startDate: session.startDate, endDate: session.endDate, morningTime: session.morningTime, eveningTime: session.eveningTime, morning: session.morning, evening: session.evening });
     goView('editor');
@@ -1997,7 +2024,7 @@ export default function SetupPage() {
         user={user} onLogin={handleLogin} onLogout={handleLogout}
       />
       {(view === 'sessions' || view === 'editor') && (
-        <SessionsView sessions={sessions} products={products} loading={loadingSessions} onBack={() => goView('hub')} onNew={openNewSession} onEdit={openEdit} />
+        <SessionsView sessions={sessions} products={products} loading={loadingSessions} onBack={() => goView('hub')} onNew={openNewSession} onEdit={openEdit} onUpdateNumber={handleUpdateSessionNumber} />
       )}
       {view === 'editor' && draft && (
         <EditorView draft={draft} setDraft={setDraft} products={products} onBack={() => goView('sessions')} onSave={handleSave} onDelete={handleDelete} saving={saving} />

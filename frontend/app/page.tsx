@@ -457,11 +457,8 @@ function WeatherWidget() {
 // ─── 세션 히어로 ──────────────────────────────────────────────────────────────
 // today.html .session-hero: 회차 번호 + 날짜 + DAY 진행 도트
 
-// 영어 서수 변환: 1→1st, 2→2nd, 3→3rd, 21→21st 등
 function toOrdinal(n: number): string {
-  const v = n % 100;
-  const suffix = (v >= 11 && v <= 13) ? 'th' : (['st', 'nd', 'rd'][((v - 1) % 10)] ?? 'th');
-  return `${n}${suffix}`;
+  return `${n}th`;
 }
 
 function SessionHero({
