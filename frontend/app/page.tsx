@@ -12,6 +12,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import UserMenuButton from '@/components/UserMenuButton';
 import { format, differenceInDays, parseISO } from 'date-fns';
@@ -1003,6 +1004,14 @@ function QuickLinks() {
 
 export default function TodayPage() {
   const today = new Date();
+  const router = useRouter();
+
+  // 온보딩 미완료 시 /onboarding으로 이동
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('onstep_onboarded')) {
+      router.replace('/onboarding');
+    }
+  }, [router]);
 
   // ── 인증 상태 ──
   const [user, setUser] = useState<User | null>(null);
