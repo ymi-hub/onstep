@@ -802,6 +802,21 @@ export default function BoxPage() {
   async function handleSave() {
     if (!form.name.trim()) return;
     if (!db) { alert('.env.local에 Firebase 설정을 먼저 입력해주세요.'); return; }
+
+    // 중복 이름 체크 (신규 등록 시에만, 같은 도메인 내)
+    if (!editingProduct) {
+      const nameLower = form.name.trim().toLowerCase();
+      const dup = products.find(
+        (p) => p.name.trim().toLowerCase() === nameLower && p.domain === form.formDomain
+      );
+      if (dup) {
+        const go = window.confirm(
+          `"${dup.name}" 제품이 이미 등록되어 있습니다.\n그래도 새로 추가하시겠습니까?`
+        );
+        if (!go) return;
+      }
+    }
+
     setSaving(true);
     try {
       const now = new Date().toISOString();

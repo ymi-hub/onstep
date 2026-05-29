@@ -556,8 +556,8 @@ function FlowCard({
                 return (
                   <div key={idx} style={{ flexShrink: 0, width: 72, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
                     <div style={{ width: 72, height: 72, background: '#EEEDE9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-                      {p?.imageUrl
-                        ? <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      {(p?.imageUrl || p?.storageUrl)
+                        ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         : <span style={{ fontSize: 20, opacity: 0.4 }}>🧴</span>
                       }
                       {isChecked && (
@@ -1140,8 +1140,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     return (
                       <div key={pid} style={{ flexShrink: 0, width: 90, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, paddingTop: 12 }}>
                         <div style={{ width: '100%', aspectRatio: '1/1', background: '#EDECE9', borderRadius: 12, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                          {p?.imageUrl
-                            ? <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          {(p?.imageUrl || p?.storageUrl)
+                            ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             : <span style={{ fontSize: 24, opacity: 0.3 }}>🧴</span>
                           }
                         </div>
@@ -1203,8 +1203,8 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                     return (
                       <div key={pid} style={{ flexShrink: 0, width: 90, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, paddingTop: 12 }}>
                         <div style={{ width: '100%', aspectRatio: '1/1', background: '#EDECE9', borderRadius: 12, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                          {p?.imageUrl
-                            ? <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          {(p?.imageUrl || p?.storageUrl)
+                            ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             : <span style={{ fontSize: 24, opacity: 0.3 }}>💄</span>
                           }
                         </div>
