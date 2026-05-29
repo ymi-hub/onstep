@@ -11,7 +11,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import UserMenuButton from '@/components/UserMenuButton';
@@ -22,11 +22,13 @@ import {
   onSnapshot,
   addDoc,
   updateDoc,
+  deleteDoc,
   doc,
   query,
   orderBy,
   where,
 } from 'firebase/firestore';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -34,7 +36,7 @@ import {
   signOut,
   type User,
 } from 'firebase/auth';
-import { db, auth } from '@/lib/firebase';
+import { db, auth, storage } from '@/lib/firebase';
 import type { Product } from '@/types/product';
 
 // ─── 타입 정의 ────────────────────────────────────────────────────────────────
@@ -78,6 +80,18 @@ type Session = {
 
 // 오늘 아침/저녁 각각 체크됐는지 여부
 type CheckState = { morning: boolean; evening: boolean; };
+
+// OOTD 오늘의 룩 기록 타입
+type OOTDLog = {
+  id: string;
+  date: string;
+  theme: string;
+  note: string;
+  photoUrl: string;
+  createdAt: string;
+};
+
+const OOTD_THEMES = ['캐주얼', '오피스룩', '스트릿', '미니멀', '빈티지', '스포티', '포멀', '로맨틱'];
 
 // ─── 상수 ─────────────────────────────────────────────────────────────────────
 
@@ -1000,6 +1014,211 @@ function QuickLinks() {
   );
 }
 
+// ─── OOTD 섹션 ───────────────────────────────────────────────────────────────
+// today.html .record-look-row / .record-logged-card 스타일
+
+function OOTDSection({
+  ootdLog,
+  onRecord,
+  user,
+}: {
+  ootdLog: OOTDLog | null;
+  onRecord: () => void;
+  user: User | null;
+}) {
+  return (
+    <div style={{ padding: '28px 16px 0' }}>
+      {/* 섹션 헤더 */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>
+          #OOTD
+        </span>
+        <Link href="/log" style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>
+          Log →
+        </Link>
+      </div>
+
+      {!user ? (
+        <div style={{ padding: '20px', textAlign: 'center', fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 20, lineHeight: 1.6 }}>
+          로그인하면 오늘의 룩을 기록할 수 있어요
+        </div>
+      ) : ootdLog ? (
+        /* 오늘 룩 기록됨 — 초록 테두리 카드 */
+        <div
+          onClick={onRecord}
+          style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: '#FFFFFF', border: '1.5px solid #4caf78', borderRadius: 9999, cursor: 'pointer', transition: 'background .2s', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}
+        >
+          {/* 썸네일 */}
+          <div style={{ width: 36, height: 36, borderRadius: 9999, background: '#E8E6E0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
+            {ootdLog.photoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={ootdLog.photoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+            ) : '👗'}
+          </div>
+          {/* 텍스트 */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {ootdLog.theme || '오늘의 룩'}{ootdLog.note ? ` · ${ootdLog.note}` : ''}
+            </div>
+            <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, fontWeight: 700, color: '#4caf78', marginTop: 3 }}>
+              ✓ 기록 완료
+            </div>
+          </div>
+          {/* 수정 화살표 */}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      ) : (
+        /* 미기록 — 점선 버튼 */
+        <div
+          onClick={onRecord}
+          style={{ border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 9999, minHeight: 52, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#FFFFFF', transition: 'background .2s' }}
+        >
+          <div style={{ width: 36, height: 36, background: '#E8E6E0', borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
+            👗
+          </div>
+          <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#9A9490', flex: 1 }}>
+            RECORD LOOK
+          </span>
+          <div style={{ width: 30, height: 30, background: '#C5FF00', borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, lineHeight: 1, color: '#0C0C0A', flexShrink: 0, fontWeight: 300 }}>
+            +
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── OOTD 기록 바텀 시트 ──────────────────────────────────────────────────────
+
+function OOTDRecordSheet({
+  open,
+  onClose,
+  ootdLog,
+  theme,
+  onThemeChange,
+  note,
+  onNoteChange,
+  photoPreview,
+  onPhotoChange,
+  onSave,
+  onDelete,
+  saving,
+}: {
+  open: boolean;
+  onClose: () => void;
+  ootdLog: OOTDLog | null;
+  theme: string;
+  onThemeChange: (v: string) => void;
+  note: string;
+  onNoteChange: (v: string) => void;
+  photoPreview: string;
+  onPhotoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSave: () => void;
+  onDelete: () => void;
+  saving: boolean;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      {/* 백드롭 */}
+      <div
+        onClick={onClose}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 100, opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .3s' }}
+      />
+
+      {/* 시트 */}
+      <div
+        style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '24px 24px 0 0', padding: '24px 20px 40px', zIndex: 101, transform: open ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .35s cubic-bezier(.4,0,.2,1)', maxHeight: '85vh', overflowY: 'auto' }}
+      >
+        {/* 핸들 */}
+        <div style={{ width: 32, height: 4, background: '#E5E7EB', borderRadius: 9999, margin: '0 auto 20px' }} />
+
+        {/* 제목 */}
+        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 800, color: '#0C1014', marginBottom: 16 }}>
+          오늘의 룩 기록
+        </div>
+
+        {/* 테마 선택 */}
+        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', marginBottom: 8 }}>룩 테마</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+          {OOTD_THEMES.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => onThemeChange(t)}
+              style={{ padding: '8px 16px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#0A0A0A' : 'rgba(12,12,10,.14)'}`, background: theme === t ? '#0A0A0A' : 'transparent', color: theme === t ? '#C5FF00' : '#0C0C0A', fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {/* 사진 */}
+        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', marginBottom: 8 }}>
+          사진 <span style={{ fontWeight: 400 }}>선택</span>
+        </div>
+        <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPhotoChange} />
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          style={{ width: '100%', height: 120, background: photoPreview ? 'none' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 12, overflow: 'hidden', position: 'relative' }}
+        >
+          {photoPreview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photoPreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 26, opacity: 0.3 }}>📷</span>
+              <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490' }}>탭하여 사진 추가</span>
+            </div>
+          )}
+        </div>
+
+        {/* 메모 */}
+        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', marginBottom: 8 }}>
+          메모 <span style={{ fontWeight: 400 }}>선택</span>
+        </div>
+        <textarea
+          value={note}
+          onChange={(e) => onNoteChange(e.target.value)}
+          placeholder="오늘의 룩 메모…"
+          style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 14, color: '#0C1014', resize: 'none', height: 64, outline: 'none', boxSizing: 'border-box', marginBottom: 16 }}
+        />
+
+        {/* 삭제 버튼 (수정 모드) */}
+        {ootdLog && (
+          <button
+            type="button"
+            onClick={onDelete}
+            style={{ width: '100%', height: 44, background: 'none', border: '1.5px solid #fee2e2', color: '#ef4444', borderRadius: 12, fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 10 }}
+          >
+            기록 삭제
+          </button>
+        )}
+
+        {/* 취소 / 저장 버튼 */}
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ flex: 1, height: 52, background: '#F4F4F0', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={saving}
+            style={{ flex: 2, height: 52, background: '#0A0A0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
+          >
+            {saving ? '저장 중...' : '저장'}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ─── 메인 페이지 컴포넌트 ─────────────────────────────────────────────────────
 
 export default function TodayPage() {
@@ -1026,6 +1245,15 @@ export default function TodayPage() {
   const [activeTab, setActiveTab] = useState<'morning' | 'evening'>('morning');
   const [checked, setChecked] = useState<CheckState>({ morning: false, evening: false });
   const [saving, setSaving] = useState(false);
+
+  // ── OOTD 상태 ──
+  const [ootdLog, setOotdLog] = useState<OOTDLog | null>(null);
+  const [ootdSheetOpen, setOotdSheetOpen] = useState(false);
+  const [ootdTheme, setOotdTheme] = useState('');
+  const [ootdNote, setOotdNote] = useState('');
+  const [ootdPhotoFile, setOotdPhotoFile] = useState<File | null>(null);
+  const [ootdPhotoPreview, setOotdPhotoPreview] = useState('');
+  const [ootdSaving, setOotdSaving] = useState(false);
 
   // ── 계산된 값 (파생 상태) ──
   // 오늘 날짜가 포함된 활성 세션
@@ -1109,6 +1337,26 @@ export default function TodayPage() {
     }, (err) => console.error('[OnStep] 체크 기록 로드 실패:', err));
     return () => unsub();
   }, [userId, authLoading, user, activeSessionId]);
+
+  // ── 실시간 구독 4: 오늘 OOTD 기록 ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const todayStr = getTodayDateStr();
+    const q = query(
+      collection(_db, 'users', userId, 'ootdLogs'),
+      where('date', '==', todayStr)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const d = snap.docs[0];
+        setOotdLog({ id: d.id, ...(d.data() as Omit<OOTDLog, 'id'>) });
+      } else {
+        setOotdLog(null);
+      }
+    }, (err) => console.error('[OnStep] OOTD 로드 실패:', err));
+    return () => unsub();
+  }, [userId, authLoading, user]);
 
   // ── 루틴 체크 처리 ──
   // 💡 낙관적 업데이트(optimistic update): 서버 응답 기다리지 않고 UI 먼저 변경
@@ -1207,6 +1455,83 @@ export default function TodayPage() {
       setChecked({ morning: false, evening: false });
     } catch (err) {
       console.error('[OnStep] 로그아웃 실패:', err);
+    }
+  };
+
+  // ── OOTD 시트 열기 (수정 시 기존 값 미리 채움) ──
+  const handleOpenOOTDSheet = () => {
+    if (ootdLog) {
+      setOotdTheme(ootdLog.theme);
+      setOotdNote(ootdLog.note);
+      setOotdPhotoPreview(ootdLog.photoUrl);
+      setOotdPhotoFile(null);
+    } else {
+      setOotdTheme('');
+      setOotdNote('');
+      setOotdPhotoPreview('');
+      setOotdPhotoFile(null);
+    }
+    setOotdSheetOpen(true);
+  };
+
+  // ── OOTD 사진 선택 ──
+  const handleOOTDPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setOotdPhotoFile(file);
+    setOotdPhotoPreview(URL.createObjectURL(file));
+  };
+
+  // ── OOTD 저장 ──
+  const handleSaveOOTD = async () => {
+    const _db = db;
+    if (!_db || !user) return;
+    setOotdSaving(true);
+    try {
+      let photoUrl = ootdLog?.photoUrl ?? '';
+      // 새 파일이 선택된 경우에만 Storage 업로드
+      if (ootdPhotoFile && storage) {
+        const path = `users/${userId}/ootd/${getTodayDateStr()}_${Date.now()}`;
+        const ref = storageRef(storage, path);
+        await uploadBytes(ref, ootdPhotoFile);
+        photoUrl = await getDownloadURL(ref);
+      }
+      const todayStr = getTodayDateStr();
+      if (ootdLog) {
+        // 기존 기록 수정
+        await updateDoc(doc(_db, 'users', userId, 'ootdLogs', ootdLog.id), {
+          theme: ootdTheme,
+          note: ootdNote,
+          photoUrl,
+          updatedAt: new Date().toISOString(),
+        });
+      } else {
+        // 새 기록 저장
+        await addDoc(collection(_db, 'users', userId, 'ootdLogs'), {
+          date: todayStr,
+          theme: ootdTheme,
+          note: ootdNote,
+          photoUrl,
+          createdAt: new Date().toISOString(),
+        });
+      }
+      setOotdSheetOpen(false);
+    } catch (err) {
+      console.error('[OnStep] OOTD 저장 실패:', err);
+    } finally {
+      setOotdSaving(false);
+    }
+  };
+
+  // ── OOTD 삭제 ──
+  const handleDeleteOOTD = async () => {
+    const _db = db;
+    if (!_db || !user || !ootdLog) return;
+    try {
+      await deleteDoc(doc(_db, 'users', userId, 'ootdLogs', ootdLog.id));
+      setOotdSheetOpen(false);
+    } catch (err) {
+      console.error('[OnStep] OOTD 삭제 실패:', err);
     }
   };
 
@@ -1318,9 +1643,32 @@ export default function TodayPage() {
           />
         )}
 
+        {/* OOTD 섹션 */}
+        <OOTDSection
+          ootdLog={ootdLog}
+          onRecord={handleOpenOOTDSheet}
+          user={user}
+        />
+
         {/* 빠른 이동 링크 */}
         <QuickLinks />
       </div>
+
+      {/* OOTD 기록 바텀 시트 */}
+      <OOTDRecordSheet
+        open={ootdSheetOpen}
+        onClose={() => setOotdSheetOpen(false)}
+        ootdLog={ootdLog}
+        theme={ootdTheme}
+        onThemeChange={setOotdTheme}
+        note={ootdNote}
+        onNoteChange={setOotdNote}
+        photoPreview={ootdPhotoPreview}
+        onPhotoChange={handleOOTDPhotoChange}
+        onSave={handleSaveOOTD}
+        onDelete={handleDeleteOOTD}
+        saving={ootdSaving}
+      />
     </div>
   );
 }
