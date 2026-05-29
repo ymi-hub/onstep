@@ -556,12 +556,15 @@ function FlowCard({
                 return (
                   <div key={idx} style={{ flexShrink: 0, width: 72, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
                     <div style={{ width: 72, height: 72, background: '#EEEDE9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                      {p?.imageUrl
+                        ? <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : <span style={{ fontSize: 20, opacity: 0.4 }}>🧴</span>
+                      }
                       {isChecked && (
                         <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, zIndex: 3 }}>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                         </div>
                       )}
-                      <span style={{ fontSize: 20, opacity: 0.4 }}>🧴</span>
                     </div>
                     <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', width: '100%' }}>
                       {p?.name ?? '?'}
@@ -1284,9 +1287,9 @@ function OOTDRecordSheet({
         style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 100, opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .3s' }}
       />
 
-      {/* 시트 */}
+      {/* 시트 — 앱 컨테이너(430px) 폭에 맞춤 */}
       <div
-        style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '24px 24px 0 0', padding: '24px 20px 40px', zIndex: 101, transform: open ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .35s cubic-bezier(.4,0,.2,1)', maxHeight: '85vh', overflowY: 'auto' }}
+        style={{ position: 'fixed', bottom: 0, left: '50%', transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)', width: '100%', maxWidth: 430, background: '#fff', borderRadius: '24px 24px 0 0', padding: '24px 20px 40px', zIndex: 101, transition: 'transform .35s cubic-bezier(.4,0,.2,1)', maxHeight: '85vh', overflowY: 'auto' }}
       >
         {/* 핸들 */}
         <div style={{ width: 32, height: 4, background: '#E5E7EB', borderRadius: 9999, margin: '0 auto 20px' }} />
@@ -1396,7 +1399,7 @@ export default function TodayPage() {
   // ── 데이터 상태 ──
   const [sessions, setSessions] = useState<Session[]>([]);
   const [products, setProducts] = useState<Map<string, Product>>(new Map());
-  const [dataLoading, setDataLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
 
   // ── UI 상태 ──
   const [activeTab, setActiveTab] = useState<'morning' | 'evening'>('morning');
@@ -1467,6 +1470,7 @@ export default function TodayPage() {
         setSessions([]);
         setProducts(new Map());
         setChecked({ morning: false, evening: false });
+        setDataLoading(false);
       }
     });
 
