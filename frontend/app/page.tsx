@@ -853,6 +853,63 @@ function RoutineEmptyCard() {
   );
 }
 
+// ─── 로그인 필요 카드 ────────────────────────────────────────────────────────
+
+function LoginRequiredCard({ onLogin }: { onLogin: () => void }) {
+  return (
+    <div
+      style={{
+        margin: '0 16px',
+        background: '#FFFFFF',
+        border: '1px solid rgba(12,12,10,.07)',
+        boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.03)',
+        borderRadius: 20,
+        padding: '32px 24px',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ fontSize: 36, marginBottom: 12 }}>🔒</div>
+      <p
+        style={{
+          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+          fontSize: 15,
+          fontWeight: 700,
+          color: '#0C0C0A',
+          margin: '0 0 6px',
+        }}
+      >
+        로그인이 필요해요
+      </p>
+      <p
+        style={{
+          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+          fontSize: 13,
+          color: '#9A9490',
+          margin: '0 0 20px',
+        }}
+      >
+        루틴을 확인하려면 Google 계정으로 로그인하세요
+      </p>
+      <button
+        onClick={onLogin}
+        style={{
+          background: '#0C0C0A',
+          color: '#C5FF00',
+          border: 'none',
+          borderRadius: 12,
+          padding: '10px 24px',
+          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+          fontSize: 13,
+          fontWeight: 700,
+          cursor: 'pointer',
+        }}
+      >
+        Google로 로그인
+      </button>
+    </div>
+  );
+}
+
 // ─── 빠른 이동 카드 ──────────────────────────────────────────────────────────
 
 function QuickLinks() {
@@ -1372,13 +1429,12 @@ export default function TodayPage() {
     async (time: 'morning' | 'evening') => {
       // 💡 _db에 캡처: async 내부에서 null 체크가 유지되도록 함
       const _db = db;
-      if (!activeSession || !todayMorning || !todayEvening || !_db) return;
+      if (!activeSession || !todayMorning || !todayEvening || !_db || !user) return;
 
       const slot = time === 'morning' ? todayMorning : todayEvening;
       const allProductIds = slot.items
         .filter((item): item is { type: 'product'; id: string } => item.type === 'product')
         .map((item) => item.id);
-      if (allProductIds.length === 0) return;
 
       setSaving(true);
       // UI 먼저 체크 상태로 변경
@@ -1389,42 +1445,54 @@ export default function TodayPage() {
       try {
         const logsRef = collection(_db, 'users', userId, 'usageLogs');
 
-        // 각 제품별로 UsageLog 저장 + 잔량 차감
-        await Promise.all(
-          allProductIds.map(async (productId) => {
-            const product = products.get(productId);
-            const amount = product?.dosePerUse ?? 0;
+        if (allProductIds.length === 0) {
+          // 매핑된 제품 없는 슬롯: 완료 기록만 남김 (잔량 차감 없음)
+          await addDoc(logsRef, {
+            routineId: activeSession.id,
+            productId: null,
+            amount: 0,
+            type: 'use',
+            timeSlot: time,
+            dateStr: todayStr,
+            loggedAt: new Date().toISOString(),
+            note: `${time === 'morning' ? '아침' : '저녁'} 루틴 완료 — Day ${todayDayNumber}`,
+          });
+        } else {
+          // 각 제품별로 UsageLog 저장 + 잔량 차감
+          await Promise.all(
+            allProductIds.map(async (productId) => {
+              const product = products.get(productId);
+              const amount = product?.dosePerUse ?? 0;
 
-            // UsageLog 저장
-            // 💡 dateStr 필드: 나중에 오늘 로그 복원 시 쿼리에 사용
-            await addDoc(logsRef, {
-              routineId: activeSession.id,
-              productId,
-              amount,
-              type: 'use',
-              timeSlot: time,                         // 'morning' or 'evening'
-              dateStr: todayStr,                      // "YYYY-MM-DD"
-              loggedAt: new Date().toISOString(),
-              note: `${time === 'morning' ? '아침' : '저녁'} 루틴 완료 — Day ${todayDayNumber}`,
-            });
-
-            // 잔량 차감 (사용량이 설정된 제품만)
-            if (product && amount > 0) {
-              const newRemaining = Math.max(0, product.currentRemaining - amount);
-              await updateDoc(doc(_db, 'users', userId, 'products', productId), {
-                currentRemaining: newRemaining,
-                updatedAt: new Date().toISOString(),
+              // 💡 dateStr 필드: 나중에 오늘 로그 복원 시 쿼리에 사용
+              await addDoc(logsRef, {
+                routineId: activeSession.id,
+                productId,
+                amount,
+                type: 'use',
+                timeSlot: time,
+                dateStr: todayStr,
+                loggedAt: new Date().toISOString(),
+                note: `${time === 'morning' ? '아침' : '저녁'} 루틴 완료 — Day ${todayDayNumber}`,
               });
 
-              // 로컬 products Map도 업데이트 (리렌더링 없이 즉시 반영)
-              setProducts((prev) => {
-                const next = new Map(prev);
-                next.set(productId, { ...product, currentRemaining: newRemaining });
-                return next;
-              });
-            }
-          })
-        );
+              // 잔량 차감 (사용량이 설정된 제품만)
+              if (product && amount > 0) {
+                const newRemaining = Math.max(0, product.currentRemaining - amount);
+                await updateDoc(doc(_db, 'users', userId, 'products', productId), {
+                  currentRemaining: newRemaining,
+                  updatedAt: new Date().toISOString(),
+                });
+
+                setProducts((prev) => {
+                  const next = new Map(prev);
+                  next.set(productId, { ...product, currentRemaining: newRemaining });
+                  return next;
+                });
+              }
+            })
+          );
+        }
       } catch (err) {
         console.error('[OnStep] 루틴 체크 저장 실패:', err);
         // 실패 시 체크 상태 롤백
@@ -1731,6 +1799,9 @@ export default function TodayPage() {
             habitChecked={habitChecked}
             onToggleHabit={handleToggleHabit}
           />
+        ) : !user && !authLoading ? (
+          // 로그인 안 된 상태
+          <LoginRequiredCard onLogin={handleLogin} />
         ) : (
           // 오늘 날짜에 해당하는 루틴 없음
           <RoutineEmptyCard />
