@@ -1154,7 +1154,8 @@ function TrackerView({
       });
       setNewName(''); setNewIcon('✦'); setNewRepeat('allday');
       setNewTime('07:00'); setNewAlarm(false); setNewDate(''); setNewWeekdays([]);
-    } catch {
+    } catch (err) {
+      console.error('[OnStep] TrackerView ADD 실패:', err);
       alert('저장에 실패했습니다. 다시 시도해주세요.');
     } finally { setAdding(false); }
   }
@@ -1790,6 +1791,8 @@ const dateInputStyle: React.CSSProperties = {
 };
 
 // ─── 메인 컴포넌트 ────────────────────────────────────────────────────────────
+const VALID_VIEWS: View[] = ['hub', 'sessions', 'editor', 'tracker', 'care', 'makeup', 'lookbook'];
+
 export default function SetupPage() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -1808,6 +1811,23 @@ export default function SetupPage() {
   const [lookItems, setLookItems] = useState<CtItem[]>([]);
 
   const userId = user?.uid ?? FALLBACK_USER_ID;
+
+  // ── URL hash로 뷰 초기화 (P10 딥링크 + P12 상태 복원) ──
+  // /setup#sessions → sessions 뷰로 바로 진입
+  useEffect(() => {
+    const hash = typeof window !== 'undefined' ? window.location.hash.slice(1) : '';
+    if (hash && VALID_VIEWS.includes(hash as View)) {
+      setView(hash as View);
+    }
+  }, []);
+
+  // 뷰 변경 + URL hash 동기화
+  function goView(v: View) {
+    setView(v);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', v === 'hub' ? '/setup' : `/setup#${v}`);
+    }
+  }
 
   useEffect(() => {
     if (!auth) { setAuthLoading(false); return; }
@@ -1883,12 +1903,12 @@ export default function SetupPage() {
   function openNewSession() {
     const nextNum = sessions.length > 0 ? Math.max(...sessions.map((s) => s.sessionNumber)) + 1 : 1;
     setDraft(newDraft(nextNum));
-    setView('editor');
+    goView('editor');
   }
 
   function openEdit(session: Session) {
     setDraft({ id: session.id, sessionNumber: session.sessionNumber, sessionTag: session.sessionTag ?? '', startDate: session.startDate, endDate: session.endDate, morningTime: session.morningTime, eveningTime: session.eveningTime, morning: session.morning, evening: session.evening });
-    setView('editor');
+    goView('editor');
   }
 
   async function handleSave() {
@@ -1904,7 +1924,7 @@ export default function SetupPage() {
       } else {
         await addDoc(collection(db, 'users', userId, 'routines'), { ...data, createdAt: now });
       }
-      setView('sessions');
+      goView('sessions');
       setDraft(null);
     } catch (err) {
       console.error('세션 저장 실패:', err);
@@ -1919,7 +1939,7 @@ export default function SetupPage() {
     if (!confirm('이 세션을 삭제하시겠어요?')) return;
     try {
       await deleteDoc(doc(db, 'users', userId, 'routines', draft.id));
-      setView('sessions');
+      goView('sessions');
       setDraft(null);
     } catch (err) {
       console.error('세션 삭제 실패:', err);
@@ -1930,7 +1950,12 @@ export default function SetupPage() {
   async function handleAddHabit(h: Omit<Habit, 'id' | 'createdAt' | 'updatedAt'>) {
     if (!user || !db) { alert('로그인이 필요합니다.'); return; }
     const now = new Date().toISOString();
-    await addDoc(collection(db, 'users', userId, 'habits'), { ...h, createdAt: now, updatedAt: now });
+    try {
+      await addDoc(collection(db, 'users', userId, 'habits'), { ...h, createdAt: now, updatedAt: now });
+    } catch (err) {
+      console.error('[OnStep] 습관 추가 실패 — path:', `users/${userId}/habits`, '| error:', err);
+      throw err;
+    }
   }
 
   async function handleUpdateHabit(id: string, h: Partial<Omit<Habit, 'id'>>) {
@@ -1967,24 +1992,24 @@ export default function SetupPage() {
   return (
     <>
       <HubView
-        onOpenSessions={() => setView('sessions')}
-        onOpenTracker={() => setView('tracker')}
-        onOpenCare={() => setView('care')}
-        onOpenMakeup={() => setView('makeup')}
-        onOpenLookbook={() => setView('lookbook')}
+        onOpenSessions={() => goView('sessions')}
+        onOpenTracker={() => goView('tracker')}
+        onOpenCare={() => goView('care')}
+        onOpenMakeup={() => goView('makeup')}
+        onOpenLookbook={() => goView('lookbook')}
         user={user} onLogin={handleLogin} onLogout={handleLogout}
       />
       {(view === 'sessions' || view === 'editor') && (
-        <SessionsView sessions={sessions} products={products} loading={loadingSessions} onBack={() => setView('hub')} onNew={openNewSession} onEdit={openEdit} />
+        <SessionsView sessions={sessions} products={products} loading={loadingSessions} onBack={() => goView('hub')} onNew={openNewSession} onEdit={openEdit} />
       )}
       {view === 'editor' && draft && (
-        <EditorView draft={draft} setDraft={setDraft} products={products} onBack={() => setView('sessions')} onSave={handleSave} onDelete={handleDelete} saving={saving} />
+        <EditorView draft={draft} setDraft={setDraft} products={products} onBack={() => goView('sessions')} onSave={handleSave} onDelete={handleDelete} saving={saving} />
       )}
       {view === 'tracker' && (
         <TrackerView
           habits={habits}
           user={user}
-          onBack={() => setView('hub')}
+          onBack={() => goView('hub')}
           onAddHabit={handleAddHabit}
           onUpdateHabit={handleUpdateHabit}
           onDeleteHabit={handleDeleteHabit}
@@ -1993,7 +2018,7 @@ export default function SetupPage() {
       {view === 'care' && (
         <CtPanel
           ctType="care" ctItems={careItems} products={products}
-          onBack={() => setView('hub')}
+          onBack={() => goView('hub')}
           onAdd={handleAddCtItem}
           onUpdate={(id, item) => handleUpdateCtItem('care', id, item)}
           onDelete={(id) => handleDeleteCtItem('care', id)}
@@ -2002,7 +2027,7 @@ export default function SetupPage() {
       {view === 'makeup' && (
         <CtPanel
           ctType="makeup" ctItems={makeupItems} products={products}
-          onBack={() => setView('hub')}
+          onBack={() => goView('hub')}
           onAdd={handleAddCtItem}
           onUpdate={(id, item) => handleUpdateCtItem('makeup', id, item)}
           onDelete={(id) => handleDeleteCtItem('makeup', id)}
@@ -2011,7 +2036,7 @@ export default function SetupPage() {
       {view === 'lookbook' && (
         <CtPanel
           ctType="lookbook" ctItems={lookItems} products={products}
-          onBack={() => setView('hub')}
+          onBack={() => goView('hub')}
           onAdd={handleAddCtItem}
           onUpdate={(id, item) => handleUpdateCtItem('lookbook', id, item)}
           onDelete={(id) => handleDeleteCtItem('lookbook', id)}

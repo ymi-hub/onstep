@@ -312,6 +312,91 @@ function Appbar({
   );
 }
 
+// ─── 날씨 위젯 ────────────────────────────────────────────────────────────────
+// Open-Meteo API: 무료, API 키 불필요, 위치 권한으로 현재 날씨 표시
+
+type WeatherData = { temp: number; desc: string; emoji: string };
+
+const WMO_MAP: Record<number, [string, string]> = {
+  0: ['맑음', '☀️'], 1: ['대체로 맑음', '🌤'], 2: ['구름 조금', '⛅️'], 3: ['흐림', '☁️'],
+  45: ['안개', '🌫'], 48: ['안개', '🌫'],
+  51: ['가는 이슬비', '🌦'], 53: ['이슬비', '🌦'], 55: ['짙은 이슬비', '🌦'],
+  61: ['약한 비', '🌧'], 63: ['비', '🌧'], 65: ['강한 비', '🌧'],
+  71: ['약한 눈', '🌨'], 73: ['눈', '🌨'], 75: ['강한 눈', '❄️'],
+  80: ['소나기', '🌦'], 81: ['소나기', '🌧'], 82: ['강한 소나기', '⛈'],
+  95: ['뇌우', '⛈'], 96: ['뇌우+우박', '⛈'], 99: ['강한 뇌우', '⛈'],
+};
+
+function WeatherWidget() {
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [locName, setLocName] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return;
+
+    const cached = typeof localStorage !== 'undefined' ? localStorage.getItem('onstep_weather_v5') : null;
+    if (cached) {
+      try {
+        const d = JSON.parse(cached);
+        if (Date.now() - d.ts < 30 * 60 * 1000) {
+          setWeather(d.weather);
+          setLocName(d.locName);
+          return;
+        }
+      } catch { /* ignore */ }
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude: lat, longitude: lon } = pos.coords;
+      try {
+        const res = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,weathercode&timezone=auto`
+        );
+        const data = await res.json();
+        const code: number = data.current?.weathercode ?? 0;
+        const temp: number = Math.round(data.current?.temperature_2m ?? 0);
+        const [desc, emoji] = WMO_MAP[code] ?? ['알 수 없음', '🌡'];
+        const w: WeatherData = { temp, desc, emoji };
+
+        // 역지오코딩: nominatim (무료)
+        let name = '';
+        try {
+          const geo = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ko`
+          );
+          const gd = await geo.json();
+          name = gd.address?.city || gd.address?.town || gd.address?.county || gd.address?.state || '';
+        } catch { /* skip */ }
+
+        setWeather(w);
+        setLocName(name);
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('onstep_weather_v5', JSON.stringify({ ts: Date.now(), weather: w, locName: name }));
+        }
+      } catch { /* silent fail */ }
+    }, undefined, { timeout: 5000 });
+  }, []);
+
+  if (!weather) return null;
+
+  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px 4px' }}>
+      <div style={{ width: 40, height: 40, background: '#C5FF00', borderRadius: 10, border: '2px solid #91C000', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, lineHeight: 1 }}>
+        {weather.emoji}
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {locName && (
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#9A9490', letterSpacing: '.04em', lineHeight: 1 }}>{locName}</div>
+        )}
+        <div style={{ fontFamily: f, fontSize: 13, fontWeight: 500, color: '#0C0C0A', lineHeight: 1 }}>
+          {weather.temp}°C · {weather.desc}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── 세션 히어로 ──────────────────────────────────────────────────────────────
 // today.html .session-hero: 회차 번호 + 날짜 + DAY 진행 도트
 
@@ -343,7 +428,7 @@ function SessionHero({
         {session ? `${session.sessionNumber}회차 SESSION` : '— SESSION'}
       </div>
 
-      {/* 오늘 날짜 */}
+      {/* 오늘 날짜 + 세션 기간 */}
       <div
         style={{
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
@@ -352,9 +437,22 @@ function SessionHero({
           color: '#9A9490',
           marginTop: 3,
           marginBottom: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
         }}
       >
-        {dateStr}
+        <span>{dateStr}</span>
+        {session && (
+          <>
+            <span style={{ opacity: 0.4 }}>·</span>
+            <span>
+              {format(parseISO(session.startDate), 'M/d', { locale: ko })}
+              {' ~ '}
+              {format(parseISO(session.endDate), 'M/d', { locale: ko })}
+            </span>
+          </>
+        )}
       </div>
 
       {/* DAY 진행 도트 */}
@@ -621,7 +719,7 @@ function FlowCard({
 
       {/* 카드 하단: Edit 링크만 (CHECK 버튼 제거 — Routine Tracker가 체크 담당) */}
       <div style={{ padding: '12px 16px 8px' }}>
-        <Link href="/setup" style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 700, color: '#9A9490', textDecoration: 'none' }}>
+        <Link href="/setup#sessions" style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 700, color: '#9A9490', textDecoration: 'none' }}>
           Edit →
         </Link>
       </div>
@@ -633,7 +731,7 @@ function FlowCard({
           <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#9A9490' }}>
             Routine Tracker
           </span>
-          <Link href="/setup" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', color: '#9A9490', textDecoration: 'none' }}>
+          <Link href="/setup#tracker" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', color: '#9A9490', textDecoration: 'none' }}>
             List →
           </Link>
         </div>
@@ -1898,6 +1996,9 @@ export default function TodayPage() {
             Today
           </h1>
         </div>
+
+        {/* 날씨 위젯 */}
+        <WeatherWidget />
 
         {/* 세션 히어로 */}
         <SessionHero

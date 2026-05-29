@@ -65,6 +65,17 @@ type DayLog = {
   entries: LogEntry[];
 };
 
+// Library CT 아이템 (setup의 makeupItems / lookItems)
+type CtItem = {
+  id: string;
+  ctType: 'makeup' | 'lookbook';
+  emoji: string;
+  name: string;
+  desc: string;
+  items: { type: string; id?: string }[];
+  published: boolean;
+};
+
 // ─── 상수 ─────────────────────────────────────────────────────────────────────
 
 const FALLBACK_USER_ID = 'demo-user';
@@ -750,6 +761,55 @@ function RecentStrip({
   );
 }
 
+// ─── Library 카드 ─────────────────────────────────────────────────────────────
+// design/log.html .lib-card 구조 참고
+
+function LibraryCard({ item, products }: { item: CtItem; products: Map<string, Product> }) {
+  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+  const prodIds = item.items
+    .filter((r) => r.type === 'product' && r.id)
+    .map((r) => r.id as string);
+
+  return (
+    <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03)', marginBottom: 10 }}>
+      {/* 헤더 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 14px 10px' }}>
+        <span style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{item.emoji || '✨'}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{item.name}</div>
+          {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{item.desc}</div>}
+        </div>
+        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', padding: '3px 8px', borderRadius: 9999, background: item.published ? '#0C0C0A' : '#E4E2DC', color: item.published ? '#fff' : '#9A9490', flexShrink: 0 }}>
+          {item.published ? 'ON' : 'OFF'}
+        </span>
+      </div>
+
+      {/* 제품 스크롤 */}
+      {prodIds.length > 0 && (
+        <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 10, padding: '0 14px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+          {prodIds.map((pid) => {
+            const p = products.get(pid);
+            const imgSrc = p?.imageUrl || p?.storageUrl;
+            return (
+              <div key={pid} style={{ flexShrink: 0, width: 64, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, paddingTop: 12 }}>
+                <div style={{ width: 64, height: 64, borderRadius: 12, background: '#EDECE9', border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  {imgSrc
+                    ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <span style={{ fontSize: 20, opacity: 0.3 }}>🧴</span>
+                  }
+                </div>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#9A9490', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {p?.name ?? ''}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── 빈 상태 ─────────────────────────────────────────────────────────────────
 
 function EmptyState({ isLoading }: { isLoading: boolean }) {
@@ -822,11 +882,19 @@ export default function LogPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date()); // 현재 보여주는 달
   const [selectedDate, setSelectedDate] = useState<string | null>(null); // 선택된 날짜
 
+  // ── 탭 상태 ──
+  const [mainTab, setMainTab] = useState<'log' | 'library'>('log');
+  const [libFilter, setLibFilter] = useState<'makeup' | 'lookbook'>('makeup');
+
   // ── 데이터 상태 ──
   // dayLogs: "YYYY-MM-DD" → DayLog 맵
   const [dayLogs, setDayLogs] = useState<Map<string, DayLog>>(new Map());
   const [products, setProducts] = useState<Map<string, Product>>(new Map());
   const [dataLoading, setDataLoading] = useState(false);
+
+  // ── Library CT 데이터 ──
+  const [makeupItems, setMakeupItems] = useState<CtItem[]>([]);
+  const [lookItems, setLookItems] = useState<CtItem[]>([]);
 
   // ── 현재 userId ──
   const userId = user?.uid ?? FALLBACK_USER_ID;
@@ -891,6 +959,19 @@ export default function LogPage() {
       setProducts(map);
     }, (err) => console.error('[OnStep] 제품 로드 실패:', err));
     return () => unsub();
+  }, [userId, authLoading, user]);
+
+  // ── 실시간 구독 3: Library CT 아이템 ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const u1 = onSnapshot(collection(_db, 'users', userId, 'makeupItems'), (snap) => {
+      setMakeupItems(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CtItem)));
+    }, (err) => console.error('[OnStep] makeupItems 로드 실패:', err));
+    const u2 = onSnapshot(collection(_db, 'users', userId, 'lookItems'), (snap) => {
+      setLookItems(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CtItem)));
+    }, (err) => console.error('[OnStep] lookItems 로드 실패:', err));
+    return () => { u1(); u2(); };
   }, [userId, authLoading, user]);
 
   // ── 로그인 / 로그아웃 ──
@@ -965,47 +1046,134 @@ export default function LogPage() {
           </p>
         </div>
 
-        {/* 최근 7일 요약 스트립 */}
-        <div style={{ padding: '20px 0 0' }}>
-          <RecentStrip
-            dayLogs={dayLogs}
-            selectedDate={selectedDate}
-            onSelectDate={handleSelectDate}
-          />
+        {/* 탭 바 — LOG / LIBRARY */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 0,
+            height: 46,
+            alignItems: 'stretch',
+            background: 'rgba(250,250,248,.96)',
+            backdropFilter: 'blur(8px)',
+            borderBottom: '1px solid rgba(12,12,10,.07)',
+            margin: '16px 0 0',
+            padding: '0 16px',
+          }}
+        >
+          {(['log', 'library'] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setMainTab(t)}
+              style={{
+                flex: 1,
+                border: 'none',
+                background: 'none',
+                fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+                fontSize: 13,
+                fontWeight: 800,
+                letterSpacing: '.04em',
+                textTransform: 'uppercase',
+                color: mainTab === t ? '#0C0C0A' : '#9A9490',
+                borderBottom: mainTab === t ? '2px solid #0C0C0A' : '2px solid transparent',
+                cursor: 'pointer',
+                transition: 'all .18s',
+              }}
+            >
+              {t === 'log' ? 'Log' : 'Library'}
+            </button>
+          ))}
         </div>
 
-        {/* 구분선 */}
-        <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '20px 16px' }} />
+        {mainTab === 'log' ? (
+          <>
+            {/* 최근 7일 요약 스트립 */}
+            <div style={{ padding: '20px 0 0' }}>
+              <RecentStrip
+                dayLogs={dayLogs}
+                selectedDate={selectedDate}
+                onSelectDate={handleSelectDate}
+              />
+            </div>
 
-        {/* 월별 캘린더 */}
-        <MonthCalendar
-          currentMonth={currentMonth}
-          dayLogs={dayLogs}
-          selectedDate={selectedDate}
-          onSelectDate={handleSelectDate}
-          onPrevMonth={() => {
-            setCurrentMonth((m) => subMonths(m, 1));
-            setSelectedDate(null);
-          }}
-          onNextMonth={() => {
-            setCurrentMonth((m) => addMonths(m, 1));
-            setSelectedDate(null);
-          }}
-        />
+            {/* 구분선 */}
+            <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '20px 16px' }} />
 
-        {/* 선택된 날짜 상세 or 빈 상태 */}
-        {selectedDate ? (
-          <DayDetail
-            dateStr={selectedDate}
-            dayLog={selectedDayLog}
-            products={products}
-            onClose={() => setSelectedDate(null)}
-          />
+            {/* 월별 캘린더 */}
+            <MonthCalendar
+              currentMonth={currentMonth}
+              dayLogs={dayLogs}
+              selectedDate={selectedDate}
+              onSelectDate={handleSelectDate}
+              onPrevMonth={() => {
+                setCurrentMonth((m) => subMonths(m, 1));
+                setSelectedDate(null);
+              }}
+              onNextMonth={() => {
+                setCurrentMonth((m) => addMonths(m, 1));
+                setSelectedDate(null);
+              }}
+            />
+
+            {/* 선택된 날짜 상세 or 빈 상태 */}
+            {selectedDate ? (
+              <DayDetail
+                dateStr={selectedDate}
+                dayLog={selectedDayLog}
+                products={products}
+                onClose={() => setSelectedDate(null)}
+              />
+            ) : (
+              dayLogs.size === 0 && (
+                <EmptyState isLoading={dataLoading || authLoading} />
+              )
+            )}
+          </>
         ) : (
-          // 로그가 아예 없을 때만 빈 상태 표시
-          dayLogs.size === 0 && (
-            <EmptyState isLoading={dataLoading || authLoading} />
-          )
+          /* LIBRARY 탭 */
+          <div style={{ padding: '16px 16px 0' }}>
+            {/* 필터 필 */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+              {(['makeup', 'lookbook'] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setLibFilter(f)}
+                  style={{
+                    height: 28,
+                    padding: '0 14px',
+                    borderRadius: 9999,
+                    border: `1.5px solid ${libFilter === f ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
+                    background: libFilter === f ? '#0C0C0A' : 'transparent',
+                    fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: '.04em',
+                    color: libFilter === f ? '#fff' : '#9A9490',
+                    cursor: 'pointer',
+                    transition: 'all .15s',
+                  }}
+                >
+                  {f === 'makeup' ? 'Makeup' : 'Lookbook'}
+                </button>
+              ))}
+            </div>
+
+            {/* 카드 목록 */}
+            {(libFilter === 'makeup' ? makeupItems : lookItems).length === 0 ? (
+              <div style={{ padding: '48px 20px', textAlign: 'center', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#F4F4F0' }}>
+                <div style={{ fontSize: 24, opacity: 0.3, marginBottom: 10 }}>◎</div>
+                <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700, color: '#9A9490' }}>
+                  {libFilter === 'makeup' ? '메이크업 아이템이 없어요' : '룩북 아이템이 없어요'}
+                </div>
+                <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, color: '#9A9490', marginTop: 6, lineHeight: 1.6 }}>
+                  Setup → {libFilter === 'makeup' ? '#MAKEUP' : '#LOOKBOOK'}에서 추가하세요
+                </div>
+              </div>
+            ) : (
+              (libFilter === 'makeup' ? makeupItems : lookItems).map((item) => (
+                <LibraryCard key={item.id} item={item} products={products} />
+              ))
+            )}
+          </div>
         )}
 
       </div>
