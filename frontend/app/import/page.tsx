@@ -44,7 +44,8 @@ type ParsedPhase = {
 
 type ParsedRoutine = {
   time: 'morning' | 'evening';
-  label: string;               // 예: "아침1", "저녁2"
+  label: string;               // 예: "아침은", "하루저녁은"
+  dayNumber?: number;          // 1 = 기본/첫째날, 2 = 교대/둘째날
   phases: ParsedPhase[];
 };
 
@@ -246,7 +247,7 @@ function InputSection({
       <textarea
         value={text}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={`예시:\n20250712 1차\n아침1: 물마스크 -10분 뒤 러빙하여 흡수\n       델마크림+델마크림마스크를 섞어 바른 뒤\n저녁1: 토너 -가볍게 패팅`}
+        placeholder={`예시:\n20260522 20차\n아침은\n구해줘앰플에 새살세럼 섞어서 얇게 펴바르고- 인투토너-인투앰플-인투쉘+인투베일을 섞어서 얇게 펴바르고-델마크림으로 마무리\n\n하루아침은\n버터토너- 델마세럼- 라이지세럼으로 마무리\n\n저녁은\n토너- 세럼- 크림으로 마무리\n\n하루저녁은\n버터토너- 톡스세럼- 인미리코드팩 20분뒤에띄어내고-오션크림으로 마무리`}
         rows={8}
         style={{
           width: '100%',
@@ -348,8 +349,13 @@ function ResultSection({
   onSave: () => void;
   isSaving: boolean;
 }) {
+  // time + dayNumber별로 그룹화
   const morningRoutines = result.routines.filter((r) => r.time === 'morning');
   const eveningRoutines = result.routines.filter((r) => r.time === 'evening');
+  const maxDays = Math.max(
+    ...result.routines.map((r) => r.dayNumber ?? 1),
+    1
+  );
 
   // 매핑된 제품 수 / 전체 제품 수
   const totalProducts = productMatches.size;
@@ -398,12 +404,14 @@ function ResultSection({
         <div style={{ fontSize: 28 }}>✨</div>
       </div>
 
-      {/* 루틴 카드 목록 */}
-      {[
-        { routines: morningRoutines, label: '아침 루틴', icon: '☀️', slot: 'morning' },
-        { routines: eveningRoutines, label: '나이트 루틴', icon: '🌙', slot: 'evening' },
-      ].map(({ routines, label, icon, slot }) =>
-        routines.length === 0 ? null : (
+      {/* 루틴 카드 목록 — Day 1 / Day 2 분리 표시 */}
+      {Array.from({ length: maxDays }, (_, i) => i + 1).flatMap((dayNum) =>
+        [
+          { routines: morningRoutines, label: `아침 루틴${maxDays > 1 ? ` (Day ${dayNum})` : ''}`, icon: '☀️', slot: 'morning' },
+          { routines: eveningRoutines, label: `나이트 루틴${maxDays > 1 ? ` (Day ${dayNum})` : ''}`, icon: '🌙', slot: 'evening' },
+        ].map(({ routines, label, icon, slot }) => {
+          const dayRoutines = routines.filter((r) => (r.dayNumber ?? 1) === dayNum);
+          return dayRoutines.length === 0 ? null : (
           <div
             key={slot}
             style={{
@@ -446,13 +454,13 @@ function ResultSection({
                   color: '#9A9490',
                 }}
               >
-                {routines.reduce((acc, r) => acc + r.phases.length, 0)}단계
+                {dayRoutines.reduce((acc, r) => acc + r.phases.length, 0)}단계
               </span>
             </div>
 
             {/* 루틴 → 단계 목록 */}
             <div style={{ padding: '10px 16px 14px' }}>
-              {routines.map((routine) =>
+              {dayRoutines.map((routine) =>
                 routine.phases.map((phase) => (
                   <div
                     key={`${routine.label}-${phase.order}`}
@@ -546,7 +554,8 @@ function ResultSection({
               )}
             </div>
           </div>
-        )
+          );
+        })
       )}
 
       {/* 매핑 안 된 제품 안내 */}
@@ -718,10 +727,10 @@ export default function ImportPage() {
         | { type: 'desc'; text: string }
         | { type: 'plus' };
 
-      const buildItems = (routines: typeof parsedResult.routines, time: 'morning' | 'evening'): RoutineItemLocal[] => {
+      // 단일 루틴 목록 → 칩 스트립 items 배열
+      const buildItemsFromList = (routineList: typeof parsedResult.routines): RoutineItemLocal[] => {
         const items: RoutineItemLocal[] = [];
-        const filtered = routines.filter((r) => r.time === time);
-        filtered.forEach((routine) => {
+        routineList.forEach((routine) => {
           routine.phases.forEach((phase, pIdx) => {
             phase.products.forEach((name) => {
               const matched = productMatches.get(name)?.matched;
@@ -738,6 +747,29 @@ export default function ImportPage() {
         return items;
       };
 
+      // time별로 dayNumber 그룹화 → days[] 배열 생성
+      const buildDays = (time: 'morning' | 'evening') => {
+        const filtered = parsedResult.routines.filter((r) => r.time === time);
+        // dayNumber 기준으로 그룹화
+        const byDay = new Map<number, typeof filtered>();
+        filtered.forEach((r) => {
+          const dn = r.dayNumber ?? 1;
+          if (!byDay.has(dn)) byDay.set(dn, []);
+          byDay.get(dn)!.push(r);
+        });
+        if (byDay.size === 0) {
+          return [{ id: 1, items: [], tipItems: [], expertTip: '' }];
+        }
+        return Array.from(byDay.entries())
+          .sort(([a], [b]) => a - b)
+          .map(([dayNum, list]) => ({
+            id: dayNum,
+            items: buildItemsFromList(list),
+            tipItems: [],
+            expertTip: '',
+          }));
+      };
+
       const now = new Date().toISOString();
 
       const startDate = parsedResult.date ?? now.slice(0, 10);
@@ -752,8 +784,8 @@ export default function ImportPage() {
         endDate,
         morningTime: '07:30',
         eveningTime: '22:00',
-        morning: { days: [{ id: 1, items: buildItems(parsedResult.routines, 'morning'), tipItems: [], expertTip: '' }] },
-        evening: { days: [{ id: 1, items: buildItems(parsedResult.routines, 'evening'), tipItems: [], expertTip: '' }] },
+        morning: { days: buildDays('morning') },
+        evening: { days: buildDays('evening') },
         importedByAI: true,
         createdAt: now,
         updatedAt: now,
