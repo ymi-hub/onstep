@@ -34,6 +34,7 @@ import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot } from '@/types/routine';
 import ExpertTipField, { buildExpertTipHtml } from '@/components/ExpertTipField';
 import SearchBar from '@/components/SearchBar';
+import SubPageHeader from '@/components/SubPageHeader';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
@@ -203,64 +204,7 @@ function migrateSession(raw: Record<string, unknown>, id: string): Session {
   };
 }
 
-// ─── 공통 앱바 ───────────────────────────────────────────────────────────────
-function Appbar({
-  left,
-  center,
-  right,
-}: {
-  left?: React.ReactNode;
-  center?: React.ReactNode;
-  right?: React.ReactNode;
-}) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 16px',
-        height: 56,
-        background: 'rgba(250,250,248,.92)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(12,12,10,.07)',
-        flexShrink: 0,
-      }}
-    >
-      <div style={{ minWidth: 48, display: 'flex', alignItems: 'center' }}>{left}</div>
-      <div
-        style={{
-          fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-          fontSize: 14,
-          fontWeight: 700,
-          letterSpacing: '.04em',
-          textTransform: 'uppercase',
-          color: '#0C0C0A',
-        }}
-      >
-        {center}
-      </div>
-      <div style={{ minWidth: 48, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-        {right}
-      </div>
-    </div>
-  );
-}
-
-function BackButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#0C0C0A', display: 'flex', alignItems: 'center' }}
-      aria-label="뒤로"
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M19 12H5M12 5l-7 7 7 7" />
-      </svg>
-    </button>
-  );
-}
+// Appbar / BackButton 제거됨 → SubPageHeader 공통 컴포넌트로 대체
 
 // ─── HUB 뷰 ─────────────────────────────────────────────────────────────────
 function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOpenLookbook }: {
@@ -463,7 +407,7 @@ function SessionsView({
 
   return (
     <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
-      <Appbar left={<BackButton onClick={onBack} />} center="ROUTINE SETUP" />
+      <SubPageHeader title="ROUTINE SETUP" onClose={onBack} />
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* 헤더 */}
         <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
@@ -986,16 +930,8 @@ function EditorView({
 
   return (
     <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 200, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
-      {/* 에디터 앱바 */}
-      {/* 에디터 앱바 — "스킨케어 루틴 설정" 고정 타이틀 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', height: 56, background: 'rgba(250,250,248,.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
-        <BackButton onClick={onBack} />
-        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: '#0C0C0A' }}>
-          스킨케어 루틴 설정
-        </div>
-        {/* 저장 버튼은 아래 세션 정보 헤더로 이동 */}
-        <div style={{ minWidth: 48 }} />
-      </div>
+      {/* 에디터 헤더 — SubPageHeader 공통 스타일 */}
+      <SubPageHeader title="ROUTINE EDIT" onClose={onBack} />
 
       {/* 본문 스크롤 */}
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 24 }}>
@@ -1299,11 +1235,7 @@ function TrackerView({
 
   return (
     <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', height: 56, background: 'rgba(250,250,248,.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#0C0C0A', fontSize: 18, fontWeight: 400, lineHeight: 1 }}>✕</button>
-        <div style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' as const, padding: '5px 12px', borderRadius: 9999 }}>EDIT MODE</div>
-        <div style={{ width: 44 }} />
-      </div>
+      <SubPageHeader title="HABITS" onClose={onBack} />
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* Hero */}
@@ -1730,7 +1662,7 @@ function CtPanel({
 
   return (
     <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
-      <Appbar left={<BackButton onClick={onBack} />} center={m.panel.toUpperCase()} />
+      <SubPageHeader title={m.panel.toUpperCase()} onClose={onBack} />
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <div style={{ padding: '28px 20px 20px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
@@ -1739,10 +1671,8 @@ function CtPanel({
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 8, lineHeight: 1.5 }}>{m.heroSub}</div>
         </div>
 
-        {/* 검색 바 */}
-        {ctItems.length > 0 && (
-          <SearchBar value={ctSearch} onChange={setCtSearch} placeholder={`${m.heroTitle} 이름 검색...`} />
-        )}
+        {/* 검색 바 — 아이템 없어도 항상 표시 */}
+        <SearchBar value={ctSearch} onChange={setCtSearch} placeholder={`${m.heroTitle} 이름 검색...`} />
 
         {ctItems.length > 0 && (
           <div style={{ padding: '8px 20px 0', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
