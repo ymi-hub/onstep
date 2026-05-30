@@ -397,6 +397,11 @@ function SessionsView({
     return day.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
   }
 
+  // TIP 섹션에서 제품만 추출
+  function dayTipProds(day: SlotDay): { type: 'product'; id: string }[] {
+    return day.tipItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
+  }
+
   function toggle(id: string) {
     setExpandedId((prev) => (prev === id ? null : id));
   }
@@ -404,6 +409,7 @@ function SessionsView({
   // 단일 DAY 열 렌더링
   function DayCol({ day, isRight }: { day: SlotDay; isRight: boolean }) {
     const prods = dayProds(day);
+    const tipProds = dayTipProds(day);
     return (
       <div style={{
         flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4,
@@ -419,7 +425,7 @@ function SessionsView({
         <div style={{ fontFamily: font, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textAlign: 'right', marginBottom: 4 }}>
           {prods.length} STEPS
         </div>
-        {/* 제품명 목록 */}
+        {/* 메인 제품 목록 */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {prods.map((item, idx) => (
             <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#0C0C0A', padding: '4px 6px', background: '#FAFAF8', border: '1px solid rgba(12,12,10,.07)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
@@ -427,6 +433,17 @@ function SessionsView({
             </div>
           ))}
         </div>
+        {/* TIP 제품 (있을 때만) */}
+        {tipProds.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
+            <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#B8A08A' }}>TIP</div>
+            {tipProds.map((item, idx) => (
+              <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#7A6A58', padding: '3px 6px', background: '#FDF8F3', border: '1px solid rgba(184,160,138,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                {pName(item.id)}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
@@ -462,6 +479,17 @@ function SessionsView({
                 {pName(item.id)}
               </div>
             ))}
+            {/* TIP 제품 (있을 때만) */}
+            {dayTipProds(firstRow[0]).length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
+                <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#B8A08A' }}>TIP</div>
+                {dayTipProds(firstRow[0]).map((item, idx) => (
+                  <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#7A6A58', padding: '3px 6px', background: '#FDF8F3', border: '1px solid rgba(184,160,138,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                    {pName(item.id)}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           // 2개 이상: 좌우 비교
@@ -511,14 +539,38 @@ function SessionsView({
                 &ldquo;{search}&rdquo; 검색 결과 없음
               </div>
             ) : null}
-            {filteredSessions.map((s) => {
+            {filteredSessions.map((s, idx) => {
               const isExpanded = expandedId === s.id;
               const isNow = isActiveNow(s);
               const morningCount = slotProds(s.morning).length;
               const eveningCount = slotProds(s.evening).length;
 
+              // 년도 구분 헤더: startDate 기준, 없으면 createdAt 사용
+              const year = s.startDate ? s.startDate.slice(0, 4)
+                : (s.createdAt || '').slice(0, 4) || '?';
+              const prevYear = idx > 0
+                ? (filteredSessions[idx - 1].startDate
+                    ? filteredSessions[idx - 1].startDate.slice(0, 4)
+                    : (filteredSessions[idx - 1].createdAt || '').slice(0, 4) || '?')
+                : null;
+              const showYearHeader = year !== prevYear;
+
               return (
                 <div key={s.id}>
+                  {showYearHeader && (
+                    <div style={{
+                      padding: '14px 16px 6px',
+                      fontFamily: font,
+                      fontSize: 10,
+                      fontWeight: 800,
+                      letterSpacing: '.16em',
+                      color: '#BCBAB6',
+                      textTransform: 'uppercase' as const,
+                      borderTop: idx > 0 ? '1.5px solid rgba(12,12,10,.07)' : 'none',
+                    }}>
+                      {year}
+                    </div>
+                  )}
                   {/* 세션 행 — 클릭하면 드롭다운 열림 */}
                   <div
                     onClick={() => toggle(s.id)}
