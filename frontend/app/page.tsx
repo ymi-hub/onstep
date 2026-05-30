@@ -627,9 +627,19 @@ function FlowCard({
             })}
           </div>
 
+          {/* DAY 배지 + 제품 수 — 오른쪽 정렬, EXPERT TIP 바로 위 */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingTop: 8 }}>
+            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 400, color: '#BCBAB6' }}>
+              {slot.items.filter(i => i.type === 'product').length}개 제품
+            </span>
+            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase' as const, background: '#0C0C0A', color: '#A6D900', padding: '3px 10px', borderRadius: 9999 }}>
+              Day {todayDayNumber}
+            </span>
+          </div>
+
           {/* EXPERT TIP */}
           {slot.expertTip && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 16, marginTop: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 16, marginTop: 8, marginBottom: 12 }}>
               <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
                 EXPERT TIP
@@ -639,16 +649,6 @@ function FlowCard({
               </div>
             </div>
           )}
-
-          {/* ③ DAY 배지 + 제품 수 — 칩 하단 보조 정보 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0 12px' }}>
-            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', background: '#0C0C0A', color: '#A6D900', padding: '3px 10px', borderRadius: 9999 }}>
-              Day {todayDayNumber}
-            </span>
-            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 400, color: '#BCBAB6' }}>
-              {slot.items.filter(i => i.type === 'product').length}개 제품
-            </span>
-          </div>
         </div>
       ) : (
         <div style={{ padding: '28px 20px', textAlign: 'center', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 20, lineHeight: 1.6, margin: '16px' }}>
