@@ -417,40 +417,55 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
 }
 
 // ─── 구 box.html catKey → 한국어 카테고리 매핑 ─────────────────────────────
-// resolveCategory()에서 소문자 변환 후 재조회하므로 소문자 키만 있으면 충분
 const CAT_KEY_MAP: Record<string, string> = {
   // 스킨케어
   toner: '토너', essence: '에센스', serum: '세럼', ampoule: '앰플',
-  cream: '크림', lotion: '로션', cleanser: '클렌저', suncare: '선크림',
+  cream: '크림', lotion: '로션', emulsion: '로션', amulsion: '로션',
+  cleanser: '클렌저', suncare: '선크림', sunscreen: '선크림', spf: '선크림',
   mask: '마스크팩', eye: '아이크림', mist: '미스트', oil: '오일',
-  peeling: '필링', exfoliant: '필링', scrub: '스크럽',
+  peeling: '필링', exfoliant: '필링', scrub: '스크럽', toner_pad: '토너',
   // 메이크업
-  foundation: '파운데이션', lip: '립', eye_makeup: '아이',
-  blush: '블러셔', concealer: '컨실러', primer: '프라이머',
-  powder: '파우더', highlighter: '하이라이터', contour: '컨투어',
+  foundation: '파운데이션', lip: '립', eye_makeup: '아이', blush: '블러셔',
+  concealer: '컨실러', primer: '프라이머', powder: '파우더',
+  highlighter: '하이라이터', contour: '컨투어',
+  // 패션/악세사리
+  acc: '기타', accessory: '기타', jewelry: '기타',
   // 영문 전체 표기 (소문자)
   'eye cream': '아이크림', 'sun care': '선크림', 'sun cream': '선크림',
-  'sunscreen': '선크림', 'spf': '선크림',
   'mask pack': '마스크팩', 'sheet mask': '마스크팩',
   'lip balm': '립', 'lip gloss': '립', 'lip tint': '립',
   'face wash': '클렌저', 'foam cleanser': '클렌저', 'cleansing': '클렌저',
-  'moisturizer': '크림', 'moisturizing': '크림', 'emulsion': '로션',
+  'moisturizer': '크림', 'moisturizing': '크림',
 };
 
-// 저장된 category 값을 한국어로 변환 (대소문자 무관)
-// 1) CAT_KEY_MAP 직접 매칭  2) 소문자 변환 후 매칭  3) 원본 반환
+// 저장된 category 값을 한국어로 변환
+// 처리 순서:
+//   1) CAT_KEY_MAP 직접 매칭
+//   2) 소문자 변환 후 CAT_KEY_MAP 매칭
+//   3) 구 box.html 자동생성 ID 패턴 "c_keyword_숫자" → keyword 추출 후 매칭
+//   4) 변환 불가 → 원본 반환
 function resolveCategory(cat: string | undefined | null): string {
   if (!cat) return '';
-  return CAT_KEY_MAP[cat]
-    || CAT_KEY_MAP[cat.toLowerCase()]
-    || cat;
+
+  // 1·2) 직접/소문자 매칭
+  if (CAT_KEY_MAP[cat]) return CAT_KEY_MAP[cat];
+  if (CAT_KEY_MAP[cat.toLowerCase()]) return CAT_KEY_MAP[cat.toLowerCase()];
+
+  // 3) 자동생성 ID 패턴: c_keyword_12345
+  const idMatch = cat.match(/^c_([a-z]+)_\d+$/i);
+  if (idMatch) {
+    const keyword = idMatch[1].toLowerCase();
+    return CAT_KEY_MAP[keyword] || keyword; // 매핑 없으면 keyword 자체 반환
+  }
+
+  return cat;
 }
 
 // 모든 제품의 category를 한국어로 일괄 변환 (v3: null 초기화 제거, ampoule 등 추가)
 async function migrateCategoryKeys(uid: string, boxConfig?: BoxConfig): Promise<void> {
   console.log('[OnStep] migrateCategoryKeys 진입, uid:', uid);
   if (!db) { console.log('[OnStep] db 없음, 종료'); return; }
-  const flagKey = `onstep_cat_ko_v3_${uid}`;
+  const flagKey = `onstep_cat_ko_v4_${uid}`;
   const alreadyDone = typeof localStorage !== 'undefined' && localStorage.getItem(flagKey);
   console.log('[OnStep] 플래그 상태:', flagKey, '=', alreadyDone);
   if (alreadyDone) return;
