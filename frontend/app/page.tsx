@@ -31,7 +31,7 @@ import {
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
   onAuthStateChanged,
-  signInWithPopup,
+  signInWithRedirect,
   GoogleAuthProvider,
   type User,
 } from 'firebase/auth';
@@ -1458,7 +1458,7 @@ function OOTDRecordSheet({
 
       {/* 시트 — 앱 컨테이너(430px) 폭에 맞춤 */}
       <div
-        style={{ position: 'fixed', bottom: 0, left: '50%', transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)', width: '100%', maxWidth: 430, background: '#fff', borderRadius: '24px 24px 0 0', padding: '24px 20px 40px', zIndex: 101, transition: 'transform .35s cubic-bezier(.4,0,.2,1)', maxHeight: '85vh', overflowY: 'auto' }}
+        style={{ position: 'fixed', bottom: 0, left: '50%', transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)', width: '100%', maxWidth: 430, background: '#fff', borderRadius: '24px 24px 0 0', padding: '24px 20px calc(env(safe-area-inset-bottom, 0px) + 40px)', zIndex: 101, transition: 'transform .35s cubic-bezier(.4,0,.2,1)', maxHeight: '85vh', overflowY: 'auto' }}
       >
         {/* 핸들 */}
         <div style={{ width: 32, height: 4, background: '#E5E7EB', borderRadius: 9999, margin: '0 auto 20px' }} />
@@ -1971,7 +1971,7 @@ export default function TodayPage() {
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
     } catch (err) {
       console.error('[OnStep] 로그인 실패:', err);
     }

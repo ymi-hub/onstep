@@ -54,18 +54,25 @@ export default function SearchBar({ value, onChange, placeholder = '검색...' }
         />
 
         {/* 지우기 버튼 */}
+        {/* 💡 시각적 원은 18px이지만 실제 탭 영역은 44×44 — 절대 위치라 레이아웃 영향 없음 */}
         {value && (
           <button
             onClick={() => onChange('')}
             style={{
-              position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-              width: 18, height: 18, borderRadius: '50%',
-              background: 'rgba(12,12,10,.18)', color: '#fff',
-              border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 700,
+              position: 'absolute', right: -3, top: '50%', transform: 'translateY(-50%)',
+              width: 44, height: 44,
+              background: 'transparent', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
             aria-label="검색어 지우기"
-          >✕</button>
+          >
+            <span style={{
+              width: 18, height: 18, borderRadius: '50%',
+              background: 'rgba(12,12,10,.18)', color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 10, fontWeight: 700, flexShrink: 0,
+            }}>✕</span>
+          </button>
         )}
       </div>
     </div>

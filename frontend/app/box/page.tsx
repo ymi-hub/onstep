@@ -604,6 +604,48 @@ async function migrateOldBoxAssets(uid: string, force = false): Promise<{ count:
   }
 }
 
+// ─── 이미지 리사이즈 유틸 ────────────────────────────────────────────────────
+// 업로드 전 Canvas로 클라이언트에서 리사이즈 → Firebase Storage 트래픽 절감
+// 💡 maxPx: 긴 변 기준 최대 픽셀 (800px 이상 사진은 줄여서 저장)
+//    quality: JPEG 압축률 0~1 (0.82 ≈ 용량/화질 균형)
+function resizeImage(file: File, maxPx = 800, quality = 0.82): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+
+      const { naturalWidth: w, naturalHeight: h } = img;
+      // 이미 충분히 작으면 그대로 반환
+      if (w <= maxPx && h <= maxPx) { resolve(file); return; }
+
+      const scale = maxPx / Math.max(w, h);
+      const tw = Math.round(w * scale);
+      const th = Math.round(h * scale);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = tw;
+      canvas.height = th;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, tw, th);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { reject(new Error('Canvas toBlob 실패')); return; }
+          // 확장자 .jpg로 통일 (JPEG 파일명)
+          const name = file.name.replace(/\.[^.]+$/, '.jpg');
+          resolve(new File([blob], name, { type: 'image/jpeg' }));
+        },
+        'image/jpeg',
+        quality,
+      );
+    };
+
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('이미지 로드 실패')); };
+    img.src = objectUrl;
+  });
+}
+
 // ─── 메인 BOX 페이지 ─────────────────────────────────────────────────────────
 export default function BoxPage() {
   // ── 인증 상태 ──
@@ -1549,7 +1591,7 @@ function ManageSheet({
         </div>
 
         {/* 스크롤 영역 */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 40px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px calc(env(safe-area-inset-bottom, 0px) + 40px)' }}>
 
           {/* ── VIEW: 도메인 목록 ── */}
           {view === 'domains' && (
@@ -1749,20 +1791,33 @@ function AddProductPage({
   const cats = domainCfg ? getDomainCats(domainCfg, subType) : [];
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 파일 → 폼 상태 적용 (파일 선택 + 붙여넣기 공통)
-  function applyImageFile(file: File) {
-    setForm((f) => ({ ...f, imageFile: file }));
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setForm((f) => ({ ...f, imagePreview: ev.target?.result as string }));
-    };
-    reader.readAsDataURL(file);
+  // 파일 → 리사이즈 → 폼 상태 적용 (파일 선택 + 붙여넣기 공통)
+  // 💡 resizeImage()로 800px 이하로 줄인 뒤 저장 → Storage 절감
+  async function applyImageFile(file: File) {
+    try {
+      const resized = await resizeImage(file);
+      setForm((f) => ({ ...f, imageFile: resized }));
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setForm((f) => ({ ...f, imagePreview: ev.target?.result as string }));
+      };
+      reader.readAsDataURL(resized);
+    } catch (err) {
+      // 리사이즈 실패 시 원본 그대로 사용
+      console.warn('[OnStep] 이미지 리사이즈 실패, 원본 사용:', err);
+      setForm((f) => ({ ...f, imageFile: file }));
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setForm((f) => ({ ...f, imagePreview: ev.target?.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   // 파일 input에서 선택
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) applyImageFile(file);
+    if (file) void applyImageFile(file);
   }
 
   // Ctrl/Cmd + V 클립보드 이미지 붙여넣기 (폼이 열려 있을 때만)
@@ -1775,7 +1830,7 @@ function AddProductPage({
         if (item.type.startsWith('image/')) {
           const blob = item.getAsFile();
           if (blob) {
-            applyImageFile(new File([blob], 'pasted-image.png', { type: blob.type }));
+            void applyImageFile(new File([blob], 'pasted-image.png', { type: blob.type }));
             e.preventDefault();
             break;
           }

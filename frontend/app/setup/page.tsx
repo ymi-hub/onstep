@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   onAuthStateChanged,
-  signInWithPopup,
+  signInWithRedirect,
   GoogleAuthProvider,
   signOut,
   type User,
@@ -1043,7 +1043,7 @@ function EditorView({
                 })
               )}
             </div>
-            <div style={{ padding: '12px 16px 32px', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
+            <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 32px)', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
               <button onClick={confirmPicker} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료{pickerSelected.size > 0 ? ` (${pickerSelected.size}개)` : ''}</button>
             </div>
           </div>
@@ -1343,7 +1343,7 @@ function TrackerView({
       {editHabit && (
         <>
           <div onClick={() => setEditHabit(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 310 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px 48px', maxHeight: '88%', overflowY: 'auto' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 48px)', maxHeight: '88%', overflowY: 'auto' }}>
             <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>습관 편집</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1749,7 +1749,7 @@ function CtPanel({
       {sheetOpen && (
         <>
           <div onClick={closeSheet} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 120 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 130, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 40, boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 130, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 40px)', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
             <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
               <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
@@ -1994,7 +1994,7 @@ function CtPanel({
                     );
                   })}
                 </div>
-                <div style={{ padding: '12px 16px 32px', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
+                <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 32px)', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
                   <button onClick={confirmPicker} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료{pickerSelected.size > 0 ? ` (${pickerSelected.size}개)` : ''}</button>
                 </div>
               </div>
@@ -2130,7 +2130,7 @@ export default function SetupPage() {
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
     }
     catch (err) { console.error('[OnStep] 로그인 실패:', err); }
   }

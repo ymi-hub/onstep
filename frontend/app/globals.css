@@ -50,6 +50,13 @@ body {
   font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* iOS Safari 스크롤 바운스(고무줄 효과) 방지 — body 자체는 스크롤 안 되게 */
+  overscroll-behavior: none;
+}
+
+/* main 스크롤 컨테이너 — 페이지 내용만 바운스 없이 스크롤 */
+main {
+  overscroll-behavior-y: contain;
 }
 
 /* ── 모바일 입력 확대 방지 ── */
