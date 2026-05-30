@@ -475,32 +475,14 @@ function resolveCategory(cat: string | undefined | null): string {
 }
 
 // 모든 제품 category를 현재 boxConfig 기준으로 정리
-// - Firestore에서 boxConfig를 직접 읽어 validCats 구성 (React state 타이밍 무관)
-// - resolveCategory 변환 후 validCats에 없으면 null → 중복·충돌 방지
+// 영문 auto-ID / 영문 키워드 → 한국어 변환만 수행
+// 알 수 없는 값은 절대 건드리지 않음 (null 초기화 없음)
 async function migrateCategoryKeys(uid: string): Promise<void> {
   if (!db) return;
-  const flagKey = `onstep_cat_ko_v8_${uid}`;
+  const flagKey = `onstep_cat_ko_v9_${uid}`;
   if (typeof localStorage !== 'undefined' && localStorage.getItem(flagKey)) return;
 
   try {
-    // ① boxConfig 직접 로드 (React state와 무관)
-    const cfgSnap = await getDoc(doc(db, 'users', uid, 'settings', 'boxConfig'));
-    const cfg: BoxConfig = cfgSnap.exists()
-      ? (cfgSnap.data() as BoxConfig)
-      : DEFAULT_BOX_CONFIG;
-
-    // ② 현재 유효한 카테고리 전체 목록
-    const validCats = new Set<string>();
-    for (const domain of cfg.domains) {
-      if (domain.subTypes?.length) {
-        domain.subTypes.forEach(st => st.cats.forEach(c => validCats.add(c)));
-      } else {
-        (domain.cats ?? []).forEach(c => validCats.add(c));
-      }
-    }
-    console.log('[OnStep] 유효 카테고리:', [...validCats]);
-
-    // ③ 제품 전체 순회
     const snap = await getDocs(collection(db, 'users', uid, 'products'));
     const patches: Promise<void>[] = [];
 
@@ -508,25 +490,14 @@ async function migrateCategoryKeys(uid: string): Promise<void> {
       const cat = d.data().category as string | undefined | null;
       if (!cat) continue;
 
-      // 이미 유효한 카테고리 → 스킵
-      if (validCats.has(cat)) continue;
-
-      // CAT_KEY_MAP / auto-ID 변환 시도
       const converted = resolveCategory(cat);
-
-      if (converted && validCats.has(converted)) {
-        // 변환 결과가 유효 카테고리에 있음 → 업데이트
+      // 변환된 경우만 업데이트 — 원본과 다르고 빈 문자열이 아닐 때
+      if (converted && converted !== cat) {
         patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: converted }));
-        console.log('[OnStep] 변환:', cat, '→', converted);
-      } else {
-        // 변환해도 유효하지 않음 → null (카드 배지 미표시, 수동 재선택)
-        patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: null }));
-        console.log('[OnStep] 제거:', cat, '→ null');
       }
     }
 
     await Promise.all(patches);
-    console.log('[OnStep] 카테고리 정리 완료, 처리 건수:', patches.length);
     if (typeof localStorage !== 'undefined') localStorage.setItem(flagKey, 'done');
   } catch (err) {
     console.error('[OnStep] 카테고리 마이그레이션 오류:', err);
