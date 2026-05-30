@@ -609,7 +609,7 @@ function FlowCard({
                         </div>
                       )}
                     </div>
-                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%', textAlign: 'center' as const }}>
                       {p?.name ?? '?'}
                     </div>
                   </div>
@@ -635,7 +635,7 @@ function FlowCard({
           </div>
 
           {/* DAY 배지 + 제품 수 — 오른쪽 정렬, EXPERT TIP 바로 위 */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingTop: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingTop: 14 }}>
             <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 400, color: '#BCBAB6' }}>
               {slot.items.filter(i => i.type === 'product').length}개 제품
             </span>
@@ -664,7 +664,7 @@ function FlowCard({
       )}
 
       {/* ④ 체크 버튼 — 제품이 없으면 비활성 */}
-      <div style={{ padding: '0 16px 14px' }}>
+      <div style={{ padding: '12px 16px 14px' }}>
         {(() => {
           const hasProducts = slot.items.some(i => i.type === 'product');
           return (
@@ -1081,8 +1081,8 @@ function OOTDSection({
                           : <span style={{ fontSize: 24, opacity: 0.3 }}>👗</span>
                         }
                       </div>
-                      <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? '—'}</div>
-                      {p?.brand && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.brand}</div>}
+                      <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>{p?.name ?? '—'}</div>
+                      {p?.brand && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>{p.brand}</div>}
                     </div>
                   );
                 })}
@@ -1187,7 +1187,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               : <span style={{ fontSize: 24, opacity: 0.4 }}>🧴</span>
             }
           </div>
-          <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>
+          <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%', textAlign: 'center' as const }}>
             {p?.name ?? '?'}
           </div>
         </div>
@@ -1264,7 +1264,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
 
             {/* EXPERT TIP */}
             {item.expertTip && (
-              <div style={{ padding: '0 16px 12px' }}>
+              <div style={{ padding: '8px 16px 12px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 16 }}>
                   <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
@@ -1353,12 +1353,12 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                           }
                         </div>
                         {/* 제품명 (.ed-prod-name) */}
-                        <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>
+                        <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%', textAlign: 'center' as const }}>
                           {p?.name ?? '—'}
                         </div>
                         {/* 브랜드 (.ed-prod-brand) */}
                         {p?.brand && (
-                          <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                          <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>
                             {p.brand}
                           </div>
                         )}
@@ -1371,7 +1371,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
 
               {/* Expert tip */}
               {item.expertTip && (
-                <div style={{ padding: '0 16px 14px' }}>
+                <div style={{ padding: '8px 16px 14px' }}>
                   <div style={{ padding: '12px 14px', background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 14 }}>
                     <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#4E7D00', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
                       <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>

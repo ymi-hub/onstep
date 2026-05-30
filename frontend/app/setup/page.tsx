@@ -294,8 +294,8 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
       { id: 'look', badge: '#LOOKBOOK', title: 'PLANNING', sub: 'QUARTERLY VISION', cta: 'Curate Days →', bg: 'linear-gradient(135deg,#fff0f5 0%,#ffc0d0 100%)', emoji: '👗', onClick: onOpenLookbook, href: undefined },
     ],
     right: [
-      { id: 'makeup', badge: '#MAKEUP', title: 'STRATEGY', sub: 'IDENTITY FRAMEWORK', cta: 'Reconstruct →', bg: 'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)', emoji: '💄', onClick: onOpenMakeup, href: undefined },
       { id: 'care', badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS', cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare, href: undefined },
+      { id: 'makeup', badge: '#MAKEUP', title: 'STRATEGY', sub: 'IDENTITY FRAMEWORK', cta: 'Reconstruct →', bg: 'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)', emoji: '💄', onClick: onOpenMakeup, href: undefined },
     ],
   };
 
