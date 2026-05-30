@@ -39,3 +39,10 @@ npm-debug.log*
 # Claude & Firebase cache
 .claude/
 .firebase/
+
+# 서비스 계정 키 — 절대 GitHub에 올리면 안 됨
+serviceAccountKey.json
+*serviceAccount*.json
+
+# Firestore 백업 파일
+backups/
