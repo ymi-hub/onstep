@@ -475,35 +475,6 @@ function resolveCategory(cat: string | undefined | null): string {
 }
 
 // 모든 제품 category를 현재 boxConfig 기준으로 정리
-// 영문 auto-ID / 영문 키워드 → 한국어 변환만 수행
-// 알 수 없는 값은 절대 건드리지 않음 (null 초기화 없음)
-async function migrateCategoryKeys(uid: string): Promise<void> {
-  if (!db) return;
-  const flagKey = `onstep_cat_ko_v9_${uid}`;
-  if (typeof localStorage !== 'undefined' && localStorage.getItem(flagKey)) return;
-
-  try {
-    const snap = await getDocs(collection(db, 'users', uid, 'products'));
-    const patches: Promise<void>[] = [];
-
-    for (const d of snap.docs) {
-      const cat = d.data().category as string | undefined | null;
-      if (!cat) continue;
-
-      const converted = resolveCategory(cat);
-      // 변환된 경우만 업데이트 — 원본과 다르고 빈 문자열이 아닐 때
-      if (converted && converted !== cat) {
-        patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: converted }));
-      }
-    }
-
-    await Promise.all(patches);
-    if (typeof localStorage !== 'undefined') localStorage.setItem(flagKey, 'done');
-  } catch (err) {
-    console.error('[OnStep] 카테고리 마이그레이션 오류:', err);
-  }
-}
-
 // 마이그레이션된 제품 중 imageUrl이 없는 항목에 구 box/data.assets의 storageUrl을 채워넣기
 // 제품명으로 매칭 (한 번만 실행, localStorage 플래그로 관리)
 async function syncMissingImages(uid: string): Promise<void> {
@@ -757,13 +728,6 @@ export default function BoxPage() {
     });
   }, [user]);
 
-  // ── 카테고리 한국어 변환 — products 로드 완료 후 별도 실행 ──────────────────
-  // products 의존성: 실제 제품 데이터가 있을 때만 실행
-  useEffect(() => {
-    if (!user || products.length === 0) return;
-    console.log('[OnStep] migrateCategoryKeys 시작, 제품 수:', products.length);
-    migrateCategoryKeys(user.uid);
-  }, [user, products.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 수동 마이그레이션 실행 (버튼 클릭 시)
   async function handleManualMigrate() {
