@@ -27,6 +27,7 @@ import {
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import type { Product } from '@/types/product';
+import { parseRoutineText } from '@/lib/parseRoutine';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
@@ -63,9 +64,7 @@ type ProductMatch = {
 
 const FALLBACK_USER_ID = 'demo-user';
 
-// 개발 환경: /api/parse-routine, 프로덕션: Firebase Function URL
-const PARSE_API_URL =
-  process.env.NEXT_PUBLIC_PARSE_API_URL ?? '/api/parse-routine';
+// parseRoutineText: lib/parseRoutine.ts에서 Gemini 직접 호출
 
 // ─── 유틸 함수 ───────────────────────────────────────────────────────────────
 
@@ -619,24 +618,7 @@ export default function ImportPage() {
     setParsedResult(null);
 
     try {
-      const res = await fetch(PARSE_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: inputText }),
-      });
-
-      const data = await res.json() as { result?: ParsedResult; error?: string };
-
-      if (!res.ok || data.error) {
-        throw new Error(data.error ?? '알 수 없는 오류가 발생했습니다.');
-      }
-
-      if (!data.result) {
-        throw new Error('AI 응답이 비어 있습니다.');
-      }
-
-      const result = data.result;
-      // 제품명 → Box 제품 자동 매핑
+      const result = await parseRoutineText(inputText);
       const matches = buildProductMatches(result.routines, products);
       setParsedResult(result);
       setProductMatches(matches);

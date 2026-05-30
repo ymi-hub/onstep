@@ -44,13 +44,18 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  height: 100dvh;
+}
+
 body {
+  height: 100%;
+  overflow: hidden; /* body 자체 스크롤 차단 — main 안에서만 스크롤 */
   background-color: #E8E6E0;
   color: #0C0C0A;
   font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* iOS Safari 스크롤 바운스(고무줄 효과) 방지 — body 자체는 스크롤 안 되게 */
   overscroll-behavior: none;
 }
 

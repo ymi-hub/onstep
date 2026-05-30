@@ -37,6 +37,7 @@ import ExpertTipField, { buildExpertTipHtml } from '@/components/ExpertTipField'
 import SearchBar from '@/components/SearchBar';
 import SubPageHeader from '@/components/SubPageHeader';
 import PageHeader from '@/components/PageHeader';
+import { parseRoutineText, parseRoutinePhases, type ParsedResult } from '@/lib/parseRoutine';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
@@ -211,6 +212,74 @@ function migrateSession(raw: Record<string, unknown>, id: string): Session {
 // Appbar / BackButton 제거됨 → SubPageHeader 공통 컴포넌트로 대체
 
 // ─── HUB 뷰 ─────────────────────────────────────────────────────────────────
+// ─── Groq 사용량 카드 ─────────────────────────────────────────────────────────
+function GroqUsageSection() {
+  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+  const DAILY_LIMIT = 14400;
+
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    // 동적 import — 서버 렌더 시 localStorage 접근 방지
+    import('@/lib/groqUsage').then(({ getGroqUsage }) => {
+      setCount(getGroqUsage().count);
+    });
+    // 다른 탭/창에서 업데이트 시 반영
+    const onStorage = () => {
+      import('@/lib/groqUsage').then(({ getGroqUsage }) => setCount(getGroqUsage().count));
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const pct = Math.min((count / DAILY_LIMIT) * 100, 100);
+  const remaining = DAILY_LIMIT - count;
+
+  return (
+    <div style={{ margin: '4px 16px 0', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
+      {/* 헤더 */}
+      <div style={{ padding: '12px 14px 10px', borderBottom: '1px solid rgba(12,12,10,.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 26, height: 26, borderRadius: 8, background: 'linear-gradient(135deg,#f0ffe0,#c5ff00)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>✨</div>
+          <div>
+            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#0C0C0A' }}>AI 사용량</div>
+            <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>Groq 무료 티어 · 매일 자정 초기화</div>
+          </div>
+        </div>
+        <a
+          href="https://console.groq.com/settings/usage"
+          target="_blank"
+          rel="noreferrer"
+          style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A7700', textDecoration: 'none', padding: '4px 8px', borderRadius: 6, background: 'rgba(197,255,0,.15)', border: '1px solid rgba(197,255,0,.4)' }}
+        >
+          콘솔 →
+        </a>
+      </div>
+
+      {/* 수치 */}
+      <div style={{ padding: '10px 14px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>{count.toLocaleString()}</span>
+          <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginLeft: 4 }}>/ {DAILY_LIMIT.toLocaleString()}회</span>
+        </div>
+        <div style={{ fontFamily: f, fontSize: 11, color: '#4A7700', fontWeight: 700 }}>
+          {remaining.toLocaleString()}회 남음
+        </div>
+      </div>
+
+      {/* 프로그레스 바 */}
+      <div style={{ margin: '4px 14px 14px', height: 6, background: 'rgba(12,12,10,.07)', borderRadius: 9999, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${pct}%`, background: pct > 80 ? '#E94F6B' : '#C5FF00', borderRadius: 9999, transition: 'width .4s ease' }} />
+      </div>
+
+      {/* 안내 */}
+      <div style={{ padding: '0 14px 12px', fontFamily: f, fontSize: 11, color: '#BCBAB6', lineHeight: 1.6 }}>
+        루틴 1회 파싱 = 1회 차감 · 분당 30회 제한 · 실제 누적량은 콘솔에서 확인
+      </div>
+    </div>
+  );
+}
+
 function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOpenLookbook }: {
   onOpenSessions: () => void;
   onOpenTracker: () => void;
@@ -225,7 +294,6 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
       { id: 'look', badge: '#LOOKBOOK', title: 'PLANNING', sub: 'QUARTERLY VISION', cta: 'Curate Days →', bg: 'linear-gradient(135deg,#fff0f5 0%,#ffc0d0 100%)', emoji: '👗', onClick: onOpenLookbook, href: undefined },
     ],
     right: [
-      { id: 'ai-import', badge: '#AI', title: 'AI 가져오기', sub: 'TEXT → ROUTINE', cta: '텍스트 붙여넣기 →', bg: 'linear-gradient(135deg,#f0ffe0 0%,#d8ffaa 100%)', emoji: '✨', onClick: null, href: '/import' },
       { id: 'makeup', badge: '#MAKEUP', title: 'STRATEGY', sub: 'IDENTITY FRAMEWORK', cta: 'Reconstruct →', bg: 'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)', emoji: '💄', onClick: onOpenMakeup, href: undefined },
       { id: 'care', badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS', cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare, href: undefined },
     ],
@@ -270,6 +338,9 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{cards.left.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 64 }}>{cards.right.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}</div>
       </div>
+      {/* Groq AI 사용량 — 단독 섹션 */}
+      <GroqUsageSection />
+
       <div style={{ height: 100 }} />
     </div>
   );
@@ -563,6 +634,9 @@ function EditorView({
   // 텍스트 입력 시 제품명 자동 하이라이팅
   const [highlightedProdIds, setHighlightedProdIds] = useState<Set<string>>(new Set());
 
+  // AI 가져오기 패널 상태 (null이면 닫힘)
+  const [aiPanel, setAiPanel] = useState<{ slot: 'morning' | 'evening' } | null>(null);
+
   const filteredProducts = products.filter((p) => {
     if (!pickerSearch) return true;
     const q = pickerSearch.toLowerCase();
@@ -778,8 +852,9 @@ function EditorView({
     slotKey: 'morning' | 'evening'; section: 'main' | 'tip';
     items: RoutineItem[]; label: string; sublabel?: string;
     borderColor?: string; bgColor?: string; textColor?: string;
+    onAIImport?: () => void;
   }) {
-    const { slotKey, section, items, label, sublabel, borderColor, bgColor, textColor } = p;
+    const { slotKey, section, items, label, sublabel, borderColor, bgColor, textColor, onAIImport } = p;
     const isInputActive = activeInput?.slot === slotKey && activeInput?.section === section;
     const isDesc = isInputActive && activeInput?.type === 'desc';
     const isTip = isInputActive && activeInput?.type === 'tip';
@@ -787,8 +862,20 @@ function EditorView({
 
     return (
       <div style={{ marginTop: 12 }}>
-        <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: textColor ?? '#9A9490', letterSpacing: '.04em', paddingBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-          {label}{sublabel && <span style={{ fontSize: 11, fontWeight: 400, color: '#BCBAB6' }}>{sublabel}</span>}
+        {/* 라벨 행 — 아이템 매핑(main) 섹션에만 오른쪽에 AI 버튼 표시 */}
+        <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: textColor ?? '#9A9490', letterSpacing: '.04em', paddingBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {label}{sublabel && <span style={{ fontSize: 11, fontWeight: 400, color: '#BCBAB6' }}>{sublabel}</span>}
+          </div>
+          {/* section === 'main'일 때만 AI 버튼 노출 */}
+          {section === 'main' && onAIImport && (
+            <button
+              onClick={onAIImport}
+              style={{ padding: '4px 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 11, fontWeight: 800, cursor: 'pointer', letterSpacing: '.04em', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' as const }}
+            >
+              ✨ AI
+            </button>
+          )}
         </div>
 
         {/* 칩 스트립 — ItemChip 함수 직접 호출로 리마운트 방지 */}
@@ -890,8 +977,8 @@ function EditorView({
           )}
         </div>
 
-        {/* 아이템 매핑 섹션 */}
-        {ChipStrip({ slotKey, section: 'main', items: activeDay.items, label: '— 아이템 매핑', sublabel: '(BOX 뷰티)' })}
+        {/* 아이템 매핑 섹션 — AI 가져오기 + 수동 입력 혼합 편집 가능 */}
+        {ChipStrip({ slotKey, section: 'main', items: activeDay.items, label: '— 아이템 매핑', sublabel: '(BOX 뷰티 · AI/수동)', onAIImport: () => setAiPanel({ slot: slotKey }) })}
 
         {/* TIP 섹션 */}
         <div style={{ borderTop: '1px solid rgba(0,0,0,.05)', marginTop: 14, paddingTop: 2 }}>
@@ -908,13 +995,13 @@ function EditorView({
           />
         </div>
 
-        {/* 슬롯 하단 저장 버튼 — 화면 이동 없이 저장만 */}
-        <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid rgba(12,12,10,.06)' }}>
+        {/* 슬롯 하단 저장 버튼 — 화면 이동 없이 저장만 (50% 너비, 우측 정렬) */}
+        <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid rgba(12,12,10,.06)', display: 'flex', justifyContent: 'flex-end' }}>
           <button
             onClick={onSaveOnly}
             disabled={saving}
             style={{
-              width: '100%', padding: '12px 0',
+              width: '50%', padding: '12px 0',
               background: saving ? '#D8D6CF' : '#C5FF00',
               color: saving ? '#9A9490' : '#0C0C0A',
               border: 'none', borderRadius: 10,
@@ -1006,6 +1093,20 @@ function EditorView({
         </button>
       </div>
 
+      {/* AI 가져오기 패널 */}
+      {aiPanel && (
+        <AiImportPanel
+          products={products}
+          panelLabel={aiPanel.slot === 'morning' ? '☀️ 아침 루틴 AI 가져오기' : '🌙 저녁 루틴 AI 가져오기'}
+          confirmLabel={aiPanel.slot === 'morning' ? '아침 슬롯에 추가 →' : '저녁 슬롯에 추가 →'}
+          onClose={() => setAiPanel(null)}
+          onImport={(items) => {
+            addItems(aiPanel.slot, 'main', items);
+            setAiPanel(null);
+          }}
+        />
+      )}
+
       {/* 제품 picker 바텀시트 */}
       {picker && (
         <>
@@ -1050,6 +1151,225 @@ function EditorView({
         </>
       )}
     </div>
+  );
+}
+
+// ─── AI 가져오기 패널 ────────────────────────────────────────────────────────
+// 범용 바텀시트 — 스킨케어 루틴 에디터 / 집중케어 등 어디서든 재사용
+// 텍스트 입력 → Groq 파싱 → 아이템 미리보기 → onImport 콜백으로 주입
+function AiImportPanel({
+  products,
+  onClose,
+  onImport,
+  panelLabel = 'AI 가져오기',
+  confirmLabel = '추가 →',
+}: {
+  products: Product[];
+  onClose: () => void;
+  onImport: (items: RoutineItem[]) => void;
+  panelLabel?: string;
+  confirmLabel?: string;
+}) {
+  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+
+  // 단계 시퀀스만 파싱 (슬롯/DAY 구분 없음)
+  type PanelPhase = 'input' | 'parsing' | 'result';
+
+  const [panelPhase, setPanelPhase] = useState<PanelPhase>('input');
+  const [text, setText] = useState('');
+  const [previewItems, setPreviewItems] = useState<RoutineItem[]>([]);
+  const [error, setError] = useState('');
+
+  // ParsedPhase[] → RoutineItem[] 변환
+  // + 혼합 제품 사이 → plus 칩(+ 노출)
+  // - 단계 구분     → minus 칩(→ 노출)
+  // 조사/설명 텍스트 → desc 칩
+  function phasesToItems(phases: import('@/lib/parseRoutine').ParsedPhase[]): RoutineItem[] {
+    const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, '');
+
+    // Levenshtein 거리 — 오타 허용 매핑용
+    function lev(a: string, b: string): number {
+      const dp = Array.from({ length: a.length + 1 }, (_, i) =>
+        Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
+      for (let i = 1; i <= a.length; i++)
+        for (let j = 1; j <= b.length; j++)
+          dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+      return dp[a.length][b.length];
+    }
+
+    function matchProduct(name: string): Product | null {
+      const n = normalize(name);
+      // 1. 정확 일치
+      const exact = products.find((p) => normalize(p.name) === n);
+      if (exact) return exact;
+      // 2. 포함 일치
+      const contains = products.find((p) => { const pn = normalize(p.name); return pn.includes(n) || n.includes(pn); });
+      if (contains) return contains;
+      // 3. 오타 허용 (짧은 이름 1자, 긴 이름 2자 차이 허용)
+      const maxDist = n.length <= 4 ? 1 : 2;
+      return products.find((p) => lev(normalize(p.name), n) <= maxDist) ?? null;
+    }
+    const items: RoutineItem[] = [];
+    phases.forEach((phase, pIdx) => {
+      // 제품 앞 설명 텍스트 → desc 칩
+      if (phase.preText?.trim()) items.push({ type: 'desc', text: phase.preText.trim() });
+      // 혼합 제품들 사이에 + 칩 삽입
+      phase.products.forEach((name, nameIdx) => {
+        const matched = matchProduct(name);
+        items.push(matched ? { type: 'product', id: matched.id } : { type: 'desc', text: name });
+        if (nameIdx < phase.products.length - 1) items.push({ type: 'plus' }); // + 구문
+      });
+      // 제품 뒤 설명 텍스트 → desc 칩
+      if (phase.instruction) items.push({ type: 'desc', text: phase.instruction });
+      // 단계 구분 → → 구문
+      if (pIdx < phases.length - 1) items.push({ type: 'minus' });
+    });
+    return items;
+  }
+
+  const handleParse = async () => {
+    if (!text.trim()) return;
+    setPanelPhase('parsing');
+    setError('');
+    try {
+      const phases = await parseRoutinePhases(text, products.map(p => p.name));
+      setPreviewItems(phasesToItems(phases));
+      setPanelPhase('result');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '분석 실패');
+      setPanelPhase('input');
+    }
+  };
+
+
+  return (
+    <>
+      {/* 딤 배경 */}
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 320 }} />
+
+      {/* 패널 본체 */}
+      <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.15)' }}>
+        {/* 드래그 핸들 */}
+        <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '10px auto 0', flexShrink: 0 }} />
+
+        {/* 헤더 */}
+        <div style={{ padding: '12px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
+          <div>
+            <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A' }}>
+              ✨ {panelLabel}
+            </div>
+            {/* AI 가져오기 = 수동 입력과 동일한 칩 구조 → 추가 후 자유롭게 편집·정렬·혼합 가능 */}
+            <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
+              추가 후 수동 입력과 동일하게 편집 · 정렬 · 혼합 가능
+            </div>
+          </div>
+          <button onClick={onClose} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+        </div>
+
+        {/* 스크롤 본문 */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {panelPhase === 'input' || panelPhase === 'parsing' ? (
+            // ── 입력 단계 ──
+            <div style={{ padding: '16px 16px 32px' }}>
+              {error && (
+                <div style={{ marginBottom: 12, padding: '10px 14px', background: '#FFF0F0', border: '1px solid rgba(255,0,0,.15)', borderRadius: 10, fontFamily: f, fontSize: 12, color: '#CC0000', display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                  <span style={{ flexShrink: 0 }}>⚠️</span>{error}
+                </div>
+              )}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>루틴 텍스트</div>
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                disabled={panelPhase === 'parsing'}
+                placeholder={`예시:\n아침은\n구해줘앰플+새살세럼 섞어서 얇게 펴바르고-인투토너-델마크림으로 마무리\n\n하루아침은\n버터토너-델마세럼-라이지세럼으로 마무리`}
+                rows={7}
+                style={{ width: '100%', padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, lineHeight: 1.7, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const }}
+              />
+              <div style={{ marginTop: 4, fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>
+                루틴 텍스트를 붙여넣으세요{text.length > 0 ? ` · ${text.length}자` : ''}
+              </div>
+              <button
+                onClick={handleParse}
+                disabled={panelPhase === 'parsing' || !text.trim()}
+                style={{ marginTop: 14, width: '100%', height: 44, borderRadius: 10, border: 'none', background: panelPhase === 'parsing' || !text.trim() ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: panelPhase === 'parsing' || !text.trim() ? '#9A9490' : '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 800, cursor: panelPhase === 'parsing' || !text.trim() ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+              >
+                {panelPhase === 'parsing' ? (
+                  <>
+                    <span style={{ width: 12, height: 12, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#C5FF00', borderRadius: 9999, display: 'inline-block', animation: 'spin .8s linear infinite' }} />
+                    분석 중...
+                  </>
+                ) : '✨ AI 분석하기'}
+              </button>
+            </div>
+          ) : (
+            // ── 결과 단계 ──
+            <div style={{ padding: '16px 16px 32px' }}>
+              {/* 결과 헤더 카드 */}
+              <div style={{ background: 'linear-gradient(135deg,#f0ffe0,#e8ffc0)', border: '1px solid rgba(197,255,0,.3)', borderRadius: 12, padding: '12px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#0C0C0A' }}>
+                    ✨ 분석 완료
+                  </div>
+                  <div style={{ fontFamily: f, fontSize: 11, color: '#4A7700', marginTop: 2 }}>
+                    {previewItems.length}개 아이템 · 추가 후 수동 편집·드래그 가능
+                  </div>
+                </div>
+                <div style={{ fontSize: 20 }}>✨</div>
+              </div>
+
+              {/* 추가될 아이템 칩 미리보기 */}
+              {previewItems.length > 0 ? (
+                <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, padding: '12px 14px', marginBottom: 12 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>추가될 아이템</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6 }}>
+                    {previewItems.map((item, i) => {
+                      if (item.type === 'product') {
+                        const p = products.find((pr) => pr.id === item.id);
+                        return (
+                          <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, height: 26, padding: '0 10px', borderRadius: 9999, background: '#F5FDD4', border: '1px solid rgba(197,255,0,.5)', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000' }}>
+                            ✓ {p?.name ?? '?'}
+                          </span>
+                        );
+                      }
+                      if (item.type === 'desc') {
+                        return (
+                          <span key={i} style={{ display: 'inline-flex', alignItems: 'center', height: 26, padding: '0 10px', borderRadius: 9999, background: '#F4F4F0', border: '1px solid rgba(12,12,10,.1)', fontFamily: f, fontSize: 12, color: '#4A4846' }}>
+                            {item.text}
+                          </span>
+                        );
+                      }
+                      if (item.type === 'plus') {
+                        return (
+                          <span key={i} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: 9999, background: 'rgba(33,150,243,.1)', border: '1px solid rgba(33,150,243,.3)', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#1976D2' }}>+</span>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ background: '#F4F4F0', borderRadius: 12, padding: '24px 14px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginBottom: 12 }}>
+                  파싱된 아이템이 없습니다
+                </div>
+              )}
+
+              {/* 다시 분석 / 슬롯에 추가 버튼 */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => { setPanelPhase('input'); setPreviewItems([]); }} style={{ flex: 1, height: 44, borderRadius: 10, border: '1.5px solid rgba(12,12,10,.14)', background: 'transparent', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer' }}>
+                  다시 분석
+                </button>
+                <button
+                  onClick={() => { if (previewItems.length > 0) onImport(previewItems); }}
+                  disabled={previewItems.length === 0}
+                  style={{ flex: 2, height: 44, borderRadius: 10, border: 'none', background: previewItems.length === 0 ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: previewItems.length === 0 ? '#9A9490' : '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 800, cursor: previewItems.length === 0 ? 'not-allowed' : 'pointer' }}>
+                  {confirmLabel}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1422,6 +1742,9 @@ function CtPanel({
   // Inline text input
   const [activeInput, setActiveInput] = useState<{ section: 'main' | 'tip'; type: 'desc' | 'tip' } | null>(null);
   const [inputText, setInputText] = useState('');
+
+  // AI 가져오기 패널
+  const [aiCarePanel, setAiCarePanel] = useState(false);
 
   // 드래그 재정렬 상태
   const [dragCtx, setDragCtx] = useState<{ section: 'main' | 'tip'; idx: number } | null>(null);
@@ -1856,9 +2179,19 @@ function CtPanel({
 
             {/* Item mapping */}
             <div style={{ padding: '0 20px' }}>
-              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginTop: 16, marginBottom: 8, display: 'block' }}>
-                — 아이템 매핑 <span style={{ fontSize: 11, fontWeight: 400, color: '#BCBAB6' }}>{ctType === 'lookbook' ? '(BOX 패션 · 악세서리)' : '(BOX 뷰티)'}</span>
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, marginBottom: 8 }}>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
+                  — 아이템 매핑 <span style={{ fontSize: 11, fontWeight: 400, color: '#BCBAB6' }}>{ctType === 'lookbook' ? '(BOX 패션 · 악세서리 · AI/수동)' : '(BOX 뷰티 · AI/수동)'}</span>
+                </span>
+                {ctType !== 'lookbook' && (
+                  <button
+                    onClick={() => setAiCarePanel(true)}
+                    style={{ padding: '4px 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 11, fontWeight: 800, cursor: 'pointer', letterSpacing: '.04em', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' as const }}
+                  >
+                    ✨ AI
+                  </button>
+                )}
+              </div>
               {ChipSection({ label: '', items: sItems, section: 'main', onRemove: (i) => setSItems(p => p.filter((_, j) => j !== i)) })}
             </div>
 
@@ -1957,6 +2290,20 @@ function CtPanel({
               </div>
             )}
           </div>
+
+          {/* AI 가져오기 패널 */}
+          {aiCarePanel && (
+            <AiImportPanel
+              products={domainProducts}
+              panelLabel="집중케어 AI 가져오기"
+              confirmLabel="아이템 매핑에 추가 →"
+              onClose={() => setAiCarePanel(false)}
+              onImport={(items) => {
+                setSItems(p => [...p, ...items]);
+                setAiCarePanel(false);
+              }}
+            />
+          )}
 
           {/* Product picker (inside sheet) */}
           {picker && (

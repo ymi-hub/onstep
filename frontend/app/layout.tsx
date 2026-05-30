@@ -45,7 +45,7 @@ export default function RootLayout({
           style={{
             maxWidth: 430,
             margin: '0 auto',
-            minHeight: '100dvh',
+            height: '100dvh',
             display: 'flex',
             flexDirection: 'column',
             background: '#FAFAF8',
