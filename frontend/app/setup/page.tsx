@@ -29,7 +29,8 @@ import {
   doc,
   orderBy,
 } from 'firebase/firestore';
-import { db, auth } from '@/lib/firebase';
+import { db, auth, storage } from '@/lib/firebase';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot } from '@/types/routine';
 import ExpertTipField, { buildExpertTipHtml } from '@/components/ExpertTipField';
@@ -68,6 +69,8 @@ type CtItem = {
   items: RoutineItem[];
   tipItems: RoutineItem[];
   expertTip?: string;
+  imageUrl?: string;
+  sourceUrl?: string;
   periodStart?: string;
   periodEnd?: string;
   dates?: string[];
@@ -1361,13 +1364,14 @@ function TrackerView({
 
 // ─── CT PANEL (집중케어 / 메이크업북 / 룩북) ────────────────────────────────────
 function CtPanel({
-  ctType, ctItems, products, onBack, onAdd, onUpdate, onDelete,
+  ctType, ctItems, products, onBack, onAdd, onUpdate, onDelete, userId,
 }: {
   ctType: CtType;
   ctItems: CtItem[];
   products: Product[];
   onBack: () => void;
-  onAdd: (item: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  userId: string;
+  onAdd: (item: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string>;
   onUpdate: (id: string, item: Partial<Omit<CtItem, 'id'>>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }) {
@@ -1397,6 +1401,13 @@ function CtPanel({
   const [sPublished, setSPublished] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // 이미지 (hero)
+  const [sImageFile, setSImageFile] = useState<File | null>(null);
+  const [sImagePreview, setSImagePreview] = useState('');
+
+  // 참고 링크
+  const [sSourceUrl, setSSourceUrl] = useState('');
+
   // Product picker inside sheet
   const [picker, setPicker] = useState<'main' | 'tip' | null>(null);
   const [pickerSearch, setPickerSearch] = useState('');
@@ -1419,7 +1430,9 @@ function CtPanel({
   // 도메인 필터: care/makeup → 뷰티, lookbook → 패션·악세서리
   const domainProducts = ctType === 'lookbook'
     ? products.filter(p => p.domain === 'fashion' || p.domain === 'acc')
-    : products.filter(p => p.domain === 'beauty');
+    : ctType === 'makeup'
+      ? products.filter(p => p.domain === 'beauty' && p.subCategory === 'makeup')
+      : products.filter(p => p.domain === 'beauty');
 
   const filteredProducts = domainProducts.filter(p => {
     if (!pickerSearch) return true;
@@ -1433,7 +1446,10 @@ function CtPanel({
     setEditItem(null); setSEmoji(m.icon); setSName(''); setSDesc('');
     setSItems([]); setSTipItems([]); setSExpertTip('');
     setSPeriodStart(''); setSPeriodEnd(''); setSDates([]); setSTpo([]);
-    setSPublished(false); setSheetOpen(true);
+    setSPublished(false);
+    setSImageFile(null); setSImagePreview('');
+    setSSourceUrl('');
+    setSheetOpen(true);
   }
 
   function openEdit(item: CtItem) {
@@ -1441,7 +1457,10 @@ function CtPanel({
     setSItems(item.items); setSTipItems(item.tipItems); setSExpertTip(item.expertTip ?? '');
     setSPeriodStart(item.periodStart ?? ''); setSPeriodEnd(item.periodEnd ?? '');
     setSDates(item.dates ?? []); setSTpo(item.tpo ?? []);
-    setSPublished(item.published); setSheetOpen(true);
+    setSPublished(item.published);
+    setSImageFile(null); setSImagePreview(item.imageUrl ?? '');
+    setSSourceUrl(item.sourceUrl ?? '');
+    setSheetOpen(true);
   }
 
   function closeSheet() { setSheetOpen(false); setPicker(null); setActiveInput(null); }
@@ -1450,7 +1469,6 @@ function CtPanel({
     if (!sName.trim()) return;
     setSaving(true);
     const now = new Date().toISOString();
-    // Firestore는 undefined 값을 허용하지 않으므로 조건부 스프레드로 필드 포함 여부 결정
     const data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'> = {
       ctType,
       emoji: sEmoji || m.icon,
@@ -1460,13 +1478,30 @@ function CtPanel({
       tipItems: sTipItems,
       expertTip: sExpertTip.trim(),
       published: sPublished,
+      ...(sSourceUrl.trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
+      // 기존 imageUrl 유지 (새 파일 선택 전까지)
+      ...(sImagePreview && !sImageFile ? { imageUrl: sImagePreview } : {}),
       ...(ctType === 'care' && sPeriodStart ? { periodStart: sPeriodStart, ...(sPeriodEnd ? { periodEnd: sPeriodEnd } : {}) } : {}),
       ...(ctType !== 'care' ? { dates: sDates } : {}),
       ...(ctType === 'lookbook' ? { tpo: sTpo } : {}),
     };
     try {
-      if (editItem) { await onUpdate(editItem.id, { ...data, updatedAt: now }); }
-      else { await onAdd(data); }
+      let itemId: string;
+      if (editItem) {
+        await onUpdate(editItem.id, { ...data, updatedAt: now });
+        itemId = editItem.id;
+      } else {
+        itemId = await onAdd(data);
+      }
+
+      // 새 이미지 파일이 선택된 경우 Firebase Storage에 업로드
+      if (sImageFile && storage && itemId) {
+        const imgRef = storageRef(storage, `users/${userId}/lookItems/${itemId}.jpg`);
+        await uploadBytes(imgRef, sImageFile);
+        const imageUrl = await getDownloadURL(imgRef);
+        await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
+      }
+
       closeSheet();
     } catch (err) {
       console.error('[CtPanel] 저장 실패:', err);
@@ -1482,7 +1517,20 @@ function CtPanel({
   }
 
   async function togglePublished(item: CtItem) {
-    await onUpdate(item.id, { published: !item.published, updatedAt: new Date().toISOString() });
+    const now = new Date().toISOString();
+    const isActivating = !item.published;
+
+    // makeup/lookbook: Today ON 시 오늘 날짜를 dates[]에 자동 추가
+    if (isActivating && ctType !== 'care') {
+      const today = now.slice(0, 10);
+      const currentDates = item.dates ?? [];
+      const newDates = currentDates.includes(today)
+        ? currentDates
+        : [...currentDates, today].sort();
+      await onUpdate(item.id, { published: true, dates: newDates, updatedAt: now });
+    } else {
+      await onUpdate(item.id, { published: !item.published, updatedAt: now });
+    }
   }
 
   function openPicker(section: 'main' | 'tip') {
@@ -1718,7 +1766,93 @@ function CtPanel({
                 <input value={sName} onChange={e => setSName(e.target.value)} placeholder="이름" style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
               </div>
               <textarea value={sDesc} onChange={e => setSDesc(e.target.value)} placeholder="간단한 설명 (선택)..." rows={2} style={{ marginTop: 8, width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }} />
+
+              {/* 참고 링크 — 간단한 설명 바로 아래 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginTop: 8 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+                  <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                </svg>
+                <input
+                  type="url"
+                  value={sSourceUrl}
+                  onChange={e => setSSourceUrl(e.target.value)}
+                  placeholder="참고 링크 (Instagram, YouTube...)"
+                  style={{ flex: 1, border: 'none', outline: 'none', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: 'transparent' }}
+                />
+                {sSourceUrl && (
+                  <button type="button" onClick={() => setSSourceUrl('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#BCBAB6', fontSize: 14, padding: 0, lineHeight: 1 }}>✕</button>
+                )}
+              </div>
+              {sSourceUrl && (() => {
+                let domain = sSourceUrl;
+                try { domain = new URL(sSourceUrl).hostname; } catch {}
+                return <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 4, paddingLeft: 2 }}>{domain}</div>;
+              })()}
             </div>
+
+            {/* 이미지 — 전체 ct타입 공통 (care: 4:3 / makeup: 1:1 / lookbook: 3:4) */}
+            {(
+              <div style={{ padding: '16px 20px 0' }}>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, display: 'block' }}>
+                  {ctType === 'care' ? '케어 이미지' : ctType === 'makeup' ? '메이크업 이미지' : '룩 이미지'}
+                </span>
+                <label style={{ display: 'block', cursor: 'pointer' }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setSImageFile(file);
+                      const reader = new FileReader();
+                      reader.onload = ev => setSImagePreview(ev.target?.result as string);
+                      reader.readAsDataURL(file);
+                      e.target.value = '';
+                    }}
+                  />
+                  <div style={{
+                    width: '100%',
+                    aspectRatio: ctType === 'care' ? '4/3' : ctType === 'makeup' ? '1/1' : '3/4',
+                    borderRadius: 16,
+                    background: sImagePreview ? 'transparent' : '#EDECE9',
+                    border: sImagePreview ? 'none' : '1.5px dashed rgba(12,12,10,.18)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexDirection: 'column' as const,
+                    gap: 8,
+                    overflow: 'hidden',
+                    position: 'relative' as const,
+                  }}>
+                    {sImagePreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={sImagePreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <>
+                        <span style={{ fontSize: 32, opacity: 0.25 }}>📷</span>
+                        <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>탭하여 이미지 추가</span>
+                      </>
+                    )}
+                    {sImagePreview && (
+                      <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,.5)', borderRadius: 8, padding: '4px 10px', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff' }}>
+                        변경
+                      </div>
+                    )}
+                  </div>
+                </label>
+                {sImagePreview && (
+                  <button
+                    type="button"
+                    onClick={() => { setSImageFile(null); setSImagePreview(''); }}
+                    style={{ marginTop: 6, width: '100%', padding: '8px', border: '1.5px solid rgba(186,26,26,.25)', borderRadius: 10, background: 'none', fontFamily: f, fontSize: 12, color: '#BA1A1A', cursor: 'pointer', fontWeight: 700 }}
+                  >
+                    이미지 제거
+                  </button>
+                )}
+              </div>
+            )}  {/* end image section */}
 
             {/* Item mapping */}
             <div style={{ padding: '0 20px' }}>
@@ -1794,9 +1928,14 @@ function CtPanel({
                 onClick={() => {
                   const next = !sPublished;
                   setSPublished(next);
-                  // ON으로 켤 때 케어 기간 시작일이 비어있으면 오늘 날짜 자동 입력
+                  const today = new Date().toISOString().slice(0, 10);
+                  // ON으로 켤 때 케어: 시작일이 비어있으면 오늘 날짜 자동 입력
                   if (next && ctType === 'care' && !sPeriodStart) {
-                    setSPeriodStart(new Date().toISOString().slice(0, 10));
+                    setSPeriodStart(today);
+                  }
+                  // ON으로 켤 때 makeup/lookbook: 오늘 날짜를 dates[]에 자동 추가
+                  if (next && ctType !== 'care') {
+                    setSDates(prev => prev.includes(today) ? prev : [...prev, today].sort());
                   }
                 }}
               >
@@ -1835,7 +1974,10 @@ function CtPanel({
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto' }}>
                   {domainProducts.length === 0 ? (
-                    <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>BOX에 {ctType === 'lookbook' ? '패션·악세서리' : '뷰티'} 제품이 없습니다.<br />BOX 탭에서 먼저 추가해주세요.</div>
+                    <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>
+                      BOX에 {ctType === 'lookbook' ? '패션·악세서리' : ctType === 'makeup' ? '메이크업' : '뷰티'} 제품이 없습니다.<br />
+                      {ctType === 'makeup' ? 'BOX에서 메이크업 서브카테고리로 등록한 제품만 표시됩니다.' : 'BOX 탭에서 먼저 추가해주세요.'}
+                    </div>
                   ) : filteredProducts.length === 0 ? (
                     <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13 }}>검색 결과 없음</div>
                   ) : filteredProducts.map(p => {
@@ -2119,11 +2261,12 @@ export default function SetupPage() {
     return ct === 'care' ? 'careItems' : ct === 'makeup' ? 'makeupItems' : 'lookItems';
   }
 
-  async function handleAddCtItem(item: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'>) {
-    if (!user || !db) { alert('로그인이 필요합니다.'); return; }
+  async function handleAddCtItem(item: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    if (!user || !db) { alert('로그인이 필요합니다.'); return ''; }
     const now = new Date().toISOString();
-    await addDoc(collection(db, 'users', userId, ctCollection(item.ctType)), { ...item, createdAt: now, updatedAt: now })
+    const docRef = await addDoc(collection(db, 'users', userId, ctCollection(item.ctType)), { ...item, createdAt: now, updatedAt: now })
       .catch((err) => { console.error('[handleAddCtItem] Firestore 오류:', err); throw err; });
+    return docRef.id;
   }
 
   async function handleUpdateCtItem(ctType: CtType, id: string, item: Partial<Omit<CtItem, 'id'>>) {
@@ -2164,7 +2307,7 @@ export default function SetupPage() {
       )}
       {view === 'care' && (
         <CtPanel
-          ctType="care" ctItems={careItems} products={products}
+          ctType="care" ctItems={careItems} products={products} userId={userId}
           onBack={() => goView('hub')}
           onAdd={handleAddCtItem}
           onUpdate={(id, item) => handleUpdateCtItem('care', id, item)}
@@ -2173,7 +2316,7 @@ export default function SetupPage() {
       )}
       {view === 'makeup' && (
         <CtPanel
-          ctType="makeup" ctItems={makeupItems} products={products}
+          ctType="makeup" ctItems={makeupItems} products={products} userId={userId}
           onBack={() => goView('hub')}
           onAdd={handleAddCtItem}
           onUpdate={(id, item) => handleUpdateCtItem('makeup', id, item)}
@@ -2182,7 +2325,7 @@ export default function SetupPage() {
       )}
       {view === 'lookbook' && (
         <CtPanel
-          ctType="lookbook" ctItems={lookItems} products={products}
+          ctType="lookbook" ctItems={lookItems} products={products} userId={userId}
           onBack={() => goView('hub')}
           onAdd={handleAddCtItem}
           onUpdate={(id, item) => handleUpdateCtItem('lookbook', id, item)}
