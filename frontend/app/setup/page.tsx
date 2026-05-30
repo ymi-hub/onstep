@@ -1483,21 +1483,27 @@ function CtPanel({
     if (!sName.trim()) return;
     setSaving(true);
     const now = new Date().toISOString();
+    // Firestore는 undefined 값을 허용하지 않으므로 조건부 스프레드로 필드 포함 여부 결정
     const data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'> = {
       ctType,
-      emoji: sEmoji || m.icon, name: sName.trim(), desc: sDesc.trim(),
-      items: sItems, tipItems: sTipItems,
-      expertTip: sExpertTip || undefined,
-      periodStart: ctType === 'care' ? sPeriodStart : undefined,
-      periodEnd: ctType === 'care' ? sPeriodEnd : undefined,
-      dates: ctType !== 'care' ? sDates : undefined,
-      tpo: ctType === 'lookbook' ? sTpo : undefined,
+      emoji: sEmoji || m.icon,
+      name: sName.trim(),
+      desc: sDesc.trim(),
+      items: sItems,
+      tipItems: sTipItems,
+      expertTip: sExpertTip.trim(),
       published: sPublished,
+      ...(ctType === 'care' ? { periodStart: sPeriodStart, periodEnd: sPeriodEnd } : {}),
+      ...(ctType !== 'care' ? { dates: sDates } : {}),
+      ...(ctType === 'lookbook' ? { tpo: sTpo } : {}),
     };
     try {
       if (editItem) { await onUpdate(editItem.id, { ...data, updatedAt: now }); }
       else { await onAdd(data); }
       closeSheet();
+    } catch (err) {
+      console.error('[CtPanel] 저장 실패:', err);
+      alert('저장에 실패했습니다. 로그인 상태를 확인해주세요.');
     } finally { setSaving(false); }
   }
 
@@ -2127,7 +2133,8 @@ export default function SetupPage() {
   async function handleAddCtItem(item: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'>) {
     if (!user || !db) { alert('로그인이 필요합니다.'); return; }
     const now = new Date().toISOString();
-    await addDoc(collection(db, 'users', userId, ctCollection(item.ctType)), { ...item, createdAt: now, updatedAt: now });
+    await addDoc(collection(db, 'users', userId, ctCollection(item.ctType)), { ...item, createdAt: now, updatedAt: now })
+      .catch((err) => { console.error('[handleAddCtItem] Firestore 오류:', err); throw err; });
   }
 
   async function handleUpdateCtItem(ctType: CtType, id: string, item: Partial<Omit<CtItem, 'id'>>) {
