@@ -1032,10 +1032,7 @@ function OOTDSection({
 
   return (
     <div>
-      <SectionHeader
-        title="#OOTD"
-        action={<a href="/setup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>Edit →</a>}
-      />
+      <SectionHeader title="#OOTD" />
 
       <div style={{ padding: '0 16px' }}>
 
@@ -1092,6 +1089,11 @@ function OOTDSection({
 
             {/* 참고 링크 — 카드 하단 */}
             <SourceLink url={heroLook.sourceUrl} />
+
+            {/* 카드 하단: Edit → Log 화면 */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 16px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+              <Link href="/log" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>Edit →</Link>
+            </div>
           </div>
         )}
 
@@ -1124,10 +1126,6 @@ function OOTDSection({
           </div>
         )}
 
-        {/* Log 링크 */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
-          <Link href="/log" style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>Log →</Link>
-        </div>
       </div>
     </div>
   );
