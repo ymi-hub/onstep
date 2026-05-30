@@ -474,55 +474,59 @@ function resolveCategory(cat: string | undefined | null): string {
   return cat;
 }
 
-// 모든 제품의 category를 한국어로 일괄 변환 (v3: null 초기화 제거, ampoule 등 추가)
-async function migrateCategoryKeys(uid: string, boxConfig?: BoxConfig): Promise<void> {
-  console.log('[OnStep] migrateCategoryKeys 진입, uid:', uid);
-  if (!db) { console.log('[OnStep] db 없음, 종료'); return; }
-  const flagKey = `onstep_cat_ko_v7_${uid}`;
-  const alreadyDone = typeof localStorage !== 'undefined' && localStorage.getItem(flagKey);
-  console.log('[OnStep] 플래그 상태:', flagKey, '=', alreadyDone);
-  if (alreadyDone) return;
+// 모든 제품 category를 현재 boxConfig 기준으로 정리
+// - Firestore에서 boxConfig를 직접 읽어 validCats 구성 (React state 타이밍 무관)
+// - resolveCategory 변환 후 validCats에 없으면 null → 중복·충돌 방지
+async function migrateCategoryKeys(uid: string): Promise<void> {
+  if (!db) return;
+  const flagKey = `onstep_cat_ko_v8_${uid}`;
+  if (typeof localStorage !== 'undefined' && localStorage.getItem(flagKey)) return;
 
   try {
+    // ① boxConfig 직접 로드 (React state와 무관)
+    const cfgSnap = await getDoc(doc(db, 'users', uid, 'settings', 'boxConfig'));
+    const cfg: BoxConfig = cfgSnap.exists()
+      ? (cfgSnap.data() as BoxConfig)
+      : DEFAULT_BOX_CONFIG;
+
+    // ② 현재 유효한 카테고리 전체 목록
+    const validCats = new Set<string>();
+    for (const domain of cfg.domains) {
+      if (domain.subTypes?.length) {
+        domain.subTypes.forEach(st => st.cats.forEach(c => validCats.add(c)));
+      } else {
+        (domain.cats ?? []).forEach(c => validCats.add(c));
+      }
+    }
+    console.log('[OnStep] 유효 카테고리:', [...validCats]);
+
+    // ③ 제품 전체 순회
     const snap = await getDocs(collection(db, 'users', uid, 'products'));
     const patches: Promise<void>[] = [];
 
-    // boxConfig의 모든 한국어 카테고리 목록 (유효한 값 기준)
-    const validCats = new Set<string>();
-    if (boxConfig) {
-      for (const domain of boxConfig.domains) {
-        if (domain.subTypes) {
-          domain.subTypes.forEach(st => st.cats.forEach(c => validCats.add(c)));
-        } else {
-          (domain.cats ?? []).forEach(c => validCats.add(c));
-        }
-      }
-    }
-
     for (const d of snap.docs) {
-      const cat = d.data().category as string | undefined;
-      console.log('[OnStep] product category raw:', cat); // 실제 저장값 확인용
-
+      const cat = d.data().category as string | undefined | null;
       if (!cat) continue;
-      // 이미 유효한 한국어 카테고리면 건너뜀
-      if (validCats.size > 0 && validCats.has(cat)) continue;
 
+      // 이미 유효한 카테고리 → 스킵
+      if (validCats.has(cat)) continue;
+
+      // CAT_KEY_MAP / auto-ID 변환 시도
       const converted = resolveCategory(cat);
 
-      if (isAutoId(cat) && converted === '') {
-        // 자동생성 ID(cat_타임스탬프 / 매핑 불가 c_keyword_숫자) → null 초기화
-        patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: null }));
-        console.log('[OnStep] auto-ID 초기화:', cat, '→ null');
-      } else if (converted !== cat && converted !== '') {
-        // CAT_KEY_MAP으로 한국어 변환 성공
+      if (converted && validCats.has(converted)) {
+        // 변환 결과가 유효 카테고리에 있음 → 업데이트
         patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: converted }));
-        console.log('[OnStep] 카테고리 변환:', cat, '→', converted);
+        console.log('[OnStep] 변환:', cat, '→', converted);
       } else {
-        // 한글 커스텀 등 → 유지
-        console.log('[OnStep] 카테고리 유지:', cat);
+        // 변환해도 유효하지 않음 → null (카드 배지 미표시, 수동 재선택)
+        patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: null }));
+        console.log('[OnStep] 제거:', cat, '→ null');
       }
     }
+
     await Promise.all(patches);
+    console.log('[OnStep] 카테고리 정리 완료, 처리 건수:', patches.length);
     if (typeof localStorage !== 'undefined') localStorage.setItem(flagKey, 'done');
   } catch (err) {
     console.error('[OnStep] 카테고리 마이그레이션 오류:', err);
@@ -786,7 +790,7 @@ export default function BoxPage() {
   useEffect(() => {
     if (!user || products.length === 0) return;
     console.log('[OnStep] migrateCategoryKeys 시작, 제품 수:', products.length);
-    migrateCategoryKeys(user.uid, boxConfig);
+    migrateCategoryKeys(user.uid);
   }, [user, products.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 수동 마이그레이션 실행 (버튼 클릭 시)
