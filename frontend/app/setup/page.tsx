@@ -402,6 +402,16 @@ function SessionsView({
     return day.tipItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
   }
 
+  // EXPERT TIP 텍스트 안에서 BOX 제품명 매칭 → 하이라이팅된 제품명 목록 반환
+  function expertTipMentions(day: SlotDay): string[] {
+    if (!day.expertTip?.trim()) return [];
+    const text = day.expertTip.toLowerCase();
+    return [...products]
+      .sort((a, b) => b.name.length - a.name.length)
+      .filter(p => p.name.trim() && text.includes(p.name.toLowerCase()))
+      .map(p => p.name);
+  }
+
   function toggle(id: string) {
     setExpandedId((prev) => (prev === id ? null : id));
   }
@@ -440,6 +450,17 @@ function SessionsView({
             {tipProds.map((item, idx) => (
               <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#7A6A58', padding: '3px 6px', background: '#FDF8F3', border: '1px solid rgba(184,160,138,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                 {pName(item.id)}
+              </div>
+            ))}
+          </div>
+        )}
+        {/* EXPERT TIP 하이라이팅 제품 (있을 때만) */}
+        {expertTipMentions(day).length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
+            <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#4E7D00' }}>EXPERT TIP</div>
+            {expertTipMentions(day).map((name, idx) => (
+              <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#3A6000', padding: '3px 6px', background: 'rgba(197,255,0,.12)', border: '1px solid rgba(132,176,0,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                {name}
               </div>
             ))}
           </div>
@@ -486,6 +507,17 @@ function SessionsView({
                 {dayTipProds(firstRow[0]).map((item, idx) => (
                   <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#7A6A58', padding: '3px 6px', background: '#FDF8F3', border: '1px solid rgba(184,160,138,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                     {pName(item.id)}
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* EXPERT TIP 하이라이팅 제품 (있을 때만) */}
+            {expertTipMentions(firstRow[0]).length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
+                <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#4E7D00' }}>EXPERT TIP</div>
+                {expertTipMentions(firstRow[0]).map((name, idx) => (
+                  <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#3A6000', padding: '3px 6px', background: 'rgba(197,255,0,.12)', border: '1px solid rgba(132,176,0,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                    {name}
                   </div>
                 ))}
               </div>
