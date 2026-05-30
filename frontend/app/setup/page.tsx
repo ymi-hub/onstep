@@ -32,6 +32,7 @@ import {
 import { db, auth } from '@/lib/firebase';
 import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot } from '@/types/routine';
+import ExpertTipField, { buildExpertTipHtml } from '@/components/ExpertTipField';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
@@ -688,26 +689,6 @@ function EditorView({
   // EXPERT TIP: 포커스 슬롯 추적 (편집 중 = textarea, 블러 = 하이라이팅 display)
   const [expertTipFocused, setExpertTipFocused] = useState<'morning' | 'evening' | null>(null);
 
-  // EXPERT TIP 디스플레이용 HTML 빌드 — design/setup.html seRenderTipPreview 패턴
-  // 텍스트 안에서 BOX 제품명이 나오면 그 위치에만 <mark> 태그로 인라인 하이라이팅
-  // 별도 카운트/칩 없음 — 텍스트 내부에 시각적으로 표시
-  function buildExpertTipHtml(text: string): string {
-    if (!text.trim()) return '';
-    let html = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    // 긴 이름 우선 매칭 (부분 일치 방지)
-    [...products]
-      .sort((a, b) => b.name.length - a.name.length)
-      .forEach(p => {
-        if (!p.name.trim()) return;
-        const esc = p.name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        html = html.replace(
-          new RegExp(esc, 'gi'),
-          m => `<mark style="background:rgba(33,150,243,0.12);color:#1976D2;border-radius:3px;padding:0 2px">${m}</mark>`
-        );
-      });
-    return html.replace(/\n/g, '<br>');
-  }
-
   function setExpertTip(slot: 'morning' | 'evening', text: string) {
     const dayIdx = activeDayIdx[slot];
     updateSlotDay(slot, dayIdx, (day) => ({ ...day, expertTip: text }));
@@ -951,53 +932,14 @@ function EditorView({
           {ChipStrip({ slotKey, section: 'tip', items: activeDay.tipItems, label: '— TIP', sublabel: '(내용 있을 때만 Today 표시)', borderColor: 'rgba(132,176,0,.3)', bgColor: 'rgba(197,255,0,.03)', textColor: '#9A9490' })}
         </div>
 
-        {/* EXPERT TIP — design/setup.html seRenderTipPreview 패턴
-            포커스: textarea 편집 모드
-            블러:   HTML 디스플레이 — 텍스트 안 제품명 인라인 하이라이팅 */}
+        {/* EXPERT TIP — ExpertTipField 공통 컴포넌트 */}
         <div style={{ marginTop: 14 }}>
-          <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.08em', color: '#4E7D00', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            EXPERT TIP
-          </div>
-
-          {expertTipFocused === slotKey ? (
-            /* ── 편집 모드: textarea ── */
-            <textarea
-              autoFocus
-              value={activeDay.expertTip}
-              onChange={(e) => setExpertTip(slotKey, e.target.value)}
-              onBlur={() => setExpertTipFocused(null)}
-              placeholder="루틴에 관한 전용 팁 설명 입력..."
-              rows={4}
-              style={{
-                width: '100%', padding: '10px 12px',
-                border: '1.5px solid rgba(132,176,0,.5)',
-                outline: 'none', resize: 'none',
-                borderRadius: 10,
-                fontFamily: f, fontSize: 13, lineHeight: 1.65,
-                color: '#4A4846', background: 'rgba(197,255,0,.04)',
-                boxSizing: 'border-box' as const,
-              }}
-            />
-          ) : (
-            /* ── 디스플레이 모드: 클릭하면 편집 모드로 전환, 제품명 인라인 하이라이팅 ── */
-            <div
-              onClick={() => setExpertTipFocused(slotKey)}
-              style={{
-                minHeight: 48, padding: '10px 12px',
-                background: 'rgba(197,255,0,.04)',
-                border: '1.5px solid rgba(132,176,0,.2)',
-                borderRadius: 10, cursor: 'text',
-                fontFamily: f, fontSize: 13, lineHeight: 1.65,
-                color: '#4A4846',
-              }}
-              dangerouslySetInnerHTML={{
-                __html: activeDay.expertTip.trim()
-                  ? buildExpertTipHtml(activeDay.expertTip)
-                  : `<span style="color:#BCBAB6">루틴에 관한 전용 팁 설명 입력... (탭하여 입력)</span>`,
-              }}
-            />
-          )}
+          <ExpertTipField
+            value={activeDay.expertTip}
+            onChange={(v) => setExpertTip(slotKey, v)}
+            products={products}
+            placeholder="루틴에 관한 전용 팁 설명 입력..."
+          />
         </div>
 
         {/* 슬롯 하단 저장 버튼 — 화면 이동 없이 저장만 */}
@@ -1503,6 +1445,10 @@ function CtPanel({
   const [activeInput, setActiveInput] = useState<{ section: 'main' | 'tip'; type: 'desc' | 'tip' } | null>(null);
   const [inputText, setInputText] = useState('');
 
+  // 드래그 재정렬 상태
+  const [dragCtx, setDragCtx] = useState<{ section: 'main' | 'tip'; idx: number } | null>(null);
+  const [dragOverCtx, setDragOverCtx] = useState<{ section: 'main' | 'tip'; idx: number } | null>(null);
+
   // 도메인 필터: care/makeup → 뷰티, lookbook → 패션·악세서리
   const domainProducts = ctType === 'lookbook'
     ? products.filter(p => p.domain === 'fashion' || p.domain === 'acc')
@@ -1541,7 +1487,7 @@ function CtPanel({
       ctType,
       emoji: sEmoji || m.icon, name: sName.trim(), desc: sDesc.trim(),
       items: sItems, tipItems: sTipItems,
-      expertTip: ctType === 'care' ? sExpertTip : undefined,
+      expertTip: sExpertTip || undefined,
       periodStart: ctType === 'care' ? sPeriodStart : undefined,
       periodEnd: ctType === 'care' ? sPeriodEnd : undefined,
       dates: ctType !== 'care' ? sDates : undefined,
@@ -1586,13 +1532,44 @@ function CtPanel({
     setActiveInput(null); setInputText('');
   }
 
-  function renderChip(item: RoutineItem, onRemove: () => void, key: number) {
+  function renderChip(
+    item: RoutineItem, onRemove: () => void, key: number,
+    section: 'main' | 'tip', idx: number,
+  ) {
+    const isDragging = dragCtx?.section === section && dragCtx?.idx === idx;
+    const isDragOver = dragOverCtx?.section === section && dragOverCtx?.idx === idx;
+
+    const dragHandlers = {
+      draggable: true as const,
+      onDragStart: (e: React.DragEvent) => { e.dataTransfer.effectAllowed = 'move'; setDragCtx({ section, idx }); },
+      onDragOver: (e: React.DragEvent) => { e.preventDefault(); setDragOverCtx({ section, idx }); },
+      onDrop: (e: React.DragEvent) => {
+        e.preventDefault();
+        if (!dragCtx || dragCtx.section !== section || dragCtx.idx === idx) { setDragCtx(null); setDragOverCtx(null); return; }
+        const setter = section === 'main' ? setSItems : setSTipItems;
+        setter(prev => {
+          const arr = [...prev];
+          const [moved] = arr.splice(dragCtx.idx, 1);
+          arr.splice(idx, 0, moved);
+          return arr;
+        });
+        setDragCtx(null); setDragOverCtx(null);
+      },
+      onDragEnd: () => { setDragCtx(null); setDragOverCtx(null); },
+    };
+
     const delBtn = (
-      <button key={`del-${key}`} onClick={e => { e.stopPropagation(); onRemove(); }} style={{ position: 'absolute', top: -8, right: -8, width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,0,0,.28)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, cursor: 'pointer', zIndex: 1 }}>×</button>
+      <button onClick={e => { e.stopPropagation(); onRemove(); }} style={{ position: 'absolute', top: -8, right: -8, width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,0,0,.28)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, cursor: 'pointer', zIndex: 1 }}>×</button>
     );
-    const base: React.CSSProperties = { position: 'relative', flexShrink: 0, borderRadius: 10 };
+    const base: React.CSSProperties = {
+      position: 'relative', flexShrink: 0, borderRadius: 10, cursor: 'grab',
+      opacity: isDragging ? 0.4 : 1,
+      outline: isDragOver ? '2px solid #1976D2' : 'none',
+      transition: 'opacity .15s, outline .1s',
+    };
+
     if (item.type === 'product') return (
-      <div key={key} style={base}>
+      <div key={key} style={base} {...dragHandlers}>
         <div style={{ width: 72, height: 72, background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 6 }}>
           <div style={{ width: 30, height: 30, borderRadius: 7, background: '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, marginBottom: 5 }}>✦</div>
           <div style={{ fontFamily: f, fontSize: 10, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, overflow: 'hidden', maxWidth: 60, wordBreak: 'break-all' as const, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{productName(item.id)}</div>
@@ -1600,26 +1577,26 @@ function CtPanel({
       </div>
     );
     if (item.type === 'desc') return (
-      <div key={key} style={base}>
+      <div key={key} style={base} {...dragHandlers}>
         <div style={{ minWidth: 72, maxWidth: 150, height: 72, background: '#E8E6E0', border: '1px solid rgba(0,0,0,.06)', borderRadius: 10, padding: '8px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ fontFamily: f, fontSize: 12, color: '#0C0C0A', lineHeight: 1.35, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, wordBreak: 'break-word' as const, textAlign: 'center' }}>{item.text}</div>
         </div>{delBtn}
       </div>
     );
     if (item.type === 'tip') return (
-      <div key={key} style={base}>
+      <div key={key} style={base} {...dragHandlers}>
         <div style={{ minWidth: 72, maxWidth: 150, height: 72, background: 'rgba(197,255,0,.1)', border: '1.5px solid rgba(132,176,0,.4)', borderRadius: 10, padding: '8px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4E7D00', lineHeight: 1.35, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, wordBreak: 'break-word' as const, textAlign: 'center' }}>{item.text}</div>
         </div>{delBtn}
       </div>
     );
     if (item.type === 'plus') return (
-      <div key={key} style={base}>
+      <div key={key} style={base} {...dragHandlers}>
         <div style={{ width: 72, height: 72, border: '1.5px solid rgba(33,150,243,.4)', borderRadius: 10, background: 'rgba(33,150,243,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 300, color: '#1976D2' }}>+</div>{delBtn}
       </div>
     );
     return (
-      <div key={key} style={base}>
+      <div key={key} style={base} {...dragHandlers}>
         <div style={{ width: 72, height: 72, border: '1.5px solid rgba(255,152,0,.4)', borderRadius: 10, background: 'rgba(255,152,0,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 300, color: '#E65100' }}>→</div>{delBtn}
       </div>
     );
@@ -1635,7 +1612,7 @@ function CtPanel({
         {label && <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em', paddingBottom: 6 }}>{label}</div>}
         {items.length > 0 ? (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '8px 0 10px', alignItems: 'flex-end' }}>
-            {items.map((item, idx) => renderChip(item, () => onRemove(idx), idx))}
+            {items.map((item, idx) => renderChip(item, () => onRemove(idx), idx, section, idx))}
           </div>
         ) : (
           <div style={{ padding: 12, textAlign: 'center', fontSize: 12, color: '#BCBAB6', border: '1.5px dashed rgba(12,12,10,.12)', borderRadius: 10, marginBottom: 8 }}>아이템을 추가하세요</div>
@@ -1776,16 +1753,15 @@ function CtPanel({
               </div>
             </div>
 
-            {/* Expert tip — care only */}
-            {ctType === 'care' && (
-              <div style={{ padding: '16px 20px 0' }}>
-                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.08em', color: '#4E7D00', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                  EXPERT TIP
-                </div>
-                <textarea value={sExpertTip} onChange={e => setSExpertTip(e.target.value)} placeholder="전용 팁 설명..." rows={2} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(132,176,0,.2)', borderRadius: 10, background: 'rgba(197,255,0,.04)', fontFamily: f, fontSize: 13, color: '#4A4846', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.6 }} />
-              </div>
-            )}
+            {/* Expert tip — 모든 ctType (집중케어·메이크업북·룩북 공통) */}
+            <div style={{ padding: '16px 20px 0' }}>
+              <ExpertTipField
+                value={sExpertTip}
+                onChange={setSExpertTip}
+                products={domainProducts}
+                placeholder="전용 팁 설명 입력... (탭하여 입력)"
+              />
+            </div>
 
             {/* Period — care only */}
             {ctType === 'care' && (
