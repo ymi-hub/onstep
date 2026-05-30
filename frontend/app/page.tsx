@@ -1228,9 +1228,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
 
   return (
     <div style={{ padding: '28px 16px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ marginBottom: 12 }}>
         <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>#Intensive Care</span>
-        <a href="/setup#care" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>List →</a>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -1281,6 +1280,11 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 </div>
               </div>
             )}
+
+            {/* 카드 하단: List → 오른쪽 정렬 */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 16px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+              <a href="/setup#care" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</a>
+            </div>
           </div>
         ))}
       </div>
