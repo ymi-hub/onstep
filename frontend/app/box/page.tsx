@@ -354,7 +354,7 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
         </div>
         {product.category && (
           <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', background: '#F4F4F0', padding: '2px 5px', borderRadius: 3, marginTop: 2 }}>
-            {product.category}
+            {CAT_KEY_MAP[product.category] || product.category}
           </div>
         )}
       </div>
@@ -423,6 +423,30 @@ const CAT_KEY_MAP: Record<string, string> = {
   foundation: '파운데이션', lip: '립', eye_makeup: '아이',
   blush: '블러셔', concealer: '컨실러',
 };
+
+// 구 영문 catKey로 저장된 제품의 category 필드를 한국어로 일괄 변환
+// 로그인 시 한 번만 실행 (localStorage 플래그로 관리)
+async function migrateCategoryKeys(uid: string): Promise<void> {
+  if (!db) return;
+  const flagKey = `onstep_cat_ko_v1_${uid}`;
+  if (typeof localStorage !== 'undefined' && localStorage.getItem(flagKey)) return;
+
+  try {
+    const snap = await getDocs(collection(db, 'users', uid, 'products'));
+    const patches: Promise<void>[] = [];
+    for (const d of snap.docs) {
+      const cat = d.data().category as string | undefined;
+      // CAT_KEY_MAP에 있는 영문 키인 경우만 업데이트
+      if (cat && CAT_KEY_MAP[cat]) {
+        patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: CAT_KEY_MAP[cat] }));
+      }
+    }
+    await Promise.all(patches);
+    if (typeof localStorage !== 'undefined') localStorage.setItem(flagKey, 'done');
+  } catch {
+    // 실패해도 UI 레이어 보정이 있으므로 무시
+  }
+}
 
 // 마이그레이션된 제품 중 imageUrl이 없는 항목에 구 box/data.assets의 storageUrl을 채워넣기
 // 제품명으로 매칭 (한 번만 실행, localStorage 플래그로 관리)
@@ -671,8 +695,9 @@ export default function BoxPage() {
         // 조용한 실패는 콘솔에만 (첫 로그인 시 에러 메시지 안 띄움)
         console.log('[OnStep] 마이그레이션:', error);
       }
-      // 마이그레이션 완료 여부와 관계없이 이미지 동기화 실행
+      // 마이그레이션 완료 여부와 관계없이 이미지 동기화 + 카테고리 한국어 변환 실행
       syncMissingImages(user.uid);
+      migrateCategoryKeys(user.uid);
     });
   }, [user]);
 
@@ -699,8 +724,9 @@ export default function BoxPage() {
     // 서브타입 필터 (서브타입이 있는 도메인만)
     const activeDomainCfg = boxConfig.domains.find(d => d.id === activeTab);
     if (activeDomainCfg?.subTypes?.length && p.subCategory && p.subCategory !== subType) return false;
-    // 카테고리 필터
-    if (activeCategory !== 'ALL' && p.category !== activeCategory) return false;
+    // 카테고리 필터 — 구 영문 키는 CAT_KEY_MAP으로 변환 후 비교
+    const resolvedCat = CAT_KEY_MAP[p.category ?? ''] || p.category;
+    if (activeCategory !== 'ALL' && resolvedCat !== activeCategory) return false;
     // 검색어 필터
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
