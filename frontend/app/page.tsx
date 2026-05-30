@@ -1635,8 +1635,14 @@ export default function TodayPage() {
     }
     return true;
   });
-  // 룩북: published=true인 아이템이 Today OOTD에 노출됨
-  const activeLookItems = lookItems.filter((item) => item.published);
+  // 룩북: makeup과 동일하게 날짜 필터링 (dates[] 배열에 오늘 날짜 포함 여부 확인)
+  const activeLookItems = lookItems.filter((item) => {
+    if (!item.published) return false;
+    if (item.dates && item.dates.length > 0) {
+      return item.dates.includes(todayStr0);
+    }
+    return true;
+  });
   // 오늘 DAY의 아침/저녁 슬롯 (0-based index)
   const todayDayIdx = todayDayNumber - 1;
   const todayMorning = activeSession?.morning.days[todayDayIdx] ?? activeSession?.morning.days[0] ?? null;
