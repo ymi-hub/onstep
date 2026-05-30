@@ -1530,6 +1530,21 @@ export default function TodayPage() {
   const [habitChecked, setHabitChecked] = useState<Set<string>>(new Set());
   const [habitLogs, setHabitLogs] = useState<{ id: string; habitId: string }[]>([]);
 
+  // ── 날짜 변경 감지 (자정 리셋) ──
+  // visibilitychange: 앱이 백그라운드에서 돌아올 때 날짜가 바뀌었으면 키를 갱신
+  // → 키가 바뀌면 날짜 의존 구독들이 새 날짜로 재실행됨
+  const [todayKey, setTodayKey] = useState(() => getTodayDateStr());
+  useEffect(() => {
+    function handleVisibility() {
+      if (document.visibilityState === 'visible') {
+        const newDate = getTodayDateStr();
+        setTodayKey(prev => prev !== newDate ? newDate : prev);
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
   // ── OOTD 상태 ──
   const [ootdLog, setOotdLog] = useState<OOTDLog | null>(null);
   const [ootdSheetOpen, setOotdSheetOpen] = useState(false);
@@ -1644,7 +1659,7 @@ export default function TodayPage() {
       });
     }, (err) => console.error('[OnStep] 체크 기록 로드 실패:', err));
     return () => unsub();
-  }, [userId, authLoading, user, activeSessionId]);
+  }, [userId, authLoading, user, activeSessionId, todayKey]); // todayKey: 자정 리셋
 
   // ── 실시간 구독 4: 오늘 OOTD 기록 ──
   useEffect(() => {
@@ -1678,6 +1693,7 @@ export default function TodayPage() {
   }, [userId, authLoading, user]);
 
   // ── 실시간 구독 6: 오늘 습관 완료 기록 ──
+  // todayKey가 바뀌면(자정 경과) 새 날짜로 재구독 → 체크 상태 자동 리셋
   useEffect(() => {
     if (authLoading || !user || !db) return;
     const _db = db;
@@ -1698,7 +1714,7 @@ export default function TodayPage() {
       setHabitLogs(logs);
     }, (err) => console.error('[OnStep] 습관 기록 로드 실패:', err));
     return () => unsub();
-  }, [userId, authLoading, user]);
+  }, [userId, authLoading, user, todayKey]); // todayKey: 날짜 변경 시 재구독
 
   // ── 집중케어 / 메이크업 CT 구독 ──
   useEffect(() => {
