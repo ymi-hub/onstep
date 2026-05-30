@@ -381,7 +381,6 @@ function SessionsView({
     return day.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
   }
 
-  // 아코디언 토글 (하나만 열림)
   function toggle(id: string) {
     setExpandedId((prev) => (prev === id ? null : id));
   }
@@ -496,7 +495,7 @@ function SessionsView({
 
               return (
                 <div key={s.id}>
-                  {/* 세션 행 */}
+                  {/* 세션 행 — 클릭하면 드롭다운 열림 */}
                   <div
                     onClick={() => toggle(s.id)}
                     style={{
@@ -516,21 +515,8 @@ function SessionsView({
                     {/* 정보 */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: font, fontSize: 20, fontWeight: 400, color: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const }}>
-                        {/* 회차 번호 인라인 편집 — 숫자만 클릭해서 수정 */}
-                        <input
-                          type="number"
-                          defaultValue={s.sessionNumber}
-                          min={1}
-                          onClick={(e) => e.stopPropagation()}
-                          onFocus={(e) => { e.stopPropagation(); (e.target as HTMLInputElement).select(); }}
-                          onBlur={(e) => {
-                            const v = Math.max(1, parseInt(e.target.value) || 1);
-                            if (v !== s.sessionNumber) onUpdateNumber(s.id, v);
-                          }}
-                          onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); e.stopPropagation(); }}
-                          style={{ width: `${Math.max(String(s.sessionNumber).length, 1) + 1}ch`, fontFamily: font, fontSize: 20, fontWeight: 400, color: '#0C0C0A', background: 'transparent', border: 'none', borderBottom: '1.5px solid #D8D4CC', outline: 'none', padding: '0 2px', textAlign: 'right', MozAppearance: 'textfield' } as React.CSSProperties}
-                        />
-                        회
+                        {/* 목록에서는 회차를 읽기 전용으로 표시 — 편집은 에디터에서 */}
+                        {s.sessionNumber}회차 스킨케어
                         {s.sessionTag && (
                           <span style={{ fontFamily: font, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', background: '#E8F5CC', color: '#4E7D00', padding: '2px 8px', borderRadius: 6, flexShrink: 0, border: '1px solid rgba(132,176,0,.3)' }}>{s.sessionTag}</span>
                         )}
@@ -539,7 +525,7 @@ function SessionsView({
                         )}
                       </div>
                       <div style={{ fontFamily: font, fontSize: 13, color: '#777370', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-                        {fmtDate(s.startDate)} – {fmtDate(s.endDate)} · {Math.max(s.morning.days.length, s.evening.days.length)}DAY
+                        {fmtDate(s.startDate)} – {fmtDate(s.endDate)}
                       </div>
                     </div>
 
@@ -559,7 +545,7 @@ function SessionsView({
                     </div>
                   </div>
 
-                  {/* 펼침 상세 */}
+                  {/* 드롭다운 상세 — 아침/저녁 구성 + 편집 진입 */}
                   {isExpanded && (
                     <div style={{ padding: '14px 16px 16px', background: '#F4F4F0', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
                       <SlotSection icon="☀️" label="아침 스킨케어" slot={s.morning} />
@@ -589,13 +575,14 @@ function SessionsView({
 // ─── EDITOR 뷰 ───────────────────────────────────────────────────────────────
 // MORNING / EVENING 각각 독립 DAY 탭 + 아이템 매핑 + TIP 섹션 + EXPERT TIP
 function EditorView({
-  draft, setDraft, products, onBack, onSave, onDelete, saving,
+  draft, setDraft, products, onBack, onSave, onSaveOnly, onDelete, saving,
 }: {
   draft: EditorDraft;
   setDraft: React.Dispatch<React.SetStateAction<EditorDraft | null>>;
   products: Product[];
   onBack: () => void;
-  onSave: () => void;
+  onSave: () => void;      // 저장 + 목록 이동 (하단 버튼)
+  onSaveOnly: () => void;  // 저장만, 화면 유지 (슬롯 중간 버튼)
   onDelete: () => void;
   saving: boolean;
 }) {
@@ -677,12 +664,32 @@ function EditorView({
   }
 
   // 텍스트에서 제품명 매칭 → 하이라이트 Set 반환 (공용)
+  // 로직:
+  //   +, -, 공백, :, · 기준으로 토큰 분리
+  //   각 토큰이 제품명과 정확히 일치하거나,
+  //   제품명 + 한국어 조사 1-2자 (예: "라이지레이어드밤을" → "라이지레이어드밤" + "을") 이면 매칭
+  //   startsWith 방향 사용 → 카테고리 단어 오매칭 방지
+  //   (예: 토큰 "스킨케어"에서 제품 "케어"는 startsWith("케어")가 false라 매칭 안됨)
   function matchProductIds(text: string): Set<string> {
     if (!text.trim()) return new Set();
-    const tokens = text.split(/[\s\-·,]+/).filter((w) => w.length >= 2);
-    const matched = products.filter((p) =>
-      tokens.some((t) => p.name.toLowerCase().includes(t.toLowerCase()))
-    );
+    const tokens = text.toLowerCase()
+      .split(/[\s\+\-·,:]+/)
+      .map(t => t.trim())
+      .filter(Boolean);
+    // 한국어 조사 (1자): 을,를,이,가,은,는,도,와,과,에,의,로,서,만,도
+    const KO_PARTICLES = new Set(['을','를','이','가','은','는','도','와','과','에','의','로','서','만','랑','이랑']);
+    const matched = products.filter((p) => {
+      const name = p.name.toLowerCase().trim();
+      if (!name) return false;
+      return tokens.some(t => {
+        if (t === name) return true;
+        // 제품명 뒤에 한국어 조사 1자만 허용 (예: "쉬를"→"쉬", "라이지레이어드밤을"→"라이지레이어드밤")
+        if (t.startsWith(name) && t.length === name.length + 1) {
+          return KO_PARTICLES.has(t[t.length - 1]);
+        }
+        return false;
+      });
+    });
     return new Set(matched.map((p) => p.id));
   }
 
@@ -692,13 +699,32 @@ function EditorView({
     setHighlightedProdIds(matchProductIds(text));
   }
 
-  // EXPERT TIP 변경: 제품명 인식은 별도 상태로 관리 (메인 칩 스트립 건드리지 않음)
-  const [expertTipHighlights, setExpertTipHighlights] = useState<Set<string>>(new Set());
+  // EXPERT TIP: 포커스 슬롯 추적 (편집 중 = textarea, 블러 = 하이라이팅 display)
+  const [expertTipFocused, setExpertTipFocused] = useState<'morning' | 'evening' | null>(null);
+
+  // EXPERT TIP 디스플레이용 HTML 빌드 — design/setup.html seRenderTipPreview 패턴
+  // 텍스트 안에서 BOX 제품명이 나오면 그 위치에만 <mark> 태그로 인라인 하이라이팅
+  // 별도 카운트/칩 없음 — 텍스트 내부에 시각적으로 표시
+  function buildExpertTipHtml(text: string): string {
+    if (!text.trim()) return '';
+    let html = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    // 긴 이름 우선 매칭 (부분 일치 방지)
+    [...products]
+      .sort((a, b) => b.name.length - a.name.length)
+      .forEach(p => {
+        if (!p.name.trim()) return;
+        const esc = p.name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        html = html.replace(
+          new RegExp(esc, 'gi'),
+          m => `<mark style="background:rgba(33,150,243,0.12);color:#1976D2;border-radius:3px;padding:0 2px">${m}</mark>`
+        );
+      });
+    return html.replace(/\n/g, '<br>');
+  }
 
   function setExpertTip(slot: 'morning' | 'evening', text: string) {
     const dayIdx = activeDayIdx[slot];
     updateSlotDay(slot, dayIdx, (day) => ({ ...day, expertTip: text }));
-    setExpertTipHighlights(matchProductIds(text));
   }
 
   // DAY 추가/삭제 (슬롯별 독립, 최대 3개)
@@ -939,42 +965,72 @@ function EditorView({
           {ChipStrip({ slotKey, section: 'tip', items: activeDay.tipItems, label: '— TIP', sublabel: '(내용 있을 때만 Today 표시)', borderColor: 'rgba(132,176,0,.3)', bgColor: 'rgba(197,255,0,.03)', textColor: '#9A9490' })}
         </div>
 
-        {/* EXPERT TIP textarea */}
+        {/* EXPERT TIP — design/setup.html seRenderTipPreview 패턴
+            포커스: textarea 편집 모드
+            블러:   HTML 디스플레이 — 텍스트 안 제품명 인라인 하이라이팅 */}
         <div style={{ marginTop: 14 }}>
-          <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.08em', color: '#4E7D00', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.08em', color: '#4E7D00', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
             <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
             EXPERT TIP
           </div>
-          <div style={{ background: 'rgba(197,255,0,.04)', border: '1.5px solid rgba(132,176,0,.2)', borderRadius: 10 }}>
+
+          {expertTipFocused === slotKey ? (
+            /* ── 편집 모드: textarea ── */
             <textarea
+              autoFocus
               value={activeDay.expertTip}
               onChange={(e) => setExpertTip(slotKey, e.target.value)}
-              onFocus={() => setExpertTipHighlights(matchProductIds(activeDay.expertTip))}
-              onBlur={() => setExpertTipHighlights(new Set())}
+              onBlur={() => setExpertTipFocused(null)}
               placeholder="루틴에 관한 전용 팁 설명 입력..."
-              rows={2}
-              style={{ width: '100%', padding: '10px 12px', border: 'none', outline: 'none', resize: 'none', fontFamily: f, fontSize: 13, color: '#4A4846', background: 'transparent', boxSizing: 'border-box' as const, lineHeight: 1.6 }}
+              rows={4}
+              style={{
+                width: '100%', padding: '10px 12px',
+                border: '1.5px solid rgba(132,176,0,.5)',
+                outline: 'none', resize: 'none',
+                borderRadius: 10,
+                fontFamily: f, fontSize: 13, lineHeight: 1.65,
+                color: '#4A4846', background: 'rgba(197,255,0,.04)',
+                boxSizing: 'border-box' as const,
+              }}
             />
-            {/* 인식된 제품 칩 — EXPERT TIP 입력 중 실시간 표시 */}
-            {expertTipHighlights.size > 0 && (
-              <div style={{ padding: '0 10px 10px', display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                {products.filter(p => expertTipHighlights.has(p.id)).map(p => (
-                  <span
-                    key={p.id}
-                    style={{
-                      padding: '2px 8px', borderRadius: 9999,
-                      border: '1.5px solid #84B000',
-                      background: 'rgba(197,255,0,.15)',
-                      fontFamily: f, fontSize: 11, fontWeight: 700,
-                      color: '#4E7D00',
-                    }}
-                  >
-                    {p.name}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
+          ) : (
+            /* ── 디스플레이 모드: 클릭하면 편집 모드로 전환, 제품명 인라인 하이라이팅 ── */
+            <div
+              onClick={() => setExpertTipFocused(slotKey)}
+              style={{
+                minHeight: 48, padding: '10px 12px',
+                background: 'rgba(197,255,0,.04)',
+                border: '1.5px solid rgba(132,176,0,.2)',
+                borderRadius: 10, cursor: 'text',
+                fontFamily: f, fontSize: 13, lineHeight: 1.65,
+                color: '#4A4846',
+              }}
+              dangerouslySetInnerHTML={{
+                __html: activeDay.expertTip.trim()
+                  ? buildExpertTipHtml(activeDay.expertTip)
+                  : `<span style="color:#BCBAB6">루틴에 관한 전용 팁 설명 입력... (탭하여 입력)</span>`,
+              }}
+            />
+          )}
+        </div>
+
+        {/* 슬롯 하단 저장 버튼 — 화면 이동 없이 저장만 */}
+        <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid rgba(12,12,10,.06)' }}>
+          <button
+            onClick={onSaveOnly}
+            disabled={saving}
+            style={{
+              width: '100%', padding: '12px 0',
+              background: saving ? '#D8D6CF' : '#C5FF00',
+              color: saving ? '#9A9490' : '#0C0C0A',
+              border: 'none', borderRadius: 10,
+              fontFamily: f, fontSize: 13, fontWeight: 700,
+              letterSpacing: '.06em', cursor: saving ? 'default' : 'pointer',
+              transition: 'background .15s',
+            }}
+          >
+            {saving ? '저장중...' : '저장 →'}
+          </button>
         </div>
       </div>
     );
@@ -985,25 +1041,14 @@ function EditorView({
   return (
     <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 200, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
       {/* 에디터 앱바 */}
+      {/* 에디터 앱바 — "스킨케어 루틴 설정" 고정 타이틀 */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', height: 56, background: 'rgba(250,250,248,.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
         <BackButton onClick={onBack} />
-        {/* 회차 번호 + 태그 뱃지 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>
-            <input
-              type="number"
-              min={1}
-              value={draft.sessionNumber}
-              onChange={(e) => setDraft((d) => d && { ...d, sessionNumber: Math.max(1, parseInt(e.target.value) || 1) })}
-              style={{ width: 36, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', background: 'transparent', textAlign: 'center', padding: '0 2px' }}
-            />
-            회차 스킨케어 루틴
-          </span>
-          {draft.sessionTag && (
-            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, background: '#E8F5CC', color: '#4E7D00', padding: '2px 8px', borderRadius: 6, border: '1px solid rgba(132,176,0,.3)', whiteSpace: 'nowrap' }}>{draft.sessionTag}</span>
-          )}
+        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: '#0C0C0A' }}>
+          스킨케어 루틴 설정
         </div>
-        <button onClick={onSave} disabled={saving} style={{ fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#0C0C0A', background: saving ? '#D8D6CF' : '#C5FF00', border: 'none', cursor: saving ? 'default' : 'pointer', padding: '7px 16px', borderRadius: 9999 }}>{saving ? '저장중...' : '저장'}</button>
+        {/* 저장 버튼은 아래 세션 정보 헤더로 이동 */}
+        <div style={{ minWidth: 48 }} />
       </div>
 
       {/* 본문 스크롤 */}
@@ -1012,16 +1057,32 @@ function EditorView({
         <div style={{ padding: '20px 16px 0' }}>
           <div style={labelStyle}>세션 정보</div>
           <div style={{ background: '#F4F4F0', borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {/* 회차 설명 태그 */}
-            <div>
-              <label style={fieldLabelStyle}>회차 태그 <span style={{ fontWeight: 400, color: '#BCBAB6' }}>(예: 관리실 3회, 4회관리)</span></label>
-              <input
-                value={draft.sessionTag}
-                onChange={(e) => setDraft((d) => d && { ...d, sessionTag: e.target.value })}
-                placeholder="관리실 3회"
-                style={dateInputStyle}
-              />
+            {/* 회차 + 태그 — 1행 2열 */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div>
+                <label style={fieldLabelStyle}>회차</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <input
+                    type="number"
+                    min={1}
+                    value={draft.sessionNumber}
+                    onChange={(e) => setDraft((d) => d && { ...d, sessionNumber: Math.max(1, parseInt(e.target.value) || 1) })}
+                    style={{ ...dateInputStyle, width: '100%' } as React.CSSProperties}
+                  />
+                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4A4846', whiteSpace: 'nowrap' as const }}>회차</span>
+                </div>
+              </div>
+              <div>
+                <label style={fieldLabelStyle}>예: 관리실 N차</label>
+                <input
+                  value={draft.sessionTag}
+                  onChange={(e) => setDraft((d) => d && { ...d, sessionTag: e.target.value })}
+                  placeholder="관리실 N차"
+                  style={dateInputStyle}
+                />
+              </div>
             </div>
+            {/* 기간 */}
             <div>
               <label style={fieldLabelStyle}>기간</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -1030,6 +1091,7 @@ function EditorView({
                 <input type="date" value={draft.endDate} onChange={(e) => setDraft((d) => d && { ...d, endDate: e.target.value })} style={dateInputStyle} />
               </div>
             </div>
+            {/* 아침/저녁 시간 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div><label style={fieldLabelStyle}>아침 시간</label><input type="time" value={draft.morningTime} onChange={(e) => setDraft((d) => d && { ...d, morningTime: e.target.value })} style={dateInputStyle} /></div>
               <div><label style={fieldLabelStyle}>저녁 시간</label><input type="time" value={draft.eveningTime} onChange={(e) => setDraft((d) => d && { ...d, eveningTime: e.target.value })} style={dateInputStyle} /></div>
@@ -1880,6 +1942,8 @@ export default function SetupPage() {
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [draft, setDraft] = useState<EditorDraft | null>(null);
   const [saving, setSaving] = useState(false);
+  // 에디터에서 저장 후 돌아올 때 SessionsView를 리마운트해 드롭다운을 닫힌 상태로 초기화
+  const [sessionsKey, setSessionsKey] = useState(0);
 
   // Tracker habits
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -1998,6 +2062,31 @@ export default function SetupPage() {
     goView('editor');
   }
 
+  // 저장만 — 화면 이동 없음 (슬롯 중간 저장 버튼용)
+  async function handleSaveOnly() {
+    if (!draft) return;
+    if (!user) { alert('Google 로그인 후 저장할 수 있습니다.'); return; }
+    if (!db) { alert('.env.local에 Firebase 설정을 먼저 입력해주세요.'); return; }
+    setSaving(true);
+    const now = new Date().toISOString();
+    const data = { sessionNumber: draft.sessionNumber, sessionTag: draft.sessionTag || null, startDate: draft.startDate, endDate: draft.endDate, morningTime: draft.morningTime, eveningTime: draft.eveningTime, morning: draft.morning, evening: draft.evening, updatedAt: now };
+    try {
+      if (draft.id) {
+        await updateDoc(doc(db, 'users', userId, 'routines', draft.id), data);
+      } else {
+        const docRef = await addDoc(collection(db, 'users', userId, 'routines'), { ...data, createdAt: now });
+        setDraft(d => d && { ...d, id: docRef.id });
+      }
+      // 화면 유지 — 목록으로 이동 안 함
+    } catch (err) {
+      console.error('세션 저장 실패:', err);
+      alert('저장에 실패했습니다. Firebase 설정을 확인해주세요.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // 저장 + 목록으로 이동 (하단 저장 버튼, 뒤로가기용)
   async function handleSave() {
     if (!draft) return;
     if (!user) { alert('Google 로그인 후 저장할 수 있습니다.'); return; }
@@ -2011,6 +2100,7 @@ export default function SetupPage() {
       } else {
         await addDoc(collection(db, 'users', userId, 'routines'), { ...data, createdAt: now });
       }
+      setSessionsKey(k => k + 1); // 드롭다운 닫힌 상태로 초기화
       goView('sessions');
       setDraft(null);
     } catch (err) {
@@ -2099,10 +2189,10 @@ export default function SetupPage() {
         user={user} onLogin={handleLogin} onLogout={handleLogout}
       />
       {(view === 'sessions' || view === 'editor') && (
-        <SessionsView sessions={sessions} products={products} loading={loadingSessions} onBack={() => goView('hub')} onNew={openNewSession} onEdit={openEdit} onUpdateNumber={handleUpdateSessionNumber} />
+        <SessionsView key={sessionsKey} sessions={sessions} products={products} loading={loadingSessions} onBack={() => goView('hub')} onNew={openNewSession} onEdit={openEdit} onUpdateNumber={handleUpdateSessionNumber} />
       )}
       {view === 'editor' && draft && (
-        <EditorView draft={draft} setDraft={setDraft} products={products} onBack={() => goView('sessions')} onSave={handleSave} onDelete={handleDelete} saving={saving} />
+        <EditorView draft={draft} setDraft={setDraft} products={products} onBack={() => goView('sessions')} onSave={handleSave} onSaveOnly={handleSaveOnly} onDelete={handleDelete} saving={saving} />
       )}
       {view === 'tracker' && (
         <TrackerView

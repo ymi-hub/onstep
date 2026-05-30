@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import BottomNav from '@/components/BottomNav';
+import NavWrapper from '@/components/NavWrapper';
 
 export const metadata: Metadata = {
   title: 'OnStep — Life OS',
@@ -32,7 +32,8 @@ export default function RootLayout({
           <main style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
             {children}
           </main>
-          <BottomNav />
+          {/* NavWrapper: /onboarding에선 BottomNav 숨김 */}
+          <NavWrapper />
         </div>
       </body>
     </html>
