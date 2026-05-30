@@ -1228,62 +1228,105 @@ function OOTDSection({
 }
 
 // ─── 집중케어 섹션 ───────────────────────────────────────────────────────────
-// design/today.html #care-today-section 구조 참고
+// FlowCard 칩 스타일과 동일하게 구현 (제품·설명·TIP·+·→ 칩 + EXPERT TIP)
 
 function CareSection({ items, products }: { items: CtItem[]; products: Map<string, Product> }) {
   if (items.length === 0) return null;
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+
+  // FlowCard와 동일한 칩 렌더러
+  function renderChip(item: RoutineItem, idx: number) {
+    if (item.type === 'product') {
+      const p = products.get(item.id);
+      return (
+        <div key={idx} style={{ flexShrink: 0, width: 72, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 72, height: 72, background: '#EEEDE9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+            {(p?.imageUrl || p?.storageUrl)
+              ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{ fontSize: 20, opacity: 0.4 }}>🧴</span>
+            }
+          </div>
+          <div style={{ fontFamily: f, fontSize: 11, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', width: '100%' }}>
+            {p?.name ?? '?'}
+          </div>
+        </div>
+      );
+    }
+    if (item.type === 'desc') return (
+      <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '5px 10px', background: '#2185fd', borderRadius: 16, fontSize: 12, fontWeight: 400, color: '#fff', whiteSpace: 'nowrap' as const, lineHeight: 1, fontFamily: f }}>
+        {item.text}
+      </div>
+    );
+    if (item.type === 'tip') return (
+      <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '0 8px', minWidth: 36, height: 22, background: 'rgba(197,255,0,.22)', borderRadius: 12, fontSize: 12, fontWeight: 800, color: '#4E7D00', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' as const, fontFamily: f }}>
+        {item.text || 'TIP'}
+      </div>
+    );
+    if (item.type === 'plus') return (
+      <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(33,150,243,.12)', color: '#1976D2', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>+</div>
+    );
+    return (
+      <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(255,152,0,.2)', color: '#E65100', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>→</div>
+    );
+  }
+
   return (
     <div style={{ padding: '28px 16px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>#Intensive Care</span>
-        <a href="/setup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>List →</a>
+        <a href="/setup#care" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>List →</a>
       </div>
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {items.map((item) => {
-          const prodIds = item.items
-            .filter((r): r is { type: 'product'; id: string } => r.type === 'product')
-            .map((r) => r.id);
-          return (
-            <div key={item.id} style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
-              {/* 헤더 */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 16px 12px' }}>
-                <span style={{ fontSize: 20 }}>{item.emoji}</span>
-                <span style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{item.name}</span>
+        {items.map((item) => (
+          <div key={item.id} style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
+
+            {/* 헤더: 이모지 + 제목 + 기간 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 16px 12px' }}>
+              <span style={{ fontSize: 20 }}>{item.emoji}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{item.name}</div>
+                {item.periodStart && (
+                  <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
+                    {item.periodStart}{item.periodEnd ? ` → ${item.periodEnd}` : ''}
+                  </div>
+                )}
               </div>
-              {/* 제품 스크롤 */}
-              {prodIds.length > 0 && (
-                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 10, padding: '0 0 16px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-                  <div style={{ flexShrink: 0, width: 16 }} />
-                  {prodIds.map((pid) => {
-                    const p = products.get(pid);
-                    return (
-                      <div key={pid} style={{ flexShrink: 0, width: 90, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, paddingTop: 12 }}>
-                        <div style={{ width: '100%', aspectRatio: '1/1', background: '#EDECE9', borderRadius: 12, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                          {(p?.imageUrl || p?.storageUrl)
-                            ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            : <span style={{ fontSize: 24, opacity: 0.3 }}>🧴</span>
-                          }
-                        </div>
-                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: '#0C0C0A', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {p?.name ?? pid}
-                        </span>
-                      </div>
-                    );
-                  })}
-                  <div style={{ flexShrink: 0, width: 16 }} />
-                </div>
-              )}
-              {/* 전문가 팁 */}
-              {item.expertTip && (
-                <div style={{ padding: '12px 16px 14px', background: '#F9FFE0', borderTop: '1px solid rgba(197,255,0,.35)' }}>
-                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#4E7D00', marginBottom: 6 }}>✦ EXPERT TIP</div>
-                  <div style={{ fontFamily: f, fontSize: 13, color: '#4A4846', lineHeight: 1.65 }}>{item.expertTip}</div>
-                </div>
-              )}
             </div>
-          );
-        })}
+
+            {/* 메인 칩 스트립 */}
+            {item.items.length > 0 && (
+              <div style={{ padding: '10px 16px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
+                  {item.items.map((r, i) => renderChip(r, i))}
+                </div>
+              </div>
+            )}
+
+            {/* TIP 칩 스트립 */}
+            {(item.tipItems?.length ?? 0) > 0 && (
+              <div style={{ padding: '8px 16px 12px', borderTop: '1px dashed rgba(12,12,10,.07)' }}>
+                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#4E7D00', marginBottom: 6 }}>TIP</div>
+                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
+                  {(item.tipItems ?? []).map((r, i) => renderChip(r, i))}
+                </div>
+              </div>
+            )}
+
+            {/* EXPERT TIP — FlowCard와 동일한 스타일 */}
+            {item.expertTip && (
+              <div style={{ padding: '12px 16px 14px', background: '#F5FDD4', borderTop: '1px solid rgba(198,244,50,.5)' }}>
+                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#4E7D00', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                  EXPERT TIP
+                </div>
+                <div style={{ fontFamily: f, fontSize: 13, color: '#4A4846', lineHeight: 1.65 }}>
+                  {highlightProductNames(item.expertTip, products)}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
