@@ -445,9 +445,12 @@ function resolveCategory(cat: string | undefined | null): string {
 // - v2 플래그: 이전 v1에서 변환 안 된 항목도 재처리
 // - console.log로 실제 저장된 값 확인 가능
 async function migrateCategoryKeys(uid: string, boxConfig?: BoxConfig): Promise<void> {
-  if (!db) return;
+  console.log('[OnStep] migrateCategoryKeys 진입, uid:', uid);
+  if (!db) { console.log('[OnStep] db 없음, 종료'); return; }
   const flagKey = `onstep_cat_ko_v2_${uid}`;
-  if (typeof localStorage !== 'undefined' && localStorage.getItem(flagKey)) return;
+  const alreadyDone = typeof localStorage !== 'undefined' && localStorage.getItem(flagKey);
+  console.log('[OnStep] 플래그 상태:', flagKey, '=', alreadyDone);
+  if (alreadyDone) return;
 
   try {
     const snap = await getDocs(collection(db, 'users', uid, 'products'));
@@ -744,11 +747,18 @@ export default function BoxPage() {
         // 조용한 실패는 콘솔에만 (첫 로그인 시 에러 메시지 안 띄움)
         console.log('[OnStep] 마이그레이션:', error);
       }
-      // 마이그레이션 완료 여부와 관계없이 이미지 동기화 + 카테고리 한국어 변환 실행
+      // 마이그레이션 완료 여부와 관계없이 이미지 동기화 실행
       syncMissingImages(user.uid);
-      migrateCategoryKeys(user.uid, boxConfig);
     });
   }, [user]);
+
+  // ── 카테고리 한국어 변환 — products 로드 완료 후 별도 실행 ──────────────────
+  // products 의존성: 실제 제품 데이터가 있을 때만 실행
+  useEffect(() => {
+    if (!user || products.length === 0) return;
+    console.log('[OnStep] migrateCategoryKeys 시작, 제품 수:', products.length);
+    migrateCategoryKeys(user.uid, boxConfig);
+  }, [user, products.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 수동 마이그레이션 실행 (버튼 클릭 시)
   async function handleManualMigrate() {
