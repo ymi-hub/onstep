@@ -438,26 +438,37 @@ const CAT_KEY_MAP: Record<string, string> = {
   'moisturizer': '크림', 'moisturizing': '크림',
 };
 
+// 자동생성 ID 여부 판별
+// - cat_1778572255317  : cat_ + 타임스탬프 (키워드 없음, 복원 불가)
+// - c_keyword_68006    : c_ + 키워드 + 랜덤숫자 (키워드 추출 가능)
+function isAutoId(cat: string): boolean {
+  return /^cat_\d+$/.test(cat) || /^c_[a-z]+_\d+$/i.test(cat);
+}
+
 // 저장된 category 값을 한국어로 변환
 // 처리 순서:
-//   1) CAT_KEY_MAP 직접 매칭
-//   2) 소문자 변환 후 CAT_KEY_MAP 매칭
-//   3) 구 box.html 자동생성 ID 패턴 "c_keyword_숫자" → keyword 추출 후 매칭
-//   4) 변환 불가 → 원본 반환
+//   1) CAT_KEY_MAP 직접/소문자 매칭
+//   2) c_keyword_숫자 → keyword 추출 후 CAT_KEY_MAP 매칭
+//   3) cat_타임스탬프 또는 매핑 불가 auto-ID → '' (빈 문자열, 화면에 배지 미표시)
+//   4) 일반 문자열 → 원본 반환
 function resolveCategory(cat: string | undefined | null): string {
   if (!cat) return '';
 
-  // 1·2) 직접/소문자 매칭
+  // 1) 직접·소문자 매칭
   if (CAT_KEY_MAP[cat]) return CAT_KEY_MAP[cat];
   if (CAT_KEY_MAP[cat.toLowerCase()]) return CAT_KEY_MAP[cat.toLowerCase()];
 
-  // 3) 자동생성 ID 패턴: c_keyword_12345
-  const idMatch = cat.match(/^c_([a-z]+)_\d+$/i);
-  if (idMatch) {
-    const keyword = idMatch[1].toLowerCase();
-    return CAT_KEY_MAP[keyword] || keyword; // 매핑 없으면 keyword 자체 반환
+  // 2) c_keyword_숫자 패턴
+  const kwMatch = cat.match(/^c_([a-z]+)_\d+$/i);
+  if (kwMatch) {
+    const kw = kwMatch[1].toLowerCase();
+    return CAT_KEY_MAP[kw] || ''; // 매핑 없으면 빈 문자열
   }
 
+  // 3) cat_타임스탬프 패턴 → 빈 문자열
+  if (/^cat_\d+$/.test(cat)) return '';
+
+  // 4) 일반 문자열 (한글 커스텀 등) → 원본 유지
   return cat;
 }
 
@@ -465,7 +476,7 @@ function resolveCategory(cat: string | undefined | null): string {
 async function migrateCategoryKeys(uid: string, boxConfig?: BoxConfig): Promise<void> {
   console.log('[OnStep] migrateCategoryKeys 진입, uid:', uid);
   if (!db) { console.log('[OnStep] db 없음, 종료'); return; }
-  const flagKey = `onstep_cat_ko_v4_${uid}`;
+  const flagKey = `onstep_cat_ko_v5_${uid}`;
   const alreadyDone = typeof localStorage !== 'undefined' && localStorage.getItem(flagKey);
   console.log('[OnStep] 플래그 상태:', flagKey, '=', alreadyDone);
   if (alreadyDone) return;
@@ -495,12 +506,17 @@ async function migrateCategoryKeys(uid: string, boxConfig?: BoxConfig): Promise<
       if (validCats.size > 0 && validCats.has(cat)) continue;
 
       const converted = resolveCategory(cat);
-      if (converted !== cat) {
-        // CAT_KEY_MAP으로 변환된 경우
+
+      if (isAutoId(cat) && converted === '') {
+        // 자동생성 ID(cat_타임스탬프 / 매핑 불가 c_keyword_숫자) → null 초기화
+        patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: null }));
+        console.log('[OnStep] auto-ID 초기화:', cat, '→ null');
+      } else if (converted !== cat && converted !== '') {
+        // CAT_KEY_MAP으로 한국어 변환 성공
         patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: converted }));
         console.log('[OnStep] 카테고리 변환:', cat, '→', converted);
       } else {
-        // 변환 불가(커스텀 한글 등) → 그대로 유지
+        // 한글 커스텀 등 → 유지
         console.log('[OnStep] 카테고리 유지:', cat);
       }
     }
