@@ -544,58 +544,20 @@ function FlowCard({
         overflow: 'hidden',
       }}
     >
-      {/* 카드 상단: DAY 배지 + 제품 수 */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 16px 4px',
-          borderBottom: '1px solid rgba(12,12,10,.07)',
-        }}
-      >
-        {/* DAY N 배지 — 블랙 바탕 + 라임 텍스트 */}
-        <span
-          style={{
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 10,
-            fontWeight: 800,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            background: '#0C0C0A',
-            color: '#A6D900',
-            padding: '3px 10px',
-            borderRadius: 9999,
-          }}
-        >
-          Day {todayDayNumber}
-        </span>
-        <span
-          style={{
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 13,
-            fontWeight: 400,
-            color: '#9A9490',
-          }}
-        >
-          {slot.items.filter(i => i.type === 'product').length}개 제품
-        </span>
-      </div>
-
-      {/* 아침 / 저녁 탭 — 작고 심플하게 */}
-      <div style={{ display: 'flex', padding: '10px 16px 0', gap: 6 }}>
+      {/* ① 최상단: MORNING / NIGHT 탭 */}
+      <div style={{ display: 'flex', padding: '12px 16px 0', gap: 6 }}>
         {(['morning', 'evening'] as const).map((t) => (
           <button
             key={t}
             onClick={() => onTabChange(t)}
             style={{
-              height: 28,
-              padding: '0 14px',
+              height: 32,
+              padding: '0 16px',
               borderRadius: 9999,
               border: tab === t ? 'none' : '1px solid rgba(12,12,10,.1)',
               cursor: 'pointer',
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 700,
               letterSpacing: '0.04em',
               background: tab === t ? '#0C0C0A' : 'transparent',
@@ -608,31 +570,21 @@ function FlowCard({
             {(t === 'morning' ? checked.morning : checked.evening) && (
               <span
                 style={{
-                  position: 'absolute',
-                  top: -3,
-                  right: -3,
-                  width: 12,
-                  height: 12,
-                  background: '#C5FF00',
-                  borderRadius: 9999,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 7,
-                  fontWeight: 900,
-                  color: '#0C0C0A',
+                  position: 'absolute', top: -3, right: -3,
+                  width: 12, height: 12,
+                  background: '#C5FF00', borderRadius: 9999,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 7, fontWeight: 900, color: '#0C0C0A',
                 }}
-              >
-                ✓
-              </span>
+              >✓</span>
             )}
           </button>
         ))}
       </div>
 
-      {/* 칩 스트립 + 설명 */}
+      {/* ② 칩 스트립 + EXPERT TIP */}
       {slot.items.length > 0 ? (
-        <div style={{ padding: '10px 16px 12px' }}>
+        <div style={{ padding: '10px 16px 0' }}>
           <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
             {slot.items.map((item, idx) => {
               if (item.type === 'product') {
@@ -656,37 +608,28 @@ function FlowCard({
                   </div>
                 );
               }
-              if (item.type === 'desc') {
-                // care-tag-desc: 파란 pill
-                return (
-                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '5px 10px', background: '#2185fd', borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', fontSize: 12, fontWeight: 400, color: '#fff', whiteSpace: 'nowrap', lineHeight: 1, opacity: isChecked ? 0.45 : 1, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif" }}>
-                    {item.text}
-                  </div>
-                );
-              }
-              if (item.type === 'tip') {
-                // care-tag-tip: 라임 pill
-                return (
-                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '0 8px', minWidth: 36, height: 22, background: 'rgba(197,255,0,.22)', borderRadius: 12, fontSize: 12, fontWeight: 800, color: '#4E7D00', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap', opacity: isChecked ? 0.45 : 1, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif" }}>
-                    {item.text || 'TIP'}
-                  </div>
-                );
-              }
-              if (item.type === 'plus') {
-                // care-tag-plus: 파란 작은 chip
-                return (
-                  <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(33,150,243,.12)', color: '#1976D2', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, opacity: isChecked ? 0.45 : 1 }}>+</div>
-                );
-              }
-              // minus: 주황 chip
+              if (item.type === 'desc') return (
+                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '5px 10px', background: '#2185fd', borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', fontSize: 12, fontWeight: 400, color: '#fff', whiteSpace: 'nowrap', lineHeight: 1, opacity: isChecked ? 0.45 : 1, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif" }}>
+                  {item.text}
+                </div>
+              );
+              if (item.type === 'tip') return (
+                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '0 8px', minWidth: 36, height: 22, background: 'rgba(197,255,0,.22)', borderRadius: 12, fontSize: 12, fontWeight: 800, color: '#4E7D00', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap', opacity: isChecked ? 0.45 : 1, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif" }}>
+                  {item.text || 'TIP'}
+                </div>
+              );
+              if (item.type === 'plus') return (
+                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(33,150,243,.12)', color: '#1976D2', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, opacity: isChecked ? 0.45 : 1 }}>+</div>
+              );
               return (
                 <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(255,152,0,.2)', color: '#E65100', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, opacity: isChecked ? 0.45 : 1 }}>→</div>
               );
             })}
           </div>
-          {/* EXPERT TIP — design .flow-expert-tip 스타일 */}
+
+          {/* EXPERT TIP */}
           {slot.expertTip && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 16, marginTop: 4 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 16, marginTop: 8 }}>
               <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
                 EXPERT TIP
@@ -696,6 +639,16 @@ function FlowCard({
               </div>
             </div>
           )}
+
+          {/* ③ DAY 배지 + 제품 수 — 칩 하단 보조 정보 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0 12px' }}>
+            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', background: '#0C0C0A', color: '#A6D900', padding: '3px 10px', borderRadius: 9999 }}>
+              Day {todayDayNumber}
+            </span>
+            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 400, color: '#BCBAB6' }}>
+              {slot.items.filter(i => i.type === 'product').length}개 제품
+            </span>
+          </div>
         </div>
       ) : (
         <div style={{ padding: '28px 20px', textAlign: 'center', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 20, lineHeight: 1.6, margin: '16px' }}>
@@ -703,8 +656,8 @@ function FlowCard({
         </div>
       )}
 
-      {/* 스킨케어 체크 + List → (우하단) */}
-      <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 16px 14px' }}>
+      {/* ④ 체크 버튼 — 구분선 없음 */}
+      <div style={{ padding: '0 16px 14px' }}>
         <button
           onClick={() => !saving && onToggle(tab)}
           disabled={saving}
