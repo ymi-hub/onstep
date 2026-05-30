@@ -65,6 +65,9 @@ type Slot = {
   days: SlotDay[];
 };
 
+// 데이터 없는 슬롯 폴백 (나이트 미등록 시에도 탭 표시용)
+const EMPTY_SLOT_DAY: SlotDay = { id: 0, items: [], tipItems: [], expertTip: '' };
+
 // 하루(DAY N) 루틴
 // Firestore에 저장된 루틴 세션 (1개 = 1회차)
 type Session = {
@@ -1666,7 +1669,11 @@ export default function TodayPage() {
   const [dataLoading, setDataLoading] = useState(true);
 
   // ── UI 상태 ──
-  const [activeTab, setActiveTab] = useState<'morning' | 'evening'>('morning');
+  // 04:00~17:59 → MORNING, 18:00~03:59 → NIGHT
+  const [activeTab, setActiveTab] = useState<'morning' | 'evening'>(() => {
+    const h = new Date().getHours();
+    return h >= 4 && h < 18 ? 'morning' : 'evening';
+  });
   const [checked, setChecked] = useState<CheckState>({ morning: false, evening: false });
   const [saving, setSaving] = useState(false);
 
@@ -1887,9 +1894,9 @@ export default function TodayPage() {
     async (time: 'morning' | 'evening') => {
       // 💡 _db에 캡처: async 내부에서 null 체크가 유지되도록 함
       const _db = db;
-      if (!activeSession || !todayMorning || !todayEvening || !_db || !user) return;
+      if (!activeSession || !todayMorning || !_db || !user) return;
 
-      const slot = time === 'morning' ? todayMorning : todayEvening;
+      const slot = time === 'morning' ? todayMorning : (todayEvening ?? EMPTY_SLOT_DAY);
       const allProductIds = slot.items
         .filter((item): item is { type: 'product'; id: string } => item.type === 'product')
         .map((item) => item.id);
@@ -2186,11 +2193,11 @@ export default function TodayPage() {
           >
             루틴 불러오는 중...
           </div>
-        ) : activeSession && todayMorning && todayEvening ? (
-          // 오늘 활성 루틴 있음
+        ) : activeSession && todayMorning ? (
+          // 오늘 활성 루틴 있음 (나이트 데이터 없어도 시간 기준으로 탭 노출)
           <FlowCard
             todayMorning={todayMorning}
-            todayEvening={todayEvening}
+            todayEvening={todayEvening ?? EMPTY_SLOT_DAY}
             todayDayNumber={todayDayNumber}
             session={activeSession}
             products={products}
