@@ -5,6 +5,7 @@
 // layout.tsx의 AppShell에서 렌더링됨
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -79,8 +80,8 @@ export default function TopNav() {
         <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2 }} />
       </button>
 
-      {/* 로고 (중앙) — 킹받은 귀요미 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      {/* 로고 (중앙) — today 화면으로 이동 */}
+      <Link href="/today" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo.png"
@@ -98,7 +99,7 @@ export default function TopNav() {
         >
           OnStep
         </span>
-      </div>
+      </Link>
 
       {/* 사용자 메뉴 (우) */}
       <UserMenuButton user={user} onLogin={handleLogin} onLogout={handleLogout} />

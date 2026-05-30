@@ -731,7 +731,7 @@ function TodayHabitSection({
       <SectionHeader title="#Habits" action={`${doneCount}/${todayHabits.length}`} />
 
       {/* 습관 목록 */}
-      <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
+      <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
         {todayHabits.map((h, idx) => {
           const isDone = habitChecked.has(h.id);
           return (
@@ -800,7 +800,7 @@ function TodayHabitSection({
       </div>
 
       {/* 하단 List → 링크 (HABITS 화면으로 이동) */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8, padding: '0 16px' }}>
         <Link
           href="/setup#tracker"
           style={{
@@ -1117,6 +1117,7 @@ function OOTDSection({
       {/* 섹션 헤더 */}
       <SectionHeader title="#OOTD" />
 
+      <div style={{ padding: '0 16px' }}>
       {!user ? (
         <div style={{ padding: '20px', textAlign: 'center', fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 20, lineHeight: 1.6 }}>
           로그인하면 오늘의 룩을 기록할 수 있어요
@@ -1170,6 +1171,7 @@ function OOTDSection({
           Log →
         </Link>
       </div>
+      </div>
     </div>
   );
 }
@@ -1221,7 +1223,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
     <div>
       <SectionHeader title="#Intensive Care" />
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 16px' }}>
         {items.map((item) => (
           <div key={item.id} style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
 
@@ -1257,15 +1259,17 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               </div>
             )}
 
-            {/* EXPERT TIP — FlowCard와 동일한 스타일 */}
+            {/* EXPERT TIP */}
             {item.expertTip && (
-              <div style={{ padding: '12px 16px 14px', background: '#F5FDD4', borderTop: '1px solid rgba(198,244,50,.5)' }}>
-                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#4E7D00', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-                  EXPERT TIP
-                </div>
-                <div style={{ fontFamily: f, fontSize: 13, color: '#4A4846', lineHeight: 1.65 }}>
-                  {highlightProductNames(item.expertTip, products)}
+              <div style={{ padding: '0 16px 12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 16 }}>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                    EXPERT TIP
+                  </div>
+                  <div style={{ fontFamily: f, fontSize: 13, color: '#4A4846', lineHeight: 1.6 }}>
+                    {highlightProductNames(item.expertTip, products)}
+                  </div>
                 </div>
               </div>
             )}
@@ -1290,7 +1294,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
   return (
     <div>
       <SectionHeader title="#Makeup" action={<a href="/setup" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>Edit →</a>} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 16px' }}>
         {items.map((item) => {
           const prodIds = item.items
             .filter((r): r is { type: 'product'; id: string } => r.type === 'product')
