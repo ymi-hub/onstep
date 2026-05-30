@@ -23,13 +23,9 @@ import {
 } from 'firebase/firestore';
 import {
   onAuthStateChanged,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
   type User,
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
-import UserMenuButton from '@/components/UserMenuButton';
 import type { Product } from '@/types/product';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
@@ -102,73 +98,6 @@ function buildProductMatches(
   return map;
 }
 
-// ─── Appbar 컴포넌트 ─────────────────────────────────────────────────────────
-
-function Appbar({
-  user,
-  onLogin,
-  onLogout,
-}: {
-  user: User | null;
-  onLogin: () => void;
-  onLogout: () => void;
-}) {
-  return (
-    <div
-      style={{
-        padding: '0 16px',
-        height: 56,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        background: 'rgba(250,250,248,.92)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        borderBottom: '1px solid rgba(12,12,10,.07)',
-      }}
-    >
-      {/* 뒤로 가기 */}
-      <Link
-        href="/setup"
-        style={{
-          width: 32,
-          height: 32,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'rgba(12,12,10,.06)',
-          borderRadius: 9999,
-          textDecoration: 'none',
-          color: '#0C0C0A',
-        }}
-        aria-label="뒤로"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </Link>
-
-      {/* 타이틀 */}
-      <span
-        style={{
-          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 13,
-          fontWeight: 800,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-          color: '#0C0C0A',
-        }}
-      >
-        AI 가져오기
-      </span>
-
-      <UserMenuButton user={user} onLogin={onLogin} onLogout={onLogout} />
-    </div>
-  );
-}
 
 // ─── 텍스트 입력 섹션 ─────────────────────────────────────────────────────────
 
@@ -809,26 +738,11 @@ export default function ImportPage() {
   };
 
   // ── 로그인 / 로그아웃 ──
-  const handleLogin = async () => {
-    if (!auth) { alert('Firebase가 설정되지 않았습니다.'); return; }
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-    } catch (err) { console.error('[OnStep] 로그인 실패:', err); }
-  };
-
-  const handleLogout = async () => {
-    if (!auth) return;
-    try { await signOut(auth); }
-    catch (err) { console.error('[OnStep] 로그아웃 실패:', err); }
-  };
 
   // ── 성공 화면 ──
   if (pageState === 'done') {
     return (
       <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
-        <Appbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
         <div
           style={{
             display: 'flex',
@@ -910,7 +824,6 @@ export default function ImportPage() {
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
-      <Appbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
 
       <div style={{ paddingTop: 16 }}>
         {/* 페이지 헤더 */}

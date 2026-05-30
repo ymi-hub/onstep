@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import NavWrapper from '@/components/NavWrapper';
+import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
   title: 'OnStep — Life OS',
@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif" }}>
-        {/* PC에서도 앱 사이즈(430px)로 가운데 표시 — 바깥은 body의 #E8E6E0 배경 */}
+        {/* PC에서도 앱 사이즈(430px)로 가운데 표시 */}
         <div
           style={{
             maxWidth: 430,
@@ -28,12 +28,8 @@ export default function RootLayout({
             boxShadow: '0 0 60px rgba(0,0,0,0.12)',
           }}
         >
-          {/* main이 스크롤 컨테이너 — BottomNav는 항상 하단 고정 */}
-          <main style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-            {children}
-          </main>
-          {/* NavWrapper: /onboarding에선 BottomNav 숨김 */}
-          <NavWrapper />
+          {/* AppShell: TopNav(상단) + main(콘텐츠) + BottomNav(하단) */}
+          <AppShell>{children}</AppShell>
         </div>
       </body>
     </html>

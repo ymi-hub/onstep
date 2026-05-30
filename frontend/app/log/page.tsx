@@ -33,14 +33,10 @@ import {
 } from 'firebase/firestore';
 import {
   onAuthStateChanged,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
   type User,
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import type { Product } from '@/types/product';
-import UserMenuButton from '@/components/UserMenuButton';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -88,90 +84,6 @@ const WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 // Date → "YYYY-MM-DD" 문자열
 function toDateStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-// ─── Appbar ──────────────────────────────────────────────────────────────────
-
-function Appbar({
-  user,
-  onLogin,
-  onLogout,
-}: {
-  user: User | null;
-  onLogin: () => void;
-  onLogout: () => void;
-}) {
-  return (
-    <div
-      style={{
-        padding: '0 16px',
-        height: 64,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        background: 'rgba(250,250,248,.92)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        borderBottom: '1px solid rgba(241,245,249,1)',
-      }}
-    >
-      {/* 햄버거 메뉴 */}
-      <button
-        style={{
-          width: 22,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 5,
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 0,
-        }}
-        aria-label="메뉴"
-      >
-        <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2 }} />
-        <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2, width: '68%' }} />
-        <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2 }} />
-      </button>
-
-      {/* 로고 */}
-      <div
-        style={{
-          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 15,
-          fontWeight: 700,
-          letterSpacing: '0.01em',
-          color: '#0C0C0A',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
-        <span
-          style={{
-            width: 24,
-            height: 24,
-            borderRadius: 8,
-            background: '#0C0C0A',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#C5FF00',
-            fontSize: 10,
-            fontWeight: 800,
-          }}
-        >
-          OS
-        </span>
-        OnStep
-      </div>
-
-      <UserMenuButton user={user} onLogin={onLogin} onLogout={onLogout} />
-    </div>
-  );
 }
 
 // ─── 월별 캘린더 ─────────────────────────────────────────────────────────────
@@ -974,28 +886,6 @@ export default function LogPage() {
     return () => { u1(); u2(); };
   }, [userId, authLoading, user]);
 
-  // ── 로그인 / 로그아웃 ──
-  const handleLogin = async () => {
-    if (!auth) { alert('Firebase가 설정되지 않았습니다. .env.local을 확인해주세요.'); return; }
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      console.error('[OnStep] 로그인 실패:', err);
-    }
-  };
-
-  const handleLogout = async () => {
-    if (!auth) return;
-    try {
-      await signOut(auth);
-      setDayLogs(new Map());
-      setSelectedDate(null);
-    } catch (err) {
-      console.error('[OnStep] 로그아웃 실패:', err);
-    }
-  };
 
   // 날짜 선택 토글 (이미 선택된 날 클릭 → 선택 해제)
   const handleSelectDate = (ds: string) => {
@@ -1015,7 +905,6 @@ export default function LogPage() {
   // ── 렌더링 ──
   return (
     <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
-      <Appbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
 
       <div style={{ paddingBottom: 32 }}>
 

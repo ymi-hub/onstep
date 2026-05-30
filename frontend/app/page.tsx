@@ -14,7 +14,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import UserMenuButton from '@/components/UserMenuButton';
 import { format, differenceInDays, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import {
@@ -34,7 +33,6 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   GoogleAuthProvider,
-  signOut,
   type User,
 } from 'firebase/auth';
 import { db, auth, storage } from '@/lib/firebase';
@@ -227,79 +225,6 @@ function isHabitToday(h: Habit): boolean {
   if (h.repeatType === 'once') return h.date === todayStr;
   if (h.repeatType === 'scheduled') return (h.weekdays ?? []).includes(todayWD);
   return false;
-}
-
-// ─── Appbar ──────────────────────────────────────────────────────────────────
-
-function Appbar({
-  user,
-  onLogin,
-  onLogout,
-}: {
-  user: User | null;
-  onLogin: () => void;
-  onLogout: () => void;
-}) {
-  return (
-    <div
-      style={{
-        padding: '0 16px',
-        height: 64,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        background: 'rgba(250,250,248,.92)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        borderBottom: '1px solid rgba(241,245,249,1)',
-      }}
-    >
-      {/* 햄버거 메뉴 */}
-      <button
-        style={{
-          width: 22,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 5,
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 0,
-        }}
-        aria-label="메뉴"
-      >
-        <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2 }} />
-        <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2, width: '68%' }} />
-        <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2 }} />
-      </button>
-
-      {/* 로고 — 킹받은 귀요미 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/logo.png"
-          alt="OnStep"
-          style={{ width: 32, height: 32, borderRadius: 10, objectFit: 'cover' }}
-        />
-        <span
-          style={{
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 15,
-            fontWeight: 800,
-            color: '#0C0C0A',
-            letterSpacing: '-0.01em',
-          }}
-        >
-          OnStep
-        </span>
-      </div>
-
-      <UserMenuButton user={user} onLogin={onLogin} onLogout={onLogout} />
-    </div>
-  );
 }
 
 // ─── 날씨 위젯 ────────────────────────────────────────────────────────────────
@@ -1979,20 +1904,6 @@ export default function TodayPage() {
     }
   };
 
-  // ── 로그아웃 ──
-  const handleLogout = async () => {
-    if (!auth) return;
-    try {
-      await signOut(auth);
-      // 데이터 초기화
-      setSessions([]);
-      setProducts(new Map());
-      setChecked({ morning: false, evening: false });
-    } catch (err) {
-      console.error('[OnStep] 로그아웃 실패:', err);
-    }
-  };
-
   // ── OOTD 시트 열기 (수정 시 기존 값 미리 채움) ──
   const handleOpenOOTDSheet = () => {
     if (ootdLog) {
@@ -2076,8 +1987,6 @@ export default function TodayPage() {
   // ── 렌더링 ──
   return (
     <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
-      <Appbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
-
       <div>
         {/* 페이지 제목 */}
         <div style={{ padding: '16px 16px 0' }}>

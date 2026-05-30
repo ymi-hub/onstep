@@ -32,7 +32,6 @@ import {
 import { db, auth } from '@/lib/firebase';
 import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot } from '@/types/routine';
-import UserMenuButton from '@/components/UserMenuButton';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
@@ -262,15 +261,12 @@ function BackButton({ onClick }: { onClick: () => void }) {
 }
 
 // ─── HUB 뷰 ─────────────────────────────────────────────────────────────────
-function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOpenLookbook, user, onLogin, onLogout }: {
+function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOpenLookbook }: {
   onOpenSessions: () => void;
   onOpenTracker: () => void;
   onOpenCare: () => void;
   onOpenMakeup: () => void;
   onOpenLookbook: () => void;
-  user: User | null;
-  onLogin: () => void;
-  onLogout: () => void;
 }) {
   const cards = {
     left: [
@@ -312,16 +308,6 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
 
   return (
     <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
-      <Appbar
-        left={
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="OnStep" style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'cover' }} />
-          </Link>
-        }
-        center="OnStep"
-        right={<UserMenuButton user={user} onLogin={onLogin} onLogout={onLogout} />}
-      />
       <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
         <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '.16em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 4 }}>CONFIGURATION</div>
         <div>
@@ -2186,7 +2172,6 @@ export default function SetupPage() {
         onOpenCare={() => goView('care')}
         onOpenMakeup={() => goView('makeup')}
         onOpenLookbook={() => goView('lookbook')}
-        user={user} onLogin={handleLogin} onLogout={handleLogout}
       />
       {(view === 'sessions' || view === 'editor') && (
         <SessionsView key={sessionsKey} sessions={sessions} products={products} loading={loadingSessions} onBack={() => goView('hub')} onNew={openNewSession} onEdit={openEdit} onUpdateNumber={handleUpdateSessionNumber} />

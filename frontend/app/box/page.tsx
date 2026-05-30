@@ -10,7 +10,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import {
   collection,
   query,
@@ -26,15 +25,11 @@ import {
 } from 'firebase/firestore';
 import {
   onAuthStateChanged,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
   type User,
 } from 'firebase/auth';
 import { db, auth, storage } from '@/lib/firebase';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Product } from '@/types/product';
-import UserMenuButton from '@/components/UserMenuButton';
 
 const FALLBACK_USER_ID = 'demo-user';
 
@@ -123,61 +118,6 @@ const INITIAL_FORM: FormState = {
   imagePreview: '',
   imageUrl: '',
 };
-
-// ─── Appbar ──────────────────────────────────────────────────────────────────
-function Appbar({ user, onLogin, onLogout }: { user: User | null; onLogin: () => void; onLogout: () => void }) {
-  return (
-    <div
-      style={{
-        padding: '0 16px',
-        height: 56,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        background: 'rgba(250,250,248,.92)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        borderBottom: '1px solid rgba(12,12,10,.07)',
-      }}
-    >
-      {/* 햄버거 메뉴 */}
-      <button
-        style={{ width: 22, display: 'flex', flexDirection: 'column', gap: 5, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-        aria-label="메뉴"
-      >
-        <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2 }} />
-        <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2, width: '68%' }} />
-        <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2 }} />
-      </button>
-
-      {/* 로고 (홈 링크) */}
-      <Link
-        href="/"
-        style={{
-          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 15, fontWeight: 700, letterSpacing: '0.01em', color: '#0C0C0A',
-          display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none',
-        }}
-      >
-        <span
-          style={{
-            width: 24, height: 24, borderRadius: 8, background: '#0C0C0A',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#C5FF00', fontSize: 10, fontWeight: 800,
-          }}
-        >
-          OS
-        </span>
-        OnStep
-      </Link>
-
-      <UserMenuButton user={user} onLogin={onLogin} onLogout={onLogout} />
-    </div>
-  );
-}
 
 // ─── 매거진 뷰 (design/box.html magazine 뷰 참고) ────────────────────────────
 // 히어로(최신 등록, 전폭 260px) + 나머지 3열 소형 카드
@@ -547,6 +487,15 @@ async function migrateOldBoxAssets(uid: string, force = false): Promise<{ count:
   }
 
   try {
+    // products가 이미 1개 이상 있으면 마이그레이션 스킵 (중복 방지)
+    if (!force) {
+      const existingSnap = await getDocs(collection(db, 'users', uid, 'products'));
+      if (!existingSnap.empty) {
+        if (typeof localStorage !== 'undefined') localStorage.setItem(flagKey, 'done');
+        return { count: 0 };
+      }
+    }
+
     // 구 box/data 문서 읽기
     const oldSnap = await getDoc(doc(db, 'users', uid, 'box', 'data'));
     if (!oldSnap.exists()) {
@@ -608,7 +557,6 @@ export default function BoxPage() {
   // ── 인증 상태 ──
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [authError, setAuthError] = useState<string | null>(null);
 
   // 제품 데이터 상태
   const [products, setProducts] = useState<Product[]>([]);
@@ -953,39 +901,8 @@ export default function BoxPage() {
     setActiveCategory('ALL');
   }
 
-  const handleLogin = async () => {
-    if (!auth) { alert('Firebase가 설정되지 않았습니다.'); return; }
-    setAuthError(null);
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-    } catch (err: unknown) {
-      const error = err as { code?: string; message?: string };
-      console.error('[OnStep] 로그인 실패:', error);
-      // 에러를 화면에 표시해 원인 파악
-      setAuthError(`로그인 실패: ${error.code ?? error.message}`);
-    }
-  };
-  const handleLogout = async () => {
-    if (!auth) return;
-    try { await signOut(auth); setProducts([]); }
-    catch (err) { console.error('[OnStep] 로그아웃 실패:', err); }
-  };
-
   return (
     <div style={{ background: '#FAFAF8', minHeight: '100%', position: 'relative' }}>
-      {/* 앱바 */}
-      <Appbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
-
-      {/* 로그인 에러 표시 */}
-      {authError && (
-        <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 16px', fontSize: 13, borderBottom: '1px solid #FCA5A5' }}>
-          {authError}
-          <button onClick={() => setAuthError(null)} style={{ marginLeft: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#991B1B', fontWeight: 700 }}>✕</button>
-        </div>
-      )}
-
       {/* 비로그인 안내 */}
       {!authLoading && !user && (
         <div style={{ background: '#FEF3C7', color: '#92400E', padding: '8px 16px', fontSize: 13, borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 8 }}>
