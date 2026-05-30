@@ -1042,6 +1042,7 @@ function OOTDSection({
             <span style={{ fontSize: 28 }}>👗</span>
             <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 룩을 등록해보세요</div>
             <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>Setup에서 Today ON으로 설정하면 여기에 표시됩니다</div>
+            <a href="/setup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</a>
           </div>
         )}
 
@@ -1306,12 +1307,13 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   return (
     <div>
-      <SectionHeader title="#MOTD" action={<a href="/setup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>Edit →</a>} />
+      <SectionHeader title="#MOTD" />
       {items.length === 0 && (
         <div style={{ margin: '0 16px', padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>💄</span>
           <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 메이크업을 등록해보세요</div>
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>Setup에서 Today ON으로 설정하면 여기에 표시됩니다</div>
+          <a href="/setup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</a>
         </div>
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 16px' }}>
