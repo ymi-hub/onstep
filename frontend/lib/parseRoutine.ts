@@ -50,16 +50,15 @@ function cleanJson(raw: string): string {
   return s;
 }
 
-async function callGroq(prompt: string): Promise<string> {
+async function callGroq(prompt: string, maxTokens = 1024): Promise<string> {
   const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
   if (!apiKey) throw new Error('Groq API 키가 없습니다. .env.local에 NEXT_PUBLIC_GROQ_API_KEY를 추가하세요.');
 
-  // JSON 출력에 1024 토큰으로 충분 — 2048은 불필요하게 TPM 한도를 소비함
   const body = JSON.stringify({
     model: 'llama-3.1-8b-instant',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.1,
-    max_tokens: 1024,
+    max_tokens: maxTokens,
   });
 
   const doFetch = () =>
@@ -116,10 +115,15 @@ function buildPhasesPrompt(text: string, productNames?: string[]): string {
 - 제품명에 조사(에, 을, 를, 으로, 로) 포함하지 않음
 - 공백 포함 제품명 허용: "인미 4종", "페를 4종", "라이지 토너" 등
 - "위에" = 위치 지시어, 제품명 아님
-- 혼합 패턴:
+- 혼합·나열 패턴 (모두 products[]에 분리 추출):
   · A+B+C → ["A","B","C"]
   · A에 B를/을 → ["A","B"]
   · A B를/을 섞어서 → ["A","B"]
+  · A나 B를/을 → ["A","B"]  ← "나"는 접속사, 두 제품 모두 추출
+  · A이나 B를/을 → ["A","B"]
+  · A와 B를/을 / A과 B를/을 → ["A","B"]
+  · A 또는 B → ["A","B"]
+- 접속사(나, 이나, 와, 과, 또는, 혹은)는 instruction에 남기지 않음
 
 ## instruction 추출
 - 마지막 제품명 뒤 조사+설명 전체 → instruction
@@ -226,7 +230,7 @@ function buildPhasesPrompt(text: string, productNames?: string[]): string {
 정답 출력:
 {"phases":[
   {"order":1,"preText":"자 여기서 포인트가 있어요","products":[],"instruction":"","waitMinutes":0},
-  {"order":2,"preText":"저녁에 이렇게","products":["다패치","듀얼슥"],"instruction":"나 사용해서 팩을 하고 나시면","waitMinutes":0},
+  {"order":2,"preText":"저녁에 이렇게","products":["다패치","듀얼슥"],"instruction":"사용해서 팩을 하고 나시면","waitMinutes":0},
   {"order":3,"preText":"피부가 좀 찐득거릴수있어요","products":[],"instruction":"","waitMinutes":0},
   {"order":4,"preText":"그럼 그때에는","products":["델마세럼"],"instruction":"으로 충분히 흡수시켜서 물기를 많이 주신 상태에서","waitMinutes":0},
   {"order":5,"products":["톡스크림","기미비비크림","모해뗴"],"instruction":"를 섞어서 얇게 펴바르고","waitMinutes":10},
@@ -256,47 +260,34 @@ export async function parseRoutinePhases(text: string, productNames?: string[]):
 // ── 2. /import 페이지용 — 전체 세션 구조 파싱 ───────────────────────────────
 
 function buildFullPrompt(text: string): string {
-  return `한국어 스킨케어 루틴 텍스트를 JSON으로 변환해주세요.
+  return `한국어 스킨케어 루틴 텍스트를 JSON으로 변환하세요. JSON만 출력, 설명 금지.
 
-=== 텍스트 패턴 규칙 ===
-- "-" = 단계 구분자
-- "+" = 혼합 사용 제품
-- "아침N" → time:"morning", dayNumber:N
-- "저녁N" → time:"evening", dayNumber:N
-- "하루아침" → time:"morning", dayNumber:2
-- "하루저녁" → time:"evening", dayNumber:2
-- 제품명 뒤 조사(에, 을, 를, 으로, 로, 이, 가) 제거
-- "N분뒤에 띄어내고" → waitMinutes:N
-- 회차 "N차" → session:N
-- 날짜 "20250712" → "2025-07-12"
+## 파싱 규칙
+- 회차: "N차" → session:N (없으면 1)
+- 날짜: "20250712" / "2025.07.12" → "2025-07-12", 없으면 null
+- 태그: "관리N차", "케어N차" 같은 라벨 → tag:"관리N차" (없으면 null)
+- 슬롯: "아침N" → time:"morning", dayNumber:N / "저녁N" → time:"evening", dayNumber:N
+  · "하루아침" → dayNumber:2 / "하루저녁" → dayNumber:2
+  · 숫자 없으면 dayNumber:1
+- 단계구분: "-" / 줄바꿈 + 새 제품
+- 혼합: "+" / "에 X를 섞어서" / "X나 Y" / "X와 Y" / "X 또는 Y" → products 배열에 분리
+- 제품명: 뒤 조사(을, 를, 에, 으로, 로, 이, 가, 와, 과) 제거, 공백 포함 제품명 허용
+- waitMinutes: "N분뒤에" / "N분 후에" / "N분정도 있따가" → N
+- instruction: 제품명 뒤 사용법 텍스트, 대화체 어미 제거
 
-=== 출력 형식 (순수 JSON만) ===
-{
-  "session": 1,
-  "date": null,
-  "tag": null,
-  "routines": [
-    {
-      "time": "morning",
-      "label": "아침1",
-      "dayNumber": 1,
-      "phases": [
-        {
-          "order": 1,
-          "products": ["제품명1", "제품명2"],
-          "instruction": "섞어서 얇게 펴바르고",
-          "waitMinutes": 0
-        }
-      ]
-    }
-  ]
-}
+## 출력 형식
+{"session":1,"date":null,"tag":null,"routines":[{"time":"morning","label":"아침1","dayNumber":1,"phases":[{"order":1,"products":["제품명"],"instruction":"사용법","waitMinutes":0}]}]}
 
-=== 입력 텍스트 ===
+## 예시
+입력: "관리2차 20260101\n아침1: 델마세럼으로 흡수 - 톡스크림+기미비비크림 섞어서 얇게\n저녁1: 와팩 10분뒤에띄어내고 - 필잇업크림으로 마무리"
+출력: {"session":2,"date":"2026-01-01","tag":"관리2차","routines":[{"time":"morning","label":"아침1","dayNumber":1,"phases":[{"order":1,"products":["델마세럼"],"instruction":"으로 흡수","waitMinutes":0},{"order":2,"products":["톡스크림","기미비비크림"],"instruction":"섞어서 얇게","waitMinutes":0}]},{"time":"evening","label":"저녁1","dayNumber":1,"phases":[{"order":1,"products":["와팩"],"instruction":"띄어내고","waitMinutes":10},{"order":2,"products":["필잇업크림"],"instruction":"으로 마무리","waitMinutes":0}]}]}
+
+## 입력 텍스트
 ${text}`;
 }
 
 export async function parseRoutineText(text: string): Promise<ParsedResult> {
-  const json = await callGroq(buildFullPrompt(text));
+  // 여러 슬롯·단계를 담은 전체 세션 출력은 1024로 잘릴 수 있어 1500 사용
+  const json = await callGroq(buildFullPrompt(text), 1500);
   return JSON.parse(json) as ParsedResult;
 }
