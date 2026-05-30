@@ -22,7 +22,14 @@ interface ExpertTipFieldProps {
 
 const F = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
-/** 텍스트 내 BOX 제품명 → 파스텔 블루 <mark> 태그로 변환 */
+/** EXPERT TIP 제품명 하이라이팅 공통 스타일 — 등록/노출 화면 모두 동일 적용 */
+export const EXPERT_TIP_HIGHLIGHT = {
+  bg:     'rgba(197,255,0,.28)',
+  color:  '#3A6000',
+  weight: '700',
+} as const;
+
+/** 텍스트 내 BOX 제품명 → 하이라이팅 <mark> 태그로 변환 (HTML string 반환) */
 export function buildExpertTipHtml(text: string, products: Array<{ name: string }>): string {
   if (!text.trim()) return '';
   let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -32,10 +39,11 @@ export function buildExpertTipHtml(text: string, products: Array<{ name: string 
     .forEach((p) => {
       if (!p.name.trim()) return;
       const esc = p.name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const { bg, color, weight } = EXPERT_TIP_HIGHLIGHT;
       html = html.replace(
         new RegExp(esc, 'gi'),
         (m) =>
-          `<mark style="background:rgba(33,150,243,0.12);color:#1976D2;border-radius:3px;padding:0 2px">${m}</mark>`
+          `<mark style="background:${bg};color:${color};font-weight:${weight};border-radius:3px;padding:0 2px">${m}</mark>`
       );
     });
   return html.replace(/\n/g, '<br>');

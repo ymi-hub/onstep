@@ -37,6 +37,7 @@ import {
 } from 'firebase/auth';
 import { db, auth, storage } from '@/lib/firebase';
 import type { Product } from '@/types/product';
+import { EXPERT_TIP_HIGHLIGHT } from '@/components/ExpertTipField';
 
 // ─── 타입 정의 ────────────────────────────────────────────────────────────────
 // setup/page.tsx에서 사용하는 Firestore 데이터 구조와 동일하게 맞춤
@@ -484,19 +485,21 @@ function SessionHero({
 }
 
 // expertTip 텍스트에서 제품명을 찾아 라임 강조 인라인 JSX로 변환
+// EXPERT TIP 제품명 하이라이팅 (React.ReactNode 버전 — JSX 렌더용)
+// 색상 기준: ExpertTipField.tsx EXPERT_TIP_HIGHLIGHT 공통 상수
 function highlightProductNames(text: string, products: Map<string, Product>): React.ReactNode {
   if (!text || products.size === 0) return text;
-  // 제품명을 길이 내림차순 정렬 (긴 이름 먼저 매칭해야 "델마세럼" vs "델마" 충돌 방지)
   const names = Array.from(products.values())
     .map(p => p.name)
     .sort((a, b) => b.length - a.length);
-  // 정규식 이스케이프 후 OR 패턴 생성
   const escaped = names.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  if (!escaped.length) return text;
   const pattern = new RegExp(`(${escaped.join('|')})`, 'g');
   const parts = text.split(pattern);
+  const { bg, color, weight } = EXPERT_TIP_HIGHLIGHT;
   return parts.map((part, i) =>
     names.includes(part)
-      ? <span key={i} style={{ background: 'rgba(197,255,0,.28)', color: '#3A6000', borderRadius: 4, padding: '0 3px', fontWeight: 700 }}>{part}</span>
+      ? <span key={i} style={{ background: bg, color, borderRadius: 4, padding: '0 3px', fontWeight: Number(weight) }}>{part}</span>
       : part
   );
 }
