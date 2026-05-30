@@ -1433,7 +1433,7 @@ function CtPanel({
   const [sPeriodEnd, setSPeriodEnd] = useState('');
   const [sDates, setSDates] = useState<string[]>([]);
   const [sTpo, setSTpo] = useState<string[]>([]);
-  const [sPublished, setSPublished] = useState(ctType !== 'care');
+  const [sPublished, setSPublished] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Product picker inside sheet
@@ -1466,7 +1466,7 @@ function CtPanel({
     setEditItem(null); setSEmoji(m.icon); setSName(''); setSDesc('');
     setSItems([]); setSTipItems([]); setSExpertTip('');
     setSPeriodStart(''); setSPeriodEnd(''); setSDates([]); setSTpo([]);
-    setSPublished(ctType !== 'care'); setSheetOpen(true);
+    setSPublished(false); setSheetOpen(true);
   }
 
   function openEdit(item: CtItem) {
