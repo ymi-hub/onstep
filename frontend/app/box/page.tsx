@@ -354,7 +354,7 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
         </div>
         {product.category && (
           <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', background: '#F4F4F0', padding: '2px 5px', borderRadius: 3, marginTop: 2 }}>
-            {CAT_KEY_MAP[product.category] || product.category}
+            {resolveCategory(product.category)}
           </div>
         )}
       </div>
@@ -416,35 +416,84 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   );
 }
 
-// ─── 구 box.html catKey → 한국어 카테고리 매핑 ───────────────────────────────
+// ─── 구 box.html catKey → 한국어 카테고리 매핑 (소문자 기준) ─────────────────
 const CAT_KEY_MAP: Record<string, string> = {
   toner: '토너', essence: '에센스', serum: '세럼', cream: '크림',
   cleanser: '클렌저', suncare: '선크림', mask: '마스크팩', eye: '아이크림',
   foundation: '파운데이션', lip: '립', eye_makeup: '아이',
   blush: '블러셔', concealer: '컨실러',
+  // 대소문자 혼용 대비 — 아래는 대문자/혼합 형태도 포함
+  Toner: '토너', Essence: '에센스', Serum: '세럼', Cream: '크림',
+  Cleanser: '클렌저', Suncare: '선크림', Mask: '마스크팩', Eye: '아이크림',
+  Foundation: '파운데이션', Lip: '립', Blush: '블러셔', Concealer: '컨실러',
+  // 영문 전체 표기
+  'Eye Cream': '아이크림', 'Sun Care': '선크림', 'Sun cream': '선크림',
+  'Mask Pack': '마스크팩', 'eye cream': '아이크림', 'sun cream': '선크림',
+  'mask pack': '마스크팩',
 };
 
-// 구 영문 catKey로 저장된 제품의 category 필드를 한국어로 일괄 변환
-// 로그인 시 한 번만 실행 (localStorage 플래그로 관리)
-async function migrateCategoryKeys(uid: string): Promise<void> {
+// 저장된 category 값을 한국어로 변환 (대소문자 무관)
+// 1) CAT_KEY_MAP 직접 매칭  2) 소문자 변환 후 매칭  3) 원본 반환
+function resolveCategory(cat: string | undefined | null): string {
+  if (!cat) return '';
+  return CAT_KEY_MAP[cat]
+    || CAT_KEY_MAP[cat.toLowerCase()]
+    || cat;
+}
+
+// 모든 제품의 category를 한국어로 일괄 변환
+// - v2 플래그: 이전 v1에서 변환 안 된 항목도 재처리
+// - console.log로 실제 저장된 값 확인 가능
+async function migrateCategoryKeys(uid: string, boxConfig?: BoxConfig): Promise<void> {
   if (!db) return;
-  const flagKey = `onstep_cat_ko_v1_${uid}`;
+  const flagKey = `onstep_cat_ko_v2_${uid}`;
   if (typeof localStorage !== 'undefined' && localStorage.getItem(flagKey)) return;
 
   try {
     const snap = await getDocs(collection(db, 'users', uid, 'products'));
     const patches: Promise<void>[] = [];
+
+    // boxConfig의 모든 한국어 카테고리 목록 (유효한 값 기준)
+    const validCats = new Set<string>();
+    if (boxConfig) {
+      for (const domain of boxConfig.domains) {
+        if (domain.subTypes) {
+          domain.subTypes.forEach(st => st.cats.forEach(c => validCats.add(c)));
+        } else {
+          (domain.cats ?? []).forEach(c => validCats.add(c));
+        }
+      }
+    }
+
     for (const d of snap.docs) {
       const cat = d.data().category as string | undefined;
-      // CAT_KEY_MAP에 있는 영문 키인 경우만 업데이트
-      if (cat && CAT_KEY_MAP[cat]) {
-        patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: CAT_KEY_MAP[cat] }));
+      console.log('[OnStep] product category raw:', cat); // 실제 저장값 확인용
+
+      if (!cat) continue;
+      // 이미 유효한 한국어 카테고리면 건너뜀
+      if (validCats.size > 0 && validCats.has(cat)) continue;
+
+      const converted = resolveCategory(cat);
+      // 영문처럼 보이는 값(ASCII만)인지 판별 — 한글 커스텀 카테고리는 건드리지 않음
+      const isEnglishLike = /^[a-zA-Z\s_\-]+$/.test(cat);
+
+      if (converted !== cat) {
+        // CAT_KEY_MAP으로 변환 가능한 경우
+        patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: converted }));
+        console.log('[OnStep] 카테고리 변환:', cat, '→', converted);
+      } else if (isEnglishLike && validCats.size > 0 && !validCats.has(cat)) {
+        // 영문이지만 매핑표에 없고 현재 boxConfig에도 없는 값 → null로 초기화하여 재선택 유도
+        patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: null }));
+        console.log('[OnStep] 알 수 없는 영문 카테고리 초기화:', cat, '→ null');
+      } else {
+        // 한글이거나 현재 boxConfig에 유효한 값 → 유지
+        console.log('[OnStep] 카테고리 유지:', cat);
       }
     }
     await Promise.all(patches);
     if (typeof localStorage !== 'undefined') localStorage.setItem(flagKey, 'done');
-  } catch {
-    // 실패해도 UI 레이어 보정이 있으므로 무시
+  } catch (err) {
+    console.error('[OnStep] 카테고리 마이그레이션 오류:', err);
   }
 }
 
@@ -697,7 +746,7 @@ export default function BoxPage() {
       }
       // 마이그레이션 완료 여부와 관계없이 이미지 동기화 + 카테고리 한국어 변환 실행
       syncMissingImages(user.uid);
-      migrateCategoryKeys(user.uid);
+      migrateCategoryKeys(user.uid, boxConfig);
     });
   }, [user]);
 
@@ -724,9 +773,8 @@ export default function BoxPage() {
     // 서브타입 필터 (서브타입이 있는 도메인만)
     const activeDomainCfg = boxConfig.domains.find(d => d.id === activeTab);
     if (activeDomainCfg?.subTypes?.length && p.subCategory && p.subCategory !== subType) return false;
-    // 카테고리 필터 — 구 영문 키는 CAT_KEY_MAP으로 변환 후 비교
-    const resolvedCat = CAT_KEY_MAP[p.category ?? ''] || p.category;
-    if (activeCategory !== 'ALL' && resolvedCat !== activeCategory) return false;
+    // 카테고리 필터 — resolveCategory로 변환 후 비교
+    if (activeCategory !== 'ALL' && resolveCategory(p.category) !== activeCategory) return false;
     // 검색어 필터
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -862,8 +910,8 @@ export default function BoxPage() {
 
   // ── 제품 편집 열기 ────────────────────────────────────────────────────────
   function openEdit(p: Product) {
-    // 구 catKey(영문) → 한국어로 변환
-    const resolvedCategory = CAT_KEY_MAP[p.category ?? ''] || p.category || '';
+    // 구 catKey(영문) → 한국어로 변환 (대소문자 무관)
+    const resolvedCategory = resolveCategory(p.category);
 
     // subType 결정: subCategory 있으면 그대로, 없으면 boxConfig에서 역추론
     let resolvedSubType: string = subType;
