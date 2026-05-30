@@ -416,20 +416,25 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   );
 }
 
-// ─── 구 box.html catKey → 한국어 카테고리 매핑 (소문자 기준) ─────────────────
+// ─── 구 box.html catKey → 한국어 카테고리 매핑 ─────────────────────────────
+// resolveCategory()에서 소문자 변환 후 재조회하므로 소문자 키만 있으면 충분
 const CAT_KEY_MAP: Record<string, string> = {
-  toner: '토너', essence: '에센스', serum: '세럼', cream: '크림',
-  cleanser: '클렌저', suncare: '선크림', mask: '마스크팩', eye: '아이크림',
+  // 스킨케어
+  toner: '토너', essence: '에센스', serum: '세럼', ampoule: '앰플',
+  cream: '크림', lotion: '로션', cleanser: '클렌저', suncare: '선크림',
+  mask: '마스크팩', eye: '아이크림', mist: '미스트', oil: '오일',
+  peeling: '필링', exfoliant: '필링', scrub: '스크럽',
+  // 메이크업
   foundation: '파운데이션', lip: '립', eye_makeup: '아이',
-  blush: '블러셔', concealer: '컨실러',
-  // 대소문자 혼용 대비 — 아래는 대문자/혼합 형태도 포함
-  Toner: '토너', Essence: '에센스', Serum: '세럼', Cream: '크림',
-  Cleanser: '클렌저', Suncare: '선크림', Mask: '마스크팩', Eye: '아이크림',
-  Foundation: '파운데이션', Lip: '립', Blush: '블러셔', Concealer: '컨실러',
-  // 영문 전체 표기
-  'Eye Cream': '아이크림', 'Sun Care': '선크림', 'Sun cream': '선크림',
-  'Mask Pack': '마스크팩', 'eye cream': '아이크림', 'sun cream': '선크림',
-  'mask pack': '마스크팩',
+  blush: '블러셔', concealer: '컨실러', primer: '프라이머',
+  powder: '파우더', highlighter: '하이라이터', contour: '컨투어',
+  // 영문 전체 표기 (소문자)
+  'eye cream': '아이크림', 'sun care': '선크림', 'sun cream': '선크림',
+  'sunscreen': '선크림', 'spf': '선크림',
+  'mask pack': '마스크팩', 'sheet mask': '마스크팩',
+  'lip balm': '립', 'lip gloss': '립', 'lip tint': '립',
+  'face wash': '클렌저', 'foam cleanser': '클렌저', 'cleansing': '클렌저',
+  'moisturizer': '크림', 'moisturizing': '크림', 'emulsion': '로션',
 };
 
 // 저장된 category 값을 한국어로 변환 (대소문자 무관)
@@ -441,13 +446,11 @@ function resolveCategory(cat: string | undefined | null): string {
     || cat;
 }
 
-// 모든 제품의 category를 한국어로 일괄 변환
-// - v2 플래그: 이전 v1에서 변환 안 된 항목도 재처리
-// - console.log로 실제 저장된 값 확인 가능
+// 모든 제품의 category를 한국어로 일괄 변환 (v3: null 초기화 제거, ampoule 등 추가)
 async function migrateCategoryKeys(uid: string, boxConfig?: BoxConfig): Promise<void> {
   console.log('[OnStep] migrateCategoryKeys 진입, uid:', uid);
   if (!db) { console.log('[OnStep] db 없음, 종료'); return; }
-  const flagKey = `onstep_cat_ko_v2_${uid}`;
+  const flagKey = `onstep_cat_ko_v3_${uid}`;
   const alreadyDone = typeof localStorage !== 'undefined' && localStorage.getItem(flagKey);
   console.log('[OnStep] 플래그 상태:', flagKey, '=', alreadyDone);
   if (alreadyDone) return;
@@ -477,19 +480,12 @@ async function migrateCategoryKeys(uid: string, boxConfig?: BoxConfig): Promise<
       if (validCats.size > 0 && validCats.has(cat)) continue;
 
       const converted = resolveCategory(cat);
-      // 영문처럼 보이는 값(ASCII만)인지 판별 — 한글 커스텀 카테고리는 건드리지 않음
-      const isEnglishLike = /^[a-zA-Z\s_\-]+$/.test(cat);
-
       if (converted !== cat) {
-        // CAT_KEY_MAP으로 변환 가능한 경우
+        // CAT_KEY_MAP으로 변환된 경우
         patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: converted }));
         console.log('[OnStep] 카테고리 변환:', cat, '→', converted);
-      } else if (isEnglishLike && validCats.size > 0 && !validCats.has(cat)) {
-        // 영문이지만 매핑표에 없고 현재 boxConfig에도 없는 값 → null로 초기화하여 재선택 유도
-        patches.push(updateDoc(doc(db, 'users', uid, 'products', d.id), { category: null }));
-        console.log('[OnStep] 알 수 없는 영문 카테고리 초기화:', cat, '→ null');
       } else {
-        // 한글이거나 현재 boxConfig에 유효한 값 → 유지
+        // 변환 불가(커스텀 한글 등) → 그대로 유지
         console.log('[OnStep] 카테고리 유지:', cat);
       }
     }
