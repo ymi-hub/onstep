@@ -663,42 +663,47 @@ function FlowCard({
         </div>
       )}
 
-      {/* ④ 체크 버튼 — 구분선 없음 */}
+      {/* ④ 체크 버튼 — 제품이 없으면 비활성 */}
       <div style={{ padding: '0 16px 14px' }}>
-        <button
-          onClick={() => !saving && onToggle(tab)}
-          disabled={saving}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            height: 40,
-            width: '100%',
-            background: isChecked ? '#C5FF00' : '#F4F4F0',
-            color: isChecked ? '#0C0C0A' : '#4A4846',
-            border: isChecked ? '1.5px solid #84B000' : '1.5px solid rgba(12,12,10,.1)',
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: '0.04em',
-            borderRadius: 10,
-            cursor: saving ? 'wait' : 'pointer',
-            transition: 'all .22s',
-            opacity: saving ? 0.6 : 1,
-          }}
-        >
-          {saving ? '저장 중...' : isChecked ? (
-            <>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              스킨케어 체크 완료
-            </>
-          ) : (
-            '스킨케어 체크'
-          )}
-        </button>
+        {(() => {
+          const hasProducts = slot.items.some(i => i.type === 'product');
+          return (
+            <button
+              onClick={() => !saving && hasProducts && onToggle(tab)}
+              disabled={saving || !hasProducts}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                height: 40,
+                width: '100%',
+                background: !hasProducts ? '#F4F4F0' : isChecked ? '#C5FF00' : '#F4F4F0',
+                color: !hasProducts ? '#BCBAB6' : isChecked ? '#0C0C0A' : '#4A4846',
+                border: !hasProducts ? '1.5px solid rgba(12,12,10,.07)' : isChecked ? '1.5px solid #84B000' : '1.5px solid rgba(12,12,10,.1)',
+                fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+                borderRadius: 10,
+                cursor: !hasProducts ? 'not-allowed' : saving ? 'wait' : 'pointer',
+                transition: 'all .22s',
+                opacity: saving ? 0.6 : !hasProducts ? 0.45 : 1,
+              }}
+            >
+              {saving ? '저장 중...' : !hasProducts ? '제품을 먼저 등록해주세요' : isChecked ? (
+                <>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  스킨케어 체크 완료
+                </>
+              ) : (
+                '스킨케어 체크'
+              )}
+            </button>
+          );
+        })()}
         {/* List → 오른쪽 정렬 */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
           <Link href="/setup#sessions" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
