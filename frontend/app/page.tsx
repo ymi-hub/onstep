@@ -93,6 +93,7 @@ type Habit = {
   alarm: boolean;
   date?: string;
   weekdays?: number[];
+  showInToday?: boolean;
 };
 
 // 집중케어 / 메이크업 CT 아이템 타입 (setup/page.tsx CtItem과 동일)
@@ -275,36 +276,25 @@ function Appbar({
         <span style={{ display: 'block', height: 1.5, background: '#0C0C0A', borderRadius: 2 }} />
       </button>
 
-      {/* 로고 */}
-      <div
-        style={{
-          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 15,
-          fontWeight: 700,
-          letterSpacing: '0.01em',
-          color: '#0C0C0A',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
+      {/* 로고 — 킹받은 귀요미 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.png"
+          alt="OnStep"
+          style={{ width: 32, height: 32, borderRadius: 10, objectFit: 'cover' }}
+        />
         <span
           style={{
-            width: 24,
-            height: 24,
-            borderRadius: 8,
-            background: '#0C0C0A',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#C5FF00',
-            fontSize: 10,
+            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+            fontSize: 15,
             fontWeight: 800,
+            color: '#0C0C0A',
+            letterSpacing: '-0.01em',
           }}
         >
-          OS
+          OnStep
         </span>
-        OnStep
       </div>
 
       <UserMenuButton user={user} onLogin={onLogin} onLogout={onLogout} />
@@ -336,7 +326,7 @@ function WeatherWidget() {
   const [requested, setRequested] = useState(false);
 
   useEffect(() => {
-    // 캐시된 날씨가 있으면 버튼 없이 바로 표시
+    // 캐시된 날씨 복원 (30분 이내)
     const cached = typeof localStorage !== 'undefined' ? localStorage.getItem('onstep_weather_v5') : null;
     if (cached) {
       try {
@@ -345,9 +335,13 @@ function WeatherWidget() {
           setWeather(d.weather);
           setLocName(d.locName);
           setRequested(true);
+          return; // 캐시 유효 → 재요청 불필요
         }
       } catch { /* ignore */ }
     }
+    // 캐시 없거나 만료 → 자동으로 위치 요청
+    fetchWeather();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchWeather = () => {
@@ -395,7 +389,7 @@ function WeatherWidget() {
       },
       (err) => {
         console.error('[OnStep] 위치 권한 오류:', err.code, err.message);
-        setError(err.code === 1 ? '위치 권한이 거부되었습니다.' : '위치 정보를 가져오지 못했습니다.');
+        setError(err.code === 1 ? 'denied' : '위치 정보를 가져오지 못했습니다.');
         setLoading(false);
       },
       { timeout: 10000 }
@@ -404,33 +398,44 @@ function WeatherWidget() {
 
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
-  // 아직 요청 전 → 버튼 표시 (사용자 제스처로 위치 권한 다이얼로그 유도)
-  if (!requested) {
+  if (loading || !requested) {
     return (
       <div style={{ padding: '10px 16px 4px' }}>
-        <button
-          onClick={fetchWeather}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: '1.5px solid #D8D4CC', borderRadius: 20, padding: '5px 12px', cursor: 'pointer', fontFamily: f, fontSize: 12, fontWeight: 600, color: '#9A9490', letterSpacing: '.03em' }}
-        >
-          📍 날씨 보기
-        </button>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div style={{ padding: '10px 16px 4px' }}>
-        <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>날씨 불러오는 중…</div>
+        <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6' }}>날씨 불러오는 중…</div>
       </div>
     );
   }
 
   if (error) {
+    // 위치 권한 거부 → 시스템 설정으로 안내
+    if (error === 'denied') {
+      return (
+        <div style={{ padding: '10px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>📍 위치 권한 필요</span>
+          <a
+            href="app-settings:"
+            onClick={(e) => {
+              e.preventDefault();
+              // iOS: app-settings, Android/Desktop: permissions API
+              if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                window.location.href = 'app-settings:';
+              } else {
+                // 브라우저 설정 안내
+                alert('브라우저 주소창 왼쪽 자물쇠(🔒) 아이콘 → 위치 → 허용으로 변경해주세요.');
+              }
+            }}
+            style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A', textDecoration: 'underline', cursor: 'pointer' }}
+          >
+            설정 열기
+          </a>
+          <button onClick={() => { setError(''); fetchWeather(); }} style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 11, color: '#9A9490', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>재시도</button>
+        </div>
+      );
+    }
     return (
       <div style={{ padding: '10px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontFamily: f, fontSize: 12, color: '#C0392B' }}>{error}</span>
-        <button onClick={() => { setError(''); setRequested(false); }} style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 11, color: '#9A9490', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>다시 시도</button>
+        <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>날씨 정보 없음</span>
+        <button onClick={() => { setError(''); fetchWeather(); }} style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 11, color: '#9A9490', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>재시도</button>
       </div>
     );
   }
@@ -585,9 +590,6 @@ function FlowCard({
   checked,
   onToggle,
   saving,
-  todayHabits,
-  habitChecked,
-  onToggleHabit,
 }: {
   todayMorning: SlotDay;
   todayEvening: SlotDay;
@@ -599,9 +601,6 @@ function FlowCard({
   checked: CheckState;
   onToggle: (time: 'morning' | 'evening') => void;
   saving: boolean;
-  todayHabits: Habit[];
-  habitChecked: Set<string>;
-  onToggleHabit: (id: string) => void;
 }) {
   const slot = tab === 'morning' ? todayMorning : todayEvening;
   const isChecked = tab === 'morning' ? checked.morning : checked.evening;
@@ -655,45 +654,43 @@ function FlowCard({
         </span>
       </div>
 
-      {/* 아침 / 저녁 탭 */}
-      <div style={{ display: 'flex', padding: '12px 16px 0', gap: 8 }}>
+      {/* 아침 / 저녁 탭 — 작고 심플하게 */}
+      <div style={{ display: 'flex', padding: '10px 16px 0', gap: 6 }}>
         {(['morning', 'evening'] as const).map((t) => (
           <button
             key={t}
             onClick={() => onTabChange(t)}
             style={{
-              flex: 1,
-              height: 36,
+              height: 28,
+              padding: '0 14px',
               borderRadius: 9999,
-              border: 'none',
+              border: tab === t ? 'none' : '1px solid rgba(12,12,10,.1)',
               cursor: 'pointer',
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: 700,
               letterSpacing: '0.04em',
-              // 선택된 탭: 블랙 배경 + 라임 텍스트 / 미선택: 회색
-              background: tab === t ? '#0C0C0A' : '#F4F4F0',
-              color: tab === t ? '#C5FF00' : '#9A9490',
-              transition: 'all .2s',
+              background: tab === t ? '#0C0C0A' : 'transparent',
+              color: tab === t ? '#C5FF00' : '#BCBAB6',
+              transition: 'all .18s',
               position: 'relative',
             }}
           >
-            {t === 'morning' ? '☀ 아침' : '🌙 저녁'}
-            {/* 이미 체크된 탭에 작은 체크 뱃지 */}
+            {t === 'morning' ? '☀ MORNING' : '🌙 NIGHT'}
             {(t === 'morning' ? checked.morning : checked.evening) && (
               <span
                 style={{
                   position: 'absolute',
-                  top: -4,
-                  right: -4,
-                  width: 14,
-                  height: 14,
+                  top: -3,
+                  right: -3,
+                  width: 12,
+                  height: 12,
                   background: '#C5FF00',
                   borderRadius: 9999,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 8,
+                  fontSize: 7,
                   fontWeight: 900,
                   color: '#0C0C0A',
                 }}
@@ -778,123 +775,146 @@ function FlowCard({
         </div>
       )}
 
-      {/* 카드 하단: List 링크 (ROUTINE SETUP 목록으로 이동) */}
-      <div style={{ padding: '12px 16px 8px' }}>
-        <Link href="/setup#sessions" style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 700, color: '#9A9490', textDecoration: 'none' }}>
-          List →
-        </Link>
-      </div>
-
-      {/* ─── Routine Tracker — design .allday-section 완전 적용 ─────────────── */}
-      <div style={{ borderTop: '1px solid rgba(12,12,10,.07)' }}>
-        {/* 헤더: "Routine Tracker" + "List →" */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px' }}>
-          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#9A9490' }}>
-            Routine Tracker
-          </span>
-          <Link href="/setup#tracker" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', color: '#9A9490', textDecoration: 'none' }}>
+      {/* 스킨케어 체크 + List → (우하단) */}
+      <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 16px 14px' }}>
+        <button
+          onClick={() => !saving && onToggle(tab)}
+          disabled={saving}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            height: 40,
+            width: '100%',
+            background: isChecked ? '#C5FF00' : '#F4F4F0',
+            color: isChecked ? '#0C0C0A' : '#4A4846',
+            border: isChecked ? '1.5px solid #84B000' : '1.5px solid rgba(12,12,10,.1)',
+            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: '0.04em',
+            borderRadius: 10,
+            cursor: saving ? 'wait' : 'pointer',
+            transition: 'all .22s',
+            opacity: saving ? 0.6 : 1,
+          }}
+        >
+          {saving ? '저장 중...' : isChecked ? (
+            <>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              스킨케어 체크 완료
+            </>
+          ) : (
+            '스킨케어 체크'
+          )}
+        </button>
+        {/* List → 오른쪽 정렬 */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
+          <Link href="/setup#sessions" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
             List →
           </Link>
         </div>
+      </div>
 
-        {/* allday-items: 디자인 기준 컬러 체크박스 */}
-        {/* CB_COLORS 순환 — morning=cb-blue, evening=cb-green */}
-        {saving && (
-          <div style={{ padding: '6px 16px 8px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490' }}>
-            저장 중...
-          </div>
-        )}
-        {[
-          {
-            key: 'morning' as const,
-            label: '아침 스킨케어',
-            icon: '☀️',
-            time: session.morningTime,
-            count: todayMorning.items.filter(i => i.type === 'product').length,
-            done: checked.morning,
-            // CB_COLORS[0] = cb-blue
-            color: '#3478F6',
-          },
-          {
-            key: 'evening' as const,
-            label: '저녁 스킨케어',
-            icon: '🌙',
-            time: session.eveningTime,
-            count: todayEvening.items.filter(i => i.type === 'product').length,
-            done: checked.evening,
-            // CB_COLORS[1] = cb-green
-            color: '#34A853',
-          },
-        ].map((item) => (
-          <div
-            key={item.key}
-            onClick={() => !saving && onToggle(item.key)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '13px 16px',
-              borderTop: '1px solid rgba(12,12,10,.07)',
-              cursor: saving ? 'wait' : 'pointer',
-              background: item.done ? '#EEEDE9' : '#FFFFFF',
-              transition: 'background .18s',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div
-                style={{
-                  width: 16, height: 16, borderRadius: 4,
-                  border: `2px solid ${item.color}`,
-                  background: item.done ? item.color : '#fff',
-                  flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s',
-                }}
-              >
-                {item.done && (
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                )}
-              </div>
-              <span style={{ fontSize: 19, lineHeight: 1, width: 26, textAlign: 'center', flexShrink: 0 }}>{item.icon}</span>
-              <div>
-                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 500, color: item.done ? '#9A9490' : '#0C0C0A', textDecoration: item.done ? 'line-through' : 'none', transition: 'all .18s' }}>
-                  {item.label}
-                </div>
-                {item.count > 0 && (
-                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490', marginTop: 1 }}>
-                    {item.count}개 제품
-                  </div>
-                )}
-              </div>
-            </div>
-            {item.time && (
-              <div style={{ background: 'rgba(197,255,0,.2)', padding: '3px 10px', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#5A7000', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
-                🔔 {item.time}
-              </div>
-            )}
-          </div>
-        ))}
+      {/* 습관은 FlowCard 아래 독립 섹션으로 분리됨 */}
+    </div>
+  );
+}
 
-        {/* ── Habits from ROUTINE TRACKER setup ── */}
-        {todayHabits.map((h) => {
+// ─── 오늘의 습관 섹션 ────────────────────────────────────────────────────────
+// ROUTINE TRACKER에 등록된 습관 중 오늘 날짜에 해당하는 것만 표시
+// 루틴 유무와 무관하게 항상 렌더링 (todayHabits.length > 0 일 때)
+
+function TodayHabitSection({
+  todayHabits,
+  habitChecked,
+  onToggle,
+}: {
+  todayHabits: Habit[];
+  habitChecked: Set<string>;
+  onToggle: (habitId: string) => void;
+}) {
+  if (todayHabits.length === 0) return null;
+
+  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+  const doneCount = todayHabits.filter(h => habitChecked.has(h.id)).length;
+
+  return (
+    <div style={{ padding: '20px 16px 0' }}>
+      {/* 섹션 헤더 */}
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
+        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>
+          #Habits
+        </span>
+        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>
+          {doneCount}/{todayHabits.length}
+        </span>
+      </div>
+
+      {/* 습관 목록 */}
+      <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
+        {todayHabits.map((h, idx) => {
           const isDone = habitChecked.has(h.id);
           return (
             <div
               key={h.id}
-              onClick={() => !saving && onToggleHabit(h.id)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 16px', borderTop: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isDone ? '#EEEDE9' : '#FFFFFF', transition: 'background .18s' }}
+              onClick={() => onToggle(h.id)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 16px',
+                borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none',
+                cursor: 'pointer',
+                background: isDone ? 'rgba(197,255,0,.08)' : 'transparent',
+                transition: 'background .18s',
+              }}
             >
+              {/* 좌: 체크 + 아이콘 + 이름 */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 16, height: 16, borderRadius: 4, border: '2px solid #9A9490', background: isDone ? '#9A9490' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                  {isDone && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                {/* 체크박스 */}
+                <div style={{
+                  width: 22, height: 22, borderRadius: 6,
+                  border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`,
+                  background: isDone ? '#C5FF00' : '#fff',
+                  flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all .2s',
+                }}>
+                  {isDone && (
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
                 </div>
-                <span style={{ fontSize: 19, lineHeight: 1, width: 26, textAlign: 'center', flexShrink: 0 }}>{h.icon || '✦'}</span>
-                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 500, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', transition: 'all .18s' }}>
+                {/* 이모지 아이콘 */}
+                <span style={{ fontSize: 18, lineHeight: 1, width: 24, textAlign: 'center', flexShrink: 0 }}>
+                  {h.icon || '✦'}
+                </span>
+                {/* 습관 이름 */}
+                <span style={{
+                  fontFamily: f, fontSize: 15, fontWeight: 400,
+                  color: isDone ? '#9A9490' : '#0C0C0A',
+                  textDecoration: isDone ? 'line-through' : 'none',
+                  transition: 'all .18s',
+                }}>
                   {h.name}
-                </div>
+                </span>
               </div>
+
+              {/* 우: 알람 시각 (종일/비종일) */}
               {h.time && h.repeatType !== 'allday' && (
-                <div style={{ background: 'rgba(197,255,0,.2)', padding: '3px 10px', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#5A7000', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{
+                  fontFamily: f, fontSize: 12, fontWeight: 700,
+                  color: isDone ? '#BCBAB6' : '#5A7000',
+                  background: isDone ? 'rgba(12,12,10,.06)' : 'rgba(197,255,0,.2)',
+                  padding: '3px 10px', borderRadius: 9999,
+                  whiteSpace: 'nowrap' as const,
+                  display: 'flex', alignItems: 'center', gap: 4,
+                }}>
                   🔔 {h.time}
                 </div>
               )}
@@ -902,11 +922,23 @@ function FlowCard({
           );
         })}
       </div>
+
+      {/* 하단 List → 링크 (HABITS 화면으로 이동) */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+        <Link
+          href="/setup#tracker"
+          style={{
+            fontFamily: f, fontSize: 12, fontWeight: 700,
+            color: '#9A9490', textDecoration: 'none',
+            letterSpacing: '.04em',
+          }}
+        >
+          List →
+        </Link>
+      </div>
     </div>
   );
 }
-
-// RoutineTracker는 FlowCard 내부로 통합되었습니다.
 
 // ─── 루틴 없을 때 빈 상태 카드 ─────────────────────────────────────────────────
 
@@ -1207,13 +1239,10 @@ function OOTDSection({
   return (
     <div style={{ padding: '28px 16px 0' }}>
       {/* 섹션 헤더 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ marginBottom: 12 }}>
         <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>
           #OOTD
         </span>
-        <Link href="/log" style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>
-          Log →
-        </Link>
       </div>
 
       {!user ? (
@@ -1262,6 +1291,13 @@ function OOTDSection({
           </div>
         </div>
       )}
+
+      {/* Log → 오른쪽 정렬 */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
+        <Link href="/log" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
+          Log →
+        </Link>
+      </div>
     </div>
   );
 }
@@ -1587,7 +1623,8 @@ export default function TodayPage() {
   // 오늘 날짜가 포함된 활성 세션
   const activeSession = findActiveSession(sessions);
   // 오늘 수행해야 하는 습관
-  const todayHabits = habits.filter(isHabitToday);
+  // showInToday가 true인 습관만 TODAY에 표시 (HABITS 화면에서 수동 선택)
+  const todayHabits = habits.filter(h => h.showInToday === true);
   // 오늘이 세션의 몇 번째 DAY인지 (1-based)
   const todayDayNumber = activeSession ? calcTodayDayNumber(activeSession) : 1;
   // 오늘 활성 CT 아이템 필터링
@@ -2120,9 +2157,6 @@ export default function TodayPage() {
             checked={checked}
             onToggle={handleToggle}
             saving={saving}
-            todayHabits={todayHabits}
-            habitChecked={habitChecked}
-            onToggleHabit={handleToggleHabit}
           />
         ) : !user && !authLoading ? (
           // 로그인 안 된 상태
@@ -2131,6 +2165,13 @@ export default function TodayPage() {
           // 오늘 날짜에 해당하는 루틴 없음
           <RoutineEmptyCard />
         )}
+
+        {/* 오늘의 습관 — 루틴 유무와 무관하게 항상 표시 */}
+        <TodayHabitSection
+          todayHabits={todayHabits}
+          habitChecked={habitChecked}
+          onToggle={handleToggleHabit}
+        />
 
         {/* 집중케어 섹션 — 오늘 기간에 해당하는 published 아이템 */}
         <CareSection items={activeCareItems} products={products} />

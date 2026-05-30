@@ -49,6 +49,7 @@ type Habit = {
   alarm: boolean;
   date?: string;
   weekdays?: number[];
+  showInToday?: boolean;  // TODAY 화면에 노출 여부 (수동 선택)
   createdAt: string;
   updatedAt: string;
 };
@@ -274,13 +275,13 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
   const cards = {
     left: [
       { id: 'routine', badge: '#SESSION', title: 'ROUTINE SETUP', sub: 'DAILY CALIBRATIONS', cta: 'View Steps →', bg: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', emoji: '🌿', onClick: onOpenSessions, href: undefined },
-      { id: 'tracker', badge: '#DAILY', title: 'ROUTINE TRACKER', sub: 'HABIT ALARMS', cta: 'Set Alarms →', bg: 'linear-gradient(135deg,#f5ffe0 0%,#dcff80 100%)', emoji: '⏰', onClick: onOpenTracker, href: undefined },
-      { id: 'look', badge: '#LOOKBOOK', title: 'PLANNING', sub: 'QUARTERLY VISION', cta: 'Curate Days →', bg: 'linear-gradient(135deg,#fff0f5 0%,#ffc0d0 100%)', emoji: '📅', onClick: onOpenLookbook, href: undefined },
+      { id: 'tracker', badge: '#DAILY', title: 'HABITS', sub: 'DAILY TRACKING', cta: 'Manage →', bg: 'linear-gradient(135deg,#f5ffe0 0%,#dcff80 100%)', emoji: '⏰', onClick: onOpenTracker, href: undefined },
+      { id: 'look', badge: '#LOOKBOOK', title: 'PLANNING', sub: 'QUARTERLY VISION', cta: 'Curate Days →', bg: 'linear-gradient(135deg,#fff0f5 0%,#ffc0d0 100%)', emoji: '👗', onClick: onOpenLookbook, href: undefined },
     ],
     right: [
       { id: 'ai-import', badge: '#AI', title: 'AI 가져오기', sub: 'TEXT → ROUTINE', cta: '텍스트 붙여넣기 →', bg: 'linear-gradient(135deg,#f0ffe0 0%,#d8ffaa 100%)', emoji: '✨', onClick: null, href: '/import' },
       { id: 'makeup', badge: '#MAKEUP', title: 'STRATEGY', sub: 'IDENTITY FRAMEWORK', cta: 'Reconstruct →', bg: 'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)', emoji: '💄', onClick: onOpenMakeup, href: undefined },
-      { id: 'care', badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS', cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '💊', onClick: onOpenCare, href: undefined },
+      { id: 'care', badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS', cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare, href: undefined },
     ],
   };
 
@@ -314,7 +315,8 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
       <Appbar
         left={
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-            <span style={{ width: 24, height: 24, borderRadius: 8, background: '#0C0C0A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#C5FF00', fontSize: 10, fontWeight: 800 }}>OS</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="OnStep" style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'cover' }} />
           </Link>
         }
         center="OnStep"
@@ -478,7 +480,7 @@ function SessionsView({
         {/* 새 세션 버튼 */}
         <div style={{ padding: '12px 16px 8px' }}>
           <button onClick={onNew} style={{ width: '100%', padding: 14, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: font, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', color: '#9A9490', cursor: 'pointer' }}>
-            + 새 루틴케어 설정
+            + 새 스킨케어 루틴 설정
           </button>
         </div>
 
@@ -995,7 +997,7 @@ function EditorView({
               onChange={(e) => setDraft((d) => d && { ...d, sessionNumber: Math.max(1, parseInt(e.target.value) || 1) })}
               style={{ width: 36, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', background: 'transparent', textAlign: 'center', padding: '0 2px' }}
             />
-            회차 루틴케어 설정
+            회차 스킨케어 루틴
           </span>
           {draft.sessionTag && (
             <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, background: '#E8F5CC', color: '#4E7D00', padding: '2px 8px', borderRadius: 6, border: '1px solid rgba(132,176,0,.3)', whiteSpace: 'nowrap' }}>{draft.sessionTag}</span>
@@ -1105,7 +1107,7 @@ function EditorView({
 
 // ─── TRACKER VIEW ────────────────────────────────────────────────────────────
 function TrackerView({
-  habits, onBack, onAddHabit, onUpdateHabit, onDeleteHabit, user,
+  habits, onBack, onAddHabit, onUpdateHabit, onDeleteHabit, user, onToggleToday,
 }: {
   habits: Habit[];
   user: User | null;
@@ -1113,6 +1115,7 @@ function TrackerView({
   onAddHabit: (h: Omit<Habit, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onUpdateHabit: (id: string, h: Partial<Omit<Habit, 'id'>>) => Promise<void>;
   onDeleteHabit: (id: string) => Promise<void>;
+  onToggleToday: (id: string, current: boolean) => void;
 }) {
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
   const WD_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
@@ -1135,16 +1138,6 @@ function TrackerView({
   const [eDate, setEDate] = useState('');
   const [eWeekdays, setEWeekdays] = useState<number[]>([]);
 
-  const todayWD = new Date().getDay();
-  const todayStr = new Date().toISOString().slice(0, 10);
-
-  function isToday(h: Habit) {
-    if (h.repeatType === 'allday' || h.repeatType === 'daily') return true;
-    if (h.repeatType === 'once') return h.date === todayStr;
-    if (h.repeatType === 'scheduled') return (h.weekdays ?? []).includes(todayWD);
-    return false;
-  }
-
   function repeatLabel(h: Habit) {
     if (h.repeatType === 'allday') return '종일';
     if (h.repeatType === 'daily') return '매일';
@@ -1164,8 +1157,8 @@ function TrackerView({
         repeatType: newRepeat,
         time: newRepeat !== 'allday' ? newTime : '',
         alarm: newRepeat !== 'allday' ? newAlarm : false,
-        date: newRepeat === 'once' ? newDate : undefined,
-        weekdays: newRepeat === 'scheduled' ? newWeekdays : undefined,
+        ...(newRepeat === 'once' ? { date: newDate } : {}),
+        ...(newRepeat === 'scheduled' ? { weekdays: newWeekdays } : {}),
       });
       setNewName(''); setNewIcon('✦'); setNewRepeat('allday');
       setNewTime('07:00'); setNewAlarm(false); setNewDate(''); setNewWeekdays([]);
@@ -1186,8 +1179,8 @@ function TrackerView({
     await onUpdateHabit(editHabit.id, {
       icon: eIcon || '✦', name: eName.trim(), repeatType: eRepeat,
       time: eRepeat !== 'allday' ? eTime : '', alarm: eRepeat !== 'allday' ? eAlarm : false,
-      date: eRepeat === 'once' ? eDate : undefined,
-      weekdays: eRepeat === 'scheduled' ? eWeekdays : undefined,
+      ...(eRepeat === 'once' ? { date: eDate } : {}),
+      ...(eRepeat === 'scheduled' ? { weekdays: eWeekdays } : {}),
       updatedAt: new Date().toISOString(),
     });
     setEditHabit(null);
@@ -1245,21 +1238,51 @@ function TrackerView({
   }
 
   function HabitRow({ h, onEdit }: { h: Habit; onEdit: () => void }) {
+    const isToday = !!h.showInToday;
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#fff', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-        <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, lineHeight: 1 }}>{h.icon || '✦'}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: '#fff', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+        {/* 이모지 아이콘 */}
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, lineHeight: 1 }}>
+          {h.icon || '✦'}
+        </div>
+
+        {/* 이름 + 스케줄 */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</div>
-          <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em' }}>
-            {repeatLabel(h)}{h.time && h.repeatType !== 'allday' ? ` · ${h.time}` : ''}{h.alarm && h.repeatType !== 'allday' ? ' 🔔' : ''}
+          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+            {h.name}
+          </div>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em', marginTop: 2 }}>
+            {repeatLabel(h)}{h.time && h.repeatType !== 'allday' ? ` · ${h.time}` : ''}
+            {h.alarm && h.repeatType !== 'allday' ? ' 🔔' : ''}
           </div>
         </div>
-        <button onClick={onEdit} style={{ width: 28, height: 28, background: 'none', border: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}>✎</button>
+
+        {/* TODAY 토글 — 선택 시 라임 뱃지 */}
+        <button
+          onClick={() => onToggleToday(h.id, isToday)}
+          style={{
+            height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
+            background: isToday ? '#C5FF00' : '#F4F4F0',
+            color: isToday ? '#0C0C0A' : '#9A9490',
+            fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
+            textTransform: 'uppercase' as const,
+            transition: 'all .18s', flexShrink: 0,
+          }}
+        >
+          TODAY
+        </button>
+
+        {/* 편집 버튼 */}
+        <button
+          onClick={onEdit}
+          style={{ width: 28, height: 28, background: 'none', border: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}
+          aria-label="편집"
+        >
+          ✎
+        </button>
       </div>
     );
   }
-
-  const todayHabits = habits.filter(isToday);
 
   return (
     <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
@@ -1273,8 +1296,8 @@ function TrackerView({
         {/* Hero */}
         <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
           <div style={{ position: 'absolute', top: 18, right: 18, fontSize: 36, opacity: .06, transform: 'rotate(10deg)', lineHeight: 1 }}>⏰</div>
-          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.18em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 10 }}>ALL DAY TRACKING</div>
-          <div style={{ fontFamily: f, fontSize: 48, fontWeight: 900, color: '#0C0C0A', lineHeight: .95, letterSpacing: '-.02em', textTransform: 'uppercase' as const }}>ROUTINE<br />TRACKER</div>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.18em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 10 }}>DAILY TRACKING</div>
+          <div style={{ fontFamily: f, fontSize: 48, fontWeight: 900, color: '#0C0C0A', lineHeight: .95, letterSpacing: '-.02em', textTransform: 'uppercase' as const }}>HABITS</div>
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 12, lineHeight: 1.5 }}>습관 트래킹 · 타임 알림 · 데일리 체크</div>
         </div>
 
@@ -1307,18 +1330,58 @@ function TrackerView({
           )}
         </div>
 
-        {/* Today's habits */}
-        {todayHabits.length > 0 && (
-          <div style={{ padding: '20px 16px 32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>
-              DAILY HABITS
-              <span style={{ background: '#C5FF00', color: '#0C0C0A', padding: '2px 8px', borderRadius: 9999, fontSize: 11, fontWeight: 700 }}>TODAY</span>
+        {/* DAILY HABITS — showInToday=true 습관 미리보기 */}
+        {habits.some(h => h.showInToday) && (
+          <div style={{ padding: '24px 16px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
+                DAILY HABITS
+              </span>
+              <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>
+                TODAY
+              </span>
+              <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>
+                {habits.filter(h => h.showInToday).length}개
+              </span>
             </div>
-            <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)' }}>
-              {todayHabits.map(h => <HabitRow key={h.id} h={h} onEdit={() => openEdit(h)} />)}
+            <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+              {habits.filter(h => h.showInToday).map((h, idx) => (
+                <div
+                  key={h.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '12px 14px',
+                    borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none',
+                    background: '#FAFAF8',
+                  }}
+                >
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, lineHeight: 1 }}>
+                    {h.icon || '✦'}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                      {h.name}
+                    </div>
+                  </div>
+                  {/* TODAY 버튼 — 재탭 시 목록에서 제거 */}
+                  <button
+                    onClick={() => onToggleToday(h.id, true)}
+                    style={{
+                      height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
+                      background: '#C5FF00', color: '#0C0C0A',
+                      fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
+                      textTransform: 'uppercase' as const,
+                      flexShrink: 0,
+                    }}
+                  >
+                    TODAY
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         )}
+
         <div style={{ height: 40 }} />
       </div>
 
@@ -1360,9 +1423,9 @@ function CtPanel({
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
 
   const META: Record<CtType, { panel: string; heroType: string; heroTitle: string; heroSub: string; sheetTitle: string; addBtn: string; icon: string }> = {
-    care: { panel: '집중케어', heroType: 'INTENSIVE CARE', heroTitle: '집중케어', heroSub: '케어 프로그램 설계 · BOX 뷰티 제품 매핑 · 기간 & 스케줄 설정', sheetTitle: '집중케어 설계', addBtn: '+ 새 집중케어 설계', icon: '💊' },
+    care: { panel: '집중케어', heroType: 'INTENSIVE CARE', heroTitle: '집중케어', heroSub: '케어 프로그램 설계 · BOX 뷰티 제품 매핑 · 기간 & 스케줄 설정', sheetTitle: '집중케어 설계', addBtn: '+ 새 집중케어 설계', icon: '🧴' },
     makeup: { panel: '메이크업북', heroType: 'BEAUTY', heroTitle: '메이크업북', heroSub: '테마별 화장법 설계 · BOX 뷰티 제품 매핑 · Today 스케줄 연동', sheetTitle: '메이크업 테마 설계', addBtn: '+ 새 메이크업 테마 설계', icon: '💄' },
-    lookbook: { panel: '룩북', heroType: 'FASHION', heroTitle: '룩북', heroSub: 'T.P.O 기반 코디 설계 · BOX 패션·액세서리 매핑 · Today OOTD 연동', sheetTitle: '룩 설계', addBtn: '+ 새 룩 설계', icon: '📅' },
+    lookbook: { panel: '룩북', heroType: 'FASHION', heroTitle: '룩북', heroSub: 'T.P.O 기반 코디 설계 · BOX 패션·액세서리 매핑 · Today OOTD 연동', sheetTitle: '룩 설계', addBtn: '+ 새 룩 설계', icon: '👗' },
   };
   const m = META[ctType];
   const TPO_OPTIONS = ['Daily', 'Work', 'Date', 'Party', 'Sport', 'Casual', 'Formal', 'Travel'];
@@ -1992,6 +2055,18 @@ export default function SetupPage() {
     await deleteDoc(doc(db, 'users', userId, 'habits', id));
   }
 
+  async function handleToggleHabitToday(id: string, current: boolean) {
+    if (!user || !db) { alert('로그인이 필요합니다.'); return; }
+    try {
+      await updateDoc(doc(db, 'users', userId, 'habits', id), {
+        showInToday: !current,
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('[OnStep] TODAY 토글 실패:', err);
+    }
+  }
+
   // ── CtItem CRUD ─────────────────────────────────────────────────────────────
   function ctCollection(ct: CtType) {
     return ct === 'care' ? 'careItems' : ct === 'makeup' ? 'makeupItems' : 'lookItems';
@@ -2037,6 +2112,7 @@ export default function SetupPage() {
           onAddHabit={handleAddHabit}
           onUpdateHabit={handleUpdateHabit}
           onDeleteHabit={handleDeleteHabit}
+          onToggleToday={handleToggleHabitToday}
         />
       )}
       {view === 'care' && (
