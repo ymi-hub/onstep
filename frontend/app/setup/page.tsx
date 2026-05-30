@@ -33,6 +33,7 @@ import { db, auth } from '@/lib/firebase';
 import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot } from '@/types/routine';
 import ExpertTipField, { buildExpertTipHtml } from '@/components/ExpertTipField';
+import SearchBar from '@/components/SearchBar';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
@@ -339,8 +340,17 @@ function SessionsView({
   onUpdateNumber: (id: string, num: number) => void;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
 
   const font = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+
+  // 검색 필터: 회차 번호 또는 태그
+  const filteredSessions = search.trim()
+    ? sessions.filter(s => {
+        const q = search.toLowerCase();
+        return String(s.sessionNumber).includes(q) || (s.sessionTag ?? '').toLowerCase().includes(q);
+      })
+    : sessions;
 
   // 제품 ID → 이름 조회
   function pName(id: string) {
@@ -463,6 +473,9 @@ function SessionsView({
           </div>
         </div>
 
+        {/* 검색 바 */}
+        <SearchBar value={search} onChange={setSearch} placeholder="회차 번호 · 태그 검색..." />
+
         {/* 새 세션 버튼 */}
         <div style={{ padding: '12px 16px 8px' }}>
           <button onClick={onNew} style={{ width: '100%', padding: 14, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: font, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', color: '#9A9490', cursor: 'pointer' }}>
@@ -474,7 +487,12 @@ function SessionsView({
           <div style={{ padding: '48px 16px', textAlign: 'center', color: '#9A9490', fontFamily: font, fontSize: 13 }}>로딩 중...</div>
         ) : (
           <div>
-            {sessions.map((s) => {
+            {filteredSessions.length === 0 && search.trim() ? (
+              <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: font, fontSize: 13, color: '#9A9490' }}>
+                &ldquo;{search}&rdquo; 검색 결과 없음
+              </div>
+            ) : null}
+            {filteredSessions.map((s) => {
               const isExpanded = expandedId === s.id;
               const isNow = isActiveNow(s);
               const morningCount = slotProds(s.morning).length;
@@ -1119,6 +1137,11 @@ function TrackerView({
   const [newWeekdays, setNewWeekdays] = useState<number[]>([]);
   const [adding, setAdding] = useState(false);
 
+  const [habitSearch, setHabitSearch] = useState('');
+  const filteredHabits = habitSearch.trim()
+    ? habits.filter(h => h.name.toLowerCase().includes(habitSearch.toLowerCase()))
+    : habits;
+
   const [editHabit, setEditHabit] = useState<Habit | null>(null);
   const [eIcon, setEIcon] = useState('');
   const [eName, setEName] = useState('');
@@ -1308,14 +1331,19 @@ function TrackerView({
 
         {/* All habits pool */}
         <div style={{ padding: '20px 16px 0' }}>
-          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>전체 습관 목록</div>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>전체 습관 목록</div>
+          <SearchBar value={habitSearch} onChange={setHabitSearch} placeholder="습관 이름 검색..." />
           {habits.length === 0 ? (
-            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9' }}>
+            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
               아직 등록된 습관이 없습니다.<br />위에서 새 습관을 추가해주세요.
             </div>
+          ) : filteredHabits.length === 0 ? (
+            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
+              &ldquo;{habitSearch}&rdquo; 검색 결과 없음
+            </div>
           ) : (
-            <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)' }}>
-              {habits.map(h => <HabitRow key={h.id} h={h} onEdit={() => openEdit(h)} />)}
+            <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
+              {filteredHabits.map(h => <HabitRow key={h.id} h={h} onEdit={() => openEdit(h)} />)}
             </div>
           )}
         </div>
@@ -1440,6 +1468,12 @@ function CtPanel({
   const [picker, setPicker] = useState<'main' | 'tip' | null>(null);
   const [pickerSearch, setPickerSearch] = useState('');
   const [pickerSelected, setPickerSelected] = useState<Set<string>>(new Set());
+
+  // 목록 검색
+  const [ctSearch, setCtSearch] = useState('');
+  const filteredCtItems = ctSearch.trim()
+    ? ctItems.filter(i => i.name.toLowerCase().includes(ctSearch.toLowerCase()))
+    : ctItems;
 
   // Inline text input
   const [activeInput, setActiveInput] = useState<{ section: 'main' | 'tip'; type: 'desc' | 'tip' } | null>(null);
@@ -1705,8 +1739,15 @@ function CtPanel({
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 8, lineHeight: 1.5 }}>{m.heroSub}</div>
         </div>
 
+        {/* 검색 바 */}
         {ctItems.length > 0 && (
-          <div style={{ padding: '8px 20px 0', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490' }}>{ctItems.length} items</div>
+          <SearchBar value={ctSearch} onChange={setCtSearch} placeholder={`${m.heroTitle} 이름 검색...`} />
+        )}
+
+        {ctItems.length > 0 && (
+          <div style={{ padding: '8px 20px 0', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
+            {ctSearch.trim() ? `${filteredCtItems.length} / ${ctItems.length} items` : `${ctItems.length} items`}
+          </div>
         )}
 
         <div style={{ padding: '8px 20px 4px' }}>
@@ -1716,7 +1757,11 @@ function CtPanel({
         <div style={{ padding: '8px 20px' }}>
           {ctItems.length === 0 ? (
             <div style={{ padding: '36px 0', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6 }}>등록된 항목이 없습니다.</div>
-          ) : ctItems.map(item => <CtCard key={item.id} item={item} />)}
+          ) : filteredCtItems.length === 0 ? (
+            <div style={{ padding: '36px 0', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>
+              &ldquo;{ctSearch}&rdquo; 검색 결과 없음
+            </div>
+          ) : filteredCtItems.map(item => <CtCard key={item.id} item={item} />)}
         </div>
         <div style={{ height: 40 }} />
       </div>
