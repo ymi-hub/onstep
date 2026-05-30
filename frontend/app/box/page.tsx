@@ -1009,43 +1009,53 @@ export default function BoxPage() {
   }
 
   // ── 중복 제품 자동 삭제 ──────────────────────────────────────────────────
-  // 기준: 이름(소문자 trim) + 도메인이 동일한 제품을 중복으로 판단
-  // 보존: updatedAt 가장 최신 항목 1개  /  삭제: 나머지 전체
+  // 기준: 이름 정규화(소문자 trim + 공백 통합) — 도메인 무관
+  // 보존 우선순위:
+  //   1) 카테고리 있는 것 > 없는 것
+  //   2) 동점이면 updatedAt 최신 순
   async function handleDedup() {
     if (!db) return;
 
-    // 도메인별 이름으로 그룹핑
+    // 이름만으로 그룹핑 (도메인 무관, 공백 통합)
+    const normName = (n: string) => n.trim().toLowerCase().replace(/\s+/g, ' ');
     const groups: Record<string, Product[]> = {};
     for (const p of products) {
-      const key = `${p.domain}::${p.name.trim().toLowerCase()}`;
+      const key = normName(p.name);
       if (!groups[key]) groups[key] = [];
       groups[key].push(p);
     }
 
-    // 2개 이상인 그룹만 추출
     const dupGroups = Object.values(groups).filter(g => g.length > 1);
+
+    // 감지된 중복 목록을 콘솔에 출력 (확인용)
+    console.log('[OnStep] 중복 그룹:', dupGroups.map(g => g.map(p => `${p.name}(${p.category ?? '카테고리없음'})`)));
+
     if (dupGroups.length === 0) {
       alert('중복 제품이 없습니다.');
       return;
     }
 
-    const totalDup = dupGroups.reduce((n, g) => n + g.length - 1, 0);
-    if (!confirm(`중복 제품 ${totalDup}개를 삭제하시겠어요?\n(각 이름별로 가장 최근 항목 1개를 보존합니다)`)) return;
+    // 각 그룹에서 보존할 1개 선택
+    // score: 카테고리 있으면 +2, 카테고리 없으면 0 → 높은 score가 1위
+    //        동점이면 updatedAt 최신 순
+    const score = (p: Product) => (p.category ? 2 : 0);
+    const toDelete: Product[] = [];
+    for (const group of dupGroups) {
+      const sorted = [...group].sort((a, b) => {
+        const sd = score(b) - score(a);
+        if (sd !== 0) return sd;
+        return (b.updatedAt || '').localeCompare(a.updatedAt || '');
+      });
+      toDelete.push(...sorted.slice(1)); // 1등 제외 나머지 삭제
+    }
+
+    const msg = toDelete.map(p => `· ${p.name}${p.category ? ` (${p.category})` : ' (카테고리없음)'}`).join('\n');
+    if (!confirm(`다음 ${toDelete.length}개를 삭제합니다:\n\n${msg}\n\n계속하시겠어요?`)) return;
 
     setDeduping(true);
     try {
-      const deletions: Promise<void>[] = [];
-      for (const group of dupGroups) {
-        // updatedAt 내림차순 정렬 → 첫 번째(최신) 보존, 나머지 삭제
-        const sorted = [...group].sort((a, b) =>
-          (b.updatedAt || '').localeCompare(a.updatedAt || '')
-        );
-        for (const p of sorted.slice(1)) {
-          deletions.push(deleteDoc(doc(db, 'users', userId, 'products', p.id)));
-        }
-      }
-      await Promise.all(deletions);
-      alert(`중복 ${totalDup}개 삭제 완료`);
+      await Promise.all(toDelete.map(p => deleteDoc(doc(db!, 'users', userId, 'products', p.id))));
+      alert(`중복 ${toDelete.length}개 삭제 완료`);
     } catch (err) {
       console.error('중복 삭제 실패:', err);
       alert('삭제 중 오류가 발생했습니다.');
