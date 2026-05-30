@@ -1493,7 +1493,7 @@ function CtPanel({
       tipItems: sTipItems,
       expertTip: sExpertTip.trim(),
       published: sPublished,
-      ...(ctType === 'care' ? { periodStart: sPeriodStart, periodEnd: sPeriodEnd } : {}),
+      ...(ctType === 'care' && sPeriodStart ? { periodStart: sPeriodStart, ...(sPeriodEnd ? { periodEnd: sPeriodEnd } : {}) } : {}),
       ...(ctType !== 'care' ? { dates: sDates } : {}),
       ...(ctType === 'lookbook' ? { tpo: sTpo } : {}),
     };
@@ -1769,10 +1769,13 @@ function CtPanel({
               />
             </div>
 
-            {/* Period — care only */}
+            {/* Period — care only (선택 사항, 나중에 편집 가능) */}
             {ctType === 'care' && (
               <div style={{ padding: '16px 20px 0' }}>
-                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, display: 'block' }}>케어 기간</span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>케어 기간</span>
+                  <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>선택 · 나중에 편집 가능</span>
+                </div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <input type="date" value={sPeriodStart} onChange={e => setSPeriodStart(e.target.value)} style={{ flex: 1, padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
                   <span style={{ color: '#9A9490', fontSize: 12 }}>→</span>
@@ -1810,7 +1813,17 @@ function CtPanel({
 
             {/* Published toggle */}
             <div style={{ padding: '20px 20px 0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => setSPublished(p => !p)}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+                onClick={() => {
+                  const next = !sPublished;
+                  setSPublished(next);
+                  // ON으로 켤 때 케어 기간 시작일이 비어있으면 오늘 날짜 자동 입력
+                  if (next && ctType === 'care' && !sPeriodStart) {
+                    setSPeriodStart(new Date().toISOString().slice(0, 10));
+                  }
+                }}
+              >
                 <div style={{ width: 44, height: 26, borderRadius: 13, background: sPublished ? '#0C0C0A' : '#D8D6CF', transition: 'background .2s', position: 'relative', flexShrink: 0 }}>
                   <div style={{ position: 'absolute', top: 3, left: sPublished ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.3)' }} />
                 </div>
