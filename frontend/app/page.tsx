@@ -1092,7 +1092,7 @@ function OOTDSection({
 
             {/* 카드 하단: Edit → Log 화면 */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 16px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-              <Link href="/log" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>Edit →</Link>
+              <Link href="/log" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
             </div>
           </div>
         )}
