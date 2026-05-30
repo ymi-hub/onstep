@@ -872,17 +872,25 @@ export default function BoxPage() {
     if (!form.name.trim()) return;
     if (!db) { alert('.env.local에 Firebase 설정을 먼저 입력해주세요.'); return; }
 
-    // 중복 이름 체크 (신규 등록 시에만, 같은 도메인 내)
+    // 중복 이름 체크 (신규 등록 시, 전체 도메인 대상)
     if (!editingProduct) {
-      const nameLower = form.name.trim().toLowerCase();
-      const dup = products.find(
-        (p) => p.name.trim().toLowerCase() === nameLower && p.domain === form.formDomain
-      );
+      const normInput = form.name.trim().normalize('NFC').toLowerCase()
+        .replace(/\s+/g, ' ').replace(/[^\p{L}\p{N} ]/gu, '');
+      const normProd = (n: string) =>
+        n.trim().normalize('NFC').toLowerCase()
+          .replace(/\s+/g, ' ').replace(/[^\p{L}\p{N} ]/gu, '');
+
+      const dup = products.find(p => normProd(p.name) === normInput);
       if (dup) {
-        const go = window.confirm(
-          `"${dup.name}" 제품이 이미 등록되어 있습니다.\n그래도 새로 추가하시겠습니까?`
+        // 중복 발견 → 저장 차단 + 상세 안내
+        alert(
+          `⚠️ 이미 등록된 제품입니다.\n\n` +
+          `기존: "${dup.name}"` +
+          (dup.category ? ` [${dup.category}]` : '') +
+          ` / ${dup.domain}\n\n` +
+          `제품명을 다르게 입력하거나, 기존 제품을 편집해주세요.`
         );
-        if (!go) return;
+        return; // 저장 중단
       }
     }
 
@@ -1009,37 +1017,39 @@ export default function BoxPage() {
   }
 
   // ── 중복 제품 자동 삭제 ──────────────────────────────────────────────────
-  // Firestore에서 직접 전체 조회 (React state 타이밍 문제 배제)
+  // 기준: 이름 완전일치(정규화 후)만 체크 — 유사쌍 없음
   // 보존 우선순위: 카테고리 있음 > 없음 → 동점이면 updatedAt 최신
   async function handleDedup() {
     if (!db) return;
     setDeduping(true);
     try {
-      // Firestore 전체 제품 직접 조회
       const snap = await getDocs(collection(db, 'users', userId, 'products'));
       const all: Product[] = snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<Product, 'id'>) }));
 
-      // 이름 정규화: 소문자 + 공백 통합 + 특수문자 제거
-      const normName = (n: string) =>
-        n.trim().toLowerCase().replace(/\s+/g, ' ').replace(/[^\p{L}\p{N} ]/gu, '');
+      // 정규화: NFC → 소문자 → 공백통합 → 비문자 제거
+      const norm = (n: string) =>
+        (n || '').normalize('NFC').trim().toLowerCase()
+          .replace(/\s+/g, ' ').replace(/[^\p{L}\p{N} ]/gu, '');
 
       // 이름 기준 그룹핑
       const groups: Record<string, Product[]> = {};
       for (const p of all) {
-        const key = normName(p.name || '');
+        const key = norm(p.name);
         if (!key) continue;
         if (!groups[key]) groups[key] = [];
         groups[key].push(p);
       }
 
-      // 디버그: 전체 그룹 콘솔 출력
-      console.log('[OnStep] 전체 제품 수:', all.length);
-      console.log('[OnStep] 정규화 결과:', all.map(p => `"${p.name}" → "${normName(p.name || '')}"`));
-      console.log('[OnStep] 중복 그룹:', Object.entries(groups).filter(([,g]) => g.length > 1).map(([k,g]) => `${k}: ${g.length}개`));
+      // 진단 로그: 정규화 이름 전체를 createdAt 최신순으로 출력
+      const sorted = [...all].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      console.log('[OnStep] 최근 생성 제품 (최신→구)');
+      sorted.slice(0, 20).forEach(p =>
+        console.log(`  norm:"${norm(p.name)}" | 원본:"${p.name}" | id:${p.id}`)
+      );
 
       const dupGroups = Object.values(groups).filter(g => g.length > 1);
       if (dupGroups.length === 0) {
-        alert('중복 제품이 없습니다.');
+        alert('중복 제품이 없습니다.\n\n삭제하려는 두 제품의 이름을 Console에서 확인해주세요.');
         setDeduping(false);
         return;
       }
@@ -1072,6 +1082,41 @@ export default function BoxPage() {
       alert('삭제 중 오류가 발생했습니다.');
     } finally {
       setDeduping(false);
+    }
+  }
+
+  // ── 카테고리 없는 최근 제품 삭제 ─────────────────────────────────────────
+  // 카테고리 미입력 제품을 최신순으로 보여주고 선택 삭제
+  async function handleDeleteNoCat() {
+    if (!db) return;
+    const snap = await getDocs(collection(db, 'users', userId, 'products'));
+    const noCat = snap.docs
+      .map(d => ({ id: d.id, ...(d.data() as Omit<Product, 'id'>) }))
+      .filter(p => !p.category)
+      .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')); // 최신순
+
+    if (noCat.length === 0) {
+      alert('카테고리 없는 제품이 없습니다.');
+      return;
+    }
+
+    const msg = noCat.map((p, i) => `${i + 1}. ${p.name} (${p.domain})`).join('\n');
+    const input = prompt(
+      `카테고리 없는 제품 ${noCat.length}개:\n\n${msg}\n\n삭제할 번호를 입력 (쉼표로 복수선택, 예: 1 또는 1,2):`
+    );
+    if (!input) return;
+
+    const indices = input.split(',').map(s => parseInt(s.trim(), 10) - 1).filter(i => i >= 0 && i < noCat.length);
+    if (indices.length === 0) return;
+
+    const targets = indices.map(i => noCat[i]);
+    if (!confirm(`${targets.map(p => p.name).join(', ')} 삭제하시겠어요?`)) return;
+
+    try {
+      await Promise.all(targets.map(p => deleteDoc(doc(db!, 'users', userId, 'products', p.id))));
+      alert(`${targets.length}개 삭제 완료`);
+    } catch (err) {
+      console.error('삭제 실패:', err);
     }
   }
 
@@ -1109,6 +1154,20 @@ export default function BoxPage() {
             <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#9A9490' }}>
               {products.length} assets
             </span>
+            {/* 카테고리 없는 제품 삭제 */}
+            <button
+              onClick={handleDeleteNoCat}
+              style={{
+                padding: '5px 10px', borderRadius: 8,
+                border: '1.5px solid rgba(12,12,10,.2)',
+                background: '#F4F4F0',
+                fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                fontSize: 11, fontWeight: 700, letterSpacing: '.04em',
+                color: '#4A4846', cursor: 'pointer',
+              }}
+            >
+              카테고리없는 제품
+            </button>
             {/* 중복 삭제 버튼 */}
             <button
               onClick={handleDedup}
