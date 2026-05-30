@@ -1009,53 +1009,64 @@ export default function BoxPage() {
   }
 
   // ── 중복 제품 자동 삭제 ──────────────────────────────────────────────────
-  // 기준: 이름 정규화(소문자 trim + 공백 통합) — 도메인 무관
-  // 보존 우선순위:
-  //   1) 카테고리 있는 것 > 없는 것
-  //   2) 동점이면 updatedAt 최신 순
+  // Firestore에서 직접 전체 조회 (React state 타이밍 문제 배제)
+  // 보존 우선순위: 카테고리 있음 > 없음 → 동점이면 updatedAt 최신
   async function handleDedup() {
     if (!db) return;
-
-    // 이름만으로 그룹핑 (도메인 무관, 공백 통합)
-    const normName = (n: string) => n.trim().toLowerCase().replace(/\s+/g, ' ');
-    const groups: Record<string, Product[]> = {};
-    for (const p of products) {
-      const key = normName(p.name);
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(p);
-    }
-
-    const dupGroups = Object.values(groups).filter(g => g.length > 1);
-
-    // 감지된 중복 목록을 콘솔에 출력 (확인용)
-    console.log('[OnStep] 중복 그룹:', dupGroups.map(g => g.map(p => `${p.name}(${p.category ?? '카테고리없음'})`)));
-
-    if (dupGroups.length === 0) {
-      alert('중복 제품이 없습니다.');
-      return;
-    }
-
-    // 각 그룹에서 보존할 1개 선택
-    // score: 카테고리 있으면 +2, 카테고리 없으면 0 → 높은 score가 1위
-    //        동점이면 updatedAt 최신 순
-    const score = (p: Product) => (p.category ? 2 : 0);
-    const toDelete: Product[] = [];
-    for (const group of dupGroups) {
-      const sorted = [...group].sort((a, b) => {
-        const sd = score(b) - score(a);
-        if (sd !== 0) return sd;
-        return (b.updatedAt || '').localeCompare(a.updatedAt || '');
-      });
-      toDelete.push(...sorted.slice(1)); // 1등 제외 나머지 삭제
-    }
-
-    const msg = toDelete.map(p => `· ${p.name}${p.category ? ` (${p.category})` : ' (카테고리없음)'}`).join('\n');
-    if (!confirm(`다음 ${toDelete.length}개를 삭제합니다:\n\n${msg}\n\n계속하시겠어요?`)) return;
-
     setDeduping(true);
     try {
+      // Firestore 전체 제품 직접 조회
+      const snap = await getDocs(collection(db, 'users', userId, 'products'));
+      const all: Product[] = snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<Product, 'id'>) }));
+
+      // 이름 정규화: 소문자 + 공백 통합 + 특수문자 제거
+      const normName = (n: string) =>
+        n.trim().toLowerCase().replace(/\s+/g, ' ').replace(/[^\p{L}\p{N} ]/gu, '');
+
+      // 이름 기준 그룹핑
+      const groups: Record<string, Product[]> = {};
+      for (const p of all) {
+        const key = normName(p.name || '');
+        if (!key) continue;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(p);
+      }
+
+      // 디버그: 전체 그룹 콘솔 출력
+      console.log('[OnStep] 전체 제품 수:', all.length);
+      console.log('[OnStep] 정규화 결과:', all.map(p => `"${p.name}" → "${normName(p.name || '')}"`));
+      console.log('[OnStep] 중복 그룹:', Object.entries(groups).filter(([,g]) => g.length > 1).map(([k,g]) => `${k}: ${g.length}개`));
+
+      const dupGroups = Object.values(groups).filter(g => g.length > 1);
+      if (dupGroups.length === 0) {
+        alert('중복 제품이 없습니다.');
+        setDeduping(false);
+        return;
+      }
+
+      // 보존 1개 선택, 나머지 삭제 목록 구성
+      const score = (p: Product) => (p.category ? 2 : 0);
+      const toDelete: Product[] = [];
+      for (const group of dupGroups) {
+        const sorted = [...group].sort((a, b) => {
+          const sd = score(b) - score(a);
+          if (sd !== 0) return sd;
+          return (b.updatedAt || '').localeCompare(a.updatedAt || '');
+        });
+        toDelete.push(...sorted.slice(1));
+      }
+
+      const msg = toDelete.map(p =>
+        `· ${p.name}${p.category ? ` [${p.category}]` : ' [카테고리없음]'}`
+      ).join('\n');
+
+      if (!confirm(`삭제 대상 ${toDelete.length}개:\n\n${msg}\n\n삭제하시겠어요?`)) {
+        setDeduping(false);
+        return;
+      }
+
       await Promise.all(toDelete.map(p => deleteDoc(doc(db!, 'users', userId, 'products', p.id))));
-      alert(`중복 ${toDelete.length}개 삭제 완료`);
+      alert(`완료: ${toDelete.length}개 삭제됨`);
     } catch (err) {
       console.error('중복 삭제 실패:', err);
       alert('삭제 중 오류가 발생했습니다.');
