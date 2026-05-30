@@ -597,19 +597,19 @@ function FlowCard({
               if (item.type === 'product') {
                 const p = products.get(item.id);
                 return (
-                  <div key={idx} style={{ flexShrink: 0, width: 72, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
-                    <div style={{ width: 72, height: 72, background: '#EEEDE9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                  <div key={idx} style={{ flexShrink: 0, width: 90, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
+                    <div style={{ width: 90, height: 90, background: '#EEEDE9', borderRadius: 12, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
                       {(p?.imageUrl || p?.storageUrl)
                         ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <span style={{ fontSize: 20, opacity: 0.4 }}>🧴</span>
+                        : <span style={{ fontSize: 24, opacity: 0.4 }}>🧴</span>
                       }
                       {isChecked && (
-                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, zIndex: 3 }}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, zIndex: 3 }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                         </div>
                       )}
                     </div>
-                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', width: '100%' }}>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>
                       {p?.name ?? '?'}
                     </div>
                   </div>
@@ -1001,109 +1001,6 @@ function LoginRequiredCard({ onLogin }: { onLogin: () => void }) {
   );
 }
 
-// ─── 빠른 이동 카드 ──────────────────────────────────────────────────────────
-
-function QuickLinks() {
-  const links = [
-    {
-      href: '/box',
-      label: 'BOX',
-      desc: '제품 관리',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="21 8 21 21 3 21 3 8" />
-          <rect x="1" y="3" width="22" height="5" />
-          <line x1="10" y1="12" x2="14" y2="12" />
-        </svg>
-      ),
-    },
-    {
-      href: '/setup',
-      label: 'SETUP',
-      desc: '루틴 편집',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-        </svg>
-      ),
-    },
-    {
-      href: '/log',
-      label: 'LOG',
-      desc: '기록 보기',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-        </svg>
-      ),
-    },
-  ] as const;
-
-  return (
-    <div style={{ padding: '20px 16px 32px' }}>
-      <div
-        style={{
-          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 11,
-          fontWeight: 800,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: '#0C0C0A',
-          marginBottom: 12,
-        }}
-      >
-        #Quick Links
-      </div>
-      <div style={{ display: 'flex', gap: 8 }}>
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            style={{
-              flex: 1,
-              background: '#F4F4F0',
-              border: '1px solid rgba(12,12,10,.07)',
-              borderRadius: 16,
-              padding: '14px 12px',
-              textDecoration: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 8,
-              transition: 'background .15s',
-            }}
-          >
-            <span style={{ color: '#4A4846' }}>{link.icon}</span>
-            <div>
-              <div
-                style={{
-                  fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                  fontSize: 12,
-                  fontWeight: 800,
-                  letterSpacing: '0.06em',
-                  color: '#0C0C0A',
-                }}
-              >
-                {link.label}
-              </div>
-              <div
-                style={{
-                  fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                  fontSize: 11,
-                  color: '#9A9490',
-                  marginTop: 2,
-                }}
-              >
-                {link.desc}
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ─── OOTD 섹션 ───────────────────────────────────────────────────────────────
 // today.html .ootd-main-photo / .ootd-thumb-row / .record-look-row 구조 기반
@@ -1278,14 +1175,14 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
     if (item.type === 'product') {
       const p = products.get(item.id);
       return (
-        <div key={idx} style={{ flexShrink: 0, width: 72, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <div style={{ width: 72, height: 72, background: '#EEEDE9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <div key={idx} style={{ flexShrink: 0, width: 90, display: 'flex', flexDirection: 'column', gap: 0 }}>
+          <div style={{ width: 90, height: 90, background: '#EEEDE9', borderRadius: 12, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             {(p?.imageUrl || p?.storageUrl)
               ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <span style={{ fontSize: 20, opacity: 0.4 }}>🧴</span>
+              : <span style={{ fontSize: 24, opacity: 0.4 }}>🧴</span>
             }
           </div>
-          <div style={{ fontFamily: f, fontSize: 11, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', width: '100%' }}>
+          <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>
             {p?.name ?? '?'}
           </div>
         </div>
@@ -2237,8 +2134,6 @@ export default function TodayPage() {
           products={products}
         />
 
-        {/* 빠른 이동 링크 */}
-        <QuickLinks />
       </div>
 
       {/* OOTD 기록 바텀 시트 */}

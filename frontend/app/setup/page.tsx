@@ -220,7 +220,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
 }) {
   const cards = {
     left: [
-      { id: 'routine', badge: '#SESSION', title: 'ROUTINE SETUP', sub: 'DAILY CALIBRATIONS', cta: 'View Steps →', bg: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', emoji: '🌿', onClick: onOpenSessions, href: undefined },
+      { id: 'routine', badge: '#SESSION', title: '스킨케어 루틴', sub: 'DAILY CALIBRATIONS', cta: 'View Steps →', bg: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', emoji: '🌿', onClick: onOpenSessions, href: undefined },
       { id: 'tracker', badge: '#DAILY', title: 'HABITS', sub: 'DAILY TRACKING', cta: 'Manage →', bg: 'linear-gradient(135deg,#f5ffe0 0%,#dcff80 100%)', emoji: '⏰', onClick: onOpenTracker, href: undefined },
       { id: 'look', badge: '#LOOKBOOK', title: 'PLANNING', sub: 'QUARTERLY VISION', cta: 'Curate Days →', bg: 'linear-gradient(135deg,#fff0f5 0%,#ffc0d0 100%)', emoji: '👗', onClick: onOpenLookbook, href: undefined },
     ],
@@ -411,7 +411,7 @@ function SessionsView({
 
   return (
     <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
-      <SubPageHeader title="ROUTINE SETUP" onClose={onBack} />
+      <SubPageHeader title="스킨케어 루틴" onClose={onBack} />
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* 헤더 */}
         <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
