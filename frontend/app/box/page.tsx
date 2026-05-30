@@ -420,7 +420,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
 const CAT_KEY_MAP: Record<string, string> = {
   // 스킨케어
   toner: '토너', essence: '에센스', serum: '세럼', ampoule: '앰플',
-  cream: '크림', lotion: '로션', emulsion: '로션', amulsion: '로션',
+  cream: '크림', lotion: '로션', emulsion: '에멀젼', amulsion: '에멀젼',
   cleanser: '클렌저', suncare: '선크림', sunscreen: '선크림', spf: '선크림',
   mask: '마스크팩', eye: '아이크림', mist: '미스트', oil: '오일',
   peeling: '필링', exfoliant: '필링', scrub: '스크럽', toner_pad: '토너',
@@ -476,7 +476,7 @@ function resolveCategory(cat: string | undefined | null): string {
 async function migrateCategoryKeys(uid: string, boxConfig?: BoxConfig): Promise<void> {
   console.log('[OnStep] migrateCategoryKeys 진입, uid:', uid);
   if (!db) { console.log('[OnStep] db 없음, 종료'); return; }
-  const flagKey = `onstep_cat_ko_v5_${uid}`;
+  const flagKey = `onstep_cat_ko_v6_${uid}`;
   const alreadyDone = typeof localStorage !== 'undefined' && localStorage.getItem(flagKey);
   console.log('[OnStep] 플래그 상태:', flagKey, '=', alreadyDone);
   if (alreadyDone) return;
