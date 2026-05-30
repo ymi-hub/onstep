@@ -54,16 +54,33 @@ async function callGroq(prompt: string): Promise<string> {
   const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
   if (!apiKey) throw new Error('Groq API 키가 없습니다. .env.local에 NEXT_PUBLIC_GROQ_API_KEY를 추가하세요.');
 
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'llama-3.1-8b-instant',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.1,
-      max_tokens: 2048,
-    }),
+  // JSON 출력에 1024 토큰으로 충분 — 2048은 불필요하게 TPM 한도를 소비함
+  const body = JSON.stringify({
+    model: 'llama-3.1-8b-instant',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.1,
+    max_tokens: 1024,
   });
+
+  const doFetch = () =>
+    fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body,
+    });
+
+  let res = await doFetch();
+
+  // 429 Rate limit → 오류 메시지에서 대기 시간 파싱 후 1회 재시도
+  if (res.status === 429) {
+    const errBody = await res.json().catch(() => ({})) as { error?: { message?: string } };
+    const msg = errBody.error?.message ?? '';
+    const match = msg.match(/try again in ([\d.]+)s/);
+    // 명시된 대기 시간 + 1초 여유; 파싱 실패 시 35초 기본값
+    const waitMs = match ? Math.ceil(parseFloat(match[1])) * 1000 + 1000 : 35000;
+    await new Promise(r => setTimeout(r, waitMs));
+    res = await doFetch();
+  }
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { error?: { message?: string } };

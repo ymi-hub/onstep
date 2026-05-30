@@ -690,11 +690,15 @@ export default function ImportPage() {
 
       const now = new Date().toISOString();
 
-      const startDate = parsedResult.date ?? now.slice(0, 10);
-      // endDate: 시작일로부터 90일 후 (루틴 기간을 모르므로 넉넉하게 설정)
-      const endDateObj = new Date(startDate);
-      endDateObj.setDate(endDateObj.getDate() + 90);
-      const endDate = endDateObj.toISOString().slice(0, 10);
+      // 날짜가 없으면 비워둠 — 오늘로 채우면 과거 루틴도 NOW가 되는 버그 발생
+      const startDate = parsedResult.date ?? '';
+      const endDate = startDate
+        ? (() => {
+            const d = new Date(startDate);
+            d.setDate(d.getDate() + 90);
+            return d.toISOString().slice(0, 10);
+          })()
+        : '';
 
       const sessionData = {
         sessionNumber: parsedResult.session,
