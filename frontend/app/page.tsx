@@ -38,6 +38,8 @@ import {
 import { db, auth, storage } from '@/lib/firebase';
 import type { Product } from '@/types/product';
 import { EXPERT_TIP_HIGHLIGHT } from '@/components/ExpertTipField';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 
 // ─── 타입 정의 ────────────────────────────────────────────────────────────────
 // setup/page.tsx에서 사용하는 Firestore 데이터 구조와 동일하게 맞춤
@@ -724,16 +726,9 @@ function TodayHabitSection({
   const doneCount = todayHabits.filter(h => habitChecked.has(h.id)).length;
 
   return (
-    <div style={{ padding: '20px 16px 0' }}>
+    <div>
       {/* 섹션 헤더 */}
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
-        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>
-          #Habits
-        </span>
-        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>
-          {doneCount}/{todayHabits.length}
-        </span>
-      </div>
+      <SectionHeader title="#Habits" action={`${doneCount}/${todayHabits.length}`} />
 
       {/* 습관 목록 */}
       <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
@@ -1118,13 +1113,9 @@ function OOTDSection({
   user: User | null;
 }) {
   return (
-    <div style={{ padding: '28px 16px 0' }}>
+    <div>
       {/* 섹션 헤더 */}
-      <div style={{ marginBottom: 12 }}>
-        <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>
-          #OOTD
-        </span>
-      </div>
+      <SectionHeader title="#OOTD" />
 
       {!user ? (
         <div style={{ padding: '20px', textAlign: 'center', fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 20, lineHeight: 1.6 }}>
@@ -1227,10 +1218,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
   }
 
   return (
-    <div style={{ padding: '28px 16px 0' }}>
-      <div style={{ marginBottom: 12 }}>
-        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>#Intensive Care</span>
-      </div>
+    <div>
+      <SectionHeader title="#Intensive Care" />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {items.map((item) => (
@@ -1299,11 +1288,8 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
   if (items.length === 0) return null;
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   return (
-    <div style={{ padding: '28px 16px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>#Makeup</span>
-        <a href="/setup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>Edit →</a>
-      </div>
+    <div>
+      <SectionHeader title="#Makeup" action={<a href="/setup" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none' }}>Edit →</a>} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {items.map((item) => {
           const prodIds = item.items
@@ -2007,21 +1993,8 @@ export default function TodayPage() {
   return (
     <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
       <div>
-        {/* 페이지 제목 */}
-        <div style={{ padding: '16px 16px 0' }}>
-          <h1
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 28,
-              fontWeight: 800,
-              color: '#0C0C0A',
-              letterSpacing: '-0.01em',
-              margin: 0,
-            }}
-          >
-            Today
-          </h1>
-        </div>
+        {/* 페이지 헤더 — 공통 PageHeader 컴포넌트 */}
+        <PageHeader label="Today" title="Today" />
 
         {/* 날씨 위젯 */}
         <WeatherWidget />
@@ -2034,25 +2007,7 @@ export default function TodayPage() {
         />
 
         {/* #Flow 섹션 헤더 */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-            padding: '16px 16px 8px',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 22,
-              fontWeight: 800,
-              color: '#0C0C0A',
-            }}
-          >
-            #Flow
-          </span>
-        </div>
+        <SectionHeader title="#Flow" />
 
         {/* 메인 루틴 카드 — 로딩 / 루틴 있음 / 루틴 없음 분기 */}
         {dataLoading || authLoading ? (

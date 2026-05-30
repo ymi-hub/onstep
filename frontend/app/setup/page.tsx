@@ -35,6 +35,7 @@ import type { RoutineItem, SlotDay, Slot } from '@/types/routine';
 import ExpertTipField, { buildExpertTipHtml } from '@/components/ExpertTipField';
 import SearchBar from '@/components/SearchBar';
 import SubPageHeader from '@/components/SubPageHeader';
+import PageHeader from '@/components/PageHeader';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
@@ -254,13 +255,13 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
 
   return (
     <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
-      <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: '.16em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 4 }}>CONFIGURATION</div>
-        <div>
-          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 60, fontWeight: 900, color: '#0C0C0A', lineHeight: 0.9, letterSpacing: '-.02em' }}>Setup</div>
-          <div style={{ width: 40, height: 4, background: '#C5FF00', borderRadius: 2, marginTop: 8 }} />
-        </div>
-        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490', marginTop: 14, lineHeight: 1.6 }}>Let&apos;s start today and tomorrow</div>
+      {/* 페이지 헤더 — 공통 PageHeader 컴포넌트 */}
+      <div style={{ borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+        <PageHeader
+          label="Setup"
+          title="Setup"
+          subtitle="루틴 · 습관 · 케어"
+        />
       </div>
       <div style={{ padding: '24px 16px 8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{cards.left.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}</div>
@@ -1652,7 +1653,7 @@ function CtPanel({
         </div>
         <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 16px 12px', display: 'flex', gap: 8 }}>
           <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: 10, background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.08)', color: item.published ? '#fff' : '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
-            {item.published ? '활성 ON' : '활성 OFF'}
+            {item.published ? 'Today ON' : 'Today OFF'}
           </button>
           <button onClick={() => openEdit(item)} style={{ padding: '10px 14px', background: '#EEEDE9', color: '#4A4846', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, cursor: 'pointer' }}>편집</button>
         </div>

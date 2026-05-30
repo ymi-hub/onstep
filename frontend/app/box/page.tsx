@@ -30,6 +30,7 @@ import {
 import { db, auth, storage } from '@/lib/firebase';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Product } from '@/types/product';
+import PageHeader from '@/components/PageHeader';
 
 const FALLBACK_USER_ID = 'demo-user';
 
@@ -910,65 +911,38 @@ export default function BoxPage() {
         </div>
       )}
 
-      {/* 페이지 히어로 (design/box.html .page-hero 참고) */}
-      <div style={{ padding: '20px 16px 6px' }}>
-        {/* 상위 레이블 */}
-        <div
-          style={{
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 11, fontWeight: 600, letterSpacing: '.16em',
-            textTransform: 'uppercase', color: '#9A9490', marginBottom: 4,
-          }}
-        >
-          Inventory
-        </div>
-
-        {/* 타이틀 + 제품 수 */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 6 }}>
-          {/* "Box" 대형 타이틀 — design에서 fontSize 60, fontWeight 900 */}
-          <div
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 60, fontWeight: 900, color: '#0C0C0A',
-              lineHeight: 0.9, letterSpacing: '-.02em',
-            }}
-          >
-            Box
+      {/* 페이지 헤더 — 공통 PageHeader 컴포넌트 */}
+      <PageHeader
+        label="Box"
+        title="Box"
+        subtitle="화장대와 옷장 아이템 정리"
+        right={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {/* 제품 수 */}
+            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#9A9490' }}>
+              {products.length} assets
+            </span>
+            {/* 카테고리 편집 버튼 */}
+            <button
+              onClick={() => setManageOpen(true)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '5px 10px', borderRadius: 8,
+                border: '1.5px solid rgba(12,12,10,.14)',
+                background: '#F4F4F0',
+                fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                fontSize: 11, fontWeight: 700, letterSpacing: '.04em',
+                color: '#4A4846', cursor: 'pointer',
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.01 7.01 0 0 0-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84a.484.484 0 0 0-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.04.7 1.62.94l.36 2.54c.05.24.27.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/>
+              </svg>
+              카테고리 편집
+            </button>
           </div>
-          <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, fontWeight: 600, color: '#9A9490', paddingBottom: 6 }}>
-            {products.length} assets
-          </div>
-        </div>
-
-        {/* 서브 텍스트 + 카테고리 편집 링크 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 14 }}>
-          <div
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 12, color: '#9A9490',
-            }}
-          >
-            화장대와 옷장 아이템 정리
-          </div>
-          <button
-            onClick={() => setManageOpen(true)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '5px 10px', borderRadius: 8,
-              border: '1.5px solid rgba(12,12,10,.14)',
-              background: '#F4F4F0',
-              fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-              fontSize: 11, fontWeight: 700, letterSpacing: '.04em',
-              color: '#4A4846', cursor: 'pointer',
-            }}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.01 7.01 0 0 0-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84a.484.484 0 0 0-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.37 1.04.7 1.62.94l.36 2.54c.05.24.27.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.57 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/>
-            </svg>
-            카테고리 편집
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* 도메인 탭 (Beauty / Fashion / Acc) */}
       {/* design/box.html .domain-tabs 구조 */}

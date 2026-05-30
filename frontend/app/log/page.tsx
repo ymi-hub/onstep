@@ -37,6 +37,7 @@ import {
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import type { Product } from '@/types/product';
+import PageHeader from '@/components/PageHeader';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -908,32 +909,12 @@ export default function LogPage() {
 
       <div style={{ paddingBottom: 32 }}>
 
-        {/* 페이지 헤더 */}
-        <div style={{ padding: '16px 16px 0' }}>
-          <h1
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 28,
-              fontWeight: 800,
-              color: '#0C0C0A',
-              letterSpacing: '-0.01em',
-              margin: 0,
-            }}
-          >
-            LOG
-          </h1>
-          <p
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 13,
-              color: '#9A9490',
-              marginTop: 4,
-              marginBottom: 0,
-            }}
-          >
-            {format(currentMonth, 'M월', { locale: ko })} · {completedDays}/{totalDaysInMonth}일 완료
-          </p>
-        </div>
+        {/* 페이지 헤더 — 공통 PageHeader 컴포넌트 */}
+        <PageHeader
+          label="Log"
+          title="Log"
+          subtitle={`${format(currentMonth, 'M월', { locale: ko })} · ${completedDays}/${totalDaysInMonth}일 완료`}
+        />
 
         {/* 탭 바 — LOG / LIBRARY */}
         <div
