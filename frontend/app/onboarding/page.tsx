@@ -136,29 +136,39 @@ function Slide1() {
       ))}
 
       {/* ── 캐릭터 ── */}
+      {/*
+        filter: drop-shadow 는 바깥 div에 유지.
+        안쪽 div에 borderRadius 50% + overflow hidden → 원형으로 크롭해서
+        PNG 배경색 사각 테두리가 사라지고 캐릭터만 공중에 떠있는 효과.
+      */}
       <div style={{
         position: 'relative', zIndex: 2,
         animation: 'charBounce 3.5s ease-in-out infinite',
         marginBottom: 8,
-        // 캐릭터에 핑크 그림자를 줘서 생동감 더함
-        filter: 'drop-shadow(0 24px 48px rgba(233,79,107,0.35)) drop-shadow(0 8px 16px rgba(0,0,0,0.4))',
+        filter: 'drop-shadow(0 24px 48px rgba(233,79,107,0.4)) drop-shadow(0 8px 16px rgba(0,0,0,0.4))',
       }}>
-        <Image
-          src="/logo.png"
-          alt="OnStep 캐릭터"
-          width={180}
-          height={180}
-          style={{ objectFit: 'contain' }}
-          priority
-        />
+        <div style={{ borderRadius: '50%', overflow: 'hidden', width: 180, height: 180 }}>
+          <Image
+            src="/logo.png"
+            alt="OnStep 캐릭터"
+            width={180}
+            height={180}
+            style={{ objectFit: 'cover', display: 'block' }}
+            priority
+          />
+        </div>
       </div>
 
       {/* ── 텍스트 블록 ── */}
+      {/*
+        both 필모드: 딜레이 동안 from(opacity:0) 상태 유지 → 딜레이를 최소화해야
+        첫 화면이 빈 화면처럼 보이지 않음. 0.4s → 0.1s로 단축.
+      */}
       <div style={{
         position: 'relative', zIndex: 2,
         textAlign: 'center',
         padding: '0 36px',
-        animation: 'fadeUp 0.9s 0.4s both',
+        animation: 'fadeUp 0.7s 0.1s both',
       }}>
         {/* 브랜드 레터링 */}
         <div style={{
@@ -209,7 +219,7 @@ function Slide1() {
       <div style={{
         position: 'absolute', bottom: 40,
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-        animation: 'fadeUp 0.8s 1.2s both',
+        animation: 'fadeUp 0.6s 0.4s both',
         zIndex: 2,
       }}>
         <div style={{ fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>
@@ -385,26 +395,28 @@ function Slide3() {
         pointerEvents: 'none',
       }} />
 
-      {/* 소형 캐릭터 — 마지막 슬라이드에서 더 작게, 반갑게 손 흔드는 느낌 */}
+      {/* 소형 캐릭터 */}
       <div style={{
         animation: 'charBounce 3.2s ease-in-out infinite',
         marginBottom: 20,
-        filter: 'drop-shadow(0 16px 32px rgba(74,187,120,0.25)) drop-shadow(0 6px 12px rgba(0,0,0,0.3))',
+        filter: 'drop-shadow(0 16px 32px rgba(74,187,120,0.3)) drop-shadow(0 6px 12px rgba(0,0,0,0.3))',
         zIndex: 1,
       }}>
-        <Image
-          src="/logo.png"
-          alt="OnStep 캐릭터"
-          width={110}
-          height={110}
-          style={{ objectFit: 'contain' }}
-        />
+        <div style={{ borderRadius: '50%', overflow: 'hidden', width: 110, height: 110 }}>
+          <Image
+            src="/logo.png"
+            alt="OnStep 캐릭터"
+            width={110}
+            height={110}
+            style={{ objectFit: 'cover', display: 'block' }}
+          />
+        </div>
       </div>
 
       {/* 텍스트 */}
       <div style={{
         textAlign: 'center', width: '100%',
-        animation: 'fadeUp 0.8s 0.3s both',
+        animation: 'fadeUp 0.7s 0.1s both',
         zIndex: 1,
       }}>
         <div style={{ fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,.35)', marginBottom: 12, fontWeight: 600 }}>
