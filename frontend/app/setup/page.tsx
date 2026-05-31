@@ -22,7 +22,6 @@ import {
 import {
   collection,
   query,
-  onSnapshot,
   addDoc,
   updateDoc,
   deleteDoc,
