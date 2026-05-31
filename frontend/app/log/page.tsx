@@ -1306,10 +1306,20 @@ function LogCtPanel({
           + 새 {colLabel} 등록
         </button>
         {items.length === 0 ? (
-          <div style={{ padding: '48px 20px', textAlign: 'center', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#F4F4F0' }}>
-            <div style={{ fontSize: 24, opacity: 0.3, marginBottom: 10 }}>{icon}</div>
-            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#9A9490' }}>{colLabel} 아이템이 없어요</div>
-            <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 6 }}>위 버튼으로 추가하세요</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
+            <div style={{ background: '#FFFFFF', border: '1px solid #000000', overflow: 'hidden' }}>
+              <div style={{ width: '100%', aspectRatio: '1/1.5', background: BG, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                <span style={{ fontSize: 40, opacity: 0.3 }}>{icon}</span>
+              </div>
+              <div style={{ padding: '10px 12px 0' }}>
+                <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#E4E2DC', color: '#9A9490', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>{BADGE}</div>
+                <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#C4C2BE', lineHeight: 1.2, marginBottom: 3 }}>아이템 없음</div>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, color: '#C4C2BE', paddingBottom: 10 }}>위 버튼으로 추가</div>
+              </div>
+              <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 12px', display: 'flex', gap: 6 }}>
+                <div style={{ flex: 1, padding: '8px 0', background: 'rgba(12,12,10,.04)', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C4C2BE', textAlign: 'center', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>Today OFF</div>
+              </div>
+            </div>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
