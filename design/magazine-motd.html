@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnStep · Magazine Layout</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF8;--surface:#F4F4F0;--surface-low:#EEEDE9;
+  --ink:#0C0C0A;--sub:#4A4846;--mist:#9A9490;
+  --border:rgba(12,12,10,.07);--border-md:rgba(12,12,10,.12);
+  --lime:#C5FF00;--lime-dk:#A6D900;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-full:9999px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#E0DDD8;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  color:var(--ink);-webkit-font-smoothing:antialiased;
+  padding:40px 24px 80px;
+}
+
+/* ── 커버 ── */
+.cover{margin-bottom:52px}
+.cover h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:40px;font-weight:300;letter-spacing:-.01em;
+  color:var(--ink);line-height:1.1;margin-bottom:8px;
+}
+.cover h1 em{font-style:italic;font-weight:400}
+.cover p{font-size:11px;color:var(--mist);line-height:1.8;max-width:480px}
+.cover-rule{width:40px;height:1px;background:var(--ink);margin:14px 0}
+
+/* ── 섹션 ── */
+.sec{margin-bottom:56px}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--mist);text-transform:uppercase;margin-bottom:14px}
+
+/* ── 폰 갤러리 ── */
+.phones{display:flex;gap:20px;overflow-x:auto;padding:4px 0 16px;scrollbar-width:none;align-items:flex-start}
+.phones::-webkit-scrollbar{display:none}
+.pw{flex-shrink:0}
+.cap{margin-top:10px;font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.02em}
+.cap small{display:block;font-size:9px;color:var(--mist);margin-top:1px;font-weight:400}
+
+/* ── 폰 프레임 ── */
+.phone{
+  width:300px;background:var(--bg);border-radius:38px;overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:0 0 0 1px rgba(255,255,255,.65) inset,0 24px 64px rgba(0,0,0,.16);
+}
+.notch{height:28px;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;flex-shrink:0}
+.nb{width:80px;height:3.5px;background:var(--ink);border-radius:2px;opacity:.1}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none;background:var(--bg)}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ── 앱바 ── */
+.ab{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:rgba(250,250,248,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.abl{font-size:13px;font-weight:800}
+.av{width:26px;height:26px;border-radius:50%;background:var(--surface-mid);border:1.5px solid var(--border-md);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--sub)}
+
+/* ── 섹션 헤더 ── */
+.sh{display:flex;align-items:baseline;justify-content:space-between;padding:14px 14px 8px}
+.sh-title{font-size:12px;font-weight:800;color:var(--ink);letter-spacing:.01em}
+.sh-act{font-size:9px;color:var(--mist)}
+
+/* ── 바텀탭 ── */
+.bn{display:flex;border-top:1px solid var(--border);background:rgba(250,250,248,.96);padding:7px 0 10px;flex-shrink:0}
+.bi{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:7.5px;font-weight:800;letter-spacing:.05em;color:var(--mist)}
+.bi.on{color:var(--ink)}
+.bi svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bd{width:4px;height:4px;border-radius:50%;background:var(--lime);opacity:0;margin-top:1px}
+.bi.on .bd{opacity:1}
+
+
+/* ═══════════════════════════════════════════════
+   A. 현재 (BEFORE) 스타일
+   ═══════════════════════════════════════════════ */
+.before-card{
+  margin:0 12px 14px;
+  background:#fff;border-radius:20px;overflow:hidden;
+  box-shadow:0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04);
+}
+.before-hero{
+  position:relative;width:100%;aspect-ratio:1/1;
+  background:#1C1C1C;overflow:hidden;
+}
+.before-hero-img{width:100%;height:100%;object-fit:cover;display:block;background:linear-gradient(135deg,#2A1F2E,#1A1520);display:flex;align-items:center;justify-content:center;font-size:52px}
+.before-badge{
+  position:absolute;top:12px;left:12px;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(6px);
+  border-radius:5px;padding:4px 9px;
+  font-size:9px;font-weight:700;letter-spacing:.12em;color:#fff;
+}
+.before-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:32px 14px 14px;
+  background:linear-gradient(to top, rgba(0,0,0,.65) 0%, transparent 60%);
+}
+.before-name{font-size:17px;font-weight:800;color:#fff;line-height:1.2}
+.before-desc{font-size:11px;color:rgba(255,255,255,.65);margin-top:3px}
+.before-prods{display:flex;overflow-x:auto;scrollbar-width:none;gap:8px;padding:14px 14px}
+.before-prod{flex-shrink:0;width:80px;display:flex;flex-direction:column;align-items:center}
+.before-prod-img{width:80px;height:80px;background:#EDECE9;border-radius:11px;border:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;font-size:20px}
+.before-prod-name{font-size:10px;font-weight:700;color:var(--ink);margin-top:5px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.before-prod-brand{font-size:9px;color:var(--mist);margin-top:1px;text-align:center}
+
+
+/* ═══════════════════════════════════════════════
+   B. 매거진 스타일 (AFTER) — MOTD
+   ═══════════════════════════════════════════════ */
+
+/* 섹션 헤더 — 매거진 마스트헤드 */
+.mag-masthead{
+  padding:14px 14px 0;
+  display:flex;align-items:baseline;justify-content:space-between;
+  border-bottom:1.5px solid var(--ink);
+  padding-bottom:6px;
+  margin:0 14px 0;
+}
+.mag-title{
+  font-size:10px;font-weight:800;letter-spacing:.16em;color:var(--ink);
+  text-transform:uppercase;
+}
+.mag-issue{font-size:9px;color:var(--mist);letter-spacing:.06em}
+
+/* 매거진 MOTD 카드 — 3:4 세로형 */
+.mag-card{
+  margin:10px 14px 0;
+  position:relative;overflow:hidden;border-radius:4px;
+  /* 패션 잡지 — 날카로운 코너 */
+}
+.mag-card-inner{
+  position:relative;
+  aspect-ratio:3/4;
+  background:#1C1C1C;overflow:hidden;
+}
+.mag-card-img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  /* 이미지 없을 때 그라데이션 배경 */
+  background:linear-gradient(160deg,#1E1A2E 0%,#0E0C14 60%,#1A1510 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+.mag-card-img-ph{font-size:64px;opacity:.15}
+
+/* 편집 레이블 — 좌상단 */
+.mag-editorial-label{
+  position:absolute;top:14px;left:14px;
+  font-size:7.5px;font-weight:800;letter-spacing:.18em;
+  color:rgba(255,255,255,.45);text-transform:uppercase;
+}
+/* 하단 텍스트 오버레이 */
+.mag-card-foot{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:60px 14px 14px;
+  background:linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.3) 50%, transparent 80%);
+}
+.mag-card-number{
+  font-size:8px;font-weight:700;letter-spacing:.14em;
+  color:rgba(255,255,255,.45);margin-bottom:5px;
+}
+.mag-card-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;font-weight:400;font-style:italic;
+  color:#fff;line-height:1.15;
+}
+.mag-card-desc{
+  font-size:10px;color:rgba(255,255,255,.55);
+  margin-top:5px;line-height:1.5;
+}
+/* 소스 링크 */
+.mag-card-src{
+  display:inline-flex;align-items:center;gap:4px;
+  margin-top:8px;font-size:8.5px;font-weight:700;
+  color:rgba(255,255,255,.4);letter-spacing:.04em;
+}
+
+/* 구분선 */
+.mag-rule{height:1px;background:var(--border-md);margin:0 14px}
+
+/* 제품 스트립 — 매거진 스타일 */
+.mag-prods{
+  padding:12px 0 14px;
+  display:flex;overflow-x:auto;scrollbar-width:none;gap:1px;
+  border-bottom:1px solid var(--border);
+}
+.mag-prods::-webkit-scrollbar{display:none}
+/* 첫 번째 아이템 들여쓰기 */
+.mag-prods-inner{
+  display:flex;gap:1px;padding:0 14px;
+}
+.mag-prod{
+  flex-shrink:0;width:76px;
+  display:flex;flex-direction:column;align-items:center;
+}
+.mag-prod-img{
+  width:76px;height:76px;background:var(--surface-low);
+  border:1px solid rgba(0,0,0,.05);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  overflow:hidden;
+  /* 매거진 — 이미지 컨테이너는 직각 */
+  border-radius:2px;
+}
+.mag-prod-img img{width:100%;height:100%;object-fit:cover}
+.mag-prod-cat{
+  font-size:7px;font-weight:700;letter-spacing:.1em;
+  color:var(--mist);text-transform:uppercase;margin-top:5px;
+}
+.mag-prod-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:11px;font-weight:500;font-style:italic;
+  color:var(--ink);margin-top:1px;text-align:center;
+  line-height:1.2;
+}
+
+/* ═══════════════════════════════════════════════
+   C. 매거진 스타일 — LOOKBOOK (그리드형)
+   ═══════════════════════════════════════════════ */
+
+/* 룩북 그리드 — 히어로 + 세컨더리 */
+.look-hero{
+  margin:10px 14px 1px;
+  position:relative;aspect-ratio:4/5;overflow:hidden;border-radius:3px;
+  background:#1a1a1a;
+}
+.look-hero-img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  background:linear-gradient(160deg,#1A1F2E,#0E1014);
+  display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.2;
+}
+.look-hero-foot{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:56px 14px 14px;
+  background:linear-gradient(to top,rgba(0,0,0,.8) 0%,rgba(0,0,0,.3) 60%,transparent 80%);
+}
+.look-hero-no{
+  font-size:8px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4);margin-bottom:4px;
+}
+.look-hero-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:300;color:#fff;line-height:1.1;
+}
+.look-hero-tags{
+  display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;
+}
+.look-tag{
+  font-size:7.5px;font-weight:700;letter-spacing:.08em;
+  padding:3px 8px;border-radius:2px;
+  background:rgba(255,255,255,.15);color:rgba(255,255,255,.7);
+}
+
+/* 2열 그리드 */
+.look-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:1px;margin:1px 14px 0;
+}
+.look-cell{
+  position:relative;aspect-ratio:1/1;overflow:hidden;background:#1a1a1a;
+  display:flex;align-items:center;justify-content:center;
+}
+.look-cell-img{font-size:36px;opacity:.2}
+.look-cell-foot{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:28px 10px 10px;
+  background:linear-gradient(to top,rgba(0,0,0,.75),transparent);
+}
+.look-cell-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:14px;font-weight:400;font-style:italic;color:#fff;line-height:1.2;
+}
+.look-cell-tpo{font-size:7.5px;color:rgba(255,255,255,.45);margin-top:2px;letter-spacing:.06em}
+
+/* 세번째 아이템 — 전폭 가로 */
+.look-wide{
+  margin:1px 14px 0;
+  position:relative;aspect-ratio:16/7;overflow:hidden;border-radius:0 0 3px 3px;background:#1a1a1a;
+  display:flex;align-items:center;justify-content:center;
+}
+.look-wide-img{font-size:36px;opacity:.15}
+.look-wide-text{
+  position:absolute;inset:0;
+  display:flex;align-items:center;
+  padding:0 14px;
+  background:linear-gradient(to right,rgba(0,0,0,.7) 0%,rgba(0,0,0,.3) 50%,transparent 80%);
+}
+.look-wide-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:20px;font-weight:300;font-style:italic;color:#fff;line-height:1.2;
+}
+
+/* 캡션 바 */
+.mag-caption{
+  margin:0 14px;
+  padding:10px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+.mag-caption-text{font-size:9px;color:var(--mist);line-height:1.5}
+.mag-caption-text b{font-weight:700;color:var(--sub)}
+.mag-caption-src{
+  font-size:8.5px;font-weight:700;color:var(--mist);
+  display:flex;align-items:center;gap:3px;flex-shrink:0;
+}
+
+/* ═══════════════════════════════════════════════
+   D. 컴팩트 리스트형 (세컨더리 아이템)
+   ═══════════════════════════════════════════════ */
+.compact-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-bottom:1px solid var(--border);
+}
+.compact-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:20px;font-weight:300;color:var(--mist);
+  width:24px;flex-shrink:0;line-height:1;
+}
+.compact-img{
+  width:48px;height:48px;border-radius:2px;
+  background:var(--surface-mid);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  overflow:hidden;
+}
+.compact-img img{width:100%;height:100%;object-fit:cover}
+.compact-info{flex:1}
+.compact-cat{font-size:7.5px;font-weight:700;letter-spacing:.1em;color:var(--mist);text-transform:uppercase;margin-bottom:2px}
+.compact-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;font-weight:400;font-style:italic;color:var(--ink);line-height:1.2;
+}
+.compact-desc{font-size:9px;color:var(--mist);margin-top:2px}
+
+/* 빈 상태 */
+.empty-state{
+  margin:12px 14px;
+  display:flex;flex-direction:column;align-items:center;
+  padding:28px 16px;gap:6px;
+  border:1.5px dashed rgba(12,12,10,.12);border-radius:4px;
+}
+.empty-state-emoji{font-size:28px;opacity:.4}
+.empty-state-text{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;font-style:italic;color:var(--mist)}
+.empty-state-sub{font-size:9px;color:var(--mist);opacity:.7}
+
+/* 간격 */
+.gap{height:16px}
+.mg{height:8px}
+</style>
+</head>
+<body>
+
+<!-- 커버 -->
+<div class="cover">
+  <p style="font-size:9px;letter-spacing:.14em;color:var(--mist);font-weight:700;margin-bottom:10px">ONSTEP · DESIGN STUDY</p>
+  <h1>Magazine<br><em>Layout</em></h1>
+  <div class="cover-rule"></div>
+  <p>메이크업(#MOTD)과 룩북(#OOTD)을 패션 잡지처럼.<br>
+  기존 카드 구조는 유지하되 타이포·비율·그리드를 교체.</p>
+</div>
+
+
+<!-- ─────────────── MOTD ─────────────── -->
+<div class="sec">
+  <div class="sec-label">Makeup of the Day · #MOTD</div>
+
+  <div class="phones">
+
+    <!-- BEFORE -->
+    <div class="pw">
+      <div class="phone" style="height:600px">
+        <div class="notch"><div class="nb"></div></div>
+        <div class="ab"><div class="abl">OnStep</div><div class="av">Y</div></div>
+        <div class="scroll">
+          <div class="sh"><div class="sh-title">#MOTD</div></div>
+
+          <div class="before-card">
+            <div class="before-hero">
+              <div class="before-hero-img">💄</div>
+              <div class="before-badge">EDITORIAL CHOICE</div>
+              <div class="before-overlay">
+                <div class="before-name">오피스 쿨톤 메이크업</div>
+                <div class="before-desc">가볍고 자연스러운 데일리룩</div>
+              </div>
+            </div>
+            <div class="before-prods">
+              <div class="before-prod"><div class="before-prod-img">🧴</div><div class="before-prod-name">틴티드 선크림</div><div class="before-prod-brand">Dr.Jart+</div></div>
+              <div class="before-prod"><div class="before-prod-img">✏️</div><div class="before-prod-name">아이브로우 펜슬</div><div class="before-prod-brand">ROMAND</div></div>
+              <div class="before-prod"><div class="before-prod-img">💋</div><div class="before-prod-name">쉬어 립밤</div><div class="before-prod-brand">LANEIGE</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="bn">
+          <div class="bi on"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>TODAY<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>LOG<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>BOX<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>SETUP<div class="bd"></div></div>
+        </div>
+      </div>
+      <div class="cap">현재 (Before)<small>1:1 정사각 + 둥근 카드</small></div>
+    </div>
+
+    <!-- AFTER A: 매거진 세로 (3:4) -->
+    <div class="pw">
+      <div class="phone" style="height:600px">
+        <div class="notch"><div class="nb"></div></div>
+        <div class="ab"><div class="abl">OnStep</div><div class="av">Y</div></div>
+        <div class="scroll">
+          <!-- 마스트헤드 -->
+          <div class="gap"></div>
+          <div class="mag-masthead">
+            <div class="mag-title">#MOTD</div>
+            <div class="mag-issue">NO. 12 · MAY 2026</div>
+          </div>
+
+          <!-- 3:4 포트레이트 카드 -->
+          <div class="mag-card">
+            <div class="mag-card-inner">
+              <div class="mag-card-img">
+                <!-- 실제 이미지가 들어올 자리 -->
+                <div style="position:absolute;inset:0;background:linear-gradient(160deg,#1E1A2E 0%,#0E0C14 60%,#1A1510 100%);display:flex;align-items:center;justify-content:center">
+                  <span style="font-size:72px;opacity:.09">💄</span>
+                </div>
+                <!-- 컬러 틴트 오버레이 — 분위기 연출 -->
+                <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(120,80,140,.15),rgba(40,20,60,.3))"></div>
+              </div>
+              <div class="mag-editorial-label">EDITORIAL CHOICE</div>
+              <div class="mag-card-foot">
+                <div class="mag-card-number">LOOK NO. 01</div>
+                <div class="mag-card-name">오피스<br>쿨톤 메이크업</div>
+                <div class="mag-card-desc">가볍고 자연스러운 데일리 메이크업</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 제품 스트립 -->
+          <div class="mag-prods">
+            <div class="mag-prods-inner">
+              <div class="mag-prod">
+                <div class="mag-prod-img">🧴</div>
+                <div class="mag-prod-cat">Base</div>
+                <div class="mag-prod-name">틴티드<br>선크림</div>
+              </div>
+              <div style="width:10px;flex-shrink:0"></div>
+              <div class="mag-prod">
+                <div class="mag-prod-img">✏️</div>
+                <div class="mag-prod-cat">Eyes</div>
+                <div class="mag-prod-name">아이브로우<br>펜슬</div>
+              </div>
+              <div style="width:10px;flex-shrink:0"></div>
+              <div class="mag-prod">
+                <div class="mag-prod-img">💋</div>
+                <div class="mag-prod-cat">Lips</div>
+                <div class="mag-prod-name">쉬어<br>립밤</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="gap"></div>
+        </div>
+        <div class="bn">
+          <div class="bi on"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>TODAY<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>LOG<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>BOX<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>SETUP<div class="bd"></div></div>
+        </div>
+      </div>
+      <div class="cap">매거진 A — 세로형<small>3:4 포트레이트 · 세리프 타이틀 · 제품 카테고리 레이블</small></div>
+    </div>
+
+    <!-- AFTER B: 매거진 리스트형 (아이템 여러 개) -->
+    <div class="pw">
+      <div class="phone" style="height:600px">
+        <div class="notch"><div class="nb"></div></div>
+        <div class="ab"><div class="abl">OnStep</div><div class="av">Y</div></div>
+        <div class="scroll">
+          <div class="gap"></div>
+          <div class="mag-masthead">
+            <div class="mag-title">#MOTD</div>
+            <div class="mag-issue">3 LOOKS</div>
+          </div>
+
+          <!-- 히어로 (첫 번째) -->
+          <div class="mag-card" style="margin-bottom:1px">
+            <div class="mag-card-inner" style="aspect-ratio:16/9">
+              <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1A1520,#0E0C14);display:flex;align-items:center;justify-content:center"><span style="font-size:48px;opacity:.08">💄</span></div>
+              <div class="mag-editorial-label">FEATURED</div>
+              <div class="mag-card-foot">
+                <div class="mag-card-number">NO. 01</div>
+                <div class="mag-card-name" style="font-size:20px">오피스 쿨톤 메이크업</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 나머지 아이템 — 컴팩트 리스트 -->
+          <div class="compact-item">
+            <div class="compact-num">02</div>
+            <div class="compact-img">🌸</div>
+            <div class="compact-info">
+              <div class="compact-cat">Weekend</div>
+              <div class="compact-name">피크닉 내추럴</div>
+              <div class="compact-desc">3개 제품</div>
+            </div>
+          </div>
+
+          <div class="compact-item">
+            <div class="compact-num">03</div>
+            <div class="compact-img">🌙</div>
+            <div class="compact-info">
+              <div class="compact-cat">Evening</div>
+              <div class="compact-name">나이트 글로우</div>
+              <div class="compact-desc">5개 제품</div>
+            </div>
+          </div>
+
+          <div class="gap"></div>
+        </div>
+        <div class="bn">
+          <div class="bi on"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>TODAY<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>LOG<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>BOX<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>SETUP<div class="bd"></div></div>
+        </div>
+      </div>
+      <div class="cap">매거진 B — 히어로 + 목차형<small>첫 아이템 풀블리드 · 나머지 컴팩트 리스트</small></div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ─────────────── LOOKBOOK ─────────────── -->
+<div class="sec">
+  <div class="sec-label">Lookbook · #OOTD</div>
+
+  <div class="phones">
+
+    <!-- AFTER: 룩북 그리드 -->
+    <div class="pw">
+      <div class="phone" style="height:640px">
+        <div class="notch"><div class="nb"></div></div>
+        <div class="ab"><div class="abl">OnStep</div><div class="av">Y</div></div>
+        <div class="scroll">
+          <div class="gap"></div>
+          <div class="mag-masthead">
+            <div class="mag-title">#LOOKBOOK</div>
+            <div class="mag-issue">MAY 2026</div>
+          </div>
+
+          <!-- 히어로 룩 — 4:5 세로 -->
+          <div class="look-hero">
+            <div style="position:absolute;inset:0;background:linear-gradient(160deg,#1A1F2E,#0E1014);display:flex;align-items:center;justify-content:center">
+              <span style="font-size:72px;opacity:.07">👗</span>
+            </div>
+            <div class="look-hero-foot">
+              <div class="look-hero-no">LOOK NO. 01</div>
+              <div class="look-hero-name">오피스<br>미니멀</div>
+              <div class="look-hero-tags">
+                <div class="look-tag">OFFICE</div>
+                <div class="look-tag">MINIMAL</div>
+                <div class="look-tag">MON–FRI</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2열 그리드 -->
+          <div class="look-grid">
+            <div class="look-cell">
+              <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1A1814,#1C1A18);display:flex;align-items:center;justify-content:center"><span style="font-size:40px;opacity:.1">👟</span></div>
+              <div class="look-cell-foot">
+                <div class="look-cell-name">캐주얼<br>데이트</div>
+                <div class="look-cell-tpo">WEEKEND</div>
+              </div>
+            </div>
+            <div class="look-cell">
+              <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1E1A14,#141410);display:flex;align-items:center;justify-content:center"><span style="font-size:40px;opacity:.1">👜</span></div>
+              <div class="look-cell-foot">
+                <div class="look-cell-name">저녁<br>포멀</div>
+                <div class="look-cell-tpo">EVENING</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 가로 와이드 -->
+          <div class="look-wide">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1A1A14,#141412);display:flex;align-items:center;justify-content:center"><span style="font-size:36px;opacity:.1">🧥</span></div>
+            <div class="look-wide-text">
+              <div class="look-wide-name">겨울 레이어드<br>아우터 코디</div>
+            </div>
+          </div>
+
+          <!-- 캡션 -->
+          <div class="mag-caption">
+            <div class="mag-caption-text"><b>4 Looks</b> · 이번달 저장됨</div>
+            <div class="mag-caption-src">전체 보기 →</div>
+          </div>
+
+          <div class="gap"></div>
+        </div>
+        <div class="bn">
+          <div class="bi on"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>TODAY<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>LOG<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>BOX<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>SETUP<div class="bd"></div></div>
+        </div>
+      </div>
+      <div class="cap">룩북 그리드<small>히어로(4:5) + 2열 + 와이드 스프레드</small></div>
+    </div>
+
+    <!-- 룩북 상세 뷰 (클릭 후) -->
+    <div class="pw">
+      <div class="phone" style="height:640px">
+        <div class="notch"><div class="nb"></div></div>
+        <div class="ab">
+          <div style="font-size:11px;color:var(--mist);cursor:pointer">← LOOKBOOK</div>
+          <div class="abl" style="font-size:12px;font-weight:700">LOOK NO. 01</div>
+          <div style="width:30px"></div>
+        </div>
+        <div class="scroll">
+          <!-- 풀 이미지 -->
+          <div style="position:relative;aspect-ratio:3/4;background:linear-gradient(160deg,#1A1F2E,#0E1014);display:flex;align-items:center;justify-content:center">
+            <span style="font-size:80px;opacity:.07">👗</span>
+            <!-- 좌상단 레이블 -->
+            <div style="position:absolute;top:14px;left:14px;font-size:8px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.4)">LOOK NO. 01 · MAY 2026</div>
+          </div>
+
+          <!-- 편집 텍스트 -->
+          <div style="padding:16px 14px 0">
+            <div style="font-size:8.5px;font-weight:700;letter-spacing:.12em;color:var(--mist);text-transform:uppercase;margin-bottom:7px">Office Minimal</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;font-style:italic;color:var(--ink);line-height:1.1;margin-bottom:10px">
+              오피스<br>미니멀
+            </div>
+            <div style="height:1px;background:var(--border-md);margin-bottom:10px"></div>
+            <div style="font-size:11px;color:var(--sub);line-height:1.7">
+              월~금 오피스룩 기본 세팅.<br>
+              클린한 컬러로 심플하게.
+            </div>
+          </div>
+
+          <!-- 태그 -->
+          <div style="display:flex;gap:5px;padding:10px 14px;flex-wrap:wrap">
+            <div class="look-tag" style="background:var(--surface);color:var(--sub);font-size:8px;padding:3px 9px;border-radius:var(--r-full);border:1px solid var(--border);font-weight:700;letter-spacing:.06em">OFFICE</div>
+            <div class="look-tag" style="background:var(--surface);color:var(--sub);font-size:8px;padding:3px 9px;border-radius:var(--r-full);border:1px solid var(--border);font-weight:700;letter-spacing:.06em">MINIMAL</div>
+            <div class="look-tag" style="background:var(--surface);color:var(--sub);font-size:8px;padding:3px 9px;border-radius:var(--r-full);border:1px solid var(--border);font-weight:700;letter-spacing:.06em">쿨톤</div>
+          </div>
+
+          <!-- 제품 -->
+          <div style="height:1px;background:var(--border);margin:0 14px"></div>
+          <div style="padding:10px 14px 4px;font-size:8.5px;font-weight:700;letter-spacing:.1em;color:var(--mist)">PRODUCTS</div>
+          <div style="display:flex;gap:7px;padding:4px 14px 16px;overflow-x:auto;scrollbar-width:none">
+            <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="width:64px;height:64px;background:var(--surface-low);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:18px">👔</div>
+              <div style="font-family:'Cormorant Garamond',serif;font-size:10px;font-style:italic;color:var(--ink);text-align:center">슬랙스</div>
+            </div>
+            <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="width:64px;height:64px;background:var(--surface-low);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:18px">👕</div>
+              <div style="font-family:'Cormorant Garamond',serif;font-size:10px;font-style:italic;color:var(--ink);text-align:center">크롭 블라우스</div>
+            </div>
+            <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="width:64px;height:64px;background:var(--surface-low);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:18px">👜</div>
+              <div style="font-family:'Cormorant Garamond',serif;font-size:10px;font-style:italic;color:var(--ink);text-align:center">미니백</div>
+            </div>
+          </div>
+
+          <div class="gap"></div>
+        </div>
+        <div class="bn">
+          <div class="bi on"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>TODAY<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>LOG<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>BOX<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>SETUP<div class="bd"></div></div>
+        </div>
+      </div>
+      <div class="cap">룩 상세 뷰<small>3:4 풀 이미지 + 세리프 편집 텍스트</small></div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- 디자인 원칙 요약 -->
+<div class="sec">
+  <div class="sec-label">변경 포인트 요약</div>
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr style="background:var(--surface)">
+          <th style="padding:9px 13px;text-align:left;font-size:8.5px;font-weight:800;color:var(--sub);letter-spacing:.08em">요소</th>
+          <th style="padding:9px 13px;text-align:left;font-size:8.5px;font-weight:800;color:var(--sub);letter-spacing:.08em">현재</th>
+          <th style="padding:9px 13px;text-align:left;font-size:8.5px;font-weight:800;color:var(--sub);letter-spacing:.08em">매거진</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:9px 13px;font-weight:700;color:var(--ink)">이미지 비율</td>
+          <td style="padding:9px 13px;color:var(--mist)">1:1 정사각</td>
+          <td style="padding:9px 13px;color:var(--ink);font-weight:600">3:4 세로 · 4:5 · 16:9 혼합</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:9px 13px;font-weight:700;color:var(--ink)">카드 스타일</td>
+          <td style="padding:9px 13px;color:var(--mist)">border-radius 20px + 그림자</td>
+          <td style="padding:9px 13px;color:var(--ink);font-weight:600">border-radius 3~4px · 그림자 제거 · 선(Rule) 사용</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:9px 13px;font-weight:700;color:var(--ink)">아이템 제목</td>
+          <td style="padding:9px 13px;color:var(--mist)">Plus Jakarta Sans Bold</td>
+          <td style="padding:9px 13px;color:var(--ink);font-weight:600">Cormorant Garamond Italic</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:9px 13px;font-weight:700;color:var(--ink)">넘버링</td>
+          <td style="padding:9px 13px;color:var(--mist)">없음</td>
+          <td style="padding:9px 13px;color:var(--ink);font-weight:600">LOOK NO. 01 · ISSUE NO. 12</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:9px 13px;font-weight:700;color:var(--ink)">제품 레이블</td>
+          <td style="padding:9px 13px;color:var(--mist)">이름만</td>
+          <td style="padding:9px 13px;color:var(--ink);font-weight:600">카테고리 (Base · Eyes · Lips) + 이탤릭 이름</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:9px 13px;font-weight:700;color:var(--ink)">룩북 레이아웃</td>
+          <td style="padding:9px 13px;color:var(--mist)">단일 카드</td>
+          <td style="padding:9px 13px;color:var(--ink);font-weight:600">히어로 + 2열 그리드 + 와이드 스프레드</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="text-align:center;padding:24px;font-size:10px;color:var(--mist)">OnStep · Magazine Layout Study · 2026</div>
+
+</body>
+</html>
