@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnStep × Setlog DNA — 디자인 기획서</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FAFAF8; --surface:#F4F4F0; --surface-low:#EEEDE9;
+  --surface-mid:#E4E2DC; --surface-high:#D8D6CF;
+  --ink:#0C0C0A; --sub:#4A4846; --mist:#9A9490;
+  --lime:#C5FF00; --lime-dark:#A6D900; --lime-fg:#0C0C0A;
+  --border:rgba(12,12,10,.07); --border-md:rgba(12,12,10,.14);
+  --green:#1E6B4A; --amber:#B45309; --rose:#C8414F;
+  --blue:#4A9ED6; --blue-light:#B8D5F5; --blue-pale:#DFF0FF;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:9999px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  background:#E8E6E0;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;
+  color:var(--ink);-webkit-font-smoothing:antialiased;
+  padding:0;
+}
+
+/* ─── 커버 ─── */
+.cover{
+  background:var(--ink);
+  padding:64px 40px 48px;
+  display:flex;gap:32px;align-items:center;
+}
+.cover-char{
+  width:90px;height:90px;border-radius:50%;overflow:hidden;
+  flex-shrink:0;border:2px solid rgba(197,255,0,.3);
+  box-shadow:0 0 40px rgba(197,255,0,.15);
+}
+.cover-char img{width:100%;height:100%;object-fit:cover;display:block}
+.cover-text h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:38px;font-weight:400;color:#fff;line-height:1.15;margin-bottom:10px;
+}
+.cover-text h1 em{font-style:italic;color:var(--lime);font-size:42px}
+.cover-text p{font-size:13px;color:rgba(255,255,255,.4);line-height:1.7}
+.cover-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pill{
+  padding:4px 12px;border-radius:var(--r-full);font-size:10px;font-weight:700;
+  border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);
+}
+.pill.hot{background:var(--lime);color:var(--lime-fg);border-color:transparent}
+
+/* ─── 섹션 래퍼 ─── */
+.wrap{padding:48px 32px 0}
+.sec{margin-bottom:64px}
+.sec-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:24px}
+.sec-no{font-size:10px;font-weight:800;color:var(--mist);letter-spacing:.08em;padding-top:4px;min-width:24px}
+.sec-title{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.sec-desc{font-size:12px;color:var(--mist);line-height:1.6}
+
+/* ─── 분석 카드 ─── */
+.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.acard{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);
+  padding:16px;
+}
+.acard h3{font-size:10px;font-weight:800;color:var(--mist);letter-spacing:.08em;margin-bottom:10px}
+.acard ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.acard li{font-size:11px;color:var(--sub);line-height:1.5;display:flex;align-items:flex-start;gap:6px}
+.acard li::before{content:'→';color:var(--mist);flex-shrink:0;font-size:9px;margin-top:2px}
+
+/* ─── 폰 레이아웃 ─── */
+.phones{display:flex;gap:24px;overflow-x:auto;padding:4px 2px 20px;scrollbar-width:none}
+.phones::-webkit-scrollbar{display:none}
+.pw{flex-shrink:0}
+.cap{text-align:center;margin-top:12px;font-size:11px;font-weight:700;color:var(--sub)}
+.cap small{display:block;font-size:10px;color:var(--mist);font-weight:500;margin-top:2px}
+
+/* ─── 폰 프레임 ─── */
+.phone{
+  width:300px;background:var(--bg);border-radius:40px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.7) inset,0 32px 80px rgba(0,0,0,.2);
+  display:flex;flex-direction:column;
+}
+.notch{height:32px;background:var(--bg);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;flex-shrink:0}
+.nb{width:90px;height:4px;background:var(--ink);border-radius:2px;opacity:.1}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ─── 앱바 ─── */
+.ab{
+  padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+  background:rgba(250,250,248,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);
+}
+.abl{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:800}
+.abl-logo{width:20px;height:20px;border-radius:5px;object-fit:cover;filter:grayscale(100%)}
+.av{width:30px;height:30px;border-radius:50%;overflow:hidden;border:1.5px solid var(--border-md)}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ─── 바텀 탭 ─── */
+.bn{display:flex;border-top:1px solid var(--border);background:rgba(250,250,248,.96);padding:7px 0 12px;flex-shrink:0}
+.bi{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:8px;font-weight:800;letter-spacing:.06em;color:var(--mist)}
+.bi.on{color:var(--ink)}
+.bi svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.bd{width:4px;height:4px;border-radius:50%;background:var(--lime);opacity:0;margin-top:1px}
+.bi.on .bd{opacity:1}
+
+/* ════════════════════════════════════
+   TODAY 리디자인
+   ════════════════════════════════════ */
+
+/* 타임스탬프 헤더 */
+.ts-header{
+  padding:16px 14px 8px;
+  display:flex;align-items:flex-end;justify-content:space-between;
+}
+.ts-left .ts-time{
+  font-size:11px;font-weight:700;color:var(--mist);letter-spacing:.04em;margin-bottom:2px;
+}
+.ts-left .ts-title{
+  font-size:40px;font-weight:900;letter-spacing:-.07em;line-height:.9;color:var(--ink);
+}
+.ts-char{
+  width:44px;height:44px;border-radius:50%;overflow:hidden;
+  border:2px solid var(--border-md);
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  position:relative;
+}
+.ts-char img{width:100%;height:100%;object-fit:cover;display:block}
+/* 컨디션 배지 */
+.cond-badge{
+  position:absolute;bottom:-2px;right:-2px;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--lime);border:1.5px solid var(--bg);
+  display:flex;align-items:center;justify-content:center;font-size:8px;
+}
+
+/* 스킨 스냅 카드 (Setlog: 순간 포착 → OnStep: 오늘 피부 포착) */
+.snap-card{
+  margin:4px 10px 6px;
+  border-radius:var(--r-xl);overflow:hidden;
+  border:1px solid var(--border);position:relative;
+}
+.snap-bg{
+  height:100px;
+  background:linear-gradient(135deg,#EEF5FF 0%,#F4F0FF 100%);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;
+}
+.snap-prompt{
+  font-size:13px;font-weight:700;color:var(--ink);
+  line-height:1.4;
+}
+.snap-prompt span{color:var(--blue);display:block;font-size:11px;font-weight:500;margin-top:2px}
+.snap-char-wrap{
+  width:64px;height:64px;border-radius:50%;overflow:hidden;
+  border:2.5px solid rgba(74,158,214,.3);
+  box-shadow:0 4px 16px rgba(74,158,214,.2);
+}
+.snap-char-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.snap-actions{
+  display:flex;gap:6px;padding:10px 12px;background:var(--bg);
+  border-top:1px solid var(--border);
+}
+.snap-btn{
+  flex:1;padding:8px;border-radius:var(--r-lg);text-align:center;
+  font-size:9px;font-weight:800;cursor:pointer;
+  background:var(--surface);color:var(--sub);border:1px solid var(--border);
+}
+.snap-btn.active{background:var(--lime);color:var(--lime-fg);border-color:transparent}
+
+/* 날씨 */
+.weather-row{
+  margin:4px 10px 6px;
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;border-radius:var(--r-lg);
+  background:var(--surface);border:1px solid var(--border);
+}
+.w-emoji{font-size:16px}
+.w-temp{font-size:13px;font-weight:800;color:var(--ink)}
+.w-desc{font-size:9px;color:var(--mist)}
+
+/* 스트릭 + 진행 */
+.streak-bar-card{
+  margin:4px 10px 6px;
+  background:var(--ink);border-radius:var(--r-xl);padding:12px 14px;
+  display:flex;align-items:center;gap:10px;position:relative;overflow:hidden;
+}
+.streak-bar-card::after{
+  content:'';position:absolute;right:-12px;top:-12px;
+  width:60px;height:60px;
+  background:radial-gradient(circle,rgba(197,255,0,.18) 0%,transparent 70%);
+  border-radius:50%;
+}
+.sb-fire{font-size:20px;z-index:1;flex-shrink:0}
+.sb-info{flex:1;z-index:1}
+.sb-days{font-size:16px;font-weight:800;color:#fff;display:flex;align-items:baseline;gap:3px}
+.sb-days span{font-size:10px;font-weight:400;color:rgba(255,255,255,.45)}
+.sb-sub{font-size:8px;color:rgba(255,255,255,.3);margin-top:1px}
+.sb-right{text-align:right;z-index:1;flex-shrink:0}
+.sb-pct{font-size:14px;font-weight:800;color:var(--lime)}
+.sb-pct-sub{font-size:7px;color:rgba(255,255,255,.3)}
+.sb-bar{margin:0 10px 6px;height:2px;background:var(--surface);border-radius:1px;overflow:hidden}
+.sb-fill{height:100%;width:83%;background:linear-gradient(90deg,var(--lime-dark),var(--lime));border-radius:1px}
+
+/* 섹션 헤더 */
+.sh{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 8px}
+.sh h3{font-size:13px;font-weight:800;color:var(--ink)}
+.sh .act{font-size:10px;font-weight:700;color:var(--mist)}
+
+/* FlowCard */
+.fc{margin:0 10px 8px;background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.fc-tabs{display:flex;gap:5px;padding:10px 12px 0}
+.fc-tab{height:26px;padding:0 12px;border-radius:var(--r-full);font-size:9px;font-weight:700;background:transparent;color:#BCBAB6;border:1px solid rgba(12,12,10,.1)}
+.fc-tab.on{background:#0C0C0A;color:var(--lime);border:none}
+.chip-strip{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;align-items:flex-end;padding:8px 12px 0}
+.chip-strip::-webkit-scrollbar{display:none}
+.pc{flex-shrink:0;width:72px;display:flex;flex-direction:column;align-items:center}
+.pc-img{width:72px;height:72px;border-radius:10px;background:var(--surface-low);border:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden}
+.pc-img img{width:100%;height:100%;object-fit:cover}
+.pc-name{font-size:8px;font-weight:700;color:var(--ink);margin-top:4px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.dc{flex-shrink:0;align-self:center;padding:3px 8px;background:#2185fd;border-radius:12px;font-size:9px;color:#fff;white-space:nowrap}
+.pc{flex-shrink:0;width:72px;display:flex;flex-direction:column;align-items:center}
+.plus-c{flex-shrink:0;align-self:center;width:26px;height:18px;border-radius:8px;background:rgba(33,150,243,.12);color:#1976D2;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.fc-meta{display:flex;justify-content:flex-end;align-items:center;gap:6px;padding:7px 12px 0}
+.fc-cnt{font-size:9px;color:#BCBAB6}
+.fc-day{font-size:7px;font-weight:800;letter-spacing:.1em;background:#0C0C0A;color:var(--lime-dark);padding:2px 8px;border-radius:var(--r-full)}
+.fc-etip{margin:7px 12px 0;padding:10px 12px;background:#F5FDD4;border:1px solid rgba(198,244,50,.5);border-radius:12px}
+.fc-etip-l{font-size:8px;font-weight:800;color:var(--ink);margin-bottom:3px}
+.fc-etip-t{font-size:10px;color:var(--sub);line-height:1.6}
+.fc-etip-t b{font-weight:700;color:var(--ink)}
+.fc-btn{margin:8px 12px 12px;height:34px;width:calc(100% - 24px);display:flex;align-items:center;justify-content:center;background:var(--surface);border:1.5px solid rgba(12,12,10,.1);border-radius:var(--r-full);font-size:9px;font-weight:700;color:var(--sub);cursor:pointer}
+.fc-btn.done{background:var(--lime);border-color:#84B000;color:var(--ink)}
+
+/* 소진 알림 */
+.dep{margin:4px 10px 6px;padding:9px 12px;border-radius:var(--r-xl);background:rgba(180,83,9,.06);border:1px solid rgba(180,83,9,.18);display:flex;align-items:center;gap:8px}
+.dep-i{font-size:14px;flex-shrink:0}
+.dep-t{font-size:10px;font-weight:700;color:var(--amber)}
+.dep-s{font-size:8px;color:var(--sub);margin-top:1px}
+.dep-btn{font-size:8px;font-weight:700;color:var(--amber);background:rgba(180,83,9,.1);padding:3px 9px;border-radius:var(--r-full);border:1px solid rgba(180,83,9,.2);flex-shrink:0}
+
+/* 습관 */
+.habit-r{display:flex;align-items:center;gap:7px;padding:6px 12px;border-top:1px solid var(--border)}
+.hb{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px}
+.hb.done{background:var(--lime);border-color:var(--lime)}
+.hn{font-size:10px;font-weight:600;color:var(--ink)}
+
+/* ════════════════════════════════════
+   "데이로그" — Setlog의 Auto Vlog = OnStep의 오늘의 라이프로그
+   ════════════════════════════════════ */
+.daylog-card{
+  margin:0 10px 8px;
+  border-radius:20px;overflow:hidden;
+  border:1px solid var(--border);
+  background:var(--bg);
+}
+.dl-hero{
+  height:120px;
+  background:linear-gradient(135deg, #0C0C0A 0%, #1a1a14 100%);
+  padding:14px 16px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.dl-hero::after{
+  content:'';position:absolute;top:-20px;right:-20px;
+  width:100px;height:100px;
+  background:radial-gradient(circle,rgba(197,255,0,.12) 0%,transparent 65%);
+  border-radius:50%;
+}
+.dl-date{font-size:8px;letter-spacing:.12em;color:rgba(255,255,255,.3);font-weight:700}
+.dl-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:#fff;line-height:1.15}
+.dl-title em{font-style:italic;color:var(--lime)}
+.dl-stats-row{display:flex;gap:8px;z-index:1;position:relative}
+.dl-stat{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;padding:5px 8px;text-align:center;
+}
+.dl-stat-v{font-size:11px;font-weight:800;color:#fff}
+.dl-stat-v.lime{color:var(--lime)}
+.dl-stat-l{font-size:7px;color:rgba(255,255,255,.3);letter-spacing:.04em;margin-top:1px}
+
+/* 타임라인 (Setlog의 시간별 캡처 → OnStep의 루틴 타임라인) */
+.timeline{padding:12px 14px}
+.tl-item{display:flex;gap:10px;position:relative;padding-bottom:14px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item:not(:last-child)::after{
+  content:'';position:absolute;left:10px;top:22px;bottom:0;
+  width:1px;background:var(--border);
+}
+.tl-dot{
+  width:20px;height:20px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:9px;
+  border:1.5px solid var(--border);background:var(--surface);z-index:1;
+}
+.tl-dot.done{background:var(--lime);border-color:var(--lime-dark)}
+.tl-dot.pending{background:var(--surface-mid);border-color:var(--surface-high)}
+.tl-content{flex:1;padding-top:1px}
+.tl-time{font-size:8px;color:var(--mist);font-weight:600;margin-bottom:2px}
+.tl-label{font-size:11px;font-weight:700;color:var(--ink)}
+.tl-detail{font-size:9px;color:var(--mist);margin-top:2px;line-height:1.5}
+/* 제품 미니 스트립 */
+.mini-strip{display:flex;gap:4px;margin-top:5px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.mini-strip::-webkit-scrollbar{display:none}
+.mini-chip{
+  flex-shrink:0;width:36px;height:36px;border-radius:7px;
+  background:var(--surface-low);border:1px solid rgba(0,0,0,.06);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+
+/* 공유 버튼 */
+.dl-share{
+  display:flex;gap:7px;padding:10px 14px 14px;border-top:1px solid var(--border);
+  background:var(--surface);
+}
+.share-b{
+  flex:1;padding:9px;border-radius:var(--r-full);text-align:center;
+  font-size:9px;font-weight:800;cursor:pointer;
+  background:var(--ink);color:var(--bg);border:none;
+}
+.share-b.outline{background:transparent;color:var(--sub);border:1.5px solid var(--border-md)}
+
+/* ════════════════════════════════════
+   LOG 리디자인 — 스토리 아카이브
+   ════════════════════════════════════ */
+
+/* 스토리 링 (인스타그램 스토리 → 날짜별 루틴 요약) */
+.story-row{
+  display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;
+  padding:8px 14px 12px;
+}
+.story-row::-webkit-scrollbar{display:none}
+.story-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.story-ring{
+  width:52px;height:52px;border-radius:50%;padding:2px;
+  background:conic-gradient(var(--lime) 83%,var(--surface) 83%);
+  cursor:pointer;
+}
+.story-ring.miss{background:conic-gradient(var(--rose) 30%,var(--surface) 30%)}
+.story-ring.perfect{background:var(--lime)}
+.story-ring.today{
+  background:conic-gradient(var(--lime) 60%,var(--surface-high) 60%);
+  animation:ring-pulse 2s ease-in-out infinite;
+}
+@keyframes ring-pulse{0%,100%{box-shadow:0 0 0 0 rgba(197,255,0,.3)}50%{box-shadow:0 0 0 4px rgba(197,255,0,.15)}}
+.story-inner{
+  width:100%;height:100%;border-radius:50%;overflow:hidden;
+  background:var(--surface-low);border:2px solid var(--bg);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.story-inner img{width:100%;height:100%;object-fit:cover}
+.story-date{font-size:8px;font-weight:700;color:var(--mist)}
+.story-dot-row{display:flex;gap:2px;justify-content:center;margin-top:2px}
+.sdot{width:4px;height:4px;border-radius:50%;background:var(--surface-high)}
+.sdot.m{background:var(--lime-dark)}
+.sdot.n{background:var(--ink)}
+
+/* 히트맵 — 블루 파스텔 */
+.hmap-wrap{padding:0 10px 10px}
+.hmap-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-top:2px}
+.hmap-head h4{font-size:12px;font-weight:800;color:var(--ink)}
+.hmap-nav{font-size:10px;font-weight:700;color:var(--mist);display:flex;align-items:center;gap:7px}
+.hdays{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+.hday{font-size:6px;font-weight:700;color:var(--mist);text-align:center;letter-spacing:.02em}
+.hgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.hc{aspect-ratio:1;border-radius:4px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:600;color:var(--mist);position:relative}
+.hc.full{background:#B8D5F5;color:#1A3A5C}
+.hc.half{background:#DFF0FF;color:#2A5280}
+.hc.miss{background:rgba(200,65,79,.08);color:var(--rose)}
+.hc.today{outline:2px solid #4A9ED6;outline-offset:1px}
+.hc.empty{background:transparent}
+.cdot{position:absolute;bottom:1px;right:1px;width:3px;height:3px;border-radius:50%}
+
+/* 인사이트 카드 */
+.insight{
+  margin:0 10px 10px;padding:10px 12px;
+  background:#DFF0FF;border:1px solid rgba(74,158,214,.2);
+  border-radius:var(--r-lg);display:flex;gap:9px;align-items:center;
+}
+.insight-char{width:26px;height:26px;border-radius:50%;overflow:hidden;border:1.5px solid rgba(74,158,214,.3);flex-shrink:0}
+.insight-char img{width:100%;height:100%;object-fit:cover}
+.insight-t{font-size:8px;font-weight:700;color:#1A3A5C;letter-spacing:.04em;margin-bottom:2px}
+.insight-b{font-size:10px;color:var(--ink);line-height:1.55}
+
+/* ════════════════════════════════════
+   스킨 진행 타임라인 (신규 핵심 기능)
+   ════════════════════════════════════ */
+.skin-timeline{margin:0 10px 8px}
+.stl-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:10px;
+}
+.stl-head h4{font-size:11px;font-weight:800;color:var(--ink)}
+.stl-head span{font-size:9px;color:var(--mist)}
+
+/* 주차별 스킨 스냅 그리드 */
+.skin-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+}
+.skin-cell{
+  aspect-ratio:1;border-radius:10px;overflow:hidden;
+  background:var(--surface-low);border:1px solid var(--border);
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.skin-cell img{width:100%;height:100%;object-fit:cover}
+.skin-cell .wk-label{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(to top,rgba(12,12,10,.7),transparent);
+  font-size:6px;font-weight:700;color:#fff;padding:4px 5px 3px;
+  text-align:center;
+}
+.skin-cell.today-cell{
+  border:2px solid var(--lime);
+}
+.skin-empty{
+  aspect-ratio:1;border-radius:10px;
+  background:var(--surface);border:1.5px dashed rgba(12,12,10,.14);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:3px;
+}
+.skin-empty span{font-size:14px}
+.skin-empty p{font-size:7px;color:var(--mist);font-weight:600;text-align:center}
+
+/* 피부 트렌드 요약 */
+.skin-trend{
+  margin-top:8px;padding:10px 12px;
+  background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);
+}
+.skin-trend-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.skt-label{font-size:8px;font-weight:700;color:var(--sub);letter-spacing:.04em}
+.skt-val{font-size:9px;font-weight:700}
+.skt-bar{height:3px;background:var(--surface-low);border-radius:2px;overflow:hidden;margin-top:3px}
+.skt-fill{height:100%;border-radius:2px;background:var(--blue)}
+
+/* ════════════════════════════════════
+   "데이로그 카드" 공유 — Setlog auto-vlog 직접 대응
+   ════════════════════════════════════ */
+.share-preview{
+  margin:0 10px 10px;border-radius:20px;overflow:hidden;
+}
+/* 공유 카드 스타일 A — 다크 */
+.sc-dark{
+  background:linear-gradient(145deg,#0C0C0A 0%,#161612 40%,#0d0f0a 100%);
+  padding:20px 18px 16px;position:relative;overflow:hidden;
+}
+.sc-dark::before{
+  content:'';position:absolute;top:-24px;right:-24px;
+  width:100px;height:100px;
+  background:radial-gradient(circle,rgba(197,255,0,.1) 0%,transparent 60%);
+  border-radius:50%;
+}
+.sc-brand{font-size:7px;letter-spacing:.2em;color:rgba(255,255,255,.2);margin-bottom:16px;font-family:'Cormorant Garamond',serif}
+/* 데이로그 타임라인 미니 */
+.sc-mini-tl{display:flex;gap:5px;margin-bottom:14px;align-items:center}
+.sc-mini-event{
+  display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;
+}
+.sc-mini-icon{
+  width:28px;height:28px;border-radius:8px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.sc-mini-time{font-size:6px;color:rgba(255,255,255,.3);font-weight:600;letter-spacing:.03em}
+.sc-mini-arrow{color:rgba(255,255,255,.15);font-size:10px;margin-top:-6px}
+.sc-headline{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:#fff;line-height:1.2;margin-bottom:12px}
+.sc-headline em{font-style:italic;color:var(--lime)}
+.sc-stats{display:flex;gap:5px;margin-bottom:12px}
+.sc-stat{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px;text-align:center}
+.sc-stat-v{font-size:12px;font-weight:800;color:#fff;line-height:1}
+.sc-stat-v.lime{color:var(--lime)}
+.sc-stat-l{font-size:6px;color:rgba(255,255,255,.3);letter-spacing:.06em;margin-top:2px}
+.sc-date{font-size:7px;color:rgba(255,255,255,.18);letter-spacing:.06em;text-align:right}
+
+/* ════════════════════════════════════
+   Setlog DNA 원칙 요약 카드
+   ════════════════════════════════════ */
+.dna-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dna-card{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);
+  padding:14px;
+}
+.dna-icon{font-size:22px;margin-bottom:8px}
+.dna-title{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.dna-desc{font-size:10px;color:var(--mist);line-height:1.6}
+.dna-tag{
+  display:inline-block;margin-top:7px;
+  background:var(--lime);color:var(--lime-fg);
+  font-size:8px;font-weight:800;padding:2px 7px;border-radius:var(--r-full);
+}
+
+/* 변경사항 표 */
+.change-table{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;
+}
+.change-table table{width:100%;border-collapse:collapse;font-size:12px}
+.change-table th{padding:10px 14px;text-align:left;font-size:9px;font-weight:800;color:var(--sub);letter-spacing:.06em;background:var(--surface)}
+.change-table td{padding:10px 14px;border-top:1px solid var(--border);color:var(--sub);font-size:11px;line-height:1.5}
+.change-table td:first-child{font-weight:700;color:var(--ink)}
+.new-b{display:inline-block;background:var(--lime);color:var(--lime-fg);font-size:8px;font-weight:800;padding:1px 6px;border-radius:3px;margin-left:4px}
+.upg-b{display:inline-block;background:var(--blue-light);color:#1A3A5C;font-size:8px;font-weight:800;padding:1px 6px;border-radius:3px;margin-left:4px}
+
+/* footer */
+.footer{text-align:center;padding:40px;font-size:11px;color:var(--mist)}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     COVER
+     ══════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-char">
+    <img src="logo.png" onerror="this.parentElement.innerHTML='🫧'">
+  </div>
+  <div class="cover-text">
+    <h1>OnStep<br>× <em>Setlog</em> DNA</h1>
+    <p>MZ세대가 열광하는 Setlog의 핵심 DNA —<br>
+    "시간 기반 포착 → 자동 스토리 컴파일 → 진짜 일상 공유"를<br>
+    OnStep의 스킨케어 라이프사이클에 이식한 리디자인 기획서.</p>
+    <div class="cover-pills">
+      <div class="pill hot">Setlog DNA 적용</div>
+      <div class="pill">기존 디자인 유지</div>
+      <div class="pill">추가만, 변경 없음</div>
+      <div class="pill">MZ 타깃</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ══════════════════════════════════════
+     SETLOG 분석 × ONSTEP 매핑
+     ══════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="sec-no">01</div>
+    <div>
+      <div class="sec-title">Setlog DNA 분석 → OnStep 매핑</div>
+      <div class="sec-desc">Setlog의 5가지 핵심 원칙을 OnStep 맥락으로 번역</div>
+    </div>
+  </div>
+
+  <div class="dna-grid">
+    <div class="dna-card">
+      <div class="dna-icon">⏱️</div>
+      <div class="dna-title">시간 기반 포착</div>
+      <div class="dna-desc">매 시간 알림 → 2초 클립 촬영. "지금 이 순간"을 남기는 구조.</div>
+      <div class="dna-tag">→ 아침/저녁 루틴 완료 순간 피부 상태 포착</div>
+    </div>
+    <div class="dna-card">
+      <div class="dna-icon">🎬</div>
+      <div class="dna-title">자동 컴파일</div>
+      <div class="dna-desc">클립이 자동으로 하루 브이로그로 엮임. 편집 불필요.</div>
+      <div class="dna-tag">→ 데이로그 카드 자동 생성</div>
+    </div>
+    <div class="dna-card">
+      <div class="dna-icon">🪞</div>
+      <div class="dna-title">하이퍼 리얼리즘</div>
+      <div class="dna-desc">필터·편집 없음. 진짜 일상. "꾸밈없는 나"가 콘텐츠.</div>
+      <div class="dna-tag">→ 매일 아침 피부 진행 사진 (날 것)</div>
+    </div>
+    <div class="dna-card">
+      <div class="dna-icon">📖</div>
+      <div class="dna-title">스토리 포맷</div>
+      <div class="dna-desc">링 → 클릭 → 하루 스토리. 캘린더가 아닌 스토리 아카이브.</div>
+      <div class="dna-tag">→ LOG 스토리 링 + 데이 카드</div>
+    </div>
+    <div class="dna-card">
+      <div class="dna-icon">👯</div>
+      <div class="dna-title">친구 그룹 공동 기록</div>
+      <div class="dna-desc">최대 12명이 같은 시간에 각자 클립을 올려 하루를 공유.</div>
+      <div class="dna-tag">→ 루틴 완료 공유 카드 (인스타/카카오)</div>
+    </div>
+    <div class="dna-card">
+      <div class="dna-icon">⚡</div>
+      <div class="dna-title">초저마찰 UX</div>
+      <div class="dna-desc">알림 → 앱 열기 → 2초 촬영 → 닫기. 총 10초 이내.</div>
+      <div class="dna-tag">→ 스킨 스냅 3탭 포착 (30초 이내)</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     TODAY 리디자인
+     ══════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="sec-no">02</div>
+    <div>
+      <div class="sec-title">TODAY — "오늘의 스킨케어 스토리"</div>
+      <div class="sec-desc">
+        기존 섹션 순서 그대로 유지 · "스킨 스냅 카드" 1개 추가 (날씨와 #Flow 사이)<br>
+        타임스탬프 헤더로 Setlog의 "지금 이 순간" 감각 이식
+      </div>
+    </div>
+  </div>
+
+  <div class="phones">
+
+    <!-- 폰 A: TODAY 전체 (새 요소 포함) -->
+    <div class="pw">
+      <div class="phone" style="height:660px">
+        <div class="notch"><div class="nb"></div></div>
+        <div class="ab">
+          <div style="display:flex;flex-direction:column;gap:4px;cursor:pointer">
+            <span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span>
+            <span style="height:1.5px;width:14px;background:var(--ink);border-radius:1px;display:block"></span>
+            <span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span>
+          </div>
+          <div class="abl">
+            <img src="logo.png" class="abl-logo" onerror="this.style.display='none'">
+            OnStep
+          </div>
+          <div class="av"><img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'"></div>
+        </div>
+        <div class="scroll">
+          <!-- 타임스탬프 헤더 (기존 PageHeader를 대체) -->
+          <div class="ts-header">
+            <div class="ts-left">
+              <div class="ts-time">☀ 08:23 · 서울 · 맑음 22°</div>
+              <div class="ts-title">Today</div>
+            </div>
+            <!-- 캐릭터 + 컨디션 배지 -->
+            <div class="ts-char">
+              <img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'">
+              <div class="cond-badge">😊</div>
+            </div>
+          </div>
+
+          <!-- ★ 스킨 스냅 카드 (신규 핵심 — Setlog 포착 원칙) -->
+          <div class="snap-card">
+            <div class="snap-bg">
+              <div class="snap-prompt">
+                오늘 아침 피부<br>
+                <span>30초 포착 · 루틴 전/후 비교</span>
+              </div>
+              <div class="snap-char-wrap">
+                <img src="logo.png" onerror="this.parentElement.style.background='var(--surface-low)'">
+              </div>
+            </div>
+            <div class="snap-actions">
+              <div class="snap-btn active">😊 촉촉해요</div>
+              <div class="snap-btn">😐 보통</div>
+              <div class="snap-btn">😵 건조</div>
+            </div>
+          </div>
+
+          <!-- 스트릭 -->
+          <div class="streak-bar-card">
+            <div class="sb-fire">🔥</div>
+            <div class="sb-info">
+              <div class="sb-days">12 <span>일 연속</span></div>
+              <div class="sb-sub">MORNING · NIGHT 모두 완료</div>
+            </div>
+            <div class="sb-right">
+              <div class="sb-pct">83%</div>
+              <div class="sb-pct-sub">이번달</div>
+            </div>
+          </div>
+          <div class="sb-bar"><div class="sb-fill"></div></div>
+
+          <!-- #Flow (기존 그대로) -->
+          <div class="sh"><h3>#Flow</h3><div class="act">Day 12</div></div>
+          <div class="fc">
+            <div class="fc-tabs">
+              <div class="fc-tab on">☀ MORNING</div>
+              <div class="fc-tab">🌙 NIGHT</div>
+            </div>
+            <div class="chip-strip">
+              <div class="pc"><div class="pc-img">🧴</div><div class="pc-name">물마스크</div></div>
+              <div class="dc">10분 뒤</div>
+              <div class="pc"><div class="pc-img">💧</div><div class="pc-name">델마크림</div></div>
+              <div class="plus-c">+</div>
+              <div class="pc"><div class="pc-img">🫙</div><div class="pc-name">델마마스크</div></div>
+              <div class="dc">섞어서</div>
+              <div class="pc"><div class="pc-img">✨</div><div class="pc-name">델마세럼</div></div>
+              <div class="plus-c">+</div>
+              <div class="pc"><div class="pc-img">🌿</div><div class="pc-name">디스킨</div></div>
+            </div>
+            <div class="fc-meta"><span class="fc-cnt">7개 제품</span><span class="fc-day">DAY 12</span></div>
+            <div class="fc-etip">
+              <div class="fc-etip-l">● EXPERT TIP</div>
+              <div class="fc-etip-t"><b>델마크림</b>+<b>마스크</b> 1:1 혼합 후 <b>세럼</b>·<b>레이어드밤</b> 얇게 마무리.</div>
+            </div>
+            <div class="fc-btn">MORNING 완료하기 →</div>
+          </div>
+
+          <!-- 소진 알림 (기존) -->
+          <div class="dep">
+            <div class="dep-i">⚠️</div>
+            <div><div class="dep-t">2개 제품 소진 임박</div><div class="dep-s">레티놀 세럼 D-5 · 물마스크 D-3</div></div>
+            <div class="dep-btn">확인 →</div>
+          </div>
+
+          <!-- #Habits (기존) -->
+          <div class="sh"><h3>#Habits</h3><div class="act">1/3</div></div>
+          <div style="margin:0 10px 14px;background:#fff;border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden">
+            <div class="habit-r"><div class="hb done">✓</div><div class="hn">물 2L 마시기</div></div>
+            <div class="habit-r"><div class="hb"></div><div class="hn">선크림 도포</div></div>
+            <div class="habit-r"><div class="hb"></div><div class="hn">8시간 수면</div></div>
+          </div>
+        </div>
+        <div class="bn">
+          <div class="bi on"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>TODAY<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>LOG<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>BOX<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>SETUP<div class="bd"></div></div>
+        </div>
+      </div>
+      <div class="cap">TODAY 전체 레이아웃<small>스킨 스냅 + 타임스탬프 헤더 추가</small></div>
+    </div>
+
+    <!-- 폰 B: 데이로그 카드 (TODAY 스크롤 하단) -->
+    <div class="pw">
+      <div class="phone" style="height:660px">
+        <div class="notch"><div class="nb"></div></div>
+        <div class="ab">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span>
+            <span style="height:1.5px;width:14px;background:var(--ink);border-radius:1px;display:block"></span>
+            <span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span>
+          </div>
+          <div class="abl">OnStep</div>
+          <div class="av"><img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'"></div>
+        </div>
+        <div class="scroll">
+          <div class="ts-header">
+            <div class="ts-left">
+              <div class="ts-time">🌙 21:45 · 루틴 완료</div>
+              <div class="ts-title">Today</div>
+            </div>
+            <div class="ts-char">
+              <img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'">
+              <div class="cond-badge" style="background:#4A9ED6">😊</div>
+            </div>
+          </div>
+
+          <!-- ★ 오늘의 데이로그 카드 (Setlog auto-vlog 대응) -->
+          <div class="sh"><h3>#Today's Log</h3><div class="act" style="color:var(--lime-dark);font-size:9px">자동 생성</div></div>
+          <div class="daylog-card">
+            <div class="dl-hero">
+              <div class="dl-date">2026.05.31 SUN</div>
+              <div class="dl-title">오늘의<br><em>스킨케어 완료.</em></div>
+              <div class="dl-stats-row">
+                <div class="dl-stat"><div class="dl-stat-v lime">🔥 12</div><div class="dl-stat-l">연속</div></div>
+                <div class="dl-stat"><div class="dl-stat-v">7개</div><div class="dl-stat-l">제품</div></div>
+                <div class="dl-stat"><div class="dl-stat-v">😊</div><div class="dl-stat-l">피부 상태</div></div>
+                <div class="dl-stat"><div class="dl-stat-v">2/3</div><div class="dl-stat-l">습관</div></div>
+              </div>
+            </div>
+            <!-- 타임라인 -->
+            <div class="timeline">
+              <div class="tl-item">
+                <div class="tl-dot done">✓</div>
+                <div class="tl-content">
+                  <div class="tl-time">06:30</div>
+                  <div class="tl-label">☀ MORNING 루틴 완료</div>
+                  <div class="mini-strip">
+                    <div class="mini-chip">🧴</div>
+                    <div class="mini-chip">💧</div>
+                    <div class="mini-chip">🫙</div>
+                    <div class="mini-chip">✨</div>
+                    <div class="mini-chip">🌿</div>
+                    <div class="mini-chip">🌸</div>
+                    <div class="mini-chip">⭐</div>
+                  </div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot done" style="font-size:8px">😊</div>
+                <div class="tl-content">
+                  <div class="tl-time">07:10</div>
+                  <div class="tl-label">피부 상태 포착</div>
+                  <div class="tl-detail">촉촉 · 트러블 없음</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot done">✓</div>
+                <div class="tl-content">
+                  <div class="tl-time">21:00</div>
+                  <div class="tl-label">🌙 NIGHT 루틴 완료</div>
+                  <div class="tl-detail">5단계 · 레티놀 세럼 포함</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot pending">○</div>
+                <div class="tl-content">
+                  <div class="tl-time">22:00</div>
+                  <div class="tl-label" style="color:var(--mist)">저녁 피부 상태 포착 예정</div>
+                </div>
+              </div>
+            </div>
+            <!-- 공유 -->
+            <div class="dl-share">
+              <button class="share-b">인스타 공유 ↗</button>
+              <button class="share-b outline">이미지 저장</button>
+            </div>
+          </div>
+        </div>
+        <div class="bn">
+          <div class="bi on"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>TODAY<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>LOG<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>BOX<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>SETUP<div class="bd"></div></div>
+        </div>
+      </div>
+      <div class="cap">TODAY 하단 — 데이로그 카드<small>Setlog auto-vlog → 오늘의 타임라인 스토리</small></div>
+    </div>
+
+    <!-- 폰 C: 공유 카드 생성 결과 -->
+    <div class="pw">
+      <div class="phone" style="height:660px">
+        <div class="notch"><div class="nb"></div></div>
+        <div style="flex:1;overflow:hidden;position:relative;background:rgba(12,12,10,.6)">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;padding:14px">
+            <div style="width:100%">
+              <!-- 공유 카드 -->
+              <div class="share-preview">
+                <div class="sc-dark">
+                  <div class="sc-brand">OnStep · Life OS · 2026.05.31</div>
+                  <!-- 미니 타임라인 -->
+                  <div class="sc-mini-tl">
+                    <div class="sc-mini-event">
+                      <div class="sc-mini-icon">🌸</div>
+                      <div class="sc-mini-time">06:30</div>
+                    </div>
+                    <div class="sc-mini-arrow">→</div>
+                    <div class="sc-mini-event">
+                      <div class="sc-mini-icon" style="background:rgba(197,255,0,.12);border-color:rgba(197,255,0,.2)">😊</div>
+                      <div class="sc-mini-time">07:10</div>
+                    </div>
+                    <div class="sc-mini-arrow">→</div>
+                    <div class="sc-mini-event">
+                      <div class="sc-mini-icon">🌙</div>
+                      <div class="sc-mini-time">21:00</div>
+                    </div>
+                  </div>
+                  <div class="sc-headline">오늘도<br><em>루틴 완료.</em></div>
+                  <div class="sc-stats">
+                    <div class="sc-stat"><div class="sc-stat-v lime">🔥12</div><div class="sc-stat-l">STREAK</div></div>
+                    <div class="sc-stat"><div class="sc-stat-v">7개</div><div class="sc-stat-l">PRODUCTS</div></div>
+                    <div class="sc-stat"><div class="sc-stat-v">😊</div><div class="sc-stat-l">SKIN</div></div>
+                    <div class="sc-stat"><div class="sc-stat-v">83%</div><div class="sc-stat-l">MONTH</div></div>
+                  </div>
+                  <div class="sc-date">SUN · MORNING + NIGHT COMPLETE</div>
+                </div>
+              </div>
+              <!-- 버튼 -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+                <button style="padding:11px;border-radius:14px;background:var(--bg);color:var(--ink);font-size:11px;font-weight:800;border:none;cursor:pointer">인스타 공유 ↗</button>
+                <button style="padding:11px;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:800;border:1px solid rgba(255,255,255,.2);cursor:pointer">저장</button>
+              </div>
+              <div style="text-align:center;margin-top:10px;font-size:10px;color:rgba(255,255,255,.3);cursor:pointer">건너뛰기</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">데이로그 공유 카드<small>미니 타임라인 포함 → 인스타/카카오 1탭</small></div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     LOG 리디자인 — 스토리 아카이브
+     ══════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="sec-no">03</div>
+    <div>
+      <div class="sec-title">LOG — "스토리 아카이브"</div>
+      <div class="sec-desc">
+        Setlog의 스토리 링(하루 = 원형 링) → OnStep의 날짜별 루틴 달성 링<br>
+        기존 캘린더 상단에 "스토리 바" 추가 · 히트맵은 블루 파스텔 유지
+      </div>
+    </div>
+  </div>
+
+  <div class="phones">
+    <div class="pw">
+      <div class="phone" style="height:660px">
+        <div class="notch"><div class="nb"></div></div>
+        <div class="ab">
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span><span style="height:1.5px;width:14px;background:var(--ink);border-radius:1px;display:block"></span><span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span></div>
+          <div class="abl">OnStep</div>
+          <div class="av"><img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'"></div>
+        </div>
+        <div class="scroll">
+          <!-- 헤더: 캐릭터 + 타이틀 -->
+          <div style="display:flex;align-items:flex-end;padding:16px 14px 8px;gap:10px">
+            <div>
+              <div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--mist);margin-bottom:3px">LOG</div>
+              <div style="font-size:40px;font-weight:900;letter-spacing:-.07em;line-height:.9;color:var(--ink)">Log</div>
+            </div>
+            <div style="position:relative;margin-bottom:2px">
+              <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;border:2px solid rgba(74,158,214,.25)">
+                <img src="logo.png" width="40" height="40" style="object-fit:cover;display:block" onerror="this.parentElement.innerHTML='🫧'">
+              </div>
+              <div style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:#4A9ED6;border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:7px">😊</div>
+            </div>
+            <div style="flex:1"></div>
+            <div style="text-align:right;padding-bottom:4px">
+              <div style="font-size:14px;font-weight:800;color:#4A9ED6">🔥 12</div>
+              <div style="font-size:7px;color:var(--mist);font-weight:600">연속 기록</div>
+            </div>
+          </div>
+
+          <!-- ★ 스토리 링 바 (신규 — Setlog 스토리 링) -->
+          <div style="padding:4px 0 2px">
+            <div style="padding:0 14px 6px;font-size:8px;font-weight:700;color:var(--mist);letter-spacing:.04em">최근 7일</div>
+            <div class="story-row">
+              <!-- 오늘 -->
+              <div class="story-item">
+                <div class="story-ring today">
+                  <div class="story-inner">
+                    <img src="logo.png" onerror="this.parentElement.innerHTML='🌙'">
+                  </div>
+                </div>
+                <div class="story-date" style="color:var(--ink);font-weight:800">오늘</div>
+                <div class="story-dot-row"><div class="sdot m"></div><div class="sdot"></div></div>
+              </div>
+              <!-- 어제 -->
+              <div class="story-item">
+                <div class="story-ring perfect">
+                  <div class="story-inner" style="background:#F4F4F0;display:flex;align-items:center;justify-content:center;font-size:14px">🌸</div>
+                </div>
+                <div class="story-date">30일</div>
+                <div class="story-dot-row"><div class="sdot m"></div><div class="sdot n"></div></div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring">
+                  <div class="story-inner" style="background:#F4F4F0;display:flex;align-items:center;justify-content:center;font-size:14px">💧</div>
+                </div>
+                <div class="story-date">29일</div>
+                <div class="story-dot-row"><div class="sdot m"></div><div class="sdot n"></div></div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring miss">
+                  <div class="story-inner" style="background:#F4F4F0;display:flex;align-items:center;justify-content:center;font-size:14px">😵</div>
+                </div>
+                <div class="story-date">28일</div>
+                <div class="story-dot-row"><div class="sdot"></div><div class="sdot"></div></div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring perfect">
+                  <div class="story-inner" style="background:#F4F4F0;display:flex;align-items:center;justify-content:center;font-size:14px">🌿</div>
+                </div>
+                <div class="story-date">27일</div>
+                <div class="story-dot-row"><div class="sdot m"></div><div class="sdot n"></div></div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring">
+                  <div class="story-inner" style="background:#F4F4F0;display:flex;align-items:center;justify-content:center;font-size:14px">☀️</div>
+                </div>
+                <div class="story-date">26일</div>
+                <div class="story-dot-row"><div class="sdot m"></div><div class="sdot n"></div></div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring perfect">
+                  <div class="story-inner" style="background:#F4F4F0;display:flex;align-items:center;justify-content:center;font-size:14px">✨</div>
+                </div>
+                <div class="story-date">25일</div>
+                <div class="story-dot-row"><div class="sdot m"></div><div class="sdot n"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 구분선 -->
+          <div style="height:1px;background:var(--border);margin:4px 10px 10px"></div>
+
+          <!-- 요약 수치 -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 10px 10px">
+            <div style="background:#DFF0FF;border:1px solid rgba(74,158,214,.2);border-radius:var(--r-lg);padding:8px 10px">
+              <div style="font-size:14px;font-weight:800;color:#4A9ED6">🔥 12</div>
+              <div style="font-size:7px;color:var(--mist);font-weight:700;letter-spacing:.04em;margin-top:2px">연속 기록일</div>
+            </div>
+            <div style="background:#DFF0FF;border:1px solid rgba(74,158,214,.2);border-radius:var(--r-lg);padding:8px 10px">
+              <div style="font-size:14px;font-weight:800;color:#1A3A5C">83%</div>
+              <div style="font-size:7px;color:var(--mist);font-weight:700;letter-spacing:.04em;margin-top:2px">이번달 달성</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:8px 10px">
+              <div style="font-size:14px;font-weight:800;color:var(--ink)">25일</div>
+              <div style="font-size:7px;color:var(--mist);font-weight:700;letter-spacing:.04em;margin-top:2px">완료 합계</div>
+            </div>
+          </div>
+
+          <!-- 히트맵 -->
+          <div class="hmap-wrap">
+            <div class="hmap-head">
+              <h4>5월 달성 현황</h4>
+              <div class="hmap-nav">‹ 2026.05 ›</div>
+            </div>
+            <div class="hdays"><div class="hday">M</div><div class="hday">T</div><div class="hday">W</div><div class="hday">T</div><div class="hday">F</div><div class="hday">S</div><div class="hday">S</div></div>
+            <div class="hgrid">
+              <div class="hc empty"></div><div class="hc empty"></div><div class="hc empty"></div>
+              <div class="hc full">1<div class="cdot" style="background:#4A9ED6"></div></div>
+              <div class="hc full">2<div class="cdot" style="background:#4A9ED6"></div></div>
+              <div class="hc full">3</div>
+              <div class="hc half">4<div class="cdot" style="background:var(--amber)"></div></div>
+              <div class="hc full">5</div><div class="hc full">6</div><div class="hc full">7<div class="cdot" style="background:#4A9ED6"></div></div>
+              <div class="hc full">8</div><div class="hc full">9</div><div class="hc half">10</div>
+              <div class="hc miss">11<div class="cdot" style="background:var(--rose)"></div></div>
+              <div class="hc full">12</div><div class="hc full">13</div><div class="hc full">14</div>
+              <div class="hc full">15</div><div class="hc full">16</div><div class="hc full">17</div><div class="hc full">18</div>
+              <div class="hc full">19</div><div class="hc full">20<div class="cdot" style="background:#4A9ED6"></div></div>
+              <div class="hc full">21</div><div class="hc full">22</div><div class="hc full">23</div><div class="hc full">24</div><div class="hc full">25</div>
+              <div class="hc full">26</div><div class="hc full">27</div><div class="hc full">28</div><div class="hc full">29</div><div class="hc full">30</div>
+              <div class="hc full today">31<div class="cdot" style="background:#4A9ED6"></div></div>
+              <div class="hc empty"></div>
+            </div>
+          </div>
+
+          <!-- 인사이트 -->
+          <div class="insight">
+            <div class="insight-char"><img src="logo.png" onerror="this.parentElement.innerHTML='😊'"></div>
+            <div>
+              <div class="insight-t">💡 이번달 인사이트</div>
+              <div class="insight-b">루틴 완료일 촉촉 <strong>91%</strong> · 건너뜀 다음날 트러블 <strong style="color:var(--rose)">3배↑</strong></div>
+            </div>
+          </div>
+        </div>
+        <div class="bn">
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>TODAY<div class="bd"></div></div>
+          <div class="bi on"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>LOG<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>BOX<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>SETUP<div class="bd"></div></div>
+        </div>
+      </div>
+      <div class="cap">LOG 스토리 아카이브<small>스토리 링 바 + 히트맵 + 인사이트</small></div>
+    </div>
+
+    <!-- 폰 B: 피부 진행 타임라인 (신규 섹션) -->
+    <div class="pw">
+      <div class="phone" style="height:660px">
+        <div class="notch"><div class="nb"></div></div>
+        <div class="ab">
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span><span style="height:1.5px;width:14px;background:var(--ink);border-radius:1px;display:block"></span><span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span></div>
+          <div class="abl">OnStep</div>
+          <div class="av"><img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'"></div>
+        </div>
+        <div class="scroll">
+          <div style="padding:16px 14px 8px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--mist);margin-bottom:3px">LOG</div>
+            <div style="font-size:40px;font-weight:900;letter-spacing:-.07em;line-height:.9;color:var(--ink)">Log</div>
+          </div>
+
+          <!-- ★ 피부 진행 타임라인 (Setlog 하이퍼 리얼리즘 → 날것의 피부 기록) -->
+          <div class="sh"><h3>🪞 피부 진행 기록</h3><div class="act">4주</div></div>
+          <div style="margin:0 10px 8px">
+            <div class="skin-timeline">
+              <div class="stl-head">
+                <h4>주차별 피부 스냅</h4>
+                <span>필터 없는 진짜 변화</span>
+              </div>
+              <!-- 주차별 스냅 그리드 (4주 × 아침스냅) -->
+              <div class="skin-grid">
+                <!-- 1주차 -->
+                <div class="skin-cell">
+                  <div style="width:100%;height:100%;background:linear-gradient(135deg,#F0E8E8,#EDE0D4);display:flex;align-items:center;justify-content:center;font-size:24px">😵</div>
+                  <div class="wk-label">5/1 · W1</div>
+                </div>
+                <!-- 2주차 -->
+                <div class="skin-cell">
+                  <div style="width:100%;height:100%;background:linear-gradient(135deg,#EAE8F0,#E0E0EA);display:flex;align-items:center;justify-content:center;font-size:24px">😐</div>
+                  <div class="wk-label">5/8 · W2</div>
+                </div>
+                <!-- 3주차 -->
+                <div class="skin-cell">
+                  <div style="width:100%;height:100%;background:linear-gradient(135deg,#E8EEF4,#E0EAF0);display:flex;align-items:center;justify-content:center;font-size:24px">🙂</div>
+                  <div class="wk-label">5/15 · W3</div>
+                </div>
+                <!-- 4주차 (오늘) -->
+                <div class="skin-cell today-cell">
+                  <div style="width:100%;height:100%;background:linear-gradient(135deg,#E8F5E8,#DFF0DF);display:flex;align-items:center;justify-content:center;font-size:24px">😊</div>
+                  <div class="wk-label" style="color:var(--lime)">5/31 · 오늘</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 피부 트렌드 -->
+            <div class="skin-trend">
+              <div style="font-size:9px;font-weight:800;color:var(--sub);letter-spacing:.04em;margin-bottom:8px">📈 이번달 트렌드</div>
+              <div class="skin-trend-row">
+                <div class="skt-label">수분감</div>
+                <div class="skt-val" style="color:var(--blue)">↑ 개선</div>
+              </div>
+              <div class="skt-bar"><div class="skt-fill" style="width:78%"></div></div>
+              <div style="margin-top:6px" class="skin-trend-row">
+                <div class="skt-label">트러블</div>
+                <div class="skt-val" style="color:var(--green)">↓ 감소</div>
+              </div>
+              <div class="skt-bar"><div class="skt-fill" style="width:30%;background:var(--rose)"></div></div>
+              <div style="margin-top:6px" class="skin-trend-row">
+                <div class="skt-label">루틴 준수율</div>
+                <div class="skt-val" style="color:var(--lime-dark)">83%</div>
+              </div>
+              <div class="skt-bar"><div class="skt-fill" style="width:83%;background:var(--lime-dark)"></div></div>
+            </div>
+          </div>
+
+          <!-- 인사이트 -->
+          <div class="insight">
+            <div class="insight-char"><img src="logo.png" onerror="this.parentElement.innerHTML='😊'"></div>
+            <div>
+              <div class="insight-t">💡 한달 결과</div>
+              <div class="insight-b">루틴 꾸준히 했더니 <strong>수분감 업!</strong> 이 루틴 계속 가요 💙</div>
+            </div>
+          </div>
+        </div>
+        <div class="bn">
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>TODAY<div class="bd"></div></div>
+          <div class="bi on"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>LOG<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>BOX<div class="bd"></div></div>
+          <div class="bi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>SETUP<div class="bd"></div></div>
+        </div>
+      </div>
+      <div class="cap">LOG 피부 진행 타임라인<small>Setlog 하이퍼 리얼리즘 → 날것의 피부 기록</small></div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     변경 범위 최종 정리
+     ══════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="sec-no">04</div>
+    <div>
+      <div class="sec-title">변경 범위 최종 정리</div>
+      <div class="sec-desc">BottomNav 4탭 유지 · 기존 기능 100% 보존 · Setlog DNA 요소만 추가</div>
+    </div>
+  </div>
+
+  <div class="change-table">
+    <table>
+      <thead>
+        <tr>
+          <th>페이지</th>
+          <th>기존 (그대로)</th>
+          <th>Setlog DNA 추가</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>TODAY</td>
+          <td>날씨·#Flow·#Habits·#OOTD·#Intensive·#MOTD</td>
+          <td>
+            <span>타임스탬프 헤더</span><span class="new-b">NEW</span><br>
+            <span>스킨 스냅 카드</span><span class="new-b">NEW</span><br>
+            <span>데이로그 카드 (하단)</span><span class="new-b">NEW</span>
+          </td>
+        </tr>
+        <tr>
+          <td>LOG</td>
+          <td>월별 캘린더·날짜 상세·Library</td>
+          <td>
+            <span>스토리 링 바 (상단)</span><span class="new-b">NEW</span><br>
+            <span>히트맵 (블루 파스텔)</span><span class="upg-b">UPGRADE</span><br>
+            <span>피부 진행 타임라인</span><span class="new-b">NEW</span><br>
+            <span>캐릭터 인사이트 카드</span><span class="new-b">NEW</span>
+          </td>
+        </tr>
+        <tr>
+          <td>BOX</td>
+          <td>제품 목록·카테고리·검색</td>
+          <td>
+            <span>CPD 배지</span><span class="new-b">NEW</span><br>
+            <span>소진 임박 배너</span><span class="new-b">NEW</span><br>
+            <span>지출 분석 탭</span><span class="new-b">NEW</span>
+          </td>
+        </tr>
+        <tr>
+          <td>SETUP</td>
+          <td>세션·습관·메이크업·룩북·AI import</td>
+          <td>변경 없음</td>
+        </tr>
+        <tr>
+          <td>BottomNav</td>
+          <td>TODAY / LOG / BOX / SETUP</td>
+          <td>변경 없음 (탭 추가 없음)</td>
+        </tr>
+        <tr>
+          <td>공유 카드</td>
+          <td>(없음)</td>
+          <td>
+            <span>미니 타임라인 포함 카드</span><span class="new-b">NEW</span><br>
+            <span>Dark / Lime 2가지 스타일</span><span class="new-b">NEW</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<div class="footer">
+  OnStep × Setlog DNA 디자인 기획서 · 2026<br>
+  기존 디자인 100% 유지 · Setlog 원칙 이식 · MZ 타깃 최적화
+</div>
+
+</body>
+</html>
