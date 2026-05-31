@@ -1964,7 +1964,7 @@ function AddProductPage({
                 </div>
                 <div>
                   <div style={labelStyle}>구매처</div>
-                  <input value={form.source} onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))} placeholder="올리브영, 쿠팡..." style={{ ...underlineInputStyle, fontSize: 14 }} />
+                  <input value={form.source} onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))} placeholder="구매처명" style={{ ...underlineInputStyle, fontSize: 14 }} />
                 </div>
               </div>
 
@@ -2076,7 +2076,7 @@ function AddProductPage({
                 <input
                   value={form.price}
                   onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                  placeholder="₩45,000"
+                  placeholder="₩"
                   style={{ ...underlineInputStyle, fontSize: 15 }}
                 />
               </div>
