@@ -1743,7 +1743,11 @@ function AddProductPage({
       const base64 = await imageFileToBase64(file);
       setForm((f) => ({ ...f, imageFile: file, imagePreview: base64 }));
     } catch (err) {
-      console.warn('[OnStep] Base64 변환 실패, 원본 사용:', err);
+      console.error('[OnStep] imageFileToBase64 실패, FileReader 폴백:', err);
+      if (file.size > 500 * 1024) {
+        alert('이미지 파일이 너무 큽니다. 500KB 이하 파일을 선택해주세요.');
+        return;
+      }
       setForm((f) => ({ ...f, imageFile: file }));
       const reader = new FileReader();
       reader.onload = (ev) => {

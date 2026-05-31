@@ -14,7 +14,12 @@ export async function imageFileToBase64(file: File, maxPx = 400, quality = 0.7):
       const canvas = document.createElement('canvas');
       canvas.width = Math.round(w * scale);
       canvas.height = Math.round(h * scale);
-      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Canvas 2D 컨텍스트를 생성할 수 없습니다.'));
+        return;
+      }
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       resolve(canvas.toDataURL('image/jpeg', quality));
     };
 

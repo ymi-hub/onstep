@@ -861,6 +861,10 @@ function AddItemSheet({
       setImgPreview(base64);
     } catch (err) {
       console.error('[OnStep] imageFileToBase64 실패, FileReader 폴백:', err);
+      if (file.size > 500 * 1024) {
+        alert('이미지 파일이 너무 큽니다. 500KB 이하 파일을 선택해주세요.');
+        return;
+      }
       const reader = new FileReader();
       reader.onload = ev => { setImgFile(file); setImgPreview(ev.target?.result as string); };
       reader.onerror = () => { alert('이미지를 불러오지 못했습니다. 다른 파일을 선택해주세요.'); };
@@ -1212,6 +1216,10 @@ function LogCtPanel({
       setSImagePreview(base64);
     } catch (err) {
       console.error('[OnStep] imageFileToBase64 실패, FileReader 폴백:', err);
+      if (file.size > 500 * 1024) {
+        alert('이미지 파일이 너무 큽니다. 500KB 이하 파일을 선택해주세요.');
+        return;
+      }
       setSImageFile(file);
       const reader = new FileReader();
       reader.onload = ev => setSImagePreview(ev.target?.result as string);
