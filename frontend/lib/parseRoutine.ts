@@ -120,6 +120,7 @@ function buildPhasesPrompt(text: string, productNames?: string[]): string {
 
 ## 제품명 동의어 (같은 제품, 동일하게 취급)
 - "기미비비크림" = "기미BB크림" → 항상 "기미비비크림"으로 통일
+- "모해뗴" = "모해떄" → 항상 "모해뗴"로 통일
 
 ## 제품명 추출
 - 제품명에 조사(에, 을, 를, 으로, 로) 포함하지 않음
@@ -274,6 +275,7 @@ function buildFullPrompt(text: string): string {
 
 ## 제품명 동의어 (같은 제품, 동일하게 취급)
 - "기미비비크림" = "기미BB크림" → 항상 "기미비비크림"으로 통일
+- "모해뗴" = "모해떄" → 항상 "모해뗴"로 통일
 
 ## 파싱 규칙
 - 회차: "N차" → session:N (없으면 1)

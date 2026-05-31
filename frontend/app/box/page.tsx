@@ -1408,6 +1408,7 @@ export default function BoxPage() {
         editingProduct={editingProduct}
         boxConfig={boxConfig}
         onDelete={editingProduct ? () => { handleDelete(editingProduct.id); setIsAddOpen(false); setEditingProduct(null); } : undefined}
+        onOpenCatEditor={() => setManageOpen(true)}
       />
 
       {/* BOX 관리 시트 */}
@@ -1770,6 +1771,7 @@ function AddProductPage({
   editingProduct,
   boxConfig,
   onDelete,
+  onOpenCatEditor,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -1781,6 +1783,7 @@ function AddProductPage({
   editingProduct: Product | null;
   boxConfig: BoxConfig;
   onDelete?: () => void;
+  onOpenCatEditor?: () => void;
 }) {
   const isEditing = !!editingProduct;
   const isNameEmpty = !form.name.trim();
@@ -1967,8 +1970,16 @@ function AddProductPage({
 
               {/* DOMAIN 선택 버튼 (boxConfig 기반) */}
               <div>
-                <div style={labelStyle}>DOMAIN</div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginTop: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={labelStyle}>DOMAIN</div>
+                  <button
+                    onClick={() => onOpenCatEditor?.()}
+                    style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#4A4846', background: '#EEEDE9', border: 'none', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', letterSpacing: '.04em' }}
+                  >
+                    카테고리 편집
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginTop: 0 }}>
                   {boxConfig.domains.map((d) => (
                     <button
                       key={d.id}
