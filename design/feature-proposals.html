@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnStep · Feature Design Proposals</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+/* ── 기본 토큰 ── */
+:root {
+  --bg:#FAFAF8; --surface:#F4F4F0; --surface-low:#EEEDE9;
+  --surface-mid:#E4E2DC; --surface-high:#D8D6CF;
+  --ink:#0C0C0A; --sub:#4A4846; --mist:#9A9490;
+  --lime:#C5FF00; --lime-dark:#A6D900; --lime-fg:#0C0C0A;
+  --border:rgba(12,12,10,.07); --border-md:rgba(12,12,10,.14);
+  --green:#1E6B4A; --amber:#B45309; --rose:#C8414F;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:9999px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent }
+body {
+  background:#E8E6E0;
+  font-family:'Plus Jakarta Sans','Space Grotesk',sans-serif;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  padding:40px 24px 80px;
+}
+
+/* ── 페이지 헤더 ── */
+.page-header {
+  text-align:center; margin-bottom:56px;
+}
+.page-header h1 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:42px; font-weight:400; letter-spacing:-.02em;
+  color:var(--ink); margin-bottom:8px;
+}
+.page-header p { font-size:14px; color:var(--mist); font-weight:500; letter-spacing:.04em }
+
+/* ── 섹션 레이블 ── */
+.section-label {
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:20px;
+}
+.section-label .badge {
+  background:var(--lime); color:var(--lime-fg);
+  font-size:10px; font-weight:800; letter-spacing:.08em;
+  padding:3px 10px; border-radius:var(--r-full);
+}
+.section-label h2 {
+  font-size:18px; font-weight:700; color:var(--ink);
+}
+.section-label .desc {
+  font-size:12px; color:var(--mist); font-weight:500;
+}
+
+/* ── 가로 스크롤 폰 갤러리 ── */
+.feature-section { margin-bottom:72px }
+.phone-row {
+  display:flex; gap:24px; overflow-x:auto;
+  padding:8px 4px 24px;
+  scrollbar-width:none;
+}
+.phone-row::-webkit-scrollbar { display:none }
+
+/* ── 폰 프레임 ── */
+.phone {
+  width:320px; flex-shrink:0;
+  background:var(--bg);
+  border-radius:40px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.7) inset,
+    0 32px 80px rgba(0,0,0,.2),
+    0 8px 20px rgba(0,0,0,.12);
+  overflow:hidden;
+  position:relative;
+}
+.phone .notch {
+  height:36px; background:var(--bg);
+  display:flex; align-items:flex-end; justify-content:center; padding-bottom:5px;
+}
+.phone .notch-bar {
+  width:100px; height:4px; background:var(--ink);
+  border-radius:2px; opacity:.1;
+}
+
+/* 폰 캡션 */
+.phone-caption {
+  text-align:center; margin-top:14px;
+  font-size:12px; font-weight:600; color:var(--sub);
+  letter-spacing:.02em;
+}
+.phone-caption .tag {
+  display:inline-block; margin-top:4px;
+  font-size:10px; color:var(--mist); font-weight:500;
+}
+
+/* ── 공통 앱바 ── */
+.appbar {
+  padding:10px 16px; display:flex; align-items:center;
+  justify-content:space-between; border-bottom:1px solid var(--border);
+  background:rgba(250,250,248,.92); backdrop-filter:blur(20px);
+}
+.appbar-title { font-size:15px; font-weight:700; display:flex; align-items:center; gap:7px }
+.appbar-logo { width:22px; height:22px; border-radius:6px; object-fit:cover; filter:grayscale(100%) }
+.appbar-right { width:30px; height:30px; border-radius:50%; background:var(--surface-mid); display:flex; align-items:center; justify-content:center; font-size:14px }
+
+/* ── 페이지 제목 ── */
+.pg-title { padding:20px 16px 8px }
+.pg-title h1 { font-size:46px; font-weight:900; letter-spacing:-.06em; line-height:.9; color:var(--ink) }
+.pg-title .sub { font-size:12px; color:var(--mist); font-weight:500; margin-top:6px }
+
+/* ── 공통 카드 ── */
+.card {
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  padding:14px;
+  margin:0 12px 10px;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
+}
+
+/* ── BottomNav ── */
+.bottom-nav {
+  display:flex; border-top:1px solid var(--border);
+  background:rgba(250,250,248,.95); backdrop-filter:blur(20px);
+  padding:8px 0 16px;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+  font-size:9px; font-weight:700; letter-spacing:.06em; color:var(--mist);
+  cursor:pointer;
+}
+.nav-item.active { color:var(--ink) }
+.nav-dot { width:4px; height:4px; border-radius:50%; background:var(--lime); opacity:0 }
+.nav-item.active .nav-dot { opacity:1 }
+.nav-icon { font-size:18px }
+
+/* ─────────────────────────────────────
+   FEATURE 1: 스트릭 배너 + 월간 달성률
+   ───────────────────────────────────── */
+.streak-banner {
+  margin:0 12px 10px;
+  background:linear-gradient(135deg, #0C0C0A 0%, #1a1a16 100%);
+  border-radius:var(--r-xl);
+  padding:14px 16px;
+  display:flex; align-items:center; gap:12px;
+  position:relative; overflow:hidden;
+}
+.streak-banner::after {
+  content:'';
+  position:absolute; right:-20px; top:-20px;
+  width:80px; height:80px;
+  background:radial-gradient(circle, rgba(197,255,0,.15) 0%, transparent 70%);
+  border-radius:50%;
+}
+.streak-fire { font-size:28px; flex-shrink:0; z-index:1 }
+.streak-info { flex:1; z-index:1 }
+.streak-num {
+  font-size:22px; font-weight:800; color:#fff;
+  display:flex; align-items:baseline; gap:4px; line-height:1;
+}
+.streak-num span { font-size:12px; font-weight:500; color:rgba(255,255,255,.5) }
+.streak-label { font-size:10px; color:rgba(255,255,255,.4); margin-top:2px; letter-spacing:.04em }
+.streak-bar-wrap { flex:1; z-index:1; text-align:right }
+.streak-pct { font-size:18px; font-weight:800; color:var(--lime); line-height:1 }
+.streak-pct-label { font-size:9px; color:rgba(255,255,255,.35); letter-spacing:.04em; margin-top:1px }
+.streak-bar {
+  margin:0 12px 12px;
+  height:3px; background:var(--surface-low);
+  border-radius:2px; overflow:hidden;
+}
+.streak-bar-fill {
+  height:100%; width:83%;
+  background:linear-gradient(90deg, var(--lime-dark), var(--lime));
+  border-radius:2px;
+}
+
+/* 루틴 체크 카드 (TODAY) */
+.routine-card {
+  margin:0 12px 10px;
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  overflow:hidden;
+}
+.routine-header {
+  padding:12px 14px 10px;
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--surface);
+}
+.routine-header h3 { font-size:11px; font-weight:700; letter-spacing:.06em; color:var(--sub) }
+.routine-tab-row {
+  display:flex; gap:6px; padding:0 14px 10px;
+  background:var(--surface);
+}
+.tab-pill {
+  padding:4px 10px; border-radius:var(--r-full);
+  font-size:10px; font-weight:700; letter-spacing:.04em;
+  background:var(--surface-mid); color:var(--mist);
+}
+.tab-pill.active { background:var(--ink); color:var(--bg) }
+.routine-step {
+  padding:10px 14px; display:flex; align-items:center; gap:10px;
+  border-top:1px solid var(--border);
+  background:var(--bg);
+}
+.step-check {
+  width:20px; height:20px; border-radius:50%;
+  border:1.5px solid var(--border-md); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:10px;
+}
+.step-check.done { background:var(--lime); border-color:var(--lime); }
+.step-info { flex:1 }
+.step-name { font-size:12px; font-weight:600; color:var(--ink) }
+.step-detail { font-size:10px; color:var(--mist); margin-top:1px }
+
+/* ─────────────────────────────────────
+   FEATURE 2: LOG 히트맵
+   ───────────────────────────────────── */
+.heatmap-section {
+  padding:0 12px 12px;
+}
+.heatmap-header {
+  display:flex; justify-content:space-between; align-items:baseline;
+  margin-bottom:12px; padding-top:12px;
+}
+.heatmap-header h3 { font-size:14px; font-weight:700; color:var(--ink) }
+.heatmap-header .month-nav { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:var(--sub) }
+.heatmap-stat-row {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:8px; margin-bottom:16px;
+}
+.hm-stat {
+  background:var(--surface); border-radius:var(--r-lg); padding:10px 12px;
+  border:1px solid var(--border);
+}
+.hm-stat-val { font-size:18px; font-weight:800; color:var(--ink) }
+.hm-stat-label { font-size:9px; color:var(--mist); font-weight:600; letter-spacing:.04em; margin-top:2px }
+
+.cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px }
+.cal-day-label { font-size:8px; font-weight:700; color:var(--mist); text-align:center; letter-spacing:.04em }
+
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px }
+.cal-cell {
+  aspect-ratio:1; border-radius:6px;
+  background:var(--surface); display:flex; align-items:center; justify-content:center;
+  font-size:9px; font-weight:600; color:var(--mist);
+  position:relative;
+}
+.cal-cell.done { background:var(--lime); color:var(--lime-fg) }
+.cal-cell.done-half { background:rgba(197,255,0,.4); color:var(--ink) }
+.cal-cell.today { outline:2px solid var(--ink); outline-offset:1px }
+.cal-cell.today.done { outline-color:var(--lime-dark) }
+.cal-cell.empty { background:transparent }
+.cal-cell.skipped { background:rgba(200,65,79,.08); color:var(--rose) }
+
+/* ─────────────────────────────────────
+   FEATURE 3: BOX CPD + 소진 알림
+   ───────────────────────────────────── */
+.low-stock-banner {
+  margin:0 12px 10px;
+  background:rgba(180,83,9,.06);
+  border:1px solid rgba(180,83,9,.15);
+  border-radius:var(--r-xl);
+  padding:12px 14px;
+  display:flex; align-items:center; gap:10px;
+}
+.ls-icon { font-size:20px; flex-shrink:0 }
+.ls-info { flex:1 }
+.ls-title { font-size:12px; font-weight:700; color:var(--amber) }
+.ls-items { font-size:10px; color:var(--sub); margin-top:2px }
+.ls-btn {
+  font-size:10px; font-weight:700; color:var(--amber);
+  background:rgba(180,83,9,.1); padding:5px 10px;
+  border-radius:var(--r-full); flex-shrink:0; cursor:pointer;
+  border:1px solid rgba(180,83,9,.2);
+}
+
+.product-card {
+  margin:0 12px 8px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  padding:12px 14px;
+  display:flex; align-items:center; gap:12px;
+}
+.product-img {
+  width:54px; height:54px; border-radius:var(--r-md);
+  background:var(--surface-mid); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:22px;
+}
+.product-info { flex:1; min-width:0 }
+.product-name { font-size:13px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.product-brand { font-size:10px; color:var(--mist); margin-top:1px }
+.product-meta { display:flex; align-items:center; gap:6px; margin-top:6px }
+.product-remain {
+  font-size:10px; font-weight:700;
+  padding:2px 7px; border-radius:var(--r-full);
+  background:var(--surface); color:var(--sub);
+  border:1px solid var(--border);
+}
+.product-remain.warning { background:rgba(180,83,9,.08); color:var(--amber); border-color:rgba(180,83,9,.2) }
+.product-dday { font-size:10px; color:var(--mist) }
+.cpd-badge {
+  background:var(--lime); color:var(--lime-fg);
+  font-size:10px; font-weight:800;
+  padding:3px 8px; border-radius:var(--r-full);
+  flex-shrink:0;
+}
+
+/* 잔량 바 */
+.remain-bar {
+  height:2px; background:var(--surface-low);
+  border-radius:2px; overflow:hidden; margin-top:8px;
+}
+.remain-bar-fill { height:100%; border-radius:2px; background:var(--lime-dark) }
+.remain-bar-fill.warning { background:var(--amber) }
+
+/* ─────────────────────────────────────
+   FEATURE 4: 지출 ROI 대시보드
+   ───────────────────────────────────── */
+.roi-header {
+  padding:16px 16px 12px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.roi-header h2 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px; font-weight:400; color:var(--ink); letter-spacing:-.02em;
+}
+.period-selector {
+  display:flex; gap:4px; padding:0 12px 12px;
+}
+.period-btn {
+  padding:4px 10px; border-radius:var(--r-full);
+  font-size:10px; font-weight:700; color:var(--mist);
+  background:var(--surface); border:1px solid var(--border);
+}
+.period-btn.active { background:var(--ink); color:var(--bg); border-color:var(--ink) }
+
+.roi-summary {
+  margin:0 12px 10px;
+  background:linear-gradient(135deg, #0C0C0A, #1a1a14);
+  border-radius:var(--r-xl); padding:18px;
+  position:relative; overflow:hidden;
+}
+.roi-summary::after {
+  content:''; position:absolute; top:-30px; right:-30px;
+  width:120px; height:120px;
+  background:radial-gradient(circle, rgba(197,255,0,.12) 0%, transparent 70%);
+  border-radius:50%;
+}
+.roi-total-label {
+  font-size:9px; letter-spacing:.1em; color:rgba(255,255,255,.35);
+  font-weight:700; margin-bottom:4px; z-index:1; position:relative;
+}
+.roi-total-amount {
+  font-family:'Cormorant Garamond',serif;
+  font-size:36px; font-weight:600; color:#fff;
+  letter-spacing:-.03em; line-height:1; z-index:1; position:relative;
+}
+.roi-total-sub {
+  font-size:10px; color:rgba(255,255,255,.35); margin-top:4px;
+  z-index:1; position:relative;
+}
+.roi-grid {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:6px; margin-top:14px; z-index:1; position:relative;
+}
+.roi-cell {
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:10px; padding:10px 8px; text-align:center;
+}
+.roi-cell-val { font-size:15px; font-weight:800; color:#fff }
+.roi-cell-label { font-size:8px; color:rgba(255,255,255,.35); letter-spacing:.04em; margin-top:2px }
+
+.cpd-ranking {
+  margin:0 12px 10px;
+}
+.cpd-rank-title {
+  font-size:11px; font-weight:700; color:var(--sub); letter-spacing:.04em;
+  margin-bottom:8px; padding:0 2px;
+}
+.cpd-rank-item {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:var(--r-lg);
+  background:var(--bg); border:1px solid var(--border);
+  margin-bottom:6px;
+}
+.rank-num { font-size:12px; font-weight:800; color:var(--mist); width:16px; flex-shrink:0 }
+.rank-icon { font-size:18px; flex-shrink:0 }
+.rank-name { flex:1; font-size:12px; font-weight:600; color:var(--ink) }
+.rank-cpd { font-size:11px; font-weight:700; color:var(--sub) }
+.rank-bar-wrap { flex:1; height:3px; background:var(--surface); border-radius:2px; overflow:hidden; margin-left:6px }
+.rank-bar { height:100%; border-radius:2px; background:var(--lime) }
+
+/* ─────────────────────────────────────
+   FEATURE 5: 피부 컨디션 다이어리
+   ───────────────────────────────────── */
+.condition-sheet {
+  position:relative; margin:0 12px 12px;
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--r-xl); padding:18px 16px;
+}
+.sheet-title {
+  font-size:15px; font-weight:700; color:var(--ink); margin-bottom:4px;
+}
+.sheet-sub { font-size:11px; color:var(--mist); margin-bottom:16px }
+
+.condition-row { margin-bottom:14px }
+.condition-label {
+  font-size:10px; font-weight:700; color:var(--sub);
+  letter-spacing:.04em; margin-bottom:7px;
+}
+.condition-options { display:flex; gap:6px }
+.cond-btn {
+  flex:1; padding:8px 6px; border-radius:var(--r-lg);
+  border:1.5px solid var(--border); text-align:center;
+  background:var(--surface); cursor:pointer;
+}
+.cond-btn .emoji { font-size:18px; display:block; margin-bottom:3px }
+.cond-btn .text { font-size:9px; font-weight:600; color:var(--mist) }
+.cond-btn.active { border-color:var(--lime-dark); background:rgba(197,255,0,.1) }
+.cond-btn.active .text { color:var(--ink) }
+
+.trouble-options { display:flex; gap:6px }
+.trouble-btn {
+  flex:1; padding:7px; border-radius:var(--r-lg);
+  border:1.5px solid var(--border);
+  font-size:10px; font-weight:700; color:var(--mist);
+  background:var(--surface); text-align:center; cursor:pointer;
+}
+.trouble-btn.active.good { border-color:var(--green); background:rgba(30,107,74,.08); color:var(--green) }
+.trouble-btn.active.warn { border-color:var(--amber); background:rgba(180,83,9,.08); color:var(--amber) }
+.trouble-btn.active.bad { border-color:var(--rose); background:rgba(200,65,79,.08); color:var(--rose) }
+
+.memo-input {
+  width:100%; padding:10px 12px;
+  border:1.5px solid var(--border); border-radius:var(--r-lg);
+  background:var(--surface); font-size:12px; color:var(--ink);
+  font-family:inherit; resize:none;
+  margin-bottom:14px;
+}
+
+.save-btn {
+  width:100%; padding:13px;
+  background:var(--ink); color:var(--bg);
+  border:none; border-radius:var(--r-full);
+  font-size:13px; font-weight:700; cursor:pointer;
+  letter-spacing:.02em;
+}
+
+/* LOG 캘린더 with 컨디션 */
+.log-cal-cell {
+  aspect-ratio:1; border-radius:6px;
+  background:var(--surface);
+  display:flex; align-items:center; justify-content:center;
+  font-size:8px; font-weight:600; color:var(--mist);
+  position:relative;
+}
+.condition-dot {
+  position:absolute; bottom:2px; right:2px;
+  width:5px; height:5px; border-radius:50%;
+}
+
+/* ─────────────────────────────────────
+   FEATURE 6: 공유 카드
+   ───────────────────────────────────── */
+.share-card {
+  margin:12px; border-radius:24px; overflow:hidden;
+  background:linear-gradient(145deg, #0C0C0A 0%, #161612 40%, #0e110a 100%);
+  padding:28px 24px 24px;
+  position:relative;
+}
+.share-card::before {
+  content:'';
+  position:absolute; top:-40px; right:-40px;
+  width:160px; height:160px;
+  background:radial-gradient(circle, rgba(197,255,0,.1) 0%, transparent 60%);
+  border-radius:50%;
+}
+.share-brand {
+  font-family:'Cormorant Garamond',serif;
+  font-size:11px; letter-spacing:.2em; font-weight:300;
+  color:rgba(255,255,255,.25); margin-bottom:24px;
+  text-transform:uppercase;
+}
+.share-routine-name {
+  font-size:11px; font-weight:700; letter-spacing:.08em;
+  color:rgba(255,255,255,.4); text-transform:uppercase; margin-bottom:6px;
+}
+.share-headline {
+  font-family:'Cormorant Garamond',serif;
+  font-size:30px; font-weight:400; color:#fff; line-height:1.2;
+  margin-bottom:20px;
+}
+.share-stat-row {
+  display:flex; gap:10px; margin-bottom:20px;
+}
+.share-stat {
+  flex:1; background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px; padding:10px;
+  text-align:center;
+}
+.share-stat-val { font-size:18px; font-weight:800; color:#fff; line-height:1 }
+.share-stat-val.lime { color:var(--lime) }
+.share-stat-label { font-size:8px; color:rgba(255,255,255,.3); letter-spacing:.06em; margin-top:3px }
+.share-date {
+  font-size:10px; color:rgba(255,255,255,.2);
+  letter-spacing:.06em; text-align:right;
+}
+.share-footer {
+  display:flex; gap:8px; padding:0 12px 14px;
+}
+.share-action-btn {
+  flex:1; padding:12px;
+  background:var(--ink); color:var(--bg);
+  border-radius:var(--r-full); text-align:center;
+  font-size:12px; font-weight:700; cursor:pointer; border:none;
+}
+.share-action-btn.outline {
+  background:transparent; color:var(--ink);
+  border:1.5px solid var(--border-md);
+}
+
+/* ── 구분선 ── */
+.divider { height:1px; background:var(--border); margin:0 12px 12px }
+
+/* ── 섹션 간격 ── */
+.section-gap { height:16px }
+
+/* ── 흐름 애니 (선택) ── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px) }
+  to   { opacity:1; transform:translateY(0) }
+}
+.phone { animation:fadeUp .5s ease both }
+
+</style>
+</head>
+<body>
+
+<!-- ════ 페이지 헤더 ════ -->
+<div class="page-header">
+  <h1>OnStep Feature Proposals</h1>
+  <p>MZ세대 니즈 기반 · 6개 신규 기능 디자인 제안 · 기존 디자인 시스템 확장</p>
+</div>
+
+
+<!-- ════ FEATURE 1: 루틴 스트릭 ════ -->
+<div class="feature-section">
+  <div class="section-label">
+    <div class="badge">Phase 2-A · ①</div>
+    <div>
+      <h2>루틴 스트릭 + 월간 달성률</h2>
+      <div class="desc">TODAY 상단 · 갓생 문화의 "연속 기록" 욕구 충족</div>
+    </div>
+  </div>
+
+  <div class="phone-row">
+
+    <!-- 폰 1: TODAY 상단 스트릭 배너 -->
+    <div>
+      <div class="phone" style="height:560px">
+        <div class="notch"><div class="notch-bar"></div></div>
+        <div class="appbar">
+          <div class="appbar-title">
+            <img src="logo.png" class="appbar-logo" onerror="this.style.display='none'">
+            OnStep
+          </div>
+          <div class="appbar-right">😊</div>
+        </div>
+        <div style="flex:1;overflow-y:auto;scrollbar-width:none">
+          <div class="pg-title">
+            <h1>TODAY</h1>
+            <div class="sub">2026년 5월 31일 일요일</div>
+          </div>
+
+          <!-- 🔥 스트릭 배너 (신규) -->
+          <div class="streak-banner">
+            <div class="streak-fire">🔥</div>
+            <div class="streak-info">
+              <div class="streak-num">12 <span>일 연속</span></div>
+              <div class="streak-label">MORNING · NIGHT 모두 완료</div>
+            </div>
+            <div class="streak-bar-wrap">
+              <div class="streak-pct">83%</div>
+              <div class="streak-pct-label">이번달 달성</div>
+            </div>
+          </div>
+          <div class="streak-bar"><div class="streak-bar-fill"></div></div>
+
+          <!-- 루틴 체크 -->
+          <div class="routine-card">
+            <div class="routine-header">
+              <h3>SKINCARE ROUTINE</h3>
+            </div>
+            <div class="routine-tab-row">
+              <div class="tab-pill active">MORNING</div>
+              <div class="tab-pill">NIGHT</div>
+            </div>
+            <div class="routine-step">
+              <div class="step-check done">✓</div>
+              <div class="step-info">
+                <div class="step-name">물마스크</div>
+                <div class="step-detail">10분 후 러빙하여 흡수</div>
+              </div>
+            </div>
+            <div class="routine-step">
+              <div class="step-check done">✓</div>
+              <div class="step-info">
+                <div class="step-name">델마크림 + 델마마스크</div>
+                <div class="step-detail">섞어서 바름</div>
+              </div>
+            </div>
+            <div class="routine-step">
+              <div class="step-check"></div>
+              <div class="step-info">
+                <div class="step-name">델마세럼 + 레이어드밤</div>
+                <div class="step-detail">섞어서 마무리</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item active"><div class="nav-icon">☀️</div>TODAY<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">📋</div>LOG<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">📦</div>BOX<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>SETUP<div class="nav-dot"></div></div>
+        </div>
+      </div>
+      <div class="phone-caption">TODAY 상단<div class="tag">스트릭 배너 + 달성률</div></div>
+    </div>
+
+    <!-- 폰 2: LOG 히트맵 -->
+    <div>
+      <div class="phone" style="height:560px">
+        <div class="notch"><div class="notch-bar"></div></div>
+        <div class="appbar">
+          <div class="appbar-title">OnStep</div>
+          <div class="appbar-right">😊</div>
+        </div>
+        <div style="flex:1;overflow-y:auto;scrollbar-width:none">
+          <div class="pg-title">
+            <h1>LOG</h1>
+          </div>
+
+          <div class="heatmap-section">
+            <div class="heatmap-header">
+              <h3>5월 달성 현황</h3>
+              <div class="month-nav">‹ &nbsp; 2026.05 &nbsp; ›</div>
+            </div>
+
+            <!-- 요약 수치 -->
+            <div class="heatmap-stat-row">
+              <div class="hm-stat">
+                <div class="hm-stat-val">🔥 12</div>
+                <div class="hm-stat-label">연속 기록일</div>
+              </div>
+              <div class="hm-stat">
+                <div class="hm-stat-val">83%</div>
+                <div class="hm-stat-label">이번달 달성률</div>
+              </div>
+              <div class="hm-stat">
+                <div class="hm-stat-val">25</div>
+                <div class="hm-stat-label">완료일 합계</div>
+              </div>
+            </div>
+
+            <!-- 요일 레이블 -->
+            <div class="cal-days">
+              <div class="cal-day-label">MON</div>
+              <div class="cal-day-label">TUE</div>
+              <div class="cal-day-label">WED</div>
+              <div class="cal-day-label">THU</div>
+              <div class="cal-day-label">FRI</div>
+              <div class="cal-day-label">SAT</div>
+              <div class="cal-day-label">SUN</div>
+            </div>
+
+            <!-- 히트맵 그리드 -->
+            <div class="cal-grid">
+              <div class="cal-cell empty"></div>
+              <div class="cal-cell empty"></div>
+              <div class="cal-cell empty"></div>
+              <div class="cal-cell done">1</div>
+              <div class="cal-cell done">2</div>
+              <div class="cal-cell done">3</div>
+              <div class="cal-cell done-half">4</div>
+
+              <div class="cal-cell done">5</div>
+              <div class="cal-cell done">6</div>
+              <div class="cal-cell done">7</div>
+              <div class="cal-cell done">8</div>
+              <div class="cal-cell done">9</div>
+              <div class="cal-cell done-half">10</div>
+              <div class="cal-cell skipped">11</div>
+
+              <div class="cal-cell done">12</div>
+              <div class="cal-cell done">13</div>
+              <div class="cal-cell done">14</div>
+              <div class="cal-cell done">15</div>
+              <div class="cal-cell done">16</div>
+              <div class="cal-cell done">17</div>
+              <div class="cal-cell done">18</div>
+
+              <div class="cal-cell done">19</div>
+              <div class="cal-cell done">20</div>
+              <div class="cal-cell done">21</div>
+              <div class="cal-cell done">22</div>
+              <div class="cal-cell done">23</div>
+              <div class="cal-cell done">24</div>
+              <div class="cal-cell done">25</div>
+
+              <div class="cal-cell done">26</div>
+              <div class="cal-cell done">27</div>
+              <div class="cal-cell done">28</div>
+              <div class="cal-cell done">29</div>
+              <div class="cal-cell done">30</div>
+              <div class="cal-cell today done" style="outline:2px solid #A6D900">31</div>
+              <div class="cal-cell empty"></div>
+            </div>
+
+            <!-- 범례 -->
+            <div style="display:flex;gap:12px;margin-top:12px;align-items:center">
+              <div style="display:flex;align-items:center;gap:4px">
+                <div style="width:10px;height:10px;border-radius:2px;background:var(--lime)"></div>
+                <span style="font-size:9px;color:var(--mist)">완료</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <div style="width:10px;height:10px;border-radius:2px;background:rgba(197,255,0,.4)"></div>
+                <span style="font-size:9px;color:var(--mist)">일부 완료</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <div style="width:10px;height:10px;border-radius:2px;background:rgba(200,65,79,.08);border:1px solid rgba(200,65,79,.2)"></div>
+                <span style="font-size:9px;color:var(--mist)">건너뜀</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item"><div class="nav-icon">☀️</div>TODAY<div class="nav-dot"></div></div>
+          <div class="nav-item active"><div class="nav-icon">📋</div>LOG<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">📦</div>BOX<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>SETUP<div class="nav-dot"></div></div>
+        </div>
+      </div>
+      <div class="phone-caption">LOG 월간 히트맵<div class="tag">달성 패턴 시각화</div></div>
+    </div>
+
+  </div>
+</div><!-- /feature 1 -->
+
+
+<!-- ════ FEATURE 2: 뷰티 지출 ROI ════ -->
+<div class="feature-section">
+  <div class="section-label">
+    <div class="badge">Phase 2-A · ②</div>
+    <div>
+      <h2>뷰티 지출 ROI 대시보드</h2>
+      <div class="desc">BOX 탭 내 지출 서브뷰 · 짠테크 × 뷰티 소비 데이터화</div>
+    </div>
+  </div>
+
+  <div class="phone-row">
+
+    <!-- 폰: ROI 대시보드 전체 -->
+    <div>
+      <div class="phone" style="height:620px">
+        <div class="notch"><div class="notch-bar"></div></div>
+        <div class="appbar">
+          <div class="appbar-title">OnStep</div>
+          <div class="appbar-right">😊</div>
+        </div>
+        <div style="flex:1;overflow-y:auto;scrollbar-width:none">
+          <!-- BOX 탭 내 서브탭 -->
+          <div class="pg-title">
+            <h1>BOX</h1>
+          </div>
+          <div class="period-selector">
+            <div class="period-btn">제품</div>
+            <div class="period-btn active">지출 분석</div>
+          </div>
+
+          <!-- 월 선택 -->
+          <div style="display:flex;gap:6px;padding:0 12px 12px">
+            <div class="period-btn">3월</div>
+            <div class="period-btn">4월</div>
+            <div class="period-btn active">5월</div>
+          </div>
+
+          <!-- 총 지출 카드 -->
+          <div class="roi-summary">
+            <div class="roi-total-label">MONTHLY BEAUTY SPEND</div>
+            <div class="roi-total-amount">₩142,800</div>
+            <div class="roi-total-sub">지난달 대비 ↓ ₩23,000 줄었어요</div>
+            <div class="roi-grid">
+              <div class="roi-cell">
+                <div class="roi-cell-val">₩4,760</div>
+                <div class="roi-cell-label">일평균</div>
+              </div>
+              <div class="roi-cell">
+                <div class="roi-cell-val">67%</div>
+                <div class="roi-cell-label">활용률</div>
+              </div>
+              <div class="roi-cell">
+                <div class="roi-cell-val">178개</div>
+                <div class="roi-cell-label">등록 제품</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CPD 랭킹 -->
+          <div class="cpd-ranking" style="margin-top:10px">
+            <div class="cpd-rank-title">하루 비용 TOP 5</div>
+
+            <div class="cpd-rank-item">
+              <div class="rank-num">1</div>
+              <div class="rank-icon">🧴</div>
+              <div class="rank-name">레티놀 세럼</div>
+              <div class="rank-cpd">₩2,340/일</div>
+              <div class="rank-bar-wrap"><div class="rank-bar" style="width:100%"></div></div>
+            </div>
+            <div class="cpd-rank-item">
+              <div class="rank-num">2</div>
+              <div class="rank-icon">💧</div>
+              <div class="rank-name">델마크림</div>
+              <div class="rank-cpd">₩1,890/일</div>
+              <div class="rank-bar-wrap"><div class="rank-bar" style="width:81%"></div></div>
+            </div>
+            <div class="cpd-rank-item">
+              <div class="rank-num">3</div>
+              <div class="rank-icon">🌿</div>
+              <div class="rank-name">물마스크</div>
+              <div class="rank-cpd">₩890/일</div>
+              <div class="rank-bar-wrap"><div class="rank-bar" style="width:38%"></div></div>
+            </div>
+            <div class="cpd-rank-item">
+              <div class="rank-num">4</div>
+              <div class="rank-icon">✨</div>
+              <div class="rank-name">디스킨</div>
+              <div class="rank-cpd">₩650/일</div>
+              <div class="rank-bar-wrap"><div class="rank-bar" style="width:28%"></div></div>
+            </div>
+            <div class="cpd-rank-item">
+              <div class="rank-num">5</div>
+              <div class="rank-icon">🫙</div>
+              <div class="rank-name">토너패드</div>
+              <div class="rank-cpd">₩420/일</div>
+              <div class="rank-bar-wrap"><div class="rank-bar" style="width:18%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item"><div class="nav-icon">☀️</div>TODAY<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">📋</div>LOG<div class="nav-dot"></div></div>
+          <div class="nav-item active"><div class="nav-icon">📦</div>BOX<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>SETUP<div class="nav-dot"></div></div>
+        </div>
+      </div>
+      <div class="phone-caption">BOX → 지출 분석 탭<div class="tag">CPD 랭킹 + 월간 총액</div></div>
+    </div>
+
+    <!-- 폰 2: CPD 배지 달린 제품 카드 -->
+    <div>
+      <div class="phone" style="height:620px">
+        <div class="notch"><div class="notch-bar"></div></div>
+        <div class="appbar">
+          <div class="appbar-title">OnStep</div>
+          <div class="appbar-right">😊</div>
+        </div>
+        <div style="flex:1;overflow-y:auto;scrollbar-width:none">
+          <div class="pg-title">
+            <h1>BOX</h1>
+          </div>
+          <div class="period-selector">
+            <div class="period-btn active">제품</div>
+            <div class="period-btn">지출 분석</div>
+          </div>
+
+          <!-- 소진 임박 배너 (Feature 3 미리보기) -->
+          <div class="low-stock-banner">
+            <div class="ls-icon">⚠️</div>
+            <div class="ls-info">
+              <div class="ls-title">2개 제품 소진 임박</div>
+              <div class="ls-items">레티놀 세럼 D-5 · 물마스크 D-3</div>
+            </div>
+            <div class="ls-btn">확인 →</div>
+          </div>
+
+          <!-- 제품 카드들 -->
+          <div class="product-card">
+            <div class="product-img">🧴</div>
+            <div class="product-info">
+              <div class="product-name">레티놀 세럼</div>
+              <div class="product-brand">델마 · 나이트케어</div>
+              <div class="product-meta">
+                <div class="product-remain warning">잔량 18%</div>
+                <div class="product-dday">D-5</div>
+              </div>
+              <div class="remain-bar"><div class="remain-bar-fill warning" style="width:18%"></div></div>
+            </div>
+            <div class="cpd-badge">₩2,340<br><span style="font-size:8px;font-weight:600">/일</span></div>
+          </div>
+
+          <div class="product-card">
+            <div class="product-img">💧</div>
+            <div class="product-info">
+              <div class="product-name">델마크림</div>
+              <div class="product-brand">델마 · 모이스처라이저</div>
+              <div class="product-meta">
+                <div class="product-remain">잔량 67%</div>
+                <div class="product-dday">D-24</div>
+              </div>
+              <div class="remain-bar"><div class="remain-bar-fill" style="width:67%"></div></div>
+            </div>
+            <div class="cpd-badge">₩1,890<br><span style="font-size:8px;font-weight:600">/일</span></div>
+          </div>
+
+          <div class="product-card">
+            <div class="product-img">🌿</div>
+            <div class="product-info">
+              <div class="product-name">물마스크</div>
+              <div class="product-brand">코스알엑스 · 마스크</div>
+              <div class="product-meta">
+                <div class="product-remain warning">잔량 22%</div>
+                <div class="product-dday">D-3</div>
+              </div>
+              <div class="remain-bar"><div class="remain-bar-fill warning" style="width:22%"></div></div>
+            </div>
+            <div class="cpd-badge">₩890<br><span style="font-size:8px;font-weight:600">/일</span></div>
+          </div>
+
+          <div class="product-card">
+            <div class="product-img">✨</div>
+            <div class="product-info">
+              <div class="product-name">디스킨</div>
+              <div class="product-brand">피부과 추천 · 앰플</div>
+              <div class="product-meta">
+                <div class="product-remain">잔량 88%</div>
+                <div class="product-dday">D-62</div>
+              </div>
+              <div class="remain-bar"><div class="remain-bar-fill" style="width:88%"></div></div>
+            </div>
+            <div class="cpd-badge">₩650<br><span style="font-size:8px;font-weight:600">/일</span></div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item"><div class="nav-icon">☀️</div>TODAY<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">📋</div>LOG<div class="nav-dot"></div></div>
+          <div class="nav-item active"><div class="nav-icon">📦</div>BOX<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>SETUP<div class="nav-dot"></div></div>
+        </div>
+      </div>
+      <div class="phone-caption">BOX 제품 목록<div class="tag">CPD 배지 + 소진 임박 배너</div></div>
+    </div>
+
+  </div>
+</div><!-- /feature 2,3 -->
+
+
+<!-- ════ FEATURE 4: 피부 컨디션 다이어리 ════ -->
+<div class="feature-section">
+  <div class="section-label">
+    <div class="badge">Phase 2-B · ④</div>
+    <div>
+      <h2>피부 컨디션 다이어리</h2>
+      <div class="desc">루틴 완료 직후 바텀시트 · 저속노화 × 데이터 추적 욕구</div>
+    </div>
+  </div>
+
+  <div class="phone-row">
+
+    <!-- 폰 1: 컨디션 입력 바텀시트 -->
+    <div>
+      <div class="phone" style="height:580px">
+        <div class="notch"><div class="notch-bar"></div></div>
+        <!-- 뒤 배경: 완료된 TODAY -->
+        <div style="flex:1;overflow:hidden;position:relative">
+          <div style="padding:16px;opacity:.3">
+            <div class="routine-card">
+              <div class="routine-header"><h3>SKINCARE ROUTINE</h3></div>
+              <div class="routine-step"><div class="step-check done">✓</div><div class="step-info"><div class="step-name">물마스크</div></div></div>
+              <div class="routine-step"><div class="step-check done">✓</div><div class="step-info"><div class="step-name">델마크림</div></div></div>
+              <div class="routine-step"><div class="step-check done">✓</div><div class="step-info"><div class="step-name">델마세럼</div></div></div>
+            </div>
+          </div>
+
+          <!-- 딤 오버레이 -->
+          <div style="position:absolute;inset:0;background:rgba(12,12,10,.3);backdrop-filter:blur(2px)"></div>
+
+          <!-- 바텀시트 -->
+          <div style="position:absolute;bottom:0;left:0;right:0;background:var(--bg);border-radius:24px 24px 0 0;padding:0">
+            <!-- 핸들 -->
+            <div style="display:flex;justify-content:center;padding:10px 0 4px">
+              <div style="width:36px;height:4px;border-radius:2px;background:var(--surface-high)"></div>
+            </div>
+            <div class="condition-sheet" style="margin:0;border:none;border-radius:0;padding:14px 18px 20px">
+              <div class="sheet-title">오늘 피부 어때요? 🌿</div>
+              <div class="sheet-sub">MORNING 루틴 완료 · 30초만 기록해요</div>
+
+              <div class="condition-row">
+                <div class="condition-label">수분감</div>
+                <div class="condition-options">
+                  <div class="cond-btn"><span class="emoji">😵</span><span class="text">매우 건조</span></div>
+                  <div class="cond-btn"><span class="emoji">😐</span><span class="text">보통</span></div>
+                  <div class="cond-btn active"><span class="emoji">😊</span><span class="text">촉촉해요</span></div>
+                </div>
+              </div>
+
+              <div class="condition-row">
+                <div class="condition-label">트러블</div>
+                <div class="trouble-options">
+                  <div class="trouble-btn active good">없음 ✓</div>
+                  <div class="trouble-btn">조금</div>
+                  <div class="trouble-btn">심함</div>
+                </div>
+              </div>
+
+              <textarea class="memo-input" rows="2" placeholder="오늘 피부 특이사항... (선택)"></textarea>
+              <button class="save-btn">기록하기</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-caption">루틴 완료 후 바텀시트<div class="tag">수분감 + 트러블 + 메모</div></div>
+    </div>
+
+    <!-- 폰 2: LOG에 컨디션 오버레이된 캘린더 -->
+    <div>
+      <div class="phone" style="height:580px">
+        <div class="notch"><div class="notch-bar"></div></div>
+        <div class="appbar">
+          <div class="appbar-title">OnStep</div>
+          <div class="appbar-right">😊</div>
+        </div>
+        <div style="flex:1;overflow-y:auto;scrollbar-width:none">
+          <div class="pg-title"><h1>LOG</h1></div>
+
+          <div class="heatmap-section">
+            <div class="heatmap-header">
+              <h3>피부 컨디션 히스토리</h3>
+              <div class="month-nav">‹ 2026.05 ›</div>
+            </div>
+
+            <!-- 컨디션 캘린더 -->
+            <div class="cal-days">
+              <div class="cal-day-label">MON</div><div class="cal-day-label">TUE</div>
+              <div class="cal-day-label">WED</div><div class="cal-day-label">THU</div>
+              <div class="cal-day-label">FRI</div><div class="cal-day-label">SAT</div>
+              <div class="cal-day-label">SUN</div>
+            </div>
+            <div class="cal-grid">
+              <div class="log-cal-cell" style="background:var(--surface)"></div>
+              <div class="log-cal-cell" style="background:var(--surface)"></div>
+              <div class="log-cal-cell" style="background:var(--surface)"></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1);color:var(--green)">1<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1);color:var(--green)">2<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(197,255,0,.15)">3</div>
+              <div class="log-cal-cell" style="background:rgba(180,83,9,.08);color:var(--amber)">4<div class="condition-dot" style="background:var(--amber)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">5<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">6<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">7<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">8<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">9<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(197,255,0,.15)">10</div>
+              <div class="log-cal-cell" style="background:rgba(200,65,79,.08);color:var(--rose)">11<div class="condition-dot" style="background:var(--rose)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">12</div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">13<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">14</div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">15<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">16</div>
+              <div class="log-cal-cell" style="background:rgba(197,255,0,.15)">17</div>
+              <div class="log-cal-cell" style="background:var(--surface)">18</div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">19</div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">20<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">21</div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">22</div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">23</div>
+              <div class="log-cal-cell" style="background:rgba(197,255,0,.15)">24</div>
+              <div class="log-cal-cell" style="background:var(--surface)">25</div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">26</div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">27<div class="condition-dot" style="background:var(--lime-dark)"></div></div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">28</div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">29</div>
+              <div class="log-cal-cell" style="background:rgba(30,107,74,.1)">30</div>
+              <div class="log-cal-cell today" style="background:rgba(197,255,0,.2);outline:2px solid var(--lime-dark)">31</div>
+              <div class="log-cal-cell" style="background:transparent"></div>
+            </div>
+
+            <!-- 범례 -->
+            <div style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:4px">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--lime-dark)"></div>
+                <span style="font-size:9px;color:var(--mist)">촉촉 😊</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--amber)"></div>
+                <span style="font-size:9px;color:var(--mist)">건조 😐</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--rose)"></div>
+                <span style="font-size:9px;color:var(--mist)">트러블 😵</span>
+              </div>
+            </div>
+
+            <!-- 인사이트 카드 -->
+            <div style="margin-top:14px;padding:12px;background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border)">
+              <div style="font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.04em;margin-bottom:4px">💡 이번달 인사이트</div>
+              <div style="font-size:11px;color:var(--ink);line-height:1.6">
+                루틴 완료일에 <strong>촉촉 비율 91%</strong>, 건너뜀 다음날 트러블 확률 <strong>3배↑</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item"><div class="nav-icon">☀️</div>TODAY<div class="nav-dot"></div></div>
+          <div class="nav-item active"><div class="nav-icon">📋</div>LOG<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">📦</div>BOX<div class="nav-dot"></div></div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div>SETUP<div class="nav-dot"></div></div>
+        </div>
+      </div>
+      <div class="phone-caption">LOG 피부 히스토리<div class="tag">컨디션 색상 오버레이 + 인사이트</div></div>
+    </div>
+
+  </div>
+</div><!-- /feature 4 -->
+
+
+<!-- ════ FEATURE 5: 루틴 공유 카드 ════ -->
+<div class="feature-section">
+  <div class="section-label">
+    <div class="badge">Phase 2-B · ⑤</div>
+    <div>
+      <h2>루틴 완료 공유 카드</h2>
+      <div class="desc">갓생 인증 문화 연결 · 인스타/카카오 1탭 공유 → 자연 바이럴</div>
+    </div>
+  </div>
+
+  <div class="phone-row">
+
+    <!-- 폰 1: 완료 후 공유 모달 -->
+    <div>
+      <div class="phone" style="height:560px">
+        <div class="notch"><div class="notch-bar"></div></div>
+        <div style="flex:1;overflow:hidden;position:relative">
+          <!-- 뒤 배경 -->
+          <div style="padding:16px;opacity:.25">
+            <div class="routine-card">
+              <div class="routine-header"><h3>SKINCARE ROUTINE</h3></div>
+              <div class="routine-step"><div class="step-check done">✓</div><div class="step-info"><div class="step-name">물마스크 완료</div></div></div>
+            </div>
+          </div>
+          <div style="position:absolute;inset:0;background:rgba(12,12,10,.5);backdrop-filter:blur(4px)"></div>
+
+          <!-- 공유 모달 -->
+          <div style="position:absolute;top:50%;left:16px;right:16px;transform:translateY(-50%)">
+            <!-- 공유 카드 -->
+            <div class="share-card" style="margin:0 0 10px">
+              <div class="share-brand">OnStep · Life OS</div>
+              <div class="share-routine-name">MORNING SKINCARE</div>
+              <div class="share-headline">오늘도<br>루틴 완료.</div>
+              <div class="share-stat-row">
+                <div class="share-stat">
+                  <div class="share-stat-val">3</div>
+                  <div class="share-stat-label">STEPS</div>
+                </div>
+                <div class="share-stat">
+                  <div class="share-stat-val lime">🔥12</div>
+                  <div class="share-stat-label">DAY STREAK</div>
+                </div>
+                <div class="share-stat">
+                  <div class="share-stat-val">83%</div>
+                  <div class="share-stat-label">THIS MONTH</div>
+                </div>
+              </div>
+              <div class="share-date">2026.05.31 SUN · MORNING</div>
+            </div>
+            <!-- 공유 버튼들 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <button class="save-btn" style="border-radius:14px;font-size:12px;padding:11px">인스타 공유 ↗</button>
+              <button class="save-btn" style="border-radius:14px;font-size:12px;padding:11px;background:var(--surface);color:var(--ink)">이미지 저장</button>
+            </div>
+            <div style="text-align:center;margin-top:10px;font-size:11px;color:rgba(255,255,255,.35);cursor:pointer">건너뛰기</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-caption">루틴 완료 공유 모달<div class="tag">카드 미리보기 + 1탭 공유</div></div>
+    </div>
+
+    <!-- 폰 2: 공유 카드 디자인 변형 (다크/그린) -->
+    <div>
+      <div class="phone" style="height:560px">
+        <div class="notch"><div class="notch-bar"></div></div>
+        <div style="flex:1;padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;scrollbar-width:none;background:var(--surface-low)">
+          <div style="font-size:11px;font-weight:700;color:var(--mist);letter-spacing:.06em;padding:4px 0">공유 카드 스타일 선택</div>
+
+          <!-- 스타일 A: 다크 (기본) -->
+          <div class="share-card" style="margin:0">
+            <div class="share-brand">OnStep · Life OS</div>
+            <div class="share-routine-name">MORNING SKINCARE</div>
+            <div class="share-headline">오늘도<br>루틴 완료.</div>
+            <div class="share-stat-row">
+              <div class="share-stat"><div class="share-stat-val">3</div><div class="share-stat-label">STEPS</div></div>
+              <div class="share-stat"><div class="share-stat-val lime">🔥12</div><div class="share-stat-label">STREAK</div></div>
+              <div class="share-stat"><div class="share-stat-val">83%</div><div class="share-stat-label">MONTH</div></div>
+            </div>
+            <div class="share-date">2026.05.31 · MORNING</div>
+          </div>
+          <div style="text-align:center;font-size:10px;font-weight:600;color:var(--sub)">Style A · Dark</div>
+
+          <!-- 스타일 B: 라임 그린 -->
+          <div style="margin:0;border-radius:24px;overflow:hidden;background:var(--lime);padding:24px 22px 20px">
+            <div style="font-size:9px;letter-spacing:.15em;font-weight:800;color:rgba(12,12,10,.4);margin-bottom:20px">ONSTEP · LIFE OS</div>
+            <div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:rgba(12,12,10,.45);margin-bottom:5px">MORNING SKINCARE</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;color:var(--ink);line-height:1.2;margin-bottom:18px">오늘도<br>루틴 완료.</div>
+            <div style="display:flex;gap:8px;margin-bottom:16px">
+              <div style="flex:1;background:rgba(12,12,10,.08);border-radius:10px;padding:9px;text-align:center">
+                <div style="font-size:16px;font-weight:800;color:var(--ink)">3</div>
+                <div style="font-size:8px;color:rgba(12,12,10,.45);letter-spacing:.04em">STEPS</div>
+              </div>
+              <div style="flex:1;background:rgba(12,12,10,.08);border-radius:10px;padding:9px;text-align:center">
+                <div style="font-size:16px;font-weight:800;color:var(--ink)">🔥12</div>
+                <div style="font-size:8px;color:rgba(12,12,10,.45);letter-spacing:.04em">STREAK</div>
+              </div>
+              <div style="flex:1;background:rgba(12,12,10,.08);border-radius:10px;padding:9px;text-align:center">
+                <div style="font-size:16px;font-weight:800;color:var(--ink)">83%</div>
+                <div style="font-size:8px;color:rgba(12,12,10,.45);letter-spacing:.04em">MONTH</div>
+              </div>
+            </div>
+            <div style="font-size:9px;color:rgba(12,12,10,.3);letter-spacing:.06em;text-align:right">2026.05.31 · MORNING</div>
+          </div>
+          <div style="text-align:center;font-size:10px;font-weight:600;color:var(--sub)">Style B · Lime</div>
+        </div>
+      </div>
+      <div class="phone-caption">공유 카드 스타일 선택<div class="tag">Dark / Lime 2가지 테마</div></div>
+    </div>
+
+  </div>
+</div><!-- /feature 5 -->
+
+
+<!-- ════ 네비게이션 변경안 ════ -->
+<div class="feature-section">
+  <div class="section-label">
+    <div class="badge" style="background:var(--surface-high);color:var(--sub)">네비게이션</div>
+    <div>
+      <h2>탭 구조 변경 없음 — 기존 탭 안으로 통합</h2>
+      <div class="desc">BottomNav 탭 추가 없이 각 기능을 기존 페이지에 자연스럽게 흡수</div>
+    </div>
+  </div>
+
+  <div style="margin:0 4px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:var(--surface)">
+          <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.04em">기능</th>
+          <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.04em">위치</th>
+          <th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.04em">진입 방식</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:12px 16px;font-weight:600;color:var(--ink)">🔥 스트릭 배너</td>
+          <td style="padding:12px 16px;color:var(--sub)">TODAY 상단</td>
+          <td style="padding:12px 16px;color:var(--mist);font-size:12px">PageHeader 아래 자동 표시</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:12px 16px;font-weight:600;color:var(--ink)">📅 히트맵</td>
+          <td style="padding:12px 16px;color:var(--sub)">LOG 캘린더 교체</td>
+          <td style="padding:12px 16px;color:var(--mist);font-size:12px">기존 캘린더를 히트맵으로 업그레이드</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:12px 16px;font-weight:600;color:var(--ink)">⚠️ 소진 알림</td>
+          <td style="padding:12px 16px;color:var(--sub)">TODAY + BOX 상단</td>
+          <td style="padding:12px 16px;color:var(--mist);font-size:12px">D-7 이하 자동 배너</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:12px 16px;font-weight:600;color:var(--ink)">💰 지출 분석</td>
+          <td style="padding:12px 16px;color:var(--sub)">BOX 서브탭</td>
+          <td style="padding:12px 16px;color:var(--mist);font-size:12px">BOX에 "제품 | 지출" 탭 추가</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:12px 16px;font-weight:600;color:var(--ink)">🌿 컨디션 기록</td>
+          <td style="padding:12px 16px;color:var(--sub)">루틴 완료 직후</td>
+          <td style="padding:12px 16px;color:var(--mist);font-size:12px">완료 버튼 → 바텀시트 자동 팝업</td>
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:12px 16px;font-weight:600;color:var(--ink)">📸 공유 카드</td>
+          <td style="padding:12px 16px;color:var(--sub)">루틴 완료 직후</td>
+          <td style="padding:12px 16px;color:var(--mist);font-size:12px">컨디션 저장 후 → "공유할까요?" 제안</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:16px;font-size:12px;color:var(--mist)">
+  OnStep Feature Design Proposals · 2026
+</div>
+
+</body>
+</html>
