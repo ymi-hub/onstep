@@ -220,11 +220,9 @@ function GroqUsageSection() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    // 동적 import — 서버 렌더 시 localStorage 접근 방지
     import('@/lib/groqUsage').then(({ getGroqUsage }) => {
       setCount(getGroqUsage().count);
     });
-    // 다른 탭/창에서 업데이트 시 반영
     const onStorage = () => {
       import('@/lib/groqUsage').then(({ getGroqUsage }) => setCount(getGroqUsage().count));
     };
@@ -236,46 +234,37 @@ function GroqUsageSection() {
   const remaining = DAILY_LIMIT - count;
 
   return (
-    <div style={{ margin: '4px 16px 0', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
-      {/* 헤더 */}
-      <div style={{ padding: '12px 14px 10px', borderBottom: '1px solid rgba(12,12,10,.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 26, height: 26, borderRadius: 8, background: 'linear-gradient(135deg,#f0ffe0,#c5ff00)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>✨</div>
-          <div>
-            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#0C0C0A' }}>AI 사용량</div>
-            <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>Groq 무료 티어 · 매일 자정 초기화</div>
-          </div>
+    <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03)' }}>
+      {/* 상단 그라데이션 영역 — 다른 HubCard와 동일한 구조 */}
+      <div style={{ width: '100%', aspectRatio: '1/1.5', background: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+        <div style={{ fontSize: 40 }}>✨</div>
+        {/* 수치 */}
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>{count.toLocaleString()}</div>
+          <div style={{ fontFamily: f, fontSize: 11, color: '#4A6600', fontWeight: 700, marginTop: 2 }}>{remaining.toLocaleString()}회 남음</div>
         </div>
-        <a
-          href="https://console.groq.com/settings/usage"
-          target="_blank"
-          rel="noreferrer"
-          style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A7700', textDecoration: 'none', padding: '4px 8px', borderRadius: 6, background: 'rgba(197,255,0,.15)', border: '1px solid rgba(197,255,0,.4)' }}
-        >
-          콘솔 →
-        </a>
-      </div>
-
-      {/* 수치 */}
-      <div style={{ padding: '10px 14px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div>
-          <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>{count.toLocaleString()}</span>
-          <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginLeft: 4 }}>/ {DAILY_LIMIT.toLocaleString()}회</span>
-        </div>
-        <div style={{ fontFamily: f, fontSize: 11, color: '#4A7700', fontWeight: 700 }}>
-          {remaining.toLocaleString()}회 남음
+        {/* 프로그레스 바 */}
+        <div style={{ width: '60%', height: 5, background: 'rgba(12,12,10,.15)', borderRadius: 9999, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${pct}%`, background: pct > 80 ? '#E94F6B' : '#0C0C0A', borderRadius: 9999, transition: 'width .4s ease' }} />
         </div>
       </div>
 
-      {/* 프로그레스 바 */}
-      <div style={{ margin: '4px 14px 14px', height: 6, background: 'rgba(12,12,10,.07)', borderRadius: 9999, overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: pct > 80 ? '#E94F6B' : '#C5FF00', borderRadius: 9999, transition: 'width .4s ease' }} />
+      {/* 뱃지 + 타이틀 + 서브타이틀 */}
+      <div style={{ padding: '10px 12px 0' }}>
+        <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>#AI</div>
+        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, marginBottom: 3, letterSpacing: '-.01em' }}>AI 사용량</div>
+        <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' as const, color: '#9A9490', paddingBottom: 10 }}>GROQ FREE TIER</div>
       </div>
 
-      {/* 안내 */}
-      <div style={{ padding: '0 14px 12px', fontFamily: f, fontSize: 11, color: '#BCBAB6', lineHeight: 1.6 }}>
-        루틴 1회 파싱 = 1회 차감 · 분당 30회 제한 · 실제 누적량은 콘솔에서 확인
-      </div>
+      {/* CTA 푸터 */}
+      <a
+        href="https://console.groq.com/settings/usage"
+        target="_blank"
+        rel="noreferrer"
+        style={{ display: 'block', borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 12px', fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', textDecoration: 'none' }}
+      >
+        콘솔 →
+      </a>
     </div>
   );
 }
@@ -336,10 +325,12 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
       </div>
       <div style={{ padding: '24px 16px 8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{cards.left.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 64 }}>{cards.right.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 64 }}>
+          {cards.right.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}
+          {/* Groq AI 사용량 — 메이크업 카드 하단 */}
+          <GroqUsageSection />
+        </div>
       </div>
-      {/* Groq AI 사용량 — 단독 섹션 */}
-      <GroqUsageSection />
 
       <div style={{ height: 100 }} />
     </div>
