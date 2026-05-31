@@ -37,6 +37,7 @@ import {
 } from 'firebase/auth';
 import { db, auth, storage } from '@/lib/firebase';
 import { useAppContext } from '@/lib/AppContext';
+import { FALLBACK_USER_ID } from '@/lib/constants';
 import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
 import type { Habit } from '@/types/habit';
@@ -67,7 +68,6 @@ const OOTD_THEMES = ['캐주얼', '오피스룩', '스트릿', '미니멀', '빈
 
 // Firebase 미설정 시 사용할 임시 userId
 // (Stage 5에서 실제 Google 로그인 UID로 교체됨)
-const FALLBACK_USER_ID = 'demo-user';
 
 // ─── 헬퍼 함수 ────────────────────────────────────────────────────────────────
 

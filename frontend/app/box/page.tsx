@@ -28,11 +28,11 @@ import {
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
 import { useAppContext } from '@/lib/AppContext';
+import { FALLBACK_USER_ID } from '@/lib/constants';
 import { imageFileToBase64 } from '@/lib/imageUtils';
 import type { Product } from '@/types/product';
 import PageHeader from '@/components/PageHeader';
 
-const FALLBACK_USER_ID = 'demo-user';
 
 // ─── BOX 설정 타입 ────────────────────────────────────────────────────────────
 type SubTypeConfig = { id: string; label: string; cats: string[] };
@@ -743,7 +743,12 @@ export default function BoxPage() {
     const activeDomainCfg = boxConfig.domains.find(d => d.id === activeTab);
     if (activeDomainCfg?.subTypes?.length && p.subCategory && p.subCategory !== subType) return false;
     // 카테고리 필터 — resolveCategory로 변환 후 비교
-    if (activeCategory !== 'ALL' && resolveCategory(p.category) !== activeCategory) return false;
+    if (activeCategory === '미분류') {
+      // category가 null/undefined/빈문자열인 제품만 표시
+      if (resolveCategory(p.category) !== '') return false;
+    } else if (activeCategory !== 'ALL' && resolveCategory(p.category) !== activeCategory) {
+      return false;
+    }
     // 검색어 필터
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -757,6 +762,9 @@ export default function BoxPage() {
   // ── 현재 탭의 카테고리 칩 목록 (boxConfig에서 동적 계산) ────────────────
   const activeDomain = boxConfig.domains.find(d => d.id === activeTab);
   const cats = activeDomain ? getDomainCats(activeDomain, subType) : [];
+  // 카테고리 없는(null/빈) 제품이 있으면 '미분류' 칩을 마지막에 추가
+  const hasUncategorized = filtered.some(p => !resolveCategory(p.category));
+  const allCats = hasUncategorized ? [...cats, '미분류'] : cats;
 
   // ── 정렬 적용 ────────────────────────────────────────────────────────────
   // 사용 빈도순: 하루 사용횟수 × (주당 사용일/7) = 하루 평균 소비 횟수
@@ -1094,17 +1102,17 @@ export default function BoxPage() {
           }}
         >
           {/* 'ALL' 칩 + 카테고리 칩 목록 */}
-          {['ALL', ...cats].map((cat) => (
+          {['ALL', ...allCats].map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
               style={{
                 flexShrink: 0, padding: '5px 12px', borderRadius: 9999,
-                border: `1.5px solid ${activeCategory === cat ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
-                background: activeCategory === cat ? '#0C0C0A' : 'transparent',
+                border: `1.5px solid ${activeCategory === cat ? (cat === '미분류' ? '#B45309' : '#0C0C0A') : (cat === '미분류' ? 'rgba(180,83,9,.3)' : 'rgba(12,12,10,.14)')}`,
+                background: activeCategory === cat ? (cat === '미분류' ? '#B45309' : '#0C0C0A') : 'transparent',
                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                 fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-                color: activeCategory === cat ? '#fff' : '#4A4846',
+                color: activeCategory === cat ? '#fff' : (cat === '미분류' ? '#B45309' : '#4A4846'),
                 cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .18s',
               }}
             >
@@ -1751,7 +1759,7 @@ function AddProductPage({
       setForm((f) => ({ ...f, imageFile: file }));
       const reader = new FileReader();
       reader.onload = (ev) => {
-        setForm((f) => ({ ...f, imagePreview: ev.target?.result as string }));
+        const r = ev.target?.result; if (typeof r === 'string') setForm((f) => ({ ...f, imagePreview: r }));
       };
       reader.onerror = () => { alert('이미지를 불러오지 못했습니다. 다른 파일을 선택해주세요.'); };
       reader.readAsDataURL(file);

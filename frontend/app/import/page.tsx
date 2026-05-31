@@ -26,6 +26,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
+import { FALLBACK_USER_ID } from '@/lib/constants';
 import type { Product } from '@/types/product';
 import { parseRoutineText } from '@/lib/parseRoutine';
 
@@ -62,7 +63,6 @@ type ProductMatch = {
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 
-const FALLBACK_USER_ID = 'demo-user';
 
 // parseRoutineText: lib/parseRoutine.ts에서 Gemini 직접 호출
 

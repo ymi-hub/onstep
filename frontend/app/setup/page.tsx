@@ -31,6 +31,7 @@ import {
 import { db, auth } from '@/lib/firebase';
 import { imageFileToBase64 } from '@/lib/imageUtils';
 import { useAppContext } from '@/lib/AppContext';
+import { FALLBACK_USER_ID } from '@/lib/constants';
 import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
 import type { Habit, RepeatType } from '@/types/habit';
@@ -61,7 +62,6 @@ type EditorDraft = {
 
 // ─── 상수 / 헬퍼 ─────────────────────────────────────────────────────────────
 
-const FALLBACK_USER_ID = 'demo-user';
 
 function emptySlotDay(id: number): SlotDay {
   return { id, items: [], tipItems: [], expertTip: '' };
@@ -2209,7 +2209,7 @@ function CtPanel({
                         }
                         setSImageFile(file);
                         const reader = new FileReader();
-                        reader.onload = ev => setSImagePreview(ev.target?.result as string);
+                        reader.onload = ev => { const r = ev.target?.result; if (typeof r === 'string') setSImagePreview(r); };
                         reader.onerror = () => { alert('이미지를 불러오지 못했습니다. 다른 파일을 선택해주세요.'); };
                         reader.readAsDataURL(file);
                       }

@@ -20,7 +20,7 @@ import type { Session } from '@/types/routine';
 import type { Habit } from '@/types/habit';
 import type { CtItem } from '@/types/ctitem';
 
-const FALLBACK_USER_ID = 'demo-user';
+import { FALLBACK_USER_ID } from './constants';
 
 // ── 컨텍스트 타입 ───────────────────────────────────────────────────────────
 
