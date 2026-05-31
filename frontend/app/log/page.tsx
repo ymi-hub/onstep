@@ -1227,12 +1227,42 @@ function LogCtPanel({
           )}
         </div>
 
-        {/* 뱃지 + 제목 + 서브 */}
+        {/* 뱃지 + 제목 + 서브 + 링크 */}
         <div style={{ padding: '10px 12px 0' }}>
           <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>{BADGE}</div>
           <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, marginBottom: 3, letterSpacing: '-.01em', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
-          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, color: '#9A9490', paddingBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{sub}</div>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, color: '#9A9490', paddingBottom: item.sourceUrl ? 6 : 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{sub}</div>
+          {/* 링크 주소 */}
+          {item.sourceUrl && (
+            <a
+              href={item.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={e => e.stopPropagation()}
+              style={{ display: 'block', fontFamily: f, fontSize: 10, color: '#4A7700', paddingBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textDecoration: 'none' }}
+            >
+              🔗 {(() => { try { return new URL(item.sourceUrl).hostname; } catch { return item.sourceUrl; } })()}
+            </a>
+          )}
         </div>
+
+        {/* 제품 목록 — 라인 구분 후 */}
+        {item.items.filter(i => i.type === 'product').length > 0 && (
+          <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 12px 8px' }}>
+            {(item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product')).map((it, idx) => {
+              const p = products.find(pr => pr.id === it.id);
+              const imgSrc = p?.imageUrl || p?.storageUrl;
+              return (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: idx < item.items.filter(i => i.type === 'product').length - 1 ? 6 : 0 }}>
+                  <div style={{ width: 24, height: 24, borderRadius: 6, background: '#EEEDE9', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 11, opacity: 0.4 }}>✦</span>}
+                  </div>
+                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* CTA 푸터 — Today 토글 + 편집 */}
         <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 12px', display: 'flex', gap: 6 }}>
