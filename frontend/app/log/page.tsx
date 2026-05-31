@@ -1215,7 +1215,7 @@ function LogCtPanel({
     const sub = item.tpo?.length ? item.tpo.slice(0, 2).join(' · ') : item.desc ? item.desc.slice(0, 24) : `${prodCount}개 제품`;
 
     return (
-      <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03)', transition: 'transform .15s', display: 'block' }}>
+      <div style={{ background: '#FFFFFF', border: '1px solid #000000', borderRadius: 0, overflow: 'hidden', transition: 'transform .15s', display: 'block' }}>
         {/* 상단 히어로 영역 — aspectRatio 1/1.5 */}
         <div style={{ width: '100%', aspectRatio: '1/1.5', background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, overflow: 'hidden', position: 'relative' }}>
           {item.imageUrl
