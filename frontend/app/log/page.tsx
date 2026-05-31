@@ -859,9 +859,11 @@ function AddItemSheet({
       const base64 = await imageFileToBase64(file);
       setImgFile(file);
       setImgPreview(base64);
-    } catch {
+    } catch (err) {
+      console.error('[OnStep] imageFileToBase64 실패, FileReader 폴백:', err);
       const reader = new FileReader();
       reader.onload = ev => { setImgFile(file); setImgPreview(ev.target?.result as string); };
+      reader.onerror = () => { alert('이미지를 불러오지 못했습니다. 다른 파일을 선택해주세요.'); };
       reader.readAsDataURL(file);
     }
   }
@@ -1208,10 +1210,12 @@ function LogCtPanel({
       const base64 = await imageFileToBase64(file);
       setSImageFile(file);
       setSImagePreview(base64);
-    } catch {
+    } catch (err) {
+      console.error('[OnStep] imageFileToBase64 실패, FileReader 폴백:', err);
       setSImageFile(file);
       const reader = new FileReader();
       reader.onload = ev => setSImagePreview(ev.target?.result as string);
+      reader.onerror = () => { alert('이미지를 불러오지 못했습니다. 다른 파일을 선택해주세요.'); };
       reader.readAsDataURL(file);
     }
   }

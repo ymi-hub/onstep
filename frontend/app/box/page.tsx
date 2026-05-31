@@ -1750,6 +1750,7 @@ function AddProductPage({
       reader.onload = (ev) => {
         setForm((f) => ({ ...f, imagePreview: ev.target?.result as string }));
       };
+      reader.onerror = () => { alert('이미지를 불러오지 못했습니다. 다른 파일을 선택해주세요.'); };
       reader.readAsDataURL(file);
     }
   }
