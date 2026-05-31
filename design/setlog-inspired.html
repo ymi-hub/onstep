@@ -621,46 +621,17 @@ body{
           <div class="av" style="background:var(--surface-mid);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--sub)">Y</div>
         </div>
         <div class="scroll">
-          <!-- 타임스탬프 헤더 (기존 PageHeader를 대체) -->
-          <div class="ts-header">
-            <div class="ts-left">
-              <div class="ts-time">☀ 08:23 · 서울 · 맑음 22°</div>
-              <div class="ts-title">Today</div>
-            </div>
-            <!-- 컨디션 배지만 (캐릭터 제거) -->
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-bottom:6px">
-              <div style="font-size:9px;font-weight:700;color:var(--mist)">피부 상태</div>
-              <div style="font-size:22px;line-height:1">😊</div>
-            </div>
-          </div>
-
-          <!-- ★ 스킨 스냅 카드 (캐릭터 제거 — 스냅 행동 버튼만) -->
-          <div class="snap-card">
-            <div class="snap-bg" style="justify-content:flex-start;gap:0;flex-direction:column;align-items:flex-start;padding:14px 16px">
-              <div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px">오늘 아침 피부</div>
-              <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:2px">지금 어때요?</div>
-              <div style="font-size:10px;color:var(--mist)">30초 포착 · 루틴 전/후 피부 비교</div>
-            </div>
-            <div class="snap-actions">
-              <div class="snap-btn active">😊 촉촉해요</div>
-              <div class="snap-btn">😐 보통</div>
-              <div class="snap-btn">😵 건조</div>
+          <!-- 페이지 헤더 — 날짜 + 날씨만 (심플) -->
+          <div style="padding:18px 14px 4px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--mist);margin-bottom:3px">TODAY</div>
+            <div style="font-size:40px;font-weight:900;letter-spacing:-.07em;line-height:.9;color:var(--ink);margin-bottom:8px">Today</div>
+            <!-- 날씨 인라인 -->
+            <div style="display:inline-flex;align-items:center;gap:6px;background:var(--surface);padding:5px 11px;border-radius:var(--r-full);border:1px solid var(--border)">
+              <span style="font-size:13px">☀️</span>
+              <span style="font-size:11px;font-weight:700;color:var(--ink)">22°C</span>
+              <span style="font-size:10px;color:var(--mist)">맑음 · 서울</span>
             </div>
           </div>
-
-          <!-- 스트릭 -->
-          <div class="streak-bar-card">
-            <div class="sb-fire">🔥</div>
-            <div class="sb-info">
-              <div class="sb-days">12 <span>일 연속</span></div>
-              <div class="sb-sub">MORNING · NIGHT 모두 완료</div>
-            </div>
-            <div class="sb-right">
-              <div class="sb-pct">83%</div>
-              <div class="sb-pct-sub">이번달</div>
-            </div>
-          </div>
-          <div class="sb-bar"><div class="sb-fill"></div></div>
 
           <!-- #Flow (기존 그대로) -->
           <div class="sh"><h3>#Flow</h3><div class="act">Day 12</div></div>
