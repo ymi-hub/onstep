@@ -44,7 +44,7 @@ npm-debug.log*
 serviceAccountKey.json
 *serviceAccount*.json
 *-adminsdk-*.json
-이미지작업/
+secrets/
 
 # Firestore 백업 파일
 backups/
