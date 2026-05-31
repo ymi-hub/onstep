@@ -680,16 +680,17 @@ function SessionsView({
 // ─── EDITOR 뷰 ───────────────────────────────────────────────────────────────
 // MORNING / EVENING 각각 독립 DAY 탭 + 아이템 매핑 + TIP 섹션 + EXPERT TIP
 function EditorView({
-  draft, setDraft, products, onBack, onSave, onSaveOnly, onDelete, saving,
+  draft, setDraft, products, onBack, onSave, onSaveOnly, onDelete, saving, userId,
 }: {
   draft: EditorDraft;
   setDraft: React.Dispatch<React.SetStateAction<EditorDraft | null>>;
   products: Product[];
   onBack: () => void;
-  onSave: () => void;      // 저장 + 목록 이동 (하단 버튼)
-  onSaveOnly: () => void;  // 저장만, 화면 유지 (슬롯 중간 버튼)
+  onSave: () => void;
+  onSaveOnly: () => void;
   onDelete: () => void;
   saving: boolean;
+  userId: string;
 }) {
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
 
@@ -718,11 +719,28 @@ function EditorView({
   // AI 가져오기 패널 상태 (null이면 닫힘)
   const [aiPanel, setAiPanel] = useState<{ slot: 'morning' | 'evening' } | null>(null);
 
-  const filteredProducts = products.filter((p) => {
+  // 스킨케어 루틴 — 뷰티 도메인 제품만 노출
+  const domainProducts = products.filter(p => p.domain === 'beauty');
+
+  const filteredProducts = domainProducts.filter((p) => {
     if (!pickerSearch) return true;
     const q = pickerSearch.toLowerCase();
     return p.name.toLowerCase().includes(q) || (p.brand ?? '').toLowerCase().includes(q);
   });
+
+  // 검색어로 제품 없을 때 → BOX에 즉시 등록 후 피커에 추가 (실시간 동기화)
+  async function registerAndAdd(name: string) {
+    if (!db || !name.trim()) return;
+    const now = new Date().toISOString();
+    const ref = await addDoc(collection(db, 'users', userId, 'products'), {
+      name: name.trim(), brand: '', domain: 'beauty', subCategory: 'skincare',
+      packageCount: 1, unitPerPackage: 0, itemUnit: '', totalAmount: 0,
+      dosePerUse: 0, usesPerDay: 1, frequencyType: 'daily', currentRemaining: 0,
+      createdAt: now, updatedAt: now,
+    });
+    setPickerSelected(prev => { const n = new Set(prev); n.add(ref.id); return n; });
+    setPickerSearch('');
+  }
 
   function productName(id: string): string {
     return products.find((p) => p.id === id)?.name ?? '?';
@@ -1205,24 +1223,34 @@ function EditorView({
               <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginBottom: 8 }}>{pickerSelected.size > 0 ? `${pickerSelected.size}개 선택됨` : 'BOX에서 제품을 선택하세요'}</div>
             </div>
             <div style={{ flex: 1, overflowY: 'auto' }}>
-              {products.length === 0 ? (
-                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>BOX에 제품이 없습니다.<br />BOX 탭에서 먼저 제품을 추가해주세요.</div>
-              ) : filteredProducts.length === 0 ? (
-                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13 }}>검색 결과 없음</div>
+              {domainProducts.length === 0 && !pickerSearch.trim() ? (
+                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>BOX에 뷰티 제품이 없습니다.<br />BOX 탭에서 먼저 제품을 추가해주세요.</div>
               ) : (
-                filteredProducts.map((p) => {
-                  const isSel = pickerSelected.has(p.id);
-                  return (
-                    <div key={p.id} onClick={() => setPickerSelected((prev) => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>✦</div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
-                        {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                <>
+                  {filteredProducts.map((p) => {
+                    const isSel = pickerSelected.has(p.id);
+                    return (
+                      <div key={p.id} onClick={() => setPickerSelected((prev) => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                        <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>✦</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                          {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                        </div>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
                       </div>
-                      <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
+                    );
+                  })}
+                  {/* 검색어 있고 결과 없으면 → 이름으로 등록 후 추가 */}
+                  {pickerSearch.trim() && filteredProducts.length === 0 && (
+                    <div onClick={() => registerAndAdd(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
+                        <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 상세 정보 수정 가능</div>
+                      </div>
                     </div>
-                  );
-                })
+                  )}
+                </>
               )}
             </div>
             <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 32px)', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
@@ -1844,6 +1872,22 @@ function CtPanel({
     return p.name.toLowerCase().includes(q) || (p.brand ?? '').toLowerCase().includes(q);
   });
 
+  // 검색어로 제품 없을 때 → BOX에 즉시 등록 후 피커에 추가 (실시간 동기화)
+  async function registerAndAdd(name: string) {
+    if (!db || !name.trim()) return;
+    const now = new Date().toISOString();
+    const domain = ctType === 'lookbook' ? 'fashion' : 'beauty';
+    const subCategory = ctType === 'makeup' ? 'makeup' : ctType === 'lookbook' ? undefined : 'skincare';
+    const ref = await addDoc(collection(db, 'users', userId, 'products'), {
+      name: name.trim(), brand: '', domain, ...(subCategory ? { subCategory } : {}),
+      packageCount: 1, unitPerPackage: 0, itemUnit: '', totalAmount: 0,
+      dosePerUse: 0, usesPerDay: 1, frequencyType: 'daily', currentRemaining: 0,
+      createdAt: now, updatedAt: now,
+    });
+    setPickerSelected(prev => { const n = new Set(prev); n.add(ref.id); return n; });
+    setPickerSearch('');
+  }
+
   function productName(id: string) { return products.find(p => p.id === id)?.name ?? '?'; }
 
   function openNew() {
@@ -2081,14 +2125,13 @@ function CtPanel({
           </div>
           {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', lineHeight: 1.5, marginBottom: 10 }}>{item.desc}</div>}
           {prodItems.length > 0 && (
-            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 8 }}>
-              {prodItems.slice(0, 5).map((it, idx) => (
-                <div key={idx} style={{ flexShrink: 0, width: 40, textAlign: 'center' }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 8, background: '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, marginBottom: 3 }}>✦</div>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', whiteSpace: 'nowrap' as const, textOverflow: 'ellipsis' }}>{productName(it.id)}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingBottom: 4, marginBottom: 8 }}>
+              {prodItems.map((it, idx) => (
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 56 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: 10, background: '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, marginBottom: 4 }}>✦</div>
+                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, wordBreak: 'break-word' as const }}>{productName(it.id)}</div>
                 </div>
               ))}
-              {prodItems.length > 5 && <div style={{ flexShrink: 0, width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>+{prodItems.length - 5}</div>}
             </div>
           )}
           {item.periodStart && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginBottom: 6 }}>{fmtDate(item.periodStart)} – {fmtDate(item.periodEnd ?? '')}</div>}
@@ -2401,26 +2444,38 @@ function CtPanel({
                   <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginBottom: 8 }}>{pickerSelected.size > 0 ? `${pickerSelected.size}개 선택됨` : 'BOX에서 제품을 선택하세요'}</div>
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto' }}>
-                  {domainProducts.length === 0 ? (
+                  {domainProducts.length === 0 && !pickerSearch.trim() ? (
                     <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>
                       BOX에 {ctType === 'lookbook' ? '패션·악세서리' : ctType === 'makeup' ? '메이크업' : '뷰티'} 제품이 없습니다.<br />
-                      {ctType === 'makeup' ? 'BOX에서 메이크업 서브카테고리로 등록한 제품만 표시됩니다.' : 'BOX 탭에서 먼저 추가해주세요.'}
+                      아래에서 이름으로 바로 등록할 수 있습니다.
                     </div>
-                  ) : filteredProducts.length === 0 ? (
-                    <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13 }}>검색 결과 없음</div>
-                  ) : filteredProducts.map(p => {
-                    const isSel = pickerSelected.has(p.id);
-                    return (
-                      <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>✦</div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                          {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                  ) : (
+                    <>
+                      {filteredProducts.map(p => {
+                        const isSel = pickerSelected.has(p.id);
+                        return (
+                          <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>✦</div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                              {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                            </div>
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
+                          </div>
+                        );
+                      })}
+                      {/* 검색어 있고 결과 없으면 → 이름으로 등록 후 추가 */}
+                      {pickerSearch.trim() && filteredProducts.length === 0 && (
+                        <div onClick={() => registerAndAdd(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
+                            <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 상세 정보 수정 가능</div>
+                          </div>
                         </div>
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
-                      </div>
-                    );
-                  })}
+                      )}
+                    </>
+                  )}
                 </div>
                 <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 32px)', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
                   <button onClick={confirmPicker} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료{pickerSelected.size > 0 ? ` (${pickerSelected.size}개)` : ''}</button>
@@ -2720,7 +2775,7 @@ export default function SetupPage() {
         <SessionsView key={sessionsKey} sessions={sessions} products={products} loading={loadingSessions} onBack={() => goView('hub')} onNew={openNewSession} onEdit={openEdit} onUpdateNumber={handleUpdateSessionNumber} />
       )}
       {view === 'editor' && draft && (
-        <EditorView draft={draft} setDraft={setDraft} products={products} onBack={() => goView('sessions')} onSave={handleSave} onSaveOnly={handleSaveOnly} onDelete={handleDelete} saving={saving} />
+        <EditorView draft={draft} setDraft={setDraft} products={products} onBack={() => goView('sessions')} onSave={handleSave} onSaveOnly={handleSaveOnly} onDelete={handleDelete} saving={saving} userId={userId} />
       )}
       {view === 'tracker' && (
         <TrackerView
