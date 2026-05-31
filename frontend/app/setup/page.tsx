@@ -646,7 +646,7 @@ function SessionsView({
                           🌙 {eveningCount}
                         </span>
                       )}
-                      <span style={{ color: '#9A9490', fontSize: 18, lineHeight: 1, transition: 'transform .2s', display: 'inline-block', transform: isExpanded ? 'rotate(90deg)' : 'none', flexShrink: 0 }}>›</span>
+                      <span style={{ color: '#9A9490', fontSize: 14, lineHeight: 1, transition: 'transform .2s', display: 'inline-block', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }}>∨</span>
                     </div>
                   </div>
 
