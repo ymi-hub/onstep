@@ -102,24 +102,54 @@ function MonthCalendar({
   onPrevMonth: () => void;
   onNextMonth: () => void;
 }) {
-  // 이번 달의 모든 날짜 배열
+  const [isOpen, setIsOpen] = useState(false);
+
   const days = eachDayOfInterval({
     start: startOfMonth(currentMonth),
     end: endOfMonth(currentMonth),
   });
-
-  // 1일의 요일 (0=일, 1=월, ... 6=토) → 앞에 채울 빈 셀 수
   const startBlank = getDay(days[0]);
+  const completedCount = Array.from(dayLogs.values()).filter(l => l.hasMorning || l.hasEvening).length;
 
   return (
-    <div style={{ padding: '0 16px 16px' }}>
+    <div style={{ margin: '0 16px 16px', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden', background: '#fff' }}>
+      {/* 월 헤더 — 클릭으로 접기/펼치기 */}
+      <div
+        onClick={() => setIsOpen(o => !o)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '14px 16px',
+          cursor: 'pointer',
+          userSelect: 'none',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-0.01em' }}>
+            {format(currentMonth, 'yyyy년 M월', { locale: ko })}
+          </span>
+          {completedCount > 0 && (
+            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#4A7700', background: 'rgba(197,255,0,.18)', padding: '2px 8px', borderRadius: 9999 }}>
+              {completedCount}일 완료
+            </span>
+          )}
+        </div>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, transition: 'transform .2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+          <path d="M3 5.5L8 10.5L13 5.5" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+
+      {/* 펼쳐진 캘린더 */}
+      {isOpen && (
+      <div style={{ padding: '0 16px 16px', borderTop: '1px solid rgba(12,12,10,.07)' }}>
       {/* 월 네비게이션 */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: 16,
+          margin: '12px 0 16px',
         }}
       >
         <button
@@ -300,6 +330,8 @@ function MonthCalendar({
           <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>저녁 완료</span>
         </div>
       </div>
+      </div>
+      )}
     </div>
   );
 }
@@ -313,20 +345,20 @@ function DayDetail({
   dateStr,
   dayLog,
   products,
+  sessions,
   onClose,
 }: {
   dateStr: string;
   dayLog: DayLog | undefined;
   products: Map<string, Product>;
+  sessions: import('@/types/routine').Session[];
   onClose: () => void;
 }) {
-  // dateStr → 읽기 좋은 날짜 텍스트로 변환
   const dateLabel = format(parseISO(dateStr), 'M월 d일 (EEE)', { locale: ko });
 
   const morningEntries = dayLog?.entries.filter((e) => e.timeSlot === 'morning') ?? [];
   const eveningEntries = dayLog?.entries.filter((e) => e.timeSlot === 'evening') ?? [];
 
-  // 같은 제품이 여러 번 중복 기록될 수 있으므로, productId 기준으로 중복 제거
   const uniqueByProduct = (entries: LogEntry[]) => {
     const seen = new Set<string>();
     return entries.filter((e) => {
@@ -339,12 +371,41 @@ function DayDetail({
   const morningUniq = uniqueByProduct(morningEntries);
   const eveningUniq = uniqueByProduct(eveningEntries);
 
+  // EXPERT TIP 하이라이팅 제품 추출
+  // routineId → session → 해당 날짜 dayIdx → expertTip 텍스트 → 제품명 매칭
+  const routineId = dayLog?.entries[0]?.routineId;
+  const session = routineId ? sessions.find(s => s.id === routineId) : null;
+
+  function getExpertTipProducts(slotKey: 'morning' | 'evening'): Product[] {
+    if (!session) return [];
+    const slot = session[slotKey];
+    // 날짜 기반 DAY 인덱스 계산
+    const date = parseISO(dateStr);
+    date.setHours(0, 0, 0, 0);
+    const start = parseISO(session.startDate);
+    start.setHours(0, 0, 0, 0);
+    const diff = Math.max(0, Math.floor((date.getTime() - start.getTime()) / 86400000));
+    const count = slot.days.length || 1;
+    const dayIdx = diff % count;
+    const day = slot.days[dayIdx] ?? slot.days[0];
+    if (!day?.expertTip?.trim()) return [];
+    const text = day.expertTip.toLowerCase();
+    const allProducts = Array.from(products.values());
+    return allProducts
+      .sort((a, b) => b.name.length - a.name.length)
+      .filter(p => p.name.trim() && text.includes(p.name.toLowerCase()));
+  }
+
+  const morningExpertProds = getExpertTipProducts('morning');
+  const eveningExpertProds = getExpertTipProducts('evening');
+
   // 시간대 섹션 렌더러
   const renderSlot = (
     label: string,
     icon: string,
     entries: LogEntry[],
     hasLog: boolean,
+    expertProds: Product[],
   ) => (
     <div
       style={{
@@ -401,76 +462,44 @@ function DayDetail({
       {/* 제품 목록 */}
       <div style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
         {entries.length === 0 ? (
-          <div
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 12,
-              color: '#9A9490',
-              textAlign: 'center',
-              padding: '10px 0',
-            }}
-          >
+          <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, color: '#9A9490', textAlign: 'center', padding: '10px 0' }}>
             {hasLog ? '기록 없음' : '미완료'}
           </div>
         ) : (
           entries.map((entry) => {
             const product = products.get(entry.productId);
             return (
-              <div
-                key={entry.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
-              >
-                {/* 제품 아이콘 원 */}
-                <div
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 9999,
-                    background: '#EEEDE9',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 12,
-                    flexShrink: 0,
-                  }}
-                >
-                  🧴
-                </div>
+              <div key={entry.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 28, height: 28, borderRadius: 9999, background: '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>🧴</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: '#0C0C0A',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
+                  <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                     {product?.name ?? '알 수 없는 제품'}
                   </div>
                   {entry.amount != null && entry.amount > 0 && (
-                    <div
-                      style={{
-                        fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                        fontSize: 11,
-                        color: '#9A9490',
-                        marginTop: 1,
-                      }}
-                    >
-                      {entry.amount}
-                      {product?.itemUnit ? ` ${product.itemUnit}` : ''} 사용
+                    <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>
+                      {entry.amount}{product?.itemUnit ? ` ${product.itemUnit}` : ''} 사용
                     </div>
                   )}
                 </div>
               </div>
             );
           })
+        )}
+
+        {/* EXPERT TIP 하이라이팅 제품 */}
+        {expertProds.length > 0 && (
+          <>
+            <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '4px 0' }} />
+            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#4E7D00', marginBottom: 2 }}>EXPERT TIP</div>
+            {expertProds.map((p) => (
+              <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1px solid rgba(132,176,0,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>✨</div>
+                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#3A6000', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                  {p.name}
+                </div>
+              </div>
+            ))}
+          </>
         )}
       </div>
     </div>
@@ -548,8 +577,8 @@ function DayDetail({
 
       {/* 아침 / 저녁 카드 (나란히 배치) */}
       <div style={{ display: 'flex', gap: 8, padding: 12 }}>
-        {renderSlot('MORNING', '☀', morningUniq, dayLog?.hasMorning ?? false)}
-        {renderSlot('NIGHT', '🌙', eveningUniq, dayLog?.hasEvening ?? false)}
+        {renderSlot('MORNING', '☀', morningUniq, dayLog?.hasMorning ?? false, morningExpertProds)}
+        {renderSlot('NIGHT', '🌙', eveningUniq, dayLog?.hasEvening ?? false, eveningExpertProds)}
       </div>
     </div>
   );
@@ -781,7 +810,7 @@ function EmptyState({ isLoading }: { isLoading: boolean }) {
 
 export default function LogPage() {
   // ── 공유 컨텍스트 ──
-  const { user, userId, authLoading, products: ctxProducts, makeupItems, lookItems } = useAppContext();
+  const { user, userId, authLoading, products: ctxProducts, sessions, makeupItems, lookItems } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 캘린더 상태 ──
@@ -939,6 +968,7 @@ export default function LogPage() {
                 dateStr={selectedDate}
                 dayLog={selectedDayLog}
                 products={products}
+                sessions={sessions}
                 onClose={() => setSelectedDate(null)}
               />
             ) : (
