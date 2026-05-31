@@ -949,25 +949,44 @@ function AddItemSheet({
           </div>
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginBottom: 20 }}>등록 후 Library에서 Today 즉시 적용 가능</div>
 
-          {/* 이미지 — 탭(파일첨부) + ⌘V 붙여넣기 */}
+          {/* 이미지 — 탭(갤러리/카메라) + 클립보드 붙여넣기 */}
           <div
             onClick={() => fileRef.current?.click()}
-            style={{ width: '100%', height: 180, background: imgPreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 16, overflow: 'hidden', position: 'relative', backgroundImage: imgPreview ? `url(${imgPreview})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}
+            style={{ width: '100%', height: 180, background: imgPreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 8, overflow: 'hidden', position: 'relative', backgroundImage: imgPreview ? `url(${imgPreview})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}
           >
             {!imgPreview && (
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 6 }}>📷</div>
                 <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490' }}>BASELINE 이미지</div>
-                <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 추가 · 붙여넣기(⌘V)</div>
+                <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 갤러리/카메라 선택</div>
               </div>
             )}
             {imgPreview && (
-              <button
-                onClick={e => { e.stopPropagation(); setImgFile(null); setImgPreview(''); }}
-                style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.5)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >✕</button>
+              <button onClick={e => { e.stopPropagation(); setImgFile(null); setImgPreview(''); }} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.5)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             )}
           </div>
+          {/* 클립보드 붙여넣기 버튼 — 모바일/PC 공통 */}
+          {!imgPreview && (
+            <button
+              onClick={async () => {
+                try {
+                  const items = await navigator.clipboard.read();
+                  for (const item of items) {
+                    for (const type of item.types) {
+                      if (type.startsWith('image/')) {
+                        const blob = await item.getType(type);
+                        void applyImageFile(new File([blob], 'pasted.png', { type }));
+                        return;
+                      }
+                    }
+                  }
+                  alert('클립보드에 이미지가 없습니다.');
+                } catch { fileRef.current?.click(); }
+              }}
+              style={{ width: '100%', padding: '10px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 16 }}
+            >📋 클립보드에서 붙여넣기</button>
+          )}
+          {imgPreview && <div style={{ marginBottom: 16 }} />}
           <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImg} />
 
           {/* 이모지 + 이름 */}
@@ -1365,17 +1384,38 @@ function LogCtPanel({
                 {sSourceUrl && <button onClick={() => setSSourceUrl('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#BCBAB6', fontSize: 14, padding: 0 }}>✕</button>}
               </div>
 
-              {/* 이미지 — 탭 + 붙여넣기(⌘V) */}
-              <div onClick={() => fileRef.current?.click()} style={{ width: '100%', height: 200, background: sImagePreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 16, overflow: 'hidden', position: 'relative', backgroundImage: sImagePreview ? `url(${sImagePreview})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+              {/* 이미지 — 탭(갤러리/카메라) + 클립보드 붙여넣기 */}
+              <div onClick={() => fileRef.current?.click()} style={{ width: '100%', height: 200, background: sImagePreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 8, overflow: 'hidden', position: 'relative', backgroundImage: sImagePreview ? `url(${sImagePreview})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 {!sImagePreview && (
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 6 }}>📷</div>
                     <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490' }}>이미지 추가</div>
-                    <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 추가 · 붙여넣기(⌘V)</div>
+                    <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 갤러리/카메라 선택</div>
                   </div>
                 )}
                 {sImagePreview && <button onClick={e => { e.stopPropagation(); setSImageFile(null); setSImagePreview(''); }} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.5)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>}
               </div>
+              {!sImagePreview && (
+                <button
+                  onClick={async () => {
+                    try {
+                      const items = await navigator.clipboard.read();
+                      for (const item of items) {
+                        for (const type of item.types) {
+                          if (type.startsWith('image/')) {
+                            const blob = await item.getType(type);
+                            void applyImg(new File([blob], 'pasted.png', { type }));
+                            return;
+                          }
+                        }
+                      }
+                      alert('클립보드에 이미지가 없습니다.');
+                    } catch { fileRef.current?.click(); }
+                  }}
+                  style={{ width: '100%', padding: '10px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 16 }}
+                >📋 클립보드에서 붙여넣기</button>
+              )}
+              {sImagePreview && <div style={{ marginBottom: 16 }} />}
               <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { const file = e.target.files?.[0]; if (file) void applyImg(file); e.target.value = ''; }} />
 
               {/* 아이템 매핑 */}

@@ -1857,7 +1857,7 @@ function AddProductPage({
                 ADD PRODUCT IMAGE
               </div>
               <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>
-                탭하여 추가 · 붙여넣기(⌘V)
+                탭하여 갤러리/카메라 선택
               </div>
             </div>
           )}
@@ -1868,6 +1868,27 @@ function AddProductPage({
           )}
           <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
         </div>
+        {/* 클립보드 붙여넣기 버튼 — 모바일/PC 공통 */}
+        {!displayImg && (
+          <button
+            onClick={async () => {
+              try {
+                const items = await navigator.clipboard.read();
+                for (const item of items) {
+                  for (const type of item.types) {
+                    if (type.startsWith('image/')) {
+                      const blob = await item.getType(type);
+                      void applyImageFile(new File([blob], 'pasted.png', { type }));
+                      return;
+                    }
+                  }
+                }
+                alert('클립보드에 이미지가 없습니다.');
+              } catch { fileInputRef.current?.click(); }
+            }}
+            style={{ width: '100%', padding: '10px', border: '1.5px dashed rgba(12,12,10,.14)', background: 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}
+          >📋 클립보드에서 붙여넣기</button>
+        )}
 
         {/* ── 폼 콘텐츠 ── */}
         <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 32 }}>
