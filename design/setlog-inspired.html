@@ -93,6 +93,7 @@ body{
 }
 .abl{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:800}
 .abl-logo{width:20px;height:20px;border-radius:5px;object-fit:cover;filter:grayscale(100%)}
+/* 아바타 — 캐릭터 아닌 단순 이니셜 원 */
 .av{width:30px;height:30px;border-radius:50%;overflow:hidden;border:1.5px solid var(--border-md)}
 .av img{width:100%;height:100%;object-fit:cover;display:block}
 
@@ -617,7 +618,7 @@ body{
             <img src="logo.png" class="abl-logo" onerror="this.style.display='none'">
             OnStep
           </div>
-          <div class="av"><img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'"></div>
+          <div class="av" style="background:var(--surface-mid);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--sub)">Y</div>
         </div>
         <div class="scroll">
           <!-- 타임스탬프 헤더 (기존 PageHeader를 대체) -->
@@ -626,23 +627,19 @@ body{
               <div class="ts-time">☀ 08:23 · 서울 · 맑음 22°</div>
               <div class="ts-title">Today</div>
             </div>
-            <!-- 캐릭터 + 컨디션 배지 -->
-            <div class="ts-char">
-              <img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'">
-              <div class="cond-badge">😊</div>
+            <!-- 컨디션 배지만 (캐릭터 제거) -->
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-bottom:6px">
+              <div style="font-size:9px;font-weight:700;color:var(--mist)">피부 상태</div>
+              <div style="font-size:22px;line-height:1">😊</div>
             </div>
           </div>
 
-          <!-- ★ 스킨 스냅 카드 (신규 핵심 — Setlog 포착 원칙) -->
+          <!-- ★ 스킨 스냅 카드 (캐릭터 제거 — 스냅 행동 버튼만) -->
           <div class="snap-card">
-            <div class="snap-bg">
-              <div class="snap-prompt">
-                오늘 아침 피부<br>
-                <span>30초 포착 · 루틴 전/후 비교</span>
-              </div>
-              <div class="snap-char-wrap">
-                <img src="logo.png" onerror="this.parentElement.style.background='var(--surface-low)'">
-              </div>
+            <div class="snap-bg" style="justify-content:flex-start;gap:0;flex-direction:column;align-items:flex-start;padding:14px 16px">
+              <div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px">오늘 아침 피부</div>
+              <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:2px">지금 어때요?</div>
+              <div style="font-size:10px;color:var(--mist)">30초 포착 · 루틴 전/후 피부 비교</div>
             </div>
             <div class="snap-actions">
               <div class="snap-btn active">😊 촉촉해요</div>
@@ -691,12 +688,7 @@ body{
             <div class="fc-btn">MORNING 완료하기 →</div>
           </div>
 
-          <!-- 소진 알림 (기존) -->
-          <div class="dep">
-            <div class="dep-i">⚠️</div>
-            <div><div class="dep-t">2개 제품 소진 임박</div><div class="dep-s">레티놀 세럼 D-5 · 물마스크 D-3</div></div>
-            <div class="dep-btn">확인 →</div>
-          </div>
+          <!-- 소진 알림 → BOX로 이동, TODAY에서 제거 -->
 
           <!-- #Habits (기존) -->
           <div class="sh"><h3>#Habits</h3><div class="act">1/3</div></div>
@@ -727,7 +719,7 @@ body{
             <span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span>
           </div>
           <div class="abl">OnStep</div>
-          <div class="av"><img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'"></div>
+          <div class="av" style="background:var(--surface-mid);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--sub)">Y</div>
         </div>
         <div class="scroll">
           <div class="ts-header">
@@ -735,9 +727,10 @@ body{
               <div class="ts-time">🌙 21:45 · 루틴 완료</div>
               <div class="ts-title">Today</div>
             </div>
-            <div class="ts-char">
-              <img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'">
-              <div class="cond-badge" style="background:#4A9ED6">😊</div>
+            <!-- 컨디션 표시 (캐릭터 제거) -->
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-bottom:6px">
+              <div style="font-size:9px;font-weight:700;color:var(--mist)">루틴 완료</div>
+              <div style="font-size:20px">✅</div>
             </div>
           </div>
 
@@ -890,22 +883,15 @@ body{
         <div class="ab">
           <div style="display:flex;flex-direction:column;gap:4px"><span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span><span style="height:1.5px;width:14px;background:var(--ink);border-radius:1px;display:block"></span><span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span></div>
           <div class="abl">OnStep</div>
-          <div class="av"><img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'"></div>
+          <div class="av" style="background:var(--surface-mid);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--sub)">Y</div>
         </div>
         <div class="scroll">
-          <!-- 헤더: 캐릭터 + 타이틀 -->
-          <div style="display:flex;align-items:flex-end;padding:16px 14px 8px;gap:10px">
+          <!-- 헤더: 타이틀 + 스트릭 (캐릭터 제거) -->
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;padding:16px 14px 8px">
             <div>
               <div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--mist);margin-bottom:3px">LOG</div>
               <div style="font-size:40px;font-weight:900;letter-spacing:-.07em;line-height:.9;color:var(--ink)">Log</div>
             </div>
-            <div style="position:relative;margin-bottom:2px">
-              <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;border:2px solid rgba(74,158,214,.25)">
-                <img src="logo.png" width="40" height="40" style="object-fit:cover;display:block" onerror="this.parentElement.innerHTML='🫧'">
-              </div>
-              <div style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:#4A9ED6;border:1.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:7px">😊</div>
-            </div>
-            <div style="flex:1"></div>
             <div style="text-align:right;padding-bottom:4px">
               <div style="font-size:14px;font-weight:800;color:#4A9ED6">🔥 12</div>
               <div style="font-size:7px;color:var(--mist);font-weight:600">연속 기록</div>
@@ -919,9 +905,7 @@ body{
               <!-- 오늘 -->
               <div class="story-item">
                 <div class="story-ring today">
-                  <div class="story-inner">
-                    <img src="logo.png" onerror="this.parentElement.innerHTML='🌙'">
-                  </div>
+                  <div class="story-inner" style="font-size:18px">🌸</div>
                 </div>
                 <div class="story-date" style="color:var(--ink);font-weight:800">오늘</div>
                 <div class="story-dot-row"><div class="sdot m"></div><div class="sdot"></div></div>
@@ -1019,9 +1003,9 @@ body{
 
           <!-- 인사이트 -->
           <div class="insight">
-            <div class="insight-char"><img src="logo.png" onerror="this.parentElement.innerHTML='😊'"></div>
+            <div style="font-size:20px;flex-shrink:0">💡</div>
             <div>
-              <div class="insight-t">💡 이번달 인사이트</div>
+              <div class="insight-t">이번달 인사이트</div>
               <div class="insight-b">루틴 완료일 촉촉 <strong>91%</strong> · 건너뜀 다음날 트러블 <strong style="color:var(--rose)">3배↑</strong></div>
             </div>
           </div>
@@ -1043,7 +1027,7 @@ body{
         <div class="ab">
           <div style="display:flex;flex-direction:column;gap:4px"><span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span><span style="height:1.5px;width:14px;background:var(--ink);border-radius:1px;display:block"></span><span style="height:1.5px;width:20px;background:var(--ink);border-radius:1px;display:block"></span></div>
           <div class="abl">OnStep</div>
-          <div class="av"><img src="logo.png" onerror="this.parentElement.style.background='var(--surface-mid)'"></div>
+          <div class="av" style="background:var(--surface-mid);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--sub)">Y</div>
         </div>
         <div class="scroll">
           <div style="padding:16px 14px 8px">
