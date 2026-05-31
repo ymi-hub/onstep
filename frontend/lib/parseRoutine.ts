@@ -50,7 +50,7 @@ function cleanJson(raw: string): string {
   return s;
 }
 
-async function callGroq(prompt: string, maxTokens = 1024): Promise<string> {
+async function callGroq(prompt: string, maxTokens = 800): Promise<string> {
   const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
   if (!apiKey) throw new Error('Groq API 키가 없습니다. .env.local에 NEXT_PUBLIC_GROQ_API_KEY를 추가하세요.');
 
@@ -74,9 +74,16 @@ async function callGroq(prompt: string, maxTokens = 1024): Promise<string> {
   if (res.status === 429) {
     const errBody = await res.json().catch(() => ({})) as { error?: { message?: string } };
     const msg = errBody.error?.message ?? '';
-    const match = msg.match(/try again in ([\d.]+)s/);
-    // 명시된 대기 시간 + 1초 여유; 파싱 실패 시 35초 기본값
-    const waitMs = match ? Math.ceil(parseFloat(match[1])) * 1000 + 1000 : 35000;
+    const msMatch = msg.match(/try again in ([\d.]+)ms/);
+    const sMatch  = msg.match(/try again in ([\d.]+)s/);
+    let waitMs: number;
+    if (msMatch) {
+      waitMs = Math.ceil(parseFloat(msMatch[1])) + 200;   // ms 단위 + 여유 200ms
+    } else if (sMatch) {
+      waitMs = Math.ceil(parseFloat(sMatch[1])) * 1000 + 1000; // s 단위 + 여유 1s
+    } else {
+      waitMs = 5000; // 파싱 실패 시 5초
+    }
     await new Promise(r => setTimeout(r, waitMs));
     res = await doFetch();
   }
