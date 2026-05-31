@@ -118,6 +118,9 @@ function buildPhasesPrompt(text: string, productNames?: string[]): string {
 - "아침1", "아침2", "저녁1" 등 레이블 줄 무시
 - "그다음", "그리고" = 연결어, 무시
 
+## 제품명 동의어 (같은 제품, 동일하게 취급)
+- "기미비비크림" = "기미BB크림" → 항상 "기미비비크림"으로 통일
+
 ## 제품명 추출
 - 제품명에 조사(에, 을, 를, 으로, 로) 포함하지 않음
 - 공백 포함 제품명 허용: "인미 4종", "페를 4종", "라이지 토너" 등
@@ -268,6 +271,9 @@ export async function parseRoutinePhases(text: string, productNames?: string[]):
 
 function buildFullPrompt(text: string): string {
   return `한국어 스킨케어 루틴 텍스트를 JSON으로 변환하세요. JSON만 출력, 설명 금지.
+
+## 제품명 동의어 (같은 제품, 동일하게 취급)
+- "기미비비크림" = "기미BB크림" → 항상 "기미비비크림"으로 통일
 
 ## 파싱 규칙
 - 회차: "N차" → session:N (없으면 1)
