@@ -582,16 +582,22 @@ function SessionsView({
                 <div key={s.id}>
                   {showYearHeader && (
                     <div style={{
-                      padding: '14px 16px 6px',
-                      fontFamily: font,
-                      fontSize: 10,
-                      fontWeight: 800,
-                      letterSpacing: '.16em',
-                      color: '#BCBAB6',
-                      textTransform: 'uppercase' as const,
+                      padding: idx > 0 ? '16px 16px 8px' : '12px 16px 8px',
                       borderTop: idx > 0 ? '1.5px solid rgba(12,12,10,.07)' : 'none',
                     }}>
-                      {year}
+                      <span style={{
+                        fontFamily: font,
+                        fontSize: 11,
+                        fontWeight: 800,
+                        letterSpacing: '.1em',
+                        color: '#0C0C0A',
+                        background: '#E4E2DC',
+                        padding: '4px 10px',
+                        borderRadius: 9999,
+                        textTransform: 'uppercase' as const,
+                      }}>
+                        {year}
+                      </span>
                     </div>
                   )}
                   {/* 세션 행 — 클릭하면 드롭다운 열림 */}
