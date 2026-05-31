@@ -1,6 +1,6 @@
 import type { RoutineItem } from './routine';
 
-export type CtType = 'care' | 'makeup' | 'lookbook';
+export type CtType = 'care' | 'makeup' | 'lookbook' | 'log';
 
 export type CtItem = {
   id: string;

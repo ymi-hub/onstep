@@ -37,6 +37,7 @@ interface AppContextValue {
   careItems: CtItem[];
   makeupItems: CtItem[];
   lookItems: CtItem[];
+  logItems: CtItem[];
 }
 
 const AppContext = createContext<AppContextValue>({
@@ -49,6 +50,7 @@ const AppContext = createContext<AppContextValue>({
   careItems: [],
   makeupItems: [],
   lookItems: [],
+  logItems: [],
 });
 
 export function useAppContext() {
@@ -67,6 +69,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [careItems, setCareItems] = useState<CtItem[]>([]);
   const [makeupItems, setMakeupItems] = useState<CtItem[]>([]);
   const [lookItems, setLookItems] = useState<CtItem[]>([]);
+  const [logItems, setLogItems] = useState<CtItem[]>([]);
 
   const userId = user?.uid ?? FALLBACK_USER_ID;
 
@@ -78,7 +81,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setAuthLoading(false);
       if (!u) {
         setProducts([]); setSessions([]); setHabits([]);
-        setCareItems([]); setMakeupItems([]); setLookItems([]);
+        setCareItems([]); setMakeupItems([]); setLookItems([]); setLogItems([]);
       }
     });
     return () => unsub();
@@ -130,7 +133,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [userId, authLoading]);
 
   return (
-    <AppContext.Provider value={{ user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems }}>
+    <AppContext.Provider value={{ user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, logItems }}>
       {children}
     </AppContext.Provider>
   );

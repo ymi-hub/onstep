@@ -1762,6 +1762,7 @@ function CtPanel({
     care: { panel: '집중케어', heroType: 'INTENSIVE CARE', heroTitle: '집중케어', heroSub: '케어 프로그램 설계 · BOX 뷰티 제품 매핑 · 기간 & 스케줄 설정', sheetTitle: '집중케어 설계', addBtn: '+ 새 집중케어 설계', icon: '🧴' },
     makeup: { panel: '메이크업북', heroType: 'BEAUTY', heroTitle: '메이크업북', heroSub: '테마별 화장법 설계 · BOX 뷰티 제품 매핑 · Today 스케줄 연동', sheetTitle: '메이크업 테마 설계', addBtn: '+ 새 메이크업 테마 설계', icon: '💄' },
     lookbook: { panel: '룩북', heroType: 'FASHION', heroTitle: '룩북', heroSub: 'T.P.O 기반 코디 설계 · BOX 패션·액세서리 매핑 · Today OOTD 연동', sheetTitle: '룩 설계', addBtn: '+ 새 룩 설계', icon: '👗' },
+    log: { panel: 'LOG', heroType: 'LOG', heroTitle: 'LOG', heroSub: '메이크업 · 룩북 기록', sheetTitle: 'LOG 등록', addBtn: '+ LOG 등록', icon: '📝' },
   };
   const m = META[ctType];
   const TPO_OPTIONS = ['Daily', 'Work', 'Date', 'Party', 'Sport', 'Casual', 'Formal', 'Travel'];

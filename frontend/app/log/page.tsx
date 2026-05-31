@@ -1066,6 +1066,389 @@ function AddItemSheet({
   );
 }
 
+// ─── LOG CtPanel (setup의 Makeup/Lookbook과 동일한 구조) ──────────────────────
+
+function LogCtPanel({
+  filter, items, products, userId, onAdd, onUpdate, onDelete,
+}: {
+  filter: 'makeup' | 'lookbook';
+  items: CtItem[];
+  products: Product[];
+  userId: string;
+  onAdd: (data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string>;
+  onUpdate: (id: string, data: Partial<Omit<CtItem, 'id'>>) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+  const ctType: CtType = filter;
+  const colLabel = filter === 'makeup' ? '메이크업' : '룩북';
+  const icon = filter === 'makeup' ? '💄' : '👗';
+
+  // 시트 상태
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [editItem, setEditItem] = useState<CtItem | null>(null);
+  const [sEmoji, setSEmoji] = useState('');
+  const [sName, setSName] = useState('');
+  const [sDesc, setSDesc] = useState('');
+  const [sItems, setSItems] = useState<RoutineItem[]>([]);
+  const [sTipItems, setSTipItems] = useState<RoutineItem[]>([]);
+  const [sDates, setSDates] = useState<string[]>([]);
+  const [sTpo, setSTpo] = useState<string[]>([]);
+  const [sPublished, setSPublished] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [sImageFile, setSImageFile] = useState<File | null>(null);
+  const [sImagePreview, setSImagePreview] = useState('');
+  const [sSourceUrl, setSSourceUrl] = useState('');
+
+  // picker
+  const [picker, setPicker] = useState<'main' | 'tip' | null>(null);
+  const [pickerSearch, setPickerSearch] = useState('');
+  const [pickerSelected, setPickerSelected] = useState<Set<string>>(new Set());
+
+  const TPO_OPTIONS = ['데일리', '오피스', '데이트', '파티', '스포티', '캐주얼', '포멀', '여행'];
+
+  const domainProducts = filter === 'makeup'
+    ? products.filter(p => p.domain === 'beauty' && p.subCategory === 'makeup')
+    : products.filter(p => p.domain === 'fashion' || p.domain === 'acc');
+
+  const filteredPicker = pickerSearch.trim()
+    ? domainProducts.filter(p => p.name.toLowerCase().includes(pickerSearch.toLowerCase()) || (p.brand ?? '').toLowerCase().includes(pickerSearch.toLowerCase()))
+    : domainProducts;
+
+  function productName(id: string) { return products.find(p => p.id === id)?.name ?? '?'; }
+
+  function openNew() {
+    setEditItem(null); setSEmoji(icon); setSName(''); setSDesc('');
+    setSItems([]); setSTipItems([]); setSDates([]); setSTpo([]);
+    setSPublished(false); setSImageFile(null); setSImagePreview(''); setSSourceUrl('');
+    setSheetOpen(true);
+  }
+
+  function openEdit(item: CtItem) {
+    setEditItem(item); setSEmoji(item.emoji); setSName(item.name); setSDesc(item.desc);
+    setSItems(item.items); setSTipItems(item.tipItems); setSDates(item.dates ?? []);
+    setSTpo(item.tpo ?? []); setSPublished(item.published);
+    setSImageFile(null); setSImagePreview(item.imageUrl ?? ''); setSSourceUrl(item.sourceUrl ?? '');
+    setSheetOpen(true);
+  }
+
+  function closeSheet() { setSheetOpen(false); setPicker(null); }
+
+  async function handleSave() {
+    if (!sName.trim()) return;
+    setSaving(true);
+    const now = new Date().toISOString();
+    const colName = filter === 'makeup' ? 'makeupItems' : 'lookItems';
+    const data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'> = {
+      ctType,
+      emoji: sEmoji || icon,
+      name: sName.trim(), desc: sDesc.trim(),
+      items: sItems, tipItems: sTipItems, expertTip: '',
+      published: sPublished, dates: sDates,
+      ...(sSourceUrl.trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
+      ...(sImagePreview && !sImageFile ? { imageUrl: sImagePreview } : {}),
+      ...(filter === 'lookbook' ? { tpo: sTpo } : {}),
+    };
+    try {
+      let itemId: string;
+      if (editItem) {
+        await onUpdate(editItem.id, { ...data, updatedAt: now });
+        itemId = editItem.id;
+      } else {
+        itemId = await onAdd(data);
+      }
+      if (sImageFile && storage && itemId) {
+        const imgRef = storageRef(storage, `users/${userId}/${colName}/${itemId}.jpg`);
+        const snap = await uploadBytes(imgRef, sImageFile);
+        const imageUrl = await getDownloadURL(snap.ref);
+        await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
+      }
+      closeSheet();
+    } catch (err) {
+      console.error('[LogCtPanel] 저장 실패:', err);
+    } finally { setSaving(false); }
+  }
+
+  async function handleDelete() {
+    if (!editItem || !confirm('삭제하시겠어요?')) return;
+    await onDelete(editItem.id);
+    closeSheet();
+  }
+
+  async function togglePublished(item: CtItem) {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const next = !item.published;
+    const newDates = next
+      ? [...new Set([...(item.dates ?? []), today])].sort()
+      : (item.dates ?? []).filter(d => d !== today);
+    await onUpdate(item.id, { published: next, dates: newDates, updatedAt: new Date().toISOString() });
+  }
+
+  async function confirmPicker() {
+    if (!picker) return;
+    const newItems: RoutineItem[] = Array.from(pickerSelected).map(id => ({ type: 'product', id }));
+    if (picker === 'main') setSItems(p => [...p, ...newItems]);
+    else setSTipItems(p => [...p, ...newItems]);
+    setPicker(null);
+  }
+
+  async function applyImg(file: File) {
+    try {
+      const resized = await resizeImage(file);
+      setSImageFile(resized);
+      const reader = new FileReader();
+      reader.onload = ev => setSImagePreview(ev.target?.result as string);
+      reader.readAsDataURL(resized);
+    } catch { setSImageFile(file); }
+  }
+
+  // CtCard (setup과 동일 CSS)
+  function CtCard({ item }: { item: CtItem }) {
+    const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const isOnToday = item.published && (item.dates ?? []).includes(today);
+    return (
+      <div style={{ background: '#fff', border: `1.5px solid ${item.published ? '#0C0C0A' : 'rgba(12,12,10,.07)'}`, borderRadius: 16, overflow: 'hidden', marginBottom: 12, transition: 'border-color .2s' }}>
+        <div style={{ padding: '14px 16px 10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{item.emoji}</span>
+            <span style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#0C0C0A', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, padding: '3px 8px', borderRadius: 8, flexShrink: 0, background: item.published ? '#0C0C0A' : '#E4E2DC', color: item.published ? '#fff' : '#9A9490' }}>
+              {isOnToday ? 'TODAY' : item.published ? 'ON' : 'OFF'}
+            </span>
+          </div>
+          {item.imageUrl && (
+            <div style={{ width: '100%', aspectRatio: filter === 'lookbook' ? '3/4' : '4/3', borderRadius: 12, overflow: 'hidden', marginBottom: 8, background: '#EEEDE9' }}>
+              <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          )}
+          {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', lineHeight: 1.5, marginBottom: 10 }}>{item.desc}</div>}
+          {item.sourceUrl && (
+            <a href={item.sourceUrl} target="_blank" rel="noreferrer" style={{ fontFamily: f, fontSize: 11, color: '#4A7700', marginBottom: 8, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+              🔗 {(() => { try { return new URL(item.sourceUrl).hostname; } catch { return item.sourceUrl; } })()}
+            </a>
+          )}
+          {prodItems.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingBottom: 4, marginBottom: 8 }}>
+              {prodItems.map((it, idx) => {
+                const p = products.find(pr => pr.id === it.id);
+                const imgSrc = p?.imageUrl || p?.storageUrl;
+                return (
+                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 56 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 10, background: '#EEEDE9', border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 4 }}>
+                      {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 18, opacity: 0.3 }}>✦</span>}
+                    </div>
+                    <div style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, wordBreak: 'break-word' as const }}>{p?.name ?? ''}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {item.dates && item.dates.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
+              {item.dates.map(d => <span key={d} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: d === today ? '#0C0C0A' : '#E4E2DC', color: d === today ? '#C5FF00' : '#4A4846' }}>{d === today ? '오늘' : fmtDate(d)}</span>)}
+            </div>
+          )}
+          {item.tpo && item.tpo.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
+              {item.tpo.map(tp => <span key={tp} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'rgba(197,255,0,.15)', color: '#4E7D00', border: '1px solid rgba(132,176,0,.3)' }}>{tp}</span>)}
+            </div>
+          )}
+        </div>
+        <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 16px 12px', display: 'flex', gap: 8 }}>
+          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: 10, background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.08)', color: item.published ? '#fff' : '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+            {item.published ? 'Today ON' : 'Today OFF'}
+          </button>
+          <button onClick={() => openEdit(item)} style={{ padding: '10px 14px', background: '#EEEDE9', color: '#4A4846', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>편집</button>
+        </div>
+      </div>
+    );
+  }
+
+  const fileRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!sheetOpen) return;
+    function onPaste(e: ClipboardEvent) {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          const blob = item.getAsFile();
+          if (blob) { void applyImg(new File([blob], 'pasted.png', { type: blob.type })); e.preventDefault(); break; }
+        }
+      }
+    }
+    document.addEventListener('paste', onPaste);
+    return () => document.removeEventListener('paste', onPaste);
+  }, [sheetOpen]);
+
+  return (
+    <>
+      {/* 카드 목록 */}
+      <div style={{ padding: '0 16px' }}>
+        <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', color: '#9A9490', cursor: 'pointer', marginBottom: 12 }}>
+          + 새 {colLabel} 등록
+        </button>
+        {items.length === 0 ? (
+          <div style={{ padding: '48px 20px', textAlign: 'center', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#F4F4F0' }}>
+            <div style={{ fontSize: 24, opacity: 0.3, marginBottom: 10 }}>{icon}</div>
+            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#9A9490' }}>{colLabel} 아이템이 없어요</div>
+            <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 6 }}>위 버튼으로 추가하세요</div>
+          </div>
+        ) : items.map(item => <CtCard key={item.id} item={item} />)}
+      </div>
+
+      {/* 편집 시트 */}
+      {sheetOpen && (
+        <>
+          <div onClick={closeSheet} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+              <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
+                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A' }}>{editItem ? `편집: ${editItem.name}` : `새 ${colLabel} 등록`}</div>
+                <button onClick={closeSheet} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846' }}>✕</button>
+              </div>
+            </div>
+
+            {/* 이모지 + 이름 */}
+            <div style={{ padding: '16px 20px 0' }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                <input value={sEmoji} onChange={e => setSEmoji(e.target.value)} placeholder={icon} maxLength={2} style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+                <input value={sName} onChange={e => setSName(e.target.value)} placeholder="이름 *" style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+              </div>
+              <textarea value={sDesc} onChange={e => setSDesc(e.target.value)} placeholder="간단한 설명 (선택)" rows={2} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5, marginBottom: 8 }} />
+
+              {/* 참고 링크 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginBottom: 8 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+                  <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                </svg>
+                <input type="url" value={sSourceUrl} onChange={e => setSSourceUrl(e.target.value)} placeholder="참고 링크 (Instagram, YouTube...)" style={{ flex: 1, border: 'none', outline: 'none', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: 'transparent' }} />
+                {sSourceUrl && <button onClick={() => setSSourceUrl('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#BCBAB6', fontSize: 14, padding: 0 }}>✕</button>}
+              </div>
+
+              {/* 이미지 — 탭 + 붙여넣기(⌘V) */}
+              <div onClick={() => fileRef.current?.click()} style={{ width: '100%', height: 200, background: sImagePreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 16, overflow: 'hidden', position: 'relative', backgroundImage: sImagePreview ? `url(${sImagePreview})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                {!sImagePreview && (
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 6 }}>📷</div>
+                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490' }}>이미지 추가</div>
+                    <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 추가 · 붙여넣기(⌘V)</div>
+                  </div>
+                )}
+                {sImagePreview && <button onClick={e => { e.stopPropagation(); setSImageFile(null); setSImagePreview(''); }} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.5)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>}
+              </div>
+              <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { const file = e.target.files?.[0]; if (file) void applyImg(file); e.target.value = ''; }} />
+
+              {/* 아이템 매핑 */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, marginTop: 8 }}>아이템 매핑</div>
+              {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                  {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map((it, idx) => (
+                    <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>
+                      {productName(it.id)}
+                      <button onClick={() => setSItems(p => p.filter((_, i) => i !== idx))} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 12, padding: 0, lineHeight: 1 }}>×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <button onClick={() => { setPicker('main'); setPickerSearch(''); setPickerSelected(new Set()); }} style={{ padding: '8px 14px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer', marginBottom: 16 }}>제품 +</button>
+
+              {/* T.P.O (룩북만) */}
+              {filter === 'lookbook' && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>T.P.O</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {TPO_OPTIONS.map(tp => <button key={tp} onClick={() => setSTpo(p => p.includes(tp) ? p.filter(x => x !== tp) : [...p, tp])} style={{ padding: '7px 14px', borderRadius: 9999, border: `1.5px solid ${sTpo.includes(tp) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: sTpo.includes(tp) ? '#0C0C0A' : 'transparent', color: sTpo.includes(tp) ? '#fff' : '#4A4846', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all .15s' }}>{tp}</button>)}
+                  </div>
+                </div>
+              )}
+
+              {/* 예정 날짜 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>예정 날짜</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+                  {sDates.map(d => <span key={d} onClick={() => setSDates(p => p.filter(x => x !== d))} style={{ fontFamily: f, fontSize: 12, fontWeight: 700, padding: '5px 10px', borderRadius: 9999, background: '#0C0C0A', color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>{fmtDate(d)} <span style={{ opacity: .6, fontSize: 10 }}>✕</span></span>)}
+                  <input type="date" onChange={e => { if (e.target.value && !sDates.includes(e.target.value)) { setSDates(p => [...p, e.target.value].sort()); e.target.value = ''; } }} style={{ padding: '5px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9999, fontFamily: f, fontSize: 12, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+                </div>
+              </div>
+
+              {/* Today 토글 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginBottom: 20 }} onClick={() => { const next = !sPublished; setSPublished(next); const today = format(new Date(), 'yyyy-MM-dd'); if (next) setSDates(p => p.includes(today) ? p : [...p, today].sort()); }}>
+                <div style={{ width: 44, height: 26, borderRadius: 13, background: sPublished ? '#0C0C0A' : '#D8D6CF', transition: 'background .2s', position: 'relative', flexShrink: 0 }}>
+                  <div style={{ position: 'absolute', top: 3, left: sPublished ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.3)' }} />
+                </div>
+                <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{sPublished ? 'Today에 표시 ON' : 'Today에 표시 OFF'}</span>
+              </div>
+
+              {/* 버튼 */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={closeSheet} style={{ flex: 1, height: 52, background: '#EEEDE9', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
+                <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 2, height: 52, background: sName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: sName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default' }}>
+                  {saving ? '저장 중...' : editItem ? '수정 저장' : '저장'}
+                </button>
+              </div>
+              {editItem && (
+                <button onClick={handleDelete} style={{ width: '100%', padding: 14, background: 'none', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#BA1A1A', cursor: 'pointer', fontWeight: 700, marginTop: 8 }}>삭제</button>
+              )}
+            </div>
+          </div>
+
+          {/* 제품 피커 */}
+          {picker && (
+            <>
+              <div onClick={() => setPicker(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 220 }} />
+              <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 230, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
+                  <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
+                  <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 10 }}>제품 선택</div>
+                  <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)} placeholder="제품명 · 브랜드 검색..." autoFocus style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 4 }} />
+                  <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginBottom: 8 }}>{pickerSelected.size > 0 ? `${pickerSelected.size}개 선택됨` : 'BOX에서 제품을 선택하세요'}</div>
+                </div>
+                <div style={{ flex: 1, overflowY: 'auto' }}>
+                  {filteredPicker.map(p => {
+                    const sel = pickerSelected.has(p.id);
+                    return (
+                      <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A' }}>{p.name}</div>
+                          {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>{p.brand}</div>}
+                        </div>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                      </div>
+                    );
+                  })}
+                  {pickerSearch.trim() && filteredPicker.length === 0 && (
+                    <div onClick={async () => {
+                      if (!db) return;
+                      const now = new Date().toISOString();
+                      const domain = filter === 'makeup' ? 'beauty' : 'fashion';
+                      const ref = await addDoc(collection(db, 'users', userId, 'products'), { name: pickerSearch.trim(), brand: '', domain, ...(filter === 'makeup' ? { subCategory: 'makeup' } : {}), packageCount: 1, unitPerPackage: 0, itemUnit: '', totalAmount: 0, dosePerUse: 0, usesPerDay: 1, frequencyType: 'daily', currentRemaining: 0, createdAt: now, updatedAt: now });
+                      setPickerSelected(prev => { const n = new Set(prev); n.add(ref.id); return n; });
+                      setPickerSearch('');
+                    }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>+</div>
+                      <div>
+                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
+                        <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 수정 가능</div>
+                      </div>
+                    </div>
+                  )}
+                  {!pickerSearch.trim() && filteredPicker.length === 0 && <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>BOX에 해당 도메인 제품이 없어요</div>}
+                </div>
+                <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 20px)', borderTop: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
+                  <button onClick={confirmPicker} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료{pickerSelected.size > 0 ? ` (${pickerSelected.size}개)` : ''}</button>
+                </div>
+              </div>
+            </>
+          )}
+        </>
+      )}
+    </>
+  );
+}
+
 // ─── 빈 상태 ─────────────────────────────────────────────────────────────────
 
 function EmptyState({ isLoading }: { isLoading: boolean }) {
@@ -1139,10 +1522,29 @@ export default function LogPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   // ── 탭 상태 ──
-  const [mainTab, setMainTab] = useState<'library' | 'record'>('library');
+  const [mainTab, setMainTab] = useState<'log' | 'library'>('log');
+  const [logFilter, setLogFilter] = useState<'makeup' | 'lookbook'>('makeup');
   const [libFilter, setLibFilter] = useState<'makeup' | 'lookbook'>('makeup');
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [addSheetOpen, setAddSheetOpen] = useState(false);
+
+  // CtPanel CRUD — makeupItems / lookItems 공유 (SETUP과 동일 컬렉션)
+  async function handleCtAdd(filter: 'makeup' | 'lookbook', data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    if (!db) return '';
+    const colName = filter === 'makeup' ? 'makeupItems' : 'lookItems';
+    const now = new Date().toISOString();
+    const ref = await addDoc(collection(db, 'users', userId, colName), { ...data, createdAt: now, updatedAt: now });
+    return ref.id;
+  }
+  async function handleCtUpdate(filter: 'makeup' | 'lookbook', id: string, data: Partial<Omit<CtItem, 'id'>>) {
+    if (!db) return;
+    await updateDoc(doc(db, 'users', userId, filter === 'makeup' ? 'makeupItems' : 'lookItems', id), data);
+  }
+  async function handleCtDelete(filter: 'makeup' | 'lookbook', id: string) {
+    if (!db) return;
+    const { deleteDoc: del } = await import('firebase/firestore');
+    await del(doc(db, 'users', userId, filter === 'makeup' ? 'makeupItems' : 'lookItems', id));
+  }
 
   // Today 즉시 적용/해제 — Firestore 업데이트 → AppContext onSnapshot 자동 반영
   async function handleToggleToday(item: CtItem) {
@@ -1245,168 +1647,91 @@ export default function LogPage() {
           subtitle="오늘 본 무드가 내일의 내 모습이 된다"
         />
 
-        {/* 탭 바 — Library / Record */}
-        <div
-          style={{
-            display: 'flex', gap: 0, height: 46, alignItems: 'stretch',
-            background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(8px)',
-            borderBottom: '1px solid rgba(12,12,10,.07)', margin: '16px 0 0', padding: '0 16px',
-          }}
-        >
-          {(['library', 'record'] as const).map((t) => (
+        {/* 탭 바 — LOG / Library */}
+        <div style={{ display: 'flex', gap: 0, height: 46, alignItems: 'stretch', background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(12,12,10,.07)', margin: '16px 0 0', padding: '0 16px' }}>
+          {(['log', 'library'] as const).map((t) => (
             <button key={t} onClick={() => setMainTab(t)}
               style={{ flex: 1, border: 'none', background: 'none', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', color: mainTab === t ? '#0C0C0A' : '#9A9490', borderBottom: mainTab === t ? '2px solid #0C0C0A' : '2px solid transparent', cursor: 'pointer', transition: 'all .18s' }}
             >
-              {t === 'library' ? 'Library' : 'Record'}
+              {t === 'log' ? 'Log' : 'Library'}
             </button>
           ))}
         </div>
 
-        {mainTab === 'record' ? (
-          <>
-            {/* 최근 7일 요약 스트립 */}
-            <div style={{ padding: '20px 0 0' }}>
-              <RecentStrip dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate} />
+        {mainTab === 'log' ? (
+          /* LOG 탭 — setup의 메이크업/룩북과 동일한 CtPanel */
+          <div style={{ paddingTop: 16 }}>
+            {/* Makeup / Lookbook 서브 필터 */}
+            <div style={{ display: 'flex', gap: 6, padding: '0 16px', marginBottom: 16 }}>
+              {(['makeup', 'lookbook'] as const).map(f => (
+                <button key={f} onClick={() => setLogFilter(f)} style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${logFilter === f ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: logFilter === f ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '.04em', color: logFilter === f ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
+                  {f === 'makeup' ? '💄 Makeup' : '👗 Lookbook'}
+                </button>
+              ))}
             </div>
-
-            {/* 구분선 */}
-            <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '20px 16px' }} />
-
-            {/* 월별 캘린더 */}
-            <MonthCalendar
-              currentMonth={currentMonth}
-              dayLogs={dayLogs}
-              selectedDate={selectedDate}
-              onSelectDate={handleSelectDate}
-              onPrevMonth={() => {
-                setCurrentMonth((m) => subMonths(m, 1));
-                setSelectedDate(null);
-              }}
-              onNextMonth={() => {
-                setCurrentMonth((m) => addMonths(m, 1));
-                setSelectedDate(null);
-              }}
+            <LogCtPanel
+              key={logFilter}
+              filter={logFilter}
+              items={logFilter === 'makeup' ? makeupItems : lookItems}
+              products={Array.from(products.values())}
+              userId={userId}
+              onAdd={(data) => handleCtAdd(logFilter, data)}
+              onUpdate={(id, data) => handleCtUpdate(logFilter, id, data)}
+              onDelete={(id) => handleCtDelete(logFilter, id)}
             />
-
-            {/* 선택된 날짜 상세 or 빈 상태 */}
-            {selectedDate ? (
-              <DayDetail
-                dateStr={selectedDate}
-                dayLog={selectedDayLog}
-                products={products}
-                sessions={sessions}
-                onClose={() => setSelectedDate(null)}
-              />
-            ) : (
-              dayLogs.size === 0 && (
-                <EmptyState isLoading={dataLoading || authLoading} />
-              )
-            )}
-          </>
+          </div>
         ) : (
-          /* LIBRARY 탭 — 메이크업·룩북 Today 즉시 적용 허브 */
-          <div style={{ padding: '16px 16px 0' }}>
-            {/* 안내 문구 */}
-            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490', marginBottom: 14, lineHeight: 1.6 }}>
-              오늘 쓸 아이템을 바로 Today에 적용하세요.{'\n'}계획적 등록은 Setup에서 할 수 있어요.
-            </div>
+          /* LIBRARY 탭 — 컨셉 아카이브 (LogLibraryCard) + 스킨케어 캘린더 */
+          <div>
+            {/* 컨셉 카드 섹션 */}
+            <div style={{ padding: '16px 16px 0' }}>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>CONCEPT ARCHIVE</div>
 
-            {/* 필터 필 */}
-            <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-              {(['makeup', 'lookbook'] as const).map((f) => {
-                const todayStr = format(new Date(), 'yyyy-MM-dd');
-                const items = f === 'makeup' ? makeupItems : lookItems;
-                const activeCount = items.filter(i => i.published && (i.dates ?? []).includes(todayStr)).length;
-                return (
-                  <button
-                    key={f}
-                    onClick={() => setLibFilter(f)}
-                    style={{
-                      height: 32, padding: '0 14px', borderRadius: 9999,
-                      border: `1.5px solid ${libFilter === f ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
-                      background: libFilter === f ? '#0C0C0A' : 'transparent',
-                      fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                      fontSize: 12, fontWeight: 700, letterSpacing: '.04em',
-                      color: libFilter === f ? '#fff' : '#9A9490',
-                      cursor: 'pointer', transition: 'all .15s',
-                      display: 'flex', alignItems: 'center', gap: 6,
-                    }}
-                  >
-                    {f === 'makeup' ? 'Makeup' : 'Lookbook'}
-                    {activeCount > 0 && (
-                      <span style={{ width: 16, height: 16, borderRadius: 9999, background: libFilter === f ? '#C5FF00' : '#C5FF00', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {activeCount}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* 아이템 수 */}
-            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490', marginBottom: 12 }}>
-              {(libFilter === 'makeup' ? makeupItems : lookItems).length} ITEMS
-            </div>
-
-            {/* 카드 목록 */}
-            {(libFilter === 'makeup' ? makeupItems : lookItems).length === 0 ? (
-              <div style={{ padding: '48px 20px', textAlign: 'center', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#F4F4F0' }}>
-                <div style={{ fontSize: 24, opacity: 0.3, marginBottom: 10 }}>◎</div>
-                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#9A9490' }}>
-                  {libFilter === 'makeup' ? '메이크업 아이템이 없어요' : '룩북 아이템이 없어요'}
-                </div>
-                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490', marginTop: 6, lineHeight: 1.6 }}>
-                  아래 + 버튼으로 바로 등록하세요
-                </div>
+              {/* 필터 */}
+              <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+                {(['makeup', 'lookbook'] as const).map((f) => {
+                  const todayStr = format(new Date(), 'yyyy-MM-dd');
+                  const cnt = (f === 'makeup' ? makeupItems : lookItems).filter(i => i.published && (i.dates ?? []).includes(todayStr)).length;
+                  return (
+                    <button key={f} onClick={() => setLibFilter(f)} style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${libFilter === f ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: libFilter === f ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: libFilter === f ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      {f === 'makeup' ? 'Makeup' : 'Lookbook'}
+                      {cnt > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: '#C5FF00', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cnt}</span>}
+                    </button>
+                  );
+                })}
               </div>
-            ) : (
-              (libFilter === 'makeup' ? makeupItems : lookItems).map((item) => (
-                <LogLibraryCard
-                  key={item.id}
-                  item={item}
-                  products={products}
-                  onToggleToday={() => handleToggleToday(item)}
-                  toggling={togglingId === item.id}
-                />
-              ))
-            )}
+
+              {(libFilter === 'makeup' ? makeupItems : lookItems).length === 0 ? (
+                <div style={{ padding: '32px 20px', textAlign: 'center', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#F4F4F0', marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>LOG 탭에서 등록한 아이템이 여기에 표시됩니다</div>
+                </div>
+              ) : (
+                (libFilter === 'makeup' ? makeupItems : lookItems).map(item => (
+                  <LogLibraryCard key={item.id} item={item} products={products} onToggleToday={() => handleToggleToday(item)} toggling={togglingId === item.id} />
+                ))
+              )}
+            </div>
+
+            {/* 스킨케어 기록 섹션 */}
+            <div style={{ margin: '8px 0 0', borderTop: '1px solid rgba(12,12,10,.07)', paddingTop: 8 }}>
+              <div style={{ padding: '12px 16px 8px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490' }}>SKINCARE RECORD</div>
+              <RecentStrip dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate} />
+              <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '16px 16px 0' }} />
+              <MonthCalendar
+                currentMonth={currentMonth} dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate}
+                onPrevMonth={() => { setCurrentMonth(m => subMonths(m, 1)); setSelectedDate(null); }}
+                onNextMonth={() => { setCurrentMonth(m => addMonths(m, 1)); setSelectedDate(null); }}
+              />
+              {selectedDate ? (
+                <DayDetail dateStr={selectedDate} dayLog={selectedDayLog} products={products} sessions={sessions} onClose={() => setSelectedDate(null)} />
+              ) : (
+                dayLogs.size === 0 && <EmptyState isLoading={dataLoading || authLoading} />
+              )}
+            </div>
           </div>
         )}
 
       </div>
-
-      {/* FAB — design/log.html .fab (Library 탭일 때만 표시) */}
-      {mainTab === 'library' && (
-        <button
-          onClick={() => setAddSheetOpen(true)}
-          style={{
-            position: 'fixed',
-            bottom: 'calc(env(safe-area-inset-bottom,0px) + 76px)',
-            right: 'max(18px, calc(50vw - 215px + 18px))',
-            width: 52, height: 52, borderRadius: 9999,
-            background: '#C5FF00', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 20px rgba(197,255,0,.4)',
-            zIndex: 20, transition: 'transform .15s',
-          }}
-          aria-label="아이템 추가"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
-      )}
-
-      {/* 등록 시트 */}
-      {addSheetOpen && (
-        <AddItemSheet
-          ctType={libFilter === 'makeup' ? 'makeup' : 'lookbook'}
-          userId={userId}
-          products={products}
-          onClose={() => setAddSheetOpen(false)}
-          onSaved={() => setAddSheetOpen(false)}
-        />
-      )}
     </div>
   );
 }
