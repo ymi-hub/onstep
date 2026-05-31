@@ -27,9 +27,9 @@ import {
   onAuthStateChanged,
   type User,
 } from 'firebase/auth';
-import { db, auth, storage } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { useAppContext } from '@/lib/AppContext';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { imageFileToBase64 } from '@/lib/imageUtils';
 import type { Product } from '@/types/product';
 import PageHeader from '@/components/PageHeader';
 
@@ -839,6 +839,7 @@ export default function BoxPage() {
         price: form.price.trim() || null,
         source: form.source.trim() || null,
         purchaseUrl: form.purchaseUrl.trim() || null,
+        ...(form.imagePreview ? { imageUrl: form.imagePreview } : {}),
         updatedAt: now,
       };
 
@@ -867,25 +868,7 @@ export default function BoxPage() {
         productId = docRef.id;
       }
 
-      // 이미지 업로드
-      if (form.imageFile) {
-        if (!storage) {
-          alert('Storage 미설정: .env.local의 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET을 확인하세요.');
-        } else {
-          try {
-            const uploadWithTimeout = Promise.race([
-              uploadBytes(storageRef(storage, `users/${userId}/products/${productId}.jpg`), form.imageFile),
-              new Promise<never>((_, rej) => setTimeout(() => rej(new Error('업로드 타임아웃 (30초)')), 30000)),
-            ]);
-            const snap = await uploadWithTimeout;
-            const imageUrl = await getDownloadURL((snap as Awaited<ReturnType<typeof uploadBytes>>).ref);
-            await updateDoc(doc(db, 'users', userId, 'products', productId), { imageUrl });
-          } catch (imgErr) {
-            const msg = imgErr instanceof Error ? imgErr.message : String(imgErr);
-            alert(`이미지 업로드 실패: ${msg}\n제품은 저장됐습니다.`);
-          }
-        }
-      }
+      // 이미지는 Base64로 commonFields.imageUrl에 포함됐으므로 별도 업로드 불필요
 
       setForm(INITIAL_FORM);
       setEditingProduct(null);
@@ -1755,20 +1738,13 @@ function AddProductPage({
   const cats = domainCfg ? getDomainCats(domainCfg, subType) : [];
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 파일 → 리사이즈 → 폼 상태 적용 (파일 선택 + 붙여넣기 공통)
-  // 💡 resizeImage()로 800px 이하로 줄인 뒤 저장 → Storage 절감
+  // 파일 → Base64 변환 → 폼 상태 적용 (Storage 없이 Firestore에 직접 저장)
   async function applyImageFile(file: File) {
     try {
-      const resized = await resizeImage(file);
-      setForm((f) => ({ ...f, imageFile: resized }));
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setForm((f) => ({ ...f, imagePreview: ev.target?.result as string }));
-      };
-      reader.readAsDataURL(resized);
+      const base64 = await imageFileToBase64(file);
+      setForm((f) => ({ ...f, imageFile: file, imagePreview: base64 }));
     } catch (err) {
-      // 리사이즈 실패 시 원본 그대로 사용
-      console.warn('[OnStep] 이미지 리사이즈 실패, 원본 사용:', err);
+      console.warn('[OnStep] Base64 변환 실패, 원본 사용:', err);
       setForm((f) => ({ ...f, imageFile: file }));
       const reader = new FileReader();
       reader.onload = (ev) => {

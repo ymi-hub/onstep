@@ -35,12 +35,12 @@ import {
   deleteDoc,
   doc,
 } from 'firebase/firestore';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
   onAuthStateChanged,
   type User,
 } from 'firebase/auth';
-import { db, auth, storage } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
+import { imageFileToBase64 } from '@/lib/imageUtils';
 import type { RoutineItem } from '@/types/routine';
 import type { CtType } from '@/types/ctitem';
 import { useAppContext } from '@/lib/AppContext';
@@ -853,18 +853,15 @@ function AddItemSheet({
     ? domainProducts.filter(p => p.name.toLowerCase().includes(pickerSearch.toLowerCase()))
     : domainProducts;
 
-  // 파일 → 리사이즈 → 미리보기 (파일선택 + 붙여넣기 공통)
+  // 파일 → Base64 변환 → 미리보기 (Storage 없이 Firestore에 직접 저장)
   async function applyImageFile(file: File) {
     try {
-      const resized = await resizeImage(file);
-      setImgFile(resized);
-      const reader = new FileReader();
-      reader.onload = ev => setImgPreview(ev.target?.result as string);
-      reader.readAsDataURL(resized);
-    } catch {
+      const base64 = await imageFileToBase64(file);
       setImgFile(file);
+      setImgPreview(base64);
+    } catch {
       const reader = new FileReader();
-      reader.onload = ev => setImgPreview(ev.target?.result as string);
+      reader.onload = ev => { setImgFile(file); setImgPreview(ev.target?.result as string); };
       reader.readAsDataURL(file);
     }
   }
@@ -919,36 +916,16 @@ function AddItemSheet({
       const colName = ctType === 'makeup' ? 'makeupItems' : 'lookItems';
       const items: RoutineItem[] = Array.from(selectedProds).map(id => ({ type: 'product', id }));
 
-      // 1단계: 이미지 없이 먼저 저장 (빠른 완료 보장)
-      const ref = await addDoc(collection(db, 'users', userId, colName), {
+      // Base64 이미지를 포함해서 바로 저장 (Firebase Storage 불필요)
+      await addDoc(collection(db, 'users', userId, colName), {
         ctType, emoji: emoji || (ctType === 'makeup' ? '💄' : '👗'),
         name: name.trim(), desc: desc.trim(),
         items, tipItems: [], expertTip: '',
+        ...(imgPreview ? { imageUrl: imgPreview } : {}),
         ...(ctType === 'lookbook' && tpo.length > 0 ? { tpo } : {}),
         published: false, dates: [],
         createdAt: now, updatedAt: now,
       });
-
-      // 2단계: 이미지 업로드
-      if (imgFile) {
-        if (!storage) {
-          alert('Storage 미설정: .env.local의 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET을 확인하세요.');
-        } else {
-          try {
-            // 30초 타임아웃
-            const uploadWithTimeout = Promise.race([
-              uploadBytes(storageRef(storage, `users/${userId}/${colName}/${ref.id}.jpg`), imgFile),
-              new Promise<never>((_, rej) => setTimeout(() => rej(new Error('업로드 타임아웃 (30초)')), 30000)),
-            ]);
-            const snap = await uploadWithTimeout;
-            const imageUrl = await getDownloadURL((snap as Awaited<ReturnType<typeof uploadBytes>>).ref);
-            await updateDoc(doc(db, 'users', userId, colName, ref.id), { imageUrl, updatedAt: new Date().toISOString() });
-          } catch (imgErr) {
-            const msg = imgErr instanceof Error ? imgErr.message : String(imgErr);
-            alert(`이미지 업로드 실패: ${msg}\n아이템은 저장됐습니다. 편집에서 이미지를 다시 추가할 수 있습니다.`);
-          }
-        }
-      }
 
       onSaved();
     } catch (err) {
@@ -1179,6 +1156,7 @@ function LogCtPanel({
     setSaving(true);
     const now = new Date().toISOString();
     const colName = filter === 'makeup' ? 'makeupItems' : 'lookItems';
+    // Base64 이미지 포함해서 저장 (Firebase Storage 불필요)
     const data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'> = {
       ctType,
       emoji: sEmoji || icon,
@@ -1186,37 +1164,14 @@ function LogCtPanel({
       items: sItems, tipItems: sTipItems, expertTip: '',
       published: sPublished, dates: sDates,
       ...(sSourceUrl.trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
-      ...(sImagePreview && !sImageFile ? { imageUrl: sImagePreview } : {}),
+      ...(sImagePreview ? { imageUrl: sImagePreview } : {}),
       ...(filter === 'lookbook' ? { tpo: sTpo } : {}),
     };
     try {
-      // 1단계: 이미지 없이 먼저 저장
-      let itemId: string;
       if (editItem) {
         await onUpdate(editItem.id, { ...data, updatedAt: now });
-        itemId = editItem.id;
       } else {
-        itemId = await onAdd(data);
-      }
-
-      // 2단계: 이미지 업로드
-      if (sImageFile && itemId) {
-        if (!storage) {
-          alert('Storage 미설정: .env.local의 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET을 확인하세요.');
-        } else {
-          try {
-            const uploadWithTimeout = Promise.race([
-              uploadBytes(storageRef(storage, `users/${userId}/${colName}/${itemId}.jpg`), sImageFile),
-              new Promise<never>((_, rej) => setTimeout(() => rej(new Error('업로드 타임아웃 (30초)')), 30000)),
-            ]);
-            const snap = await uploadWithTimeout;
-            const imageUrl = await getDownloadURL((snap as Awaited<ReturnType<typeof uploadBytes>>).ref);
-            await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
-          } catch (imgErr) {
-            const msg = imgErr instanceof Error ? imgErr.message : String(imgErr);
-            alert(`이미지 업로드 실패: ${msg}\n아이템은 저장됐습니다.`);
-          }
-        }
+        await onAdd(data);
       }
       closeSheet();
     } catch (err) {
@@ -1250,12 +1205,15 @@ function LogCtPanel({
 
   async function applyImg(file: File) {
     try {
-      const resized = await resizeImage(file);
-      setSImageFile(resized);
+      const base64 = await imageFileToBase64(file);
+      setSImageFile(file);
+      setSImagePreview(base64);
+    } catch {
+      setSImageFile(file);
       const reader = new FileReader();
       reader.onload = ev => setSImagePreview(ev.target?.result as string);
-      reader.readAsDataURL(resized);
-    } catch { setSImageFile(file); }
+      reader.readAsDataURL(file);
+    }
   }
 
   // HubCard 스타일 카드 — setup HubView와 동일한 구조

@@ -29,9 +29,9 @@ import {
   doc,
   orderBy,
 } from 'firebase/firestore';
-import { db, auth, storage } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
+import { imageFileToBase64 } from '@/lib/imageUtils';
 import { useAppContext } from '@/lib/AppContext';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
 import type { Habit, RepeatType } from '@/types/habit';
@@ -1881,7 +1881,7 @@ function CtPanel({
       published: sPublished,
       ...(sSourceUrl.trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
       // 기존 imageUrl 유지 (새 파일 선택 전까지)
-      ...(sImagePreview && !sImageFile ? { imageUrl: sImagePreview } : {}),
+      ...(sImagePreview ? { imageUrl: sImagePreview } : {}),
       ...(ctType === 'care' && sPeriodStart ? { periodStart: sPeriodStart, ...(sPeriodEnd ? { periodEnd: sPeriodEnd } : {}) } : {}),
       ...(ctType !== 'care' ? { dates: sDates } : {}),
       ...(ctType === 'lookbook' ? { tpo: sTpo } : {}),
@@ -1895,26 +1895,7 @@ function CtPanel({
         itemId = await onAdd(data);
       }
 
-      // 이미지 업로드
-      if (sImageFile && itemId) {
-        if (!storage) {
-          alert('Storage 미설정: .env.local의 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET을 확인하세요.');
-        } else {
-          try {
-            const colName = ctType === 'care' ? 'careItems' : ctType === 'makeup' ? 'makeupItems' : 'lookItems';
-            const uploadWithTimeout = Promise.race([
-              uploadBytes(storageRef(storage, `users/${userId}/${colName}/${itemId}.jpg`), sImageFile),
-              new Promise<never>((_, rej) => setTimeout(() => rej(new Error('업로드 타임아웃 (30초)')), 30000)),
-            ]);
-            const snap = await uploadWithTimeout;
-            const imageUrl = await getDownloadURL((snap as Awaited<ReturnType<typeof uploadBytes>>).ref);
-            await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
-          } catch (imgErr) {
-            const msg = imgErr instanceof Error ? imgErr.message : String(imgErr);
-            alert(`이미지 업로드 실패: ${msg}\n아이템은 저장됐습니다.`);
-          }
-        }
-      }
+      // 이미지는 Base64로 data에 포함됐으므로 별도 업로드 불필요
 
       closeSheet();
     } catch (err) {
@@ -2215,13 +2196,18 @@ function CtPanel({
                     type="file"
                     accept="image/*"
                     style={{ display: 'none' }}
-                    onChange={e => {
+                    onChange={async e => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      setSImageFile(file);
-                      const reader = new FileReader();
-                      reader.onload = ev => setSImagePreview(ev.target?.result as string);
-                      reader.readAsDataURL(file);
+                      try {
+                        const base64 = await imageFileToBase64(file);
+                        setSImageFile(file); setSImagePreview(base64);
+                      } catch {
+                        setSImageFile(file);
+                        const reader = new FileReader();
+                        reader.onload = ev => setSImagePreview(ev.target?.result as string);
+                        reader.readAsDataURL(file);
+                      }
                       e.target.value = '';
                     }}
                   />
