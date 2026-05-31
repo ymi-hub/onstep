@@ -251,10 +251,11 @@ function Slide2() {
       delay: '.3s', opacity: 1,
     },
     {
-      icon: '👗', iconBg: 'rgba(200,102,110,.12)',
-      label: '08:00 · 오늘의 룩', name: '오피스 캐주얼 OOTD',
-      statusBg: 'rgba(45,59,85,.3)', statusColor: 'rgba(200,215,240,.7)',
-      statusBorder: 'rgba(45,59,85,.5)', status: '진행 중',
+      // OOTD(미구현) 대신 루틴 완료 후 자동 기록 — LOG 기능 소개
+      icon: '📝', iconBg: 'rgba(200,120,80,.12)',
+      label: '루틴 완료 · 자동 기록', name: '오늘의 사용 기록',
+      statusBg: 'rgba(74,187,120,.08)', statusColor: 'rgba(74,187,120,.7)',
+      statusBorder: 'rgba(74,187,120,.15)', status: '자동 저장',
       delay: '.5s', opacity: 1,
     },
     {
@@ -383,7 +384,7 @@ function Slide3() {
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       position: 'relative', overflow: 'hidden',
-      padding: '0 28px 140px', // 하단 버튼 공간 확보
+      padding: '0 28px 110px', // 하단 버튼 공간 확보 (140 → 110으로 공백 줄임)
     }}>
       {/* 배경 글로우 (초록빛 — 성취/확신 분위기) */}
       <div style={{
@@ -434,12 +435,18 @@ function Slide3() {
         </div>
       </div>
 
-      {/* 통계 미니카드 3개 */}
+      {/* 통계 미니카드 — 예시 레이블 + 3개 카드 */}
       <div style={{
-        display: 'flex', gap: 10,
-        animation: 'fadeUp 0.8s 0.6s both',
-        zIndex: 1,
+        width: '100%', animation: 'fadeUp 0.8s 0.5s both', zIndex: 1,
       }}>
+        {/* 예시 안내 — 실제 수치가 아님을 명시 */}
+        <div style={{
+          textAlign: 'center', fontSize: 8, letterSpacing: 2,
+          color: 'rgba(255,255,255,.18)', fontWeight: 600, marginBottom: 10,
+        }}>
+          SAMPLE · 예시 데이터
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
         {STATS.map((s, i) => (
           <div key={i} style={{
             background: 'rgba(255,255,255,.04)',
@@ -457,7 +464,18 @@ function Slide3() {
             </div>
           </div>
         ))}
-      </div>
+        </div>{/* /flex row */}
+
+        {/* CTA 브릿지 문구 — 예시 수치임을 자연스럽게 인식시키고 시작을 유도 */}
+        <div style={{
+          textAlign: 'center', marginTop: 18,
+          fontSize: 11, color: 'rgba(255,255,255,.22)',
+          lineHeight: 1.6, fontWeight: 300,
+          animation: 'fadeUp 0.6s 0.7s both',
+        }}>
+          지금 시작하면 나만의 데이터가 채워집니다
+        </div>
+      </div>{/* /통계 래퍼 */}
     </div>
   );
 }
