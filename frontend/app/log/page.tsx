@@ -792,6 +792,33 @@ function LogLibraryCard({
   );
 }
 
+// ─── 이미지 리사이즈 유틸 (box/page.tsx와 동일 패턴) ──────────────────────────
+function resizeImage(file: File, maxPx = 800, quality = 0.82): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const { naturalWidth: w, naturalHeight: h } = img;
+      if (w <= maxPx && h <= maxPx) { resolve(file); return; }
+      const scale = maxPx / Math.max(w, h);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        blob => {
+          if (!blob) { reject(new Error('toBlob 실패')); return; }
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+        },
+        'image/jpeg', quality,
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('이미지 로드 실패')); };
+    img.src = objectUrl;
+  });
+}
+
 // ─── 아이템 등록 바텀시트 ─────────────────────────────────────────────────────
 // design/log.html #add-sheet 구조 기반
 
@@ -825,13 +852,62 @@ function AddItemSheet({
     ? domainProducts.filter(p => p.name.toLowerCase().includes(pickerSearch.toLowerCase()))
     : domainProducts;
 
+  // 파일 → 리사이즈 → 미리보기 (파일선택 + 붙여넣기 공통)
+  async function applyImageFile(file: File) {
+    try {
+      const resized = await resizeImage(file);
+      setImgFile(resized);
+      const reader = new FileReader();
+      reader.onload = ev => setImgPreview(ev.target?.result as string);
+      reader.readAsDataURL(resized);
+    } catch {
+      setImgFile(file);
+      const reader = new FileReader();
+      reader.onload = ev => setImgPreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  }
+
   function handleImg(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file) return;
-    setImgFile(file);
-    const reader = new FileReader();
-    reader.onload = ev => setImgPreview(ev.target?.result as string);
-    reader.readAsDataURL(file);
+    if (file) void applyImageFile(file);
+    e.target.value = '';
+  }
+
+  // ⌘V / Ctrl+V 클립보드 이미지 붙여넣기
+  useEffect(() => {
+    function onPaste(e: ClipboardEvent) {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          const blob = item.getAsFile();
+          if (blob) {
+            void applyImageFile(new File([blob], 'pasted-image.png', { type: blob.type }));
+            e.preventDefault();
+            break;
+          }
+        }
+      }
+    }
+    document.addEventListener('paste', onPaste);
+    return () => document.removeEventListener('paste', onPaste);
+  }, []);
+
+  // 검색어로 제품 없을 때 → BOX에 즉시 등록 후 피커에 추가
+  async function registerAndAddProduct(prodName: string) {
+    if (!db || !prodName.trim()) return;
+    const now = new Date().toISOString();
+    const domain = ctType === 'makeup' ? 'beauty' : 'fashion';
+    const subCategory = ctType === 'makeup' ? 'makeup' : undefined;
+    const ref = await addDoc(collection(db, 'users', userId, 'products'), {
+      name: prodName.trim(), brand: '', domain, ...(subCategory ? { subCategory } : {}),
+      packageCount: 1, unitPerPackage: 0, itemUnit: '', totalAmount: 0,
+      dosePerUse: 0, usesPerDay: 1, frequencyType: 'daily', currentRemaining: 0,
+      createdAt: now, updatedAt: now,
+    });
+    setSelectedProds(prev => { const n = new Set(prev); n.add(ref.id); return n; });
+    setPickerSearch('');
   }
 
   async function handleSave() {
@@ -873,7 +949,7 @@ function AddItemSheet({
           </div>
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginBottom: 20 }}>등록 후 Library에서 Today 즉시 적용 가능</div>
 
-          {/* 이미지 */}
+          {/* 이미지 — 탭(파일첨부) + ⌘V 붙여넣기 */}
           <div
             onClick={() => fileRef.current?.click()}
             style={{ width: '100%', height: 180, background: imgPreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 16, overflow: 'hidden', position: 'relative', backgroundImage: imgPreview ? `url(${imgPreview})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}
@@ -882,7 +958,14 @@ function AddItemSheet({
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 6 }}>📷</div>
                 <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490' }}>BASELINE 이미지</div>
+                <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 추가 · 붙여넣기(⌘V)</div>
               </div>
+            )}
+            {imgPreview && (
+              <button
+                onClick={e => { e.stopPropagation(); setImgFile(null); setImgPreview(''); }}
+                style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.5)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >✕</button>
             )}
           </div>
           <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImg} />
@@ -956,7 +1039,22 @@ function AddItemSheet({
                   </div>
                 );
               })}
-              {filteredProds.length === 0 && <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>검색 결과 없음</div>}
+              {/* 검색어 있고 결과 없으면 → 이름으로 BOX 등록 후 추가 */}
+              {pickerSearch.trim() && filteredProds.length === 0 && (
+                <div onClick={() => registerAndAddProduct(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
+                    <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 상세 정보 수정 가능</div>
+                  </div>
+                </div>
+              )}
+              {!pickerSearch.trim() && filteredProds.length === 0 && (
+                <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6 }}>
+                  {ctType === 'makeup' ? 'BOX에 메이크업 제품이 없어요' : 'BOX에 패션·악세서리 제품이 없어요'}<br />
+                  이름을 검색하면 바로 등록할 수 있어요
+                </div>
+              )}
             </div>
             <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 20px)', borderTop: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
               <button onClick={() => setPickerOpen(false)} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료 ({selectedProds.size}개)</button>
