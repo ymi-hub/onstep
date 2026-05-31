@@ -23,6 +23,7 @@ export interface Slot {
 export interface Session {
   id: string;
   sessionNumber: number;
+  sessionTag?: string;   // 예: "관리실 3회", "4회관리"
   startDate: string;    // "YYYY-MM-DD"
   endDate: string;
   morningTime: string;  // "07:30"

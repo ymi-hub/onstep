@@ -28,6 +28,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { db, auth, storage } from '@/lib/firebase';
+import { useAppContext } from '@/lib/AppContext';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Product } from '@/types/product';
 import PageHeader from '@/components/PageHeader';
@@ -648,13 +649,9 @@ function resizeImage(file: File, maxPx = 800, quality = 0.82): Promise<File> {
 
 // ─── 메인 BOX 페이지 ─────────────────────────────────────────────────────────
 export default function BoxPage() {
-  // ── 인증 상태 ──
-  const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
-
-  // 제품 데이터 상태
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  // ── 공유 컨텍스트 ──
+  const { user, userId, authLoading, products } = useAppContext();
+  const loading = authLoading;
 
   // 필터 상태
   const [searchQuery, setSearchQuery] = useState('');
@@ -683,55 +680,7 @@ export default function BoxPage() {
   // 정렬 모드
   const [sortMode, setSortMode] = useState<'added' | 'name' | 'uses' | 'brand'>('added');
 
-  // 현재 userId: 로그인된 UID, 없으면 fallback
-  const userId = user?.uid ?? FALLBACK_USER_ID;
-
-  // ── Firebase Auth 감지 ──
-  useEffect(() => {
-    if (!auth) { setAuthLoading(false); return; }
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setAuthLoading(false);
-      if (!u) setProducts([]);
-    });
-    return () => unsub();
-  }, []);
-
-  // ── Firestore 실시간 구독 ──────────────────────────────────────────────────
-  // 로그인된 상태에서만 구독 (비로그인 시 Firestore 접근 차단)
-  useEffect(() => {
-    if (authLoading || !user) {
-      setLoading(false);
-      return;
-    }
-    if (!db) {
-      setLoading(false);
-      return;
-    }
-
-    const q = query(
-      collection(db, 'users', userId, 'products'),
-      orderBy('createdAt', 'desc')
-    );
-
-    const unsub = onSnapshot(
-      q,
-      (snapshot) => {
-        const data = snapshot.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<Product, 'id'>),
-        }));
-        setProducts(data);
-        setLoading(false);
-      },
-      (err) => {
-        console.error('Firestore 구독 오류:', err);
-        setLoading(false);
-      }
-    );
-
-    return () => unsub();
-  }, [userId, authLoading]);
+  // products / auth → AppContext에서 공유 (탭 전환 시 재로딩 없음)
 
   // ── boxConfig 로드 / 저장 ─────────────────────────────────────────────────
   useEffect(() => {

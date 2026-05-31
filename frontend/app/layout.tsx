@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import AppShell from '@/components/AppShell';
+import { AppProvider } from '@/lib/AppContext';
 
 export const metadata: Metadata = {
   title: 'OnStep — Life OS',
@@ -53,8 +54,11 @@ export default function RootLayout({
             boxShadow: '0 0 60px rgba(0,0,0,0.12)',
           }}
         >
-          {/* AppShell: TopNav(상단) + main(콘텐츠) + BottomNav(하단) */}
-          <AppShell>{children}</AppShell>
+          {/* AppProvider: Auth + 공유 데이터 구독 (탭 전환 시 재로딩 없음) */}
+          <AppProvider>
+            {/* AppShell: TopNav(상단) + main(콘텐츠) + BottomNav(하단) */}
+            <AppShell>{children}</AppShell>
+          </AppProvider>
         </div>
       </body>
     </html>

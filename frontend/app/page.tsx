@@ -36,87 +36,20 @@ import {
   type User,
 } from 'firebase/auth';
 import { db, auth, storage } from '@/lib/firebase';
+import { useAppContext } from '@/lib/AppContext';
 import type { Product } from '@/types/product';
+import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
+import type { Habit } from '@/types/habit';
+import type { CtItem } from '@/types/ctitem';
 import { EXPERT_TIP_HIGHLIGHT } from '@/components/ExpertTipField';
 import PageHeader from '@/components/PageHeader';
 import SectionHeader from '@/components/SectionHeader';
 
-// ─── 타입 정의 ────────────────────────────────────────────────────────────────
-// setup/page.tsx에서 사용하는 Firestore 데이터 구조와 동일하게 맞춤
-
-// 칩 스트립 아이템 타입
-type RoutineItem =
-  | { type: 'product'; id: string }
-  | { type: 'desc'; text: string }
-  | { type: 'tip'; text: string }
-  | { type: 'plus' }
-  | { type: 'minus' };
-
-// 슬롯의 단일 DAY
-type SlotDay = {
-  id: number;
-  items: RoutineItem[];
-  tipItems: RoutineItem[];
-  expertTip: string;
-};
-
-// 아침/저녁 슬롯
-type Slot = {
-  days: SlotDay[];
-};
-
-// 데이터 없는 슬롯 폴백 (나이트 미등록 시에도 탭 표시용)
+// ─── 로컬 타입 ───────────────────────────────────────────────────────────────
 const EMPTY_SLOT_DAY: SlotDay = { id: 0, items: [], tipItems: [], expertTip: '' };
-
-// 하루(DAY N) 루틴
-// Firestore에 저장된 루틴 세션 (1개 = 1회차)
-type Session = {
-  id: string;
-  sessionNumber: number;
-  startDate: string;
-  endDate: string;
-  morningTime: string;
-  eveningTime: string;
-  morning: Slot;
-  evening: Slot;
-  createdAt: string;
-  updatedAt: string;
-};
 
 // 오늘 아침/저녁 각각 체크됐는지 여부
 type CheckState = { morning: boolean; evening: boolean; };
-
-// 습관 트래커 타입 (setup/page.tsx와 동일 구조)
-type RepeatType = 'allday' | 'once' | 'daily' | 'scheduled';
-type Habit = {
-  id: string;
-  icon: string;
-  name: string;
-  repeatType: RepeatType;
-  time: string;
-  alarm: boolean;
-  date?: string;
-  weekdays?: number[];
-  showInToday?: boolean;
-};
-
-// 집중케어 / 메이크업 CT 아이템 타입 (setup/page.tsx CtItem과 동일)
-type CtItem = {
-  id: string;
-  ctType: 'care' | 'makeup' | 'lookbook';
-  emoji: string;
-  name: string;
-  desc: string;
-  items: RoutineItem[];
-  tipItems: RoutineItem[];
-  expertTip?: string;
-  imageUrl?: string;
-  sourceUrl?: string;
-  periodStart?: string;
-  periodEnd?: string;
-  dates?: string[];
-  published: boolean;
-};
 
 // OOTD 오늘의 룩 기록 타입
 type OOTDLog = {
@@ -1576,13 +1509,11 @@ export default function TodayPage() {
     }
   }, [router]);
 
-  // ── 인증 상태 ──
-  const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  // ── 공유 컨텍스트 (auth + 공유 구독 — layout에서 1회 실행, 탭 전환 시 즉시) ──
+  const { user, userId: ctxUserId, authLoading, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems } = useAppContext();
+  const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 데이터 상태 ──
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [products, setProducts] = useState<Map<string, Product>>(new Map());
   const [dataLoading, setDataLoading] = useState(true);
 
   // ── UI 상태 ──
@@ -1594,8 +1525,9 @@ export default function TodayPage() {
   const [checked, setChecked] = useState<CheckState>({ morning: false, evening: false });
   const [saving, setSaving] = useState(false);
 
+  const habits = ctxHabits;
+
   // ── 습관 상태 ──
-  const [habits, setHabits] = useState<Habit[]>([]);
   const [habitChecked, setHabitChecked] = useState<Set<string>>(new Set());
   const [habitLogs, setHabitLogs] = useState<{ id: string; habitId: string }[]>([]);
 
@@ -1623,10 +1555,10 @@ export default function TodayPage() {
   const [ootdPhotoPreview, setOotdPhotoPreview] = useState('');
   const [ootdSaving, setOotdSaving] = useState(false);
 
-  // ── CT 섹션 상태 ──
-  const [careItems, setCareItems] = useState<CtItem[]>([]);
-  const [makeupItems, setMakeupItems] = useState<CtItem[]>([]);
-  const [lookItems, setLookItems] = useState<CtItem[]>([]);
+  // ── CT 섹션 (공유 컨텍스트에서) ──
+  const careItems = ctxCareItems;
+  const makeupItems = ctxMakeupItems;
+  const lookItems = ctxLookItems;
 
   // ── 계산된 값 (파생 상태) ──
   // 오늘 날짜가 포함된 활성 세션
@@ -1664,60 +1596,15 @@ export default function TodayPage() {
   const todayDayIdx = todayDayNumber - 1;
   const todayMorning = activeSession?.morning.days[todayDayIdx] ?? activeSession?.morning.days[0] ?? null;
   const todayEvening = activeSession?.evening.days[todayDayIdx] ?? activeSession?.evening.days[0] ?? null;
-  // 현재 userId (로그인 상태에 따라 실제 UID or 'demo-user')
-  const userId = user?.uid ?? FALLBACK_USER_ID;
+  const userId = ctxUserId;
 
   // ── Firebase Auth 상태 감지 ──
-  // 💡 onAuthStateChanged: 앱 시작 시 / 로그인 후 / 로그아웃 후 자동으로 호출됨
+  // sessions/products/habits/ct → AppContext에서 공유 (탭 전환 시 즉시)
+
+  // dataLoading: sessions이 context에서 오면 authLoading 해소 시 완료 처리
   useEffect(() => {
-    if (!auth) {
-      // Firebase 미설정 → demo-user 모드로 진행
-      setAuthLoading(false);
-      return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-      setAuthLoading(false);
-      if (!firebaseUser) {
-        setSessions([]);
-        setProducts(new Map());
-        setChecked({ morning: false, evening: false });
-        setDataLoading(false);
-      }
-    });
-
-    // 컴포넌트 언마운트 시 구독 해제
-    return () => unsubscribe();
-  }, []);
-
-  // ── 실시간 구독 1: 루틴 세션 ──
-  useEffect(() => {
-    if (authLoading || !user || !db) return;
-    const _db = db;
-    setDataLoading(true);
-    const q = query(collection(_db, 'users', userId, 'routines'), orderBy('sessionNumber', 'desc'));
-    const unsub = onSnapshot(q, (snap) => {
-      setSessions(snap.docs.map((d) => migrateSession(d.data() as Record<string, unknown>, d.id)));
-      setDataLoading(false);
-    }, (err) => {
-      console.error('[OnStep] 루틴 로드 실패:', err);
-      setDataLoading(false);
-    });
-    return () => unsub();
-  }, [userId, authLoading, user]);
-
-  // ── 실시간 구독 2: 제품 목록 ──
-  useEffect(() => {
-    if (authLoading || !user || !db) return;
-    const _db = db;
-    const unsub = onSnapshot(collection(_db, 'users', userId, 'products'), (snap) => {
-      const map = new Map<string, Product>();
-      snap.docs.forEach((d) => map.set(d.id, { id: d.id, ...(d.data() as Omit<Product, 'id'>) }));
-      setProducts(map);
-    }, (err) => console.error('[OnStep] 제품 로드 실패:', err));
-    return () => unsub();
-  }, [userId, authLoading, user]);
+    if (!authLoading) setDataLoading(false);
+  }, [authLoading]);
 
   // ── 실시간 구독 3: 오늘 체크 기록 (활성 세션이 결정된 후 구독 시작) ──
   const activeSessionId = activeSession?.id;
@@ -1759,17 +1646,6 @@ export default function TodayPage() {
     return () => unsub();
   }, [userId, authLoading, user]);
 
-  // ── 실시간 구독 5: 습관 목록 ──
-  useEffect(() => {
-    if (authLoading || !user || !db) return;
-    const _db = db;
-    const q = query(collection(_db, 'users', userId, 'habits'));
-    const unsub = onSnapshot(q, (snap) => {
-      setHabits(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Habit, 'id'>) })));
-    }, (err) => console.error('[OnStep] 습관 로드 실패:', err));
-    return () => unsub();
-  }, [userId, authLoading, user]);
-
   // ── 실시간 구독 6: 오늘 습관 완료 기록 ──
   // todayKey가 바뀌면(자정 경과) 새 날짜로 재구독 → 체크 상태 자동 리셋
   useEffect(() => {
@@ -1793,22 +1669,6 @@ export default function TodayPage() {
     }, (err) => console.error('[OnStep] 습관 기록 로드 실패:', err));
     return () => unsub();
   }, [userId, authLoading, user, todayKey]); // todayKey: 날짜 변경 시 재구독
-
-  // ── 집중케어 / 메이크업 CT 구독 ──
-  useEffect(() => {
-    const _db = db;
-    if (authLoading || !_db) return;
-    const makeUnsub = (col: string, setter: (v: CtItem[]) => void) => {
-      const q = query(collection(_db, 'users', userId, col));
-      return onSnapshot(q, (snap) => {
-        setter(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CtItem)));
-      }, (err) => console.error(`[OnStep] ${col} 로드 실패:`, err));
-    };
-    const u1 = makeUnsub('careItems', setCareItems);
-    const u2 = makeUnsub('makeupItems', setMakeupItems);
-    const u3 = makeUnsub('lookItems', setLookItems);
-    return () => { u1(); u2(); u3(); };
-  }, [userId, authLoading]);
 
   // ── 루틴 체크 처리 ──
   // 💡 낙관적 업데이트(optimistic update): 서버 응답 기다리지 않고 UI 먼저 변경
@@ -1872,11 +1732,7 @@ export default function TodayPage() {
                   updatedAt: new Date().toISOString(),
                 });
 
-                setProducts((prev) => {
-                  const next = new Map(prev);
-                  next.set(productId, { ...product, currentRemaining: newRemaining });
-                  return next;
-                });
+                // onSnapshot이 자동으로 반영하므로 로컬 업데이트 불필요
               }
             })
           );
@@ -1926,11 +1782,7 @@ export default function TodayPage() {
                   currentRemaining: newRemaining,
                   updatedAt: new Date().toISOString(),
                 });
-                setProducts((prev) => {
-                  const next = new Map(prev);
-                  next.set(data.productId, { ...product, currentRemaining: newRemaining });
-                  return next;
-                });
+                // onSnapshot이 자동으로 반영하므로 로컬 업데이트 불필요
               }
             }
           })

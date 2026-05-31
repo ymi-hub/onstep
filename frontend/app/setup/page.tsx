@@ -30,9 +30,12 @@ import {
   orderBy,
 } from 'firebase/firestore';
 import { db, auth, storage } from '@/lib/firebase';
+import { useAppContext } from '@/lib/AppContext';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Product } from '@/types/product';
-import type { RoutineItem, SlotDay, Slot } from '@/types/routine';
+import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
+import type { Habit, RepeatType } from '@/types/habit';
+import type { CtItem, CtType } from '@/types/ctitem';
 import ExpertTipField, { buildExpertTipHtml } from '@/components/ExpertTipField';
 import SearchBar from '@/components/SearchBar';
 import SubPageHeader from '@/components/SubPageHeader';
@@ -43,58 +46,7 @@ import { parseRoutineText, parseRoutinePhases, type ParsedResult } from '@/lib/p
 
 type View = 'hub' | 'sessions' | 'editor' | 'tracker' | 'care' | 'makeup' | 'lookbook';
 
-type RepeatType = 'allday' | 'once' | 'daily' | 'scheduled';
-
-type Habit = {
-  id: string;
-  icon: string;
-  name: string;
-  repeatType: RepeatType;
-  time: string;
-  alarm: boolean;
-  date?: string;
-  weekdays?: number[];
-  showInToday?: boolean;  // TODAY 화면에 노출 여부 (수동 선택)
-  createdAt: string;
-  updatedAt: string;
-};
-
-type CtType = 'care' | 'makeup' | 'lookbook';
-
-type CtItem = {
-  id: string;
-  ctType: CtType;
-  emoji: string;
-  name: string;
-  desc: string;
-  items: RoutineItem[];
-  tipItems: RoutineItem[];
-  expertTip?: string;
-  imageUrl?: string;
-  sourceUrl?: string;
-  periodStart?: string;
-  periodEnd?: string;
-  dates?: string[];
-  tpo?: string[];
-  published: boolean;
-  createdAt: string;
-  updatedAt: string;
-};
-
-// Firestore 세션 (MORNING/EVENING 각각 독립 DAY 슬롯)
-type Session = {
-  id: string;
-  sessionNumber: number;
-  sessionTag?: string;   // 예: "관리실 3회", "4회관리"
-  startDate: string;
-  endDate: string;
-  morningTime: string;
-  eveningTime: string;
-  morning: Slot;
-  evening: Slot;
-  createdAt: string;
-  updatedAt: string;
-};
+// Habit, RepeatType, CtItem, CtType, Session → 공유 types에서 import
 
 type EditorDraft = {
   id: string | null;
@@ -2516,25 +2468,14 @@ const dateInputStyle: React.CSSProperties = {
 const VALID_VIEWS: View[] = ['hub', 'sessions', 'editor', 'tracker', 'care', 'makeup', 'lookbook'];
 
 export default function SetupPage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  // ── 공유 컨텍스트 ──
+  const { user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems } = useAppContext();
+
   const [view, setView] = useState<View>('hub');
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [draft, setDraft] = useState<EditorDraft | null>(null);
   const [saving, setSaving] = useState(false);
-  // 에디터에서 저장 후 돌아올 때 SessionsView를 리마운트해 드롭다운을 닫힌 상태로 초기화
   const [sessionsKey, setSessionsKey] = useState(0);
-
-  // Tracker habits
-  const [habits, setHabits] = useState<Habit[]>([]);
-  // CT items per type
-  const [careItems, setCareItems] = useState<CtItem[]>([]);
-  const [makeupItems, setMakeupItems] = useState<CtItem[]>([]);
-  const [lookItems, setLookItems] = useState<CtItem[]>([]);
-
-  const userId = user?.uid ?? FALLBACK_USER_ID;
 
   // ── URL hash로 뷰 초기화 (P10 딥링크 + P12 상태 복원) ──
   // /setup#sessions → sessions 뷰로 바로 진입
@@ -2553,60 +2494,10 @@ export default function SetupPage() {
     }
   }
 
+  // sessions/products/habits/ct → AppContext에서 공유
   useEffect(() => {
-    if (!auth) { setAuthLoading(false); return; }
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setAuthLoading(false);
-      if (!u) { setSessions([]); setProducts([]); }
-    });
-    return () => unsub();
-  }, []);
-
-  useEffect(() => {
-    if (authLoading || !user) { setLoadingSessions(false); return; }
-    if (!db) { setLoadingSessions(false); return; }
-    const q = query(collection(db, 'users', userId, 'routines'), orderBy('sessionNumber', 'desc'));
-    const unsub = onSnapshot(q, (snap) => {
-      setSessions(snap.docs.map((d) => migrateSession(d.data() as Record<string, unknown>, d.id)));
-      setLoadingSessions(false);
-    }, () => setLoadingSessions(false));
-    return () => unsub();
-  }, [userId, authLoading]);
-
-  useEffect(() => {
-    if (authLoading || !user || !db) return;
-    const q = query(collection(db, 'users', userId, 'products'), orderBy('createdAt', 'desc'));
-    const unsub = onSnapshot(q, (snap) => {
-      setProducts(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Product, 'id'>) })));
-    }, () => {});
-    return () => unsub();
-  }, [userId, authLoading]);
-
-  // Habits subscription
-  useEffect(() => {
-    if (authLoading || !user || !db) return;
-    const q = query(collection(db, 'users', userId, 'habits'), orderBy('createdAt', 'asc'));
-    const unsub = onSnapshot(q, (snap) => {
-      setHabits(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Habit, 'id'>) })));
-    }, () => {});
-    return () => unsub();
-  }, [userId, authLoading]);
-
-  // CT items subscriptions
-  useEffect(() => {
-    if (authLoading || !user || !db) return;
-    const makeCtSub = (col: string, setter: React.Dispatch<React.SetStateAction<CtItem[]>>) => {
-      const q = query(collection(db!, 'users', userId, col), orderBy('createdAt', 'desc'));
-      return onSnapshot(q, (snap) => {
-        setter(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<CtItem, 'id'>) })));
-      }, () => {});
-    };
-    const u1 = makeCtSub('careItems', setCareItems);
-    const u2 = makeCtSub('makeupItems', setMakeupItems);
-    const u3 = makeCtSub('lookItems', setLookItems);
-    return () => { u1(); u2(); u3(); };
-  }, [userId, authLoading]);
+    if (!authLoading) setLoadingSessions(false);
+  }, [authLoading]);
 
   async function handleLogin() {
     if (!auth) return;
@@ -2620,7 +2511,7 @@ export default function SetupPage() {
 
   async function handleLogout() {
     if (!auth) return;
-    try { await signOut(auth); setSessions([]); setProducts([]); }
+    try { await signOut(auth); }
     catch (err) { console.error('[OnStep] 로그아웃 실패:', err); }
   }
 

@@ -36,7 +36,9 @@ import {
   type User,
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
+import { useAppContext } from '@/lib/AppContext';
 import type { Product } from '@/types/product';
+import type { CtItem } from '@/types/ctitem';
 import PageHeader from '@/components/PageHeader';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
@@ -62,16 +64,7 @@ type DayLog = {
   entries: LogEntry[];
 };
 
-// Library CT 아이템 (setup의 makeupItems / lookItems)
-type CtItem = {
-  id: string;
-  ctType: 'makeup' | 'lookbook';
-  emoji: string;
-  name: string;
-  desc: string;
-  items: { type: string; id?: string }[];
-  published: boolean;
-};
+// CtItem → 공유 types/ctitem.ts에서 import
 
 // ─── 상수 ─────────────────────────────────────────────────────────────────────
 
@@ -680,8 +673,8 @@ function RecentStrip({
 function LibraryCard({ item, products }: { item: CtItem; products: Map<string, Product> }) {
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   const prodIds = item.items
-    .filter((r) => r.type === 'product' && r.id)
-    .map((r) => r.id as string);
+    .filter((r): r is { type: 'product'; id: string } => r.type === 'product')
+    .map((r) => r.id);
 
   return (
     <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03)', marginBottom: 10 }}>
@@ -787,44 +780,23 @@ function EmptyState({ isLoading }: { isLoading: boolean }) {
 // ─── 메인 페이지 컴포넌트 ─────────────────────────────────────────────────────
 
 export default function LogPage() {
-  // ── 인증 상태 ──
-  const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  // ── 공유 컨텍스트 ──
+  const { user, userId, authLoading, products: ctxProducts, makeupItems, lookItems } = useAppContext();
+  const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 캘린더 상태 ──
-  const [currentMonth, setCurrentMonth] = useState(new Date()); // 현재 보여주는 달
-  const [selectedDate, setSelectedDate] = useState<string | null>(null); // 선택된 날짜
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   // ── 탭 상태 ──
   const [mainTab, setMainTab] = useState<'log' | 'library'>('log');
   const [libFilter, setLibFilter] = useState<'makeup' | 'lookbook'>('makeup');
 
   // ── 데이터 상태 ──
-  // dayLogs: "YYYY-MM-DD" → DayLog 맵
   const [dayLogs, setDayLogs] = useState<Map<string, DayLog>>(new Map());
-  const [products, setProducts] = useState<Map<string, Product>>(new Map());
   const [dataLoading, setDataLoading] = useState(false);
 
-  // ── Library CT 데이터 ──
-  const [makeupItems, setMakeupItems] = useState<CtItem[]>([]);
-  const [lookItems, setLookItems] = useState<CtItem[]>([]);
-
-  // ── 현재 userId ──
-  const userId = user?.uid ?? FALLBACK_USER_ID;
-
-  // ── Firebase Auth 감지 ──
-  useEffect(() => {
-    if (!auth) {
-      setAuthLoading(false);
-      return;
-    }
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setAuthLoading(false);
-      if (!u) { setDayLogs(new Map()); setProducts(new Map()); setSelectedDate(null); }
-    });
-    return () => unsub();
-  }, []);
+  // auth/products/ct → AppContext에서 공유
 
   // ── 실시간 구독 1: 월별 사용 로그 ──
   useEffect(() => {
@@ -862,30 +834,7 @@ export default function LogPage() {
     return () => unsub();
   }, [userId, authLoading, user, currentMonth]);
 
-  // ── 실시간 구독 2: 제품 목록 ──
-  useEffect(() => {
-    if (authLoading || !user || !db) return;
-    const _db = db;
-    const unsub = onSnapshot(collection(_db, 'users', userId, 'products'), (snap) => {
-      const map = new Map<string, Product>();
-      snap.docs.forEach((d) => map.set(d.id, { id: d.id, ...(d.data() as Omit<Product, 'id'>) }));
-      setProducts(map);
-    }, (err) => console.error('[OnStep] 제품 로드 실패:', err));
-    return () => unsub();
-  }, [userId, authLoading, user]);
-
-  // ── 실시간 구독 3: Library CT 아이템 ──
-  useEffect(() => {
-    if (authLoading || !user || !db) return;
-    const _db = db;
-    const u1 = onSnapshot(collection(_db, 'users', userId, 'makeupItems'), (snap) => {
-      setMakeupItems(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CtItem)));
-    }, (err) => console.error('[OnStep] makeupItems 로드 실패:', err));
-    const u2 = onSnapshot(collection(_db, 'users', userId, 'lookItems'), (snap) => {
-      setLookItems(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CtItem)));
-    }, (err) => console.error('[OnStep] lookItems 로드 실패:', err));
-    return () => { u1(); u2(); };
-  }, [userId, authLoading, user]);
+  // products/makeupItems/lookItems → AppContext에서 공유
 
 
   // 날짜 선택 토글 (이미 선택된 날 클릭 → 선택 해제)
