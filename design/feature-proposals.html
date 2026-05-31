@@ -87,7 +87,14 @@ body {
 .appbar-menu span { height:1.5px; background:var(--ink); border-radius:1px; display:block }
 .appbar-menu span:nth-child(2) { width:14px }
 .appbar-menu span:nth-child(1), .appbar-menu span:nth-child(3) { width:20px }
-.avatar { width:28px; height:28px; border-radius:50%; background:var(--surface-mid); border:1.5px solid var(--border-md); display:flex; align-items:center; justify-content:center; font-size:13px }
+/* 앱바 오른쪽 — 캐릭터 아바타 */
+.avatar {
+  width:30px; height:30px; border-radius:50%;
+  overflow:hidden; flex-shrink:0;
+  border:1.5px solid var(--border-md);
+  box-shadow:0 1px 4px rgba(0,0,0,.1);
+}
+.avatar img { width:100%; height:100%; object-fit:cover; display:block }
 
 /* ── 페이지 헤더 영역 ── */
 .pg { padding:18px 14px 6px }
@@ -175,38 +182,115 @@ body {
 .streak-bar { margin:0 10px 6px; height:2px; background:var(--surface); border-radius:1px; overflow:hidden }
 .streak-fill { height:100%; width:83%; background:linear-gradient(90deg,var(--lime-dark),var(--lime)); border-radius:1px }
 
-/* FlowCard (기존) */
+/* FlowCard — 실제 앱과 동일 구조
+   제품 10~20개도 가로 스크롤로 대응 */
 .flow-card {
   margin:0 10px 8px;
-  border:1px solid var(--border); border-radius:var(--r-xl); overflow:hidden;
-  background:var(--bg);
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:20px; overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.03);
 }
-.flow-tabs { display:flex; gap:5px; padding:10px 12px 6px; background:var(--surface) }
+/* 탭 행 */
+.flow-tabs { display:flex; gap:5px; padding:10px 12px 0 }
 .flow-tab {
-  padding:3px 10px; border-radius:var(--r-full);
-  font-size:9px; font-weight:800; letter-spacing:.04em;
-  background:var(--surface-mid); color:var(--mist);
+  height:28px; padding:0 12px; border-radius:var(--r-full);
+  font-size:10px; font-weight:700; letter-spacing:.04em;
+  background:transparent; color:#BCBAB6;
+  border:1px solid rgba(12,12,10,.1); cursor:pointer;
 }
-.flow-tab.on { background:var(--ink); color:var(--bg) }
-.flow-step {
-  display:flex; align-items:center; gap:8px; padding:8px 12px;
-  border-top:1px solid var(--border); background:var(--bg);
+.flow-tab.on { background:#0C0C0A; color:var(--lime); border:none }
+/* 제품 칩 가로 스크롤 스트립 — 10~20개 모두 수용 */
+.chip-strip {
+  display:flex; gap:8px; overflow-x:auto; scrollbar-width:none;
+  align-items:flex-end; padding:10px 12px 0;
 }
-.fcheck {
-  width:18px; height:18px; border-radius:50%;
-  border:1.5px solid var(--border-md); flex-shrink:0;
-  display:flex; align-items:center; justify-content:center; font-size:9px;
+.chip-strip::-webkit-scrollbar { display:none }
+/* 스크롤 힌트 페이드 */
+.chip-wrap { position:relative; overflow:hidden }
+.chip-wrap::after {
+  content:''; pointer-events:none;
+  position:absolute; top:0; right:0; bottom:0; width:28px;
+  background:linear-gradient(to right, transparent, #fff);
 }
+/* 제품 칩 (90×90) */
+.prod-chip { flex-shrink:0; width:76px; display:flex; flex-direction:column; align-items:center }
+.prod-chip-img {
+  width:76px; height:76px; border-radius:10px;
+  background:var(--surface-low); border:1px solid rgba(0,0,0,.06);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; overflow:hidden; position:relative;
+}
+.prod-chip-img img { width:100%; height:100%; object-fit:cover; display:block }
+.prod-chip-name {
+  font-size:9px; font-weight:700; color:var(--ink); margin-top:4px;
+  text-align:center; line-height:1.2;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;
+}
+/* 설명 칩 (파란 pill) — 제품 사이 사용법 */
+.desc-chip {
+  flex-shrink:0; align-self:center;
+  padding:4px 9px; background:#2185fd; border-radius:14px;
+  font-size:10px; color:#fff; white-space:nowrap; line-height:1.4;
+}
+/* TIP 칩 */
+.tip-chip {
+  flex-shrink:0; align-self:center;
+  padding:0 7px; height:20px; background:rgba(197,255,0,.22);
+  border-radius:10px; font-size:9px; font-weight:800; color:#4E7D00;
+  display:inline-flex; align-items:center;
+}
+/* + 칩 */
+.plus-chip {
+  flex-shrink:0; align-self:center;
+  width:28px; height:20px; border-radius:10px;
+  background:rgba(33,150,243,.12); color:#1976D2;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:800;
+}
+/* 제품수 + Day 배지 행 */
+.flow-meta {
+  display:flex; justify-content:flex-end; align-items:center;
+  gap:6px; padding:8px 12px 0;
+}
+.flow-count { font-size:10px; color:#BCBAB6 }
+.flow-day {
+  font-size:8px; font-weight:800; letter-spacing:.1em;
+  background:#0C0C0A; color:var(--lime-dark);
+  padding:2px 9px; border-radius:var(--r-full);
+}
+/* EXPERT TIP */
+.expert-tip {
+  margin:8px 12px 0;
+  padding:11px 13px;
+  background:#F5FDD4; border:1px solid rgba(198,244,50,.5);
+  border-radius:14px;
+}
+.expert-tip-label {
+  font-size:9px; font-weight:800; color:var(--ink);
+  display:flex; align-items:center; gap:4px; margin-bottom:4px;
+  letter-spacing:.04em;
+}
+.expert-tip-label::before { content:'●'; font-size:5px; color:var(--lime-dark) }
+.expert-tip-text { font-size:11px; color:var(--sub); line-height:1.6 }
+.prod-hl { font-weight:700; color:var(--ink) }
+/* 완료 버튼 */
+.flow-done-btn {
+  margin:10px 12px 12px; height:36px; width:calc(100% - 24px);
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  background:var(--surface); border:1.5px solid rgba(12,12,10,.1);
+  border-radius:var(--r-full); font-size:10px; font-weight:700; color:var(--sub);
+  cursor:pointer;
+}
+.flow-done-btn.done {
+  background:var(--lime); border-color:#84B000; color:var(--ink);
+}
+/* 레거시 — 오버레이 화면 축약형으로만 사용 */
+.fcheck { width:16px; height:16px; border-radius:50%; border:1.5px solid var(--border-md); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:8px }
 .fcheck.done { background:var(--lime); border-color:var(--lime) }
 .fname { font-size:11px; font-weight:600; color:var(--ink) }
 .fdesc { font-size:9px; color:var(--mist); margin-top:1px }
-.flow-cta {
-  margin:8px 12px 12px;
-  padding:9px;
-  background:var(--ink); color:var(--bg);
-  border-radius:var(--r-full); text-align:center;
-  font-size:10px; font-weight:800; cursor:pointer;
-}
+.flow-step { display:flex; align-items:center; gap:8px; padding:7px 12px; border-top:1px solid var(--border) }
 
 /* 습관 섹션 (기존) */
 .habit-row {
@@ -492,7 +576,7 @@ body {
             <img src="logo.png" class="appbar-logo" onerror="this.style.display='none'">
             OnStep
           </div>
-          <div class="avatar">😊</div>
+          <div class="avatar"><img src="logo.png" alt="캐릭터" onerror="this.parentElement.style.background='var(--surface-mid)';this.remove()"></div>
         </div>
 
         <div class="scroll">
@@ -526,26 +610,70 @@ body {
           </div>
           <div class="streak-bar"><div class="streak-fill"></div></div>
 
-          <!-- #Flow (기존) -->
+          <!-- #Flow (기존 — 실제 앱 구조 그대로) -->
           <div class="sh existing"><h3>#Flow</h3><div class="action">Day 12</div></div>
           <div class="flow-card existing">
+            <!-- 탭 -->
             <div class="flow-tabs">
               <div class="flow-tab on">☀ MORNING</div>
               <div class="flow-tab">🌙 NIGHT</div>
             </div>
-            <div class="flow-step">
-              <div class="fcheck done">✓</div>
-              <div><div class="fname">물마스크</div><div class="fdesc">10분 후 러빙하여 흡수</div></div>
+            <!-- 제품 사진 + 설명 칩 가로 스크롤 -->
+            <div class="chip-wrap">
+              <div class="chip-strip">
+                <div class="prod-chip">
+                  <div class="prod-chip-img">🧴</div>
+                  <div class="prod-chip-name">물마스크</div>
+                </div>
+                <div class="desc-chip">10분 뒤 러빙</div>
+                <div class="prod-chip">
+                  <div class="prod-chip-img">💧</div>
+                  <div class="prod-chip-name">델마크림</div>
+                </div>
+                <div class="plus-chip">+</div>
+                <div class="prod-chip">
+                  <div class="prod-chip-img">🫙</div>
+                  <div class="prod-chip-name">델마마스크</div>
+                </div>
+                <div class="desc-chip">섞어서 바름</div>
+                <div class="prod-chip">
+                  <div class="prod-chip-img">✨</div>
+                  <div class="prod-chip-name">델마세럼</div>
+                </div>
+                <div class="plus-chip">+</div>
+                <div class="prod-chip">
+                  <div class="prod-chip-img">🌿</div>
+                  <div class="prod-chip-name">디스킨</div>
+                </div>
+                <div class="plus-chip">+</div>
+                <div class="prod-chip">
+                  <div class="prod-chip-img">⭐</div>
+                  <div class="prod-chip-name">라이지피엠</div>
+                </div>
+                <div class="plus-chip">+</div>
+                <div class="prod-chip">
+                  <div class="prod-chip-img">🌸</div>
+                  <div class="prod-chip-name">레이어드밤</div>
+                </div>
+                <div class="desc-chip">섞어 마무리</div>
+              </div>
             </div>
-            <div class="flow-step">
-              <div class="fcheck done">✓</div>
-              <div><div class="fname">델마크림 + 델마마스크</div><div class="fdesc">섞어서 바름</div></div>
+            <!-- 제품 수 + Day 배지 -->
+            <div class="flow-meta">
+              <span class="flow-count">7개 제품</span>
+              <span class="flow-day">DAY 12</span>
             </div>
-            <div class="flow-step">
-              <div class="fcheck"></div>
-              <div><div class="fname">델마세럼 + 레이어드밤</div><div class="fdesc">섞어서 마무리</div></div>
+            <!-- EXPERT TIP -->
+            <div class="expert-tip">
+              <div class="expert-tip-label">EXPERT TIP</div>
+              <div class="expert-tip-text">
+                <span class="prod-hl">델마크림</span>과 <span class="prod-hl">델마마스크</span>를 1:1로 섞은 뒤,
+                <span class="prod-hl">델마세럼</span>·<span class="prod-hl">디스킨</span>·<span class="prod-hl">레이어드밤</span>을
+                한꺼번에 혼합해 얇게 마무리할 것.
+              </div>
             </div>
-            <div class="flow-cta">MORNING 완료하기 →</div>
+            <!-- 완료 버튼 -->
+            <div class="flow-done-btn">MORNING 완료하기 →</div>
           </div>
 
           <!-- ★ 소진 임박 알림 (신규 추가) -->
@@ -605,7 +733,7 @@ body {
         <div class="appbar">
           <div class="appbar-menu"><span></span><span></span><span></span></div>
           <div class="appbar-l">OnStep</div>
-          <div class="avatar">😊</div>
+          <div class="avatar"><img src="logo.png" alt="캐릭터" onerror="this.parentElement.style.background='var(--surface-mid)';this.remove()"></div>
         </div>
         <div class="scroll">
           <div class="pg">
@@ -710,7 +838,7 @@ body {
         <div class="appbar">
           <div class="appbar-menu"><span></span><span></span><span></span></div>
           <div class="appbar-l">OnStep</div>
-          <div class="avatar">😊</div>
+          <div class="avatar"><img src="logo.png" alt="캐릭터" onerror="this.parentElement.style.background='var(--surface-mid)';this.remove()"></div>
         </div>
         <div class="scroll">
           <div class="pg">
@@ -808,7 +936,7 @@ body {
         <div class="appbar">
           <div class="appbar-menu"><span></span><span></span><span></span></div>
           <div class="appbar-l">OnStep</div>
-          <div class="avatar">😊</div>
+          <div class="avatar"><img src="logo.png" alt="캐릭터" onerror="this.parentElement.style.background='var(--surface-mid)';this.remove()"></div>
         </div>
         <div class="scroll">
           <div class="pg">
@@ -880,7 +1008,7 @@ body {
         <div class="appbar">
           <div class="appbar-menu"><span></span><span></span><span></span></div>
           <div class="appbar-l">OnStep</div>
-          <div class="avatar">😊</div>
+          <div class="avatar"><img src="logo.png" alt="캐릭터" onerror="this.parentElement.style.background='var(--surface-mid)';this.remove()"></div>
         </div>
         <div class="scroll">
           <!-- LOG 페이지 헤더: 캐릭터 + 타이틀 나란히 -->
@@ -1043,13 +1171,22 @@ body {
       <div class="phone" style="height:560px">
         <div class="notch"><div class="notch-bar"></div></div>
         <div style="flex:1;position:relative;overflow:hidden">
-          <!-- 기존 TODAY 배경 -->
+          <!-- 기존 TODAY 배경 (FlowCard 실제 구조) -->
           <div class="existing" style="padding:14px">
             <div class="flow-card">
               <div class="flow-tabs"><div class="flow-tab on">☀ MORNING</div><div class="flow-tab">🌙 NIGHT</div></div>
-              <div class="flow-step"><div class="fcheck done">✓</div><div><div class="fname">물마스크</div></div></div>
-              <div class="flow-step"><div class="fcheck done">✓</div><div><div class="fname">델마크림</div></div></div>
-              <div class="flow-step"><div class="fcheck done">✓</div><div><div class="fname">델마세럼</div></div></div>
+              <div class="chip-wrap">
+                <div class="chip-strip">
+                  <div class="prod-chip"><div class="prod-chip-img" style="background:rgba(197,255,0,.2)"><span style="font-size:10px;color:#4E7D00;font-weight:800">✓</span></div><div class="prod-chip-name">물마스크</div></div>
+                  <div class="desc-chip" style="opacity:.6">10분 뒤 러빙</div>
+                  <div class="prod-chip"><div class="prod-chip-img" style="background:rgba(197,255,0,.2)"><span style="font-size:10px;color:#4E7D00;font-weight:800">✓</span></div><div class="prod-chip-name">델마크림</div></div>
+                  <div class="plus-chip" style="opacity:.6">+</div>
+                  <div class="prod-chip"><div class="prod-chip-img" style="background:rgba(197,255,0,.2)"><span style="font-size:10px;color:#4E7D00;font-weight:800">✓</span></div><div class="prod-chip-name">델마마스크</div></div>
+                  <div class="prod-chip"><div class="prod-chip-img"><span style="font-size:16px">✨</span></div><div class="prod-chip-name">델마세럼</div></div>
+                </div>
+              </div>
+              <div class="flow-meta"><span class="flow-count">7개 제품</span><span class="flow-day">DAY 12</span></div>
+              <div class="flow-done-btn done">✓ MORNING 완료</div>
             </div>
           </div>
           <!-- 딤 -->
@@ -1093,7 +1230,15 @@ body {
           <div class="existing" style="padding:14px">
             <div class="flow-card">
               <div class="flow-tabs"><div class="flow-tab on">☀ MORNING</div><div class="flow-tab">🌙 NIGHT</div></div>
-              <div class="flow-step"><div class="fcheck done">✓</div><div><div class="fname">완료</div></div></div>
+              <div class="chip-wrap">
+                <div class="chip-strip">
+                  <div class="prod-chip"><div class="prod-chip-img" style="background:rgba(197,255,0,.2)"><span style="font-size:10px;color:#4E7D00;font-weight:800">✓</span></div><div class="prod-chip-name">물마스크</div></div>
+                  <div class="prod-chip"><div class="prod-chip-img" style="background:rgba(197,255,0,.2)"><span style="font-size:10px;color:#4E7D00;font-weight:800">✓</span></div><div class="prod-chip-name">델마크림</div></div>
+                  <div class="prod-chip"><div class="prod-chip-img" style="background:rgba(197,255,0,.2)"><span style="font-size:10px;color:#4E7D00;font-weight:800">✓</span></div><div class="prod-chip-name">델마세럼</div></div>
+                </div>
+              </div>
+              <div class="flow-meta"><span class="flow-count">7개 제품</span><span class="flow-day">DAY 12</span></div>
+              <div class="flow-done-btn done">✓ MORNING 완료</div>
             </div>
           </div>
           <div class="dim"></div>
