@@ -1202,64 +1202,50 @@ function LogCtPanel({
     } catch { setSImageFile(file); }
   }
 
-  // CtCard (setup과 동일 CSS)
-  function CtCard({ item }: { item: CtItem }) {
-    const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
+  // HubCard 스타일 카드 — setup HubView와 동일한 구조
+  const BG = filter === 'makeup'
+    ? 'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)'
+    : 'linear-gradient(135deg,#fff0f5 0%,#ffc0d0 100%)';
+  const BADGE = filter === 'makeup' ? '#MAKEUP' : '#LOOKBOOK';
+
+  function HubStyleCard({ item }: { item: CtItem }) {
     const today = format(new Date(), 'yyyy-MM-dd');
     const isOnToday = item.published && (item.dates ?? []).includes(today);
+    const prodCount = item.items.filter(i => i.type === 'product').length;
+    const sub = item.tpo?.length ? item.tpo.slice(0, 2).join(' · ') : item.desc ? item.desc.slice(0, 24) : `${prodCount}개 제품`;
+
     return (
-      <div style={{ background: '#fff', border: `1.5px solid ${item.published ? '#0C0C0A' : 'rgba(12,12,10,.07)'}`, borderRadius: 16, overflow: 'hidden', marginBottom: 12, transition: 'border-color .2s' }}>
-        <div style={{ padding: '14px 16px 10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{item.emoji}</span>
-            <span style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#0C0C0A', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
-            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, padding: '3px 8px', borderRadius: 8, flexShrink: 0, background: item.published ? '#0C0C0A' : '#E4E2DC', color: item.published ? '#fff' : '#9A9490' }}>
-              {isOnToday ? 'TODAY' : item.published ? 'ON' : 'OFF'}
-            </span>
-          </div>
-          {item.imageUrl && (
-            <div style={{ width: '100%', aspectRatio: filter === 'lookbook' ? '3/4' : '4/3', borderRadius: 12, overflow: 'hidden', marginBottom: 8, background: '#EEEDE9' }}>
-              <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-          )}
-          {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', lineHeight: 1.5, marginBottom: 10 }}>{item.desc}</div>}
-          {item.sourceUrl && (
-            <a href={item.sourceUrl} target="_blank" rel="noreferrer" style={{ fontFamily: f, fontSize: 11, color: '#4A7700', marginBottom: 8, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-              🔗 {(() => { try { return new URL(item.sourceUrl).hostname; } catch { return item.sourceUrl; } })()}
-            </a>
-          )}
-          {prodItems.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingBottom: 4, marginBottom: 8 }}>
-              {prodItems.map((it, idx) => {
-                const p = products.find(pr => pr.id === it.id);
-                const imgSrc = p?.imageUrl || p?.storageUrl;
-                return (
-                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 56 }}>
-                    <div style={{ width: 56, height: 56, borderRadius: 10, background: '#EEEDE9', border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 4 }}>
-                      {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 18, opacity: 0.3 }}>✦</span>}
-                    </div>
-                    <div style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, wordBreak: 'break-word' as const }}>{p?.name ?? ''}</div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-          {item.dates && item.dates.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
-              {item.dates.map(d => <span key={d} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: d === today ? '#0C0C0A' : '#E4E2DC', color: d === today ? '#C5FF00' : '#4A4846' }}>{d === today ? '오늘' : fmtDate(d)}</span>)}
-            </div>
-          )}
-          {item.tpo && item.tpo.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
-              {item.tpo.map(tp => <span key={tp} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'rgba(197,255,0,.15)', color: '#4E7D00', border: '1px solid rgba(132,176,0,.3)' }}>{tp}</span>)}
-            </div>
+      <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03)', transition: 'transform .15s', display: 'block' }}>
+        {/* 상단 히어로 영역 — aspectRatio 1/1.5 */}
+        <div style={{ width: '100%', aspectRatio: '1/1.5', background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, overflow: 'hidden', position: 'relative' }}>
+          {item.imageUrl
+            ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            : item.emoji || (filter === 'makeup' ? '💄' : '👗')
+          }
+          {isOnToday && (
+            <div style={{ position: 'absolute', top: 8, right: 8, background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 9, fontWeight: 800, letterSpacing: '.1em', padding: '3px 7px', borderRadius: 9999 }}>TODAY</div>
           )}
         </div>
-        <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 16px 12px', display: 'flex', gap: 8 }}>
-          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: 10, background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.08)', color: item.published ? '#fff' : '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+
+        {/* 뱃지 + 제목 + 서브 */}
+        <div style={{ padding: '10px 12px 0' }}>
+          <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>{BADGE}</div>
+          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, marginBottom: 3, letterSpacing: '-.01em', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, color: '#9A9490', paddingBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{sub}</div>
+        </div>
+
+        {/* CTA 푸터 — Today 토글 + 편집 */}
+        <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 12px', display: 'flex', gap: 6 }}>
+          <button
+            onClick={() => togglePublished(item)}
+            style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#fff' : '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}
+          >
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
-          <button onClick={() => openEdit(item)} style={{ padding: '10px 14px', background: '#EEEDE9', color: '#4A4846', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>편집</button>
+          <button
+            onClick={() => openEdit(item)}
+            style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+          >편집</button>
         </div>
       </div>
     );
@@ -1284,7 +1270,7 @@ function LogCtPanel({
 
   return (
     <>
-      {/* 카드 목록 */}
+      {/* 카드 목록 — setup HubView와 동일한 2열 엇갈림 그리드 */}
       <div style={{ padding: '0 16px' }}>
         <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', color: '#9A9490', cursor: 'pointer', marginBottom: 12 }}>
           + 새 {colLabel} 등록
@@ -1295,7 +1281,18 @@ function LogCtPanel({
             <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#9A9490' }}>{colLabel} 아이템이 없어요</div>
             <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 6 }}>위 버튼으로 추가하세요</div>
           </div>
-        ) : items.map(item => <CtCard key={item.id} item={item} />)}
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
+            {/* 왼쪽 컬럼 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {items.filter((_, i) => i % 2 === 0).map(item => <HubStyleCard key={item.id} item={item} />)}
+            </div>
+            {/* 오른쪽 컬럼 — setup과 동일하게 paddingTop: 64 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 64 }}>
+              {items.filter((_, i) => i % 2 === 1).map(item => <HubStyleCard key={item.id} item={item} />)}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 편집 시트 */}
