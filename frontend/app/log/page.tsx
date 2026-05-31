@@ -929,15 +929,24 @@ function AddItemSheet({
         createdAt: now, updatedAt: now,
       });
 
-      // 2단계: 이미지 업로드 (별도 처리 — 실패해도 아이템은 저장됨)
-      if (imgFile && storage) {
-        try {
-          const imgRef = storageRef(storage, `users/${userId}/${colName}/${ref.id}.jpg`);
-          const snap = await uploadBytes(imgRef, imgFile);
-          const imageUrl = await getDownloadURL(snap.ref);
-          await updateDoc(doc(db, 'users', userId, colName, ref.id), { imageUrl, updatedAt: new Date().toISOString() });
-        } catch (imgErr) {
-          console.warn('[OnStep] 이미지 업로드 실패 (아이템은 저장됨):', imgErr);
+      // 2단계: 이미지 업로드
+      if (imgFile) {
+        if (!storage) {
+          alert('Storage 미설정: .env.local의 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET을 확인하세요.');
+        } else {
+          try {
+            // 30초 타임아웃
+            const uploadWithTimeout = Promise.race([
+              uploadBytes(storageRef(storage, `users/${userId}/${colName}/${ref.id}.jpg`), imgFile),
+              new Promise<never>((_, rej) => setTimeout(() => rej(new Error('업로드 타임아웃 (30초)')), 30000)),
+            ]);
+            const snap = await uploadWithTimeout;
+            const imageUrl = await getDownloadURL((snap as Awaited<ReturnType<typeof uploadBytes>>).ref);
+            await updateDoc(doc(db, 'users', userId, colName, ref.id), { imageUrl, updatedAt: new Date().toISOString() });
+          } catch (imgErr) {
+            const msg = imgErr instanceof Error ? imgErr.message : String(imgErr);
+            alert(`이미지 업로드 실패: ${msg}\n아이템은 저장됐습니다. 편집에서 이미지를 다시 추가할 수 있습니다.`);
+          }
         }
       }
 
@@ -1190,15 +1199,23 @@ function LogCtPanel({
         itemId = await onAdd(data);
       }
 
-      // 2단계: 이미지 업로드 (실패해도 아이템은 저장됨)
-      if (sImageFile && storage && itemId) {
-        try {
-          const imgRef = storageRef(storage, `users/${userId}/${colName}/${itemId}.jpg`);
-          const snap = await uploadBytes(imgRef, sImageFile);
-          const imageUrl = await getDownloadURL(snap.ref);
-          await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
-        } catch (imgErr) {
-          console.warn('[OnStep] 이미지 업로드 실패 (아이템은 저장됨):', imgErr);
+      // 2단계: 이미지 업로드
+      if (sImageFile && itemId) {
+        if (!storage) {
+          alert('Storage 미설정: .env.local의 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET을 확인하세요.');
+        } else {
+          try {
+            const uploadWithTimeout = Promise.race([
+              uploadBytes(storageRef(storage, `users/${userId}/${colName}/${itemId}.jpg`), sImageFile),
+              new Promise<never>((_, rej) => setTimeout(() => rej(new Error('업로드 타임아웃 (30초)')), 30000)),
+            ]);
+            const snap = await uploadWithTimeout;
+            const imageUrl = await getDownloadURL((snap as Awaited<ReturnType<typeof uploadBytes>>).ref);
+            await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
+          } catch (imgErr) {
+            const msg = imgErr instanceof Error ? imgErr.message : String(imgErr);
+            alert(`이미지 업로드 실패: ${msg}\n아이템은 저장됐습니다.`);
+          }
         }
       }
       closeSheet();

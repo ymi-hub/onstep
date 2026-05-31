@@ -1895,16 +1895,24 @@ function CtPanel({
         itemId = await onAdd(data);
       }
 
-      // 이미지 업로드 — 실패해도 아이템은 저장됨
-      if (sImageFile && storage && itemId) {
-        try {
-          const colName = ctType === 'care' ? 'careItems' : ctType === 'makeup' ? 'makeupItems' : 'lookItems';
-          const imgRef = storageRef(storage, `users/${userId}/${colName}/${itemId}.jpg`);
-          const snap = await uploadBytes(imgRef, sImageFile);
-          const imageUrl = await getDownloadURL(snap.ref);
-          await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
-        } catch (imgErr) {
-          console.warn('[OnStep] 이미지 업로드 실패 (아이템은 저장됨):', imgErr);
+      // 이미지 업로드
+      if (sImageFile && itemId) {
+        if (!storage) {
+          alert('Storage 미설정: .env.local의 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET을 확인하세요.');
+        } else {
+          try {
+            const colName = ctType === 'care' ? 'careItems' : ctType === 'makeup' ? 'makeupItems' : 'lookItems';
+            const uploadWithTimeout = Promise.race([
+              uploadBytes(storageRef(storage, `users/${userId}/${colName}/${itemId}.jpg`), sImageFile),
+              new Promise<never>((_, rej) => setTimeout(() => rej(new Error('업로드 타임아웃 (30초)')), 30000)),
+            ]);
+            const snap = await uploadWithTimeout;
+            const imageUrl = await getDownloadURL((snap as Awaited<ReturnType<typeof uploadBytes>>).ref);
+            await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
+          } catch (imgErr) {
+            const msg = imgErr instanceof Error ? imgErr.message : String(imgErr);
+            alert(`이미지 업로드 실패: ${msg}\n아이템은 저장됐습니다.`);
+          }
         }
       }
 

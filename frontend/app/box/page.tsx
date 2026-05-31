@@ -867,15 +867,23 @@ export default function BoxPage() {
         productId = docRef.id;
       }
 
-      // 이미지 업로드 — 실패해도 제품은 저장됨
-      if (form.imageFile && storage) {
-        try {
-          const imgRef = storageRef(storage, `users/${userId}/products/${productId}.jpg`);
-          const snap = await uploadBytes(imgRef, form.imageFile);
-          const imageUrl = await getDownloadURL(snap.ref);
-          await updateDoc(doc(db, 'users', userId, 'products', productId), { imageUrl });
-        } catch (imgErr) {
-          console.warn('[OnStep] 이미지 업로드 실패 (제품은 저장됨):', imgErr);
+      // 이미지 업로드
+      if (form.imageFile) {
+        if (!storage) {
+          alert('Storage 미설정: .env.local의 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET을 확인하세요.');
+        } else {
+          try {
+            const uploadWithTimeout = Promise.race([
+              uploadBytes(storageRef(storage, `users/${userId}/products/${productId}.jpg`), form.imageFile),
+              new Promise<never>((_, rej) => setTimeout(() => rej(new Error('업로드 타임아웃 (30초)')), 30000)),
+            ]);
+            const snap = await uploadWithTimeout;
+            const imageUrl = await getDownloadURL((snap as Awaited<ReturnType<typeof uploadBytes>>).ref);
+            await updateDoc(doc(db, 'users', userId, 'products', productId), { imageUrl });
+          } catch (imgErr) {
+            const msg = imgErr instanceof Error ? imgErr.message : String(imgErr);
+            alert(`이미지 업로드 실패: ${msg}\n제품은 저장됐습니다.`);
+          }
         }
       }
 
