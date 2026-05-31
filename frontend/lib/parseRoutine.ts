@@ -54,7 +54,7 @@ async function callGroq(prompt: string, maxTokens = 800): Promise<string> {
   if (!apiKey) throw new Error('Groq API 키가 없습니다. .env.local에 NEXT_PUBLIC_GROQ_API_KEY를 추가하세요.');
 
   const body = JSON.stringify({
-    model: 'gemma2-9b-it',  // TPM 15,000 (llama-3.1-8b-instant의 2.5배)
+    model: 'llama-3.3-70b-versatile',  // TPM 300K
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.1,
     max_tokens: maxTokens,
