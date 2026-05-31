@@ -916,23 +916,35 @@ function AddItemSheet({
     try {
       const now = new Date().toISOString();
       const colName = ctType === 'makeup' ? 'makeupItems' : 'lookItems';
-      let imageUrl = '';
-      if (imgFile && storage) {
-        const path = `users/${userId}/${colName}/${Date.now()}.jpg`;
-        const snap = await uploadBytes(storageRef(storage, path), imgFile);
-        imageUrl = await getDownloadURL(snap.ref);
-      }
       const items: RoutineItem[] = Array.from(selectedProds).map(id => ({ type: 'product', id }));
-      await addDoc(collection(db, 'users', userId, colName), {
+
+      // 1단계: 이미지 없이 먼저 저장 (빠른 완료 보장)
+      const ref = await addDoc(collection(db, 'users', userId, colName), {
         ctType, emoji: emoji || (ctType === 'makeup' ? '💄' : '👗'),
         name: name.trim(), desc: desc.trim(),
         items, tipItems: [], expertTip: '',
-        ...(imageUrl ? { imageUrl } : {}),
         ...(ctType === 'lookbook' && tpo.length > 0 ? { tpo } : {}),
         published: false, dates: [],
         createdAt: now, updatedAt: now,
       });
+
+      // 2단계: 이미지 업로드 (별도 처리 — 실패해도 아이템은 저장됨)
+      if (imgFile && storage) {
+        try {
+          const imgRef = storageRef(storage, `users/${userId}/${colName}/${ref.id}.jpg`);
+          const snap = await uploadBytes(imgRef, imgFile);
+          const imageUrl = await getDownloadURL(snap.ref);
+          const { updateDoc: upd, doc: docRef } = await import('firebase/firestore');
+          await upd(docRef(db, 'users', userId, colName, ref.id), { imageUrl, updatedAt: new Date().toISOString() });
+        } catch (imgErr) {
+          console.warn('[OnStep] 이미지 업로드 실패 (아이템은 저장됨):', imgErr);
+        }
+      }
+
       onSaved();
+    } catch (err) {
+      console.error('[OnStep] 저장 실패:', err);
+      alert('저장에 실패했습니다. 로그인 상태를 확인해주세요.');
     } finally {
       setSaving(false);
     }
@@ -1169,6 +1181,7 @@ function LogCtPanel({
       ...(filter === 'lookbook' ? { tpo: sTpo } : {}),
     };
     try {
+      // 1단계: 이미지 없이 먼저 저장
       let itemId: string;
       if (editItem) {
         await onUpdate(editItem.id, { ...data, updatedAt: now });
@@ -1176,15 +1189,22 @@ function LogCtPanel({
       } else {
         itemId = await onAdd(data);
       }
+
+      // 2단계: 이미지 업로드 (실패해도 아이템은 저장됨)
       if (sImageFile && storage && itemId) {
-        const imgRef = storageRef(storage, `users/${userId}/${colName}/${itemId}.jpg`);
-        const snap = await uploadBytes(imgRef, sImageFile);
-        const imageUrl = await getDownloadURL(snap.ref);
-        await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
+        try {
+          const imgRef = storageRef(storage, `users/${userId}/${colName}/${itemId}.jpg`);
+          const snap = await uploadBytes(imgRef, sImageFile);
+          const imageUrl = await getDownloadURL(snap.ref);
+          await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
+        } catch (imgErr) {
+          console.warn('[OnStep] 이미지 업로드 실패 (아이템은 저장됨):', imgErr);
+        }
       }
       closeSheet();
     } catch (err) {
       console.error('[LogCtPanel] 저장 실패:', err);
+      alert('저장에 실패했습니다. 로그인 상태를 확인해주세요.');
     } finally { setSaving(false); }
   }
 

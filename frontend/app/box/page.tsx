@@ -867,12 +867,16 @@ export default function BoxPage() {
         productId = docRef.id;
       }
 
-      // 새 이미지 파일이 선택된 경우 Firebase Storage에 업로드
+      // 이미지 업로드 — 실패해도 제품은 저장됨
       if (form.imageFile && storage) {
-        const imgRef = storageRef(storage, `users/${userId}/products/${productId}.jpg`);
-        await uploadBytes(imgRef, form.imageFile);
-        const imageUrl = await getDownloadURL(imgRef);
-        await updateDoc(doc(db, 'users', userId, 'products', productId), { imageUrl });
+        try {
+          const imgRef = storageRef(storage, `users/${userId}/products/${productId}.jpg`);
+          const snap = await uploadBytes(imgRef, form.imageFile);
+          const imageUrl = await getDownloadURL(snap.ref);
+          await updateDoc(doc(db, 'users', userId, 'products', productId), { imageUrl });
+        } catch (imgErr) {
+          console.warn('[OnStep] 이미지 업로드 실패 (제품은 저장됨):', imgErr);
+        }
       }
 
       setForm(INITIAL_FORM);

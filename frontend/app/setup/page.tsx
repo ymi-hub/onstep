@@ -1895,12 +1895,17 @@ function CtPanel({
         itemId = await onAdd(data);
       }
 
-      // 새 이미지 파일이 선택된 경우 Firebase Storage에 업로드
+      // 이미지 업로드 — 실패해도 아이템은 저장됨
       if (sImageFile && storage && itemId) {
-        const imgRef = storageRef(storage, `users/${userId}/lookItems/${itemId}.jpg`);
-        await uploadBytes(imgRef, sImageFile);
-        const imageUrl = await getDownloadURL(imgRef);
-        await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
+        try {
+          const colName = ctType === 'care' ? 'careItems' : ctType === 'makeup' ? 'makeupItems' : 'lookItems';
+          const imgRef = storageRef(storage, `users/${userId}/${colName}/${itemId}.jpg`);
+          const snap = await uploadBytes(imgRef, sImageFile);
+          const imageUrl = await getDownloadURL(snap.ref);
+          await onUpdate(itemId, { imageUrl, updatedAt: new Date().toISOString() });
+        } catch (imgErr) {
+          console.warn('[OnStep] 이미지 업로드 실패 (아이템은 저장됨):', imgErr);
+        }
       }
 
       closeSheet();
