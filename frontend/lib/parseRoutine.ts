@@ -33,14 +33,13 @@ export type ParsedResult = {
 // ── 공통 유틸 ────────────────────────────────────────────────────────────────
 
 function cleanJson(raw: string): string {
-  // 마크다운 코드 블록 제거
+  // 마크다운 코드 블록 제거 (```json, ```python, ``` 등 모든 언어 태그 처리)
   let s = raw
-    .replace(/^```json\s*/i, '')
-    .replace(/^```\s*/i, '')
+    .replace(/^```[a-z]*\s*/i, '')
     .replace(/\s*```$/i, '')
     .trim();
 
-  // 모델이 JSON 앞뒤에 한국어 설명을 붙인 경우 → { } 범위만 추출
+  // 모델이 JSON 앞뒤에 설명을 붙인 경우 → { } 범위만 추출
   const start = s.indexOf('{');
   const end = s.lastIndexOf('}');
   if (start !== -1 && end !== -1 && start < end) {
