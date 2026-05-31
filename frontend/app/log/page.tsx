@@ -32,6 +32,7 @@ import {
   orderBy,
   updateDoc,
   addDoc,
+  deleteDoc,
   doc,
 } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -934,8 +935,7 @@ function AddItemSheet({
           const imgRef = storageRef(storage, `users/${userId}/${colName}/${ref.id}.jpg`);
           const snap = await uploadBytes(imgRef, imgFile);
           const imageUrl = await getDownloadURL(snap.ref);
-          const { updateDoc: upd, doc: docRef } = await import('firebase/firestore');
-          await upd(docRef(db, 'users', userId, colName, ref.id), { imageUrl, updatedAt: new Date().toISOString() });
+          await updateDoc(doc(db, 'users', userId, colName, ref.id), { imageUrl, updatedAt: new Date().toISOString() });
         } catch (imgErr) {
           console.warn('[OnStep] 이미지 업로드 실패 (아이템은 저장됨):', imgErr);
         }
@@ -1639,8 +1639,7 @@ export default function LogPage() {
   }
   async function handleCtDelete(filter: 'makeup' | 'lookbook', id: string) {
     if (!db) return;
-    const { deleteDoc: del } = await import('firebase/firestore');
-    await del(doc(db, 'users', userId, filter === 'makeup' ? 'makeupItems' : 'lookItems', id));
+    await deleteDoc(doc(db, 'users', userId, filter === 'makeup' ? 'makeupItems' : 'lookItems', id));
   }
 
   // Today 즉시 적용/해제 — Firestore 업데이트 → AppContext onSnapshot 자동 반영
