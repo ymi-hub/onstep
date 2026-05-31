@@ -235,25 +235,25 @@ function GroqUsageSection() {
 
   return (
     <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03)' }}>
-      {/* 상단 그라데이션 영역 — 다른 HubCard와 동일한 구조 */}
-      <div style={{ width: '100%', aspectRatio: '1/1.5', background: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-        <div style={{ fontSize: 40 }}>✨</div>
-        {/* 수치 */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C0C0A' }}>{count.toLocaleString()}</div>
-          <div style={{ fontFamily: f, fontSize: 11, color: '#4A6600', fontWeight: 700, marginTop: 2 }}>{remaining.toLocaleString()}회 남음</div>
-        </div>
-        {/* 프로그레스 바 */}
-        <div style={{ width: '60%', height: 5, background: 'rgba(12,12,10,.15)', borderRadius: 9999, overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${pct}%`, background: pct > 80 ? '#E94F6B' : '#0C0C0A', borderRadius: 9999, transition: 'width .4s ease' }} />
-        </div>
-      </div>
+      {/* 상단 — HubCard와 완전히 동일: 그라데이션 + 이모지만 */}
+      <div style={{ width: '100%', aspectRatio: '1/1.5', background: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>✨</div>
 
-      {/* 뱃지 + 타이틀 + 서브타이틀 */}
+      {/* 뱃지 + 타이틀 + 서브 */}
       <div style={{ padding: '10px 12px 0' }}>
         <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>#AI</div>
         <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, marginBottom: 3, letterSpacing: '-.01em' }}>AI 사용량</div>
-        <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' as const, color: '#9A9490', paddingBottom: 10 }}>GROQ FREE TIER</div>
+        <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' as const, color: '#9A9490' }}>GROQ FREE TIER</div>
+      </div>
+
+      {/* 수치 + 프로그레스 바 */}
+      <div style={{ padding: '10px 12px 12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+          <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#0C0C0A' }}>{count.toLocaleString()}<span style={{ fontSize: 10, fontWeight: 600, color: '#9A9490', marginLeft: 3 }}>/ {DAILY_LIMIT.toLocaleString()}</span></span>
+          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A7700' }}>{remaining.toLocaleString()} 남음</span>
+        </div>
+        <div style={{ height: 4, background: 'rgba(12,12,10,.07)', borderRadius: 9999, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${pct}%`, background: pct > 80 ? '#E94F6B' : '#C5FF00', borderRadius: 9999, transition: 'width .4s ease' }} />
+        </div>
       </div>
 
       {/* CTA 푸터 */}
