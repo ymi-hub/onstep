@@ -179,28 +179,30 @@ body{
 .w-temp{font-size:13px;font-weight:800;color:var(--ink)}
 .w-desc{font-size:9px;color:var(--mist)}
 
-/* 스트릭 + 진행 */
+/* 스트릭 + 진행 — 파스텔 세이지 */
 .streak-bar-card{
   margin:4px 10px 6px;
-  background:var(--ink);border-radius:var(--r-xl);padding:12px 14px;
+  background:linear-gradient(135deg, #EFF9DC 0%, #E6F5C2 100%);
+  border:1px solid rgba(166,217,0,.25);
+  border-radius:var(--r-xl);padding:12px 14px;
   display:flex;align-items:center;gap:10px;position:relative;overflow:hidden;
 }
 .streak-bar-card::after{
   content:'';position:absolute;right:-12px;top:-12px;
-  width:60px;height:60px;
-  background:radial-gradient(circle,rgba(197,255,0,.18) 0%,transparent 70%);
+  width:70px;height:70px;
+  background:radial-gradient(circle,rgba(166,217,0,.25) 0%,transparent 70%);
   border-radius:50%;
 }
 .sb-fire{font-size:20px;z-index:1;flex-shrink:0}
 .sb-info{flex:1;z-index:1}
-.sb-days{font-size:16px;font-weight:800;color:#fff;display:flex;align-items:baseline;gap:3px}
-.sb-days span{font-size:10px;font-weight:400;color:rgba(255,255,255,.45)}
-.sb-sub{font-size:8px;color:rgba(255,255,255,.3);margin-top:1px}
+.sb-days{font-size:16px;font-weight:800;color:#2A4A1A;display:flex;align-items:baseline;gap:3px}
+.sb-days span{font-size:10px;font-weight:500;color:rgba(42,74,26,.45)}
+.sb-sub{font-size:8px;color:rgba(42,74,26,.45);margin-top:1px}
 .sb-right{text-align:right;z-index:1;flex-shrink:0}
-.sb-pct{font-size:14px;font-weight:800;color:var(--lime)}
-.sb-pct-sub{font-size:7px;color:rgba(255,255,255,.3)}
-.sb-bar{margin:0 10px 6px;height:2px;background:var(--surface);border-radius:1px;overflow:hidden}
-.sb-fill{height:100%;width:83%;background:linear-gradient(90deg,var(--lime-dark),var(--lime));border-radius:1px}
+.sb-pct{font-size:14px;font-weight:800;color:#4E7D00}
+.sb-pct-sub{font-size:7px;color:rgba(42,74,26,.4)}
+.sb-bar{margin:0 10px 6px;height:3px;background:rgba(166,217,0,.2);border-radius:2px;overflow:hidden}
+.sb-fill{height:100%;width:83%;background:linear-gradient(90deg,var(--lime-dark),var(--lime));border-radius:2px}
 
 /* 섹션 헤더 */
 .sh{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 8px}
@@ -211,7 +213,8 @@ body{
 .fc{margin:0 10px 8px;background:#fff;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .fc-tabs{display:flex;gap:5px;padding:10px 12px 0}
 .fc-tab{height:26px;padding:0 12px;border-radius:var(--r-full);font-size:9px;font-weight:700;background:transparent;color:#BCBAB6;border:1px solid rgba(12,12,10,.1)}
-.fc-tab.on{background:#0C0C0A;color:var(--lime);border:none}
+/* 탭 active — 순수 블랙 → 포레스트 그린 */
+.fc-tab.on{background:#2A3A18;color:#C5FF00;border:none}
 .chip-strip{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;align-items:flex-end;padding:8px 12px 0}
 .chip-strip::-webkit-scrollbar{display:none}
 .pc{flex-shrink:0;width:72px;display:flex;flex-direction:column;align-items:center}
@@ -223,7 +226,8 @@ body{
 .plus-c{flex-shrink:0;align-self:center;width:26px;height:18px;border-radius:8px;background:rgba(33,150,243,.12);color:#1976D2;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
 .fc-meta{display:flex;justify-content:flex-end;align-items:center;gap:6px;padding:7px 12px 0}
 .fc-cnt{font-size:9px;color:#BCBAB6}
-.fc-day{font-size:7px;font-weight:800;letter-spacing:.1em;background:#0C0C0A;color:var(--lime-dark);padding:2px 8px;border-radius:var(--r-full)}
+/* Day 배지 — 블랙 → 소프트 라임 파스텔 */
+.fc-day{font-size:7px;font-weight:800;letter-spacing:.1em;background:rgba(166,217,0,.18);color:#4E7D00;border:1px solid rgba(166,217,0,.3);padding:2px 8px;border-radius:var(--r-full)}
 .fc-etip{margin:7px 12px 0;padding:10px 12px;background:#F5FDD4;border:1px solid rgba(198,244,50,.5);border-radius:12px}
 .fc-etip-l{font-size:8px;font-weight:800;color:var(--ink);margin-bottom:3px}
 .fc-etip-t{font-size:10px;color:var(--sub);line-height:1.6}
@@ -253,9 +257,11 @@ body{
   border:1px solid var(--border);
   background:var(--bg);
 }
+/* 데이로그 히어로 — 블랙 → 소프트 세이지 파스텔 */
 .dl-hero{
-  height:120px;
-  background:linear-gradient(135deg, #0C0C0A 0%, #1a1a14 100%);
+  height:130px;
+  background:linear-gradient(135deg, #EEF8DC 0%, #E5F3C5 50%, #EAF6D0 100%);
+  border-bottom:1px solid rgba(166,217,0,.2);
   padding:14px 16px;
   display:flex;flex-direction:column;justify-content:space-between;
   position:relative;overflow:hidden;
@@ -263,20 +269,21 @@ body{
 .dl-hero::after{
   content:'';position:absolute;top:-20px;right:-20px;
   width:100px;height:100px;
-  background:radial-gradient(circle,rgba(197,255,0,.12) 0%,transparent 65%);
+  background:radial-gradient(circle,rgba(166,217,0,.3) 0%,transparent 65%);
   border-radius:50%;
 }
-.dl-date{font-size:8px;letter-spacing:.12em;color:rgba(255,255,255,.3);font-weight:700}
-.dl-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:#fff;line-height:1.15}
-.dl-title em{font-style:italic;color:var(--lime)}
+.dl-date{font-size:8px;letter-spacing:.12em;color:rgba(42,74,26,.4);font-weight:700}
+.dl-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:#1A3010;line-height:1.15}
+.dl-title em{font-style:italic;color:#4E7D00}
 .dl-stats-row{display:flex;gap:8px;z-index:1;position:relative}
 .dl-stat{
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.55);border:1px solid rgba(166,217,0,.2);
   border-radius:8px;padding:5px 8px;text-align:center;
+  backdrop-filter:blur(4px);
 }
-.dl-stat-v{font-size:11px;font-weight:800;color:#fff}
-.dl-stat-v.lime{color:var(--lime)}
-.dl-stat-l{font-size:7px;color:rgba(255,255,255,.3);letter-spacing:.04em;margin-top:1px}
+.dl-stat-v{font-size:11px;font-weight:800;color:#2A4A1A}
+.dl-stat-v.lime{color:#4E7D00}
+.dl-stat-l{font-size:7px;color:rgba(42,74,26,.4);letter-spacing:.04em;margin-top:1px}
 
 /* 타임라인 (Setlog의 시간별 캡처 → OnStep의 루틴 타임라인) */
 .timeline{padding:12px 14px}
@@ -314,7 +321,7 @@ body{
 .share-b{
   flex:1;padding:9px;border-radius:var(--r-full);text-align:center;
   font-size:9px;font-weight:800;cursor:pointer;
-  background:var(--ink);color:var(--bg);border:none;
+  background:#2A3A18;color:#C5FF00;border:none;
 }
 .share-b.outline{background:transparent;color:var(--sub);border:1.5px solid var(--border-md)}
 
