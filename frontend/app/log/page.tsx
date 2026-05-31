@@ -1681,39 +1681,10 @@ export default function LogPage() {
             />
           </div>
         ) : (
-          /* LIBRARY 탭 — 컨셉 아카이브 (LogLibraryCard) + 스킨케어 캘린더 */
+          /* LIBRARY 탭 — 스킨케어 캘린더 상단 + 컨셉 아카이브 하단 */
           <div>
-            {/* 컨셉 카드 섹션 */}
-            <div style={{ padding: '16px 16px 0' }}>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>CONCEPT ARCHIVE</div>
-
-              {/* 필터 */}
-              <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
-                {(['makeup', 'lookbook'] as const).map((f) => {
-                  const todayStr = format(new Date(), 'yyyy-MM-dd');
-                  const cnt = (f === 'makeup' ? makeupItems : lookItems).filter(i => i.published && (i.dates ?? []).includes(todayStr)).length;
-                  return (
-                    <button key={f} onClick={() => setLibFilter(f)} style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${libFilter === f ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: libFilter === f ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: libFilter === f ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 5 }}>
-                      {f === 'makeup' ? 'Makeup' : 'Lookbook'}
-                      {cnt > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: '#C5FF00', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cnt}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {(libFilter === 'makeup' ? makeupItems : lookItems).length === 0 ? (
-                <div style={{ padding: '32px 20px', textAlign: 'center', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#F4F4F0', marginBottom: 20 }}>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>LOG 탭에서 등록한 아이템이 여기에 표시됩니다</div>
-                </div>
-              ) : (
-                (libFilter === 'makeup' ? makeupItems : lookItems).map(item => (
-                  <LogLibraryCard key={item.id} item={item} products={products} onToggleToday={() => handleToggleToday(item)} toggling={togglingId === item.id} />
-                ))
-              )}
-            </div>
-
-            {/* 스킨케어 기록 섹션 */}
-            <div style={{ margin: '8px 0 0', borderTop: '1px solid rgba(12,12,10,.07)', paddingTop: 8 }}>
+            {/* 스킨케어 기록 섹션 — 상단 */}
+            <div style={{ paddingTop: 8 }}>
               <div style={{ padding: '12px 16px 8px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490' }}>SKINCARE RECORD</div>
               <RecentStrip dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate} />
               <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '16px 16px 0' }} />
@@ -1726,6 +1697,32 @@ export default function LogPage() {
                 <DayDetail dateStr={selectedDate} dayLog={selectedDayLog} products={products} sessions={sessions} onClose={() => setSelectedDate(null)} />
               ) : (
                 dayLogs.size === 0 && <EmptyState isLoading={dataLoading || authLoading} />
+              )}
+            </div>
+
+            {/* 컨셉 카드 섹션 — 하단 */}
+            <div style={{ margin: '8px 0 0', borderTop: '1px solid rgba(12,12,10,.07)', padding: '16px 16px 0' }}>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>CONCEPT ARCHIVE</div>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+                {(['makeup', 'lookbook'] as const).map((f) => {
+                  const todayStr = format(new Date(), 'yyyy-MM-dd');
+                  const cnt = (f === 'makeup' ? makeupItems : lookItems).filter(i => i.published && (i.dates ?? []).includes(todayStr)).length;
+                  return (
+                    <button key={f} onClick={() => setLibFilter(f)} style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${libFilter === f ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: libFilter === f ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: libFilter === f ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      {f === 'makeup' ? 'Makeup' : 'Lookbook'}
+                      {cnt > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: '#C5FF00', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cnt}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              {(libFilter === 'makeup' ? makeupItems : lookItems).length === 0 ? (
+                <div style={{ padding: '32px 20px', textAlign: 'center', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#F4F4F0', marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>LOG 탭에서 등록한 아이템이 여기에 표시됩니다</div>
+                </div>
+              ) : (
+                (libFilter === 'makeup' ? makeupItems : lookItems).map(item => (
+                  <LogLibraryCard key={item.id} item={item} products={products} onToggleToday={() => handleToggleToday(item)} toggling={togglingId === item.id} />
+                ))
               )}
             </div>
           </div>
