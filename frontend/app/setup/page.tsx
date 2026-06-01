@@ -1479,9 +1479,11 @@ function make14DayPreset(startDate: string): Omit<DietProgram, 'id' | 'createdAt
   const id = () => String(_id++);
 
   const slot = (time: string | undefined, label: string, water: number, items: [string, string][]): DietSlot => ({
-    id: id(), time, label, water,
-    items: items.map(([name, qty]) => ({ id: id(), name, qty })),
-    isWarning: false,
+    id: id(),
+    ...(time !== undefined ? { time } : {}),  // undefined 필드 Firestore 오류 방지
+    label, water,
+    items: items.map(([name, qty]) => ({ id: id(), name, qty: qty || '' })),
+    isWarning: false as const,
   });
   const warn = (text: string): DietWarning => ({ id: id(), text, isWarning: true });
 
@@ -3604,7 +3606,9 @@ export default function SetupPage() {
   async function handleAddDiet(d: Omit<DietProgram, 'id' | 'createdAt' | 'updatedAt'>) {
     if (!user || !db) { alert('로그인이 필요합니다.'); return; }
     const now = new Date().toISOString();
-    await addDoc(collection(db, 'users', userId, 'dietPrograms'), { ...d, createdAt: now, updatedAt: now });
+    // JSON 왕복으로 undefined 필드 제거 (Firestore는 undefined 거부)
+    const clean = JSON.parse(JSON.stringify({ ...d, createdAt: now, updatedAt: now }));
+    await addDoc(collection(db, 'users', userId, 'dietPrograms'), clean);
   }
   async function handleUpdateDiet(id: string, d: Partial<Omit<DietProgram, 'id'>>) {
     if (!db) return;
