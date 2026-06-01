@@ -2342,63 +2342,47 @@ export default function TodayPage() {
           const daysLeft = beforeStart ? Math.abs(dayN - 1) + 1 : null;
           const fDiet = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
 
-          // ── 시간 기반 가시성 계산 ──────────────────────────────────────────
-          // "HH:MM" → 자정 기준 분
+          // ── 시간대 기반 가시성 계산 ─────────────────────────────────────────
           const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
           const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
 
-          // 타임라인에서 시간 있는 슬롯들만 추출 (정렬)
-          const timedSlots = pat.timeline
-            .filter(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time)
-            .map(it => toMin((it as import('@/types/dietplan').DietSlot).time!))
-            .sort((a, b) => a - b);
+          // 현재 시간대 판별
+          const nowPeriod = nowMin < 720 ? 'am' : nowMin < 1080 ? 'pm' : 'ev'; // 오전/오후/저녁
 
-          // 아이템별 가시 여부 판단
+          // 슬롯 시간 → 시간대
+          const slotPeriod = (t: string) => {
+            const m = toMin(t);
+            return m < 720 ? 'am' : m < 1080 ? 'pm' : 'ev';
+          };
+
           function isVisible(item: import('@/types/dietplan').DietTimelineItem, itemIdx: number): boolean {
-            if (beforeStart) return true; // 시작 전엔 전체 표시
+            if (beforeStart) return true;
 
-            if (item.isWarning) {
-              // 경고: 앞 timed 슬롯 ~ 뒤 timed 슬롯 사이 (공복시와 동일)
+            // 공복시·경고 배너: 앞뒤 timed 슬롯 사이 구간
+            if (item.isWarning || !(item as import('@/types/dietplan').DietSlot).time) {
               const prevT = [...pat.timeline].slice(0, itemIdx).reverse()
                 .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
               const nextT = pat.timeline.slice(itemIdx + 1)
                 .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
               const start = prevT ? toMin((prevT as import('@/types/dietplan').DietSlot).time!) : 0;
-              const end = nextT ? toMin((nextT as import('@/types/dietplan').DietSlot).time!) - 30 : 24 * 60;
+              const end = nextT ? toMin((nextT as import('@/types/dietplan').DietSlot).time!) : 24 * 60;
               return nowMin >= start && nowMin < end;
             }
 
-            const slot = item as import('@/types/dietplan').DietSlot;
-            if (!slot.time) {
-              // 공복시: 앞뒤 timed 슬롯 사이
-              const prevT = [...pat.timeline].slice(0, itemIdx).reverse()
-                .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
-              const nextT = pat.timeline.slice(itemIdx + 1)
-                .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
-              const start = prevT ? toMin((prevT as import('@/types/dietplan').DietSlot).time!) : 0;
-              const end = nextT ? toMin((nextT as import('@/types/dietplan').DietSlot).time!) - 30 : 24 * 60;
-              return nowMin >= start && nowMin < end;
-            }
-
-            // 시간 있는 슬롯: T-30분 ~ 다음 timed 슬롯 T-30분 (마지막이면 T+90분)
-            const slotMin = toMin(slot.time);
-            const slotIdx = timedSlots.indexOf(slotMin);
-            const windowStart = slotMin - 30;
-            const windowEnd = slotIdx < timedSlots.length - 1
-              ? timedSlots[slotIdx + 1] - 30
-              : slotMin + 90;
-            return nowMin >= windowStart && nowMin < windowEnd;
+            // 시간 있는 슬롯: 슬롯 시간대 === 현재 시간대
+            return slotPeriod((item as import('@/types/dietplan').DietSlot).time!) === nowPeriod;
           }
 
           const visibleItems = pat.timeline.filter((item, idx) => isVisible(item, idx));
-          // 아무것도 안 보이면 섹션 전체 숨김 (단, 시작 전이면 전체 표시)
           if (!beforeStart && visibleItems.length === 0) return null;
+
+          const periodLabel = beforeStart ? '' : nowPeriod === 'am' ? ' · 오전' : nowPeriod === 'pm' ? ' · 오후' : ' · 저녁';
 
           return (
             <div key={p.id}>
               <SectionHeader
                 title={`#${p.name}`}
-                action={beforeStart ? `D-${daysLeft}일 후 시작 · ${pat.label}` : `D+${dayN} · ${pat.label}`}
+                action={beforeStart ? `D-${daysLeft}일 후 시작 · ${pat.label}` : `D+${dayN} · ${pat.label}${periodLabel}`}
               />
               <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
                 {(beforeStart ? pat.timeline : visibleItems).map((item, idx) => {
