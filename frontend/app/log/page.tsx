@@ -343,11 +343,11 @@ function MonthCalendar({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <span style={{ width: 8, height: 8, borderRadius: 9999, background: '#C5FF00', display: 'inline-block' }} />
+          <CatBadge color="#C5FF00" size={16} />
           <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>아침 완료</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <span style={{ width: 8, height: 8, borderRadius: 9999, background: '#0C0C0A', display: 'inline-block' }} />
+          <CatBadge color="#F97316" size={16} />
           <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>저녁 완료</span>
         </div>
       </div>
