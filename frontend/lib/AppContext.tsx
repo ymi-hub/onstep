@@ -22,6 +22,7 @@ import type { CtItem } from '@/types/ctitem';
 import type { MedRoutine } from '@/types/medication';
 import type { HealthRoutine } from '@/types/healthroutine';
 import type { HealthCategory } from '@/types/healthcategory';
+import type { DietProgram } from '@/types/dietplan';
 
 import { FALLBACK_USER_ID } from './constants';
 
@@ -44,6 +45,7 @@ interface AppContextValue {
   medRoutines: MedRoutine[];
   healthRoutines: HealthRoutine[];
   healthCategories: HealthCategory[];
+  dietPrograms: DietProgram[];
 }
 
 const AppContext = createContext<AppContextValue>({
@@ -60,6 +62,7 @@ const AppContext = createContext<AppContextValue>({
   medRoutines: [],
   healthRoutines: [],
   healthCategories: [],
+  dietPrograms: [],
 });
 
 export function useAppContext() {
@@ -82,6 +85,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [medRoutines, setMedRoutines] = useState<MedRoutine[]>([]);
   const [healthRoutines, setHealthRoutines] = useState<HealthRoutine[]>([]);
   const [healthCategories, setHealthCategories] = useState<HealthCategory[]>([]);
+  const [dietPrograms, setDietPrograms] = useState<DietProgram[]>([]);
 
   const userId = user?.uid ?? FALLBACK_USER_ID;
 
@@ -94,7 +98,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (!u) {
         setProducts([]); setSessions([]); setHabits([]);
         setCareItems([]); setMakeupItems([]); setLookItems([]); setLogItems([]);
-        setMedRoutines([]); setHealthRoutines([]); setHealthCategories([]);
+        setMedRoutines([]); setHealthRoutines([]); setHealthCategories([]); setDietPrograms([]);
       }
     });
     return () => unsub();
@@ -158,13 +162,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (s) => setHealthCategories(s.docs.map((d) => ({ id: d.id, ...d.data() } as HealthCategory))),
         () => {}
       ),
+      // 다이어트 플랜
+      onSnapshot(
+        query(collection(_db, 'users', userId, 'dietPrograms'), orderBy('createdAt', 'desc')),
+        (s) => setDietPrograms(s.docs.map((d) => ({ id: d.id, ...d.data() } as DietProgram))),
+        () => {}
+      ),
     ];
 
     return () => subs.forEach((u) => u());
   }, [userId, authLoading]);
 
   return (
-    <AppContext.Provider value={{ user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, logItems, medRoutines, healthRoutines, healthCategories }}>
+    <AppContext.Provider value={{ user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, logItems, medRoutines, healthRoutines, healthCategories, dietPrograms }}>
       {children}
     </AppContext.Provider>
   );

@@ -1736,7 +1736,7 @@ export default function TodayPage() {
   }, [router]);
 
   // ── 공유 컨텍스트 (auth + 공유 구독 — layout에서 1회 실행, 탭 전환 시 즉시) ──
-  const { user, userId: ctxUserId, authLoading, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems, medRoutines, healthRoutines } = useAppContext();
+  const { user, userId: ctxUserId, authLoading, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems, medRoutines, healthRoutines, dietPrograms } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 데이터 상태 ──
@@ -1758,6 +1758,8 @@ export default function TodayPage() {
   const [habitLogs, setHabitLogs] = useState<{ id: string; habitId: string }[]>([]);
   const [healthChecked, setHealthChecked] = useState<Set<string>>(new Set());
   const [healthLogs, setHealthLogs] = useState<{ id: string; routineId: string }[]>([]);
+  const [dietChecked, setDietChecked] = useState<Set<string>>(new Set()); // "programId:slotId"
+  const [dietLogs, setDietLogs] = useState<{ id: string; programId: string; slotId: string }[]>([]);
 
   // ── 날짜 변경 감지 (자정 리셋) ──
   // visibilitychange: 앱이 백그라운드에서 돌아올 때 날짜가 바뀌었으면 키를 갱신
@@ -2086,6 +2088,26 @@ export default function TodayPage() {
     [user, userId, habitChecked, habitLogs]
   );
 
+  // 다이어트 슬롯 체크 구독
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const todayStr = getTodayDateStr();
+    const q = query(collection(_db, 'users', userId, 'dietLogs'), where('dateStr', '==', todayStr));
+    const unsub = onSnapshot(q, (snap) => {
+      const checked = new Set<string>();
+      const logs: { id: string; programId: string; slotId: string }[] = [];
+      snap.docs.forEach((d) => {
+        const data = d.data() as { programId: string; slotId: string };
+        checked.add(`${data.programId}:${data.slotId}`);
+        logs.push({ id: d.id, programId: data.programId, slotId: data.slotId });
+      });
+      setDietChecked(checked);
+      setDietLogs(logs);
+    });
+    return () => unsub();
+  }, [userId, authLoading, user, todayKey]);
+
   // ── 건강 루틴 토글 (완료/해제) ──
   const handleToggleHealth = useCallback(
     async (routineId: string) => {
@@ -2108,6 +2130,25 @@ export default function TodayPage() {
       }
     },
     [user, userId, healthChecked, healthLogs]
+  );
+
+  // ── 다이어트 슬롯 토글 ──
+  const handleToggleDiet = useCallback(
+    async (programId: string, slotId: string) => {
+      const _db = db;
+      if (!_db || !user) return;
+      const key = `${programId}:${slotId}`;
+      const todayStr = getTodayDateStr();
+      try {
+        if (dietChecked.has(key)) {
+          const log = dietLogs.find(l => l.programId === programId && l.slotId === slotId);
+          if (log) await deleteDoc(doc(_db, 'users', userId, 'dietLogs', log.id));
+        } else {
+          await addDoc(collection(_db, 'users', userId, 'dietLogs'), { programId, slotId, dateStr: todayStr, completedAt: new Date().toISOString() });
+        }
+      } catch (err) { console.error('[OnStep] 다이어트 슬롯 토글 실패:', err); }
+    },
+    [user, userId, dietChecked, dietLogs]
   );
 
   // ── Google 로그인 ──
@@ -2289,6 +2330,61 @@ export default function TodayPage() {
             </div>
           </div>
         )}
+
+        {/* 다이어트 플랜 섹션 — showInToday=true, 오늘 일차에 맞는 패턴 */}
+        {dietPrograms.filter(p => p.showInToday).map(p => {
+          const dayN = Math.floor((Date.now() - new Date(p.startDate).getTime()) / 86400000) + 1;
+          const pat = p.patterns?.find(pt => dayN >= pt.dayStart && dayN <= pt.dayEnd);
+          if (!pat) return null;
+          const fDiet = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+          return (
+            <div key={p.id}>
+              <SectionHeader title={`#${p.name}`} action={`D+${dayN} · ${pat.label}`} />
+              <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
+                {pat.timeline.map((item, idx) => {
+                  if (item.isWarning) {
+                    return (
+                      <div key={item.id} style={{ padding: '10px 16px', background: '#FEF2F2', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 16 }}>⚠️</span>
+                        <span style={{ fontFamily: fDiet, fontSize: 12, fontWeight: 700, color: '#DC2626' }}>{item.text}</span>
+                      </div>
+                    );
+                  }
+                  const slot = item as import('@/types/dietplan').DietSlot;
+                  const key = `${p.id}:${slot.id}`;
+                  const isDone = dietChecked.has(key);
+                  return (
+                    <div key={slot.id} onClick={() => handleToggleDiet(p.id, slot.id)}
+                      style={{ padding: '12px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                        {/* 체크박스 */}
+                        <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
+                          {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
+                            {slot.time && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 800, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#C5FF00', padding: '2px 8px', borderRadius: 9999 }}>{slot.time}</span>}
+                            <span style={{ fontFamily: fDiet, fontSize: 13, fontWeight: 600, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none' }}>{slot.label}</span>
+                            {slot.water > 0 && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 700, color: '#4A9ED6', marginLeft: 'auto' }}>💧{slot.water}ml</span>}
+                          </div>
+                          {slot.items.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                              {slot.items.map(it => (
+                                <span key={it.id} style={{ fontFamily: fDiet, fontSize: 10, background: isDone ? '#F4F4F0' : '#EEEDE9', color: isDone ? '#BCBAB6' : '#4A4846', padding: '2px 7px', borderRadius: 5 }}>
+                                  {it.name}{it.qty ? `(${it.qty})` : ''}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
 
         {/* 건강 루틴 섹션 — showInToday=true 인 것만 (Habits와 동일) */}
         {healthRoutines.filter(h => h.showInToday).length > 0 && (

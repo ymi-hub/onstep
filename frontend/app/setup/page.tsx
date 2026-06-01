@@ -42,6 +42,7 @@ import type { HealthRoutine, HealthType } from '@/types/healthroutine';
 import { HEALTH_TYPE_LABELS, HEALTH_TYPE_ICONS } from '@/types/healthroutine';
 import type { HealthCategory } from '@/types/healthcategory';
 import { DEFAULT_HEALTH_CATEGORIES } from '@/types/healthcategory';
+import type { DietProgram, DietPattern, DietTimelineItem, DietSlot, DietWarning, DietItem } from '@/types/dietplan';
 import ExpertTipField, { buildExpertTipHtml } from '@/components/ExpertTipField';
 import SearchBar from '@/components/SearchBar';
 import SubPageHeader from '@/components/SubPageHeader';
@@ -50,7 +51,7 @@ import { parseRoutineText, parseRoutinePhases, type ParsedResult } from '@/lib/p
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
-type View = 'hub' | 'sessions' | 'editor' | 'tracker' | 'care' | 'makeup' | 'lookbook' | 'medication' | 'health';
+type View = 'hub' | 'sessions' | 'editor' | 'tracker' | 'care' | 'makeup' | 'lookbook' | 'medication' | 'health' | 'diet';
 
 // Habit, RepeatType, CtItem, CtType, Session → 공유 types에서 import
 
@@ -226,12 +227,13 @@ function GroqUsageSection() {
   );
 }
 
-function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, onOpenHealth }: {
+function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, onOpenHealth, onOpenDiet }: {
   onOpenSessions: () => void;
   onOpenTracker: () => void;
   onOpenCare: () => void;
   onOpenMedication: () => void;
   onOpenHealth: () => void;
+  onOpenDiet: () => void;
 }) {
   // 메이크업·룩북은 LOG [아카이브] 탭으로 이동됨
   const cards = {
@@ -243,6 +245,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
     right: [
       { id: 'care',   badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS',     cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare,   href: undefined },
       { id: 'health', badge: '#HEALTH',    title: '건강 루틴',     sub: 'DIET · EXERCISE · MEAL', cta: 'Plan →',     bg: 'linear-gradient(135deg,#f0fff4 0%,#a0e0b0 100%)', emoji: '🥗', onClick: onOpenHealth, href: undefined },
+      { id: 'diet',   badge: '#DIET',      title: '식단 플랜',     sub: 'SUPPLEMENT PROTOCOL',    cta: 'Edit Plan →', bg: 'linear-gradient(135deg,#fdf4ff 0%,#e0a0ff 100%)', emoji: '📋', onClick: onOpenDiet,   href: undefined },
     ],
   };
 
@@ -1467,6 +1470,274 @@ function AiImportPanel({
         </div>
       </div>
     </>
+  );
+}
+
+// ─── DIET PLAN VIEW ──────────────────────────────────────────────────────────
+function DietPlanView({
+  programs, onBack, onAdd, onUpdate, onDelete,
+}: {
+  programs: DietProgram[];
+  onBack: () => void;
+  onAdd: (d: Omit<DietProgram, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onUpdate: (id: string, d: Partial<Omit<DietProgram, 'id'>>) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+  const MEAL_COLORS = ['#7C3AED', '#059669', '#EA580C']; // 아침/점심/저녁
+  const WARNING_COLOR = '#EF4444';
+
+  // 목록 / 편집 모드
+  const [editProgram, setEditProgram] = useState<DietProgram | null>(null);
+  const [isNew, setIsNew] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // 프로그램 기본 정보 상태
+  const [pName, setPName] = useState('');
+  const [pIcon, setPIcon] = useState('📋');
+  const [pStartDate, setPStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [pPatterns, setPPatterns] = useState<DietPattern[]>([]);
+  const [activePatternIdx, setActivePatternIdx] = useState(0);
+
+  // 슬롯 입력 상태
+  const [slotLabel, setSlotLabel] = useState('');
+  const [slotTime, setSlotTime] = useState('');
+  const [slotWater, setSlotWater] = useState('');
+  const [slotItems, setSlotItems] = useState(''); // "파워칵테일(2),웨이(2)" 형태
+
+  function openNew() {
+    setIsNew(true);
+    setPName(''); setPIcon('📋');
+    setPStartDate(new Date().toISOString().slice(0, 10));
+    const defaultPatterns: DietPattern[] = [
+      { id: Date.now().toString(), label: '패턴 1 (1~3일)', dayStart: 1, dayEnd: 3, timeline: [] },
+      { id: (Date.now()+1).toString(), label: '패턴 2 (4~6일)', dayStart: 4, dayEnd: 6, timeline: [] },
+      { id: (Date.now()+2).toString(), label: '패턴 3 (7~14일)', dayStart: 7, dayEnd: 14, timeline: [] },
+    ];
+    setPPatterns(defaultPatterns);
+    setActivePatternIdx(0);
+    setEditProgram({ id: '', name: '', icon: '📋', startDate: '', patterns: defaultPatterns, active: true, showInToday: false, createdAt: '', updatedAt: '' });
+  }
+
+  function openEdit(p: DietProgram) {
+    setIsNew(false);
+    setPName(p.name); setPIcon(p.icon);
+    setPStartDate(p.startDate);
+    setPPatterns(p.patterns ?? []);
+    setActivePatternIdx(0);
+    setEditProgram(p);
+  }
+
+  // 슬롯 파싱: "파워칵테일(2), 웨이(2)" → DietItem[]
+  function parseItems(raw: string): DietItem[] {
+    return raw.split(',').map(s => s.trim()).filter(Boolean).map((s, i) => {
+      const m = s.match(/^(.+?)\((.+)\)$/);
+      if (m) return { id: `${Date.now()}-${i}`, name: m[1].trim(), qty: m[2].trim() };
+      return { id: `${Date.now()}-${i}`, name: s, qty: '' };
+    });
+  }
+
+  function addSlot() {
+    if (!slotLabel.trim()) { alert('타이밍 이름을 입력해주세요.'); return; }
+    const newSlot: DietSlot = {
+      id: Date.now().toString(),
+      time: slotTime || undefined,
+      label: slotLabel.trim(),
+      water: parseInt(slotWater) || 0,
+      items: parseItems(slotItems),
+      isWarning: false,
+    };
+    const updated = [...pPatterns];
+    updated[activePatternIdx] = {
+      ...updated[activePatternIdx],
+      timeline: [...updated[activePatternIdx].timeline, newSlot],
+    };
+    setPPatterns(updated);
+    setSlotLabel(''); setSlotTime(''); setSlotWater(''); setSlotItems('');
+  }
+
+  function addWarning() {
+    const text = prompt('경고 메시지 입력', '공복 유지 4~5시간 꼭!! 지켜주세요!!');
+    if (!text) return;
+    const warn: DietWarning = { id: Date.now().toString(), text, isWarning: true };
+    const updated = [...pPatterns];
+    updated[activePatternIdx] = {
+      ...updated[activePatternIdx],
+      timeline: [...updated[activePatternIdx].timeline, warn],
+    };
+    setPPatterns(updated);
+  }
+
+  function removeTimelineItem(itemId: string) {
+    const updated = [...pPatterns];
+    updated[activePatternIdx] = {
+      ...updated[activePatternIdx],
+      timeline: updated[activePatternIdx].timeline.filter(t => t.id !== itemId),
+    };
+    setPPatterns(updated);
+  }
+
+  async function handleSave() {
+    if (!pName.trim()) { alert('플랜 이름을 입력해주세요.'); return; }
+    setSaving(true);
+    try {
+      const data = { name: pName.trim(), icon: pIcon, startDate: pStartDate, patterns: pPatterns, active: true, showInToday: editProgram?.showInToday ?? false };
+      if (isNew) await onAdd(data);
+      else if (editProgram?.id) await onUpdate(editProgram.id, data);
+      setEditProgram(null);
+    } catch (err) { console.error(err); alert('저장 실패'); }
+    finally { setSaving(false); }
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('플랜을 삭제할까요?')) return;
+    await onDelete(id);
+    setEditProgram(null);
+  }
+
+  async function toggleShowInToday(p: DietProgram) {
+    await onUpdate(p.id, { showInToday: !p.showInToday });
+  }
+
+  // ── 편집 화면 ──
+  if (editProgram !== null) {
+    const pat = pPatterns[activePatternIdx];
+    return (
+      <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
+        <SubPageHeader title={isNew ? '새 식단 플랜' : '플랜 편집'} onClose={() => setEditProgram(null)} />
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+          {/* 기본 정보 */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+            <input value={pIcon} onChange={e => setPIcon(e.target.value.slice(0,4))} style={{ width: 48, padding: '10px 0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontSize: 20, textAlign: 'center', outline: 'none', flexShrink: 0 }} />
+            <input value={pName} onChange={e => setPName(e.target.value)} placeholder="플랜 이름 (예: 2주 다이어트)" style={{ flex: 1, padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, outline: 'none' }} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490' }}>시작일</span>
+            <input type="date" value={pStartDate} onChange={e => setPStartDate(e.target.value)} style={{ padding: '8px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, outline: 'none' }} />
+          </div>
+
+          {/* 패턴 탭 */}
+          <div style={{ display: 'flex', gap: 5, marginBottom: 14, overflowX: 'auto' }}>
+            {pPatterns.map((pat, i) => (
+              <button key={pat.id} onClick={() => setActivePatternIdx(i)}
+                style={{ flexShrink: 0, padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${activePatternIdx===i ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: activePatternIdx===i ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: activePatternIdx===i ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                {pat.label}
+              </button>
+            ))}
+          </div>
+
+          {/* 패턴 날짜 범위 편집 */}
+          {pat && (
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14, alignItems: 'center' }}>
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>일차</span>
+              <input type="number" value={pat.dayStart} onChange={e => { const u=[...pPatterns]; u[activePatternIdx]={...u[activePatternIdx],dayStart:+e.target.value}; setPPatterns(u); }}
+                style={{ width: 60, padding: '7px 8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, outline: 'none', textAlign: 'center' }} />
+              <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>~</span>
+              <input type="number" value={pat.dayEnd} onChange={e => { const u=[...pPatterns]; u[activePatternIdx]={...u[activePatternIdx],dayEnd:+e.target.value}; setPPatterns(u); }}
+                style={{ width: 60, padding: '7px 8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, outline: 'none', textAlign: 'center' }} />
+              <span style={{ fontFamily: f, fontSize: 11, color: '#9A9490' }}>일</span>
+              <input value={pat.label} onChange={e => { const u=[...pPatterns]; u[activePatternIdx]={...u[activePatternIdx],label:e.target.value}; setPPatterns(u); }}
+                placeholder="라벨" style={{ flex: 1, padding: '7px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 12, outline: 'none' }} />
+            </div>
+          )}
+
+          {/* 타임라인 목록 */}
+          {pat?.timeline.map(item => (
+            <div key={item.id}>
+              {item.isWarning ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, marginBottom: 6 }}>
+                  <span style={{ fontSize: 14 }}>⚠️</span>
+                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#DC2626', flex: 1 }}>{(item as DietWarning).text}</span>
+                  <button onClick={() => removeTimelineItem(item.id)} style={{ border: 'none', background: 'none', color: '#DC2626', cursor: 'pointer', fontSize: 14 }}>✕</button>
+                </div>
+              ) : (
+                <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, padding: '10px 12px', marginBottom: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    {(item as DietSlot).time && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, background: '#0C0C0A', color: '#C5FF00', padding: '2px 8px', borderRadius: 6 }}>{(item as DietSlot).time}</span>}
+                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{(item as DietSlot).label}</span>
+                    <span style={{ fontFamily: f, fontSize: 11, color: '#4A9ED6', fontWeight: 700 }}>💧{(item as DietSlot).water}ml</span>
+                    <button onClick={() => removeTimelineItem(item.id)} style={{ border: 'none', background: 'none', color: '#9A9490', cursor: 'pointer', fontSize: 13 }}>✕</button>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {(item as DietSlot).items.map(it => (
+                      <span key={it.id} style={{ fontFamily: f, fontSize: 10, background: '#F4F4F0', color: '#4A4846', padding: '2px 7px', borderRadius: 5 }}>{it.name}{it.qty ? `(${it.qty})` : ''}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* 슬롯 추가 입력 */}
+          <div style={{ background: '#F9F9F7', borderRadius: 14, padding: '12px', border: '1px solid rgba(12,12,10,.07)', marginTop: 8, marginBottom: 12 }}>
+            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>타임슬롯 추가</div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 7 }}>
+              <select value={slotTime} onChange={e => setSlotTime(e.target.value)}
+                style={{ width: 80, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, background: '#fff', outline: 'none' }}>
+                <option value="">공복시</option>
+                {Array.from({length:24},(_,i)=>String(i).padStart(2,'0')).map(h=>['00','30'].map(m=>`${h}:${m}`)).flat().map(t=><option key={t} value={t}>{t}</option>)}
+              </select>
+              <input value={slotLabel} onChange={e=>setSlotLabel(e.target.value)} placeholder="타이밍 (아침 식사시)" style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
+              <input value={slotWater} onChange={e=>setSlotWater(e.target.value)} placeholder="물ml" style={{ width: 60, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <input value={slotItems} onChange={e=>setSlotItems(e.target.value)} placeholder="파워칵테일(2), 웨이(2), 듀오(40)" style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 11, outline: 'none', background: '#fff' }} />
+              <button onClick={addSlot} style={{ padding: '8px 14px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer' }}>추가</button>
+            </div>
+            <button onClick={addWarning} style={{ width: '100%', marginTop: 7, padding: '7px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>⚠️ 경고 배너 추가</button>
+          </div>
+
+          {/* 저장/삭제 */}
+          <div style={{ display: 'flex', gap: 8, paddingBottom: 24 }}>
+            {!isNew && editProgram?.id && <button onClick={() => handleDelete(editProgram.id)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
+            <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
+              {saving ? '저장 중…' : '저장'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── 목록 화면 ──
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
+      <SubPageHeader title="📋 식단 플랜" onClose={onBack} />
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 80px' }}>
+        {programs.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>📋</div>
+            식단 플랜을 등록해보세요
+          </div>
+        )}
+        {programs.map(p => {
+          const dayN = Math.floor((Date.now() - new Date(p.startDate).getTime()) / 86400000) + 1;
+          const curPat = p.patterns?.find(pat => dayN >= pat.dayStart && dayN <= pat.dayEnd);
+          return (
+            <div key={p.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, padding: '14px 16px', marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 24 }}>{p.icon}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{p.name}</div>
+                  <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>
+                    시작 {p.startDate} · D+{Math.max(1, dayN)}일차
+                    {curPat ? ` · ${curPat.label}` : ''}
+                  </div>
+                </div>
+                <button onClick={() => toggleShowInToday(p)}
+                  style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: p.showInToday ? '#C5FF00' : '#F4F4F0', color: p.showInToday ? '#0C0C0A' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', flexShrink: 0 }}>
+                  TODAY
+                </button>
+                <button onClick={() => openEdit(p)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
+              </div>
+            </div>
+          );
+        })}
+        <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginTop: 8 }}>
+          + 새 플랜 추가
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -3010,7 +3281,7 @@ const VALID_VIEWS: View[] = ['hub', 'sessions', 'editor', 'tracker', 'care', 'ma
 
 export default function SetupPage() {
   // ── 공유 컨텍스트 ──
-  const { user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories } = useAppContext();
+  const { user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories, dietPrograms } = useAppContext();
 
   const [view, setView] = useState<View>('hub');
   const [loadingSessions, setLoadingSessions] = useState(true);
@@ -3213,6 +3484,21 @@ export default function SetupPage() {
     await deleteDoc(doc(db, 'users', userId, 'healthRoutines', id));
   }
 
+  // ── DietProgram CRUD ─────────────────────────────────────────────────────────
+  async function handleAddDiet(d: Omit<DietProgram, 'id' | 'createdAt' | 'updatedAt'>) {
+    if (!user || !db) { alert('로그인이 필요합니다.'); return; }
+    const now = new Date().toISOString();
+    await addDoc(collection(db, 'users', userId, 'dietPrograms'), { ...d, createdAt: now, updatedAt: now });
+  }
+  async function handleUpdateDiet(id: string, d: Partial<Omit<DietProgram, 'id'>>) {
+    if (!db) return;
+    await updateDoc(doc(db, 'users', userId, 'dietPrograms', id), { ...d, updatedAt: new Date().toISOString() });
+  }
+  async function handleDeleteDiet(id: string) {
+    if (!db) return;
+    await deleteDoc(doc(db, 'users', userId, 'dietPrograms', id));
+  }
+
   // ── HealthCategory CRUD ──────────────────────────────────────────────────────
   async function handleAddHealthCategory(c: Omit<HealthCategory, 'id' | 'createdAt'>) {
     if (!user || !db) { alert('로그인이 필요합니다.'); return; }
@@ -3268,6 +3554,7 @@ export default function SetupPage() {
         onOpenCare={() => goView('care')}
         onOpenMedication={() => goView('medication')}
         onOpenHealth={() => goView('health')}
+        onOpenDiet={() => goView('diet')}
       />
       {(view === 'sessions' || view === 'editor') && (
         <SessionsView key={sessionsKey} sessions={sessions} products={products} loading={loadingSessions} onBack={() => goView('hub')} onNew={openNewSession} onEdit={openEdit} onUpdateNumber={handleUpdateSessionNumber} />
@@ -3296,6 +3583,15 @@ export default function SetupPage() {
         />
       )}
       {/* 메이크업·룩북은 LOG [아카이브] 탭으로 이동 */}
+      {view === 'diet' && (
+        <DietPlanView
+          programs={dietPrograms}
+          onBack={() => goView('hub')}
+          onAdd={handleAddDiet}
+          onUpdate={handleUpdateDiet}
+          onDelete={handleDeleteDiet}
+        />
+      )}
       {view === 'medication' && (
         <MedView
           items={medRoutines}
