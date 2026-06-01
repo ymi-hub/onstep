@@ -1811,7 +1811,7 @@ export default function LogPage() {
 
   // ── 데이터 상태 ──
   const [dayLogs, setDayLogs] = useState<Map<string, DayLog>>(new Map());
-  const [dataLoading, setDataLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true); // 초기값 true: 첫 렌더에 "미완료" 오표시 방지
 
   // auth/products/ct → AppContext에서 공유
 
@@ -1933,7 +1933,14 @@ export default function LogPage() {
                       </div>
 
                       {/* 스킨케어 — 완료 상태에 따라 텍스트 변경 */}
+                      {/* dataLoading 중에는 미완료 표시 안 함 (타이밍 이슈 방지) */}
                       {(() => {
+                        if (dataLoading) return (
+                          <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 14 }}>🌿</span>
+                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#BCBAB6' }}>로딩 중…</span>
+                          </div>
+                        );
                         const m = todayDayLog?.hasMorning ?? false;
                         const n = todayDayLog?.hasEvening ?? false;
                         const both = m && n;
