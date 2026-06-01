@@ -1932,27 +1932,26 @@ export default function LogPage() {
                         <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>{format(new Date(), 'M월 d일 (EEE)', { locale: ko })}</span>
                       </div>
 
-                      {/* 스킨케어 */}
-                      {(todayDayLog || true) && (
-                        <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', gap: 8 }}>
-                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 14 }}>☀</span>
-                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: todayDayLog?.hasMorning ? '#0C0C0A' : '#BCBAB6' }}>MORNING</span>
-                            {todayDayLog?.hasMorning
-                              ? <span style={{ width: 14, height: 14, borderRadius: 9999, background: '#C5FF00', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A' }}>✓</span>
-                              : <span style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6' }}>미완료</span>
-                            }
+                      {/* 스킨케어 — 완료 상태에 따라 텍스트 변경 */}
+                      {(() => {
+                        const m = todayDayLog?.hasMorning ?? false;
+                        const n = todayDayLog?.hasEvening ?? false;
+                        const both = m && n;
+                        const label = both ? '오늘 스킨케어 완료' : m ? '아침' : n ? '저녁' : null;
+                        if (!label) return (
+                          <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 14 }}>🌿</span>
+                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#BCBAB6' }}>스킨케어 미완료</span>
                           </div>
-                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 14 }}>🌙</span>
-                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: todayDayLog?.hasEvening ? '#0C0C0A' : '#BCBAB6' }}>NIGHT</span>
-                            {todayDayLog?.hasEvening
-                              ? <span style={{ width: 14, height: 14, borderRadius: 9999, background: '#C5FF00', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A' }}>✓</span>
-                              : <span style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6' }}>미완료</span>
-                            }
+                        );
+                        return (
+                          <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 14 }}>{both ? '✨' : m ? '☀' : '🌙'}</span>
+                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{label}</span>
+                            <span style={{ width: 18, height: 18, borderRadius: 9999, background: '#C5FF00', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>✓</span>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
 
                       {/* 집중케어 */}
                       {todayCare.map(item => (
