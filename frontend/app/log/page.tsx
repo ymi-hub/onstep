@@ -304,15 +304,14 @@ function MonthCalendar({
                 {format(day, 'd')}
               </span>
 
-              {/* 아침(라임)·저녁(오렌지) 캐릭터 2마리 */}
+              {/* 아침(라임)·저녁(오렌지) 고양이 이모지 */}
               <div style={{ display: 'flex', gap: 1 }}>
                 {[
                   { done: log?.hasMorning, color: '#C5FF00' },
                   { done: log?.hasEvening, color: '#F97316' },
                 ].map((c, i) => (
-                  <div key={i} style={{ position: 'relative', width: 10, height: 10, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${c.done ? c.color : 'rgba(12,12,10,.1)'}` }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: c.done ? 'none' : 'grayscale(100%) opacity(0.35)' }} />
+                  <div key={i} style={{ width: 12, height: 12, borderRadius: 9999, background: c.done ? c.color : 'rgba(12,12,10,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, lineHeight: 1 }}>
+                    {c.done ? '🐱' : ''}
                   </div>
                 ))}
               </div>
@@ -742,16 +741,14 @@ function RecentStrip({
               </span>
 
               {/* 오늘: 하나라도 완료면 캐릭터 / 나머지: 아침(라임)·저녁(블랙) 닷 */}
-              {/* 아침·저녁 고양이 항상 2마리 표시 */}
-              <div style={{ display: 'flex', gap: 2 }}>
+              {/* 아침(라임)·저녁(오렌지) 고양이 이모지 */}
+              <div style={{ display: 'flex', gap: 3 }}>
                 {[
                   { done: log?.hasMorning, color: '#C5FF00' },
                   { done: log?.hasEvening, color: '#F97316' },
                 ].map((c, i) => (
-                  <div key={i} style={{ position: 'relative', width: 13, height: 13, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${c.done ? c.color : 'rgba(12,12,10,.12)'}` }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: c.done ? 'none' : 'grayscale(100%) opacity(0.4)' }} />
-                    {c.done && <div style={{ position: 'absolute', inset: 0, background: c.color, opacity: 0.25, mixBlendMode: 'multiply' as const }} />}
+                  <div key={i} style={{ width: 16, height: 16, borderRadius: 9999, background: c.done ? c.color : 'rgba(12,12,10,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, lineHeight: 1 }}>
+                    {c.done ? '🐱' : ''}
                   </div>
                 ))}
               </div>

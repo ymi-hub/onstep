@@ -647,17 +647,15 @@ function FlowCard({
             }}
           >
             {t === 'morning' ? '☀ MORNING' : '🌙 NIGHT'}
-            {/* 완료 시 캐릭터 뱃지 — 아침(라임) / 저녁(오렌지) */}
+            {/* 완료 시 고양이 이모지 뱃지 — 아침(라임) / 저녁(오렌지) */}
             {(t === 'morning' ? checked.morning : checked.evening) && (
               <span style={{
-                position: 'absolute', top: -5, right: -5,
-                width: 16, height: 16, borderRadius: 9999, overflow: 'hidden',
-                border: `2px solid ${t === 'morning' ? '#C5FF00' : '#F97316'}`,
-                display: 'block',
-              }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-              </span>
+                position: 'absolute', top: -6, right: -6,
+                width: 18, height: 18, borderRadius: 9999,
+                background: t === 'morning' ? '#C5FF00' : '#F97316',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10, lineHeight: 1,
+              }}>🐱</span>
             )}
           </button>
         ))}
