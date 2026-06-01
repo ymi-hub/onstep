@@ -1699,12 +1699,27 @@ function EmptyState({ isLoading }: { isLoading: boolean }) {
 
 export default function LogPage() {
   // ── 공유 컨텍스트 ──
-  const { user, userId, authLoading, products: ctxProducts, sessions, makeupItems, lookItems } = useAppContext();
+  const { user, userId, authLoading, products: ctxProducts, sessions, makeupItems, lookItems, careItems, habits } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 캘린더 상태 ──
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  // ── 오늘 habitLogs ──
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const [todayHabitLogs, setTodayHabitLogs] = useState<{ id: string; habitId: string }[]>([]);
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const q = query(
+      collection(db, 'users', userId, 'habitLogs'),
+      where('dateStr', '==', todayStr)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setTodayHabitLogs(snap.docs.map(d => ({ id: d.id, ...d.data() as { habitId: string } })));
+    });
+    return () => unsub();
+  }, [userId, authLoading, user, todayStr]);
 
   // ── 탭 상태 ──
   const [mainTab, setMainTab] = useState<'기록' | '라이브러리' | '아카이브'>('기록');
@@ -1875,7 +1890,100 @@ export default function LogPage() {
                 onClose={() => setSelectedDate(null)}
               />
             ) : (
-              dayLogs.size === 0 && <EmptyState isLoading={dataLoading || authLoading} />
+              <>
+                {dayLogs.size === 0 && <EmptyState isLoading={dataLoading || authLoading} />}
+
+                {/* 오늘의 루틴 · 룩 · 메이크업 목록 */}
+                {(() => {
+                  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+                  const todayDayLog = dayLogs.get(todayStr);
+                  const todayMotd = makeupItems.filter(i => (i.dates ?? []).includes(todayStr));
+                  const todayOotd = lookItems.filter(i => (i.dates ?? []).includes(todayStr));
+                  const todayCare = careItems.filter(i => (i.dates ?? []).includes(todayStr));
+                  const checkedHabitIds = new Set(todayHabitLogs.map(l => l.habitId));
+                  const hasAny = todayDayLog || todayMotd.length || todayOotd.length || todayCare.length || habits.length;
+                  if (!hasAny) return null;
+
+                  return (
+                    <div style={{ margin: '16px 16px 0', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden' }}>
+                      {/* 헤더 */}
+                      <div style={{ padding: '12px 14px 10px', borderBottom: '1px solid rgba(12,12,10,.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: '#0C0C0A' }}>오늘의 기록</span>
+                        <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>{format(new Date(), 'M월 d일 (EEE)', { locale: ko })}</span>
+                      </div>
+
+                      {/* 스킨케어 */}
+                      {(todayDayLog || true) && (
+                        <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', gap: 8 }}>
+                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 14 }}>☀</span>
+                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: todayDayLog?.hasMorning ? '#0C0C0A' : '#BCBAB6' }}>MORNING</span>
+                            {todayDayLog?.hasMorning
+                              ? <span style={{ width: 14, height: 14, borderRadius: 9999, background: '#C5FF00', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A' }}>✓</span>
+                              : <span style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6' }}>미완료</span>
+                            }
+                          </div>
+                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 14 }}>🌙</span>
+                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: todayDayLog?.hasEvening ? '#0C0C0A' : '#BCBAB6' }}>NIGHT</span>
+                            {todayDayLog?.hasEvening
+                              ? <span style={{ width: 14, height: 14, borderRadius: 9999, background: '#C5FF00', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A' }}>✓</span>
+                              : <span style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6' }}>미완료</span>
+                            }
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 집중케어 */}
+                      {todayCare.map(item => (
+                        <div key={item.id} style={{ padding: '9px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 14 }}>🧴</span>
+                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>{item.name}</span>
+                          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A9ED6', letterSpacing: '.04em' }}>집중케어</span>
+                        </div>
+                      ))}
+
+                      {/* 메이크업 */}
+                      {todayMotd.map(item => (
+                        <div key={item.id} style={{ padding: '9px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 14 }}>💄</span>
+                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>{item.name}</span>
+                          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em' }}>MOTD</span>
+                        </div>
+                      ))}
+
+                      {/* 코디 */}
+                      {todayOotd.map(item => (
+                        <div key={item.id} style={{ padding: '9px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 14 }}>👗</span>
+                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>{item.name}</span>
+                          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em' }}>OOTD</span>
+                        </div>
+                      ))}
+
+                      {/* 습관 */}
+                      {habits.length > 0 && (
+                        <div style={{ padding: '10px 14px' }}>
+                          <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>HABITS</div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {habits.map(h => {
+                              const done = checkedHabitIds.has(h.id);
+                              return (
+                                <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                                  <div style={{ width: 16, height: 16, borderRadius: 4, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
+                                    {done ? '✓' : ''}
+                                  </div>
+                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#0C0C0A' : '#BCBAB6' }}>{h.name}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </>
             )}
           </div>
         )}
