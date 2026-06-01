@@ -21,6 +21,7 @@ import type { Habit } from '@/types/habit';
 import type { CtItem } from '@/types/ctitem';
 import type { MedRoutine } from '@/types/medication';
 import type { HealthRoutine } from '@/types/healthroutine';
+import type { HealthCategory } from '@/types/healthcategory';
 
 import { FALLBACK_USER_ID } from './constants';
 
@@ -42,6 +43,7 @@ interface AppContextValue {
   logItems: CtItem[];
   medRoutines: MedRoutine[];
   healthRoutines: HealthRoutine[];
+  healthCategories: HealthCategory[];
 }
 
 const AppContext = createContext<AppContextValue>({
@@ -57,6 +59,7 @@ const AppContext = createContext<AppContextValue>({
   logItems: [],
   medRoutines: [],
   healthRoutines: [],
+  healthCategories: [],
 });
 
 export function useAppContext() {
@@ -78,6 +81,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [logItems, setLogItems] = useState<CtItem[]>([]);
   const [medRoutines, setMedRoutines] = useState<MedRoutine[]>([]);
   const [healthRoutines, setHealthRoutines] = useState<HealthRoutine[]>([]);
+  const [healthCategories, setHealthCategories] = useState<HealthCategory[]>([]);
 
   const userId = user?.uid ?? FALLBACK_USER_ID;
 
@@ -90,7 +94,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (!u) {
         setProducts([]); setSessions([]); setHabits([]);
         setCareItems([]); setMakeupItems([]); setLookItems([]); setLogItems([]);
-        setMedRoutines([]); setHealthRoutines([]);
+        setMedRoutines([]); setHealthRoutines([]); setHealthCategories([]);
       }
     });
     return () => unsub();
@@ -148,13 +152,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (s) => setHealthRoutines(s.docs.map((d) => ({ id: d.id, ...d.data() } as HealthRoutine))),
         () => {}
       ),
+      // 건강 루틴 카테고리
+      onSnapshot(
+        query(collection(_db, 'users', userId, 'healthCategories'), orderBy('order', 'asc')),
+        (s) => setHealthCategories(s.docs.map((d) => ({ id: d.id, ...d.data() } as HealthCategory))),
+        () => {}
+      ),
     ];
 
     return () => subs.forEach((u) => u());
   }, [userId, authLoading]);
 
   return (
-    <AppContext.Provider value={{ user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, logItems, medRoutines, healthRoutines }}>
+    <AppContext.Provider value={{ user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, logItems, medRoutines, healthRoutines, healthCategories }}>
       {children}
     </AppContext.Provider>
   );
