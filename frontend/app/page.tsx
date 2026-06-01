@@ -997,18 +997,18 @@ function TodayHabitSection({
                 </span>
               </div>
 
-              {/* 우: 알람 시각 (종일/비종일) */}
+              {/* 우: 알람 시각 — Health와 동일 스타일 */}
               {h.time && h.repeatType !== 'allday' && (
-                <div style={{
-                  fontFamily: f, fontSize: 12, fontWeight: 700,
-                  color: isDone ? '#BCBAB6' : '#5A7000',
-                  background: isDone ? 'rgba(12,12,10,.06)' : 'rgba(197,255,0,.2)',
-                  padding: '3px 10px', borderRadius: 9999,
-                  whiteSpace: 'nowrap' as const,
+                <span style={{
+                  fontFamily: f, fontSize: 11, fontWeight: 700,
+                  background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A',
+                  color: isDone ? '#BCBAB6' : '#C5FF00',
+                  padding: '2px 8px', borderRadius: 9999,
+                  whiteSpace: 'nowrap' as const, flexShrink: 0,
                   display: 'flex', alignItems: 'center', gap: 4,
                 }}>
-                  🔔 {h.time}
-                </div>
+                  {h.alarm ? '🔔 ' : ''}{h.time}
+                </span>
               )}
             </div>
           );
@@ -2249,18 +2249,18 @@ export default function TodayPage() {
               {healthRoutines.filter(h => h.showInToday).map(h => (
                 <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 14 }}>
                   <span style={{ fontSize: 20 }}>{h.icon || '🥗'}</span>
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>{h.name}</div>
                     {h.schedule && <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>{h.schedule}</div>}
-                    {/* 시간별 항목 */}
-                    {(h.entries ?? []).length > 0 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
-                        {[...(h.entries ?? [])].sort((a, b) => a.time.localeCompare(b.time)).map(e => (
-                          <span key={e.id} style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 700, background: '#0C0C0A', color: '#C5FF00', padding: '1px 6px', borderRadius: 5 }}>{e.time}</span>
-                        ))}
-                      </div>
-                    )}
                   </div>
+                  {/* 시간별 항목 — 오른쪽 정렬 */}
+                  {(h.entries ?? []).length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-end', flexShrink: 0 }}>
+                      {[...(h.entries ?? [])].sort((a, b) => a.time.localeCompare(b.time)).map(e => (
+                        <span key={e.id} style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, background: '#0C0C0A', color: '#C5FF00', padding: '2px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{e.time}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
