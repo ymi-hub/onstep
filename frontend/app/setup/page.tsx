@@ -1743,22 +1743,64 @@ function DietPlanView({
             </div>
           )}
 
-          {/* 타임라인 목록 */}
+          {/* 타임라인 목록 — 편집 폼 인라인 표시 */}
           {pat?.timeline.map(item => (
-            <div key={item.id}>
+            <div key={item.id} style={{ marginBottom: 6 }}>
               {item.isWarning ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10 }}>
                   <span style={{ fontSize: 14 }}>⚠️</span>
                   <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#DC2626', flex: 1 }}>{(item as DietWarning).text}</span>
                   <button onClick={() => removeTimelineItem(item.id)} style={{ border: 'none', background: 'none', color: '#DC2626', cursor: 'pointer', fontSize: 14 }}>✕</button>
                 </div>
+              ) : editSlotId === item.id ? (
+                /* ── 인라인 편집 폼 ── */
+                <div style={{ background: '#F5FDD4', border: '1.5px solid #C5FF00', borderRadius: 12, padding: '12px' }}>
+                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#4E7D00', letterSpacing: '.06em', marginBottom: 8 }}>✎ 슬롯 편집</div>
+                  {/* 시간·타이밍명·물 */}
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 7 }}>
+                    <select value={slotTime} onChange={e => setSlotTime(e.target.value)}
+                      style={{ width: 76, padding: '8px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 9, fontFamily: f, fontSize: 12, background: '#fff', outline: 'none' }}>
+                      <option value="">공복시</option>
+                      {Array.from({length:24},(_,i)=>String(i).padStart(2,'0')).map(h=>['00','10','15','20','30','40','45','50'].map(m=>`${h}:${m}`)).flat().map(t=><option key={t} value={t}>{t}</option>)}
+                    </select>
+                    <input value={slotLabel} onChange={e=>setSlotLabel(e.target.value)}
+                      style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
+                    <input value={slotWater} onChange={e=>setSlotWater(e.target.value)} placeholder="ml"
+                      style={{ width: 52, padding: '8px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
+                  </div>
+                  {/* 제품 태그 */}
+                  {slotItemTags.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
+                      {slotItemTags.map(tag => (
+                        <div key={tag.id} style={{ display: 'flex', alignItems: 'center', gap: 3, background: '#0C0C0A', borderRadius: 9999, padding: '2px 8px 2px 7px' }}>
+                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00' }}>{tag.name}{tag.qty ? `(${tag.qty})` : ''}</span>
+                          <button onClick={() => removeItemTag(tag.id)} style={{ border: 'none', background: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 11, padding: 0 }}>×</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
+                    <input value={slotItemInput} onChange={e=>setSlotItemInput(e.target.value)}
+                      onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault(); addItemTag();} }}
+                      placeholder="제품명" style={{ flex: 1, padding: '7px 9px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 8, fontFamily: f, fontSize: 11, outline: 'none', background: '#fff' }} />
+                    <input value={slotItemQty} onChange={e=>setSlotItemQty(e.target.value)}
+                      onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault(); addItemTag();} }}
+                      placeholder="수량" style={{ width: 48, padding: '7px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 8, fontFamily: f, fontSize: 11, outline: 'none', background: '#fff', textAlign: 'center' }} />
+                    <button onClick={addItemTag} style={{ padding: '7px 10px', background: '#F4F4F0', border: '1px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>+ 제품</button>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button onClick={cancelEditSlot} style={{ flex: 1, padding: '9px', background: '#F4F4F0', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
+                    <button onClick={addSlot} style={{ flex: 2, padding: '9px', background: '#2A4A1A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer' }}>✎ 수정 저장</button>
+                  </div>
+                </div>
               ) : (
-                <div style={{ background: editSlotId === item.id ? '#F5FDD4' : '#fff', border: `1px solid ${editSlotId === item.id ? '#C5FF00' : 'rgba(12,12,10,.07)'}`, borderRadius: 12, padding: '10px 12px', marginBottom: 6 }}>
+                /* ── 일반 슬롯 표시 ── */
+                <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, padding: '10px 12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     {(item as DietSlot).time && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, background: '#0C0C0A', color: '#C5FF00', padding: '2px 8px', borderRadius: 6 }}>{(item as DietSlot).time}</span>}
                     <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{(item as DietSlot).label}</span>
                     <span style={{ fontFamily: f, fontSize: 11, color: '#4A9ED6', fontWeight: 700 }}>💧{(item as DietSlot).water}ml</span>
-                    <button onClick={() => startEditSlot(item as DietSlot)} style={{ border: 'none', background: 'none', color: '#9A9490', cursor: 'pointer', fontSize: 13, padding: '2px 4px' }}>✎</button>
+                    <button onClick={() => startEditSlot(item as DietSlot)} style={{ border: 'none', background: 'none', color: '#9A9490', cursor: 'pointer', fontSize: 14, padding: '2px 6px' }} title="편집">✎</button>
                     <button onClick={() => removeTimelineItem(item.id)} style={{ border: 'none', background: 'none', color: '#9A9490', cursor: 'pointer', fontSize: 13 }}>✕</button>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -1771,12 +1813,10 @@ function DietPlanView({
             </div>
           ))}
 
-          {/* 슬롯 추가/편집 입력 */}
-          <div style={{ background: editSlotId ? '#F5FDD4' : '#F9F9F7', borderRadius: 14, padding: '12px', border: `1px solid ${editSlotId ? '#C5FF00' : 'rgba(12,12,10,.07)'}`, marginTop: 8, marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: editSlotId ? '#4E7D00' : '#9A9490', letterSpacing: '.06em' }}>{editSlotId ? '✎ 슬롯 편집 중' : '타임슬롯 추가'}</span>
-              {editSlotId && <button onClick={cancelEditSlot} style={{ border: 'none', background: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>취소</button>}
-            </div>
+          {/* 슬롯 추가 입력 (편집은 인라인으로 처리) */}
+          {!editSlotId && (
+          <div style={{ background: '#F9F9F7', borderRadius: 14, padding: '12px', border: '1px solid rgba(12,12,10,.07)', marginTop: 8, marginBottom: 12 }}>
+            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>타임슬롯 추가</div>
             {/* 시간·타이밍명·물 */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 7 }}>
               <select value={slotTime} onChange={e => setSlotTime(e.target.value)}
@@ -1808,9 +1848,10 @@ function DietPlanView({
                 placeholder="수량" style={{ width: 52, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
               <button onClick={addItemTag} style={{ padding: '8px 12px', background: '#F4F4F0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer', flexShrink: 0 }}>+ 제품</button>
             </div>
-            <button onClick={addSlot} style={{ width: '100%', padding: '9px', background: editSlotId ? '#2A4A1A' : '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', marginBottom: 6 }}>{editSlotId ? '✎ 수정 저장' : '슬롯 추가'}</button>
+            <button onClick={addSlot} style={{ width: '100%', padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', marginBottom: 6 }}>슬롯 추가</button>
             <button onClick={addWarning} style={{ width: '100%', padding: '7px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>⚠️ 경고 배너 추가</button>
           </div>
+          )}
 
           {/* 저장/삭제 */}
           <div style={{ display: 'flex', gap: 8, paddingBottom: 24 }}>
