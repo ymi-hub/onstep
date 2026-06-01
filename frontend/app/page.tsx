@@ -647,16 +647,17 @@ function FlowCard({
             }}
           >
             {t === 'morning' ? '☀ MORNING' : '🌙 NIGHT'}
+            {/* 완료 시 캐릭터 뱃지 — 아침(라임) / 저녁(오렌지) */}
             {(t === 'morning' ? checked.morning : checked.evening) && (
-              <span
-                style={{
-                  position: 'absolute', top: -3, right: -3,
-                  width: 12, height: 12,
-                  background: '#C5FF00', borderRadius: 9999,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 7, fontWeight: 900, color: '#0C0C0A',
-                }}
-              >✓</span>
+              <span style={{
+                position: 'absolute', top: -5, right: -5,
+                width: 16, height: 16, borderRadius: 9999, overflow: 'hidden',
+                border: `2px solid ${t === 'morning' ? '#C5FF00' : '#F97316'}`,
+                display: 'block',
+              }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </span>
             )}
           </button>
         ))}
