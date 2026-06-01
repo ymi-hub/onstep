@@ -17,15 +17,23 @@ export const HEALTH_TYPE_ICONS: Record<HealthType, string> = {
   custom:   '⭐',
 };
 
+// 루틴 내 개별 항목 (시간 + 내용)
+export type HealthEntry = {
+  id: string;       // 고유 ID (Date.now().toString())
+  time: string;     // 시간 (예: "07:00", "19:30")
+  desc: string;     // 내용 (예: "30분 러닝", "단백질 식단")
+};
+
 export type HealthRoutine = {
   id: string;
-  icon: string;          // 이모지
-  name: string;          // 루틴 이름 (예: 간헐적 단식, 저탄고지)
-  type: HealthType;      // 카테고리
-  schedule: string;      // 스케줄 설명 (예: 16:8 단식, 매일 30분 걷기)
-  repeatDays?: number[]; // 반복 요일 0=일~6=토 (비어있으면 매일)
-  goal?: string;         // 목표 (선택)
-  active: boolean;       // 활성 여부
+  icon: string;
+  name: string;
+  type: HealthType;
+  schedule: string;
+  entries: HealthEntry[];  // 시간별 세부 항목
+  repeatDays?: number[];
+  goal?: string;
+  active: boolean;
   createdAt: string;
   updatedAt: string;
 };

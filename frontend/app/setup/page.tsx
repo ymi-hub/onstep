@@ -1594,34 +1594,68 @@ function HealthView({
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
   const TYPES: HealthType[] = ['diet', 'exercise', 'meal', 'sleep', 'custom'];
   const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+  // ── 루틴 추가/편집 시트 상태 ──
   const [editId, setEditId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [type, setType] = useState<HealthType>('exercise');
   const [schedule, setSchedule] = useState('');
   const [goal, setGoal] = useState('');
   const [repeatDays, setRepeatDays] = useState<number[]>([]);
+  const [entries, setEntries] = useState<import('@/types/healthroutine').HealthEntry[]>([]);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
+  // ── 항목(entry) 편집 상태 ──
+  const [editEntryId, setEditEntryId] = useState<string | null>(null);
+  const [entryTime, setEntryTime] = useState('');
+  const [entryDesc, setEntryDesc] = useState('');
+
   const icon = HEALTH_TYPE_ICONS[type];
+
+  // 카테고리별 그룹
+  const grouped = TYPES.reduce<Record<HealthType, HealthRoutine[]>>((acc, t) => {
+    acc[t] = items.filter(i => i.type === t);
+    return acc;
+  }, {} as Record<HealthType, HealthRoutine[]>);
 
   function openNew() {
     setEditId(null); setName(''); setType('exercise'); setSchedule('');
-    setGoal(''); setRepeatDays([]); setShowForm(true);
+    setGoal(''); setRepeatDays([]); setEntries([]); setShowForm(true);
   }
   function openEdit(item: HealthRoutine) {
     setEditId(item.id); setName(item.name); setType(item.type);
     setSchedule(item.schedule); setGoal(item.goal || ''); setRepeatDays(item.repeatDays ?? []);
-    setShowForm(true);
+    setEntries(item.entries ?? []); setShowForm(true);
   }
   function toggleDay(d: number) {
     setRepeatDays(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d].sort());
   }
+
+  // 항목 추가/수정
+  function addOrUpdateEntry() {
+    if (!entryTime || !entryDesc.trim()) return;
+    if (editEntryId) {
+      setEntries(prev => prev.map(e => e.id === editEntryId ? { ...e, time: entryTime, desc: entryDesc.trim() } : e));
+      setEditEntryId(null);
+    } else {
+      setEntries(prev => [...prev, { id: Date.now().toString(), time: entryTime, desc: entryDesc.trim() }]);
+    }
+    setEntryTime(''); setEntryDesc('');
+  }
+  function startEditEntry(e: import('@/types/healthroutine').HealthEntry) {
+    setEditEntryId(e.id); setEntryTime(e.time); setEntryDesc(e.desc);
+  }
+  function deleteEntry(id: string) {
+    setEntries(prev => prev.filter(e => e.id !== id));
+    if (editEntryId === id) { setEditEntryId(null); setEntryTime(''); setEntryDesc(''); }
+  }
+
   async function handleSave() {
     if (!name.trim()) { alert('루틴 이름을 입력해주세요.'); return; }
     setSaving(true);
     try {
-      const data = { icon, name: name.trim(), type, schedule, goal, repeatDays, active: true };
+      const data = { icon, name: name.trim(), type, schedule, goal, repeatDays, entries, active: true };
       if (editId) await onUpdate(editId, data);
       else await onAdd(data);
       setShowForm(false);
@@ -1635,23 +1669,55 @@ function HealthView({
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto', overflowY: 'auto' }}>
+    <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
       <SubPageHeader title="🥗 건강 루틴" onClose={onBack} />
-      <div style={{ flex: 1, padding: '16px', overflowY: 'auto' }}>
-        {/* 목록 */}
-        {items.map(item => (
-          <div key={item.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 24, flexShrink: 0 }}>{item.icon || HEALTH_TYPE_ICONS[item.type]}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{item.name}</div>
-              <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
-                {HEALTH_TYPE_LABELS[item.type]}{item.schedule ? ` · ${item.schedule}` : ''}
-                {item.repeatDays?.length ? ` · ${item.repeatDays.map(d => DAYS[d]).join('·')}` : ' · 매일'}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 80px' }}>
+
+        {/* 카테고리별 그룹 목록 */}
+        {TYPES.map(t => {
+          const list = grouped[t];
+          if (!list.length) return null;
+          return (
+            <div key={t} style={{ marginBottom: 20 }}>
+              {/* 카테고리 헤더 */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: '#9A9490', marginBottom: 8 }}>
+                {HEALTH_TYPE_ICONS[t]} {HEALTH_TYPE_LABELS[t].toUpperCase()}
               </div>
+              {list.map(item => (
+                <div key={item.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, marginBottom: 8, overflow: 'hidden' }}>
+                  {/* 루틴 헤더 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
+                    <span style={{ fontSize: 20 }}>{item.icon || HEALTH_TYPE_ICONS[item.type]}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>{item.name}</div>
+                      {(item.schedule || item.goal) && (
+                        <div style={{ fontFamily: f, fontSize: 10, color: '#9A9490', marginTop: 1 }}>
+                          {item.schedule}{item.goal ? ` · 목표: ${item.goal}` : ''}
+                        </div>
+                      )}
+                      {item.repeatDays?.length ? (
+                        <div style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>{item.repeatDays.map(d => DAYS[d]).join('·')}</div>
+                      ) : null}
+                    </div>
+                    <button onClick={() => openEdit(item)} style={{ padding: '4px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846', flexShrink: 0 }}>편집</button>
+                  </div>
+                  {/* 시간별 항목 */}
+                  {(item.entries ?? []).length > 0 && (
+                    <div style={{ borderTop: '1px solid rgba(12,12,10,.06)' }}>
+                      {(item.entries ?? []).sort((a, b) => a.time.localeCompare(b.time)).map(e => (
+                        <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
+                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
+                          <span style={{ fontFamily: f, fontSize: 12, color: '#4A4846', flex: 1 }}>{e.desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-            <button onClick={() => openEdit(item)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
-          </div>
-        ))}
+          );
+        })}
+
         {items.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>🥗</div>
@@ -1663,40 +1729,77 @@ function HealthView({
         </button>
       </div>
 
-      {/* 등록/편집 시트 */}
+      {/* 등록/편집 바텀시트 */}
       {showForm && (
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,.4)', backdropFilter: 'blur(3px)', zIndex: 10 }} onClick={() => setShowForm(false)}>
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', padding: '20px 20px 36px' }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, marginBottom: 16 }}>{editId ? '루틴 수정' : '새 루틴 추가'}</div>
-            {/* 타입 선택 */}
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-              {TYPES.map(t => (
-                <button key={t} onClick={() => setType(t)} style={{ padding: '5px 12px', borderRadius: 9999, border: `1.5px solid ${type === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: type === t ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: type === t ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
-                  {HEALTH_TYPE_ICONS[t]} {HEALTH_TYPE_LABELS[t]}
-                </button>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,.45)', backdropFilter: 'blur(3px)', zIndex: 10 }} onClick={() => setShowForm(false)}>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: '20px 20px 0' }}>
+              <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, marginBottom: 14 }}>{editId ? '루틴 수정' : '새 루틴 추가'}</div>
+
+              {/* 타입 선택 */}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                {TYPES.map(t => (
+                  <button key={t} onClick={() => setType(t)} style={{ padding: '5px 12px', borderRadius: 9999, border: `1.5px solid ${type === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: type === t ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: type === t ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                    {HEALTH_TYPE_ICONS[t]} {HEALTH_TYPE_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+
+              {/* 기본 정보 */}
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="루틴 이름" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 8, outline: 'none', boxSizing: 'border-box' as const }} />
+              <input value={schedule} onChange={e => setSchedule(e.target.value)} placeholder="스케줄 설명 (예: 매일 저녁 7시)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 8, outline: 'none', boxSizing: 'border-box' as const }} />
+              <input value={goal} onChange={e => setGoal(e.target.value)} placeholder="목표 (선택)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 10, outline: 'none', boxSizing: 'border-box' as const }} />
+
+              {/* 반복 요일 */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>반복 요일 (비워두면 매일)</div>
+              <div style={{ display: 'flex', gap: 5, marginBottom: 16 }}>
+                {DAYS.map((d, i) => (
+                  <button key={i} onClick={() => toggleDay(i)} style={{ width: 32, height: 32, borderRadius: 9999, border: `1.5px solid ${repeatDays.includes(i) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: repeatDays.includes(i) ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: repeatDays.includes(i) ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                    {d}
+                  </button>
+                ))}
+              </div>
+
+              {/* ── 시간별 항목 ── */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: '#0C0C0A', marginBottom: 8 }}>시간별 항목</div>
+
+              {/* 기존 항목 목록 */}
+              {entries.sort((a, b) => a.time.localeCompare(b.time)).map(e => (
+                <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: editEntryId === e.id ? '#F5FDD4' : '#F9F9F7', borderRadius: 10, marginBottom: 6, border: `1px solid ${editEntryId === e.id ? '#C5FF00' : 'transparent'}` }}>
+                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
+                  <span style={{ fontFamily: f, fontSize: 12, flex: 1, color: '#4A4846' }}>{e.desc}</span>
+                  <button onClick={() => startEditEntry(e)} style={{ border: 'none', background: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer', padding: '2px 6px' }}>수정</button>
+                  <button onClick={() => deleteEntry(e.id)} style={{ border: 'none', background: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
+                </div>
               ))}
-            </div>
-            {/* 이름 */}
-            <input value={name} onChange={e => setName(e.target.value)} placeholder={`루틴 이름 (예: ${type === 'exercise' ? '저녁 30분 걷기' : type === 'diet' ? '간헐적 단식 16:8' : '저탄고지 식단'})`} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 10, outline: 'none' }} />
-            {/* 스케줄 */}
-            <input value={schedule} onChange={e => setSchedule(e.target.value)} placeholder="스케줄 설명 (예: 매일 저녁 7시)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 10, outline: 'none' }} />
-            {/* 목표 */}
-            <input value={goal} onChange={e => setGoal(e.target.value)} placeholder="목표 (선택, 예: -5kg, 체지방 감량)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 12, outline: 'none' }} />
-            {/* 반복 요일 */}
-            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>반복 요일 (비워두면 매일)</div>
-            <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
-              {DAYS.map((d, i) => (
-                <button key={i} onClick={() => toggleDay(i)} style={{ width: 34, height: 34, borderRadius: 9999, border: `1.5px solid ${repeatDays.includes(i) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: repeatDays.includes(i) ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: repeatDays.includes(i) ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
-                  {d}
+
+              {/* 새 항목 입력란 */}
+              <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+                <input
+                  type="time"
+                  value={entryTime}
+                  onChange={e => setEntryTime(e.target.value)}
+                  style={{ width: 88, padding: '9px 8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, outline: 'none', flexShrink: 0 }}
+                />
+                <input
+                  value={entryDesc}
+                  onChange={e => setEntryDesc(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOrUpdateEntry(); } }}
+                  placeholder="내용 입력 (예: 30분 러닝)"
+                  style={{ flex: 1, padding: '9px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 12, outline: 'none' }}
+                />
+                <button onClick={addOrUpdateEntry} style={{ padding: '9px 12px', background: '#0C0C0A', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>
+                  {editEntryId ? '수정' : '추가'}
                 </button>
-              ))}
-            </div>
-            {/* 버튼 */}
-            <div style={{ display: 'flex', gap: 8 }}>
-              {editId && <button onClick={() => handleDelete(editId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
-              <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
-                {saving ? '저장 중…' : '저장'}
-              </button>
+              </div>
+
+              {/* 저장/삭제 버튼 */}
+              <div style={{ display: 'flex', gap: 8, paddingBottom: 28 }}>
+                {editId && <button onClick={() => handleDelete(editId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
+                <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
+                  {saving ? '저장 중…' : '저장'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
