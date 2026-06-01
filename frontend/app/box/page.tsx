@@ -697,7 +697,7 @@ export default function BoxPage() {
 
   // 필터 상태
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<string>('beauty');
+  const [activeTab, setActiveTab] = useState<string>('all'); // 기본: 전체 보기
   const [subType, setSubType] = useState<string>('skincare');
   const [boxConfig, setBoxConfig] = useState<BoxConfig>(DEFAULT_BOX_CONFIG);
   const [manageOpen, setManageOpen] = useState(false);
@@ -780,9 +780,9 @@ export default function BoxPage() {
 
   // ── 필터링된 제품 목록 ────────────────────────────────────────────────────
   const filtered = products.filter((p) => {
-    // 도메인 필터
-    if (p.domain !== activeTab) return false;
-    // 서브타입 필터 (서브타입이 있는 도메인만)
+    // 도메인 필터 — 'all'이면 전체 표시
+    if (activeTab !== 'all' && p.domain !== activeTab) return false;
+    // 서브타입 필터 (서브타입이 있는 도메인만, 전체 보기 시 스킵)
     const activeDomainCfg = boxConfig.domains.find(d => d.id === activeTab);
     if (activeDomainCfg?.subTypes?.length && p.subCategory && p.subCategory !== subType) return false;
     // 카테고리 필터 — resolveCategory로 변환 후 비교
@@ -1070,6 +1070,22 @@ export default function BoxPage() {
             {activeTab === id ? `#${label}` : label}
           </button>
         ))}
+        {/* ⊞ 전체 보기 버튼 */}
+        <button
+          onClick={() => handleTabChange('all')}
+          title="전체 보기"
+          style={{
+            padding: '11px 14px 10px',
+            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+            fontSize: 15, fontWeight: 700,
+            color: activeTab === 'all' ? '#0C0C0A' : '#9A9490',
+            background: 'none', border: 'none', cursor: 'pointer',
+            borderBottom: activeTab === 'all' ? '3px solid #C5FF00' : '3px solid transparent',
+            transition: 'all .18s', lineHeight: 1,
+          }}
+        >
+          ⊞
+        </button>
       </div>
 
       {/* 검색 바 */}
@@ -1105,8 +1121,8 @@ export default function BoxPage() {
         </div>
       </div>
 
-      {/* 서브타입 탭 (서브타입 있는 도메인만 표시) */}
-      {activeDomain?.subTypes?.length ? (
+      {/* 서브타입 탭 (서브타입 있는 도메인만 표시, 전체 보기 시 숨김) */}
+      {activeTab !== 'all' && activeDomain?.subTypes?.length ? (
         <div
           style={{
             display: 'flex',
@@ -1136,8 +1152,8 @@ export default function BoxPage() {
         </div>
       ) : null}
 
-      {/* 카테고리 칩 (모든 탭) */}
-      {cats.length > 0 && (
+      {/* 카테고리 칩 (전체 보기 시 숨김) */}
+      {activeTab !== 'all' && cats.length > 0 && (
         <div
           style={{
             display: 'flex', gap: 6, padding: '10px 16px 8px',
