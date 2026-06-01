@@ -87,6 +87,24 @@ function toDateStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// SVG 고양이 — TODAY 체크 버튼과 동일한 드로잉, 색상 파라미터
+function CatBadge({ color, size = 20 }: { color: string; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 36 36" fill="none">
+      <polygon points="9,16 5,3 17,12" fill={color} stroke="#0C0C0A" strokeWidth="1.3"/>
+      <polygon points="27,16 31,3 19,12" fill={color} stroke="#0C0C0A" strokeWidth="1.3"/>
+      <polygon points="10,15 7,6 15,11" fill="#FFB3C6" opacity="0.7"/>
+      <polygon points="26,15 29,6 21,11" fill="#FFB3C6" opacity="0.7"/>
+      <circle cx="18" cy="22" r="13" fill={color} stroke="#0C0C0A" strokeWidth="1.5"/>
+      <path d="M10 20 Q13 25 16 20" stroke="#0C0C0A" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      <path d="M20 20 Q23 25 26 20" stroke="#0C0C0A" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      <ellipse cx="10" cy="25" rx="3.2" ry="2" fill="#FF8FA3" opacity="0.45"/>
+      <ellipse cx="26" cy="25" rx="3.2" ry="2" fill="#FF8FA3" opacity="0.45"/>
+      <path d="M13.5 28 Q15.5 31.5 18 29.5 Q20.5 31.5 22.5 28" stroke="#0C0C0A" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+    </svg>
+  );
+}
+
 // ─── 월별 캘린더 ─────────────────────────────────────────────────────────────
 //
 // 💡 캘린더 동작 방식:
@@ -304,16 +322,10 @@ function MonthCalendar({
                 {format(day, 'd')}
               </span>
 
-              {/* 아침(라임)·저녁(오렌지) 고양이 이모지 */}
-              <div style={{ display: 'flex', gap: 1 }}>
-                {[
-                  { done: log?.hasMorning, color: '#C5FF00' },
-                  { done: log?.hasEvening, color: '#F97316' },
-                ].map((c, i) => (
-                  <div key={i} style={{ width: 12, height: 12, borderRadius: 9999, background: c.done ? c.color : 'rgba(12,12,10,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, lineHeight: 1 }}>
-                    {c.done ? '🐱' : ''}
-                  </div>
-                ))}
+              {/* 아침(라임)·저녁(오렌지) SVG 고양이 */}
+              <div style={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={14} />
+                <CatBadge color={log?.hasEvening ? '#F97316' : 'rgba(12,12,10,.12)'} size={14} />
               </div>
             </button>
           );
@@ -741,16 +753,10 @@ function RecentStrip({
               </span>
 
               {/* 오늘: 하나라도 완료면 캐릭터 / 나머지: 아침(라임)·저녁(블랙) 닷 */}
-              {/* 아침(라임)·저녁(오렌지) 고양이 이모지 */}
-              <div style={{ display: 'flex', gap: 3 }}>
-                {[
-                  { done: log?.hasMorning, color: '#C5FF00' },
-                  { done: log?.hasEvening, color: '#F97316' },
-                ].map((c, i) => (
-                  <div key={i} style={{ width: 16, height: 16, borderRadius: 9999, background: c.done ? c.color : 'rgba(12,12,10,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, lineHeight: 1 }}>
-                    {c.done ? '🐱' : ''}
-                  </div>
-                ))}
+              {/* 아침(라임)·저녁(오렌지) SVG 고양이 */}
+              <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={18} />
+                <CatBadge color={log?.hasEvening ? '#F97316' : 'rgba(12,12,10,.12)'} size={18} />
               </div>
             </button>
           );

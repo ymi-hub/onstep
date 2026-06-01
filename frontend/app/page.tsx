@@ -490,6 +490,24 @@ function playAlarmChime() {
 // ─── 루틴 플로우 카드 ─────────────────────────────────────────────────────────
 // today.html .flow-step-card: 아침/저녁 탭 + 제품 스트립 + 체크 버튼
 
+// SVG 고양이 뱃지 — 체크 버튼과 동일한 드로잉, 색상만 변경
+function CatBadge({ color, size = 20 }: { color: string; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 36 36" fill="none">
+      <polygon points="9,16 5,3 17,12" fill={color} stroke="#0C0C0A" strokeWidth="1.3"/>
+      <polygon points="27,16 31,3 19,12" fill={color} stroke="#0C0C0A" strokeWidth="1.3"/>
+      <polygon points="10,15 7,6 15,11" fill="#FFB3C6" opacity="0.7"/>
+      <polygon points="26,15 29,6 21,11" fill="#FFB3C6" opacity="0.7"/>
+      <circle cx="18" cy="22" r="13" fill={color} stroke="#0C0C0A" strokeWidth="1.5"/>
+      <path d="M10 20 Q13 25 16 20" stroke="#0C0C0A" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      <path d="M20 20 Q23 25 26 20" stroke="#0C0C0A" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      <ellipse cx="10" cy="25" rx="3.2" ry="2" fill="#FF8FA3" opacity="0.45"/>
+      <ellipse cx="26" cy="25" rx="3.2" ry="2" fill="#FF8FA3" opacity="0.45"/>
+      <path d="M13.5 28 Q15.5 31.5 18 29.5 Q20.5 31.5 22.5 28" stroke="#0C0C0A" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+    </svg>
+  );
+}
+
 function FlowCard({
   todayMorning,
   todayEvening,
@@ -647,15 +665,11 @@ function FlowCard({
             }}
           >
             {t === 'morning' ? '☀ MORNING' : '🌙 NIGHT'}
-            {/* 완료 시 고양이 이모지 뱃지 — 아침(라임) / 저녁(오렌지) */}
+            {/* 완료 시 SVG 고양이 뱃지 — 아침(라임) / 저녁(오렌지) */}
             {(t === 'morning' ? checked.morning : checked.evening) && (
-              <span style={{
-                position: 'absolute', top: -6, right: -6,
-                width: 18, height: 18, borderRadius: 9999,
-                background: t === 'morning' ? '#C5FF00' : '#F97316',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 10, lineHeight: 1,
-              }}>🐱</span>
+              <span style={{ position: 'absolute', top: -8, right: -8, display: 'block', width: 20, height: 20 }}>
+                <CatBadge color={t === 'morning' ? '#C5FF00' : '#F97316'} size={20} />
+              </span>
             )}
           </button>
         ))}
