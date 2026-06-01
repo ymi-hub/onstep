@@ -1460,8 +1460,8 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                 <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', background: '#1C1C1C', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                  {/* "EDITORIAL CHOICE" 배지 (좌상단) */}
-                  <div style={{ position: 'absolute', top: 14, left: 14, background: 'rgba(0,0,0,.55)', backdropFilter: 'blur(6px)', borderRadius: 6, padding: '4px 10px', fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.12em', color: '#fff', textTransform: 'uppercase' as const }}>
+                  {/* "EDITORIAL CHOICE" 배지 (우상단) */}
+                  <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(0,0,0,.55)', backdropFilter: 'blur(6px)', borderRadius: 6, padding: '4px 10px', fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.12em', color: '#fff', textTransform: 'uppercase' as const }}>
                     EDITORIAL CHOICE
                   </div>
                   {/* 하단 그라데이션 + 이름 */}
