@@ -2241,17 +2241,25 @@ export default function TodayPage() {
           </div>
         )}
 
-        {/* 건강 루틴 섹션 */}
-        {healthRoutines.filter(h => h.active).length > 0 && (
+        {/* 건강 루틴 섹션 — showInToday=true 인 것만 (Habits와 동일) */}
+        {healthRoutines.filter(h => h.showInToday).length > 0 && (
           <div>
-            <SectionHeader title="#Health" action={`${healthRoutines.filter(h => h.active).length}개`} />
+            <SectionHeader title="#Health" action={`${healthRoutines.filter(h => h.showInToday).length}개`} />
             <div style={{ padding: '0 16px 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {healthRoutines.filter(h => h.active).map(h => (
+              {healthRoutines.filter(h => h.showInToday).map(h => (
                 <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 14 }}>
                   <span style={{ fontSize: 20 }}>{h.icon || '🥗'}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>{h.name}</div>
                     {h.schedule && <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>{h.schedule}</div>}
+                    {/* 시간별 항목 */}
+                    {(h.entries ?? []).length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
+                        {[...(h.entries ?? [])].sort((a, b) => a.time.localeCompare(b.time)).map(e => (
+                          <span key={e.id} style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 700, background: '#0C0C0A', color: '#C5FF00', padding: '1px 6px', borderRadius: 5 }}>{e.time}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

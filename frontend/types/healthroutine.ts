@@ -34,6 +34,7 @@ export type HealthRoutine = {
   repeatDays?: number[];
   goal?: string;
   active: boolean;
+  showInToday?: boolean; // TODAY 탭 노출 여부 (Habits와 동일)
   createdAt: string;
   updatedAt: string;
 };

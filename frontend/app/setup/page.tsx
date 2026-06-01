@@ -1585,7 +1585,7 @@ function MedView({
 
 // ─── HEALTH VIEW — 건강·다이어트 루틴 관리 ───────────────────────────────────
 function HealthView({
-  items, categories, onBack, onAdd, onUpdate, onDelete,
+  items, categories, onBack, onAdd, onUpdate, onDelete, onToggleToday,
   onAddCategory, onUpdateCategory, onDeleteCategory, onEnsureDefaultCategories,
 }: {
   items: HealthRoutine[];
@@ -1594,6 +1594,7 @@ function HealthView({
   onAdd: (h: Omit<HealthRoutine, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onUpdate: (id: string, h: Partial<Omit<HealthRoutine, 'id'>>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onToggleToday: (id: string, current: boolean) => void;
   onAddCategory: (c: Omit<HealthCategory, 'id' | 'createdAt'>) => Promise<void>;
   onUpdateCategory: (id: string, c: Partial<Omit<HealthCategory, 'id'>>) => Promise<void>;
   onDeleteCategory: (id: string) => Promise<void>;
@@ -1773,7 +1774,12 @@ function HealthView({
                         {item.schedule && <div style={{ fontFamily: f, fontSize: 10, color: '#9A9490', marginTop: 1 }}>{item.schedule}{item.goal ? ` · 목표: ${item.goal}` : ''}</div>}
                         {item.repeatDays?.length ? <div style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>{item.repeatDays.map((d: number) => DAYS[d]).join('·')}</div> : null}
                       </div>
-                      <button onClick={() => openEdit(item)} style={{ padding: '4px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
+                      {/* TODAY 토글 — Habits와 동일 */}
+                    <button onClick={() => onToggleToday(item.id, !!item.showInToday)}
+                      style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: item.showInToday ? '#C5FF00' : '#F4F4F0', color: item.showInToday ? '#0C0C0A' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', transition: 'all .18s', flexShrink: 0 }}>
+                      TODAY
+                    </button>
+                    <button onClick={() => openEdit(item)} style={{ padding: '4px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
                     </div>
                     {(item.entries ?? []).length > 0 && (
                       <div style={{ borderTop: '1px solid rgba(12,12,10,.06)' }}>
@@ -1792,6 +1798,36 @@ function HealthView({
             <button onClick={openNew} disabled={categories.length === 0} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: categories.length ? '#9A9490' : '#BCBAB6', cursor: categories.length ? 'pointer' : 'not-allowed', marginTop: 8 }}>
               {categories.length === 0 ? '먼저 카테고리를 추가해주세요' : '+ 새 루틴 추가'}
             </button>
+
+            {/* HEALTH — TODAY 목록 (Habits 하단 목록과 동일) */}
+            {items.some(i => i.showInToday) && (
+              <div style={{ padding: '24px 0 0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>HEALTH</span>
+                  <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>TODAY</span>
+                  <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>{items.filter(i => i.showInToday).length}개</span>
+                </div>
+                <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                  {items.filter(i => i.showInToday).map((item, idx) => (
+                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', background: '#FAFAF8' }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+                        {item.icon}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
+                        {item.entries?.length ? (
+                          <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>{item.entries.length}개 일정</div>
+                        ) : null}
+                      </div>
+                      <button onClick={() => onToggleToday(item.id, true)}
+                        style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 9, fontWeight: 800, letterSpacing: '.08em' }}>
+                        TODAY ✓
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -3123,6 +3159,18 @@ export default function SetupPage() {
     await deleteDoc(doc(db, 'users', userId, 'habits', id));
   }
 
+  async function handleToggleHealthToday(id: string, current: boolean) {
+    if (!user || !db) { alert('로그인이 필요합니다.'); return; }
+    try {
+      await updateDoc(doc(db, 'users', userId, 'healthRoutines', id), {
+        showInToday: !current,
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('[OnStep] 건강루틴 TODAY 토글 실패:', err);
+    }
+  }
+
   async function handleToggleHabitToday(id: string, current: boolean) {
     if (!user || !db) { alert('로그인이 필요합니다.'); return; }
     try {
@@ -3265,6 +3313,7 @@ export default function SetupPage() {
           onAdd={handleAddHealth}
           onUpdate={handleUpdateHealth}
           onDelete={handleDeleteHealth}
+          onToggleToday={handleToggleHealthToday}
           onAddCategory={handleAddHealthCategory}
           onUpdateCategory={handleUpdateHealthCategory}
           onDeleteCategory={handleDeleteHealthCategory}
