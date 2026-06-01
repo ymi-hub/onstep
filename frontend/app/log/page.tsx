@@ -1979,6 +1979,7 @@ export default function LogPage() {
                                   <div style={{ width: 16, height: 16, borderRadius: 4, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
                                     {done ? '✓' : ''}
                                   </div>
+                                  {h.icon && <span style={{ fontSize: 14, flexShrink: 0 }}>{h.icon}</span>}
                                   <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#0C0C0A' : '#BCBAB6' }}>{h.name}</span>
                                 </div>
                               );
