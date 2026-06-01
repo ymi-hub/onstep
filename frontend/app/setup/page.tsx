@@ -1608,10 +1608,41 @@ function HealthView({
 
   // ── 항목(entry) 편집 상태 ──
   const [editEntryId, setEditEntryId] = useState<string | null>(null);
-  const [entryTime, setEntryTime] = useState('');
+  const [entryAmPm, setEntryAmPm] = useState<'AM' | 'PM'>('AM');
+  const [entryHour, setEntryHour] = useState('06');
+  const [entryMin, setEntryMin] = useState('00');
   const [entryDesc, setEntryDesc] = useState('');
 
+  // 오전/오후 + 시간 → "HH:MM" 변환
+  function getEntryTime(): string {
+    let h = parseInt(entryHour);
+    if (entryAmPm === 'PM' && h !== 12) h += 12;
+    if (entryAmPm === 'AM' && h === 12) h = 0;
+    return `${String(h).padStart(2, '0')}:${entryMin}`;
+  }
+  // "HH:MM" → 오전/오후 + 시간 분해
+  function parseEntryTime(t: string) {
+    const [hStr, mStr] = t.split(':');
+    let h = parseInt(hStr);
+    const ap: 'AM' | 'PM' = h >= 12 ? 'PM' : 'AM';
+    if (h > 12) h -= 12;
+    if (h === 0) h = 12;
+    setEntryAmPm(ap);
+    setEntryHour(String(h).padStart(2, '0'));
+    setEntryMin(mStr || '00');
+  }
+
   const icon = HEALTH_TYPE_ICONS[type];
+
+  // "HH:MM" → "오전/오후 H시 MM분" 표시
+  function fmtTime(t: string): string {
+    if (!t) return '';
+    const [hStr, mStr] = t.split(':');
+    const h = parseInt(hStr);
+    const ap = h >= 12 ? '오후' : '오전';
+    const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
+    return `${ap} ${h12}:${mStr}`;
+  }
 
   // 카테고리별 그룹
   const grouped = TYPES.reduce<Record<HealthType, HealthRoutine[]>>((acc, t) => {
@@ -1634,21 +1665,22 @@ function HealthView({
 
   // 항목 추가/수정
   function addOrUpdateEntry() {
-    if (!entryTime || !entryDesc.trim()) return;
+    if (!entryDesc.trim()) { alert('내용을 입력해주세요.'); return; }
+    const time = getEntryTime();
     if (editEntryId) {
-      setEntries(prev => prev.map(e => e.id === editEntryId ? { ...e, time: entryTime, desc: entryDesc.trim() } : e));
+      setEntries(prev => prev.map(e => e.id === editEntryId ? { ...e, time, desc: entryDesc.trim() } : e));
       setEditEntryId(null);
     } else {
-      setEntries(prev => [...prev, { id: Date.now().toString(), time: entryTime, desc: entryDesc.trim() }]);
+      setEntries(prev => [...prev, { id: Date.now().toString(), time, desc: entryDesc.trim() }]);
     }
-    setEntryTime(''); setEntryDesc('');
+    setEntryDesc('');
   }
   function startEditEntry(e: import('@/types/healthroutine').HealthEntry) {
-    setEditEntryId(e.id); setEntryTime(e.time); setEntryDesc(e.desc);
+    setEditEntryId(e.id); parseEntryTime(e.time); setEntryDesc(e.desc);
   }
   function deleteEntry(id: string) {
     setEntries(prev => prev.filter(e => e.id !== id));
-    if (editEntryId === id) { setEditEntryId(null); setEntryTime(''); setEntryDesc(''); }
+    if (editEntryId === id) { setEditEntryId(null); setEntryAmPm('AM'); setEntryHour('06'); setEntryMin('00'); setEntryDesc(''); }
   }
 
   async function handleSave() {
@@ -1706,7 +1738,7 @@ function HealthView({
                     <div style={{ borderTop: '1px solid rgba(12,12,10,.06)' }}>
                       {(item.entries ?? []).sort((a, b) => a.time.localeCompare(b.time)).map(e => (
                         <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
-                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
+                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{fmtTime(e.time)}</span>
                           <span style={{ fontFamily: f, fontSize: 12, color: '#4A4846', flex: 1 }}>{e.desc}</span>
                         </div>
                       ))}
@@ -1774,23 +1806,41 @@ function HealthView({
               ))}
 
               {/* 새 항목 입력란 */}
-              <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-                <input
-                  type="time"
-                  value={entryTime}
-                  onChange={e => setEntryTime(e.target.value)}
-                  style={{ width: 88, padding: '9px 8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, outline: 'none', flexShrink: 0 }}
-                />
-                <input
-                  value={entryDesc}
-                  onChange={e => setEntryDesc(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOrUpdateEntry(); } }}
-                  placeholder="내용 입력 (예: 30분 러닝)"
-                  style={{ flex: 1, padding: '9px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 12, outline: 'none' }}
-                />
-                <button onClick={addOrUpdateEntry} style={{ padding: '9px 12px', background: '#0C0C0A', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>
-                  {editEntryId ? '수정' : '추가'}
-                </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, padding: '12px', background: '#F9F9F7', borderRadius: 12, border: '1px solid rgba(12,12,10,.07)' }}>
+                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em' }}>시간 설정</div>
+                {/* 오전/오후 + 시간 + 분 */}
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <select value={entryAmPm} onChange={e => setEntryAmPm(e.target.value as 'AM' | 'PM')}
+                    style={{ padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, background: '#fff', outline: 'none', flexShrink: 0 }}>
+                    <option value="AM">오전</option>
+                    <option value="PM">오후</option>
+                  </select>
+                  <select value={entryHour} onChange={e => setEntryHour(e.target.value)}
+                    style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, background: '#fff', outline: 'none' }}>
+                    {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(h => (
+                      <option key={h} value={h}>{h}시</option>
+                    ))}
+                  </select>
+                  <select value={entryMin} onChange={e => setEntryMin(e.target.value)}
+                    style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, background: '#fff', outline: 'none' }}>
+                    {['00', '10', '15', '20', '30', '40', '45', '50'].map(m => (
+                      <option key={m} value={m}>{m}분</option>
+                    ))}
+                  </select>
+                </div>
+                {/* 내용 + 추가 버튼 */}
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input
+                    value={entryDesc}
+                    onChange={e => setEntryDesc(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOrUpdateEntry(); } }}
+                    placeholder="내용 입력 (예: 30분 러닝)"
+                    style={{ flex: 1, padding: '9px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }}
+                  />
+                  <button onClick={addOrUpdateEntry} style={{ padding: '9px 14px', background: '#0C0C0A', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>
+                    {editEntryId ? '수정' : '추가'}
+                  </button>
+                </div>
               </div>
 
               {/* 저장/삭제 버튼 */}
