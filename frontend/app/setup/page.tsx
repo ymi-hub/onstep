@@ -1558,6 +1558,10 @@ function DietPlanView({
   const [isNew, setIsNew] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // 프리셋 시작일 상태
+  const [presetStartDate, setPresetStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [presetLoading, setPresetLoading] = useState(false);
+
   // 프로그램 기본 정보 상태
   const [pName, setPName] = useState('');
   const [pIcon, setPIcon] = useState('📋');
@@ -1806,13 +1810,18 @@ function DietPlanView({
               1~3일 / 4~6일 / 7~14일 3패턴 · 총 10개 타임슬롯 자동 입력
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <input type="date" defaultValue={new Date().toISOString().slice(0,10)} id="preset-start-date"
+              <input type="date" value={presetStartDate} onChange={e => setPresetStartDate(e.target.value)}
                 style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(124,58,237,.3)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
-              <button onClick={async () => {
-                const d = (document.getElementById('preset-start-date') as HTMLInputElement)?.value || new Date().toISOString().slice(0,10);
-                await onAdd(make14DayPreset(d));
-              }} style={{ padding: '9px 16px', background: '#7C3AED', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#fff', cursor: 'pointer', flexShrink: 0 }}>
-                불러오기
+              <button
+                disabled={presetLoading}
+                onClick={async () => {
+                  setPresetLoading(true);
+                  try { await onAdd(make14DayPreset(presetStartDate)); }
+                  catch (err) { console.error(err); alert('불러오기 실패'); }
+                  finally { setPresetLoading(false); }
+                }}
+                style={{ padding: '9px 16px', background: presetLoading ? '#9B7FD4' : '#7C3AED', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#fff', cursor: presetLoading ? 'default' : 'pointer', flexShrink: 0 }}>
+                {presetLoading ? '생성 중…' : '불러오기'}
               </button>
             </div>
           </div>
