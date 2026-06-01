@@ -1696,6 +1696,11 @@ function DietPlanView({
     await onUpdate(p.id, { showInToday: !p.showInToday });
   }
 
+  // 드롭다운 열린 플랜 id
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  // 드롭다운에서 볼 패턴 인덱스
+  const [viewPatIdx, setViewPatIdx] = useState<Record<string, number>>({});
+
   // ── 편집 화면 ──
   if (editProgram !== null) {
     const pat = pPatterns[activePatternIdx];
@@ -1857,23 +1862,81 @@ function DietPlanView({
         {programs.map(p => {
           const dayN = Math.floor((Date.now() - new Date(p.startDate).getTime()) / 86400000) + 1;
           const curPat = p.patterns?.find(pat => dayN >= pat.dayStart && dayN <= pat.dayEnd);
+          const isExpanded = expandedId === p.id;
+          const patIdx = viewPatIdx[p.id] ?? 0;
+          const viewPat = p.patterns?.[patIdx];
+          const beforeStart = dayN < 1;
+          const totalDays = p.patterns?.reduce((m, pt) => Math.max(m, pt.dayEnd), 0) ?? 0;
+
           return (
-            <div key={p.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, padding: '14px 16px', marginBottom: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 24 }}>{p.icon}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
+            <div key={p.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, marginBottom: 10, overflow: 'hidden' }}>
+              {/* 헤더 행 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 14px 14px 14px' }}>
+                {/* 드롭다운 토글 */}
+                <button onClick={() => setExpandedId(isExpanded ? null : p.id)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, flexShrink: 0, lineHeight: 1 }}>
+                  {p.icon}
+                </button>
+                <div onClick={() => setExpandedId(isExpanded ? null : p.id)} role="button" style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}>
                   <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{p.name}</div>
                   <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>
-                    시작 {p.startDate} · D+{Math.max(1, dayN)}일차
-                    {curPat ? ` · ${curPat.label}` : ''}
+                    {beforeStart
+                      ? `D-${Math.abs(dayN - 1)+1}일 전 시작`
+                      : dayN > totalDays
+                        ? `완료 (${totalDays}일)`
+                        : `D+${dayN}일차 · ${curPat?.label ?? ''}`}
                   </div>
                 </div>
+                {/* 오른쪽 버튼들 */}
                 <button onClick={() => toggleShowInToday(p)}
                   style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: p.showInToday ? '#C5FF00' : '#F4F4F0', color: p.showInToday ? '#0C0C0A' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', flexShrink: 0 }}>
                   TODAY
                 </button>
                 <button onClick={() => openEdit(p)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
+                <button onClick={() => setExpandedId(isExpanded ? null : p.id)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 14, transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>▾</button>
               </div>
+
+              {/* 드롭다운 콘텐츠 */}
+              {isExpanded && (
+                <div style={{ borderTop: '1px solid rgba(12,12,10,.07)' }}>
+                  {/* 패턴 탭 */}
+                  <div style={{ display: 'flex', gap: 5, padding: '10px 14px 6px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+                    {p.patterns?.map((pat, i) => (
+                      <button key={pat.id} onClick={() => setViewPatIdx(prev => ({ ...prev, [p.id]: i }))}
+                        style={{ flexShrink: 0, padding: '4px 10px', borderRadius: 9999, border: `1.5px solid ${patIdx === i ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: patIdx === i ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 10, fontWeight: 700, color: patIdx === i ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                        {pat.label}
+                      </button>
+                    ))}
+                  </div>
+                  {/* 타임라인 */}
+                  <div style={{ padding: '6px 14px 14px' }}>
+                    {viewPat?.timeline.map(item => (
+                      <div key={item.id}>
+                        {item.isWarning ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', background: '#FEF2F2', borderRadius: 9, marginBottom: 5 }}>
+                            <span style={{ fontSize: 13 }}>⚠️</span>
+                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626' }}>{(item as DietWarning).text}</span>
+                          </div>
+                        ) : (
+                          <div style={{ padding: '8px 10px', background: '#FAFAF8', borderRadius: 10, marginBottom: 5, border: '1px solid rgba(12,12,10,.06)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
+                              {(item as DietSlot).time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: '#0C0C0A', color: '#C5FF00', padding: '1px 7px', borderRadius: 5 }}>{(item as DietSlot).time}</span>}
+                              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{(item as DietSlot).label}</span>
+                              <span style={{ fontFamily: f, fontSize: 10, color: '#4A9ED6', fontWeight: 700 }}>💧{(item as DietSlot).water}ml</span>
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                              {(item as DietSlot).items.map(it => (
+                                <span key={it.id} style={{ fontFamily: f, fontSize: 10, background: '#EEEDE9', color: '#4A4846', padding: '2px 7px', borderRadius: 5 }}>{it.name}{it.qty ? `(${it.qty})` : ''}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}

@@ -2334,12 +2334,20 @@ export default function TodayPage() {
         {/* 다이어트 플랜 섹션 — showInToday=true, 오늘 일차에 맞는 패턴 */}
         {dietPrograms.filter(p => p.showInToday).map(p => {
           const dayN = Math.floor((Date.now() - new Date(p.startDate).getTime()) / 86400000) + 1;
-          const pat = p.patterns?.find(pt => dayN >= pt.dayStart && dayN <= pt.dayEnd);
+          // 시작 전 → 패턴1, 종료 후 → 마지막 패턴, 진행 중 → 해당 패턴
+          const sortedPats = [...(p.patterns ?? [])].sort((a, b) => a.dayStart - b.dayStart);
+          const pat = sortedPats.find(pt => dayN >= pt.dayStart && dayN <= pt.dayEnd)
+            ?? (dayN < 1 ? sortedPats[0] : sortedPats[sortedPats.length - 1]);
           if (!pat) return null;
+          const beforeStart = dayN < 1;
+          const daysLeft = beforeStart ? Math.abs(dayN - 1) + 1 : null;
           const fDiet = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
           return (
             <div key={p.id}>
-              <SectionHeader title={`#${p.name}`} action={`D+${dayN} · ${pat.label}`} />
+              <SectionHeader
+                title={`#${p.name}`}
+                action={beforeStart ? `D-${daysLeft}일 후 시작 · ${pat.label}` : `D+${dayN} · ${pat.label}`}
+              />
               <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
                 {pat.timeline.map((item, idx) => {
                   if (item.isWarning) {
