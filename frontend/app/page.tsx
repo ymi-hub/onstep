@@ -1255,15 +1255,15 @@ function OOTDSection({
                   const p = products.get(pid);
                   const imgUrl = p?.imageUrl || p?.storageUrl;
                   return (
-                    <div key={pid} style={{ flexShrink: 0, width: 200, scrollSnapAlign: 'start' as const, display: 'flex', flexDirection: 'column', gap: 0 }}>
-                      <div style={{ width: 200, height: 200, background: '#EDECE9', borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    <div key={pid} style={{ flexShrink: 0, width: 120, scrollSnapAlign: 'start' as const, display: 'flex', flexDirection: 'column', gap: 0 }}>
+                      <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 10, border: '1px solid #E5E5E5', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                         {imgUrl
                           // eslint-disable-next-line @next/next/no-img-element
                           ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          : <span style={{ fontSize: 48, opacity: 0.3 }}>👗</span>
+                          : <span style={{ fontSize: 32, opacity: 0.3 }}>👗</span>
                         }
                       </div>
-                      <div style={{ fontFamily: f, fontSize: 16, fontWeight: 700, color: '#0C0C0A', marginTop: 8, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>{p?.name ?? '—'}</div>
+                      <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>{p?.name ?? '—'}</div>
                       {p?.brand && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>{p.brand}</div>}
                     </div>
                   );
