@@ -1708,7 +1708,7 @@ export default function TodayPage() {
   }, [router]);
 
   // ── 공유 컨텍스트 (auth + 공유 구독 — layout에서 1회 실행, 탭 전환 시 즉시) ──
-  const { user, userId: ctxUserId, authLoading, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems } = useAppContext();
+  const { user, userId: ctxUserId, authLoading, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems, medRoutines, healthRoutines } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 데이터 상태 ──
@@ -2194,6 +2194,42 @@ export default function TodayPage() {
           habitChecked={habitChecked}
           onToggle={handleToggleHabit}
         />
+
+        {/* 약 루틴 섹션 */}
+        {medRoutines.filter(m => m.active).length > 0 && (
+          <div>
+            <SectionHeader title="#Medication" action={`${medRoutines.filter(m => m.active).length}개`} />
+            <div style={{ padding: '0 16px 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {medRoutines.filter(m => m.active).map(m => (
+                <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 14 }}>
+                  <span style={{ fontSize: 20 }}>{m.icon || '💊'}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>{m.name}</div>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>{m.dosage} · {m.times.map((t: string) => ({ morning: '아침', lunch: '점심', evening: '저녁', bedtime: '취침 전' }[t] ?? t)).join(' · ')}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 건강 루틴 섹션 */}
+        {healthRoutines.filter(h => h.active).length > 0 && (
+          <div>
+            <SectionHeader title="#Health" action={`${healthRoutines.filter(h => h.active).length}개`} />
+            <div style={{ padding: '0 16px 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {healthRoutines.filter(h => h.active).map(h => (
+                <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 14 }}>
+                  <span style={{ fontSize: 20 }}>{h.icon || '🥗'}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>{h.name}</div>
+                    {h.schedule && <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>{h.schedule}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 집중케어 섹션 — 오늘 기간에 해당하는 published 아이템 */}
         <CareSection items={activeCareItems} products={products} />

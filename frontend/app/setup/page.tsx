@@ -36,6 +36,10 @@ import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
 import type { Habit, RepeatType } from '@/types/habit';
 import type { CtItem, CtType } from '@/types/ctitem';
+import type { MedRoutine, MedTime } from '@/types/medication';
+import { MED_TIME_LABELS } from '@/types/medication';
+import type { HealthRoutine, HealthType } from '@/types/healthroutine';
+import { HEALTH_TYPE_LABELS, HEALTH_TYPE_ICONS } from '@/types/healthroutine';
 import ExpertTipField, { buildExpertTipHtml } from '@/components/ExpertTipField';
 import SearchBar from '@/components/SearchBar';
 import SubPageHeader from '@/components/SubPageHeader';
@@ -44,7 +48,7 @@ import { parseRoutineText, parseRoutinePhases, type ParsedResult } from '@/lib/p
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
-type View = 'hub' | 'sessions' | 'editor' | 'tracker' | 'care' | 'makeup' | 'lookbook';
+type View = 'hub' | 'sessions' | 'editor' | 'tracker' | 'care' | 'makeup' | 'lookbook' | 'medication' | 'health';
 
 // Habit, RepeatType, CtItem, CtType, Session → 공유 types에서 import
 
@@ -220,19 +224,23 @@ function GroqUsageSection() {
   );
 }
 
-function HubView({ onOpenSessions, onOpenTracker, onOpenCare }: {
+function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, onOpenHealth }: {
   onOpenSessions: () => void;
   onOpenTracker: () => void;
   onOpenCare: () => void;
+  onOpenMedication: () => void;
+  onOpenHealth: () => void;
 }) {
   // 메이크업·룩북은 LOG [아카이브] 탭으로 이동됨
   const cards = {
     left: [
-      { id: 'routine', badge: '#SESSION', title: '스킨케어 루틴', sub: 'DAILY CALIBRATIONS', cta: 'View Steps →', bg: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', emoji: '🌿', onClick: onOpenSessions, href: undefined },
-      { id: 'tracker', badge: '#DAILY', title: 'HABITS', sub: 'DAILY TRACKING', cta: 'Manage →', bg: 'linear-gradient(135deg,#f5ffe0 0%,#dcff80 100%)', emoji: '⏰', onClick: onOpenTracker, href: undefined },
+      { id: 'routine',    badge: '#SESSION',    title: '스킨케어 루틴', sub: 'DAILY CALIBRATIONS',  cta: 'View Steps →',  bg: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', emoji: '🌿', onClick: onOpenSessions,  href: undefined },
+      { id: 'tracker',    badge: '#DAILY',      title: 'HABITS',       sub: 'DAILY TRACKING',       cta: 'Manage →',      bg: 'linear-gradient(135deg,#f5ffe0 0%,#dcff80 100%)', emoji: '⏰', onClick: onOpenTracker,  href: undefined },
+      { id: 'medication', badge: '#MEDICATION', title: '약 루틴',       sub: 'MEDICATION SCHEDULE',  cta: 'Set Pills →',   bg: 'linear-gradient(135deg,#fff8f0 0%,#ffe0b0 100%)', emoji: '💊', onClick: onOpenMedication, href: undefined },
     ],
     right: [
-      { id: 'care', badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS', cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare, href: undefined },
+      { id: 'care',   badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS',     cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare,   href: undefined },
+      { id: 'health', badge: '#HEALTH',    title: '건강 루틴',     sub: 'DIET · EXERCISE · MEAL', cta: 'Plan →',     bg: 'linear-gradient(135deg,#f0fff4 0%,#a0e0b0 100%)', emoji: '🥗', onClick: onOpenHealth, href: undefined },
     ],
   };
 
@@ -1460,6 +1468,243 @@ function AiImportPanel({
   );
 }
 
+// ─── MED VIEW — 약 루틴 관리 ─────────────────────────────────────────────────
+function MedView({
+  items, onBack, onAdd, onUpdate, onDelete,
+}: {
+  items: MedRoutine[];
+  onBack: () => void;
+  onAdd: (m: Omit<MedRoutine, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onUpdate: (id: string, m: Partial<Omit<MedRoutine, 'id'>>) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+  const ALL_TIMES: MedTime[] = ['morning', 'lunch', 'evening', 'bedtime'];
+  const [editId, setEditId] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [icon, setIcon] = useState('💊');
+  const [dosage, setDosage] = useState('1정');
+  const [times, setTimes] = useState<MedTime[]>(['morning']);
+  const [note, setNote] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+
+  function openNew() {
+    setEditId(null); setName(''); setIcon('💊'); setDosage('1정');
+    setTimes(['morning']); setNote(''); setShowForm(true);
+  }
+  function openEdit(item: MedRoutine) {
+    setEditId(item.id); setName(item.name); setIcon(item.icon || '💊');
+    setDosage(item.dosage); setTimes(item.times); setNote(item.note || '');
+    setShowForm(true);
+  }
+  function toggleTime(t: MedTime) {
+    setTimes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+  }
+  async function handleSave() {
+    if (!name.trim()) { alert('약 이름을 입력해주세요.'); return; }
+    if (!times.length) { alert('복용 시간을 하나 이상 선택해주세요.'); return; }
+    setSaving(true);
+    try {
+      const data = { icon, name: name.trim(), dosage, times, note, active: true };
+      if (editId) await onUpdate(editId, data);
+      else await onAdd(data);
+      setShowForm(false);
+    } catch (err) { console.error(err); alert('저장 실패'); }
+    finally { setSaving(false); }
+  }
+  async function handleDelete(id: string) {
+    if (!confirm('삭제할까요?')) return;
+    await onDelete(id);
+    setShowForm(false);
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto', overflowY: 'auto' }}>
+      <SubPageHeader title="💊 약 루틴" onClose={onBack} />
+      <div style={{ flex: 1, padding: '16px', overflowY: 'auto' }}>
+        {/* 목록 */}
+        {items.map(item => (
+          <div key={item.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 24, flexShrink: 0 }}>{item.icon || '💊'}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{item.name}</div>
+              <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
+                {item.dosage} · {item.times.map(t => MED_TIME_LABELS[t]).join(' · ')}
+              </div>
+            </div>
+            <button onClick={() => openEdit(item)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
+          </div>
+        ))}
+        {items.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>💊</div>
+            복용 중인 약을 등록해보세요
+          </div>
+        )}
+        <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginTop: 8 }}>
+          + 새 약 추가
+        </button>
+      </div>
+
+      {/* 등록/편집 시트 */}
+      {showForm && (
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,.4)', backdropFilter: 'blur(3px)', zIndex: 10 }} onClick={() => setShowForm(false)}>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', padding: '20px 20px 36px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, marginBottom: 16 }}>{editId ? '약 수정' : '새 약 추가'}</div>
+            {/* 이름 */}
+            <input value={name} onChange={e => setName(e.target.value)} placeholder="약 이름 (예: 오메가3, 비타민D)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 10, outline: 'none' }} />
+            {/* 용량 */}
+            <input value={dosage} onChange={e => setDosage(e.target.value)} placeholder="용량 (예: 1정, 2캡슐)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 12, outline: 'none' }} />
+            {/* 복용 시간 */}
+            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>복용 시간 (복수 선택)</div>
+            <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 12 }}>
+              {ALL_TIMES.map(t => (
+                <button key={t} onClick={() => toggleTime(t)} style={{ padding: '6px 14px', borderRadius: 9999, border: `1.5px solid ${times.includes(t) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: times.includes(t) ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: times.includes(t) ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                  {MED_TIME_LABELS[t]}
+                </button>
+              ))}
+            </div>
+            {/* 메모 */}
+            <input value={note} onChange={e => setNote(e.target.value)} placeholder="주의사항 (선택)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 14, outline: 'none' }} />
+            {/* 버튼 */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              {editId && <button onClick={() => handleDelete(editId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
+              <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
+                {saving ? '저장 중…' : '저장'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── HEALTH VIEW — 건강·다이어트 루틴 관리 ───────────────────────────────────
+function HealthView({
+  items, onBack, onAdd, onUpdate, onDelete,
+}: {
+  items: HealthRoutine[];
+  onBack: () => void;
+  onAdd: (h: Omit<HealthRoutine, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onUpdate: (id: string, h: Partial<Omit<HealthRoutine, 'id'>>) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+  const TYPES: HealthType[] = ['diet', 'exercise', 'meal', 'sleep', 'custom'];
+  const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+  const [editId, setEditId] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [type, setType] = useState<HealthType>('exercise');
+  const [schedule, setSchedule] = useState('');
+  const [goal, setGoal] = useState('');
+  const [repeatDays, setRepeatDays] = useState<number[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+
+  const icon = HEALTH_TYPE_ICONS[type];
+
+  function openNew() {
+    setEditId(null); setName(''); setType('exercise'); setSchedule('');
+    setGoal(''); setRepeatDays([]); setShowForm(true);
+  }
+  function openEdit(item: HealthRoutine) {
+    setEditId(item.id); setName(item.name); setType(item.type);
+    setSchedule(item.schedule); setGoal(item.goal || ''); setRepeatDays(item.repeatDays ?? []);
+    setShowForm(true);
+  }
+  function toggleDay(d: number) {
+    setRepeatDays(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d].sort());
+  }
+  async function handleSave() {
+    if (!name.trim()) { alert('루틴 이름을 입력해주세요.'); return; }
+    setSaving(true);
+    try {
+      const data = { icon, name: name.trim(), type, schedule, goal, repeatDays, active: true };
+      if (editId) await onUpdate(editId, data);
+      else await onAdd(data);
+      setShowForm(false);
+    } catch (err) { console.error(err); alert('저장 실패'); }
+    finally { setSaving(false); }
+  }
+  async function handleDelete(id: string) {
+    if (!confirm('삭제할까요?')) return;
+    await onDelete(id);
+    setShowForm(false);
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto', overflowY: 'auto' }}>
+      <SubPageHeader title="🥗 건강 루틴" onClose={onBack} />
+      <div style={{ flex: 1, padding: '16px', overflowY: 'auto' }}>
+        {/* 목록 */}
+        {items.map(item => (
+          <div key={item.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 24, flexShrink: 0 }}>{item.icon || HEALTH_TYPE_ICONS[item.type]}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{item.name}</div>
+              <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
+                {HEALTH_TYPE_LABELS[item.type]}{item.schedule ? ` · ${item.schedule}` : ''}
+                {item.repeatDays?.length ? ` · ${item.repeatDays.map(d => DAYS[d]).join('·')}` : ' · 매일'}
+              </div>
+            </div>
+            <button onClick={() => openEdit(item)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
+          </div>
+        ))}
+        {items.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>🥗</div>
+            다이어트·운동·식단 루틴을 등록해보세요
+          </div>
+        )}
+        <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginTop: 8 }}>
+          + 새 루틴 추가
+        </button>
+      </div>
+
+      {/* 등록/편집 시트 */}
+      {showForm && (
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,.4)', backdropFilter: 'blur(3px)', zIndex: 10 }} onClick={() => setShowForm(false)}>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', padding: '20px 20px 36px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, marginBottom: 16 }}>{editId ? '루틴 수정' : '새 루틴 추가'}</div>
+            {/* 타입 선택 */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+              {TYPES.map(t => (
+                <button key={t} onClick={() => setType(t)} style={{ padding: '5px 12px', borderRadius: 9999, border: `1.5px solid ${type === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: type === t ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: type === t ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                  {HEALTH_TYPE_ICONS[t]} {HEALTH_TYPE_LABELS[t]}
+                </button>
+              ))}
+            </div>
+            {/* 이름 */}
+            <input value={name} onChange={e => setName(e.target.value)} placeholder={`루틴 이름 (예: ${type === 'exercise' ? '저녁 30분 걷기' : type === 'diet' ? '간헐적 단식 16:8' : '저탄고지 식단'})`} style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 10, outline: 'none' }} />
+            {/* 스케줄 */}
+            <input value={schedule} onChange={e => setSchedule(e.target.value)} placeholder="스케줄 설명 (예: 매일 저녁 7시)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 10, outline: 'none' }} />
+            {/* 목표 */}
+            <input value={goal} onChange={e => setGoal(e.target.value)} placeholder="목표 (선택, 예: -5kg, 체지방 감량)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 12, outline: 'none' }} />
+            {/* 반복 요일 */}
+            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>반복 요일 (비워두면 매일)</div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+              {DAYS.map((d, i) => (
+                <button key={i} onClick={() => toggleDay(i)} style={{ width: 34, height: 34, borderRadius: 9999, border: `1.5px solid ${repeatDays.includes(i) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: repeatDays.includes(i) ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: repeatDays.includes(i) ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                  {d}
+                </button>
+              ))}
+            </div>
+            {/* 버튼 */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              {editId && <button onClick={() => handleDelete(editId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
+              <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
+                {saving ? '저장 중…' : '저장'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── TRACKER VIEW ────────────────────────────────────────────────────────────
 function TrackerView({
   habits, onBack, onAddHabit, onUpdateHabit, onDeleteHabit, user, onToggleToday,
@@ -2501,7 +2746,7 @@ const VALID_VIEWS: View[] = ['hub', 'sessions', 'editor', 'tracker', 'care', 'ma
 
 export default function SetupPage() {
   // ── 공유 컨텍스트 ──
-  const { user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems } = useAppContext();
+  const { user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines } = useAppContext();
 
   const [view, setView] = useState<View>('hub');
   const [loadingSessions, setLoadingSessions] = useState(true);
@@ -2662,6 +2907,36 @@ export default function SetupPage() {
     }
   }
 
+  // ── MedRoutine CRUD ─────────────────────────────────────────────────────────
+  async function handleAddMed(m: Omit<MedRoutine, 'id' | 'createdAt' | 'updatedAt'>) {
+    if (!user || !db) { alert('로그인이 필요합니다.'); return; }
+    const now = new Date().toISOString();
+    await addDoc(collection(db, 'users', userId, 'medRoutines'), { ...m, createdAt: now, updatedAt: now });
+  }
+  async function handleUpdateMed(id: string, m: Partial<Omit<MedRoutine, 'id'>>) {
+    if (!db) return;
+    await updateDoc(doc(db, 'users', userId, 'medRoutines', id), { ...m, updatedAt: new Date().toISOString() });
+  }
+  async function handleDeleteMed(id: string) {
+    if (!db) return;
+    await deleteDoc(doc(db, 'users', userId, 'medRoutines', id));
+  }
+
+  // ── HealthRoutine CRUD ───────────────────────────────────────────────────────
+  async function handleAddHealth(h: Omit<HealthRoutine, 'id' | 'createdAt' | 'updatedAt'>) {
+    if (!user || !db) { alert('로그인이 필요합니다.'); return; }
+    const now = new Date().toISOString();
+    await addDoc(collection(db, 'users', userId, 'healthRoutines'), { ...h, createdAt: now, updatedAt: now });
+  }
+  async function handleUpdateHealth(id: string, h: Partial<Omit<HealthRoutine, 'id'>>) {
+    if (!db) return;
+    await updateDoc(doc(db, 'users', userId, 'healthRoutines', id), { ...h, updatedAt: new Date().toISOString() });
+  }
+  async function handleDeleteHealth(id: string) {
+    if (!db) return;
+    await deleteDoc(doc(db, 'users', userId, 'healthRoutines', id));
+  }
+
   // ── CtItem CRUD ─────────────────────────────────────────────────────────────
   function ctCollection(ct: CtType) {
     return ct === 'care' ? 'careItems' : ct === 'makeup' ? 'makeupItems' : 'lookItems';
@@ -2691,6 +2966,8 @@ export default function SetupPage() {
         onOpenSessions={() => goView('sessions')}
         onOpenTracker={() => goView('tracker')}
         onOpenCare={() => goView('care')}
+        onOpenMedication={() => goView('medication')}
+        onOpenHealth={() => goView('health')}
       />
       {(view === 'sessions' || view === 'editor') && (
         <SessionsView key={sessionsKey} sessions={sessions} products={products} loading={loadingSessions} onBack={() => goView('hub')} onNew={openNewSession} onEdit={openEdit} onUpdateNumber={handleUpdateSessionNumber} />
@@ -2719,6 +2996,24 @@ export default function SetupPage() {
         />
       )}
       {/* 메이크업·룩북은 LOG [아카이브] 탭으로 이동 */}
+      {view === 'medication' && (
+        <MedView
+          items={medRoutines}
+          onBack={() => goView('hub')}
+          onAdd={handleAddMed}
+          onUpdate={handleUpdateMed}
+          onDelete={handleDeleteMed}
+        />
+      )}
+      {view === 'health' && (
+        <HealthView
+          items={healthRoutines}
+          onBack={() => goView('hub')}
+          onAdd={handleAddHealth}
+          onUpdate={handleUpdateHealth}
+          onDelete={handleDeleteHealth}
+        />
+      )}
     </>
   );
 }
