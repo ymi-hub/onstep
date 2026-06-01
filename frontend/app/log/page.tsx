@@ -304,12 +304,11 @@ function MonthCalendar({
                 {format(day, 'd')}
               </span>
 
-              {/* 완료 표시 */}
-              {anyDone ? (
-                <StampBadge size={20} rotate={-8} full={bothDone} />
-              ) : (
-                <span style={{ width: 6, height: 6 }} />
-              )}
+              {/* 완료 닷 — 아침(라임) · 저녁(블랙) */}
+              <div style={{ display: 'flex', gap: 2, alignItems: 'center', height: 8 }}>
+                <div style={{ width: 6, height: 6, borderRadius: 9999, background: log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.08)', flexShrink: 0 }} />
+                <div style={{ width: 6, height: 6, borderRadius: 9999, background: log?.hasEvening ? '#0C0C0A' : 'rgba(12,12,10,.08)', flexShrink: 0 }} />
+              </div>
             </button>
           );
         })}
@@ -735,12 +734,11 @@ function RecentStrip({
                 {format(day, 'd')}
               </span>
 
-              {/* 완료 표시 */}
-              {(bothDone || halfDone) ? (
-                <StampBadge size={26} rotate={-10} full={!!bothDone} />
-              ) : (
-                <div style={{ width: 10, height: 10, borderRadius: 9999, background: 'rgba(12,12,10,.1)', flexShrink: 0 }} />
-              )}
+              {/* 완료 닷 — 아침(라임) · 저녁(블랙) */}
+              <div style={{ display: 'flex', gap: 3, alignItems: 'center', height: 10 }}>
+                <div style={{ width: 7, height: 7, borderRadius: 9999, background: log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.1)', flexShrink: 0 }} />
+                <div style={{ width: 7, height: 7, borderRadius: 9999, background: log?.hasEvening ? '#0C0C0A' : 'rgba(12,12,10,.1)', flexShrink: 0 }} />
+              </div>
             </button>
           );
         })}
