@@ -304,26 +304,19 @@ function MonthCalendar({
                 {format(day, 'd')}
               </span>
 
-              {/* 완료 표시 — 아침(라임) / 저녁(오렌지) / 둘다(라임+오렌지 이중 테두리) */}
-              {(log?.hasMorning || log?.hasEvening) ? (
-                <div style={{
-                  width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
-                  border: log?.hasMorning && log?.hasEvening
-                    ? '2px solid #C5FF00'
-                    : log?.hasMorning
-                    ? '2px solid #C5FF00'
-                    : '2px solid #F97316',
-                  boxShadow: log?.hasMorning && log?.hasEvening ? '0 0 0 1.5px #F97316' : 'none',
-                }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                </div>
-              ) : (
-                <div style={{ width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid rgba(12,12,10,.12)', opacity: 0.3 }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'grayscale(100%)' }} />
-                </div>
-              )}
+              {/* 아침·저녁 고양이 항상 2마리 표시 */}
+              <div style={{ display: 'flex', gap: 1 }}>
+                {[
+                  { done: log?.hasMorning, color: '#C5FF00' },
+                  { done: log?.hasEvening, color: '#F97316' },
+                ].map((c, i) => (
+                  <div key={i} style={{ position: 'relative', width: 11, height: 11, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${c.done ? c.color : 'rgba(12,12,10,.12)'}` }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: c.done ? 'none' : 'grayscale(100%) opacity(0.4)' }} />
+                    {c.done && <div style={{ position: 'absolute', inset: 0, background: c.color, opacity: 0.25, mixBlendMode: 'multiply' as const }} />}
+                  </div>
+                ))}
+              </div>
             </button>
           );
         })}
@@ -750,25 +743,19 @@ function RecentStrip({
               </span>
 
               {/* 오늘: 하나라도 완료면 캐릭터 / 나머지: 아침(라임)·저녁(블랙) 닷 */}
-              {(log?.hasMorning || log?.hasEvening) ? (
-                <div style={{
-                  width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
-                  border: log?.hasMorning && log?.hasEvening
-                    ? '2px solid #C5FF00'
-                    : log?.hasMorning
-                    ? '2px solid #C5FF00'
-                    : '2px solid #F97316',
-                  boxShadow: log?.hasMorning && log?.hasEvening ? '0 0 0 1.5px #F97316' : 'none',
-                }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                </div>
-              ) : (
-                <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid rgba(12,12,10,.12)', opacity: 0.3 }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'grayscale(100%)' }} />
-                </div>
-              )}
+              {/* 아침·저녁 고양이 항상 2마리 표시 */}
+              <div style={{ display: 'flex', gap: 2 }}>
+                {[
+                  { done: log?.hasMorning, color: '#C5FF00' },
+                  { done: log?.hasEvening, color: '#F97316' },
+                ].map((c, i) => (
+                  <div key={i} style={{ position: 'relative', width: 13, height: 13, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${c.done ? c.color : 'rgba(12,12,10,.12)'}` }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: c.done ? 'none' : 'grayscale(100%) opacity(0.4)' }} />
+                    {c.done && <div style={{ position: 'absolute', inset: 0, background: c.color, opacity: 0.25, mixBlendMode: 'multiply' as const }} />}
+                  </div>
+                ))}
+              </div>
             </button>
           );
         })}
