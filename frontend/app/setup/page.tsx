@@ -1473,6 +1473,72 @@ function AiImportPanel({
   );
 }
 
+// ─── 2주 다이어트 프리셋 데이터 ──────────────────────────────────────────────
+function make14DayPreset(startDate: string): Omit<DietProgram, 'id' | 'createdAt' | 'updatedAt'> {
+  let _id = 1;
+  const id = () => String(_id++);
+
+  const slot = (time: string | undefined, label: string, water: number, items: [string, string][]): DietSlot => ({
+    id: id(), time, label, water,
+    items: items.map(([name, qty]) => ({ id: id(), name, qty })),
+    isWarning: false,
+  });
+  const warn = (text: string): DietWarning => ({ id: id(), text, isWarning: true });
+
+  // ── 패턴 1: 1~3일 ──────────────────────────────────────────────────────────
+  const p1: DietPattern = {
+    id: id(), label: '패턴 1 (1~3일)', dayStart: 1, dayEnd: 3,
+    timeline: [
+      slot('08:00', '아침 식사시',   350, [['파워칵테일','2'],['액티바이즈','2'],['듀오','40'],['뮤노겐','2']]),
+      slot('09:00', '아침 +1시간후', 250, [['리스토레이트','1']]),
+      slot(undefined, '아침 공복시', 500, [['피트니스드링크','1'],['액티바이즈','2']]),
+      warn('공복 유지 4~5시간 꼭!! 지켜주세요!!'),
+      slot('13:00', '점심 식사시',   350, [['파워칵테일','2'],['액티바이즈','2']]),
+      slot('14:00', '점심 +1시간후', 250, [['리스토레이트','1']]),
+      slot(undefined, '점심 공복시', 500, [['피트니스드링크','1'],['액티바이즈','2']]),
+      warn('공복 유지 4~5시간 꼭!! 지켜주세요!!'),
+      slot('18:00', '저녁 식사시',   350, [['파워칵테일','2']]),
+      slot('19:00', '저녁 +1시간후', 350, [['리스토레이트','2'],['듀오','40']]),
+    ],
+  };
+
+  // ── 패턴 2: 4~6일 ──────────────────────────────────────────────────────────
+  const p2: DietPattern = {
+    id: id(), label: '패턴 2 (4~6일)', dayStart: 4, dayEnd: 6,
+    timeline: [
+      slot('08:00', '아침 식사시',   350, [['파워칵테일','2'],['액티바이즈','2'],['듀오','40']]),
+      slot('09:00', '아침 +1시간후', 350, [['웨이','2'],['프로쉐이프 망고','2'],['리스토레이트','1'],['뮤노겐','2']]),
+      slot(undefined, '아침 공복시', 500, [['피트니스드링크','1'],['액티바이즈','2']]),
+      warn('공복 유지 4~5시간 꼭!! 지켜주세요!!'),
+      slot('13:00', '점심 식사시',   350, [['웨이','2'],['프로쉐이프 망고','2'],['리스토레이트','1']]),
+      slot(undefined, '점심 공복시', 500, [['피트니스드링크','1'],['액티바이즈','2']]),
+      warn('공복 유지 4~5시간 꼭!! 지켜주세요!!'),
+      slot('18:00', '저녁 식사시',   350, [['웨이','2'],['프로쉐이프 초코','1'],['뷰티','3']]),
+      slot('19:00', '저녁 +1시간후', 250, [['리스토레이트','1'],['듀오','40']]),
+    ],
+  };
+
+  // ── 패턴 3: 7~14일 ─────────────────────────────────────────────────────────
+  const p3: DietPattern = {
+    id: id(), label: '패턴 3 (7~14일)', dayStart: 7, dayEnd: 14,
+    timeline: [
+      slot('08:00', '아침 식사시',   200, [['파워칵테일','1'],['액티바이즈','2'],['듀오','40']]),
+      slot('09:00', '아침 +1시간후', 350, [['웨이','2'],['프로쉐이프 망고','2'],['리스토레이트','1'],['뮤노겐','2']]),
+      slot('13:00', '점심 식사시',   350, [['한식 위주 식사','1/2'],['샐러드','']]),
+      slot(undefined, '점심 공복시', 500, [['피트니스드링크','']]),
+      slot('18:00', '저녁 식사시',   350, [['웨이','2'],['프로쉐이프 초코','1'],['뷰티','3']]),
+      slot('19:00', '저녁 +1시간후', 250, [['리스토레이트','1'],['듀오','40']]),
+    ],
+  };
+
+  return {
+    name: '2주 다이어트', icon: '📋',
+    startDate,
+    patterns: [p1, p2, p3],
+    active: true, showInToday: false,
+  };
+}
+
 // ─── DIET PLAN VIEW ──────────────────────────────────────────────────────────
 function DietPlanView({
   programs, onBack, onAdd, onUpdate, onDelete,
@@ -1503,7 +1569,9 @@ function DietPlanView({
   const [slotLabel, setSlotLabel] = useState('');
   const [slotTime, setSlotTime] = useState('');
   const [slotWater, setSlotWater] = useState('');
-  const [slotItems, setSlotItems] = useState(''); // "파워칵테일(2),웨이(2)" 형태
+  const [slotItemTags, setSlotItemTags] = useState<DietItem[]>([]); // 태그 목록
+  const [slotItemInput, setSlotItemInput] = useState('');  // 이름
+  const [slotItemQty, setSlotItemQty] = useState('');      // 수량
 
   function openNew() {
     setIsNew(true);
@@ -1528,13 +1596,14 @@ function DietPlanView({
     setEditProgram(p);
   }
 
-  // 슬롯 파싱: "파워칵테일(2), 웨이(2)" → DietItem[]
-  function parseItems(raw: string): DietItem[] {
-    return raw.split(',').map(s => s.trim()).filter(Boolean).map((s, i) => {
-      const m = s.match(/^(.+?)\((.+)\)$/);
-      if (m) return { id: `${Date.now()}-${i}`, name: m[1].trim(), qty: m[2].trim() };
-      return { id: `${Date.now()}-${i}`, name: s, qty: '' };
-    });
+  // 제품 태그 추가
+  function addItemTag() {
+    if (!slotItemInput.trim()) return;
+    setSlotItemTags(prev => [...prev, { id: Date.now().toString(), name: slotItemInput.trim(), qty: slotItemQty.trim() }]);
+    setSlotItemInput(''); setSlotItemQty('');
+  }
+  function removeItemTag(id: string) {
+    setSlotItemTags(prev => prev.filter(t => t.id !== id));
   }
 
   function addSlot() {
@@ -1544,7 +1613,7 @@ function DietPlanView({
       time: slotTime || undefined,
       label: slotLabel.trim(),
       water: parseInt(slotWater) || 0,
-      items: parseItems(slotItems),
+      items: slotItemTags,
       isWarning: false,
     };
     const updated = [...pPatterns];
@@ -1553,7 +1622,7 @@ function DietPlanView({
       timeline: [...updated[activePatternIdx].timeline, newSlot],
     };
     setPPatterns(updated);
-    setSlotLabel(''); setSlotTime(''); setSlotWater(''); setSlotItems('');
+    setSlotLabel(''); setSlotTime(''); setSlotWater(''); setSlotItemTags([]);
   }
 
   function addWarning() {
@@ -1671,20 +1740,39 @@ function DietPlanView({
           {/* 슬롯 추가 입력 */}
           <div style={{ background: '#F9F9F7', borderRadius: 14, padding: '12px', border: '1px solid rgba(12,12,10,.07)', marginTop: 8, marginBottom: 12 }}>
             <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>타임슬롯 추가</div>
+            {/* 시간·타이밍명·물 */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 7 }}>
               <select value={slotTime} onChange={e => setSlotTime(e.target.value)}
-                style={{ width: 80, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, background: '#fff', outline: 'none' }}>
+                style={{ width: 76, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, background: '#fff', outline: 'none' }}>
                 <option value="">공복시</option>
                 {Array.from({length:24},(_,i)=>String(i).padStart(2,'0')).map(h=>['00','30'].map(m=>`${h}:${m}`)).flat().map(t=><option key={t} value={t}>{t}</option>)}
               </select>
-              <input value={slotLabel} onChange={e=>setSlotLabel(e.target.value)} placeholder="타이밍 (아침 식사시)" style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
-              <input value={slotWater} onChange={e=>setSlotWater(e.target.value)} placeholder="물ml" style={{ width: 60, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
+              <input value={slotLabel} onChange={e=>setSlotLabel(e.target.value)} placeholder="타이밍명 (아침 식사시)" style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
+              <input value={slotWater} onChange={e=>setSlotWater(e.target.value)} placeholder="ml" style={{ width: 52, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
             </div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <input value={slotItems} onChange={e=>setSlotItems(e.target.value)} placeholder="파워칵테일(2), 웨이(2), 듀오(40)" style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 11, outline: 'none', background: '#fff' }} />
-              <button onClick={addSlot} style={{ padding: '8px 14px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer' }}>추가</button>
+            {/* 제품 태그 목록 */}
+            {slotItemTags.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 7 }}>
+                {slotItemTags.map(tag => (
+                  <div key={tag.id} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#0C0C0A', borderRadius: 9999, padding: '3px 10px 3px 8px' }}>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00' }}>{tag.name}{tag.qty ? `(${tag.qty})` : ''}</span>
+                    <button onClick={() => removeItemTag(tag.id)} style={{ border: 'none', background: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 12, lineHeight: 1, padding: 0 }}>×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* 제품 추가 */}
+            <div style={{ display: 'flex', gap: 5, marginBottom: 7 }}>
+              <input value={slotItemInput} onChange={e=>setSlotItemInput(e.target.value)}
+                onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault(); addItemTag();} }}
+                placeholder="제품명 (예: 파워칵테일)" style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
+              <input value={slotItemQty} onChange={e=>setSlotItemQty(e.target.value)}
+                onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault(); addItemTag();} }}
+                placeholder="수량" style={{ width: 52, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
+              <button onClick={addItemTag} style={{ padding: '8px 12px', background: '#F4F4F0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer', flexShrink: 0 }}>+ 제품</button>
             </div>
-            <button onClick={addWarning} style={{ width: '100%', marginTop: 7, padding: '7px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>⚠️ 경고 배너 추가</button>
+            <button onClick={addSlot} style={{ width: '100%', padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', marginBottom: 6 }}>슬롯 추가</button>
+            <button onClick={addWarning} style={{ width: '100%', padding: '7px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>⚠️ 경고 배너 추가</button>
           </div>
 
           {/* 저장/삭제 */}
@@ -1708,6 +1796,25 @@ function DietPlanView({
           <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>📋</div>
             식단 플랜을 등록해보세요
+          </div>
+        )}
+        {/* 2주 프리셋 불러오기 */}
+        {programs.every(p => p.name !== '2주 다이어트') && (
+          <div style={{ background: 'linear-gradient(135deg,#fdf4ff,#e0a0ff)', borderRadius: 16, padding: '16px', marginBottom: 12, border: '1px solid rgba(124,58,237,.2)' }}>
+            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4C1D95', marginBottom: 4 }}>📋 2주 다이어트 프리셋</div>
+            <div style={{ fontFamily: f, fontSize: 11, color: '#6D28D9', marginBottom: 12, lineHeight: 1.6 }}>
+              1~3일 / 4~6일 / 7~14일 3패턴 · 총 10개 타임슬롯 자동 입력
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input type="date" defaultValue={new Date().toISOString().slice(0,10)} id="preset-start-date"
+                style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(124,58,237,.3)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
+              <button onClick={async () => {
+                const d = (document.getElementById('preset-start-date') as HTMLInputElement)?.value || new Date().toISOString().slice(0,10);
+                await onAdd(make14DayPreset(d));
+              }} style={{ padding: '9px 16px', background: '#7C3AED', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#fff', cursor: 'pointer', flexShrink: 0 }}>
+                불러오기
+              </button>
+            </div>
           </div>
         )}
         {programs.map(p => {
