@@ -685,7 +685,7 @@ function FlowCard({
             {/* 완료 시 SVG 고양이 뱃지 — 아침(라임) / 저녁(오렌지) */}
             {(t === 'morning' ? checked.morning : checked.evening) && (
               <span style={{ position: 'absolute', top: -8, right: -8, display: 'block', width: 20, height: 20 }}>
-                <CatBadge color={t === 'morning' ? '#C5FF00' : '#FF9A50'} size={20} />
+                <CatBadge color={t === 'morning' ? '#C5FF00' : '#f7bc45'} size={20} />
               </span>
             )}
           </button>
@@ -894,7 +894,7 @@ function FlowCard({
                 <>
                   {tab === 'morning' ? '☀' : '🌙'} 스킨케어 체크 완료
                   <span style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4 }}>
-                    <CatBadge color={tab === 'morning' ? '#C5FF00' : '#FF9A50'} size={20} />
+                    <CatBadge color={tab === 'morning' ? '#C5FF00' : '#f7bc45'} size={20} />
                   </span>
                 </>
               ) : (
