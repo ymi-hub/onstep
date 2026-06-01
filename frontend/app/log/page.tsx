@@ -304,10 +304,17 @@ function MonthCalendar({
                 {format(day, 'd')}
               </span>
 
-              {/* 아침(라임)·저녁(오렌지) 닷 */}
-              <div style={{ display: 'flex', gap: 2, alignItems: 'center', height: 8 }}>
-                <div style={{ width: 6, height: 6, borderRadius: 9999, background: log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.08)', flexShrink: 0 }} />
-                <div style={{ width: 6, height: 6, borderRadius: 9999, background: log?.hasEvening ? '#F97316' : 'rgba(12,12,10,.08)', flexShrink: 0 }} />
+              {/* 아침(라임)·저녁(오렌지) 캐릭터 2마리 */}
+              <div style={{ display: 'flex', gap: 1 }}>
+                {[
+                  { done: log?.hasMorning, color: '#C5FF00' },
+                  { done: log?.hasEvening, color: '#F97316' },
+                ].map((c, i) => (
+                  <div key={i} style={{ position: 'relative', width: 10, height: 10, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${c.done ? c.color : 'rgba(12,12,10,.1)'}` }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: c.done ? 'none' : 'grayscale(100%) opacity(0.35)' }} />
+                  </div>
+                ))}
               </div>
             </button>
           );
