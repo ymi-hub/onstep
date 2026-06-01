@@ -459,12 +459,9 @@ function formatTimerRemain(ms: number): string {
 }
 
 // Web Audio API로 3음 차임 사운드 재생
-function playAlarmChime() {
+// AudioContext를 외부에서 주입받아 재생 — 클릭 시점 컨텍스트 활용
+function playAlarmChime(ctx: AudioContext) {
   try {
-    const AudioCtx = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
-    // A5 → C6 → E6 (밝고 경쾌한 차임)
     const notes = [880, 1046, 1318];
     notes.forEach((freq, i) => {
       const osc  = ctx.createOscillator();
@@ -480,8 +477,6 @@ function playAlarmChime() {
       osc.start(t);
       osc.stop(t + 0.7);
     });
-    // 마지막 노트 후 context 정리
-    setTimeout(() => ctx.close(), 2000);
   } catch {
     // 사운드 미지원 환경에서는 조용히 무시
   }
@@ -544,6 +539,8 @@ function FlowCard({
   const [alarmLabel, setAlarmLabel] = useState<string | null>(null);
   const alarmFiredRef = useRef(false);           // 같은 타이머에서 중복 발화 방지
   const alarmDismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // AudioContext — 클릭 시점에 미리 생성(iOS 자동재생 정책 대응)
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {
     if (!timerEndMs) return;
@@ -557,8 +554,15 @@ function FlowCard({
         alarmFiredRef.current = true;
         setTimerEndMs(null);
 
-        // 사운드 재생
-        playAlarmChime();
+        // 사운드 재생 — 미리 생성된 AudioContext 활용 (iOS 자동재생 정책 대응)
+        if (audioCtxRef.current) {
+          const ctx = audioCtxRef.current;
+          if (ctx.state === 'suspended') {
+            ctx.resume().then(() => playAlarmChime(ctx)).catch(() => {});
+          } else if (ctx.state === 'running') {
+            playAlarmChime(ctx);
+          }
+        }
 
         // 알람 배너 표시
         setAlarmLabel(timerLabel);
@@ -584,6 +588,19 @@ function FlowCard({
     setAlarmVisible(false);   // 기존 배너 닫기
     setTimerLabel(label);
     setTimerEndMs(Date.now() + minutes * 60_000);
+    // 클릭 시점(사용자 제스처)에 AudioContext 미리 생성 — iOS 자동재생 정책 대응
+    try {
+      const AudioCtx = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (AudioCtx) {
+        if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
+          audioCtxRef.current = new AudioCtx();
+        }
+        // suspended 상태면 resume (iOS Safari)
+        if (audioCtxRef.current.state === 'suspended') {
+          void audioCtxRef.current.resume();
+        }
+      }
+    } catch { /* 미지원 환경 무시 */ }
   }
 
   function dismissAlarm() {
