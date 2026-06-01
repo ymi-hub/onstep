@@ -1758,10 +1758,21 @@ function DietPlanView({
                   <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#4E7D00', letterSpacing: '.06em', marginBottom: 8 }}>✎ 슬롯 편집</div>
                   {/* 시간·타이밍명·물 */}
                   <div style={{ display: 'flex', gap: 6, marginBottom: 7 }}>
-                    <select value={slotTime} onChange={e => setSlotTime(e.target.value)}
-                      style={{ width: 76, padding: '8px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 9, fontFamily: f, fontSize: 12, background: '#fff', outline: 'none' }}>
-                      <option value="">공복시</option>
-                      {Array.from({length:24},(_,i)=>String(i).padStart(2,'0')).map(h=>['00','10','15','20','30','40','45','50'].map(m=>`${h}:${m}`)).flat().map(t=><option key={t} value={t}>{t}</option>)}
+                    {/* 시 선택 */}
+                    <select value={slotTime ? slotTime.split(':')[0] : ''} onChange={e => {
+                      const h = e.target.value;
+                      const m = slotTime ? slotTime.split(':')[1] : '00';
+                      setSlotTime(h ? `${h}:${m}` : '');
+                    }} style={{ width: 62, padding: '8px 4px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 9, fontFamily: f, fontSize: 12, background: '#fff', outline: 'none' }}>
+                      <option value="">공복</option>
+                      {Array.from({length:24},(_,i)=>String(i).padStart(2,'0')).map(h=><option key={h} value={h}>{h}시</option>)}
+                    </select>
+                    {/* 분 선택 (시 선택 후에만 활성) */}
+                    <select value={slotTime ? slotTime.split(':')[1] : '00'} disabled={!slotTime} onChange={e => {
+                      const h = slotTime ? slotTime.split(':')[0] : '00';
+                      setSlotTime(`${h}:${e.target.value}`);
+                    }} style={{ width: 58, padding: '8px 4px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 9, fontFamily: f, fontSize: 12, background: slotTime ? '#fff' : '#F4F4F0', outline: 'none', color: slotTime ? '#0C0C0A' : '#BCBAB6' }}>
+                      {['00','10','15','20','30','40','45','50'].map(m=><option key={m} value={m}>{m}분</option>)}
                     </select>
                     <input value={slotLabel} onChange={e=>setSlotLabel(e.target.value)}
                       style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
@@ -1819,10 +1830,21 @@ function DietPlanView({
             <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>타임슬롯 추가</div>
             {/* 시간·타이밍명·물 */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 7 }}>
-              <select value={slotTime} onChange={e => setSlotTime(e.target.value)}
-                style={{ width: 76, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, background: '#fff', outline: 'none' }}>
-                <option value="">공복시</option>
-                {Array.from({length:24},(_,i)=>String(i).padStart(2,'0')).map(h=>['00','30'].map(m=>`${h}:${m}`)).flat().map(t=><option key={t} value={t}>{t}</option>)}
+              {/* 시 선택 */}
+              <select value={slotTime ? slotTime.split(':')[0] : ''} onChange={e => {
+                const h = e.target.value;
+                const m = slotTime ? slotTime.split(':')[1] : '00';
+                setSlotTime(h ? `${h}:${m}` : '');
+              }} style={{ width: 62, padding: '8px 4px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, background: '#fff', outline: 'none' }}>
+                <option value="">공복</option>
+                {Array.from({length:24},(_,i)=>String(i).padStart(2,'0')).map(h=><option key={h} value={h}>{h}시</option>)}
+              </select>
+              {/* 분 선택 */}
+              <select value={slotTime ? slotTime.split(':')[1] : '00'} disabled={!slotTime} onChange={e => {
+                const h = slotTime ? slotTime.split(':')[0] : '00';
+                setSlotTime(`${h}:${e.target.value}`);
+              }} style={{ width: 58, padding: '8px 4px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, background: slotTime ? '#fff' : '#F4F4F0', outline: 'none', color: slotTime ? '#0C0C0A' : '#BCBAB6' }}>
+                {['00','10','15','20','30','40','45','50'].map(m=><option key={m} value={m}>{m}분</option>)}
               </select>
               <input value={slotLabel} onChange={e=>setSlotLabel(e.target.value)} placeholder="타이밍명 (아침 식사시)" style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
               <input value={slotWater} onChange={e=>setSlotWater(e.target.value)} placeholder="ml" style={{ width: 52, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
