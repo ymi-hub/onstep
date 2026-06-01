@@ -823,8 +823,11 @@ function FlowCard({
           )}
         </div>
       ) : (
-        <div style={{ padding: '28px 20px', textAlign: 'center', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 20, lineHeight: 1.6, margin: '16px' }}>
-          이 시간대에 등록된 제품이 없습니다.<br />SETUP에서 아이템을 추가해보세요.
+        <div style={{ margin: '0 0 0 0', padding: '24px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 28 }}>🧴</span>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>이 시간대에 등록된 제품이 없습니다</div>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>SETUP에서 루틴에 제품을 추가해보세요</div>
+          <a href="/setup" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 2 }}>SETUP 바로가기 →</a>
         </div>
       )}
 
@@ -1052,72 +1055,23 @@ function RoutineEmptyCard() {
         </span>
       </div>
 
-      {/* 빈 상태 메시지 */}
-      <div
-        style={{
-          padding: '28px 20px',
-          textAlign: 'center',
-          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 13,
-          color: '#9A9490',
-          border: '1.5px dashed rgba(12,12,10,.14)',
-          borderRadius: 20,
-          lineHeight: 1.6,
-          margin: '16px',
-        }}
-      >
-        오늘 날짜에 해당하는 루틴이 없어요.
-        <br />
-        SETUP에서 케어 플랜을 등록해보세요.
-      </div>
-
-      {/* 하단 버튼 */}
-      <div style={{ padding: '0 16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {/* 빈 상태 — white card 패턴 통일 */}
+      <div style={{ margin: '0 16px', padding: '24px 16px 20px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 28 }}>🌿</span>
+        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘 날짜에 해당하는 루틴이 없어요</div>
+        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, color: '#9A9490', marginBottom: 8 }}>SETUP에서 케어 플랜을 등록해보세요</div>
         <Link
           href="/setup"
           style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            height: 44, width: '100%',
+            background: '#C5FF00', color: '#0C0C0A',
             fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#9A9490',
-            textDecoration: 'none',
+            fontSize: 13, fontWeight: 800, letterSpacing: '0.06em',
+            textTransform: 'uppercase', borderRadius: 12, textDecoration: 'none',
           }}
         >
-          Edit →
-        </Link>
-        <Link
-          href="/setup"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            height: 48,
-            background: '#C5FF00',
-            color: '#0C0C0A',
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 13,
-            fontWeight: 800,
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            borderRadius: 12,
-            textDecoration: 'none',
-            transition: 'opacity .2s',
-          }}
-        >
-          루틴 설정하기
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M5 12h14M12 5l7 7-7 7" />
-          </svg>
+          루틴 설정하기 →
         </Link>
       </div>
     </div>
@@ -1284,8 +1238,10 @@ function OOTDSection({
 
         {/* ── RECORD LOOK / Logged 카드 ── */}
         {!user ? (
-          <div style={{ padding: '20px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 20, lineHeight: 1.6 }}>
-            로그인하면 오늘의 룩을 기록할 수 있어요
+          <div style={{ padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 28 }}>👗</span>
+            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 룩을 기록해보세요</div>
+            <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>로그인하면 OOTD를 기록할 수 있어요</div>
           </div>
         ) : ootdLog ? (
           <div onClick={onRecord} style={{ border: '1.5px solid #4caf78', borderRadius: 9999, minHeight: 52, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
