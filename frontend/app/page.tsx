@@ -1756,6 +1756,8 @@ export default function TodayPage() {
   // ── 습관 상태 ──
   const [habitChecked, setHabitChecked] = useState<Set<string>>(new Set());
   const [habitLogs, setHabitLogs] = useState<{ id: string; habitId: string }[]>([]);
+  const [healthChecked, setHealthChecked] = useState<Set<string>>(new Set());
+  const [healthLogs, setHealthLogs] = useState<{ id: string; routineId: string }[]>([]);
 
   // ── 날짜 변경 감지 (자정 리셋) ──
   // visibilitychange: 앱이 백그라운드에서 돌아올 때 날짜가 바뀌었으면 키를 갱신
@@ -1895,6 +1897,29 @@ export default function TodayPage() {
     }, (err) => console.error('[OnStep] 습관 기록 로드 실패:', err));
     return () => unsub();
   }, [userId, authLoading, user, todayKey]); // todayKey: 날짜 변경 시 재구독
+
+  // 건강 루틴 체크 구독 (habitLogs와 동일 패턴)
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const todayStr = getTodayDateStr();
+    const q = query(
+      collection(_db, 'users', userId, 'healthLogs'),
+      where('dateStr', '==', todayStr)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const checked = new Set<string>();
+      const logs: { id: string; routineId: string }[] = [];
+      snap.docs.forEach((d) => {
+        const data = d.data() as { routineId: string };
+        checked.add(data.routineId);
+        logs.push({ id: d.id, routineId: data.routineId });
+      });
+      setHealthChecked(checked);
+      setHealthLogs(logs);
+    }, (err) => console.error('[OnStep] 건강루틴 기록 로드 실패:', err));
+    return () => unsub();
+  }, [userId, authLoading, user, todayKey]);
 
   // ── 루틴 체크 처리 ──
   // 💡 낙관적 업데이트(optimistic update): 서버 응답 기다리지 않고 UI 먼저 변경
@@ -2059,6 +2084,30 @@ export default function TodayPage() {
       }
     },
     [user, userId, habitChecked, habitLogs]
+  );
+
+  // ── 건강 루틴 토글 (완료/해제) ──
+  const handleToggleHealth = useCallback(
+    async (routineId: string) => {
+      const _db = db;
+      if (!_db || !user) return;
+      const todayStr = getTodayDateStr();
+      try {
+        if (healthChecked.has(routineId)) {
+          const log = healthLogs.find((l) => l.routineId === routineId);
+          if (log) await deleteDoc(doc(_db, 'users', userId, 'healthLogs', log.id));
+        } else {
+          await addDoc(collection(_db, 'users', userId, 'healthLogs'), {
+            routineId,
+            dateStr: todayStr,
+            completedAt: new Date().toISOString(),
+          });
+        }
+      } catch (err) {
+        console.error('[OnStep] 건강루틴 토글 실패:', err);
+      }
+    },
+    [user, userId, healthChecked, healthLogs]
   );
 
   // ── Google 로그인 ──
@@ -2245,24 +2294,36 @@ export default function TodayPage() {
         {healthRoutines.filter(h => h.showInToday).length > 0 && (
           <div>
             <SectionHeader title="#Health" action={`${healthRoutines.filter(h => h.showInToday).length}개`} />
-            <div style={{ padding: '0 16px 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {healthRoutines.filter(h => h.showInToday).map(h => (
-                <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 14 }}>
-                  <span style={{ fontSize: 20 }}>{h.icon || '🥗'}</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>{h.name}</div>
-                    {h.schedule && <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>{h.schedule}</div>}
-                  </div>
-                  {/* 시간별 항목 — 오른쪽 정렬 */}
-                  {(h.entries ?? []).length > 0 && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-end', flexShrink: 0 }}>
-                      {[...(h.entries ?? [])].sort((a, b) => a.time.localeCompare(b.time)).map(e => (
-                        <span key={e.id} style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, background: '#0C0C0A', color: '#C5FF00', padding: '2px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{e.time}</span>
-                      ))}
+            <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
+              {healthRoutines.filter(h => h.showInToday).map((h, idx) => {
+                const isDone = healthChecked.has(h.id);
+                return (
+                  <div key={h.id} onClick={() => handleToggleHealth(h.id)}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
+                    {/* 좌: 체크 + 아이콘 + 이름 */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      {/* 체크박스 */}
+                      <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                        {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </div>
+                      <span style={{ fontSize: 18, lineHeight: 1, width: 24, textAlign: 'center', flexShrink: 0 }}>{h.icon || '🥗'}</span>
+                      <div style={{ minWidth: 0 }}>
+                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 400, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', transition: 'all .18s' }}>
+                          {h.name}
+                        </span>
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
+                    {/* 우: 시간별 항목 */}
+                    {(h.entries ?? []).length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-end', flexShrink: 0 }}>
+                        {[...(h.entries ?? [])].sort((a, b) => a.time.localeCompare(b.time)).map(e => (
+                          <span key={e.id} style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#C5FF00', padding: '2px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{e.time}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
