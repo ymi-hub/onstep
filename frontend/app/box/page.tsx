@@ -730,7 +730,19 @@ export default function BoxPage() {
     const ref = doc(db, 'users', user.uid, 'settings', 'boxConfig');
     getDoc(ref).then((snap) => {
       if (snap.exists()) {
-        setBoxConfig(snap.data() as BoxConfig);
+        const cfg = snap.data() as BoxConfig;
+        // 약·비타민 도메인 없으면 자동 추가
+        const hasHealth = cfg.domains?.some(d => d.id === 'health');
+        if (!hasHealth) {
+          const healthDomain = DEFAULT_BOX_CONFIG.domains.find(d => d.id === 'health');
+          if (healthDomain) {
+            const updated = { ...cfg, domains: [...(cfg.domains ?? []), healthDomain] };
+            setBoxConfig(updated);
+            setDoc(ref, updated);
+            return;
+          }
+        }
+        setBoxConfig(cfg);
       } else {
         setDoc(ref, DEFAULT_BOX_CONFIG);
       }

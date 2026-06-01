@@ -2334,7 +2334,6 @@ export default function TodayPage() {
         {/* 다이어트 플랜 섹션 — showInToday=true, 오늘 일차에 맞는 패턴 */}
         {dietPrograms.filter(p => p.showInToday).map(p => {
           const dayN = Math.floor((Date.now() - new Date(p.startDate).getTime()) / 86400000) + 1;
-          // 시작 전 → 패턴1, 종료 후 → 마지막 패턴, 진행 중 → 해당 패턴
           const sortedPats = [...(p.patterns ?? [])].sort((a, b) => a.dayStart - b.dayStart);
           const pat = sortedPats.find(pt => dayN >= pt.dayStart && dayN <= pt.dayEnd)
             ?? (dayN < 1 ? sortedPats[0] : sortedPats[sortedPats.length - 1]);
@@ -2342,6 +2341,59 @@ export default function TodayPage() {
           const beforeStart = dayN < 1;
           const daysLeft = beforeStart ? Math.abs(dayN - 1) + 1 : null;
           const fDiet = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+
+          // ── 시간 기반 가시성 계산 ──────────────────────────────────────────
+          // "HH:MM" → 자정 기준 분
+          const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+          const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+
+          // 타임라인에서 시간 있는 슬롯들만 추출 (정렬)
+          const timedSlots = pat.timeline
+            .filter(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time)
+            .map(it => toMin((it as import('@/types/dietplan').DietSlot).time!))
+            .sort((a, b) => a - b);
+
+          // 아이템별 가시 여부 판단
+          function isVisible(item: import('@/types/dietplan').DietTimelineItem, itemIdx: number): boolean {
+            if (beforeStart) return true; // 시작 전엔 전체 표시
+
+            if (item.isWarning) {
+              // 경고: 앞 timed 슬롯 ~ 뒤 timed 슬롯 사이 (공복시와 동일)
+              const prevT = [...pat.timeline].slice(0, itemIdx).reverse()
+                .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
+              const nextT = pat.timeline.slice(itemIdx + 1)
+                .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
+              const start = prevT ? toMin((prevT as import('@/types/dietplan').DietSlot).time!) : 0;
+              const end = nextT ? toMin((nextT as import('@/types/dietplan').DietSlot).time!) - 30 : 24 * 60;
+              return nowMin >= start && nowMin < end;
+            }
+
+            const slot = item as import('@/types/dietplan').DietSlot;
+            if (!slot.time) {
+              // 공복시: 앞뒤 timed 슬롯 사이
+              const prevT = [...pat.timeline].slice(0, itemIdx).reverse()
+                .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
+              const nextT = pat.timeline.slice(itemIdx + 1)
+                .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
+              const start = prevT ? toMin((prevT as import('@/types/dietplan').DietSlot).time!) : 0;
+              const end = nextT ? toMin((nextT as import('@/types/dietplan').DietSlot).time!) - 30 : 24 * 60;
+              return nowMin >= start && nowMin < end;
+            }
+
+            // 시간 있는 슬롯: T-30분 ~ 다음 timed 슬롯 T-30분 (마지막이면 T+90분)
+            const slotMin = toMin(slot.time);
+            const slotIdx = timedSlots.indexOf(slotMin);
+            const windowStart = slotMin - 30;
+            const windowEnd = slotIdx < timedSlots.length - 1
+              ? timedSlots[slotIdx + 1] - 30
+              : slotMin + 90;
+            return nowMin >= windowStart && nowMin < windowEnd;
+          }
+
+          const visibleItems = pat.timeline.filter((item, idx) => isVisible(item, idx));
+          // 아무것도 안 보이면 섹션 전체 숨김 (단, 시작 전이면 전체 표시)
+          if (!beforeStart && visibleItems.length === 0) return null;
+
           return (
             <div key={p.id}>
               <SectionHeader
@@ -2349,7 +2401,7 @@ export default function TodayPage() {
                 action={beforeStart ? `D-${daysLeft}일 후 시작 · ${pat.label}` : `D+${dayN} · ${pat.label}`}
               />
               <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
-                {pat.timeline.map((item, idx) => {
+                {(beforeStart ? pat.timeline : visibleItems).map((item, idx) => {
                   if (item.isWarning) {
                     return (
                       <div key={item.id} style={{ padding: '10px 16px', background: '#FEF2F2', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
