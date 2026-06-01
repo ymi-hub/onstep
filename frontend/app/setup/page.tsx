@@ -220,22 +220,19 @@ function GroqUsageSection() {
   );
 }
 
-function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOpenLookbook }: {
+function HubView({ onOpenSessions, onOpenTracker, onOpenCare }: {
   onOpenSessions: () => void;
   onOpenTracker: () => void;
   onOpenCare: () => void;
-  onOpenMakeup: () => void;
-  onOpenLookbook: () => void;
 }) {
+  // 메이크업·룩북은 LOG [아카이브] 탭으로 이동됨
   const cards = {
     left: [
       { id: 'routine', badge: '#SESSION', title: '스킨케어 루틴', sub: 'DAILY CALIBRATIONS', cta: 'View Steps →', bg: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', emoji: '🌿', onClick: onOpenSessions, href: undefined },
       { id: 'tracker', badge: '#DAILY', title: 'HABITS', sub: 'DAILY TRACKING', cta: 'Manage →', bg: 'linear-gradient(135deg,#f5ffe0 0%,#dcff80 100%)', emoji: '⏰', onClick: onOpenTracker, href: undefined },
-      { id: 'look', badge: '#LOOKBOOK', title: 'PLANNING', sub: 'QUARTERLY VISION', cta: 'Curate Days →', bg: 'linear-gradient(135deg,#fff0f5 0%,#ffc0d0 100%)', emoji: '👗', onClick: onOpenLookbook, href: undefined },
     ],
     right: [
       { id: 'care', badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS', cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare, href: undefined },
-      { id: 'makeup', badge: '#MAKEUP', title: 'STRATEGY', sub: 'IDENTITY FRAMEWORK', cta: 'Reconstruct →', bg: 'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)', emoji: '💄', onClick: onOpenMakeup, href: undefined },
     ],
   };
 
