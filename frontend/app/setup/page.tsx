@@ -1572,6 +1572,7 @@ function DietPlanView({
   const [activePatternIdx, setActivePatternIdx] = useState(0);
 
   // 슬롯 입력 상태
+  const [editSlotId, setEditSlotId] = useState<string | null>(null); // 편집 중인 슬롯 id
   const [slotLabel, setSlotLabel] = useState('');
   const [slotTime, setSlotTime] = useState('');
   const [slotWater, setSlotWater] = useState('');
@@ -1612,22 +1613,43 @@ function DietPlanView({
     setSlotItemTags(prev => prev.filter(t => t.id !== id));
   }
 
+  // 슬롯 편집 시작
+  function startEditSlot(slot: DietSlot) {
+    setEditSlotId(slot.id);
+    setSlotTime(slot.time || '');
+    setSlotLabel(slot.label);
+    setSlotWater(String(slot.water || ''));
+    setSlotItemTags([...slot.items]);
+  }
+  function cancelEditSlot() {
+    setEditSlotId(null);
+    setSlotLabel(''); setSlotTime(''); setSlotWater(''); setSlotItemTags([]);
+  }
+
   function addSlot() {
     if (!slotLabel.trim()) { alert('타이밍 이름을 입력해주세요.'); return; }
-    const newSlot: DietSlot = {
-      id: Date.now().toString(),
-      time: slotTime || undefined,
+    const slotData: DietSlot = {
+      id: editSlotId || Date.now().toString(),
+      ...(slotTime ? { time: slotTime } : {}),
       label: slotLabel.trim(),
       water: parseInt(slotWater) || 0,
       items: slotItemTags,
-      isWarning: false,
+      isWarning: false as const,
     };
     const updated = [...pPatterns];
-    updated[activePatternIdx] = {
-      ...updated[activePatternIdx],
-      timeline: [...updated[activePatternIdx].timeline, newSlot],
-    };
+    if (editSlotId) {
+      updated[activePatternIdx] = {
+        ...updated[activePatternIdx],
+        timeline: updated[activePatternIdx].timeline.map(t => t.id === editSlotId ? slotData : t),
+      };
+    } else {
+      updated[activePatternIdx] = {
+        ...updated[activePatternIdx],
+        timeline: [...updated[activePatternIdx].timeline, slotData],
+      };
+    }
     setPPatterns(updated);
+    setEditSlotId(null);
     setSlotLabel(''); setSlotTime(''); setSlotWater(''); setSlotItemTags([]);
   }
 
@@ -1726,11 +1748,12 @@ function DietPlanView({
                   <button onClick={() => removeTimelineItem(item.id)} style={{ border: 'none', background: 'none', color: '#DC2626', cursor: 'pointer', fontSize: 14 }}>✕</button>
                 </div>
               ) : (
-                <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, padding: '10px 12px', marginBottom: 6 }}>
+                <div style={{ background: editSlotId === item.id ? '#F5FDD4' : '#fff', border: `1px solid ${editSlotId === item.id ? '#C5FF00' : 'rgba(12,12,10,.07)'}`, borderRadius: 12, padding: '10px 12px', marginBottom: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     {(item as DietSlot).time && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, background: '#0C0C0A', color: '#C5FF00', padding: '2px 8px', borderRadius: 6 }}>{(item as DietSlot).time}</span>}
                     <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{(item as DietSlot).label}</span>
                     <span style={{ fontFamily: f, fontSize: 11, color: '#4A9ED6', fontWeight: 700 }}>💧{(item as DietSlot).water}ml</span>
+                    <button onClick={() => startEditSlot(item as DietSlot)} style={{ border: 'none', background: 'none', color: '#9A9490', cursor: 'pointer', fontSize: 13, padding: '2px 4px' }}>✎</button>
                     <button onClick={() => removeTimelineItem(item.id)} style={{ border: 'none', background: 'none', color: '#9A9490', cursor: 'pointer', fontSize: 13 }}>✕</button>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -1743,9 +1766,12 @@ function DietPlanView({
             </div>
           ))}
 
-          {/* 슬롯 추가 입력 */}
-          <div style={{ background: '#F9F9F7', borderRadius: 14, padding: '12px', border: '1px solid rgba(12,12,10,.07)', marginTop: 8, marginBottom: 12 }}>
-            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>타임슬롯 추가</div>
+          {/* 슬롯 추가/편집 입력 */}
+          <div style={{ background: editSlotId ? '#F5FDD4' : '#F9F9F7', borderRadius: 14, padding: '12px', border: `1px solid ${editSlotId ? '#C5FF00' : 'rgba(12,12,10,.07)'}`, marginTop: 8, marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: editSlotId ? '#4E7D00' : '#9A9490', letterSpacing: '.06em' }}>{editSlotId ? '✎ 슬롯 편집 중' : '타임슬롯 추가'}</span>
+              {editSlotId && <button onClick={cancelEditSlot} style={{ border: 'none', background: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>취소</button>}
+            </div>
             {/* 시간·타이밍명·물 */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 7 }}>
               <select value={slotTime} onChange={e => setSlotTime(e.target.value)}
@@ -1777,7 +1803,7 @@ function DietPlanView({
                 placeholder="수량" style={{ width: 52, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
               <button onClick={addItemTag} style={{ padding: '8px 12px', background: '#F4F4F0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer', flexShrink: 0 }}>+ 제품</button>
             </div>
-            <button onClick={addSlot} style={{ width: '100%', padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', marginBottom: 6 }}>슬롯 추가</button>
+            <button onClick={addSlot} style={{ width: '100%', padding: '9px', background: editSlotId ? '#2A4A1A' : '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', marginBottom: 6 }}>{editSlotId ? '✎ 수정 저장' : '슬롯 추가'}</button>
             <button onClick={addWarning} style={{ width: '100%', padding: '7px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>⚠️ 경고 배너 추가</button>
           </div>
 
