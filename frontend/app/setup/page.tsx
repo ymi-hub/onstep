@@ -1837,7 +1837,7 @@ function HealthView({
               {/* 이모지 + 이름 */}
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>루틴 이름</div>
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                <input value={routineIcon} onChange={e => setRoutineIcon(e.target.value)} maxLength={2}
+                <input value={routineIcon} onChange={e => setRoutineIcon(e.target.value.slice(0, 4))}
                   style={{ width: 44, padding: '10px 0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 20, textAlign: 'center', outline: 'none', flexShrink: 0 }} />
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="루틴 이름"
                   style={{ flex: 1, padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, outline: 'none' }} />
@@ -1909,7 +1909,7 @@ function HealthView({
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', padding: '20px 20px 36px' }} onClick={e => e.stopPropagation()}>
             <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, marginBottom: 16 }}>{catEditId ? '카테고리 수정' : '카테고리 추가'}</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-              <input value={catIcon} onChange={e => setCatIcon(e.target.value)} maxLength={2}
+              <input value={catIcon} onChange={e => setCatIcon(e.target.value.slice(0, 4))}
                 style={{ width: 52, padding: '10px 0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 22, textAlign: 'center', outline: 'none', flexShrink: 0 }} />
               <input value={catName} onChange={e => setCatName(e.target.value)} placeholder="카테고리 이름"
                 style={{ flex: 1, padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, outline: 'none' }} />
@@ -2135,7 +2135,7 @@ function TrackerView({
           <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>NEW HABIT</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <input value={newIcon} onChange={e => setNewIcon(e.target.value)} placeholder="✦" maxLength={2} style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+              <input value={newIcon} onChange={e => setNewIcon(e.target.value.slice(0, 4))} placeholder="✦" style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
               <input value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }} placeholder="습관 이름 (예: 모닝 워터 한 잔)" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
             </div>
             {RepeatFormFields({ rt: newRepeat, setRt: setNewRepeat, wd: newWeekdays, toggleWDFn: toggleWD, date_: newDate, setDate_: setNewDate, time_: newTime, setTime_: setNewTime, alarm_: newAlarm, setAlarm_: setNewAlarm })}
@@ -2228,7 +2228,7 @@ function TrackerView({
             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>습관 편집</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input value={eIcon} onChange={e => setEIcon(e.target.value)} placeholder="✦" maxLength={2} style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+                <input value={eIcon} onChange={e => setEIcon(e.target.value.slice(0, 4))} placeholder="✦" style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
                 <input value={eName} onChange={e => setEName(e.target.value)} placeholder="습관 이름" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
               </div>
               {RepeatFormFields({ rt: eRepeat, setRt: setERepeat, wd: eWeekdays, toggleWDFn: toggleEWD, date_: eDate, setDate_: setEDate, time_: eTime, setTime_: setETime, alarm_: eAlarm, setAlarm_: setEAlarm })}
@@ -2655,7 +2655,7 @@ function CtPanel({
             <div style={{ padding: '16px 20px 0' }}>
               <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, display: 'block' }}>제목</span>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <input value={sEmoji} onChange={e => setSEmoji(e.target.value)} placeholder={m.icon} maxLength={2} style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+                <input value={sEmoji} onChange={e => setSEmoji(e.target.value.slice(0, 4))} placeholder={m.icon} style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
                 <input value={sName} onChange={e => setSName(e.target.value)} placeholder="이름" style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
               </div>
               <textarea value={sDesc} onChange={e => setSDesc(e.target.value)} placeholder="간단한 설명 (선택)..." rows={2} style={{ marginTop: 8, width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }} />
