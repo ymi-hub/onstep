@@ -890,11 +890,11 @@ function FlowCard({
               }}
             >
               {saving ? '저장 중...' : isChecked ? (
-                /* 완료 — 라임 고양이 */
+                /* 완료 — 아침(라임) / 저녁(오렌지) 고양이 */
                 <>
                   {tab === 'morning' ? '☀' : '🌙'} 스킨케어 체크 완료
                   <span style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4 }}>
-                    <CatBadge color="#C5FF00" size={20} />
+                    <CatBadge color={tab === 'morning' ? '#C5FF00' : '#F97316'} size={20} />
                   </span>
                 </>
               ) : (
