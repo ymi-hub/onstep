@@ -1,5 +1,5 @@
 /* Google Fonts — THERMAL 디자인 시스템 서체 */
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Nanum+Pen+Script&display=swap");
 
 @import "tailwindcss";
 
@@ -35,6 +35,22 @@
   --radius-lg: 16px;
   --radius-xl: 20px;
   --radius-full: 9999px;
+}
+
+/* ── 대기 타이머 알람 배너 애니메이션 ── */
+@keyframes alarmSlideDown {
+  from { transform: translateY(-110%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes alarmPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(197,255,0,.5); }
+  50%       { box-shadow: 0 0 0 8px rgba(197,255,0,.0); }
+}
+.alarm-banner-enter {
+  animation: alarmSlideDown 0.35s cubic-bezier(.22,1,.36,1) forwards;
+}
+.alarm-banner-pulse {
+  animation: alarmPulse 1.2s ease-in-out 3;
 }
 
 /* ── 기본 리셋 & body ── */

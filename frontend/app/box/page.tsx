@@ -63,6 +63,37 @@ function getDomainCats(domain: DomainConfig, subTypeId?: string): string[] {
   return domain.cats ?? [];
 }
 
+// 가격 문자열("₩45,000", "45000", "45,000") → 숫자
+function parsePrice(price: string | null | undefined): number | null {
+  if (!price) return null;
+  const n = parseFloat(price.replace(/[^0-9.]/g, ''));
+  return isNaN(n) ? null : n;
+}
+
+// 1회 사용 비용 계산 (원 단위)
+// price / totalAmount * dosePerUse
+function calcCostPerUse(product: Product): string | null {
+  const price = parsePrice(product.price);
+  if (!price || !product.totalAmount || !product.dosePerUse) return null;
+  const cost = (price / product.totalAmount) * product.dosePerUse;
+  if (!isFinite(cost) || cost <= 0) return null;
+  return cost < 10
+    ? `약 ₩${cost.toFixed(1)}`
+    : `약 ₩${Math.round(cost).toLocaleString()}`;
+}
+
+// 카테고리별 기본 1회 사용량 (벤치마킹 데이터 기반 표준값)
+const CATEGORY_DOSE_DEFAULTS: Record<string, { dose: number; unit: string }> = {
+  '세럼':     { dose: 0.3,  unit: 'ml' },
+  '에센스':   { dose: 0.3,  unit: 'ml' },
+  '크림':     { dose: 0.45, unit: 'ml' },
+  '아이크림': { dose: 0.12, unit: 'ml' },
+  '토너':     { dose: 2.0,  unit: 'ml' },
+  '선크림':   { dose: 1.25, unit: 'ml' },
+  '클렌저':   { dose: 0.6,  unit: 'ml' },
+  '마스크팩': { dose: 1,    unit: '개' },
+};
+
 // 사용 주기 옵션 (주당 몇 회)
 const FREQ_OPTIONS = [
   { label: '매일',   daysPerWeek: 7   },
@@ -95,6 +126,7 @@ type FormState = {
   imageFile: File | null;    // 새로 선택한 이미지 파일
   imagePreview: string;      // base64 미리보기
   imageUrl: string;          // 기존 이미지 URL
+  itemUnit: string;          // 용량 단위: 'ml' | 'g' | '개'
 };
 
 const INITIAL_FORM: FormState = {
@@ -105,8 +137,8 @@ const INITIAL_FORM: FormState = {
   formSubType: 'skincare',
   packageCount: 1,
   unitPerPackage: 1,
-  usesPerDay: 1,
-  dosePerUse: 1,
+  usesPerDay: 2,
+  dosePerUse: 0.3,
   daysPerWeek: 7,
   purchaseDate: '',
   expiryDate: '',
@@ -118,6 +150,7 @@ const INITIAL_FORM: FormState = {
   imageFile: null,
   imagePreview: '',
   imageUrl: '',
+  itemUnit: 'ml',
 };
 
 // ─── 매거진 뷰 (design/box.html magazine 뷰 참고) ────────────────────────────
@@ -221,7 +254,10 @@ function MagResBar({ product }: { product: Product }) {
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490' }}>
         <span>{product.currentRemaining}{product.itemUnit || '개'} 남음</span>
-        <span>{pct}%</span>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {calcCostPerUse(product) && <span>1회 {calcCostPerUse(product)}</span>}
+          <span>{pct}%</span>
+        </div>
       </div>
     </>
   );
@@ -352,11 +388,18 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
         <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {product.name}
         </div>
-        {product.category && (
-          <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', background: '#F4F4F0', padding: '2px 5px', borderRadius: 3, marginTop: 2 }}>
-            {resolveCategory(product.category)}
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3, flexWrap: 'wrap' }}>
+          {product.category && (
+            <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', background: '#F4F4F0', padding: '2px 5px', borderRadius: 3 }}>
+              {resolveCategory(product.category)}
+            </div>
+          )}
+          {calcCostPerUse(product) && (
+            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9A9490' }}>
+              1회 {calcCostPerUse(product)}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 잔량 바 + 퍼센트 — design/box.html .list-res-col */}
@@ -834,7 +877,7 @@ export default function BoxPage() {
         category: form.category || null,
         packageCount: form.packageCount,
         unitPerPackage: form.unitPerPackage,
-        itemUnit: '개',
+        itemUnit: form.itemUnit,
         totalAmount,
         dosePerUse: form.dosePerUse,
         usesPerDay: form.usesPerDay,
@@ -927,6 +970,7 @@ export default function BoxPage() {
       imageFile: null,
       imagePreview: '',
       imageUrl: p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl ?? '',
+      itemUnit: (p.itemUnit as string) || 'ml',
     });
     setEditingProduct(p);
     setIsAddOpen(true);
@@ -1263,7 +1307,7 @@ export default function BoxPage() {
         <button
           onClick={() => { setForm((f) => ({ ...f, formDomain: activeTab, formSubType: subType })); setIsAddOpen(true); }}
           style={{
-            position: 'fixed', bottom: 88, right: 18, zIndex: 40,
+            position: 'fixed', bottom: 88, right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 40,
             width: 52, height: 52, borderRadius: 9999,
             background: '#C5FF00', color: '#0C0C0A',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1738,6 +1782,14 @@ function AddProductPage({
 }) {
   const isEditing = !!editingProduct;
   const isNameEmpty = !form.name.trim();
+
+  // 소진 예측 계산
+  // 기준 잔량: 편집 모드는 현재 잔량, 신규 등록은 총 용량
+  const baseForEstimate = isEditing ? form.currentRemaining : totalAmount;
+  const dailyUsage = form.dosePerUse * form.usesPerDay * (form.daysPerWeek / 7);
+  // daysPerWeek=0(불규칙)이거나 사용량이 없으면 예측 불가
+  const estimatedDays = dailyUsage > 0 ? Math.round(baseForEstimate / dailyUsage) : null;
+
   // form state에서 domain/subType/cats 동적 계산
   const domain = form.formDomain;
   const subType = form.formSubType;
@@ -2017,7 +2069,17 @@ function AddProductPage({
                     {cats.map((cat) => (
                       <button
                         key={cat}
-                        onClick={() => setForm((f) => ({ ...f, category: f.category === cat ? '' : cat }))}
+                        onClick={() => {
+                          const def = CATEGORY_DOSE_DEFAULTS[cat];
+                          setForm((f) => ({
+                            ...f,
+                            category: f.category === cat ? '' : cat,
+                            // 카테고리 선택 시 해당 카테고리의 기본 사용량·단위 자동 적용
+                            ...(f.category !== cat && def
+                              ? { dosePerUse: def.dose, itemUnit: def.unit }
+                              : {}),
+                          }));
+                        }}
                         style={{
                           height: 26, padding: '0 14px',
                           border: `1.5px solid ${form.category === cat ? '#000' : '#C5C6CA'}`,
@@ -2078,20 +2140,46 @@ function AddProductPage({
                     <div>
                       <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>패키지 수</div>
                       <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
-                        <input type="number" min={1} value={form.packageCount} onChange={(e) => setForm((f) => ({ ...f, packageCount: Math.max(1, Number(e.target.value)) }))} style={countInputStyle} />
+                        <input
+                          type="number" min={1}
+                          value={form.packageCount || ''}
+                          onChange={(e) => { const n = parseInt(e.target.value, 10); setForm((f) => ({ ...f, packageCount: isNaN(n) ? 0 : n })); }}
+                          onBlur={() => setForm((f) => ({ ...f, packageCount: Math.max(1, f.packageCount || 1) }))}
+                          style={countInputStyle}
+                        />
                       </div>
                     </div>
                     <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 18, color: '#C5C6CA', paddingTop: 14 }}>×</span>
                     <div>
-                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>개당 수량</div>
+                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>
+                        {form.itemUnit === '개' ? '개당 수량' : `패키지 용량 (${form.itemUnit})`}
+                      </div>
                       <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
-                        <input type="number" min={1} value={form.unitPerPackage} onChange={(e) => setForm((f) => ({ ...f, unitPerPackage: Math.max(1, Number(e.target.value)) }))} style={countInputStyle} />
+                        <input
+                          type="number" min={0.1} step="any"
+                          value={form.unitPerPackage || ''}
+                          onChange={(e) => { const n = parseFloat(e.target.value); setForm((f) => ({ ...f, unitPerPackage: isNaN(n) ? 0 : n })); }}
+                          onBlur={() => setForm((f) => ({ ...f, unitPerPackage: Math.max(0.1, f.unitPerPackage || 1) }))}
+                          style={countInputStyle}
+                        />
                       </div>
                     </div>
                   </div>
+                  {/* 단위 선택 */}
+                  <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
+                    {['ml', 'g', '개'].map((u) => (
+                      <button key={u} onClick={() => setForm((f) => ({ ...f, itemUnit: u }))} style={pillStyle(form.itemUnit === u)}>
+                        {u}
+                      </button>
+                    ))}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', background: '#F5F5F3', borderRadius: 6, padding: '8px 12px' }}>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>총 수량</span>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014', marginLeft: 'auto' }}>{totalAmount}개</span>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>
+                      {form.itemUnit === '개' ? '총 수량' : '총 용량'}
+                    </span>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014', marginLeft: 'auto' }}>
+                      {totalAmount}{form.itemUnit}
+                    </span>
                   </div>
                 </div>
 
@@ -2113,7 +2201,7 @@ function AddProductPage({
                         onChange={(e) => setForm((f) => ({ ...f, currentRemaining: Math.max(0, Number(e.target.value)) }))}
                         style={{ ...countInputStyle, textAlign: 'left', fontSize: 22, width: 80 }}
                       />
-                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>개 / {totalAmount}개</span>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>{form.itemUnit} / {totalAmount}{form.itemUnit}</span>
                     </div>
                     {/* 잔량 프로그레스 바 */}
                     <div style={{ marginTop: 6, height: 4, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden' }}>
@@ -2124,18 +2212,28 @@ function AddProductPage({
 
                 {/* 사용 패턴 */}
                 <div>
-                  <div style={{ ...labelStyle, marginBottom: 2 }}>사용 패턴</div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 2 }}>
+                    <div style={labelStyle}>사용 패턴</div>
+                    {form.category && CATEGORY_DOSE_DEFAULTS[form.category] && (
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9CA3AF' }}>
+                        ({form.category} 기본값 자동 적용)
+                      </span>
+                    )}
+                  </div>
                   <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 14 }}>소진 예측에 사용됩니다</div>
 
-                  {/* 1회 사용량 */}
+                  {/* 1회 사용량 — 소수점 직접 입력 */}
                   <div style={{ marginBottom: 14 }}>
                     <div style={{ ...labelStyle, marginBottom: 8 }}>1회 사용량</div>
-                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                      {[1, 2, 3, 4].map((n) => (
-                        <button key={n} onClick={() => setForm((f) => ({ ...f, dosePerUse: n }))} style={pillStyle(form.dosePerUse === n)}>
-                          {n === 4 ? '4+펌' : `${n}펌`}
-                        </button>
-                      ))}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
+                      <input
+                        type="number" min={0.01} step="any"
+                        value={form.dosePerUse || ''}
+                        onChange={(e) => { const n = parseFloat(e.target.value); setForm((f) => ({ ...f, dosePerUse: isNaN(n) ? 0 : n })); }}
+                        onBlur={() => setForm((f) => ({ ...f, dosePerUse: Math.max(0.01, f.dosePerUse || 0.01) }))}
+                        style={{ ...countInputStyle, textAlign: 'left', width: 80 }}
+                      />
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, color: '#44474A' }}>{form.itemUnit}</span>
                     </div>
                   </div>
 
@@ -2152,7 +2250,7 @@ function AddProductPage({
                   </div>
 
                   {/* 사용 주기 */}
-                  <div>
+                  <div style={{ marginBottom: 14 }}>
                     <div style={{ ...labelStyle, marginBottom: 8 }}>사용 주기</div>
                     <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                       {FREQ_OPTIONS.map((opt) => (
@@ -2161,6 +2259,14 @@ function AddProductPage({
                         </button>
                       ))}
                     </div>
+                  </div>
+
+                  {/* 소진 예측 결과 */}
+                  <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>예상 소진</span>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: estimatedDays !== null ? '#0C1014' : '#C5C6CA' }}>
+                      {estimatedDays !== null ? `약 ${estimatedDays}일 후` : '불규칙'}
+                    </span>
                   </div>
                 </div>
               </div>

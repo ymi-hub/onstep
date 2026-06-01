@@ -13,6 +13,7 @@ export type CtItem = {
   expertTip?: string;
   imageUrl?: string;
   sourceUrl?: string;
+  daily?: string;
   periodStart?: string;
   periodEnd?: string;
   dates?: string[];

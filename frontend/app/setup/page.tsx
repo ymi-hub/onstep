@@ -185,7 +185,7 @@ function GroqUsageSection() {
   const remaining = DAILY_LIMIT - count;
 
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03)' }}>
+    <div style={{ background: '#FFFFFF', border: '1px solid #0C0C0A', borderRadius: 0, overflow: 'hidden' }}>
       {/* 상단 — HubCard와 완전히 동일: 그라데이션 + 이모지만 */}
       <div style={{ width: '100%', aspectRatio: '1/1.5', background: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>✨</div>
 
@@ -212,7 +212,7 @@ function GroqUsageSection() {
         href="https://console.groq.com/settings/usage"
         target="_blank"
         rel="noreferrer"
-        style={{ display: 'block', borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 12px', fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', textDecoration: 'none' }}
+        style={{ display: 'block', borderTop: '1px solid #0C0C0A', padding: '10px 12px', fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', textDecoration: 'none' }}
       >
         콘솔 →
       </a>
@@ -243,7 +243,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
   function HubCard({ card }: { card: HubCardData }) {
     const isClickable = !!card.onClick || !!card.href;
     const cardStyle = {
-      background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16,
+      background: '#FFFFFF', border: '1px solid #0C0C0A', borderRadius: 0,
       overflow: 'hidden', cursor: isClickable ? 'pointer' : 'default',
       opacity: isClickable ? 1 : 0.55,
       boxShadow: '0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03)',
@@ -257,7 +257,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMakeup, onOp
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, marginBottom: 3, letterSpacing: '-.01em' }}>{card.title}</div>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: '#9A9490', paddingBottom: 10 }}>{card.sub}</div>
         </div>
-        <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 12px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#0C0C0A' }}>{card.cta}</div>
+        <div style={{ borderTop: '1px solid #0C0C0A', padding: '10px 12px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#0C0C0A' }}>{card.cta}</div>
       </>
     );
     if (card.href) return <Link href={card.href} style={cardStyle}>{cardContent}</Link>;
@@ -302,6 +302,10 @@ function SessionsView({
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [visibleCount, setVisibleCount] = useState(5);
+
+  // 검색 바뀌면 더보기 초기화
+  useEffect(() => { setVisibleCount(5); }, [search]);
 
   const font = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
 
@@ -399,7 +403,7 @@ function SessionsView({
         {/* EXPERT TIP 하이라이팅 제품 (있을 때만) */}
         {expertTipMentions(day).length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
-            <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#4E7D00' }}>EXPERT TIP</div>
+            <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA' }}>TIPS</div>
             {expertTipMentions(day).map((name, idx) => (
               <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#3A6000', padding: '3px 6px', background: 'rgba(197,255,0,.12)', border: '1px solid rgba(132,176,0,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                 {name}
@@ -456,7 +460,7 @@ function SessionsView({
             {/* EXPERT TIP 하이라이팅 제품 (있을 때만) */}
             {expertTipMentions(firstRow[0]).length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
-                <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#4E7D00' }}>EXPERT TIP</div>
+                <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA' }}>TIPS</div>
                 {expertTipMentions(firstRow[0]).map((name, idx) => (
                   <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#3A6000', padding: '3px 6px', background: 'rgba(197,255,0,.12)', border: '1px solid rgba(132,176,0,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                     {name}
@@ -497,13 +501,6 @@ function SessionsView({
         {/* 검색 바 */}
         <SearchBar value={search} onChange={setSearch} placeholder="회차 번호 · 태그 검색..." />
 
-        {/* 새 세션 버튼 */}
-        <div style={{ padding: '12px 16px 8px' }}>
-          <button onClick={onNew} style={{ width: '100%', padding: 14, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: font, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', color: '#9A9490', cursor: 'pointer' }}>
-            + 새 스킨케어 루틴 설정
-          </button>
-        </div>
-
         {loading ? (
           <div style={{ padding: '48px 16px', textAlign: 'center', color: '#9A9490', fontFamily: font, fontSize: 13 }}>로딩 중...</div>
         ) : (
@@ -513,7 +510,7 @@ function SessionsView({
                 &ldquo;{search}&rdquo; 검색 결과 없음
               </div>
             ) : null}
-            {filteredSessions.map((s, idx) => {
+            {filteredSessions.slice(0, visibleCount).map((s, idx) => {
               const isExpanded = expandedId === s.id;
               const isNow = isActiveNow(s);
               const morningCount = slotProds(s.morning).length;
@@ -620,10 +617,43 @@ function SessionsView({
                 </div>
               );
             })}
+            {/* 더보기 버튼 */}
+            {filteredSessions.length > visibleCount && (
+              <button
+                onClick={() => setVisibleCount(n => n + 5)}
+                style={{
+                  width: '100%', padding: '14px 16px',
+                  border: 'none', borderTop: '1px solid rgba(12,12,10,.07)',
+                  background: 'none', fontFamily: font, fontSize: 13,
+                  fontWeight: 700, color: '#9A9490', cursor: 'pointer',
+                  letterSpacing: '.04em',
+                }}
+              >
+                더보기 ▼ ({filteredSessions.length - visibleCount}개 더)
+              </button>
+            )}
           </div>
         )}
-        <div style={{ height: 40 }} />
+        <div style={{ height: 88 }} />
       </div>
+
+      {/* FAB — 새 루틴 추가 */}
+      <button
+        onClick={onNew}
+        style={{
+          position: 'absolute', bottom: 24, right: 18, zIndex: 10,
+          width: 52, height: 52, borderRadius: 9999,
+          background: '#C5FF00', color: '#0C0C0A',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          border: 'none', cursor: 'pointer',
+          boxShadow: '0 4px 20px rgba(197,255,0,.4)',
+          fontSize: 22, fontWeight: 700,
+          transition: 'transform .18s',
+        }}
+        aria-label="루틴 추가"
+      >
+        ＋
+      </button>
     </div>
   );
 }

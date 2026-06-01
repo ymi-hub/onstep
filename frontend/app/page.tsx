@@ -444,6 +444,49 @@ function highlightProductNames(text: string, products: Map<string, Product>): Re
   );
 }
 
+// desc 텍스트에서 "N분" 패턴 추출 (예: "10분 뒤 러빙" → 10)
+function parseWaitMinutes(text: string): number | null {
+  const m = text.match(/(\d+)\s*분/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+// 남은 ms → "M:SS" 포맷
+function formatTimerRemain(ms: number): string {
+  const totalSec = Math.ceil(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+// Web Audio API로 3음 차임 사운드 재생
+function playAlarmChime() {
+  try {
+    const AudioCtx = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    // A5 → C6 → E6 (밝고 경쾌한 차임)
+    const notes = [880, 1046, 1318];
+    notes.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.22;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.45, t + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+      osc.start(t);
+      osc.stop(t + 0.7);
+    });
+    // 마지막 노트 후 context 정리
+    setTimeout(() => ctx.close(), 2000);
+  } catch {
+    // 사운드 미지원 환경에서는 조용히 무시
+  }
+}
+
 // ─── 루틴 플로우 카드 ─────────────────────────────────────────────────────────
 // today.html .flow-step-card: 아침/저녁 탭 + 제품 스트립 + 체크 버튼
 
@@ -473,7 +516,104 @@ function FlowCard({
   const slot = tab === 'morning' ? todayMorning : todayEvening;
   const isChecked = tab === 'morning' ? checked.morning : checked.evening;
 
+  // ── 대기 타이머 state ─────────────────────────────────────────────────────
+  const [timerLabel, setTimerLabel] = useState<string | null>(null);
+  const [timerEndMs, setTimerEndMs] = useState<number | null>(null);
+  const [timerRemainMs, setTimerRemainMs] = useState<number>(0);
+
+  // 알람 배너 state (타이머 종료 시 표시)
+  const [alarmVisible, setAlarmVisible] = useState(false);
+  const [alarmLabel, setAlarmLabel] = useState<string | null>(null);
+  const alarmFiredRef = useRef(false);           // 같은 타이머에서 중복 발화 방지
+  const alarmDismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!timerEndMs) return;
+    alarmFiredRef.current = false;
+
+    const tick = () => {
+      const remain = Math.max(0, timerEndMs - Date.now());
+      setTimerRemainMs(remain);
+
+      if (remain === 0 && !alarmFiredRef.current) {
+        alarmFiredRef.current = true;
+        setTimerEndMs(null);
+
+        // 사운드 재생
+        playAlarmChime();
+
+        // 알람 배너 표시
+        setAlarmLabel(timerLabel);
+        setAlarmVisible(true);
+
+        // 8초 후 자동 닫기
+        if (alarmDismissRef.current) clearTimeout(alarmDismissRef.current);
+        alarmDismissRef.current = setTimeout(() => setAlarmVisible(false), 8000);
+      }
+    };
+
+    tick();
+    const id = setInterval(tick, 500);
+    return () => clearInterval(id);
+  }, [timerEndMs, timerLabel]);
+
+  // 언마운트 시 자동 닫기 타이머 정리
+  useEffect(() => () => {
+    if (alarmDismissRef.current) clearTimeout(alarmDismissRef.current);
+  }, []);
+
+  function startTimer(label: string, minutes: number) {
+    setAlarmVisible(false);   // 기존 배너 닫기
+    setTimerLabel(label);
+    setTimerEndMs(Date.now() + minutes * 60_000);
+  }
+
+  function dismissAlarm() {
+    setAlarmVisible(false);
+    if (alarmDismissRef.current) clearTimeout(alarmDismissRef.current);
+  }
+
   return (
+    <>
+    {/* ── 알람 배너: 타이머 종료 시 화면 최상단 고정 오버레이 ── */}
+    {alarmVisible && alarmLabel && (
+      <div
+        className="alarm-banner-enter alarm-banner-pulse"
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          background: '#000000',
+          borderBottom: '3px solid #C5FF00',
+          padding: '18px 20px 22px',
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          boxShadow: '0 6px 32px rgba(0,0,0,.8)',
+        }}
+      >
+        {/* 닫기 버튼 — 우상단 */}
+        <button
+          onClick={dismissAlarm}
+          style={{ position: 'absolute', top: 14, right: 16, background: 'rgba(255,255,255,.12)', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.7)', fontSize: 18, padding: '6px 10px', borderRadius: 8, lineHeight: 1 }}
+        >
+          ✕
+        </button>
+        {/* 텍스트 영역 */}
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,.4)', marginBottom: 4 }}>
+            대기 완료
+          </div>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 17, fontWeight: 600, color: '#fff', lineHeight: 1.3 }}>
+            {alarmLabel}
+          </div>
+        </div>
+        {/* 대형 벨 아이콘 — 텍스트 하단 */}
+        <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#C5FF00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </div>
+      </div>
+    )}
+
     <div
       style={{
         margin: '0 16px',
@@ -530,29 +670,86 @@ function FlowCard({
               if (item.type === 'product') {
                 const p = products.get(item.id);
                 return (
-                  <div key={idx} style={{ flexShrink: 0, width: 90, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
-                    <div style={{ width: 90, height: 90, background: '#EEEDE9', borderRadius: 12, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                  <div key={idx} style={{ flexShrink: 0, width: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
+                    <div style={{ width: 200, height: 200, background: '#EEEDE9', borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
                       {(p?.imageUrl || p?.storageUrl)
                         ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <span style={{ fontSize: 24, opacity: 0.4 }}>🧴</span>
+                        : <span style={{ fontSize: 48, opacity: 0.4 }}>🧴</span>
                       }
                       {isChecked && (
-                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, zIndex: 3 }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 16, zIndex: 3 }}>
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                         </div>
                       )}
                     </div>
-                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%', textAlign: 'center' as const }}>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C0C0A', marginTop: 8, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%', textAlign: 'center' as const }}>
                       {p?.name ?? '?'}
                     </div>
                   </div>
                 );
               }
-              if (item.type === 'desc') return (
-                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '5px 10px', background: '#2185fd', borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', fontSize: 12, fontWeight: 400, color: '#fff', whiteSpace: 'nowrap', lineHeight: 1, opacity: isChecked ? 0.45 : 1, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif" }}>
-                  {item.text}
-                </div>
-              );
+              if (item.type === 'desc') {
+                const waitMins = parseWaitMinutes(item.text);
+                const isActiveTimer = timerLabel === item.text && !!timerEndMs;
+                // 타이머 칩: flex-end + marginBottom으로 칩을 다른 center 칩과 동일 위치에 맞추고,
+                // 벨 아이콘은 컬럼 위에 별도 칩으로 배치 (제품 이미지 높이 200px 기준 = marginBottom 87)
+                if (waitMins && !isChecked) {
+                  return (
+                    <div key={idx} style={{
+                      flexShrink: 0,
+                      alignSelf: 'flex-end',
+                      marginBottom: 87,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                    }}>
+                      {/* 벨 아이콘 칩 — 위 (별도 칩) */}
+                      <div
+                        onClick={() => startTimer(item.text, waitMins)}
+                        style={{
+                          width: 48, height: 48, borderRadius: '50%',
+                          background: isActiveTimer ? '#C5FF00' : 'rgba(197,255,0,.15)',
+                          border: isActiveTimer ? '2px solid #C5FF00' : '1.5px solid rgba(197,255,0,.5)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          cursor: 'pointer', flexShrink: 0,
+                          boxShadow: isActiveTimer ? '0 0 0 4px rgba(197,255,0,.25)' : 'none',
+                          transition: 'all .2s',
+                        }}
+                      >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={isActiveTimer ? '#0C0C0A' : '#4E7D00'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                      </div>
+                      {/* desc 텍스트 칩 — 아래 (다른 desc 칩과 동일 위치) */}
+                      <div style={{
+                        padding: '5px 10px',
+                        background: isActiveTimer ? '#1a6fd8' : '#2185fd',
+                        borderRadius: 16, border: isActiveTimer ? '1.5px solid #C5FF00' : '1px solid rgba(0,0,0,.06)',
+                        fontSize: 12, fontWeight: 400, color: '#fff', whiteSpace: 'nowrap' as const, lineHeight: 1,
+                        opacity: isChecked ? 0.45 : 1,
+                        fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                      }}>
+                        {item.text}
+                      </div>
+                    </div>
+                  );
+                }
+                // 일반 desc 칩 (타이머 없음)
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      flexShrink: 0, alignSelf: 'center', padding: '5px 10px',
+                      background: '#2185fd',
+                      borderRadius: 16, border: '1px solid rgba(0,0,0,.06)',
+                      fontSize: 12, fontWeight: 400, color: '#fff', whiteSpace: 'nowrap', lineHeight: 1,
+                      opacity: isChecked ? 0.45 : 1,
+                      fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                    }}
+                  >
+                    {item.text}
+                  </div>
+                );
+              }
               if (item.type === 'tip') return (
                 <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '0 8px', minWidth: 36, height: 22, background: 'rgba(197,255,0,.22)', borderRadius: 12, fontSize: 12, fontWeight: 800, color: '#4E7D00', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap', opacity: isChecked ? 0.45 : 1, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif" }}>
                   {item.text || 'TIP'}
@@ -577,14 +774,49 @@ function FlowCard({
             </span>
           </div>
 
-          {/* EXPERT TIP */}
-          {slot.expertTip && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 16, marginTop: 8, marginBottom: 12 }}>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-                EXPERT TIP
+          {/* 대기 타이머 배너 — desc 칩 탭 시 활성화 */}
+          {timerEndMs && timerLabel && (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              margin: '10px 0 4px',
+              padding: '10px 14px',
+              background: '#0C0C0A',
+              border: '1.5px solid #C5FF00',
+              borderRadius: 12,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{
+                  width: 7, height: 7, borderRadius: '50%', background: '#C5FF00',
+                  display: 'inline-block',
+                  boxShadow: '0 0 0 3px rgba(197,255,0,.3)',
+                  flexShrink: 0,
+                }} />
+                <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: 'rgba(255,255,255,.7)' }}>
+                  {timerLabel}
+                </span>
               </div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#4A4846', lineHeight: 1.6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 22, fontWeight: 800, color: '#C5FF00', fontVariantNumeric: 'tabular-nums', letterSpacing: '.06em' }}>
+                  {formatTimerRemain(timerRemainMs)}
+                </span>
+                <button
+                  onClick={() => setTimerEndMs(null)}
+                  style={{ background: 'rgba(255,255,255,.08)', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.45)', fontSize: 13, padding: '3px 7px', borderRadius: 6, lineHeight: 1 }}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TIPS */}
+          {slot.expertTip && (
+            <div style={{ position: 'relative', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 24, gap: 8, background: '#FAFAFA', border: '1px solid #E4E4E7', borderRadius: 16, marginTop: 8, marginBottom: 12, overflow: 'visible' }}>
+              <svg width="29" height="27" viewBox="0 0 29 27" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', left: -8, top: -8, zIndex: 2 }}>
+                <path d="M6 26.982C4.875 26.982 3.7625 26.707 2.6625 26.157C1.5625 25.607 0.675 24.882 0 23.982C0.65 23.982 1.3125 23.7257 1.9875 23.2132C2.6625 22.7007 3 21.957 3 20.982C3 19.732 3.4375 18.6695 4.3125 17.7945C5.1875 16.9195 6.25 16.482 7.5 16.482C8.75 16.482 9.8125 16.9195 10.6875 17.7945C11.5625 18.6695 12 19.732 12 20.982C12 22.632 11.4125 24.0445 10.2375 25.2195C9.0625 26.3945 7.65 26.982 6 26.982ZM6 23.982C6.825 23.982 7.53125 23.6882 8.11875 23.1007C8.70625 22.5133 9 21.807 9 20.982C9 20.557 8.85625 20.2008 8.56875 19.9132C8.28125 19.6257 7.925 19.482 7.5 19.482C7.075 19.482 6.71875 19.6257 6.43125 19.9132C6.14375 20.2008 6 20.557 6 20.982C6 21.557 5.93125 22.082 5.79375 22.557C5.65625 23.032 5.475 23.482 5.25 23.907C5.375 23.957 5.5 23.982 5.625 23.982C5.75 23.982 5.875 23.982 6 23.982ZM14.625 17.982L10.5 13.857L23.925 0.432C24.2 0.157 24.5437 0.01325 24.9562 0.00075C25.3687 -0.01175 25.725 0.132 26.025 0.432L28.05 2.457C28.35 2.757 28.5 3.107 28.5 3.507C28.5 3.907 28.35 4.257 28.05 4.557L14.625 17.982Z" fill="#0C0C0A"/>
+              </svg>
+              <div style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 900, fontSize: 10, lineHeight: '15px', letterSpacing: 1, color: '#A1A1AA', alignSelf: 'stretch', zIndex: 1 }}>TIPS</div>
+              <div style={{ fontFamily: "'Nanum Pen Script',cursive", fontWeight: 500, fontSize: 22, lineHeight: '28px', color: '#27272A', alignSelf: 'stretch', zIndex: 1 }}>
                 {highlightProductNames(slot.expertTip, products)}
               </div>
             </div>
@@ -611,9 +843,9 @@ function FlowCard({
                 gap: 6,
                 height: 40,
                 width: '100%',
-                background: !hasProducts ? '#F4F4F0' : isChecked ? '#C5FF00' : '#F4F4F0',
-                color: !hasProducts ? '#BCBAB6' : isChecked ? '#0C0C0A' : '#4A4846',
-                border: !hasProducts ? '1.5px solid rgba(12,12,10,.07)' : isChecked ? '1.5px solid #84B000' : '1.5px solid rgba(12,12,10,.1)',
+                background: !hasProducts ? '#F4F4F0' : isChecked ? '#0C0C0A' : '#F4F4F0',
+                color: !hasProducts ? '#BCBAB6' : isChecked ? '#C5FF00' : '#4A4846',
+                border: !hasProducts ? '1.5px solid rgba(12,12,10,.07)' : isChecked ? '1.5px solid #0C0C0A' : '1.5px solid rgba(12,12,10,.1)',
                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                 fontSize: 12,
                 fontWeight: 700,
@@ -626,13 +858,22 @@ function FlowCard({
             >
               {saving ? '저장 중...' : !hasProducts ? '제품을 먼저 등록해주세요' : isChecked ? (
                 <>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
+                  {tab === 'morning' ? '☀' : '🌙'} 스킨케어 체크 완료
+                  <svg width="20" height="20" viewBox="0 0 36 36" fill="none" style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4 }}>
+                    <polygon points="9,16 5,3 17,12" fill="#C5FF00" stroke="#0C0C0A" strokeWidth="1.3"/>
+                    <polygon points="27,16 31,3 19,12" fill="#C5FF00" stroke="#0C0C0A" strokeWidth="1.3"/>
+                    <polygon points="10,15 7,6 15,11" fill="#FFB3C6" opacity="0.7"/>
+                    <polygon points="26,15 29,6 21,11" fill="#FFB3C6" opacity="0.7"/>
+                    <circle cx="18" cy="22" r="13" fill="#C5FF00" stroke="#0C0C0A" strokeWidth="1.5"/>
+                    <path d="M10 20 Q13 25 16 20" stroke="#0C0C0A" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+                    <path d="M20 20 Q23 25 26 20" stroke="#0C0C0A" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+                    <ellipse cx="10" cy="25" rx="3.2" ry="2" fill="#FF8FA3" opacity="0.45"/>
+                    <ellipse cx="26" cy="25" rx="3.2" ry="2" fill="#FF8FA3" opacity="0.45"/>
+                    <path d="M13.5 28 Q15.5 31.5 18 29.5 Q20.5 31.5 22.5 28" stroke="#0C0C0A" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
                   </svg>
-                  스킨케어 체크 완료
                 </>
               ) : (
-                '스킨케어 체크'
+                <>{tab === 'morning' ? '☀' : '🌙'} 스킨케어 체크</>
               )}
             </button>
           );
@@ -647,6 +888,7 @@ function FlowCard({
 
       {/* 습관은 FlowCard 아래 독립 섹션으로 분리됨 */}
     </div>
+    </>
   );
 }
 
@@ -1013,15 +1255,15 @@ function OOTDSection({
                   const p = products.get(pid);
                   const imgUrl = p?.imageUrl || p?.storageUrl;
                   return (
-                    <div key={pid} style={{ flexShrink: 0, width: 90, scrollSnapAlign: 'start' as const, display: 'flex', flexDirection: 'column', gap: 0 }}>
-                      <div style={{ width: 90, height: 90, background: '#EDECE9', borderRadius: 12, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    <div key={pid} style={{ flexShrink: 0, width: 200, scrollSnapAlign: 'start' as const, display: 'flex', flexDirection: 'column', gap: 0 }}>
+                      <div style={{ width: 200, height: 200, background: '#EDECE9', borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                         {imgUrl
                           // eslint-disable-next-line @next/next/no-img-element
                           ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          : <span style={{ fontSize: 24, opacity: 0.3 }}>👗</span>
+                          : <span style={{ fontSize: 48, opacity: 0.3 }}>👗</span>
                         }
                       </div>
-                      <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>{p?.name ?? '—'}</div>
+                      <div style={{ fontFamily: f, fontSize: 16, fontWeight: 700, color: '#0C0C0A', marginTop: 8, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>{p?.name ?? '—'}</div>
                       {p?.brand && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>{p.brand}</div>}
                     </div>
                   );
@@ -1121,14 +1363,14 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
     if (item.type === 'product') {
       const p = products.get(item.id);
       return (
-        <div key={idx} style={{ flexShrink: 0, width: 90, display: 'flex', flexDirection: 'column', gap: 0 }}>
-          <div style={{ width: 90, height: 90, background: '#EEEDE9', borderRadius: 12, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <div key={idx} style={{ flexShrink: 0, width: 200, display: 'flex', flexDirection: 'column', gap: 0 }}>
+          <div style={{ width: 200, height: 200, background: '#EEEDE9', borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             {(p?.imageUrl || p?.storageUrl)
               ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <span style={{ fontSize: 24, opacity: 0.4 }}>🧴</span>
+              : <span style={{ fontSize: 48, opacity: 0.4 }}>🧴</span>
             }
           </div>
-          <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%', textAlign: 'center' as const }}>
+          <div style={{ fontFamily: f, fontSize: 16, fontWeight: 700, color: '#0C0C0A', marginTop: 8, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%', textAlign: 'center' as const }}>
             {p?.name ?? '?'}
           </div>
         </div>
@@ -1203,15 +1445,15 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               </div>
             )}
 
-            {/* EXPERT TIP */}
+            {/* TIPS */}
             {item.expertTip && (
-              <div style={{ padding: '8px 16px 12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 16 }}>
-                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-                    EXPERT TIP
-                  </div>
-                  <div style={{ fontFamily: f, fontSize: 13, color: '#4A4846', lineHeight: 1.6 }}>
+              <div style={{ padding: '8px 16px 20px' }}>
+                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 24, gap: 8, background: '#FAFAFA', border: '1px solid #E4E4E7', borderRadius: 16, overflow: 'visible' }}>
+                  <svg width="29" height="27" viewBox="0 0 29 27" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', left: -8, top: -8, zIndex: 2 }}>
+                    <path d="M6 26.982C4.875 26.982 3.7625 26.707 2.6625 26.157C1.5625 25.607 0.675 24.882 0 23.982C0.65 23.982 1.3125 23.7257 1.9875 23.2132C2.6625 22.7007 3 21.957 3 20.982C3 19.732 3.4375 18.6695 4.3125 17.7945C5.1875 16.9195 6.25 16.482 7.5 16.482C8.75 16.482 9.8125 16.9195 10.6875 17.7945C11.5625 18.6695 12 19.732 12 20.982C12 22.632 11.4125 24.0445 10.2375 25.2195C9.0625 26.3945 7.65 26.982 6 26.982ZM6 23.982C6.825 23.982 7.53125 23.6882 8.11875 23.1007C8.70625 22.5133 9 21.807 9 20.982C9 20.557 8.85625 20.2008 8.56875 19.9132C8.28125 19.6257 7.925 19.482 7.5 19.482C7.075 19.482 6.71875 19.6257 6.43125 19.9132C6.14375 20.2008 6 20.557 6 20.982C6 21.557 5.93125 22.082 5.79375 22.557C5.65625 23.032 5.475 23.482 5.25 23.907C5.375 23.957 5.5 23.982 5.625 23.982C5.75 23.982 5.875 23.982 6 23.982ZM14.625 17.982L10.5 13.857L23.925 0.432C24.2 0.157 24.5437 0.01325 24.9562 0.00075C25.3687 -0.01175 25.725 0.132 26.025 0.432L28.05 2.457C28.35 2.757 28.5 3.107 28.5 3.507C28.5 3.907 28.35 4.257 28.05 4.557L14.625 17.982Z" fill="#0C0C0A"/>
+                  </svg>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 900, fontSize: 10, lineHeight: '15px', letterSpacing: 1, color: '#A1A1AA', alignSelf: 'stretch', zIndex: 1 }}>TIPS</div>
+                  <div style={{ fontFamily: "'Nanum Pen Script',cursive", fontWeight: 500, fontSize: 22, lineHeight: '28px', color: '#27272A', alignSelf: 'stretch', zIndex: 1 }}>
                     {highlightProductNames(item.expertTip, products)}
                   </div>
                 </div>
@@ -1317,15 +1559,15 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                 </div>
               )}
 
-              {/* Expert tip */}
+              {/* TIPS */}
               {item.expertTip && (
-                <div style={{ padding: '8px 16px 14px' }}>
-                  <div style={{ padding: '12px 14px', background: '#F5FDD4', border: '1px solid rgba(198,244,50,.5)', borderRadius: 14 }}>
-                    <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#4E7D00', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-                      EXPERT TIP
-                    </div>
-                    <div style={{ fontFamily: f, fontSize: 13, color: '#4A4846', lineHeight: 1.6 }}>
+                <div style={{ padding: '8px 16px 20px' }}>
+                  <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 24, gap: 8, background: '#FAFAFA', border: '1px solid #E4E4E7', borderRadius: 16, overflow: 'visible' }}>
+                    <svg width="29" height="27" viewBox="0 0 29 27" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', left: -8, top: -8, zIndex: 2 }}>
+                      <path d="M6 26.982C4.875 26.982 3.7625 26.707 2.6625 26.157C1.5625 25.607 0.675 24.882 0 23.982C0.65 23.982 1.3125 23.7257 1.9875 23.2132C2.6625 22.7007 3 21.957 3 20.982C3 19.732 3.4375 18.6695 4.3125 17.7945C5.1875 16.9195 6.25 16.482 7.5 16.482C8.75 16.482 9.8125 16.9195 10.6875 17.7945C11.5625 18.6695 12 19.732 12 20.982C12 22.632 11.4125 24.0445 10.2375 25.2195C9.0625 26.3945 7.65 26.982 6 26.982ZM6 23.982C6.825 23.982 7.53125 23.6882 8.11875 23.1007C8.70625 22.5133 9 21.807 9 20.982C9 20.557 8.85625 20.2008 8.56875 19.9132C8.28125 19.6257 7.925 19.482 7.5 19.482C7.075 19.482 6.71875 19.6257 6.43125 19.9132C6.14375 20.2008 6 20.557 6 20.982C6 21.557 5.93125 22.082 5.79375 22.557C5.65625 23.032 5.475 23.482 5.25 23.907C5.375 23.957 5.5 23.982 5.625 23.982C5.75 23.982 5.875 23.982 6 23.982ZM14.625 17.982L10.5 13.857L23.925 0.432C24.2 0.157 24.5437 0.01325 24.9562 0.00075C25.3687 -0.01175 25.725 0.132 26.025 0.432L28.05 2.457C28.35 2.757 28.5 3.107 28.5 3.507C28.5 3.907 28.35 4.257 28.05 4.557L14.625 17.982Z" fill="#0C0C0A"/>
+                    </svg>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 900, fontSize: 10, lineHeight: '15px', letterSpacing: 1, color: '#A1A1AA', alignSelf: 'stretch', zIndex: 1 }}>TIPS</div>
+                    <div style={{ fontFamily: "'Nanum Pen Script',cursive", fontWeight: 500, fontSize: 22, lineHeight: '28px', color: '#27272A', alignSelf: 'stretch', zIndex: 1 }}>
                       {highlightProductNames(item.expertTip, products)}
                     </div>
                   </div>
