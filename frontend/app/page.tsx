@@ -889,7 +889,14 @@ function FlowCard({
                 opacity: saving ? 0.6 : !hasProducts ? 0.45 : 1,
               }}
             >
-              {saving ? '저장 중...' : !hasProducts ? '제품을 먼저 등록해주세요' : isChecked ? (
+              {saving ? '저장 중...' : !hasProducts ? (
+                <>
+                  제품을 먼저 등록해주세요
+                  <span style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4, opacity: 0.4 }}>
+                    <CatBadge color="#9A9490" size={18} />
+                  </span>
+                </>
+              ) : isChecked ? (
                 <>
                   {tab === 'morning' ? '☀' : '🌙'} 스킨케어 체크 완료
                   <svg width="20" height="20" viewBox="0 0 36 36" fill="none" style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4 }}>
