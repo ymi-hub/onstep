@@ -734,11 +734,18 @@ function RecentStrip({
                 {format(day, 'd')}
               </span>
 
-              {/* 완료 닷 — 아침(라임) · 저녁(블랙) */}
-              <div style={{ display: 'flex', gap: 3, alignItems: 'center', height: 10 }}>
-                <div style={{ width: 7, height: 7, borderRadius: 9999, background: log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.1)', flexShrink: 0 }} />
-                <div style={{ width: 7, height: 7, borderRadius: 9999, background: log?.hasEvening ? '#0C0C0A' : 'rgba(12,12,10,.1)', flexShrink: 0 }} />
-              </div>
+              {/* 오늘: 하나라도 완료면 캐릭터 / 나머지: 아침(라임)·저녁(블랙) 닷 */}
+              {today && (log?.hasMorning || log?.hasEvening) ? (
+                <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid #C5FF00', flexShrink: 0 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </div>
+              ) : (
+                <div style={{ display: 'flex', gap: 3, alignItems: 'center', height: 10 }}>
+                  <div style={{ width: 7, height: 7, borderRadius: 9999, background: log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.1)', flexShrink: 0 }} />
+                  <div style={{ width: 7, height: 7, borderRadius: 9999, background: log?.hasEvening ? '#0C0C0A' : 'rgba(12,12,10,.1)', flexShrink: 0 }} />
+                </div>
+              )}
             </button>
           );
         })}
