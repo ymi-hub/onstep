@@ -1065,9 +1065,17 @@ export default function BoxPage() {
               background: 'none', border: 'none', cursor: 'pointer',
               borderBottom: activeTab === id ? '3px solid #C5FF00' : '3px solid transparent',
               transition: 'all .18s', whiteSpace: 'nowrap',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
             }}
           >
-            {activeTab === id ? `#${label}` : label}
+            <span>{activeTab === id ? `#${label}` : label}</span>
+            <span style={{
+              fontSize: 9, fontWeight: 800,
+              color: activeTab === id ? '#4E7D00' : '#BCBAB6',
+              letterSpacing: '.02em',
+            }}>
+              {products.filter(p => p.domain === id).length}
+            </span>
           </button>
         ))}
         {/* ⊞ 전체 보기 버튼 */}
