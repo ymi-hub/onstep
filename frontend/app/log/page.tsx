@@ -589,34 +589,54 @@ function DayDetail({
         {renderSlot('NIGHT', '🌙', eveningUniq, dayLog?.hasEvening ?? false, eveningExpertProds)}
       </div>
 
-      {/* 그날의 MOTD / OOTD */}
+      {/* 그날의 MOTD / OOTD — 컨텐츠 이미지 */}
       {(() => {
         const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
         const dayMotd = makeupItems.filter(i => (i.dates ?? []).includes(dateStr));
         const dayOotd = lookItems.filter(i => (i.dates ?? []).includes(dateStr));
         if (!dayMotd.length && !dayOotd.length) return null;
         return (
-          <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {dayMotd.map(item => (
-              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#FAFAF8', border: '1px solid #E5E5E5', borderRadius: 12 }}>
-                <span style={{ fontSize: 18 }}>💄</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 2 }}>MOTD</div>
-                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</div>
+          <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* 메이크업 */}
+            {dayMotd.length > 0 && (
+              <div>
+                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>MOTD</div>
+                <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
+                  {dayMotd.map(item => (
+                    <div key={item.id} style={{ flexShrink: 0, width: 80, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      <div style={{ width: 80, height: 80, borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {item.imageUrl
+                          // eslint-disable-next-line @next/next/no-img-element
+                          ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          : <span style={{ fontSize: 32 }}>{item.emoji || '💄'}</span>
+                        }
+                      </div>
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                    </div>
+                  ))}
                 </div>
-                {item.imageUrl && <img src={item.imageUrl} alt={item.name} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />}
               </div>
-            ))}
-            {dayOotd.map(item => (
-              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#FAFAF8', border: '1px solid #E5E5E5', borderRadius: 12 }}>
-                <span style={{ fontSize: 18 }}>👗</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 2 }}>OOTD</div>
-                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</div>
+            )}
+            {/* 코디 — 3:4 세로형 */}
+            {dayOotd.length > 0 && (
+              <div>
+                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>OOTD</div>
+                <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
+                  {dayOotd.map(item => (
+                    <div key={item.id} style={{ flexShrink: 0, width: 80, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      <div style={{ width: 80, height: 106, borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {item.imageUrl
+                          // eslint-disable-next-line @next/next/no-img-element
+                          ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          : <span style={{ fontSize: 36 }}>{item.emoji || '👗'}</span>
+                        }
+                      </div>
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                    </div>
+                  ))}
                 </div>
-                {item.imageUrl && <img src={item.imageUrl} alt={item.name} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />}
               </div>
-            ))}
+            )}
           </div>
         );
       })()}
@@ -1943,23 +1963,47 @@ export default function LogPage() {
                         </div>
                       ))}
 
-                      {/* 메이크업 */}
-                      {todayMotd.map(item => (
-                        <div key={item.id} style={{ padding: '9px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 14 }}>💄</span>
-                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>{item.name}</span>
-                          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em' }}>MOTD</span>
+                      {/* 메이크업 — 컨텐츠 이미지 */}
+                      {todayMotd.length > 0 && (
+                        <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(12,12,10,.05)' }}>
+                          <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>MOTD</div>
+                          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
+                            {todayMotd.map(item => (
+                              <div key={item.id} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 5, width: 80 }}>
+                                <div style={{ width: 80, height: 80, borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                  {item.imageUrl
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    : <span style={{ fontSize: 32 }}>{item.emoji || '💄'}</span>
+                                  }
+                                </div>
+                                <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      ))}
+                      )}
 
-                      {/* 코디 */}
-                      {todayOotd.map(item => (
-                        <div key={item.id} style={{ padding: '9px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 14 }}>👗</span>
-                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>{item.name}</span>
-                          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em' }}>OOTD</span>
+                      {/* 코디 — 컨텐츠 이미지 (3:4 세로형) */}
+                      {todayOotd.length > 0 && (
+                        <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(12,12,10,.05)' }}>
+                          <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>OOTD</div>
+                          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
+                            {todayOotd.map(item => (
+                              <div key={item.id} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 5, width: 80 }}>
+                                <div style={{ width: 80, height: 106, borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                  {item.imageUrl
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    : <span style={{ fontSize: 36 }}>{item.emoji || '👗'}</span>
+                                  }
+                                </div>
+                                <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      ))}
+                      )}
 
                       {/* 습관 */}
                       {habits.length > 0 && (
