@@ -2691,8 +2691,6 @@ export default function SetupPage() {
         onOpenSessions={() => goView('sessions')}
         onOpenTracker={() => goView('tracker')}
         onOpenCare={() => goView('care')}
-        onOpenMakeup={() => goView('makeup')}
-        onOpenLookbook={() => goView('lookbook')}
       />
       {(view === 'sessions' || view === 'editor') && (
         <SessionsView key={sessionsKey} sessions={sessions} products={products} loading={loadingSessions} onBack={() => goView('hub')} onNew={openNewSession} onEdit={openEdit} onUpdateNumber={handleUpdateSessionNumber} />
@@ -2720,24 +2718,7 @@ export default function SetupPage() {
           onDelete={(id) => handleDeleteCtItem('care', id)}
         />
       )}
-      {view === 'makeup' && (
-        <CtPanel
-          ctType="makeup" ctItems={makeupItems} products={products} userId={userId}
-          onBack={() => goView('hub')}
-          onAdd={handleAddCtItem}
-          onUpdate={(id, item) => handleUpdateCtItem('makeup', id, item)}
-          onDelete={(id) => handleDeleteCtItem('makeup', id)}
-        />
-      )}
-      {view === 'lookbook' && (
-        <CtPanel
-          ctType="lookbook" ctItems={lookItems} products={products} userId={userId}
-          onBack={() => goView('hub')}
-          onAdd={handleAddCtItem}
-          onUpdate={(id, item) => handleUpdateCtItem('lookbook', id, item)}
-          onDelete={(id) => handleDeleteCtItem('lookbook', id)}
-        />
-      )}
+      {/* 메이크업·룩북은 LOG [아카이브] 탭으로 이동 */}
     </>
   );
 }

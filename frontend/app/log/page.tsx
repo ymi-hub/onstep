@@ -350,12 +350,16 @@ function DayDetail({
   dayLog,
   products,
   sessions,
+  makeupItems,
+  lookItems,
   onClose,
 }: {
   dateStr: string;
   dayLog: DayLog | undefined;
   products: Map<string, Product>;
   sessions: import('@/types/routine').Session[];
+  makeupItems: CtItem[];
+  lookItems: CtItem[];
   onClose: () => void;
 }) {
   const dateLabel = format(parseISO(dateStr), 'M월 d일 (EEE)', { locale: ko });
@@ -584,6 +588,38 @@ function DayDetail({
         {renderSlot('MORNING', '☀', morningUniq, dayLog?.hasMorning ?? false, morningExpertProds)}
         {renderSlot('NIGHT', '🌙', eveningUniq, dayLog?.hasEvening ?? false, eveningExpertProds)}
       </div>
+
+      {/* 그날의 MOTD / OOTD */}
+      {(() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        const dayMotd = makeupItems.filter(i => (i.dates ?? []).includes(dateStr));
+        const dayOotd = lookItems.filter(i => (i.dates ?? []).includes(dateStr));
+        if (!dayMotd.length && !dayOotd.length) return null;
+        return (
+          <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {dayMotd.map(item => (
+              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#FAFAF8', border: '1px solid #E5E5E5', borderRadius: 12 }}>
+                <span style={{ fontSize: 18 }}>💄</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 2 }}>MOTD</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</div>
+                </div>
+                {item.imageUrl && <img src={item.imageUrl} alt={item.name} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />}
+              </div>
+            ))}
+            {dayOotd.map(item => (
+              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#FAFAF8', border: '1px solid #E5E5E5', borderRadius: 12 }}>
+                <span style={{ fontSize: 18 }}>👗</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 2 }}>OOTD</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</div>
+                </div>
+                {item.imageUrl && <img src={item.imageUrl} alt={item.name} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />}
+              </div>
+            ))}
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -1671,8 +1707,8 @@ export default function LogPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   // ── 탭 상태 ──
-  const [mainTab, setMainTab] = useState<'log' | 'library'>('log');
-  const [logFilter, setLogFilter] = useState<'all' | 'makeup' | 'lookbook'>('all');
+  const [mainTab, setMainTab] = useState<'기록' | '라이브러리' | '아카이브'>('기록');
+  const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook'>('all');
   const [libFilter, setLibFilter] = useState<'makeup' | 'lookbook'>('makeup');
 
   // ── FAB 상태 ──
@@ -1811,31 +1847,84 @@ export default function LogPage() {
           subtitle="오늘 본 무드가 내일의 내 모습이 된다"
         />
 
-        {/* 탭 바 — LOG / Library */}
+        {/* 탭 바 — 기록 / 라이브러리 / 아카이브 */}
         <div style={{ display: 'flex', gap: 0, height: 46, alignItems: 'stretch', background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(12,12,10,.07)', margin: '16px 0 0', padding: '0 16px' }}>
-          {(['log', 'library'] as const).map((t) => (
+          {(['기록', '라이브러리', '아카이브'] as const).map((t) => (
             <button key={t} onClick={() => setMainTab(t)}
-              style={{ flex: 1, border: 'none', background: 'none', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', color: mainTab === t ? '#0C0C0A' : '#9A9490', borderBottom: mainTab === t ? '2px solid #0C0C0A' : '2px solid transparent', cursor: 'pointer', transition: 'all .18s' }}
+              style={{ flex: 1, border: 'none', background: 'none', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 800, letterSpacing: '.02em', color: mainTab === t ? '#0C0C0A' : '#9A9490', borderBottom: mainTab === t ? '2px solid #0C0C0A' : '2px solid transparent', cursor: 'pointer', transition: 'all .18s' }}
             >
-              {t === 'log' ? 'Log' : 'Library'}
+              {t}
             </button>
           ))}
         </div>
 
-        {mainTab === 'log' ? (
-          /* LOG 탭 — ALL / 💄 / 👗 태그바 필터 */
+        {/* ── 기록 탭 — 날짜 중심 타임라인 ── */}
+        {mainTab === '기록' && (
+          <div style={{ paddingTop: 8 }}>
+            <RecentStrip dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate} />
+            <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '16px 16px 0' }} />
+            <MonthCalendar
+              currentMonth={currentMonth} dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate}
+              onPrevMonth={() => { setCurrentMonth(m => subMonths(m, 1)); setSelectedDate(null); }}
+              onNextMonth={() => { setCurrentMonth(m => addMonths(m, 1)); setSelectedDate(null); }}
+            />
+            {selectedDate ? (
+              <DayDetail
+                dateStr={selectedDate} dayLog={selectedDayLog} products={products} sessions={sessions}
+                makeupItems={makeupItems} lookItems={lookItems}
+                onClose={() => setSelectedDate(null)}
+              />
+            ) : (
+              dayLogs.size === 0 && <EmptyState isLoading={dataLoading || authLoading} />
+            )}
+          </div>
+        )}
+
+        {/* ── 라이브러리 탭 — 아이템 중심 사용 히스토리 ── */}
+        {mainTab === '라이브러리' && (
+          <div style={{ padding: '16px 16px 0' }}>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+              {(['makeup', 'lookbook'] as const).map((f) => {
+                const usedItems = (f === 'makeup' ? makeupItems : lookItems).filter(i => (i.dates ?? []).length > 0);
+                return (
+                  <button key={f} onClick={() => setLibFilter(f)} style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${libFilter === f ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: libFilter === f ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: libFilter === f ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 5 }}>
+                    {f === 'makeup' ? '💄 메이크업' : '👗 룩북'}
+                    {usedItems.length > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: '#C5FF00', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{usedItems.length}</span>}
+                  </button>
+                );
+              })}
+            </div>
+            {(() => {
+              const items = (libFilter === 'makeup' ? makeupItems : lookItems).filter(i => (i.dates ?? []).length > 0);
+              if (items.length === 0) return (
+                <div style={{ padding: '32px 20px', textAlign: 'center', background: '#fff', border: '1px solid #E5E5E5', borderRadius: 16, marginBottom: 20 }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>{libFilter === 'makeup' ? '💄' : '👗'}</div>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>사용 기록이 없어요</div>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>아카이브에서 Today ON을 설정하면 기록됩니다</div>
+                </div>
+              );
+              const sorted = [...items].sort((a, b) => (b.dates ?? []).length - (a.dates ?? []).length);
+              return sorted.map(item => (
+                <LogLibraryCard key={item.id} item={item} products={products} />
+              ));
+            })()}
+          </div>
+        )}
+
+        {/* ── 아카이브 탭 — 메이크업·룩북 CRUD + Today ON ── */}
+        {mainTab === '아카이브' && (
           <div style={{ paddingTop: 16 }}>
-            {/* 태그바 */}
+            {/* 필터 */}
             <div style={{ display: 'flex', gap: 6, padding: '0 16px', marginBottom: 16 }}>
               {(['all', 'makeup', 'lookbook'] as const).map(tab => (
-                <button key={tab} onClick={() => setLogFilter(tab)}
-                  style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${logFilter === tab ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: logFilter === tab ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: logFilter === tab ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
+                <button key={tab} onClick={() => setArchiveFilter(tab)}
+                  style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${archiveFilter === tab ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: archiveFilter === tab ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: archiveFilter === tab ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
                   {tab === 'all' ? 'ALL' : tab === 'makeup' ? '💄 Makeup' : '👗 Lookbook'}
                 </button>
               ))}
             </div>
 
-            {/* LogCtPanel — hiddenMode: 카드 숨김, 편집 시트만 사용 */}
+            {/* LogCtPanel — hiddenMode: 편집 시트만 사용 */}
             <LogCtPanel key="makeup" filter="makeup" items={makeupItems} products={Array.from(products.values())} userId={userId}
               onAdd={(data) => handleCtAdd('makeup', data)} onUpdate={(id, data) => handleCtUpdate('makeup', id, data)} onDelete={(id) => handleCtDelete('makeup', id)}
               hideAddButton addTrigger={makeupAddTrigger} editTrigger={makeupEditTrigger} hiddenMode
@@ -1845,11 +1934,11 @@ export default function LogPage() {
               hideAddButton addTrigger={lookbookAddTrigger} editTrigger={lookbookEditTrigger} hiddenMode
             />
 
-            {/* ── 메인 카드 영역 (필터 적용) ── */}
+            {/* 아이템 카드 목록 */}
             {(() => {
               const visibleItems = [
-                ...(logFilter !== 'lookbook' ? makeupItems : []),
-                ...(logFilter !== 'makeup' ? lookItems : []),
+                ...(archiveFilter !== 'lookbook' ? makeupItems : []),
+                ...(archiveFilter !== 'makeup' ? lookItems : []),
               ];
               const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
               const todayStr = format(new Date(), 'yyyy-MM-dd');
@@ -1859,7 +1948,11 @@ export default function LogPage() {
                 return bOn - aOn;
               });
               if (sortedItems.length === 0) return (
-                <div style={{ padding: '40px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>등록된 아이템이 없습니다</div>
+                <div style={{ padding: '40px 16px', textAlign: 'center', background: '#fff', border: '1px solid #E5E5E5', borderRadius: 16, margin: '0 16px' }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>📁</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>아카이브가 비어있어요</div>
+                  <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>+ 버튼으로 새 룩·메이크업을 추가해보세요</div>
+                </div>
               );
               return (
                 <div style={{ marginTop: 8 }}>
@@ -1871,72 +1964,45 @@ export default function LogPage() {
                       const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
                       return (
                         <div key={item.id}>
-                        <div style={{
-                          boxSizing: 'border-box',
-                          display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-                          padding: '20px 24px 0px',
-                          position: 'relative',
-                          width: '100%',
-                          background: '#FFFFFF',
-                          border: '1px solid #E5E5E5',
-                          isolation: 'isolate',
-                          flexShrink: 0,
-                        }}>
-                          {/* 라임 배지 — 우상단 -3도 회전 */}
-                          <div style={{
-                            position: 'absolute', right: 7, top: 42,
-                            width: 113, height: 32,
-                            background: '#C6F432', border: '1px solid #18181B',
-                            transform: 'rotate(-3deg)',
-                            display: 'flex', alignItems: 'center', padding: '0 12px',
-                            zIndex: 3,
-                          }}>
-                            <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
+                          <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 24px 0px', position: 'relative', width: '100%', background: '#FFFFFF', border: '1px solid #E5E5E5', isolation: 'isolate', flexShrink: 0 }}>
+                            <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#C6F432', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
+                              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
+                            </div>
+                            <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
+                              {item.imageUrl
+                                ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
+                              }
+                              {isOnToday && (
+                                <div style={{ position: 'absolute', bottom: 12, left: 12, background: '#0C0C0A', color: '#fff', fontFamily: f, fontSize: 16, fontWeight: 800, letterSpacing: '.12em', padding: '6px 14px', borderRadius: 9999, border: '1.5px solid #C5FF00', zIndex: 4 }}>TODAY</div>
+                              )}
+                            </div>
+                            <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
+                            <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 6, marginBottom: 20, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || (isMakeup ? 'makeup' : 'lookbook')}</div>
                           </div>
-
-                          {/* 이미지 영역 */}
-                          <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
-                            {item.imageUrl
-                              ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
-                            }
-                            {isOnToday && (
-                              <div style={{ position: 'absolute', bottom: 12, left: 12, background: '#0C0C0A', color: '#fff', fontFamily: f, fontSize: 16, fontWeight: 800, letterSpacing: '.12em', padding: '6px 14px', borderRadius: 9999, border: '1.5px solid #C5FF00', zIndex: 4 }}>TODAY</div>
-                            )}
-                          </div>
-
-                          {/* 제목 */}
-                          <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
-                          {/* 서브 */}
-                          <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 6, marginBottom: 20, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || (isMakeup ? 'makeup' : 'lookbook')}</div>
-                        </div>
-
-                        {/* 제품 영역 — 카드 밖 하단, 가로 스크롤 */}
-                        {prodItems.length > 0 && (
-                          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 0 4px', width: '100%', scrollbarWidth: 'none' as const }}>
-                            {prodItems.map((it, idx) => {
-                              const p = products.get(it.id);
-                              const imgSrc = p?.imageUrl || p?.storageUrl;
-                              return (
-                                <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                                  <div style={{ width: 120, height: 160, borderRadius: 10, background: '#F3F3F4', border: '1px solid #E5E5E5', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
+                          {prodItems.length > 0 && (
+                            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 0 4px', width: '100%', scrollbarWidth: 'none' as const }}>
+                              {prodItems.map((it, idx) => {
+                                const p = products.get(it.id);
+                                const imgSrc = p?.imageUrl || p?.storageUrl;
+                                return (
+                                  <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                    <div style={{ width: 120, height: 160, borderRadius: 10, background: '#F3F3F4', border: '1px solid #E5E5E5', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                      {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
+                                    </div>
+                                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
                                   </div>
-                                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
-                                </div>
-                              );
-                            })}
+                                );
+                              })}
+                            </div>
+                          )}
+                          <div style={{ display: 'flex', gap: 6, marginTop: 12, marginBottom: 4 }}>
+                            <button onClick={() => handleToggleToday(item)} disabled={!!togglingId} style={{ flex: 1, padding: '8px 0', background: isOnToday ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: isOnToday ? '#C5FF00' : '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: togglingId ? 'default' : 'pointer', opacity: togglingId === item.id ? 0.6 : 1, transition: 'all .15s' }}>
+                              {togglingId === item.id ? '...' : isOnToday ? 'Today ON' : 'Today OFF'}
+                            </button>
+                            <button onClick={() => triggerCollectionEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>편집</button>
                           </div>
-                        )}
-
-                        {/* Today ON/OFF + 편집 버튼 */}
-                        <div style={{ display: 'flex', gap: 6, marginTop: 12, marginBottom: 4 }}>
-                          <button onClick={() => handleToggleToday(item)} disabled={!!togglingId} style={{ flex: 1, padding: '8px 0', background: isOnToday ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: isOnToday ? '#C5FF00' : '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: togglingId ? 'default' : 'pointer', opacity: togglingId === item.id ? 0.6 : 1, transition: 'all .15s' }}>
-                            {togglingId === item.id ? '...' : isOnToday ? 'Today ON' : 'Today OFF'}
-                          </button>
-                          <button onClick={() => triggerCollectionEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>편집</button>
                         </div>
-                      </div>
                       );
                     })}
                   </div>
@@ -1944,66 +2010,12 @@ export default function LogPage() {
               );
             })()}
           </div>
-        ) : (
-          /* LIBRARY 탭 — 스킨케어 캘린더 상단 + 컨셉 아카이브 하단 */
-          <div>
-            {/* 스킨케어 기록 섹션 — 상단 */}
-            <div style={{ paddingTop: 8 }}>
-              <div style={{ padding: '12px 16px 8px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490' }}>SKINCARE RECORD</div>
-              <RecentStrip dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate} />
-              <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '16px 16px 0' }} />
-              <MonthCalendar
-                currentMonth={currentMonth} dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate}
-                onPrevMonth={() => { setCurrentMonth(m => subMonths(m, 1)); setSelectedDate(null); }}
-                onNextMonth={() => { setCurrentMonth(m => addMonths(m, 1)); setSelectedDate(null); }}
-              />
-              {selectedDate ? (
-                <DayDetail dateStr={selectedDate} dayLog={selectedDayLog} products={products} sessions={sessions} onClose={() => setSelectedDate(null)} />
-              ) : (
-                dayLogs.size === 0 && <EmptyState isLoading={dataLoading || authLoading} />
-              )}
-            </div>
-
-            {/* 컨셉 카드 섹션 — 하단 */}
-            <div style={{ margin: '8px 0 0', borderTop: '1px solid rgba(12,12,10,.07)', padding: '16px 16px 0' }}>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>CONCEPT ARCHIVE</div>
-              <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
-                {(['makeup', 'lookbook'] as const).map((f) => {
-                  const todayStr = format(new Date(), 'yyyy-MM-dd');
-                  const cnt = (f === 'makeup' ? makeupItems : lookItems).filter(i => i.published && (i.dates ?? []).includes(todayStr)).length;
-                  return (
-                    <button key={f} onClick={() => setLibFilter(f)} style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${libFilter === f ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: libFilter === f ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: libFilter === f ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 5 }}>
-                      {f === 'makeup' ? 'Makeup' : 'Lookbook'}
-                      {cnt > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: '#C5FF00', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cnt}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-              {(libFilter === 'makeup' ? makeupItems : lookItems).length === 0 ? (
-                <div style={{ padding: '32px 20px', textAlign: 'center', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#F4F4F0', marginBottom: 20 }}>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>LOG 탭에서 등록한 아이템이 여기에 표시됩니다</div>
-                </div>
-              ) : (
-                (() => {
-                  const todayStr = format(new Date(), 'yyyy-MM-dd');
-                  const sorted = [...(libFilter === 'makeup' ? makeupItems : lookItems)].sort((a, b) => {
-                    const aOn = a.published && (a.dates ?? []).includes(todayStr) ? 1 : 0;
-                    const bOn = b.published && (b.dates ?? []).includes(todayStr) ? 1 : 0;
-                    return bOn - aOn;
-                  });
-                  return sorted.map(item => (
-                    <LogLibraryCard key={item.id} item={item} products={products} />
-                  ));
-                })()
-              )}
-            </div>
-          </div>
         )}
 
       </div>
 
-      {/* FAB — LOG 탭에서만 노출 (design/log.html .fab 패턴) */}
-      {mainTab === 'log' && (
+      {/* FAB — 아카이브 탭에서만 노출 */}
+      {mainTab === '아카이브' && (
         <>
           {/* 타입 선택 팝업 배경 */}
           {fabMenuOpen && (
