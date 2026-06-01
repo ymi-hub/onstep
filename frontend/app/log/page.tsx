@@ -304,11 +304,15 @@ function MonthCalendar({
                 {format(day, 'd')}
               </span>
 
-              {/* 완료 닷 — 아침(라임) · 저녁(블랙) */}
-              <div style={{ display: 'flex', gap: 2, alignItems: 'center', height: 8 }}>
-                <div style={{ width: 6, height: 6, borderRadius: 9999, background: log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.08)', flexShrink: 0 }} />
-                <div style={{ width: 6, height: 6, borderRadius: 9999, background: log?.hasEvening ? '#0C0C0A' : 'rgba(12,12,10,.08)', flexShrink: 0 }} />
-              </div>
+              {/* 완료 표시 — 하나라도 완료면 캐릭터, 없으면 빈 공간 */}
+              {(log?.hasMorning || log?.hasEvening) ? (
+                <div style={{ width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: log?.hasMorning && log?.hasEvening ? '1.5px solid #C5FF00' : '1.5px solid rgba(12,12,10,.15)' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </div>
+              ) : (
+                <div style={{ height: 22 }} />
+              )}
             </button>
           );
         })}
