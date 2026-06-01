@@ -304,14 +304,25 @@ function MonthCalendar({
                 {format(day, 'd')}
               </span>
 
-              {/* 완료 표시 — 하나라도 완료면 캐릭터, 없으면 빈 공간 */}
+              {/* 완료 표시 — 아침(라임) / 저녁(오렌지) / 둘다(라임+오렌지 이중 테두리) */}
               {(log?.hasMorning || log?.hasEvening) ? (
-                <div style={{ width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: log?.hasMorning && log?.hasEvening ? '1.5px solid #C5FF00' : '1.5px solid rgba(12,12,10,.15)' }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+                  border: log?.hasMorning && log?.hasEvening
+                    ? '2px solid #C5FF00'
+                    : log?.hasMorning
+                    ? '2px solid #C5FF00'
+                    : '2px solid #F97316',
+                  boxShadow: log?.hasMorning && log?.hasEvening ? '0 0 0 1.5px #F97316' : 'none',
+                }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 </div>
               ) : (
-                <div style={{ height: 22 }} />
+                <div style={{ width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid rgba(12,12,10,.12)', opacity: 0.3 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'grayscale(100%)' }} />
+                </div>
               )}
             </button>
           );
@@ -739,15 +750,23 @@ function RecentStrip({
               </span>
 
               {/* 오늘: 하나라도 완료면 캐릭터 / 나머지: 아침(라임)·저녁(블랙) 닷 */}
-              {today && (log?.hasMorning || log?.hasEvening) ? (
-                <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid #C5FF00', flexShrink: 0 }}>
+              {(log?.hasMorning || log?.hasEvening) ? (
+                <div style={{
+                  width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+                  border: log?.hasMorning && log?.hasEvening
+                    ? '2px solid #C5FF00'
+                    : log?.hasMorning
+                    ? '2px solid #C5FF00'
+                    : '2px solid #F97316',
+                  boxShadow: log?.hasMorning && log?.hasEvening ? '0 0 0 1.5px #F97316' : 'none',
+                }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 </div>
               ) : (
-                <div style={{ display: 'flex', gap: 3, alignItems: 'center', height: 10 }}>
-                  <div style={{ width: 7, height: 7, borderRadius: 9999, background: log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.1)', flexShrink: 0 }} />
-                  <div style={{ width: 7, height: 7, borderRadius: 9999, background: log?.hasEvening ? '#0C0C0A' : 'rgba(12,12,10,.1)', flexShrink: 0 }} />
+                <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid rgba(12,12,10,.12)', opacity: 0.3 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'grayscale(100%)' }} />
                 </div>
               )}
             </button>
