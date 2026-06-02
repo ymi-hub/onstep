@@ -857,7 +857,7 @@ function LogLibraryCard({
             const imgSrc = p?.imageUrl || p?.storageUrl;
             return (
               <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <div style={{ width: 120, height: 160, borderRadius: 10, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 120, height: 160, borderRadius: 0, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
                 </div>
                 <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
@@ -897,6 +897,24 @@ function LogLibraryCard({
           <span style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6' }}>아직 적용 기록이 없습니다</span>
         )}
       </div>
+
+      {/* 소스 링크 */}
+      {item.sourceUrl?.trim() && (() => {
+        let domain = item.sourceUrl;
+        try { domain = new URL(item.sourceUrl).hostname; } catch {}
+        return (
+          <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, padding: '8px 12px', border: '1px solid rgba(12,12,10,.1)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.02)' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+              <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+            </svg>
+            SOURCE
+            <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 400, color: '#9A9490' }}>{domain}</span>
+          </a>
+        );
+      })()}
     </div>
   );
 }
@@ -2398,7 +2416,7 @@ function LogPageInner() {
                                 const imgSrc = p?.imageUrl || p?.storageUrl;
                                 return (
                                   <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                                    <div style={{ width: 120, height: 160, borderRadius: 10, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div style={{ width: 120, height: 160, borderRadius: 0, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                       {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
                                     </div>
                                     <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
@@ -2413,6 +2431,22 @@ function LogPageInner() {
                             </button>
                             <button onClick={() => triggerCollectionEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>편집</button>
                           </div>
+                          {item.sourceUrl?.trim() && (() => {
+                            let domain = item.sourceUrl!;
+                            try { domain = new URL(item.sourceUrl!).hostname; } catch {}
+                            return (
+                              <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '8px 12px', border: '1px solid rgba(12,12,10,.1)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.02)' }}
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+                                  <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                                  <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                                </svg>
+                                SOURCE
+                                <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 400, color: '#9A9490' }}>{domain}</span>
+                              </a>
+                            );
+                          })()}
                         </div>
                       );
                     })}
