@@ -139,6 +139,12 @@ function MonthCalendar({
   onSelectDate,
   onPrevMonth,
   onNextMonth,
+  medDayMap,
+  healthDayMap,
+  dietDayMap,
+  hasMed,
+  hasHealth,
+  hasDiet,
 }: {
   currentMonth: Date;
   dayLogs: Map<string, DayLog>;
@@ -146,6 +152,12 @@ function MonthCalendar({
   onSelectDate: (dateStr: string) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
+  medDayMap: Map<string, Set<string>>;
+  healthDayMap: Map<string, Set<string>>;
+  dietDayMap: Map<string, Set<string>>;
+  hasMed: boolean;
+  hasHealth: boolean;
+  hasDiet: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -335,6 +347,14 @@ function MonthCalendar({
                 <CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={14} />
                 <CatBadge color={log?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.12)'} size={14} />
               </div>
+              {/* 약·건강·식단 이모지 행 */}
+              {(hasMed || hasHealth || hasDiet) && (
+                <div style={{ display: 'flex', gap: 2, alignItems: 'center', marginTop: 1 }}>
+                  {hasMed && <span style={{ fontSize: 9, lineHeight: 1, opacity: (medDayMap.get(ds)?.size ?? 0) > 0 ? 1 : 0.2 }}>💊</span>}
+                  {hasHealth && <span style={{ fontSize: 9, lineHeight: 1, opacity: (healthDayMap.get(ds)?.size ?? 0) > 0 ? 1 : 0.2 }}>🏃</span>}
+                  {hasDiet && <span style={{ fontSize: 9, lineHeight: 1, opacity: (dietDayMap.get(ds)?.size ?? 0) > 0 ? 1 : 0.2 }}>🥗</span>}
+                </div>
+              )}
             </button>
           );
         })}
@@ -344,6 +364,7 @@ function MonthCalendar({
       <div
         style={{
           display: 'flex',
+          flexWrap: 'wrap',
           gap: 14,
           marginTop: 12,
           padding: '10px 0 0',
@@ -358,6 +379,24 @@ function MonthCalendar({
           <CatBadge color="#f7bc45" size={16} />
           <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>저녁 완료</span>
         </div>
+        {hasMed && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ fontSize: 12 }}>💊</span>
+            <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>약 복용</span>
+          </div>
+        )}
+        {hasHealth && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ fontSize: 12 }}>🏃</span>
+            <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>건강 루틴</span>
+          </div>
+        )}
+        {hasDiet && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ fontSize: 12 }}>🥗</span>
+            <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>식단 플랜</span>
+          </div>
+        )}
       </div>
       </div>
       )}
@@ -378,6 +417,12 @@ function DayDetail({
   makeupItems,
   lookItems,
   onClose,
+  medRoutines,
+  healthRoutines,
+  dietPrograms,
+  medChecked,
+  healthChecked,
+  dietChecked,
 }: {
   dateStr: string;
   dayLog: DayLog | undefined;
@@ -386,6 +431,12 @@ function DayDetail({
   makeupItems: CtItem[];
   lookItems: CtItem[];
   onClose: () => void;
+  medRoutines: import('@/types/medication').MedRoutine[];
+  healthRoutines: import('@/types/healthroutine').HealthRoutine[];
+  dietPrograms: import('@/types/dietplan').DietProgram[];
+  medChecked: Set<string>;
+  healthChecked: Set<string>;
+  dietChecked: Set<string>;
 }) {
   const dateLabel = format(parseISO(dateStr), 'M월 d일 (EEE)', { locale: ko });
 
@@ -613,6 +664,117 @@ function DayDetail({
         {renderSlot('MORNING', '☀', morningUniq, dayLog?.hasMorning ?? false, morningExpertProds)}
         {renderSlot('NIGHT', '🌙', eveningUniq, dayLog?.hasEvening ?? false, eveningExpertProds)}
       </div>
+
+      {/* 약 루틴 (Medication) */}
+      {(() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        const activeMeds = medRoutines.filter(m => m.active);
+        if (activeMeds.length === 0) return null;
+        const getTime = (m: import('@/types/medication').MedRoutine) => {
+          if (m.time) return m.time;
+          const first = (m.times ?? [])[0];
+          return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
+        };
+        const morningMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'morning' || t === 'lunch'));
+        const nightMeds   = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
+        const ungrouped   = activeMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
+        const nightAll    = [...nightMeds, ...ungrouped];
+        const MedRow = ({ m }: { m: import('@/types/medication').MedRoutine }) => {
+          const done = medChecked.has(m.id);
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
+              <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#8AB000' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
+                {done ? '✓' : '○'}
+              </div>
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{getTime(m)}</span>
+              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+            </div>
+          );
+        };
+        return (
+          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>💊 약 루틴</div>
+            {morningMeds.length > 0 && (
+              <div style={{ marginBottom: nightAll.length > 0 ? 8 : 0 }}>
+                <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#6B7CE8', letterSpacing: '.04em', marginBottom: 4 }}>·+ +°.Morning°·++·° *</div>
+                {morningMeds.map(m => <MedRow key={m.id} m={m} />)}
+              </div>
+            )}
+            {nightAll.length > 0 && (
+              <div>
+                <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#E86BAA', letterSpacing: '.04em', marginBottom: 4 }}>·+ +°.Night°·++·° *</div>
+                {nightAll.map(m => <MedRow key={m.id} m={m} />)}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* 건강 루틴 (Health) */}
+      {(() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        const activeRoutines = healthRoutines.filter(h => h.active && h.showInToday);
+        if (activeRoutines.length === 0) return null;
+        return (
+          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>🏃 건강루틴</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {activeRoutines.map(h => {
+                const done = healthChecked.has(h.id);
+                return (
+                  <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
+                    <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#8AB000' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
+                      {done ? '✓' : '○'}
+                    </div>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{h.time ?? '—'}</span>
+                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* 식단 플랜 (Diet) */}
+      {(() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        const activePrograms = dietPrograms.filter(p => p.showInToday);
+        if (activePrograms.length === 0) return null;
+        // dietChecked: programId Set — 해당 날짜에 하나라도 완료한 프로그램 ID 집합
+        return (
+          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>🥗 식단플랜</div>
+            {activePrograms.map(p => {
+              const dayN = Math.floor((new Date(dateStr).getTime() - new Date(p.startDate).getTime()) / 86400000) + 1;
+              const sortedPats = [...(p.patterns ?? [])].sort((a, b) => a.dayStart - b.dayStart);
+              const pat = sortedPats.find(pt => dayN >= pt.dayStart && dayN <= pt.dayEnd) ?? sortedPats[sortedPats.length - 1];
+              if (!pat) return null;
+              type DS = import('@/types/dietplan').DietSlot;
+              const slots: DS[] = pat.timeline.filter((it): it is DS => !it.isWarning);
+              // 날짜 단위로는 program 완료 여부만 알 수 있음 (월별 구독은 programId 단위)
+              const programDone = dietChecked.has(p.id);
+              return (
+                <div key={p.id} style={{ marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    {programDone && <span style={{ width: 14, height: 14, borderRadius: 3, background: '#C5FF00', border: '1.5px solid #8AB000', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>✓</span>}
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A' }}>{p.name}</span>
+                    <span style={{ fontFamily: f, fontWeight: 400, color: '#9A9490', fontSize: 10 }}>D+{dayN} · {pat.label}</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {slots.map(slot => (
+                      <div key={slot.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '3px 0' }}>
+                        {slot.time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: '#0C0C0A', color: '#C5FF00', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
+                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{slot.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* 그날의 MOTD / OOTD — 컨텐츠 이미지 */}
       {(() => {
@@ -1929,6 +2091,11 @@ function LogPageInner() {
   const [dayLogs, setDayLogs] = useState<Map<string, DayLog>>(new Map());
   const [dataLoading, setDataLoading] = useState(true); // 초기값 true: 첫 렌더에 "미완료" 오표시 방지
 
+  // 월별 med/health/diet 로그 → 날짜별 완료 여부 (캘린더 이모지 표시용)
+  const [medDayMap, setMedDayMap] = useState<Map<string, Set<string>>>(new Map());
+  const [healthDayMap, setHealthDayMap] = useState<Map<string, Set<string>>>(new Map());
+  const [dietDayMap, setDietDayMap] = useState<Map<string, Set<string>>>(new Map());
+
   // auth/products/ct → AppContext에서 공유
 
   // ── 실시간 구독 1: 월별 사용 로그 ──
@@ -1963,6 +2130,75 @@ function LogPageInner() {
     }, (err) => {
       console.error('[OnStep] 로그 로드 실패:', err);
       setDataLoading(false);
+    });
+    return () => unsub();
+  }, [userId, authLoading, user, currentMonth]);
+
+  // ── 실시간 구독 2: 월별 medLogs ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const monthStart = toDateStr(startOfMonth(currentMonth));
+    const monthEnd = toDateStr(endOfMonth(currentMonth));
+    const q = query(
+      collection(_db, 'users', userId, 'medLogs'),
+      where('dateStr', '>=', monthStart),
+      where('dateStr', '<=', monthEnd),
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const map = new Map<string, Set<string>>();
+      snap.docs.forEach((d) => {
+        const data = d.data() as { dateStr: string; routineId: string };
+        if (!map.has(data.dateStr)) map.set(data.dateStr, new Set());
+        map.get(data.dateStr)!.add(data.routineId);
+      });
+      setMedDayMap(map);
+    });
+    return () => unsub();
+  }, [userId, authLoading, user, currentMonth]);
+
+  // ── 실시간 구독 3: 월별 healthLogs ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const monthStart = toDateStr(startOfMonth(currentMonth));
+    const monthEnd = toDateStr(endOfMonth(currentMonth));
+    const q = query(
+      collection(_db, 'users', userId, 'healthLogs'),
+      where('dateStr', '>=', monthStart),
+      where('dateStr', '<=', monthEnd),
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const map = new Map<string, Set<string>>();
+      snap.docs.forEach((d) => {
+        const data = d.data() as { dateStr: string; routineId: string };
+        if (!map.has(data.dateStr)) map.set(data.dateStr, new Set());
+        map.get(data.dateStr)!.add(data.routineId);
+      });
+      setHealthDayMap(map);
+    });
+    return () => unsub();
+  }, [userId, authLoading, user, currentMonth]);
+
+  // ── 실시간 구독 4: 월별 dietLogs ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const monthStart = toDateStr(startOfMonth(currentMonth));
+    const monthEnd = toDateStr(endOfMonth(currentMonth));
+    const q = query(
+      collection(_db, 'users', userId, 'dietLogs'),
+      where('dateStr', '>=', monthStart),
+      where('dateStr', '<=', monthEnd),
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const map = new Map<string, Set<string>>();
+      snap.docs.forEach((d) => {
+        const data = d.data() as { dateStr: string; programId: string };
+        if (!map.has(data.dateStr)) map.set(data.dateStr, new Set());
+        map.get(data.dateStr)!.add(data.programId);
+      });
+      setDietDayMap(map);
     });
     return () => unsub();
   }, [userId, authLoading, user, currentMonth]);
@@ -2018,12 +2254,22 @@ function LogPageInner() {
               currentMonth={currentMonth} dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate}
               onPrevMonth={() => { setCurrentMonth(m => subMonths(m, 1)); setSelectedDate(null); }}
               onNextMonth={() => { setCurrentMonth(m => addMonths(m, 1)); setSelectedDate(null); }}
+              medDayMap={medDayMap} healthDayMap={healthDayMap} dietDayMap={dietDayMap}
+              hasMed={medRoutines.some(m => m.active)}
+              hasHealth={healthRoutines.some(h => h.active && h.showInToday)}
+              hasDiet={dietPrograms.some(p => p.showInToday)}
             />
             {selectedDate ? (
               <DayDetail
                 dateStr={selectedDate} dayLog={selectedDayLog} products={products} sessions={sessions}
                 makeupItems={makeupItems} lookItems={lookItems}
                 onClose={() => setSelectedDate(null)}
+                medRoutines={medRoutines}
+                healthRoutines={healthRoutines}
+                dietPrograms={dietPrograms}
+                medChecked={medDayMap.get(selectedDate) ?? new Set<string>()}
+                healthChecked={healthDayMap.get(selectedDate) ?? new Set<string>()}
+                dietChecked={dietDayMap.get(selectedDate) ?? new Set<string>()}
               />
             ) : (
               <>
