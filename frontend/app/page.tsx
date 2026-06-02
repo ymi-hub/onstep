@@ -1258,7 +1258,7 @@ function OOTDSection({
             <span style={{ fontSize: 28 }}>👗</span>
             <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 룩을 등록해보세요</div>
             <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>Setup에서 Today ON으로 설정하면 여기에 표시됩니다</div>
-            <a href="/setup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</a>
+            <Link href="/log?tab=라이브러리&filter=lookbook" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
           </div>
         )}
 
@@ -1268,7 +1268,7 @@ function OOTDSection({
 
             {/* 이미지 있을 때: 3:4 portrait hero — 클릭 시 LOG 라이브러리 해당 아이템으로 이동 */}
             {heroLook.imageUrl ? (
-              <Link href={`/log?tab=라이브러리&id=${heroLook.id}`} style={{ display: 'block', textDecoration: 'none' }}>
+              <Link href={`/log?tab=라이브러리&filter=lookbook&id=${heroLook.id}`} style={{ display: 'block', textDecoration: 'none' }}>
                 <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4', background: '#1C1C1C', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={heroLook.imageUrl} alt={heroLook.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />

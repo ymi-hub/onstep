@@ -1819,12 +1819,14 @@ function LogPageInner() {
   const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook'>('all');
   const [libFilter, setLibFilter] = useState<'all' | 'makeup' | 'lookbook'>('all');
 
-  // ── URL 파라미터로 탭 이동 + 특정 아이템 스크롤 ──
+  // ── URL 파라미터로 탭 이동 + 필터 + 특정 아이템 스크롤 ──
   const searchParams = useSearchParams();
   useEffect(() => {
     const tab = searchParams.get('tab') as '라이브러리' | '아카이브' | null;
+    const filter = searchParams.get('filter') as 'all' | 'makeup' | 'lookbook' | null;
     const id = searchParams.get('id');
     if (tab === '라이브러리' || tab === '아카이브') setMainTab(tab);
+    if (filter === 'all' || filter === 'makeup' || filter === 'lookbook') setArchiveFilter(filter);
     if (id) {
       setTimeout(() => {
         const el = document.getElementById(`lib-item-${id}`);
