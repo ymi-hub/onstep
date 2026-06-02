@@ -699,21 +699,27 @@ function FlowCard({
             {slot.items.map((item, idx) => {
               if (item.type === 'product') {
                 const p = products.get(item.id);
+                const stepNum = slot.items.slice(0, idx + 1).filter(i => i.type === 'product').length;
                 return (
                   <div key={idx} style={{ flexShrink: 0, width: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
-                    <div style={{ width: 200, height: 200, background: '#EEEDE9', borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ width: 200, height: 250, background: '#EEEDE9', borderRadius: '16px 16px 0 0', border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
                       {(p?.imageUrl || p?.storageUrl)
                         ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         : <span style={{ fontSize: 48, opacity: 0.4 }}>🧴</span>
                       }
                       {isChecked && (
-                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 16, zIndex: 3 }}>
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px 16px 0 0', zIndex: 3 }}>
                           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                         </div>
                       )}
                     </div>
-                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C0C0A', marginTop: 8, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%', textAlign: 'center' as const }}>
-                      {p?.name ?? '?'}
+                    <div style={{ width: '100%', textAlign: 'center' as const, marginTop: 6 }}>
+                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, color: '#000000', letterSpacing: '.06em', lineHeight: 1.2 }}>
+                        Step{String(stepNum).padStart(2, '0')}
+                      </div>
+                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                        {p?.name ?? '?'}
+                      </div>
                     </div>
                   </div>
                 );
@@ -722,13 +728,13 @@ function FlowCard({
                 const waitMins = parseWaitMinutes(item.text);
                 const isActiveTimer = timerLabel === item.text && !!timerEndMs;
                 // 타이머 칩: flex-end + marginBottom으로 칩을 다른 center 칩과 동일 위치에 맞추고,
-                // 벨 아이콘은 컬럼 위에 별도 칩으로 배치 (제품 이미지 높이 200px 기준 = marginBottom 87)
+                // 벨 아이콘은 컬럼 위에 별도 칩으로 배치 (제품 이미지 높이 250px 기준 = marginBottom 112)
                 if (waitMins && !isChecked) {
                   return (
                     <div key={idx} style={{
                       flexShrink: 0,
                       alignSelf: 'flex-end',
-                      marginBottom: 87,
+                      marginBottom: 112,
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
                     }}>
                       {/* 벨 아이콘 칩 — 위 (별도 칩) */}
@@ -1758,6 +1764,8 @@ export default function TodayPage() {
   const [habitLogs, setHabitLogs] = useState<{ id: string; habitId: string }[]>([]);
   const [healthChecked, setHealthChecked] = useState<Set<string>>(new Set());
   const [healthLogs, setHealthLogs] = useState<{ id: string; routineId: string }[]>([]);
+  const [medChecked, setMedChecked] = useState<Set<string>>(new Set());
+  const [medLogs, setMedLogs] = useState<{ id: string; routineId: string }[]>([]);
   const [dietChecked, setDietChecked] = useState<Set<string>>(new Set()); // "programId:slotId"
   const [dietLogs, setDietLogs] = useState<{ id: string; programId: string; slotId: string }[]>([]);
 
@@ -1920,6 +1928,26 @@ export default function TodayPage() {
       setHealthChecked(checked);
       setHealthLogs(logs);
     }, (err) => console.error('[OnStep] 건강루틴 기록 로드 실패:', err));
+    return () => unsub();
+  }, [userId, authLoading, user, todayKey]);
+
+  // 약 루틴 체크 구독
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const todayStr = getTodayDateStr();
+    const q = query(collection(_db, 'users', userId, 'medLogs'), where('dateStr', '==', todayStr));
+    const unsub = onSnapshot(q, (snap) => {
+      const checked = new Set<string>();
+      const logs: { id: string; routineId: string }[] = [];
+      snap.docs.forEach((d) => {
+        const data = d.data() as { routineId: string };
+        checked.add(data.routineId);
+        logs.push({ id: d.id, routineId: data.routineId });
+      });
+      setMedChecked(checked);
+      setMedLogs(logs);
+    }, (err) => console.error('[OnStep] 약루틴 기록 로드 실패:', err));
     return () => unsub();
   }, [userId, authLoading, user, todayKey]);
 
@@ -2132,6 +2160,28 @@ export default function TodayPage() {
     [user, userId, healthChecked, healthLogs]
   );
 
+  // ── 약 루틴 토글 ──
+  const handleToggleMed = useCallback(
+    async (routineId: string) => {
+      const _db = db;
+      if (!_db || !user) return;
+      const todayStr = getTodayDateStr();
+      try {
+        if (medChecked.has(routineId)) {
+          const log = medLogs.find((l) => l.routineId === routineId);
+          if (log) await deleteDoc(doc(_db, 'users', userId, 'medLogs', log.id));
+        } else {
+          await addDoc(collection(_db, 'users', userId, 'medLogs'), {
+            routineId, dateStr: todayStr, completedAt: new Date().toISOString(),
+          });
+        }
+      } catch (err) {
+        console.error('[OnStep] 약루틴 토글 실패:', err);
+      }
+    },
+    [user, userId, medChecked, medLogs]
+  );
+
   // ── 다이어트 슬롯 토글 ──
   const handleToggleDiet = useCallback(
     async (programId: string, slotId: string) => {
@@ -2317,16 +2367,25 @@ export default function TodayPage() {
         {medRoutines.filter(m => m.active).length > 0 && (
           <div>
             <SectionHeader title="#Medication" action={`${medRoutines.filter(m => m.active).length}개`} />
-            <div style={{ padding: '0 16px 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {medRoutines.filter(m => m.active).map(m => (
-                <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 14 }}>
-                  <span style={{ fontSize: 20 }}>{m.icon || '💊'}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>{m.name}</div>
-                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>{m.dosage} · {m.times.map((t: string) => ({ morning: '아침', lunch: '점심', evening: '저녁', bedtime: '취침 전' }[t] ?? t)).join(' · ')}</div>
+            <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
+              {medRoutines.filter(m => m.active).map((m, idx) => {
+                const isDone = medChecked.has(m.id);
+                return (
+                  <div key={m.id} onClick={() => handleToggleMed(m.id)}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                        {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </div>
+                      <span style={{ fontSize: 18, lineHeight: 1, width: 24, textAlign: 'center', flexShrink: 0 }}>{m.icon || '💊'}</span>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 400, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', transition: 'all .18s' }}>{m.name}</div>
+                        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>{m.dosage} · {m.times.map((t: string) => ({ morning: '아침', lunch: '점심', evening: '저녁', bedtime: '취침 전' }[t] ?? t)).join(' · ')}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -2345,47 +2404,55 @@ export default function TodayPage() {
           // ── 시간대 기반 가시성 계산 ─────────────────────────────────────────
           const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
           const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+          const nowPeriod = nowMin < 720 ? 'am' : nowMin < 1080 ? 'pm' : 'ev';
+          const slotPeriod = (t: string) => { const m = toMin(t); return m < 720 ? 'am' : m < 1080 ? 'pm' : 'ev'; };
 
-          // 현재 시간대 판별
-          const nowPeriod = nowMin < 720 ? 'am' : nowMin < 1080 ? 'pm' : 'ev'; // 오전/오후/저녁
-
-          // 슬롯 시간 → 시간대
-          const slotPeriod = (t: string) => {
-            const m = toMin(t);
-            return m < 720 ? 'am' : m < 1080 ? 'pm' : 'ev';
-          };
-
-          function isVisible(item: import('@/types/dietplan').DietTimelineItem, itemIdx: number): boolean {
-            if (beforeStart) return true;
-
-            // 공복시·경고 배너: 앞뒤 timed 슬롯 사이 구간
-            if (item.isWarning || !(item as import('@/types/dietplan').DietSlot).time) {
-              const prevT = [...pat.timeline].slice(0, itemIdx).reverse()
-                .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
-              const nextT = pat.timeline.slice(itemIdx + 1)
-                .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
-              const start = prevT ? toMin((prevT as import('@/types/dietplan').DietSlot).time!) : 0;
-              const end = nextT ? toMin((nextT as import('@/types/dietplan').DietSlot).time!) : 24 * 60;
-              return nowMin >= start && nowMin < end;
+          function isVisible(item: import('@/types/dietplan').DietTimelineItem, idx: number): boolean {
+            const slot = item as import('@/types/dietplan').DietSlot;
+            // 시간 있는 슬롯: 슬롯 시간 ±1시간 구간에 노출
+            if (!item.isWarning && slot.time) {
+              const t = toMin(slot.time);
+              return nowMin >= t - 60 && nowMin < t + 60;
             }
-
-            // 시간 있는 슬롯: 슬롯 시간대 === 현재 시간대
-            return slotPeriod((item as import('@/types/dietplan').DietSlot).time!) === nowPeriod;
+            // 공복시·경고: 앞뒤 timed 슬롯 ±1시간 창 기준
+            // 표시 라벨은 (prevTime ~ nextTime), 가시화는 (prevTime-1hr) ~ (nextTime-1hr)
+            const prevT = [...pat.timeline].slice(0, idx).reverse()
+              .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
+            const nextT = pat.timeline.slice(idx + 1)
+              .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
+            const start = prevT ? toMin((prevT as import('@/types/dietplan').DietSlot).time!) - 60 : 0;
+            const end = nextT ? toMin((nextT as import('@/types/dietplan').DietSlot).time!) - 60 : 24 * 60;
+            return nowMin >= start && nowMin < end;
           }
 
-          const visibleItems = pat.timeline.filter((item, idx) => isVisible(item, idx));
-          if (!beforeStart && visibleItems.length === 0) return null;
+          let visibleItems = pat.timeline.filter((item, idx) => isVisible(item, idx));
 
-          const periodLabel = beforeStart ? '' : nowPeriod === 'am' ? ' · 오전' : nowPeriod === 'pm' ? ' · 오후' : ' · 저녁';
+          // 공백 구간 — 다음 예정 슬롯 fallback
+          let isFallback = false;
+          if (visibleItems.length === 0) {
+            const nextSlot = pat.timeline.find(it => {
+              const s = it as import('@/types/dietplan').DietSlot;
+              return !it.isWarning && s.time && toMin(s.time) > nowMin;
+            });
+            if (nextSlot) { visibleItems = [nextSlot]; isFallback = true; }
+            else return null;
+          }
+
+          const nowPeriodLabel = nowPeriod === 'am' ? '오전' : nowPeriod === 'pm' ? '오후' : '저녁';
+          const periodLabel = isFallback ? '다음 일정' : nowPeriodLabel;
 
           return (
             <div key={p.id}>
               <SectionHeader
                 title={`#${p.name}`}
-                action={beforeStart ? `D-${daysLeft}일 후 시작 · ${pat.label}` : `D+${dayN} · ${pat.label}${periodLabel}`}
+                action={
+                  <span style={{ background: '#0C0C0A', color: '#C5FF00', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 9999, letterSpacing: '.04em' }}>
+                    {beforeStart ? `D-${daysLeft}일 후 시작 · ${pat.label}` : `D+${dayN} · ${periodLabel} · ${pat.label}`}
+                  </span>
+                }
               />
               <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
-                {(beforeStart ? pat.timeline : visibleItems).map((item, idx) => {
+                {visibleItems.map((item, idx) => {
                   if (item.isWarning) {
                     return (
                       <div key={item.id} style={{ padding: '10px 16px', background: '#FEF2F2', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -2401,20 +2468,39 @@ export default function TodayPage() {
                     <div key={slot.id} onClick={() => handleToggleDiet(p.id, slot.id)}
                       style={{ padding: '12px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                        {/* 체크박스 */}
                         <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
                           {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-                            {slot.time && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 800, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#C5FF00', padding: '2px 8px', borderRadius: 9999 }}>{slot.time}</span>}
-                            <span style={{ fontFamily: fDiet, fontSize: 13, fontWeight: 600, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none' }}>{slot.label}</span>
-                            {slot.water > 0 && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 700, color: '#4A9ED6', marginLeft: 'auto' }}>💧{slot.water}ml</span>}
-                          </div>
+                          {(() => {
+                            // 공복 슬롯: 앞뒤 timed 슬롯으로 자동 시간대 계산
+                            let autoRange = '';
+                            if (!slot.time) {
+                              const origIdx = pat.timeline.indexOf(item);
+                              const prevT = [...pat.timeline].slice(0, origIdx).reverse()
+                                .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
+                              const nextT = pat.timeline.slice(origIdx + 1)
+                                .find(it => !it.isWarning && (it as import('@/types/dietplan').DietSlot).time);
+                              const s = prevT ? (prevT as import('@/types/dietplan').DietSlot).time! : null;
+                              const e = nextT ? (nextT as import('@/types/dietplan').DietSlot).time! : null;
+                              if (s && e) autoRange = ` (${s} ~ ${e})`;
+                              else if (s) autoRange = ` (${s} ~)`;
+                              else if (e) autoRange = ` (~ ${e})`;
+                            }
+                            return (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
+                                {slot.time && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 800, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#C5FF00', padding: '2px 8px', borderRadius: 9999 }}>{slot.time}</span>}
+                                <span style={{ fontFamily: fDiet, fontSize: 14, fontWeight: 600, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none' }}>
+                                  {slot.label}{autoRange}
+                                </span>
+                                {slot.water > 0 && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 700, color: '#4A9ED6', marginLeft: 'auto' }}>💧{slot.water}ml</span>}
+                              </div>
+                            );
+                          })()}
                           {slot.items.length > 0 && (
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                               {slot.items.map(it => (
-                                <span key={it.id} style={{ fontFamily: fDiet, fontSize: 10, background: isDone ? '#F4F4F0' : '#EEEDE9', color: isDone ? '#BCBAB6' : '#4A4846', padding: '2px 7px', borderRadius: 5 }}>
+                                <span key={it.id} style={{ fontFamily: fDiet, fontSize: 12, background: isDone ? '#F4F4F0' : '#EEEDE9', color: isDone ? '#BCBAB6' : '#4A4846', padding: '2px 7px', borderRadius: 5 }}>
                                   {it.name}{it.qty ? `(${it.qty})` : ''}
                                 </span>
                               ))}
