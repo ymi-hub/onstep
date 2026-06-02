@@ -80,6 +80,11 @@ main {
   overscroll-behavior-y: contain;
 }
 
+/* 가로 스크롤 컨테이너 webkit 스크롤바 숨기기 (Chrome / Safari) */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── 모바일 입력 확대 방지 ── */
 @media (max-width: 430px) {
   input,

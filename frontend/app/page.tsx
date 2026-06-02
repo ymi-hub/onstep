@@ -1280,8 +1280,8 @@ function OOTDSection({
                 </div>
               </Link>
             ) : (
-              /* 이미지 없을 때: 텍스트 제목 (집중케어 방식) */
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 12px' }}>
+              /* 이미지 없을 때: 텍스트 제목 */
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 0' }}>
                 <span style={{ fontSize: 22, flexShrink: 0 }}>{heroLook.emoji || '👗'}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{heroLook.name}</div>
@@ -1290,16 +1290,16 @@ function OOTDSection({
               </div>
             )}
 
-            {/* 제품 가로 스크롤 — MOTD와 동일 스타일 */}
+            {/* 제품 가로 스크롤 — 항상 동일 구분선·여백으로 첫 제품 위치 고정 */}
             {heroProdIds.length > 0 && (
-              <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 8, padding: '10px 0 10px', scrollSnapType: 'x mandatory' as const, borderTop: heroLook.imageUrl ? 'none' : '1px solid rgba(12,12,10,.06)' }}>
+              <div className="hide-scrollbar" style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 8, padding: '12px 0', scrollSnapType: 'x mandatory' as const, scrollPaddingLeft: 16, borderTop: '1px solid rgba(12,12,10,.08)' }}>
                 <div style={{ flexShrink: 0, width: 16 }} />
                 {heroProdIds.map(pid => {
                   const p = products.get(pid);
                   const imgUrl = p?.imageUrl || p?.storageUrl;
                   return (
-                    <div key={pid} style={{ flexShrink: 0, width: 120, scrollSnapAlign: 'start' as const, display: 'flex', flexDirection: 'column', gap: 0 }}>
-                      <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 0, border: '1px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    <div key={pid} style={{ flexShrink: 0, width: 120, scrollSnapAlign: 'start' as const }}>
+                      <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 4, border: '1px solid #E4E4E7', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                         {imgUrl
                           // eslint-disable-next-line @next/next/no-img-element
                           ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1611,8 +1611,8 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                   </div>
                 </Link>
               ) : (
-                /* 이미지 없을 때 — 집중케어 방식 텍스트 제목 */
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 12px' }}>
+                /* 이미지 없을 때 — 텍스트 제목 */
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 0' }}>
                   <span style={{ fontSize: 22, flexShrink: 0 }}>{item.emoji || '💄'}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{item.name}</div>
@@ -1621,17 +1621,16 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                 </div>
               )}
 
-              {/* 제품 그리드 (today.html .editorial-prod-grid / .ed-prod-card) */}
+              {/* 제품 가로 스크롤 — 항상 동일 구분선·여백으로 첫 제품 위치 고정 */}
               {prodIds.length > 0 && (
-                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 8, padding: '10px 0 10px', scrollSnapType: 'x mandatory' as const, borderTop: item.imageUrl ? 'none' : '1px solid rgba(12,12,10,.06)' }}>
+                <div className="hide-scrollbar" style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 8, padding: '12px 0', scrollSnapType: 'x mandatory' as const, scrollPaddingLeft: 16, borderTop: '1px solid rgba(12,12,10,.08)' }}>
                   <div style={{ flexShrink: 0, width: 16 }} />
                   {prodIds.map((pid) => {
                     const p = products.get(pid);
                     const imgUrl = p?.imageUrl || p?.storageUrl;
                     return (
-                      <div key={pid} style={{ flexShrink: 0, width: 120, scrollSnapAlign: 'start' as const, display: 'flex', flexDirection: 'column', gap: 0 }}>
-                        {/* 제품 이미지 (.ed-prod-img) */}
-                        <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 0, border: '1px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                      <div key={pid} style={{ flexShrink: 0, width: 120, scrollSnapAlign: 'start' as const }}>
+                        <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 4, border: '1px solid #E4E4E7', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                           {imgUrl
                             // eslint-disable-next-line @next/next/no-img-element
                             ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
