@@ -347,12 +347,12 @@ function MonthCalendar({
                 <CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={14} />
                 <CatBadge color={log?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.12)'} size={14} />
               </div>
-              {/* 약·건강·식단 이모지 행 */}
+              {/* 약·건강·식단 이모지 행 — 활성 루틴 흐리게 표시 */}
               {(hasMed || hasHealth || hasDiet) && (
                 <div style={{ display: 'flex', gap: 2, alignItems: 'center', marginTop: 1 }}>
-                  {hasMed && <span style={{ fontSize: 9, lineHeight: 1, opacity: (medDayMap.get(ds)?.size ?? 0) > 0 ? 1 : 0.2 }}>💊</span>}
-                  {hasHealth && <span style={{ fontSize: 9, lineHeight: 1, opacity: (healthDayMap.get(ds)?.size ?? 0) > 0 ? 1 : 0.2 }}>🏃</span>}
-                  {hasDiet && <span style={{ fontSize: 9, lineHeight: 1, opacity: (dietDayMap.get(ds)?.size ?? 0) > 0 ? 1 : 0.2 }}>🥗</span>}
+                  {hasMed && <span style={{ fontSize: 9, lineHeight: 1, opacity: 0.35 }}>💊</span>}
+                  {hasHealth && <span style={{ fontSize: 9, lineHeight: 1, opacity: 0.35 }}>🏃</span>}
+                  {hasDiet && <span style={{ fontSize: 9, lineHeight: 1, opacity: 0.35 }}>🥗</span>}
                 </div>
               )}
             </button>
@@ -381,19 +381,19 @@ function MonthCalendar({
         </div>
         {hasMed && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 12 }}>💊</span>
+            <span style={{ fontSize: 12, opacity: 0.35 }}>💊</span>
             <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>약 복용</span>
           </div>
         )}
         {hasHealth && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 12 }}>🏃</span>
+            <span style={{ fontSize: 12, opacity: 0.35 }}>🏃</span>
             <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>건강 루틴</span>
           </div>
         )}
         {hasDiet && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 12 }}>🥗</span>
+            <span style={{ fontSize: 12, opacity: 0.35 }}>🥗</span>
             <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>식단 플랜</span>
           </div>
         )}
