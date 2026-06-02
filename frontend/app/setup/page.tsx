@@ -3295,7 +3295,7 @@ function CtPanel({
           </div>
         )}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginTop: 4 }}>
-          <button onClick={() => openPicker(section)} style={{ padding: '7px 12px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>제품 +</button>
+          <button onClick={() => openPicker(section)} style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
           <button onClick={() => { setActiveInput({ section, type: 'desc' }); setInputText(''); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(12,12,10,.14)', background: 'transparent', color: '#4A4846', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>설명 +</button>
           <button onClick={() => { setActiveInput({ section, type: 'tip' }); setInputText(''); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(132,176,0,.4)', background: 'rgba(197,255,0,.1)', color: '#4A7700', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>TIP +</button>
           <button onClick={() => { const i: RoutineItem = { type: 'plus' }; if (section === 'main') setSItems(p => [...p, i]); else setSTipItems(p => [...p, i]); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(33,150,243,.4)', background: 'rgba(33,150,243,.08)', color: '#1976D2', fontFamily: f, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>+</button>
