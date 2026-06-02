@@ -2251,29 +2251,49 @@ function LogPageInner() {
                         );
                       })()}
 
-                      {/* 약 루틴 */}
+                      {/* 약 루틴 — Morning / Night 구분 */}
                       {(() => {
-                        const doneSet = new Set(todayMedLogs.map(l => l.routineId));
+                        const doneSet   = new Set(todayMedLogs.map(l => l.routineId));
                         const activeMeds = medRoutines.filter(m => m.active);
                         if (activeMeds.length === 0) return null;
+
+                        const getTime = (m: { time?: string; times?: string[] }) => {
+                          if (m.time) return m.time;
+                          const first = (m.times ?? [])[0];
+                          return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
+                        };
+                        const morningMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'morning' || t === 'lunch'));
+                        const nightMeds   = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
+                        const ungrouped   = activeMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
+                        const nightAll    = [...nightMeds, ...ungrouped];
+
+                        const MedRow = ({ m }: { m: typeof activeMeds[0] }) => {
+                          const done = doneSet.has(m.id);
+                          return (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '5px 0' }}>
+                              <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
+                                {done ? '✓' : ''}
+                              </div>
+                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{getTime(m)}</span>
+                              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+                            </div>
+                          );
+                        };
+
                         return (
                           <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-                            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>약 루틴</div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                              {activeMeds.map(m => {
-                                const done = doneSet.has(m.id);
-                                return (
-                                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                                    <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
-                                      {done ? '✓' : ''}
-                                    </div>
-                                    <span style={{ fontSize: 13, flexShrink: 0 }}>{m.icon || '💊'}</span>
-                                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none' }}>{m.name}</span>
-                                    {m.dosage && <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490', marginLeft: 2 }}>{m.dosage}</span>}
-                                  </div>
-                                );
-                              })}
-                            </div>
+                            {morningMeds.length > 0 && (
+                              <div style={{ marginBottom: nightAll.length > 0 ? 8 : 0 }}>
+                                <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#6B7CE8', letterSpacing: '.04em', marginBottom: 4 }}>·+ +°.Morning°·++·° *</div>
+                                {morningMeds.map(m => <MedRow key={m.id} m={m} />)}
+                              </div>
+                            )}
+                            {nightAll.length > 0 && (
+                              <div>
+                                <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#E86BAA', letterSpacing: '.04em', marginBottom: 4 }}>·+ +°.Night°·++·° *</div>
+                                {nightAll.map(m => <MedRow key={m.id} m={m} />)}
+                              </div>
+                            )}
                           </div>
                         );
                       })()}
