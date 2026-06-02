@@ -2297,212 +2297,64 @@ function LogPageInner() {
                     || medRoutines.some(m => m.active);
                   if (!hasAny) return null;
 
+                  // ── 공통 헬퍼 ──
+                  const CardHeader = ({ emoji, title, badge }: { emoji: string; title: string; badge?: string }) => (
+                    <div style={{ padding: '10px 14px 8px', display: 'flex', alignItems: 'center', gap: 7, borderBottom: '1px solid rgba(12,12,10,.05)' }}>
+                      <span style={{ fontSize: 15 }}>{emoji}</span>
+                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A', letterSpacing: '.02em', flex: 1 }}>{title}</span>
+                      {badge && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490' }}>{badge}</span>}
+                    </div>
+                  );
+                  const CheckDot = ({ done }: { done: boolean }) => (
+                    <div style={{ width: 16, height: 16, borderRadius: 4, background: done ? '#C5FF00' : 'transparent', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
+                      {done ? '✓' : ''}
+                    </div>
+                  );
+
                   return (
-                    <div style={{ margin: '16px 16px 0', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden' }}>
-                      {/* 헤더 */}
-                      <div style={{ padding: '12px 14px 10px', borderBottom: '1px solid rgba(12,12,10,.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: '#0C0C0A' }}>오늘의 기록</span>
-                        <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>{format(new Date(), 'M월 d일 (EEE)', { locale: ko })}</span>
+                    <div style={{ margin: '12px 16px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {/* 날짜 라벨 */}
+                      <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', padding: '0 2px' }}>
+                        {format(new Date(), 'M월 d일 (EEE)', { locale: ko })} · 오늘의 기록
                       </div>
 
-                      {/* 스킨케어 — 완료 상태에 따라 텍스트 변경 */}
-                      {/* dataLoading 중에는 미완료 표시 안 함 (타이밍 이슈 방지) */}
-                      {(() => {
-                        if (dataLoading) return (
-                          <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 14 }}>🌿</span>
-                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#BCBAB6' }}>로딩 중…</span>
-                          </div>
-                        );
-                        const m = todayDayLog?.hasMorning ?? false;
-                        const n = todayDayLog?.hasEvening ?? false;
-                        const both = m && n;
-                        const label = both ? '오늘 스킨케어 완료' : m ? '아침' : n ? '저녁' : null;
-                        if (!label) return (
-                          <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 14 }}>🌿</span>
-                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#BCBAB6' }}>스킨케어 미완료</span>
-                          </div>
-                        );
-                        return (
-                          <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: 14 }}>{both ? '✨' : m ? '☀' : '🌙'}</span>
-                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{label}</span>
-                            <span style={{ width: 18, height: 18, borderRadius: 9999, background: '#C5FF00', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>✓</span>
-                          </div>
-                        );
-                      })()}
-
-                      {/* 집중케어 */}
-                      {todayCare.map(item => (
-                        <div key={item.id} style={{ padding: '9px 14px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 14 }}>🧴</span>
-                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>{item.name}</span>
-                          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A9ED6', letterSpacing: '.04em' }}>집중케어</span>
-                        </div>
-                      ))}
-
-                      {/* 습관 */}
-                      {todayHabits.length > 0 && (
-                        <div style={{ padding: '10px 14px' }}>
-                          <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>HABITS</div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            {todayHabits.map(h => {
-                              const done = checkedHabitIds.has(h.id);
+                      {/* ── 🌿 스킨케어 카드 ── */}
+                      {!dataLoading && (
+                        <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                          <CardHeader emoji="🌿" title="스킨케어"
+                            badge={todayDayLog?.hasMorning && todayDayLog?.hasEvening ? '아침·저녁 완료' : todayDayLog?.hasMorning ? '아침 완료' : todayDayLog?.hasEvening ? '저녁 완료' : '미완료'}
+                          />
+                          <div style={{ padding: '8px 14px 10px', display: 'flex', gap: 8 }}>
+                            {(['morning', 'evening'] as const).map(slot => {
+                              const done = slot === 'morning' ? (todayDayLog?.hasMorning ?? false) : (todayDayLog?.hasEvening ?? false);
                               return (
-                                <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                                  <div style={{ width: 16, height: 16, borderRadius: 4, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
-                                    {done ? '✓' : ''}
-                                  </div>
-                                  {h.icon && <span style={{ fontSize: 14, flexShrink: 0 }}>{h.icon}</span>}
-                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#0C0C0A' : '#BCBAB6' }}>{h.name}</span>
+                                <div key={slot} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderRadius: 10, background: done ? 'rgba(197,255,0,.1)' : 'rgba(12,12,10,.03)', border: `1px solid ${done ? 'rgba(166,217,0,.3)' : 'rgba(12,12,10,.07)'}` }}>
+                                  <span style={{ fontSize: 13 }}>{slot === 'morning' ? '☀' : '🌙'}</span>
+                                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#4A7700' : '#BCBAB6' }}>{slot === 'morning' ? '아침' : '저녁'}</span>
+                                  {done && <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 900, color: '#5A8A00' }}>✓</span>}
                                 </div>
                               );
                             })}
                           </div>
+                          {todayCare.length > 0 && (
+                            <div style={{ borderTop: '1px solid rgba(12,12,10,.05)', padding: '6px 14px 10px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                              {todayCare.map(item => (
+                                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                                  <span style={{ fontSize: 12 }}>🧴</span>
+                                  <span style={{ fontFamily: f, fontSize: 12, color: '#0C0C0A', flex: 1 }}>{item.name}</span>
+                                  <span style={{ fontFamily: f, fontSize: 9, fontWeight: 700, color: '#4A9ED6', letterSpacing: '.04em' }}>집중</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
 
-                      {/* 리셋 플랜 — 플랜별 카드 */}
-                      {dietPrograms.filter(p => p.showInToday).map(p => {
-                        const doneSet = new Set(todayDietLogs.map(l => `${l.programId}:${l.slotId}`));
-                        const dayN = Math.floor((Date.now() - new Date(p.startDate).getTime()) / 86400000) + 1;
-                        const sortedPats = [...(p.patterns ?? [])].sort((a, b) => a.dayStart - b.dayStart);
-                        const pat = sortedPats.find(pt => dayN >= pt.dayStart && dayN <= pt.dayEnd)
-                          ?? sortedPats[sortedPats.length - 1];
-                        if (!pat) return null;
-
-                        // 모든 패턴 통합 — dayStart 오름차순으로 label dedup (패턴1 기준 시간 우선)
-                        type DS = import('@/types/dietplan').DietSlot;
-                        const slotMap = new Map<string, DS>();
-                        for (const aPat of sortedPats) {
-                          for (const item of aPat.timeline) {
-                            if (item.isWarning) continue;
-                            const s = item as DS;
-                            if (!slotMap.has(s.label)) slotMap.set(s.label, s);
-                          }
-                        }
-                        // 정렬: timed는 시간순, untimed는 원본 패턴의 앞뒤 timed 슬롯 사이 위치
-                        const toMin = (t?: string) => t ? +t.split(':')[0] * 60 + +t.split(':')[1] : 9999;
-                        const getSortKey = (s: DS): number => {
-                          if (s.time) return toMin(s.time);
-                          for (const aPat of sortedPats) {
-                            const idx = aPat.timeline.findIndex(it => !it.isWarning && (it as DS).label === s.label);
-                            if (idx === -1) continue;
-                            const prevT = [...aPat.timeline].slice(0, idx).reverse().find(it => !it.isWarning && (it as DS).time);
-                            const prevMin = prevT ? toMin((prevT as DS).time) : 0;
-                            return prevMin + 0.5;
-                          }
-                          return 9999;
-                        };
-                        const allSlots = Array.from(slotMap.values()).sort((a, b) => getSortKey(a) - getSortKey(b));
-                        if (allSlots.length === 0) return null;
-                        // 완료 체크: 현재 패턴의 같은 label 슬롯 ID 기준
-                        const curSlotByLabel = new Map<string, DS>();
-                        for (const item of pat.timeline) {
-                          if (!item.isWarning) { const s = item as DS; curSlotByLabel.set(s.label, s); }
-                        }
-                        const doneCnt = allSlots.filter(s => {
-                          const cur = curSlotByLabel.get(s.label);
-                          return doneSet.has(`${p.id}:${(cur ?? s).id}`);
-                        }).length;
-
-                        return (
-                          <div key={p.id} style={{ borderTop: '1px solid rgba(12,12,10,.06)' }}>
-                            {/* 섹션 라벨 */}
-                            <div style={{ padding: '10px 14px 6px', fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em' }}>RESET PLAN</div>
-                            {/* 플랜 카드 */}
-                            <div style={{ margin: '0 14px 10px', background: '#F9F9F7', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, overflow: 'hidden' }}>
-                              {/* 카드 헤더 */}
-                              <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(12,12,10,.07)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span style={{ fontSize: 14 }}>{p.icon}</span>
-                                <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{p.name}</span>
-                                <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>D+{dayN} · {pat.label}</span>
-                                <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: doneCnt === allSlots.length ? '#5A7A00' : '#9A9490', marginLeft: 4 }}>{doneCnt}/{allSlots.length}</span>
-                              </div>
-                              {/* 슬롯 목록 */}
-                              <div style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                {allSlots.map(slot => {
-                                  const cur = curSlotByLabel.get(slot.label);
-                                  const done = doneSet.has(`${p.id}:${(cur ?? slot).id}`);
-                                  return (
-                                    <div key={slot.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
-                                      <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0, marginTop: 1 }}>
-                                        {done ? '✓' : ''}
-                                      </div>
-                                      <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                          {slot.time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: done ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: done ? '#BCBAB6' : '#C5FF00', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
-                                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none' }}>
-                                            {slot.label}{!slot.time && (() => {
-                                              for (const aPat of sortedPats) {
-                                                const idx = aPat.timeline.findIndex(it => !it.isWarning && (it as DS).label === slot.label);
-                                                if (idx === -1) continue;
-                                                const prevT = [...aPat.timeline].slice(0, idx).reverse().find(it => !it.isWarning && (it as DS).time);
-                                                const nextT = aPat.timeline.slice(idx + 1).find(it => !it.isWarning && (it as DS).time);
-                                                const s = prevT ? (prevT as DS).time! : null;
-                                                const e = nextT ? (nextT as DS).time! : null;
-                                                if (s && e) return ` (${s}~${e})`;
-                                                if (s) return ` (${s}~)`;
-                                                if (e) return ` (~${e})`;
-                                                break;
-                                              }
-                                              return '';
-                                            })()}
-                                          </span>
-                                          {slot.water > 0 && <span style={{ fontFamily: f, fontSize: 10, color: '#4A9ED6', fontWeight: 700, marginLeft: 'auto' }}>💧{slot.water}ml</span>}
-                                        </div>
-                                        {slot.items && slot.items.length > 0 && (
-                                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>
-                                            {slot.items.map(it => (
-                                              <span key={it.id} style={{ fontFamily: f, fontSize: 10, background: done ? '#F0F0ED' : '#EEEDE9', color: done ? '#BCBAB6' : '#4A4846', padding: '1px 5px', borderRadius: 4 }}>
-                                                {it.name}{it.qty ? `(${it.qty})` : ''}
-                                              </span>
-                                            ))}
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-
-                      {/* 건강 루틴 */}
-                      {(() => {
-                        const doneSet = new Set(todayHealthLogs.map(l => l.routineId));
-                        const activeRoutines = healthRoutines.filter(h => h.showInToday);
-                        if (activeRoutines.length === 0) return null;
-                        return (
-                          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-                            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>건강 루틴</div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                              {activeRoutines.map(h => {
-                                const done = doneSet.has(h.id);
-                                return (
-                                  <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                                    <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
-                                      {done ? '✓' : ''}
-                                    </div>
-                                    {h.icon && <span style={{ fontSize: 13, flexShrink: 0 }}>{h.icon}</span>}
-                                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none' }}>{h.name}</span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* 약 루틴 — Morning / Night 구분 */}
-                      {(() => {
-                        const doneSet   = new Set(todayMedLogs.map(l => l.routineId));
+                      {/* ── 💊 약 복용 카드 ── */}
+                      {medRoutines.filter(m => m.active).length > 0 && (() => {
+                        const doneSet = new Set(todayMedLogs.map(l => l.routineId));
                         const activeMeds = medRoutines.filter(m => m.active);
-                        if (activeMeds.length === 0) return null;
-
+                        const doneCnt = activeMeds.filter(m => doneSet.has(m.id)).length;
                         const getTime = (m: { time?: string; times?: string[] }) => {
                           if (m.time) return m.time;
                           const first = (m.times ?? [])[0];
@@ -2512,84 +2364,185 @@ function LogPageInner() {
                         const nightMeds   = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
                         const ungrouped   = activeMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
                         const nightAll    = [...nightMeds, ...ungrouped];
-
                         const MedRow = ({ m }: { m: typeof activeMeds[0] }) => {
                           const done = doneSet.has(m.id);
                           return (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '5px 0' }}>
-                              <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
-                                {done ? '✓' : ''}
-                              </div>
-                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{getTime(m)}</span>
-                              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <CheckDot done={done} />
+                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', width: 38, flexShrink: 0 }}>{getTime(m)}</span>
+                              <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
                             </div>
                           );
                         };
-
                         return (
-                          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-                            {morningMeds.length > 0 && (
-                              <div style={{ marginBottom: nightAll.length > 0 ? 8 : 0 }}>
-                                <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#6B7CE8', letterSpacing: '.04em', marginBottom: 4 }}>·+ +°.Morning°·++·° *</div>
-                                {morningMeds.map(m => <MedRow key={m.id} m={m} />)}
-                              </div>
-                            )}
-                            {nightAll.length > 0 && (
-                              <div>
-                                <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#E86BAA', letterSpacing: '.04em', marginBottom: 4 }}>·+ +°.Night°·++·° *</div>
-                                {nightAll.map(m => <MedRow key={m.id} m={m} />)}
-                              </div>
-                            )}
+                          <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                            <CardHeader emoji="💊" title="약 복용" badge={`${doneCnt}/${activeMeds.length}`} />
+                            <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {morningMeds.length > 0 && (
+                                <div>
+                                  <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#6B7CE8', marginBottom: 5 }}>·+ +°.Morning°·++·° *</div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>{morningMeds.map(m => <MedRow key={m.id} m={m} />)}</div>
+                                </div>
+                              )}
+                              {nightAll.length > 0 && (
+                                <div style={{ marginTop: morningMeds.length > 0 ? 6 : 0 }}>
+                                  <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#E86BAA', marginBottom: 5 }}>·+ +°.Night°·++·° *</div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>{nightAll.map(m => <MedRow key={m.id} m={m} />)}</div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         );
                       })()}
 
-                      {/* MOTD + OOTD — 1열 좌우 배치 */}
-                      {(todayMotd.length > 0 || todayOotd.length > 0) && (
-                        <div style={{ padding: '10px 14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                          {/* 메이크업 (좌) */}
-                          <div>
-                            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 7 }}>💄 MOTD</div>
-                            {todayMotd.length > 0 ? (
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                {todayMotd.slice(0, 2).map(item => (
-                                  <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                    <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                      {item.imageUrl
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        : <span style={{ fontSize: 28 }}>{item.emoji || '💄'}</span>
-                                      }
-                                    </div>
-                                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                      {/* ── ⭐ 습관 카드 ── */}
+                      {todayHabits.length > 0 && (() => {
+                        const doneCnt = todayHabits.filter(h => checkedHabitIds.has(h.id)).length;
+                        return (
+                          <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                            <CardHeader emoji="⭐" title="습관" badge={`${doneCnt}/${todayHabits.length}`} />
+                            <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {todayHabits.map(h => {
+                                const done = checkedHabitIds.has(h.id);
+                                return (
+                                  <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <CheckDot done={done} />
+                                    <span style={{ fontSize: 13, flexShrink: 0 }}>{h.icon || '•'}</span>
+                                    <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1 }}>{h.name}</span>
                                   </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>없음</div>
-                            )}
+                                );
+                              })}
+                            </div>
                           </div>
-                          {/* 코디 (우) */}
-                          <div>
-                            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 7 }}>👗 OOTD</div>
-                            {todayOotd.length > 0 ? (
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                {todayOotd.slice(0, 2).map(item => (
-                                  <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                    <div style={{ width: '100%', aspectRatio: '3/4', borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                      {item.imageUrl
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        : <span style={{ fontSize: 28 }}>{item.emoji || '👗'}</span>
-                                      }
-                                    </div>
-                                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                        );
+                      })()}
+
+                      {/* ── 🏃 건강루틴 카드 ── */}
+                      {healthRoutines.filter(h => h.showInToday).length > 0 && (() => {
+                        const doneSet = new Set(todayHealthLogs.map(l => l.routineId));
+                        const activeH = healthRoutines.filter(h => h.showInToday);
+                        const doneCnt = activeH.filter(h => doneSet.has(h.id)).length;
+                        return (
+                          <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                            <CardHeader emoji="🏃" title="건강루틴" badge={`${doneCnt}/${activeH.length}`} />
+                            <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {activeH.map(h => {
+                                const done = doneSet.has(h.id);
+                                return (
+                                  <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <CheckDot done={done} />
+                                    <span style={{ fontSize: 13, flexShrink: 0 }}>{h.icon || '🏃'}</span>
+                                    <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1 }}>{h.name}</span>
                                   </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>없음</div>
-                            )}
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* ── 📋 리셋플랜 카드 ── */}
+                      {dietPrograms.filter(p => p.showInToday).map(p => {
+                        const doneSet = new Set(todayDietLogs.map(l => `${l.programId}:${l.slotId}`));
+                        const dayN = Math.floor((Date.now() - new Date(p.startDate).getTime()) / 86400000) + 1;
+                        const sortedPats = [...(p.patterns ?? [])].sort((a, b) => a.dayStart - b.dayStart);
+                        const pat = sortedPats.find(pt => dayN >= pt.dayStart && dayN <= pt.dayEnd) ?? sortedPats[sortedPats.length - 1];
+                        if (!pat) return null;
+                        type DS = import('@/types/dietplan').DietSlot;
+                        const slotMap = new Map<string, DS>();
+                        for (const aPat of sortedPats) {
+                          for (const item of aPat.timeline) {
+                            if (item.isWarning) continue;
+                            const s = item as DS;
+                            if (!slotMap.has(s.label)) slotMap.set(s.label, s);
+                          }
+                        }
+                        const toMin2 = (t?: string) => t ? +t.split(':')[0] * 60 + +t.split(':')[1] : 9999;
+                        const getSortKey = (s: DS): number => {
+                          if (s.time) return toMin2(s.time);
+                          for (const aPat of sortedPats) {
+                            const idx = aPat.timeline.findIndex(it => !it.isWarning && (it as DS).label === s.label);
+                            if (idx === -1) continue;
+                            const prevT = [...aPat.timeline].slice(0, idx).reverse().find(it => !it.isWarning && (it as DS).time);
+                            return prevT ? toMin2((prevT as DS).time) + 0.5 : 0;
+                          }
+                          return 9999;
+                        };
+                        const allSlots = Array.from(slotMap.values()).sort((a, b) => getSortKey(a) - getSortKey(b));
+                        if (allSlots.length === 0) return null;
+                        const curSlotByLabel = new Map<string, DS>();
+                        for (const item of pat.timeline) {
+                          if (!item.isWarning) { const s = item as DS; curSlotByLabel.set(s.label, s); }
+                        }
+                        const doneCnt = allSlots.filter(s => doneSet.has(`${p.id}:${(curSlotByLabel.get(s.label) ?? s).id}`)).length;
+                        return (
+                          <div key={p.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                            <CardHeader emoji={p.icon || '📋'} title={`${p.name}`} badge={`D+${dayN} · ${doneCnt}/${allSlots.length}`} />
+                            <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                              {allSlots.map(slot => {
+                                const cur = curSlotByLabel.get(slot.label);
+                                const done = doneSet.has(`${p.id}:${(cur ?? slot).id}`);
+                                return (
+                                  <div key={slot.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                                    <CheckDot done={done} />
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                                        {slot.time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: done ? '#F0F0ED' : '#0C0C0A', color: done ? '#BCBAB6' : '#C5FF00', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
+                                        <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none' }}>{slot.label}</span>
+                                        {slot.water > 0 && <span style={{ fontFamily: f, fontSize: 10, color: '#4A9ED6', fontWeight: 700, marginLeft: 'auto' }}>💧{slot.water}ml</span>}
+                                      </div>
+                                      {slot.items && slot.items.length > 0 && (
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>
+                                          {slot.items.map(it => (
+                                            <span key={it.id} style={{ fontFamily: f, fontSize: 10, background: done ? '#F4F4F2' : '#EEEDE9', color: done ? '#BCBAB6' : '#4A4846', padding: '1px 6px', borderRadius: 4 }}>
+                                              {it.name}{it.qty ? ` ${it.qty}` : ''}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {/* ── 💄👗 MOTD + OOTD 카드 ── */}
+                      {(todayMotd.length > 0 || todayOotd.length > 0) && (
+                        <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                          <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', gap: 10 }}>
+                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A' }}>💄 MOTD</span>
+                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A', marginLeft: 'auto' }}>👗 OOTD</span>
+                          </div>
+                          <div style={{ padding: '10px 14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {todayMotd.length > 0 ? todayMotd.slice(0, 2).map(item => (
+                                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  <div style={{ width: 36, height: 36, borderRadius: 8, overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {item.imageUrl
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                      : <span style={{ fontSize: 18 }}>{item.emoji || '💄'}</span>}
+                                  </div>
+                                  <span style={{ fontFamily: f, fontSize: 11, color: '#0C0C0A', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                                </div>
+                              )) : <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>없음</span>}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {todayOotd.length > 0 ? todayOotd.slice(0, 2).map(item => (
+                                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  <div style={{ width: 36, height: 36, borderRadius: 8, overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {item.imageUrl
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                      : <span style={{ fontSize: 18 }}>{item.emoji || '👗'}</span>}
+                                  </div>
+                                  <span style={{ fontFamily: f, fontSize: 11, color: '#0C0C0A', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                                </div>
+                              )) : <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>없음</span>}
+                            </div>
                           </div>
                         </div>
                       )}
