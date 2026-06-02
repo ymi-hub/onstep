@@ -701,25 +701,78 @@ function FlowCard({
                 const p = products.get(item.id);
                 const stepNum = slot.items.slice(0, idx + 1).filter(i => i.type === 'product').length;
                 return (
-                  <div key={idx} style={{ flexShrink: 0, width: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s', border: '1px solid #000000', borderRadius: 16, overflow: 'hidden' }}>
-                    <div style={{ width: 200, height: 250, background: '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                  <div key={idx} style={{
+                    flexShrink: 0,
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    padding: '20px 24px 0px',
+                    width: 280,
+                    minWidth: 280,
+                    height: 385,
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E5E5',
+                    opacity: isChecked ? 0.45 : 1,
+                    transition: 'opacity .2s',
+                  }}>
+                    {/* 이미지 영역 — 230×287, 배경 #F3F3F4 */}
+                    <div style={{
+                      width: 230,
+                      height: 287,
+                      background: '#F3F3F4',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
                       {(p?.imageUrl || p?.storageUrl)
-                        ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <span style={{ fontSize: 48, opacity: 0.4 }}>🧴</span>
+                        ? <img src={p!.imageUrl || p!.storageUrl} alt={p?.name} style={{ width: 230, height: 306.66, objectFit: 'cover', display: 'block' }} />
+                        : <span style={{ fontSize: 56, opacity: 0.3 }}>🧴</span>
                       }
                       {isChecked && (
                         <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3 }}>
-                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                         </div>
                       )}
                     </div>
-                    <div style={{ width: '100%', textAlign: 'center' as const, marginTop: 6, paddingBottom: 8 }}>
-                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, color: '#000000', letterSpacing: '.06em', lineHeight: 1.7 }}>
-                        Step{String(stepNum).padStart(2, '0')}
-                      </div>
-                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#000000', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, padding: '0 8px' }}>
-                        {p?.name ?? '?'}
-                      </div>
+
+                    {/* 제품명 */}
+                    <div style={{
+                      width: 178,
+                      fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                      fontStyle: 'normal',
+                      fontWeight: 600,
+                      fontSize: 20,
+                      lineHeight: '18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: '#000000',
+                      marginTop: 14,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap' as const,
+                    }}>
+                      {p?.name ?? '?'}
+                    </div>
+
+                    {/* Step 넘버 */}
+                    <div style={{
+                      width: 230,
+                      fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                      fontStyle: 'normal',
+                      fontWeight: 400,
+                      fontSize: 16,
+                      lineHeight: '18px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      color: '#000000',
+                      marginTop: 8,
+                    }}>
+                      Step{String(stepNum).padStart(2, '0')}.
                     </div>
                   </div>
                 );
@@ -728,13 +781,13 @@ function FlowCard({
                 const waitMins = parseWaitMinutes(item.text);
                 const isActiveTimer = timerLabel === item.text && !!timerEndMs;
                 // 타이머 칩: flex-end + marginBottom으로 칩을 다른 center 칩과 동일 위치에 맞추고,
-                // 벨 아이콘은 컬럼 위에 별도 칩으로 배치 (제품 이미지 높이 250px 기준 = marginBottom 112)
+                // 벨 아이콘은 컬럼 위에 별도 칩으로 배치 (카드 높이 385px, 이미지 287px 기준 = marginBottom 116)
                 if (waitMins && !isChecked) {
                   return (
                     <div key={idx} style={{
                       flexShrink: 0,
                       alignSelf: 'flex-end',
-                      marginBottom: 112,
+                      marginBottom: 116,
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
                     }}>
                       {/* 벨 아이콘 칩 — 위 (별도 칩) */}
