@@ -2451,7 +2451,7 @@ function MedView({
 
           const getTime = (m: MedRoutine) => {
             if (m.time) return m.time;
-            const first = m.times[0];
+            const first = (m.times ?? [])[0];
             return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
           };
 

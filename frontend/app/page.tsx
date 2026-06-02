@@ -2475,9 +2475,9 @@ export default function TodayPage() {
           const ungrouped   = activeMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
           const nightAll    = [...nightMeds, ...ungrouped];
 
-          const getTime = (m: { time?: string; times: string[] }) => {
+          const getTime = (m: { time?: string; times?: string[] }) => {
             if (m.time) return m.time;
-            const first = m.times[0];
+            const first = (m.times ?? [])[0];
             return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
           };
 
