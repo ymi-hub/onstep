@@ -2466,31 +2466,81 @@ export default function TodayPage() {
         />
 
         {/* 약 루틴 섹션 */}
-        {medRoutines.filter(m => m.active).length > 0 && (
-          <div>
-            <SectionHeader title="#Medication" action={`${medRoutines.filter(m => m.active).length}개`} />
-            <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
-              {medRoutines.filter(m => m.active).map((m, idx) => {
-                const isDone = medChecked.has(m.id);
-                return (
-                  <div key={m.id} onClick={() => handleToggleMed(m.id)}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                        {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                      </div>
-                      <span style={{ fontSize: 18, lineHeight: 1, width: 24, textAlign: 'center', flexShrink: 0 }}>{m.icon || '💊'}</span>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 400, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', transition: 'all .18s' }}>{m.name}</div>
-                        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>{m.dosage} · {m.times.map((t: string) => ({ morning: '아침', lunch: '점심', evening: '저녁', bedtime: '취침 전' }[t] ?? t)).join(' · ')}</div>
-                      </div>
+        {medRoutines.filter(m => m.active).length > 0 && (() => {
+          const fMed = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+          const activeMeds = medRoutines.filter(m => m.active);
+          const morningMeds = activeMeds.filter(m => m.times.some((t: string) => t === 'morning' || t === 'lunch'));
+          const nightMeds   = activeMeds.filter(m => m.times.some((t: string) => t === 'evening' || t === 'bedtime'));
+          // 어느 그룹에도 없는 항목은 Night에 포함
+          const ungrouped   = activeMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
+          const nightAll    = [...nightMeds, ...ungrouped];
+
+          const getTime = (m: { time?: string; times: string[] }) => {
+            if (m.time) return m.time;
+            const first = m.times[0];
+            return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
+          };
+
+          const MedItem = ({ m }: { m: typeof activeMeds[0] }) => {
+            const isDone = medChecked.has(m.id);
+            return (
+              <div onClick={() => handleToggleMed(m.id)}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 16px', borderTop: '1px solid rgba(12,12,10,.05)', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.06)' : 'transparent', transition: 'background .18s' }}>
+                <div style={{ width: 20, height: 20, borderRadius: 5, border: `1.5px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.25)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                  {isDone && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                </div>
+                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 700, color: isDone ? '#C5C6CA' : '#44474A', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{getTime(m)}</span>
+                <span style={{ fontFamily: fMed, fontSize: 14, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+              </div>
+            );
+          };
+
+          return (
+            <div style={{ margin: '4px 16px 8px' }}>
+              <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
+                {/* 카드 헤더 */}
+                <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
+                      <span style={{ fontSize: 15 }}>💊</span>
+                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 13, fontWeight: 700, color: '#0C0C0A', letterSpacing: '.01em' }}>Today♡·⁺°———</span>
+                    </div>
+                    <div style={{ fontFamily: fMed, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                      {today.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </div>
+                    <div style={{ fontFamily: fMed, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
+                      {today.toLocaleDateString('ko-KR', { weekday: 'long' })}
                     </div>
                   </div>
-                );
-              })}
+                  <div style={{ display: 'flex', gap: 5, marginTop: 2 }}>
+                    <button onClick={() => {}} style={{ width: 28, height: 28, borderRadius: 8, background: '#F4F4F0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A4846', fontSize: 13 }}>✎</button>
+                    <button onClick={() => {}} style={{ width: 28, height: 28, borderRadius: 8, background: '#F4F4F0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A4846', fontSize: 16, letterSpacing: '-.5px' }}>···</button>
+                  </div>
+                </div>
+
+                {/* Morning 그룹 */}
+                {morningMeds.length > 0 && (
+                  <div>
+                    <div style={{ padding: '7px 16px 5px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color: '#6B7CE8', letterSpacing: '.03em' }}>·+ +°.Morning°·++·° *</span>
+                    </div>
+                    {morningMeds.map(m => <MedItem key={m.id} m={m} />)}
+                  </div>
+                )}
+
+                {/* Night 그룹 */}
+                {nightAll.length > 0 && (
+                  <div>
+                    <div style={{ padding: '7px 16px 5px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color: '#E86BAA', letterSpacing: '.03em' }}>·+ +°.Night°·++·° *</span>
+                    </div>
+                    {nightAll.map(m => <MedItem key={m.id} m={m} />)}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* 다이어트 플랜 섹션 — showInToday=true, 오늘 일차에 맞는 패턴 */}
         {dietPrograms.filter(p => p.showInToday).map(p => {
