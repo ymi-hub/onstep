@@ -2291,8 +2291,14 @@ function AddProductPage({
             </div>
           )}
 
-          {/* ── 저장 / 취소 ── */}
+          {/* ── 취소 / 저장 ── */}
           <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={onClose}
+              style={{ flex: 1, height: 52, background: '#fff', color: '#0C1014', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, cursor: 'pointer' }}
+            >
+              취소
+            </button>
             <button
               onClick={onSave}
               disabled={saving || isNameEmpty}
@@ -2305,12 +2311,6 @@ function AddProductPage({
               }}
             >
               {saving ? '저장 중...' : '저장'}
-            </button>
-            <button
-              onClick={onClose}
-              style={{ flex: 1, height: 52, background: '#fff', color: '#0C1014', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, cursor: 'pointer' }}
-            >
-              취소
             </button>
           </div>
 
