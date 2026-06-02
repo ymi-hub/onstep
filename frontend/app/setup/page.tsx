@@ -2195,7 +2195,7 @@ function RepeatFormFieldsShared({
     <>
       <div style={{ display: 'flex', gap: 6 }}>
         {rtypes.map(r => (
-          <button key={r.key} onClick={() => setRt(r.key)} style={{ flex: 1, padding: '9px 4px', border: `1.5px solid ${rt === r.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: rt === r.key ? '#fff' : '#4A4846', background: rt === r.key ? '#0C0C0A' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>{r.label}</button>
+          <button type="button" key={r.key} onClick={() => setRt(r.key)} style={{ flex: 1, padding: '9px 4px', border: `1.5px solid ${rt === r.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: rt === r.key ? '#fff' : '#4A4846', background: rt === r.key ? '#0C0C0A' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>{r.label}</button>
         ))}
       </div>
       {rt === 'once' && (
@@ -2204,13 +2204,32 @@ function RepeatFormFieldsShared({
       {rt === 'scheduled' && (
         <div style={{ display: 'flex', gap: 5, justifyContent: 'space-between', marginTop: 8 }}>
           {WD_NAMES_SHARED.map((nm, d) => (
-            <button key={d} onClick={() => toggleWDFn(d)} style={{ flex: 1, height: 38, borderRadius: 9999, border: `1.5px solid ${wd.includes(d) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, fontFamily: f, fontSize: 12, fontWeight: 700, color: wd.includes(d) ? '#fff' : '#4A4846', background: wd.includes(d) ? '#0C0C0A' : '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s', padding: 0 }}>{nm}</button>
+            <button type="button" key={d} onClick={() => toggleWDFn(d)} style={{ flex: 1, height: 38, borderRadius: 9999, border: `1.5px solid ${wd.includes(d) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, fontFamily: f, fontSize: 12, fontWeight: 700, color: wd.includes(d) ? '#fff' : '#4A4846', background: wd.includes(d) ? '#0C0C0A' : '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s', padding: 0 }}>{nm}</button>
           ))}
         </div>
       )}
       {rt !== 'allday' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
-          <input type="time" value={time_} onChange={e => setTime_(e.target.value)} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' as const }} />
+          <input
+            type="text" inputMode="numeric" placeholder="00:00"
+            value={time_}
+            onChange={e => {
+              const v = e.target.value.replace(/[^0-9:]/g, '');
+              // 숫자 2자리 입력 후 자동으로 ':' 삽입
+              if (/^\d{2}$/.test(v)) { setTime_(v + ':'); return; }
+              setTime_(v);
+            }}
+            onBlur={e => {
+              // HH:MM 형식 보정
+              const m = e.target.value.match(/^(\d{1,2}):?(\d{0,2})$/);
+              if (m) {
+                const hh = m[1].padStart(2, '0');
+                const mm = (m[2] || '00').padStart(2, '0');
+                setTime_(`${hh}:${mm}`);
+              }
+            }}
+            style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' as const }}
+          />
           <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: f, fontSize: 12, fontWeight: 500, color: '#4A4846', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
             <input type="checkbox" checked={alarm_} onChange={e => setAlarm_(e.target.checked)} style={{ width: 15, height: 15, accentColor: '#0C0C0A' }} />
             알람

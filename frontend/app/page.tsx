@@ -2466,6 +2466,7 @@ export default function TodayPage() {
         />
 
         {/* 약 루틴 섹션 */}
+        {medRoutines.filter(m => m.active).length > 0 && <SectionHeader title="#Medication" />}
         {medRoutines.filter(m => m.active).length > 0 && (() => {
           const fMed = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
           const activeMeds = medRoutines.filter(m => m.active);
@@ -2499,22 +2500,16 @@ export default function TodayPage() {
             <div style={{ margin: '4px 16px 8px' }}>
               <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
                 {/* 카드 헤더 */}
-                <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
-                      <span style={{ fontSize: 15 }}>💊</span>
-                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 13, fontWeight: 700, color: '#0C0C0A', letterSpacing: '.01em' }}>Today♡·⁺°———</span>
-                    </div>
-                    <div style={{ fontFamily: fMed, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                      {today.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </div>
-                    <div style={{ fontFamily: fMed, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
-                      {today.toLocaleDateString('ko-KR', { weekday: 'long' })}
-                    </div>
+                <div style={{ padding: '14px 16px 12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
+                    <span style={{ fontSize: 15 }}>💊</span>
+                    <span style={{ fontFamily: "'Courier New',monospace", fontSize: 13, fontWeight: 700, color: '#0C0C0A', letterSpacing: '.01em' }}>Today♡·⁺°———</span>
                   </div>
-                  <div style={{ display: 'flex', gap: 5, marginTop: 2 }}>
-                    <button onClick={() => {}} style={{ width: 28, height: 28, borderRadius: 8, background: '#F4F4F0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A4846', fontSize: 13 }}>✎</button>
-                    <button onClick={() => {}} style={{ width: 28, height: 28, borderRadius: 8, background: '#F4F4F0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A4846', fontSize: 16, letterSpacing: '-.5px' }}>···</button>
+                  <div style={{ fontFamily: fMed, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                    {today.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </div>
+                  <div style={{ fontFamily: fMed, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
+                    {today.toLocaleDateString('ko-KR', { weekday: 'long' })}
                   </div>
                 </div>
 
