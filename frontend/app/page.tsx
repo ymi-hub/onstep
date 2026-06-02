@@ -2469,8 +2469,8 @@ export default function TodayPage() {
         {medRoutines.filter(m => m.active).length > 0 && (() => {
           const fMed = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
           const activeMeds = medRoutines.filter(m => m.active);
-          const morningMeds = activeMeds.filter(m => m.times.some((t: string) => t === 'morning' || t === 'lunch'));
-          const nightMeds   = activeMeds.filter(m => m.times.some((t: string) => t === 'evening' || t === 'bedtime'));
+          const morningMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'morning' || t === 'lunch'));
+          const nightMeds   = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
           // 어느 그룹에도 없는 항목은 Night에 포함
           const ungrouped   = activeMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
           const nightAll    = [...nightMeds, ...ungrouped];

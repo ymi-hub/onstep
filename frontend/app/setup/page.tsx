@@ -2292,6 +2292,7 @@ function MedView({
     try {
       await onAdd({
         icon: newIcon || '💊', name: newName.trim(), dosage: newDosage, times: newTimes, active: true,
+        showInToday: true,
         repeatType: newRepeat,
         time: newRepeat !== 'allday' ? newTime : '',
         alarm: newRepeat !== 'allday' ? newAlarm : false,
@@ -2442,8 +2443,8 @@ function MedView({
         {/* DAILY MEDS — showInToday=true 약 미리보기 (Today 카드 스타일) */}
         {items.some(m => m.showInToday) && (() => {
           const todayMeds   = items.filter(m => m.showInToday);
-          const morningMeds = todayMeds.filter(m => m.times.some(t => t === 'morning' || t === 'lunch'));
-          const nightMeds   = todayMeds.filter(m => m.times.some(t => t === 'evening' || t === 'bedtime'));
+          const morningMeds = todayMeds.filter(m => (m.times ?? []).some(t => t === 'morning' || t === 'lunch'));
+          const nightMeds   = todayMeds.filter(m => (m.times ?? []).some(t => t === 'evening' || t === 'bedtime'));
           const ungrouped   = todayMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
           const nightAll    = [...nightMeds, ...ungrouped];
           const now         = new Date();
