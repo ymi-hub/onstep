@@ -1594,19 +1594,21 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
 
               {/* Hero — 이미지 있을 때만 1:1 square (today.html .editorial-hero 참고) */}
               {item.imageUrl ? (
-                <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', background: '#1C1C1C', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                  {/* "EDITORIAL CHOICE" 배지 (우상단) */}
-                  <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(0,0,0,.55)', backdropFilter: 'blur(6px)', borderRadius: 6, padding: '4px 10px', fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.12em', color: '#fff', textTransform: 'uppercase' as const }}>
-                    EDITORIAL CHOICE
+                <Link href={`/log?tab=라이브러리&id=${item.id}`} style={{ display: 'block', textDecoration: 'none' }}>
+                  <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', background: '#1C1C1C', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {/* "EDITORIAL CHOICE" 배지 (우상단) */}
+                    <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(0,0,0,.55)', backdropFilter: 'blur(6px)', borderRadius: 6, padding: '4px 10px', fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.12em', color: '#fff', textTransform: 'uppercase' as const }}>
+                      EDITORIAL CHOICE
+                    </div>
+                    {/* 하단 그라데이션 + 이름 */}
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 14px 14px', background: 'linear-gradient(to top, rgba(0,0,0,.6) 0%, transparent 60%)', pointerEvents: 'none' }}>
+                      <div style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-.02em', lineHeight: 1.2 }}>{item.name}</div>
+                      {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 3 }}>{item.desc}</div>}
+                    </div>
                   </div>
-                  {/* 하단 그라데이션 + 이름 */}
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 14px 14px', background: 'linear-gradient(to top, rgba(0,0,0,.6) 0%, transparent 60%)', pointerEvents: 'none' }}>
-                    <div style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-.02em', lineHeight: 1.2 }}>{item.name}</div>
-                    {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 3 }}>{item.desc}</div>}
-                  </div>
-                </div>
+                </Link>
               ) : (
                 /* 이미지 없을 때 — 집중케어 방식 텍스트 제목 */
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 12px' }}>

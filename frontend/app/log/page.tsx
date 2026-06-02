@@ -9,7 +9,8 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   format,
   startOfMonth,
@@ -1741,7 +1742,7 @@ function EmptyState({ isLoading }: { isLoading: boolean }) {
 
 // ─── 메인 페이지 컴포넌트 ─────────────────────────────────────────────────────
 
-export default function LogPage() {
+function LogPageInner() {
   // ── 공유 컨텍스트 ──
   const { user, userId, authLoading, products: ctxProducts, sessions, makeupItems, lookItems, careItems, habits, dietPrograms, healthRoutines, medRoutines } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
@@ -1798,7 +1799,21 @@ export default function LogPage() {
   // ── 탭 상태 ──
   const [mainTab, setMainTab] = useState<'기록' | '라이브러리' | '아카이브'>('기록');
   const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook'>('all');
-  const [libFilter, setLibFilter] = useState<'makeup' | 'lookbook'>('makeup');
+  const [libFilter, setLibFilter] = useState<'all' | 'makeup' | 'lookbook'>('all');
+
+  // ── URL 파라미터로 탭 이동 + 특정 아이템 스크롤 ──
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const tab = searchParams.get('tab') as '라이브러리' | '아카이브' | null;
+    const id = searchParams.get('id');
+    if (tab === '라이브러리' || tab === '아카이브') setMainTab(tab);
+    if (id) {
+      setTimeout(() => {
+        const el = document.getElementById(`lib-item-${id}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 400);
+    }
+  }, [searchParams]);
 
   // ── FAB 상태 ──
   const [fabMenuOpen, setFabMenuOpen] = useState(false);
@@ -2277,21 +2292,24 @@ export default function LogPage() {
         {mainTab === '아카이브' && (
           <div style={{ padding: '16px 16px 0' }}>
             <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
-              {(['makeup', 'lookbook'] as const).map((f) => {
-                const usedItems = (f === 'makeup' ? makeupItems : lookItems).filter(i => (i.dates ?? []).length > 0);
+              {(['all', 'makeup', 'lookbook'] as const).map((f) => {
+                const usedItems = f === 'all'
+                  ? [...makeupItems, ...lookItems].filter(i => (i.dates ?? []).length > 0)
+                  : (f === 'makeup' ? makeupItems : lookItems).filter(i => (i.dates ?? []).length > 0);
                 return (
                   <button key={f} onClick={() => setLibFilter(f)} style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${libFilter === f ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: libFilter === f ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: libFilter === f ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 5 }}>
-                    {f === 'makeup' ? '💄 메이크업' : '👗 룩북'}
+                    {f === 'all' ? 'ALL' : f === 'makeup' ? '💄 메이크업' : '👗 룩북'}
                     {usedItems.length > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: '#C5FF00', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{usedItems.length}</span>}
                   </button>
                 );
               })}
             </div>
             {(() => {
-              const items = (libFilter === 'makeup' ? makeupItems : lookItems).filter(i => (i.dates ?? []).length > 0);
+              const allUsed = [...makeupItems, ...lookItems].filter(i => (i.dates ?? []).length > 0);
+              const items = libFilter === 'all' ? allUsed : (libFilter === 'makeup' ? makeupItems : lookItems).filter(i => (i.dates ?? []).length > 0);
               if (items.length === 0) return (
                 <div style={{ padding: '32px 20px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, marginBottom: 20 }}>
-                  <div style={{ fontSize: 28, marginBottom: 8 }}>{libFilter === 'makeup' ? '💄' : '👗'}</div>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>{libFilter === 'makeup' ? '💄' : libFilter === 'lookbook' ? '👗' : '📂'}</div>
                   <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>사용 기록이 없어요</div>
                   <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>아카이브에서 Today ON을 설정하면 기록됩니다</div>
                 </div>
@@ -2356,7 +2374,7 @@ export default function LogPage() {
                       const isOnToday = item.published && (item.dates ?? []).includes(todayStr);
                       const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
                       return (
-                        <div key={item.id}>
+                        <div key={item.id} id={`lib-item-${item.id}`}>
                           <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 24px 0px', position: 'relative', width: '100%', background: '#FFFFFF', border: '1px solid #000000', isolation: 'isolate', flexShrink: 0 }}>
                             <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#C6F432', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
                               <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
@@ -2454,5 +2472,13 @@ export default function LogPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function LogPage() {
+  return (
+    <Suspense fallback={null}>
+      <LogPageInner />
+    </Suspense>
   );
 }
