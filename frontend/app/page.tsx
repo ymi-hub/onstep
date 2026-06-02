@@ -1266,17 +1266,19 @@ function OOTDSection({
         {heroLook && (
           <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', marginBottom: 12 }}>
 
-            {/* 이미지 있을 때: 3:4 portrait hero */}
+            {/* 이미지 있을 때: 3:4 portrait hero — 클릭 시 LOG 라이브러리 해당 아이템으로 이동 */}
             {heroLook.imageUrl ? (
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4', background: '#1C1C1C', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={heroLook.imageUrl} alt={heroLook.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '60px 16px 18px', background: 'linear-gradient(to top,rgba(0,0,0,.56) 0%,transparent 55%)', pointerEvents: 'none' }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,.7)', marginBottom: 5 }}>TODAY&apos;S LOOK</div>
-                  <div style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#fff', lineHeight: 1.25 }}>{heroLook.name}</div>
-                  {heroLook.desc && <div style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{heroLook.desc}</div>}
+              <Link href={`/log?tab=라이브러리&id=${heroLook.id}`} style={{ display: 'block', textDecoration: 'none' }}>
+                <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4', background: '#1C1C1C', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={heroLook.imageUrl} alt={heroLook.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '60px 16px 18px', background: 'linear-gradient(to top,rgba(0,0,0,.56) 0%,transparent 55%)', pointerEvents: 'none' }}>
+                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,.7)', marginBottom: 5 }}>TODAY&apos;S LOOK</div>
+                    <div style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#fff', lineHeight: 1.25 }}>{heroLook.name}</div>
+                    {heroLook.desc && <div style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{heroLook.desc}</div>}
+                  </div>
                 </div>
-              </div>
+              </Link>
             ) : (
               /* 이미지 없을 때: 텍스트 제목 (집중케어 방식) */
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 12px' }}>
@@ -1316,9 +1318,9 @@ function OOTDSection({
             {/* 참고 링크 — 카드 하단 */}
             <SourceLink url={heroLook.sourceUrl} />
 
-            {/* 카드 하단: Edit → Log 화면 */}
+            {/* 카드 하단: List → LOG 라이브러리 */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 16px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-              <Link href="/log" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
+              <Link href="/log?tab=라이브러리" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
             </div>
           </div>
         )}
