@@ -245,7 +245,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
     right: [
       { id: 'care',   badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS',     cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare,   href: undefined },
       { id: 'health', badge: '#HEALTH',    title: '건강 루틴',     sub: 'DIET · EXERCISE · MEAL', cta: 'Plan →',     bg: 'linear-gradient(135deg,#f0fff4 0%,#a0e0b0 100%)', emoji: '🥗', onClick: onOpenHealth, href: undefined },
-      { id: 'diet',   badge: '#DIET',      title: '식단 플랜',     sub: 'SUPPLEMENT PROTOCOL',    cta: 'Edit Plan →', bg: 'linear-gradient(135deg,#fdf4ff 0%,#e0a0ff 100%)', emoji: '📋', onClick: onOpenDiet,   href: undefined },
+      { id: 'diet',   badge: '#RESET',     title: '리셋 플랜',     sub: 'SUPPLEMENT PROTOCOL',    cta: 'Edit Plan →', bg: 'linear-gradient(135deg,#fdf4ff 0%,#e0a0ff 100%)', emoji: '📋', onClick: onOpenDiet,   href: undefined },
     ],
   };
 
@@ -1534,7 +1534,7 @@ function make14DayPreset(startDate: string): Omit<DietProgram, 'id' | 'createdAt
   };
 
   return {
-    name: '2주 다이어트', icon: '📋',
+    name: '2주 리셋 플랜', icon: '📋',
     startDate,
     patterns: [p1, p2, p3],
     active: true, showInToday: false,
@@ -1543,7 +1543,7 @@ function make14DayPreset(startDate: string): Omit<DietProgram, 'id' | 'createdAt
 
 // ─── DIET PLAN VIEW ──────────────────────────────────────────────────────────
 function DietPlanView({
-  programs, products, onBack, onAdd, onUpdate, onDelete, onSeedProducts,
+  programs, products, onBack, onAdd, onUpdate, onDelete, onSeedProducts, onRegisterProduct,
 }: {
   programs: DietProgram[];
   products: import('@/types/product').Product[];
@@ -1552,6 +1552,7 @@ function DietPlanView({
   onUpdate: (id: string, d: Partial<Omit<DietProgram, 'id'>>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onSeedProducts: () => Promise<void>;
+  onRegisterProduct: (name: string) => Promise<string>;
 }) {
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
   const MEAL_COLORS = ['#7C3AED', '#059669', '#EA580C']; // 아침/점심/저녁
@@ -1577,20 +1578,49 @@ function DietPlanView({
   const [showPicker, setShowPicker] = useState(false);
   const [pickerSearch, setPickerSearch] = useState('');
   const [pickerSelected, setPickerSelected] = useState<Set<string>>(new Set());
+  const [pickerStep, setPickerStep] = useState<'select' | 'qty'>('select');
+  const [pickerQties, setPickerQties] = useState<Record<string, string>>({});
   const healthProds = products.filter(p => p.domain === 'health');
   const baseProds = healthProds.length ? healthProds : products;
   const filteredPickerProds = pickerSearch.trim()
     ? baseProds.filter(p => p.name.toLowerCase().includes(pickerSearch.toLowerCase()) || (p.brand ?? '').toLowerCase().includes(pickerSearch.toLowerCase()))
     : baseProds;
 
-  function confirmPicker() {
+  function closePicker() {
+    setShowPicker(false); setPickerSearch(''); setPickerSelected(new Set());
+    setPickerStep('select'); setPickerQties({});
+  }
+
+  // 1단계 → 2단계
+  function goToQtyStep() {
+    if (pickerSelected.size === 0) return;
+    const init: Record<string, string> = {};
+    pickerSelected.forEach(id => { init[id] = ''; });
+    setPickerQties(init);
+    setPickerStep('qty');
+  }
+
+  // 2단계 완료: 수량 포함해서 태그에 추가
+  function confirmPickerWithQty() {
+    const tags: DietItem[] = [];
     pickerSelected.forEach(id => {
       const p = products.find(pr => pr.id === id);
-      if (p && !slotItemTags.find(t => t.name === p.name)) {
-        setSlotItemTags(prev => [...prev, { id: Date.now().toString() + id, name: p.name, qty: '1' }]);
-      }
+      if (p) tags.push({ id: Date.now().toString() + id, name: p.name, qty: pickerQties[id] || '' });
     });
-    setShowPicker(false); setPickerSearch(''); setPickerSelected(new Set());
+    setSlotItemTags(prev => {
+      const existing = new Set(prev.map(t => t.name));
+      return [...prev, ...tags.filter(t => !existing.has(t.name))];
+    });
+    closePicker();
+  }
+
+  // 검색어로 제품 없을 때 → BOX(health)에 즉시 등록 후 선택 목록에 추가
+  async function registerAndAddDiet(name: string) {
+    if (!name.trim()) return;
+    const newId = await onRegisterProduct(name.trim());
+    if (!newId) return;
+    setPickerSelected(prev => { const n = new Set(prev); n.add(newId); return n; });
+    setPickerSearch('');
   }
 
   // 슬롯 입력 상태
@@ -1728,7 +1758,7 @@ function DietPlanView({
     const pat = pPatterns[activePatternIdx];
     return (
       <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
-        <SubPageHeader title={isNew ? '새 식단 플랜' : '플랜 편집'} onClose={() => setEditProgram(null)} />
+        <SubPageHeader title={isNew ? '새 리셋 플랜' : '리셋 플랜 편집'} onClose={() => setEditProgram(null)} />
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
           {/* 기본 정보 */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
@@ -1806,21 +1836,21 @@ function DietPlanView({
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
                       {slotItemTags.map(tag => (
                         <div key={tag.id} style={{ display: 'flex', alignItems: 'center', gap: 3, background: '#0C0C0A', borderRadius: 9999, padding: '2px 8px 2px 7px' }}>
-                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00' }}>{tag.name}{tag.qty ? `(${tag.qty})` : ''}</span>
-                          <button onClick={() => removeItemTag(tag.id)} style={{ border: 'none', background: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 11, padding: 0 }}>×</button>
+                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00' }}>{tag.name}{tag.qty ? `(${tag.qty})` : ''}</span>
+                          <button onClick={() => removeItemTag(tag.id)} style={{ border: 'none', background: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 12, padding: 0 }}>×</button>
                         </div>
                       ))}
                     </div>
                   )}
                   <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
+                    <button onClick={() => setShowPicker(true)} style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
                     <input value={slotItemInput} onChange={e=>setSlotItemInput(e.target.value)}
                       onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault(); addItemTag();} }}
                       placeholder="제품명" style={{ flex: 1, padding: '7px 9px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 8, fontFamily: f, fontSize: 11, outline: 'none', background: '#fff' }} />
                     <input value={slotItemQty} onChange={e=>setSlotItemQty(e.target.value)}
                       onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault(); addItemTag();} }}
                       placeholder="수량" style={{ width: 48, padding: '7px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 8, fontFamily: f, fontSize: 11, outline: 'none', background: '#fff', textAlign: 'center' }} />
-                    <button onClick={addItemTag} style={{ padding: '7px 8px', background: '#F4F4F0', border: '1px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>직접</button>
-                    <button onClick={() => setShowPicker(true)} style={{ padding: '7px 8px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer' }}>BOX</button>
+                    <button onClick={addItemTag} style={{ padding: '7px 10px', background: '#F4F4F0', border: '1px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', cursor: 'pointer', flexShrink: 0 }}>추가</button>
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button onClick={cancelEditSlot} style={{ flex: 1, padding: '9px', background: '#F4F4F0', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
@@ -1839,7 +1869,7 @@ function DietPlanView({
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {(item as DietSlot).items.map(it => (
-                      <span key={it.id} style={{ fontFamily: f, fontSize: 10, background: '#F4F4F0', color: '#4A4846', padding: '2px 7px', borderRadius: 5 }}>{it.name}{it.qty ? `(${it.qty})` : ''}</span>
+                      <span key={it.id} style={{ fontFamily: f, fontSize: 12, background: '#F4F4F0', color: '#4A4846', padding: '2px 7px', borderRadius: 5 }}>{it.name}{it.qty ? `(${it.qty})` : ''}</span>
                     ))}
                   </div>
                 </div>
@@ -1877,7 +1907,7 @@ function DietPlanView({
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 7 }}>
                 {slotItemTags.map(tag => (
                   <div key={tag.id} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#0C0C0A', borderRadius: 9999, padding: '3px 10px 3px 8px' }}>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00' }}>{tag.name}{tag.qty ? `(${tag.qty})` : ''}</span>
+                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00' }}>{tag.name}{tag.qty ? `(${tag.qty})` : ''}</span>
                     <button onClick={() => removeItemTag(tag.id)} style={{ border: 'none', background: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 12, lineHeight: 1, padding: 0 }}>×</button>
                   </div>
                 ))}
@@ -1885,14 +1915,14 @@ function DietPlanView({
             )}
             {/* 제품 추가 */}
             <div style={{ display: 'flex', gap: 5, marginBottom: 7 }}>
+              <button onClick={() => setShowPicker(true)} style={{ padding: '8px 10px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
               <input value={slotItemInput} onChange={e=>setSlotItemInput(e.target.value)}
                 onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault(); addItemTag();} }}
-                placeholder="제품명 (예: 파워칵테일)" style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
+                placeholder="제품명" style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
               <input value={slotItemQty} onChange={e=>setSlotItemQty(e.target.value)}
                 onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault(); addItemTag();} }}
                 placeholder="수량" style={{ width: 52, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
-              <button onClick={addItemTag} style={{ padding: '8px 8px', background: '#F4F4F0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer', flexShrink: 0 }}>직접</button>
-              <button onClick={() => setShowPicker(true)} style={{ padding: '8px 10px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
+              <button onClick={addItemTag} style={{ padding: '8px 10px', background: '#F4F4F0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer', flexShrink: 0 }}>추가</button>
             </div>
             <button onClick={addSlot} style={{ width: '100%', padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', marginBottom: 6 }}>슬롯 추가</button>
             <button onClick={addWarning} style={{ width: '100%', padding: '7px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>⚠️ 경고 배너 추가</button>
@@ -1907,61 +1937,114 @@ function DietPlanView({
             </button>
           </div>
         </div>
-      {/* 제품 피커 — 기존 setup 피커와 동일한 구조 */}
+      {/* 제품 피커 — 2단계: 선택 → 수량 입력 */}
       {showPicker ? (
         <>
-          <div onClick={() => { setShowPicker(false); setPickerSearch(''); setPickerSelected(new Set()); }} style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,.4)', zIndex: 20 }} />
+          <div onClick={closePicker} style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,.4)', zIndex: 20 }} />
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#FAFAF8', borderRadius: '20px 20px 0 0', zIndex: 21, display: 'flex', flexDirection: 'column', maxHeight: '75vh' }}>
-            {/* 헤더 */}
-            <div style={{ padding: '16px 16px 10px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <div>
-                  <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A' }}>BOX 제품 선택</span>
-                  <span style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginLeft: 8 }}>{healthProds.length ? `약·비타민 ${healthProds.length}개` : `전체 ${products.length}개`}</span>
-                </div>
-                <button onClick={() => { setShowPicker(false); setPickerSearch(''); setPickerSelected(new Set()); }} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-              </div>
-              <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)}
-                placeholder="제품명 · 브랜드 검색..." autoFocus
-                style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 4 }} />
-              <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490' }}>{pickerSelected.size > 0 ? `${pickerSelected.size}개 선택됨` : 'BOX에서 제품을 선택하세요'}</div>
-            </div>
-            {/* 목록 */}
-            <div style={{ flex: 1, overflowY: 'auto' }}>
-              {filteredPickerProds.length === 0 ? (
-                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>
-                  <div style={{ fontSize: 28, marginBottom: 6 }}>💊</div>
-                  BOX 약·비타민 도메인에 제품이 없습니다.<br />BOX에서 제품을 먼저 추가해주세요.
-                </div>
-              ) : (
-                filteredPickerProds.map(p => {
-                  const isSel = pickerSelected.has(p.id);
-                  const imgSrc = p.imageUrl || p.storageUrl;
-                  return (
-                    <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })}
-                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, overflow: 'hidden' }}>
-                        {imgSrc
-                          // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          : '💊'}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                        {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
-                      </div>
-                      <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
+
+            {pickerStep === 'select' ? (
+              <>
+                {/* 헤더 — 선택 단계 */}
+                <div style={{ padding: '16px 16px 10px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <div>
+                      <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A' }}>BOX 제품 선택</span>
+                      <span style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginLeft: 8 }}>{healthProds.length ? `약·비타민 ${healthProds.length}개` : `전체 ${products.length}개`}</span>
                     </div>
-                  );
-                })
-              )}
-            </div>
-            {/* 완료 버튼 */}
-            <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)', borderTop: '1px solid rgba(12,12,10,.07)' }}>
-              <button onClick={confirmPicker} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
-                완료{pickerSelected.size > 0 ? ` (${pickerSelected.size}개)` : ''}
-              </button>
-            </div>
+                    <button onClick={closePicker} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                  </div>
+                  <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)}
+                    placeholder="제품명 · 브랜드 검색..." autoFocus
+                    style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 4 }} />
+                  <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490' }}>{pickerSelected.size > 0 ? `${pickerSelected.size}개 선택됨` : 'BOX에서 제품을 선택하세요'}</div>
+                </div>
+                {/* 제품 목록 — 다중 선택 */}
+                <div style={{ flex: 1, overflowY: 'auto' }}>
+                  {/* 검색어 있고 결과 없으면 → 이름으로 등록 후 추가 */}
+                  {pickerSearch.trim() && filteredPickerProds.length === 0 && (
+                    <div onClick={() => registerAndAddDiet(pickerSearch)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 등록 후 추가</div>
+                        <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX 약·비타민에 자동 저장 · 나중에 상세 수정 가능</div>
+                      </div>
+                    </div>
+                  )}
+                  {filteredPickerProds.length === 0 && !pickerSearch.trim() ? (
+                    <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>
+                      <div style={{ fontSize: 28, marginBottom: 6 }}>💊</div>
+                      BOX 약·비타민 도메인에 제품이 없습니다.<br />BOX에서 제품을 먼저 추가해주세요.
+                    </div>
+                  ) : (
+                    filteredPickerProds.map(p => {
+                      const isSel = pickerSelected.has(p.id);
+                      const imgSrc = p.imageUrl || p.storageUrl;
+                      return (
+                        <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })}
+                          style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, overflow: 'hidden' }}>
+                            {imgSrc
+                              // eslint-disable-next-line @next/next/no-img-element
+                              ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              : '💊'}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                            {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                          </div>
+                          <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+                {/* 다음 버튼 */}
+                <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)', borderTop: '1px solid rgba(12,12,10,.07)' }}>
+                  <button onClick={goToQtyStep} disabled={pickerSelected.size === 0}
+                    style={{ width: '100%', height: 52, background: pickerSelected.size === 0 ? '#E4E2DC' : '#0C0C0A', color: pickerSelected.size === 0 ? '#9A9490' : '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: pickerSelected.size === 0 ? 'default' : 'pointer' }}>
+                    수량 입력 → {pickerSelected.size > 0 ? `(${pickerSelected.size}개)` : ''}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* 헤더 — 수량 입력 단계 */}
+                <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(12,12,10,.07)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <button onClick={() => setPickerStep('select')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#4A4846', padding: 0, lineHeight: 1 }}>←</button>
+                  <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A', flex: 1 }}>수량 입력</span>
+                  <button onClick={closePicker} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                </div>
+                {/* 선택된 제품 수량 입력 목록 */}
+                <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
+                  {Array.from(pickerSelected).map(id => {
+                    const p = products.find(pr => pr.id === id);
+                    if (!p) return null;
+                    return (
+                      <div key={id} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                        <div style={{ flex: 1, fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                        <input
+                          type="text" inputMode="decimal"
+                          value={pickerQties[id] ?? ''}
+                          onChange={e => setPickerQties(prev => ({ ...prev, [id]: e.target.value }))}
+                          placeholder="수량"
+                          style={{ width: 72, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 9, fontFamily: f, fontSize: 14, outline: 'none', background: '#fff', textAlign: 'center' }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* 추가 완료 버튼 */}
+                <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)', borderTop: '1px solid rgba(12,12,10,.07)' }}>
+                  <button onClick={confirmPickerWithQty}
+                    style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                    추가 완료
+                  </button>
+                </div>
+              </>
+            )}
+
           </div>
         </>
       ) : null}
@@ -1972,18 +2055,18 @@ function DietPlanView({
   // ── 목록 화면 ──
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
-      <SubPageHeader title="📋 식단 플랜" onClose={onBack} />
+      <SubPageHeader title="📋 리셋 플랜" onClose={onBack} />
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 80px' }}>
         {programs.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>📋</div>
-            식단 플랜을 등록해보세요
+            리셋 플랜을 등록해보세요
           </div>
         )}
         {/* 2주 프리셋 불러오기 */}
-        {programs.every(p => p.name !== '2주 다이어트') && (
+        {programs.every(p => p.name !== '2주 리셋 플랜') && (
           <div style={{ background: 'linear-gradient(135deg,#fdf4ff,#e0a0ff)', borderRadius: 16, padding: '16px', marginBottom: 12, border: '1px solid rgba(124,58,237,.2)' }}>
-            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4C1D95', marginBottom: 4 }}>📋 2주 다이어트 프리셋</div>
+            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4C1D95', marginBottom: 4 }}>📋 2주 리셋 플랜 프리셋</div>
             <div style={{ fontFamily: f, fontSize: 11, color: '#6D28D9', marginBottom: 12, lineHeight: 1.6 }}>
               1~3일 / 4~6일 / 7~14일 3패턴 · 총 10개 타임슬롯 자동 입력
             </div>
@@ -2034,7 +2117,7 @@ function DietPlanView({
                 </div>
                 {/* 오른쪽 버튼들 */}
                 <button onClick={() => toggleShowInToday(p)}
-                  style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: p.showInToday ? '#C5FF00' : '#F4F4F0', color: p.showInToday ? '#0C0C0A' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', flexShrink: 0 }}>
+                  style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: p.showInToday ? '#0C0C0A' : '#F4F4F0', color: p.showInToday ? '#C5FF00' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', flexShrink: 0 }}>
                   TODAY
                 </button>
                 <button onClick={() => openEdit(p)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
@@ -2072,7 +2155,7 @@ function DietPlanView({
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                               {(item as DietSlot).items.map(it => (
-                                <span key={it.id} style={{ fontFamily: f, fontSize: 10, background: '#EEEDE9', color: '#4A4846', padding: '2px 7px', borderRadius: 5 }}>{it.name}{it.qty ? `(${it.qty})` : ''}</span>
+                                <span key={it.id} style={{ fontFamily: f, fontSize: 12, background: '#EEEDE9', color: '#4A4846', padding: '2px 7px', borderRadius: 5 }}>{it.name}{it.qty ? `(${it.qty})` : ''}</span>
                               ))}
                             </div>
                           </div>
@@ -3858,6 +3941,20 @@ export default function SetupPage() {
     await deleteDoc(doc(db, 'users', userId, 'dietPrograms', id));
   }
 
+  // 리셋 플랜 피커에서 없는 제품 즉시 BOX(health) 등록 → 새 ID 반환
+  async function handleRegisterDietProduct(name: string): Promise<string> {
+    if (!user || !db) return '';
+    const now = new Date().toISOString();
+    const ref = await addDoc(collection(db, 'users', userId, 'products'), {
+      name: name.trim(), brand: '', domain: 'health', subCategory: '영양제',
+      category: '영양제', packageCount: 1, unitPerPackage: 1, itemUnit: '정',
+      totalAmount: 1, dosePerUse: 1, usesPerDay: 1,
+      frequencyType: 'daily', frequencyValue: 7,
+      currentRemaining: 1, active: true, createdAt: now, updatedAt: now,
+    });
+    return ref.id;
+  }
+
   // 2주 다이어트 제품 BOX health 도메인에 자동 등록
   async function seedDietProducts() {
     if (!user || !db) { alert('로그인이 필요합니다.'); return; }
@@ -3974,6 +4071,7 @@ export default function SetupPage() {
           onUpdate={handleUpdateDiet}
           onDelete={handleDeleteDiet}
           onSeedProducts={seedDietProducts}
+          onRegisterProduct={handleRegisterDietProduct}
         />
       )}
       {view === 'medication' && (

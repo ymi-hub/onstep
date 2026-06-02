@@ -153,7 +153,14 @@ function MonthCalendar({
     end: endOfMonth(currentMonth),
   });
   const startBlank = getDay(days[0]);
-  const completedCount = Array.from(dayLogs.values()).filter(l => l.hasMorning || l.hasEvening).length;
+  const fullDays = Array.from(dayLogs.values()).filter(l => l.hasMorning && l.hasEvening).length;
+  const morningOnly = Array.from(dayLogs.values()).filter(l => l.hasMorning && !l.hasEvening).length;
+  const eveningOnly = Array.from(dayLogs.values()).filter(l => !l.hasMorning && l.hasEvening).length;
+  const completionParts: string[] = [];
+  if (fullDays > 0) completionParts.push(`${fullDays}일`);
+  if (morningOnly > 0) completionParts.push(`아침 ${morningOnly}`);
+  if (eveningOnly > 0) completionParts.push(`저녁 ${eveningOnly}`);
+  const completionText = completionParts.join(' + ');
 
   return (
     <div style={{ margin: '0 16px 16px', border: '1px solid #0C0C0A', borderRadius: 16, overflow: 'hidden', background: '#fff' }}>
@@ -173,9 +180,9 @@ function MonthCalendar({
           <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-0.01em' }}>
             {format(currentMonth, 'yyyy년 M월', { locale: ko })}
           </span>
-          {completedCount > 0 && (
+          {completionText && (
             <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#4A7700', background: 'rgba(197,255,0,.18)', padding: '2px 8px', borderRadius: 9999 }}>
-              {completedCount}일 완료
+              {completionText} 완료
             </span>
           )}
         </div>
@@ -1736,7 +1743,7 @@ function EmptyState({ isLoading }: { isLoading: boolean }) {
 
 export default function LogPage() {
   // ── 공유 컨텍스트 ──
-  const { user, userId, authLoading, products: ctxProducts, sessions, makeupItems, lookItems, careItems, habits } = useAppContext();
+  const { user, userId, authLoading, products: ctxProducts, sessions, makeupItems, lookItems, careItems, habits, dietPrograms, healthRoutines, medRoutines } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 캘린더 상태 ──
@@ -1748,12 +1755,42 @@ export default function LogPage() {
   const [todayHabitLogs, setTodayHabitLogs] = useState<{ id: string; habitId: string }[]>([]);
   useEffect(() => {
     if (authLoading || !user || !db) return;
-    const q = query(
-      collection(db, 'users', userId, 'habitLogs'),
-      where('dateStr', '==', todayStr)
-    );
+    const q = query(collection(db, 'users', userId, 'habitLogs'), where('dateStr', '==', todayStr));
     const unsub = onSnapshot(q, (snap) => {
       setTodayHabitLogs(snap.docs.map(d => ({ id: d.id, ...d.data() as { habitId: string } })));
+    });
+    return () => unsub();
+  }, [userId, authLoading, user, todayStr]);
+
+  // ── 오늘 dietLogs ──
+  const [todayDietLogs, setTodayDietLogs] = useState<{ id: string; programId: string; slotId: string }[]>([]);
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const q = query(collection(db, 'users', userId, 'dietLogs'), where('dateStr', '==', todayStr));
+    const unsub = onSnapshot(q, (snap) => {
+      setTodayDietLogs(snap.docs.map(d => ({ id: d.id, ...d.data() as { programId: string; slotId: string } })));
+    });
+    return () => unsub();
+  }, [userId, authLoading, user, todayStr]);
+
+  // ── 오늘 healthLogs ──
+  const [todayHealthLogs, setTodayHealthLogs] = useState<{ id: string; routineId: string }[]>([]);
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const q = query(collection(db, 'users', userId, 'healthLogs'), where('dateStr', '==', todayStr));
+    const unsub = onSnapshot(q, (snap) => {
+      setTodayHealthLogs(snap.docs.map(d => ({ id: d.id, ...d.data() as { routineId: string } })));
+    });
+    return () => unsub();
+  }, [userId, authLoading, user, todayStr]);
+
+  // ── 오늘 medLogs ──
+  const [todayMedLogs, setTodayMedLogs] = useState<{ id: string; routineId: string }[]>([]);
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const q = query(collection(db, 'users', userId, 'medLogs'), where('dateStr', '==', todayStr));
+    const unsub = onSnapshot(q, (snap) => {
+      setTodayMedLogs(snap.docs.map(d => ({ id: d.id, ...d.data() as { routineId: string } })));
     });
     return () => unsub();
   }, [userId, authLoading, user, todayStr]);
@@ -1938,7 +1975,18 @@ export default function LogPage() {
                   const todayOotd = lookItems.filter(i => (i.dates ?? []).includes(todayStr));
                   const todayCare = careItems.filter(i => (i.dates ?? []).includes(todayStr));
                   const checkedHabitIds = new Set(todayHabitLogs.map(l => l.habitId));
-                  const hasAny = todayDayLog || todayMotd.length || todayOotd.length || todayCare.length || habits.length;
+                  const todayWD = new Date().getDay();
+                  const todayHabits = habits.filter(h => {
+                    if (!h.showInToday) return false;
+                    if (h.repeatType === 'allday' || h.repeatType === 'daily') return true;
+                    if (h.repeatType === 'once') return h.date === todayStr;
+                    if (h.repeatType === 'scheduled') return (h.weekdays ?? []).includes(todayWD);
+                    return false;
+                  });
+                  const hasAny = todayDayLog || todayMotd.length || todayOotd.length || todayCare.length || todayHabits.length
+                    || dietPrograms.some(p => p.showInToday)
+                    || healthRoutines.some(h => h.showInToday)
+                    || medRoutines.some(m => m.active);
                   if (!hasAny) return null;
 
                   return (
@@ -1986,12 +2034,12 @@ export default function LogPage() {
                         </div>
                       ))}
 
-                      {/* 습관 — MOTD 상단으로 이동 */}
-                      {habits.length > 0 && (
+                      {/* 습관 */}
+                      {todayHabits.length > 0 && (
                         <div style={{ padding: '10px 14px' }}>
                           <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>HABITS</div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            {habits.map(h => {
+                            {todayHabits.map(h => {
                               const done = checkedHabitIds.has(h.id);
                               return (
                                 <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -2006,6 +2054,167 @@ export default function LogPage() {
                           </div>
                         </div>
                       )}
+
+                      {/* 리셋 플랜 — 플랜별 카드 */}
+                      {dietPrograms.filter(p => p.showInToday).map(p => {
+                        const doneSet = new Set(todayDietLogs.map(l => `${l.programId}:${l.slotId}`));
+                        const dayN = Math.floor((Date.now() - new Date(p.startDate).getTime()) / 86400000) + 1;
+                        const sortedPats = [...(p.patterns ?? [])].sort((a, b) => a.dayStart - b.dayStart);
+                        const pat = sortedPats.find(pt => dayN >= pt.dayStart && dayN <= pt.dayEnd)
+                          ?? sortedPats[sortedPats.length - 1];
+                        if (!pat) return null;
+
+                        // 모든 패턴 통합 — dayStart 오름차순으로 label dedup (패턴1 기준 시간 우선)
+                        type DS = import('@/types/dietplan').DietSlot;
+                        const slotMap = new Map<string, DS>();
+                        for (const aPat of sortedPats) {
+                          for (const item of aPat.timeline) {
+                            if (item.isWarning) continue;
+                            const s = item as DS;
+                            if (!slotMap.has(s.label)) slotMap.set(s.label, s);
+                          }
+                        }
+                        // 정렬: timed는 시간순, untimed는 원본 패턴의 앞뒤 timed 슬롯 사이 위치
+                        const toMin = (t?: string) => t ? +t.split(':')[0] * 60 + +t.split(':')[1] : 9999;
+                        const getSortKey = (s: DS): number => {
+                          if (s.time) return toMin(s.time);
+                          for (const aPat of sortedPats) {
+                            const idx = aPat.timeline.findIndex(it => !it.isWarning && (it as DS).label === s.label);
+                            if (idx === -1) continue;
+                            const prevT = [...aPat.timeline].slice(0, idx).reverse().find(it => !it.isWarning && (it as DS).time);
+                            const prevMin = prevT ? toMin((prevT as DS).time) : 0;
+                            return prevMin + 0.5;
+                          }
+                          return 9999;
+                        };
+                        const allSlots = Array.from(slotMap.values()).sort((a, b) => getSortKey(a) - getSortKey(b));
+                        if (allSlots.length === 0) return null;
+                        // 완료 체크: 현재 패턴의 같은 label 슬롯 ID 기준
+                        const curSlotByLabel = new Map<string, DS>();
+                        for (const item of pat.timeline) {
+                          if (!item.isWarning) { const s = item as DS; curSlotByLabel.set(s.label, s); }
+                        }
+                        const doneCnt = allSlots.filter(s => {
+                          const cur = curSlotByLabel.get(s.label);
+                          return doneSet.has(`${p.id}:${(cur ?? s).id}`);
+                        }).length;
+
+                        return (
+                          <div key={p.id} style={{ borderTop: '1px solid rgba(12,12,10,.06)' }}>
+                            {/* 섹션 라벨 */}
+                            <div style={{ padding: '10px 14px 6px', fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em' }}>RESET PLAN</div>
+                            {/* 플랜 카드 */}
+                            <div style={{ margin: '0 14px 10px', background: '#F9F9F7', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, overflow: 'hidden' }}>
+                              {/* 카드 헤더 */}
+                              <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(12,12,10,.07)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span style={{ fontSize: 14 }}>{p.icon}</span>
+                                <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{p.name}</span>
+                                <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>D+{dayN} · {pat.label}</span>
+                                <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: doneCnt === allSlots.length ? '#5A7A00' : '#9A9490', marginLeft: 4 }}>{doneCnt}/{allSlots.length}</span>
+                              </div>
+                              {/* 슬롯 목록 */}
+                              <div style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                {allSlots.map(slot => {
+                                  const cur = curSlotByLabel.get(slot.label);
+                                  const done = doneSet.has(`${p.id}:${(cur ?? slot).id}`);
+                                  return (
+                                    <div key={slot.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 7 }}>
+                                      <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0, marginTop: 1 }}>
+                                        {done ? '✓' : ''}
+                                      </div>
+                                      <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                          {slot.time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: done ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: done ? '#BCBAB6' : '#C5FF00', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
+                                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none' }}>
+                                            {slot.label}{!slot.time && (() => {
+                                              for (const aPat of sortedPats) {
+                                                const idx = aPat.timeline.findIndex(it => !it.isWarning && (it as DS).label === slot.label);
+                                                if (idx === -1) continue;
+                                                const prevT = [...aPat.timeline].slice(0, idx).reverse().find(it => !it.isWarning && (it as DS).time);
+                                                const nextT = aPat.timeline.slice(idx + 1).find(it => !it.isWarning && (it as DS).time);
+                                                const s = prevT ? (prevT as DS).time! : null;
+                                                const e = nextT ? (nextT as DS).time! : null;
+                                                if (s && e) return ` (${s}~${e})`;
+                                                if (s) return ` (${s}~)`;
+                                                if (e) return ` (~${e})`;
+                                                break;
+                                              }
+                                              return '';
+                                            })()}
+                                          </span>
+                                          {slot.water > 0 && <span style={{ fontFamily: f, fontSize: 10, color: '#4A9ED6', fontWeight: 700, marginLeft: 'auto' }}>💧{slot.water}ml</span>}
+                                        </div>
+                                        {slot.items && slot.items.length > 0 && (
+                                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>
+                                            {slot.items.map(it => (
+                                              <span key={it.id} style={{ fontFamily: f, fontSize: 10, background: done ? '#F0F0ED' : '#EEEDE9', color: done ? '#BCBAB6' : '#4A4846', padding: '1px 5px', borderRadius: 4 }}>
+                                                {it.name}{it.qty ? `(${it.qty})` : ''}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {/* 건강 루틴 */}
+                      {(() => {
+                        const doneSet = new Set(todayHealthLogs.map(l => l.routineId));
+                        const activeRoutines = healthRoutines.filter(h => h.showInToday);
+                        if (activeRoutines.length === 0) return null;
+                        return (
+                          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+                            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>건강 루틴</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {activeRoutines.map(h => {
+                                const done = doneSet.has(h.id);
+                                return (
+                                  <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                                    <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
+                                      {done ? '✓' : ''}
+                                    </div>
+                                    {h.icon && <span style={{ fontSize: 13, flexShrink: 0 }}>{h.icon}</span>}
+                                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none' }}>{h.name}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* 약 루틴 */}
+                      {(() => {
+                        const doneSet = new Set(todayMedLogs.map(l => l.routineId));
+                        const activeMeds = medRoutines.filter(m => m.active);
+                        if (activeMeds.length === 0) return null;
+                        return (
+                          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+                            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>약 루틴</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {activeMeds.map(m => {
+                                const done = doneSet.has(m.id);
+                                return (
+                                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                                    <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
+                                      {done ? '✓' : ''}
+                                    </div>
+                                    <span style={{ fontSize: 13, flexShrink: 0 }}>{m.icon || '💊'}</span>
+                                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none' }}>{m.name}</span>
+                                    {m.dosage && <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490', marginLeft: 2 }}>{m.dosage}</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
 
                       {/* MOTD + OOTD — 1열 좌우 배치 */}
                       {(todayMotd.length > 0 || todayOotd.length > 0) && (
