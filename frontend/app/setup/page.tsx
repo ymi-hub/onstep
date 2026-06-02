@@ -2439,58 +2439,80 @@ function MedView({
           )}
         </div>
 
-        {/* DAILY MEDS — showInToday=true 약 미리보기 */}
-        {items.some(m => m.showInToday) && (
-          <div style={{ padding: '24px 16px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
-                DAILY MEDS
-              </span>
-              <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>
-                TODAY
-              </span>
-              <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>
-                {items.filter(m => m.showInToday).length}개
-              </span>
+        {/* DAILY MEDS — showInToday=true 약 미리보기 (Today 카드 스타일) */}
+        {items.some(m => m.showInToday) && (() => {
+          const todayMeds   = items.filter(m => m.showInToday);
+          const morningMeds = todayMeds.filter(m => m.times.some(t => t === 'morning' || t === 'lunch'));
+          const nightMeds   = todayMeds.filter(m => m.times.some(t => t === 'evening' || t === 'bedtime'));
+          const ungrouped   = todayMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
+          const nightAll    = [...nightMeds, ...ungrouped];
+          const now         = new Date();
+
+          const getTime = (m: MedRoutine) => {
+            if (m.time) return m.time;
+            const first = m.times[0];
+            return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
+          };
+
+          const PreviewRow = ({ m }: { m: MedRoutine }) => (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+              <div style={{ width: 20, height: 20, borderRadius: 5, border: '1.5px solid rgba(12,12,10,.2)', background: '#fff', flexShrink: 0 }} />
+              <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#44474A', width: 42, flexShrink: 0 }}>{getTime(m)}</span>
+              <span style={{ fontFamily: f, fontSize: 14, color: '#0C0C0A', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+              <button
+                onClick={() => onToggleToday(m.id, true)}
+                style={{ height: 22, padding: '0 8px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const, flexShrink: 0 }}
+              >
+                Today ON
+              </button>
             </div>
-            <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-              {items.filter(m => m.showInToday).map((m, idx) => (
-                <div
-                  key={m.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '12px 14px',
-                    borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none',
-                    background: '#FAFAF8',
-                  }}
-                >
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, lineHeight: 1 }}>
-                    {m.icon || '💊'}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-                      {m.name}
+          );
+
+          return (
+            <div style={{ padding: '24px 16px 0' }}>
+              <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
+                {/* 카드 헤더 */}
+                <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
+                      <span style={{ fontSize: 15 }}>💊</span>
+                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>Today♡·⁺°———</span>
                     </div>
-                    <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>
-                      {m.dosage} · {m.times.map(t => MED_TIME_LABELS[t]).join(' · ')}
+                    <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                      {now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </div>
+                    <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
+                      {now.toLocaleDateString('ko-KR', { weekday: 'long' })}
                     </div>
                   </div>
-                  <button
-                    onClick={() => onToggleToday(m.id, true)}
-                    style={{
-                      height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
-                      background: '#0C0C0A', color: '#C5FF00',
-                      fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
-                      textTransform: 'uppercase' as const, flexShrink: 0,
-                    }}
-                  >
-                    Today ON
-                  </button>
+                  <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '3px 9px', borderRadius: 9999, marginTop: 4 }}>
+                    TODAY {todayMeds.length}개
+                  </span>
                 </div>
-              ))}
+
+                {/* Morning 그룹 */}
+                {morningMeds.length > 0 && (
+                  <div>
+                    <div style={{ padding: '7px 14px 5px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color: '#6B7CE8' }}>·+ +°.Morning°·++·° *</span>
+                    </div>
+                    {morningMeds.map(m => <PreviewRow key={m.id} m={m} />)}
+                  </div>
+                )}
+
+                {/* Night 그룹 */}
+                {nightAll.length > 0 && (
+                  <div>
+                    <div style={{ padding: '7px 14px 5px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color: '#E86BAA' }}>·+ +°.Night°·++·° *</span>
+                    </div>
+                    {nightAll.map(m => <PreviewRow key={m.id} m={m} />)}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div style={{ height: 40 }} />
       </div>
