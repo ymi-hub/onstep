@@ -813,7 +813,7 @@ function LogLibraryCard({
         position: 'relative',
         width: '100%',
         background: '#FFFFFF',
-        border: '1px solid #E5E5E5',
+        border: '1px solid #000000',
         isolation: 'isolate',
         flexShrink: 0,
       }}>
@@ -856,7 +856,7 @@ function LogLibraryCard({
             const imgSrc = p?.imageUrl || p?.storageUrl;
             return (
               <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <div style={{ width: 120, height: 160, borderRadius: 10, background: '#F3F3F4', border: '1px solid #E5E5E5', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 120, height: 160, borderRadius: 10, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
                 </div>
                 <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
@@ -2274,7 +2274,7 @@ export default function LogPage() {
         )}
 
         {/* ── 라이브러리 탭 — 아이템 중심 사용 히스토리 ── */}
-        {mainTab === '라이브러리' && (
+        {mainTab === '아카이브' && (
           <div style={{ padding: '16px 16px 0' }}>
             <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
               {(['makeup', 'lookbook'] as const).map((f) => {
@@ -2290,7 +2290,7 @@ export default function LogPage() {
             {(() => {
               const items = (libFilter === 'makeup' ? makeupItems : lookItems).filter(i => (i.dates ?? []).length > 0);
               if (items.length === 0) return (
-                <div style={{ padding: '32px 20px', textAlign: 'center', background: '#fff', border: '1px solid #E5E5E5', borderRadius: 16, marginBottom: 20 }}>
+                <div style={{ padding: '32px 20px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, marginBottom: 20 }}>
                   <div style={{ fontSize: 28, marginBottom: 8 }}>{libFilter === 'makeup' ? '💄' : '👗'}</div>
                   <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>사용 기록이 없어요</div>
                   <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>아카이브에서 Today ON을 설정하면 기록됩니다</div>
@@ -2305,7 +2305,7 @@ export default function LogPage() {
         )}
 
         {/* ── 아카이브 탭 — 메이크업·룩북 CRUD + Today ON ── */}
-        {mainTab === '아카이브' && (
+        {mainTab === '라이브러리' && (
           <div style={{ paddingTop: 16 }}>
             {/* 필터 */}
             <div style={{ display: 'flex', gap: 6, padding: '0 16px', marginBottom: 16 }}>
@@ -2341,7 +2341,7 @@ export default function LogPage() {
                 return bOn - aOn;
               });
               if (sortedItems.length === 0) return (
-                <div style={{ padding: '40px 16px', textAlign: 'center', background: '#fff', border: '1px solid #E5E5E5', borderRadius: 16, margin: '0 16px' }}>
+                <div style={{ padding: '40px 16px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, margin: '0 16px' }}>
                   <div style={{ fontSize: 28, marginBottom: 8 }}>📁</div>
                   <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>아카이브가 비어있어요</div>
                   <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>+ 버튼으로 새 룩·메이크업을 추가해보세요</div>
@@ -2357,7 +2357,7 @@ export default function LogPage() {
                       const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
                       return (
                         <div key={item.id}>
-                          <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 24px 0px', position: 'relative', width: '100%', background: '#FFFFFF', border: '1px solid #E5E5E5', isolation: 'isolate', flexShrink: 0 }}>
+                          <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 24px 0px', position: 'relative', width: '100%', background: '#FFFFFF', border: '1px solid #000000', isolation: 'isolate', flexShrink: 0 }}>
                             <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#C6F432', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
                               <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
                             </div>
@@ -2380,7 +2380,7 @@ export default function LogPage() {
                                 const imgSrc = p?.imageUrl || p?.storageUrl;
                                 return (
                                   <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                                    <div style={{ width: 120, height: 160, borderRadius: 10, background: '#F3F3F4', border: '1px solid #E5E5E5', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div style={{ width: 120, height: 160, borderRadius: 10, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                       {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
                                     </div>
                                     <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
@@ -2407,8 +2407,8 @@ export default function LogPage() {
 
       </div>
 
-      {/* FAB — 아카이브 탭에서만 노출 */}
-      {mainTab === '아카이브' && (
+      {/* FAB — 라이브러리 탭에서만 노출 */}
+      {mainTab === '라이브러리' && (
         <>
           {/* 타입 선택 팝업 배경 */}
           {fabMenuOpen && (

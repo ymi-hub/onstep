@@ -712,7 +712,7 @@ function FlowCard({
                     minWidth: 248,
                     height: 355,
                     background: '#FFFFFF',
-                    border: '1px solid #E5E5E5',
+                    border: '1px solid #000000',
                     opacity: isChecked ? 0.45 : 1,
                     transition: 'opacity .2s',
                   }}>
@@ -1297,7 +1297,7 @@ function OOTDSection({
                   const imgUrl = p?.imageUrl || p?.storageUrl;
                   return (
                     <div key={pid} style={{ flexShrink: 0, width: 120, scrollSnapAlign: 'start' as const, display: 'flex', flexDirection: 'column', gap: 0 }}>
-                      <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 10, border: '1px solid #E5E5E5', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                      <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 10, border: '1px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                         {imgUrl
                           // eslint-disable-next-line @next/next/no-img-element
                           ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1418,7 +1418,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           minWidth: 248,
           height: 355,
           background: '#FFFFFF',
-          border: '1px solid #E5E5E5',
+          border: '1px solid #000000',
         }}>
           <div style={{
             width: 200,
@@ -1628,7 +1628,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                     return (
                       <div key={pid} style={{ flexShrink: 0, width: 120, scrollSnapAlign: 'start' as const, display: 'flex', flexDirection: 'column', gap: 0 }}>
                         {/* 제품 이미지 (.ed-prod-img) */}
-                        <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 10, border: '1px solid #E5E5E5', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 10, border: '1px solid #000000', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                           {imgUrl
                             // eslint-disable-next-line @next/next/no-img-element
                             ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
