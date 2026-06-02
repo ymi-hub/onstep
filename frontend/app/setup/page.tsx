@@ -2118,7 +2118,7 @@ function DietPlanView({
                 {/* 오른쪽 버튼들 */}
                 <button onClick={() => toggleShowInToday(p)}
                   style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: p.showInToday ? '#0C0C0A' : '#F4F4F0', color: p.showInToday ? '#C5FF00' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', flexShrink: 0 }}>
-                  TODAY
+                  {p.showInToday ? 'Today ON' : 'Today OFF'}
                 </button>
                 <button onClick={() => openEdit(p)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
                 <button onClick={() => setExpandedId(isExpanded ? null : p.id)}
@@ -2487,8 +2487,8 @@ function HealthView({
                       </div>
                       {/* TODAY 토글 — Habits와 동일 */}
                     <button onClick={() => onToggleToday(item.id, !!item.showInToday)}
-                      style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: item.showInToday ? '#C5FF00' : '#F4F4F0', color: item.showInToday ? '#0C0C0A' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', transition: 'all .18s', flexShrink: 0 }}>
-                      TODAY
+                      style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: item.showInToday ? '#0C0C0A' : '#F4F4F0', color: item.showInToday ? '#C5FF00' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', transition: 'all .18s', flexShrink: 0 }}>
+                      {item.showInToday ? 'Today ON' : 'Today OFF'}
                     </button>
                     <button onClick={() => openEdit(item)} style={{ padding: '4px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
                     </div>
@@ -2515,7 +2515,7 @@ function HealthView({
               <div style={{ padding: '24px 0 0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                   <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>HEALTH</span>
-                  <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>TODAY</span>
+                  <span style={{ background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>Today ON</span>
                   <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>{items.filter(i => i.showInToday).length}개</span>
                 </div>
                 <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
@@ -2531,8 +2531,8 @@ function HealthView({
                         ) : null}
                       </div>
                       <button onClick={() => onToggleToday(item.id, true)}
-                        style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 9, fontWeight: 800, letterSpacing: '.08em' }}>
-                        TODAY ✓
+                        style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 9, fontWeight: 800, letterSpacing: '.08em' }}>
+                        Today ON
                       </button>
                     </div>
                   ))}
@@ -2842,14 +2842,14 @@ function TrackerView({
           onClick={() => onToggleToday(h.id, isToday)}
           style={{
             height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
-            background: isToday ? '#C5FF00' : '#F4F4F0',
-            color: isToday ? '#0C0C0A' : '#9A9490',
+            background: isToday ? '#0C0C0A' : '#F4F4F0',
+            color: isToday ? '#C5FF00' : '#9A9490',
             fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
             textTransform: 'uppercase' as const,
             transition: 'all .18s', flexShrink: 0,
           }}
         >
-          TODAY
+          {isToday ? 'Today ON' : 'Today OFF'}
         </button>
 
         {/* 편집 버튼 */}
@@ -2918,8 +2918,8 @@ function TrackerView({
               <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
                 DAILY HABITS
               </span>
-              <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>
-                TODAY
+              <span style={{ background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>
+                Today ON
               </span>
               <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>
                 {habits.filter(h => h.showInToday).length}개
@@ -2949,13 +2949,13 @@ function TrackerView({
                     onClick={() => onToggleToday(h.id, true)}
                     style={{
                       height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
-                      background: '#C5FF00', color: '#0C0C0A',
+                      background: '#0C0C0A', color: '#C5FF00',
                       fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
                       textTransform: 'uppercase' as const,
                       flexShrink: 0,
                     }}
                   >
-                    TODAY
+                    Today ON
                   </button>
                 </div>
               ))}
@@ -3340,7 +3340,7 @@ function CtPanel({
           )}
         </div>
         <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 16px 12px', display: 'flex', gap: 8 }}>
-          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: 10, background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.08)', color: item.published ? '#fff' : '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: 10, background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.08)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
           <button onClick={() => openEdit(item)} style={{ padding: '10px 14px', background: '#EEEDE9', color: '#4A4846', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, cursor: 'pointer' }}>편집</button>
