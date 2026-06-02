@@ -708,7 +708,7 @@ function FlowCard({
                         : <span style={{ fontSize: 48, opacity: 0.4 }}>🧴</span>
                       }
                       {isChecked && (
-                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px 16px 0 0', zIndex: 3 }}>
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px 16px 0 0', zIndex: 3 }}>
                           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                         </div>
                       )}
