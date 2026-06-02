@@ -10,6 +10,8 @@ export type DietItem = {
 export type DietSlot = {
   id: string;
   time?: string;       // "08:00" | undefined(공복시)
+  timeStart?: string;  // 공복 슬롯 TODAY 표시 시작 "10:00"
+  timeEnd?: string;    // 공복 슬롯 TODAY 표시 종료 "14:00"
   label: string;       // "아침 식사시", "+1시간후", "공복시"
   water: number;       // ml
   items: DietItem[];

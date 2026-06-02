@@ -1292,7 +1292,7 @@ function OOTDSection({
 
             {/* 제품 가로 스크롤 — MOTD와 동일 스타일 */}
             {heroProdIds.length > 0 && (
-              <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 8, padding: '16px 0 16px', scrollSnapType: 'x mandatory' as const, borderTop: heroLook.imageUrl ? 'none' : '1px solid rgba(12,12,10,.06)' }}>
+              <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 8, padding: '10px 0 10px', scrollSnapType: 'x mandatory' as const, borderTop: heroLook.imageUrl ? 'none' : '1px solid rgba(12,12,10,.06)' }}>
                 <div style={{ flexShrink: 0, width: 16 }} />
                 {heroProdIds.map(pid => {
                   const p = products.get(pid);
@@ -1306,8 +1306,6 @@ function OOTDSection({
                           : <span style={{ fontSize: 32, opacity: 0.3 }}>👗</span>
                         }
                       </div>
-                      <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>{p?.name ?? '—'}</div>
-                      {p?.brand && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>{p.brand}</div>}
                     </div>
                   );
                 })}
@@ -1558,9 +1556,10 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             {/* 참고 링크 */}
             <SourceLink url={item.sourceUrl} />
 
-            {/* 카드 하단: List → 오른쪽 정렬 */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 16px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-              <a href="/setup#care" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</a>
+            {/* 카드 하단: 편집 버튼 */}
+            <div style={{ display: 'flex', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+              <a href="/setup#care" style={{ flex: 1, display: 'block', padding: '12px 0', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em', textAlign: 'center' as const }}>List →</a>
+              <a href={`/setup#care`} style={{ flex: 1, display: 'block', padding: '12px 0', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', textDecoration: 'none', letterSpacing: '.04em', textAlign: 'center' as const, borderLeft: '1px solid rgba(12,12,10,.06)' }}>편집</a>
             </div>
           </div>
         ))}
@@ -1624,7 +1623,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
 
               {/* 제품 그리드 (today.html .editorial-prod-grid / .ed-prod-card) */}
               {prodIds.length > 0 && (
-                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 8, padding: '16px 0 16px', scrollSnapType: 'x mandatory' as const, borderTop: item.imageUrl ? 'none' : '1px solid rgba(12,12,10,.06)' }}>
+                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 8, padding: '10px 0 10px', scrollSnapType: 'x mandatory' as const, borderTop: item.imageUrl ? 'none' : '1px solid rgba(12,12,10,.06)' }}>
                   <div style={{ flexShrink: 0, width: 16 }} />
                   {prodIds.map((pid) => {
                     const p = products.get(pid);
@@ -1639,16 +1638,6 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                             : <span style={{ fontSize: 24, opacity: 0.3 }}>💄</span>
                           }
                         </div>
-                        {/* 제품명 (.ed-prod-name) */}
-                        <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginTop: 6, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%', textAlign: 'center' as const }}>
-                          {p?.name ?? '—'}
-                        </div>
-                        {/* 브랜드 (.ed-prod-brand) */}
-                        {p?.brand && (
-                          <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, textAlign: 'center' as const }}>
-                            {p.brand}
-                          </div>
-                        )}
                       </div>
                     );
                   })}
@@ -1673,6 +1662,11 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
 
               {/* 참고 링크 */}
               <SourceLink url={item.sourceUrl} />
+
+              {/* 카드 하단: List → LOG 라이브러리 (OOTD 동일 패턴) */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 16px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+                <Link href="/log?tab=라이브러리&filter=makeup" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
+              </div>
             </div>
           );
         })}
@@ -1825,7 +1819,7 @@ function OOTDRecordSheet({
             type="button"
             onClick={onSave}
             disabled={saving}
-            style={{ flex: 2, height: 52, background: '#0A0A0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
+            style={{ flex: 1, height: 52, background: '#0A0A0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
           >
             {saving ? '저장 중...' : '저장'}
           </button>

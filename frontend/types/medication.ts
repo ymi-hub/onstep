@@ -1,3 +1,6 @@
+import type { RepeatType } from './habit';
+export type { RepeatType };
+
 // 약 복용 루틴
 export type MedTime = 'morning' | 'lunch' | 'evening' | 'bedtime';
 
@@ -18,6 +21,12 @@ export type MedRoutine = {
   endDate?: string;    // 종료일 (처방 기간)
   note?: string;       // 주의사항
   active: boolean;     // 활성 여부
+  showInToday?: boolean; // TODAY 화면 노출 여부
+  repeatType?: RepeatType;
+  time?: string;
+  alarm?: boolean;
+  date?: string;
+  weekdays?: number[];
   createdAt: string;
   updatedAt: string;
 };

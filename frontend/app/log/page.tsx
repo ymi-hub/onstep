@@ -806,16 +806,14 @@ function LogLibraryCard({
   const recentDates = dates.slice(0, 5);
 
   return (
-    <div style={{ marginBottom: 12 }}>
-      {/* 카드 본체 */}
+    <div style={{ marginBottom: 12, border: '1px solid #000000', background: '#FFFFFF' }}>
+      {/* 카드 본체 — border는 outer wrapper에 위임 */}
       <div style={{
         boxSizing: 'border-box',
         display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
         padding: '20px 24px 0px',
         position: 'relative',
         width: '100%',
-        background: '#FFFFFF',
-        border: '1px solid #000000',
         isolation: 'isolate',
         flexShrink: 0,
       }}>
@@ -831,14 +829,18 @@ function LogLibraryCard({
           <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
         </div>
 
-        {/* 이미지 */}
-        <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
+        {/* 이미지 — overflow: visible for stamp */}
+        <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
           {item.imageUrl
-            ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
           }
           {isOnToday && (
-            <div style={{ position: 'absolute', bottom: 12, left: 12, background: '#0C0C0A', color: '#fff', fontFamily: f, fontSize: 12, fontWeight: 800, letterSpacing: '.12em', padding: '4px 12px', borderRadius: 9999, border: '1.5px solid #C5FF00', zIndex: 4 }}>TODAY</div>
+            <div style={{ position: 'absolute', bottom: -50, right: -14, transform: 'rotate(-9deg)', zIndex: 4, width: 88, height: 88, borderRadius: '50%', border: '3px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
+              <div style={{ position: 'absolute', inset: 5, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
+              <img src="/logo.png" alt="today" style={{ width: 34, height: 34, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
+              <div style={{ fontFamily: f, fontSize: 8, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
+            </div>
           )}
         </div>
 
@@ -867,9 +869,9 @@ function LogLibraryCard({
         {!item.sourceUrl?.trim() && <div style={{ height: 20 }} />}
       </div>
 
-      {/* 제품 영역 — 카드 밖 하단, 가로 스크롤 */}
+      {/* 제품 영역 — borderTop 구분선 */}
       {prodItems.length > 0 && (
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 0 4px', width: '100%', scrollbarWidth: 'none' as const }}>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', width: '100%', scrollbarWidth: 'none' as const, borderTop: '1px solid #000000', boxSizing: 'border-box' as const }}>
           {prodItems.map((it, idx) => {
             const p = products.get(it.id);
             const imgSrc = p?.imageUrl || p?.storageUrl;
@@ -886,7 +888,7 @@ function LogLibraryCard({
       )}
 
       {/* 통계 영역 */}
-      <div style={{ marginTop: 14, marginBottom: 4, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ padding: '14px 16px 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
         {/* 총 적용 횟수 + 마지막 적용일 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
@@ -916,7 +918,7 @@ function LogLibraryCard({
         )}
       </div>
       {onEdit && (
-        <button onClick={onEdit} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', marginTop: 8 }}>편집</button>
+        <button onClick={onEdit} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
       )}
     </div>
   );
@@ -1162,7 +1164,7 @@ function AddItemSheet({
           {/* 버튼 */}
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={onClose} style={{ flex: 1, height: 52, background: '#EEEDE9', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
-            <button onClick={handleSave} disabled={saving || !name.trim()} style={{ flex: 2, height: 52, background: name.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: name.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: name.trim() ? 'pointer' : 'default' }}>
+            <button onClick={handleSave} disabled={saving || !name.trim()} style={{ flex: 1, height: 52, background: name.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: name.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: name.trim() ? 'pointer' : 'default' }}>
               {saving ? '저장 중...' : '저장'}
             </button>
           </div>
@@ -1181,11 +1183,16 @@ function AddItemSheet({
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {filteredProds.map(p => {
                 const sel = selectedProds.has(p.id);
+                const imgSrc = p.imageUrl || p.storageUrl;
                 return (
                   <div key={p.id} onClick={() => setSelectedProds(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A' }}>{p.name}</div>
-                      {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>{p.brand}</div>}
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 16 }}>{ctType === 'makeup' ? '💄' : '👗'}</span>}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                      {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                     </div>
                     <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                   </div>
@@ -1396,9 +1403,15 @@ function LogCtPanel({
     /* ── featured(Card 1): 이미지 + 배지/제목 + 제품 스크롤 + CTA ── */
     if (featured) return (
       <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
-        <div style={{ width: '100%', height: 340, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, overflow: 'hidden', position: 'relative' }}>
-          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
-          {isOnToday && <div style={{ position: 'absolute', top: 8, right: 8, background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 9, fontWeight: 800, letterSpacing: '.1em', padding: '3px 7px', borderRadius: 9999 }}>TODAY</div>}
+        <div style={{ width: '100%', height: 340, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, overflow: 'visible', position: 'relative' }}>
+          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
+          {isOnToday && (
+            <div style={{ position: 'absolute', bottom: -46, right: -18, transform: 'rotate(-9deg)', zIndex: 4, width: 72, height: 72, borderRadius: '50%', border: '2.5px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
+              <div style={{ position: 'absolute', inset: 4, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
+              <img src="/logo.png" alt="today" style={{ width: 28, height: 28, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
+              <div style={{ fontFamily: f, fontSize: 7, fontWeight: 900, letterSpacing: '.28em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
+            </div>
+          )}
         </div>
         <div style={{ padding: '12px 12px 4px' }}>
           <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 6, textTransform: 'uppercase' as const }}>{BADGE}</div>
@@ -1434,13 +1447,19 @@ function LogCtPanel({
     return (
       <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
         {/* 이미지 — 이름 오버레이 포함 */}
-        <div style={{ width: '100%', height: 180, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, overflow: 'hidden', position: 'relative' }}>
-          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
+        <div style={{ width: '100%', height: 180, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, overflow: 'visible', position: 'relative' }}>
+          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
           {/* 하단 그라데이션 + 이름 오버레이 */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px 8px 8px', background: 'linear-gradient(to top, rgba(0,0,0,.6) 0%, transparent 100%)' }}>
             <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
-            {isOnToday && <div style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', letterSpacing: '.08em', marginTop: 2 }}>TODAY</div>}
           </div>
+          {isOnToday && (
+            <div style={{ position: 'absolute', bottom: -44, right: -22, transform: 'rotate(-9deg)', zIndex: 4, width: 60, height: 60, borderRadius: '50%', border: '2px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
+              <div style={{ position: 'absolute', inset: 4, borderRadius: '50%', border: '1px solid rgba(190,30,30,.25)', pointerEvents: 'none' }} />
+              <img src="/logo.png" alt="today" style={{ width: 22, height: 22, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
+              <div style={{ fontFamily: f, fontSize: 6, fontWeight: 900, letterSpacing: '.24em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -1, position: 'relative', zIndex: 1 }}>TODAY</div>
+            </div>
+          )}
         </div>
         {/* 소형 제품 썸네일 */}
         {prodItems.length > 0 && (
@@ -1636,8 +1655,8 @@ function LogCtPanel({
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={closeSheet} style={{ flex: 1, height: 52, background: '#EEEDE9', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
-                <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 2, height: 52, background: sName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: sName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default' }}>
-                  {saving ? '저장 중...' : editItem ? '수정 저장' : '저장'}
+                <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 1, height: 52, background: sName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: sName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default' }}>
+                  {saving ? '저장 중...' : editItem ? '수정' : '저장'}
                 </button>
               </div>
               {editItem && (
@@ -1660,11 +1679,16 @@ function LogCtPanel({
                 <div style={{ flex: 1, overflowY: 'auto' }}>
                   {filteredPicker.map(p => {
                     const sel = pickerSelected.has(p.id);
+                    const imgSrc = p.imageUrl || p.storageUrl;
                     return (
                       <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A' }}>{p.name}</div>
-                          {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>{p.brand}</div>}
+                        <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 16 }}>{filter === 'makeup' ? '💄' : '👗'}</span>}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                          {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                         </div>
                         <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                       </div>
@@ -2358,16 +2382,6 @@ function LogPageInner() {
               ))}
             </div>
 
-            {/* LogCtPanel — hiddenMode: 편집 시트만 사용 */}
-            <LogCtPanel key="makeup" filter="makeup" items={makeupItems} products={Array.from(products.values())} userId={userId}
-              onAdd={(data) => handleCtAdd('makeup', data)} onUpdate={(id, data) => handleCtUpdate('makeup', id, data)} onDelete={(id) => handleCtDelete('makeup', id)}
-              hideAddButton addTrigger={makeupAddTrigger} editTrigger={makeupEditTrigger} hiddenMode
-            />
-            <LogCtPanel key="lookbook" filter="lookbook" items={lookItems} products={Array.from(products.values())} userId={userId}
-              onAdd={(data) => handleCtAdd('lookbook', data)} onUpdate={(id, data) => handleCtUpdate('lookbook', id, data)} onDelete={(id) => handleCtDelete('lookbook', id)}
-              hideAddButton addTrigger={lookbookAddTrigger} editTrigger={lookbookEditTrigger} hiddenMode
-            />
-
             {/* 아이템 카드 목록 */}
             {(() => {
               const visibleItems = [
@@ -2397,18 +2411,24 @@ function LogPageInner() {
                       const isOnToday = item.published && (item.dates ?? []).includes(todayStr);
                       const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
                       return (
-                        <div key={item.id} id={`lib-item-${item.id}`}>
-                          <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 24px 0px', position: 'relative', width: '100%', background: '#FFFFFF', border: '1px solid #000000', isolation: 'isolate', flexShrink: 0 }}>
+                        <div key={item.id} id={`lib-item-${item.id}`} style={{ border: '1px solid #000000', background: '#FFFFFF' }}>
+                          {/* 이미지 + 텍스트 영역 */}
+                          <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 24px 0px', position: 'relative', width: '100%', isolation: 'isolate', flexShrink: 0 }}>
                             <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#C6F432', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
                               <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
                             </div>
-                            <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
+                            {/* overflow: visible — 스탬프가 이미지 아래로 삐져나오게 */}
+                            <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
                               {item.imageUrl
-                                ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                                 : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
                               }
                               {isOnToday && (
-                                <div style={{ position: 'absolute', bottom: 12, left: 12, background: '#0C0C0A', color: '#fff', fontFamily: f, fontSize: 16, fontWeight: 800, letterSpacing: '.12em', padding: '6px 14px', borderRadius: 9999, border: '1.5px solid #C5FF00', zIndex: 4 }}>TODAY</div>
+                                <div style={{ position: 'absolute', bottom: -50, right: -14, transform: 'rotate(-9deg)', zIndex: 4, width: 88, height: 88, borderRadius: '50%', border: '3px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
+                                  <div style={{ position: 'absolute', inset: 5, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
+                                  <img src="/logo.png" alt="today" style={{ width: 34, height: 34, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
+                                  <div style={{ fontFamily: f, fontSize: 8, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
+                                </div>
                               )}
                             </div>
                             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
@@ -2431,8 +2451,9 @@ function LogPageInner() {
                             })()}
                             {!item.sourceUrl?.trim() && <div style={{ height: 20 }} />}
                           </div>
+                          {/* 현황 — 제품 스크롤 (있을 때만, borderTop 구분선) */}
                           {prodItems.length > 0 && (
-                            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 0 4px', width: '100%', scrollbarWidth: 'none' as const }}>
+                            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', width: '100%', scrollbarWidth: 'none' as const, borderTop: '1px solid #000000', boxSizing: 'border-box' as const }}>
                               {prodItems.map((it, idx) => {
                                 const p = products.get(it.id);
                                 const imgSrc = p?.imageUrl || p?.storageUrl;
@@ -2447,11 +2468,12 @@ function LogPageInner() {
                               })}
                             </div>
                           )}
-                          <div style={{ display: 'flex', gap: 0, marginTop: 0, marginBottom: 0 }}>
-                            <button onClick={() => handleToggleToday(item)} disabled={!!togglingId} style={{ flex: 1, padding: '12px 0', background: isOnToday ? '#0C0C0A' : '#F3F3F1', color: isOnToday ? '#C5FF00' : '#0C0C0A', border: '1px solid #000000', borderRight: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: togglingId ? 'default' : 'pointer', opacity: togglingId === item.id ? 0.6 : 1, transition: 'all .15s' }}>
+                          {/* 버튼 영역 — borderTop 구분선 */}
+                          <div style={{ display: 'flex', borderTop: '1px solid #000000' }}>
+                            <button onClick={() => handleToggleToday(item)} disabled={!!togglingId} style={{ flex: 1, padding: '12px 0', background: isOnToday ? '#0C0C0A' : '#F3F3F1', color: isOnToday ? '#C5FF00' : '#0C0C0A', border: 'none', borderRight: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: togglingId ? 'default' : 'pointer', opacity: togglingId === item.id ? 0.6 : 1, transition: 'all .15s' }}>
                               {togglingId === item.id ? '...' : isOnToday ? 'Today ON' : 'Today OFF'}
                             </button>
-                            <button onClick={() => triggerCollectionEdit(item)} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
+                            <button onClick={() => triggerCollectionEdit(item)} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
                           </div>
                         </div>
                       );
@@ -2464,6 +2486,16 @@ function LogPageInner() {
         )}
 
       </div>
+
+      {/* LogCtPanel — 탭에 무관하게 항상 마운트 (hiddenMode: 편집 시트만 사용) */}
+      <LogCtPanel key="makeup" filter="makeup" items={makeupItems} products={Array.from(products.values())} userId={userId}
+        onAdd={(data) => handleCtAdd('makeup', data)} onUpdate={(id, data) => handleCtUpdate('makeup', id, data)} onDelete={(id) => handleCtDelete('makeup', id)}
+        hideAddButton addTrigger={makeupAddTrigger} editTrigger={makeupEditTrigger} hiddenMode
+      />
+      <LogCtPanel key="lookbook" filter="lookbook" items={lookItems} products={Array.from(products.values())} userId={userId}
+        onAdd={(data) => handleCtAdd('lookbook', data)} onUpdate={(id, data) => handleCtUpdate('lookbook', id, data)} onDelete={(id) => handleCtDelete('lookbook', id)}
+        hideAddButton addTrigger={lookbookAddTrigger} editTrigger={lookbookEditTrigger} hiddenMode
+      />
 
       {/* FAB — 라이브러리 탭에서만 노출 */}
       {mainTab === '라이브러리' && (

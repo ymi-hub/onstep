@@ -1854,7 +1854,7 @@ function DietPlanView({
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button onClick={cancelEditSlot} style={{ flex: 1, padding: '9px', background: '#F4F4F0', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-                    <button onClick={addSlot} style={{ flex: 2, padding: '9px', background: '#2A4A1A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer' }}>✎ 수정 저장</button>
+                    <button onClick={addSlot} style={{ flex: 1, padding: '9px', background: '#2A4A1A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer' }}>수정</button>
                   </div>
                 </div>
               ) : (
@@ -2181,114 +2181,359 @@ function DietPlanView({
   );
 }
 
+// ─── SHARED: 반복 유형 폼 필드 (종일/1회성/매일/일정등록) ─────────────────────
+const WD_NAMES_SHARED = ['일', '월', '화', '수', '목', '금', '토'];
+function RepeatFormFieldsShared({
+  f, rt, setRt, wd, toggleWDFn, date_, setDate_, time_, setTime_, alarm_, setAlarm_,
+}: {
+  f: string; rt: RepeatType; setRt: (r: RepeatType) => void;
+  wd: number[]; toggleWDFn: (d: number) => void;
+  date_: string; setDate_: (s: string) => void;
+  time_: string; setTime_: (s: string) => void;
+  alarm_: boolean; setAlarm_: (b: boolean) => void;
+}) {
+  const rtypes: { key: RepeatType; label: string }[] = [
+    { key: 'allday', label: '종일' }, { key: 'once', label: '1회성' },
+    { key: 'daily', label: '매일' }, { key: 'scheduled', label: '일정등록' },
+  ];
+  return (
+    <>
+      <div style={{ display: 'flex', gap: 6 }}>
+        {rtypes.map(r => (
+          <button key={r.key} onClick={() => setRt(r.key)} style={{ flex: 1, padding: '9px 4px', border: `1.5px solid ${rt === r.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: rt === r.key ? '#fff' : '#4A4846', background: rt === r.key ? '#0C0C0A' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>{r.label}</button>
+        ))}
+      </div>
+      {rt === 'once' && (
+        <input type="date" value={date_} onChange={e => setDate_(e.target.value)} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' as const, marginTop: 8 }} />
+      )}
+      {rt === 'scheduled' && (
+        <div style={{ display: 'flex', gap: 5, justifyContent: 'space-between', marginTop: 8 }}>
+          {WD_NAMES_SHARED.map((nm, d) => (
+            <button key={d} onClick={() => toggleWDFn(d)} style={{ flex: 1, height: 38, borderRadius: 9999, border: `1.5px solid ${wd.includes(d) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, fontFamily: f, fontSize: 12, fontWeight: 700, color: wd.includes(d) ? '#fff' : '#4A4846', background: wd.includes(d) ? '#0C0C0A' : '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s', padding: 0 }}>{nm}</button>
+          ))}
+        </div>
+      )}
+      {rt !== 'allday' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+          <input type="time" value={time_} onChange={e => setTime_(e.target.value)} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' as const }} />
+          <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: f, fontSize: 12, fontWeight: 500, color: '#4A4846', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
+            <input type="checkbox" checked={alarm_} onChange={e => setAlarm_(e.target.checked)} style={{ width: 15, height: 15, accentColor: '#0C0C0A' }} />
+            알람
+          </label>
+        </div>
+      )}
+    </>
+  );
+}
+
 // ─── MED VIEW — 약 루틴 관리 ─────────────────────────────────────────────────
 function MedView({
-  items, onBack, onAdd, onUpdate, onDelete,
+  items, onBack, onAdd, onUpdate, onDelete, onToggleToday,
 }: {
   items: MedRoutine[];
   onBack: () => void;
   onAdd: (m: Omit<MedRoutine, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onUpdate: (id: string, m: Partial<Omit<MedRoutine, 'id'>>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onToggleToday: (id: string, current: boolean) => void;
 }) {
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
   const ALL_TIMES: MedTime[] = ['morning', 'lunch', 'evening', 'bedtime'];
-  const [editId, setEditId] = useState<string | null>(null);
-  const [name, setName] = useState('');
-  const [icon, setIcon] = useState('💊');
-  const [dosage, setDosage] = useState('1정');
-  const [times, setTimes] = useState<MedTime[]>(['morning']);
-  const [note, setNote] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [showForm, setShowForm] = useState(false);
 
-  function openNew() {
-    setEditId(null); setName(''); setIcon('💊'); setDosage('1정');
-    setTimes(['morning']); setNote(''); setShowForm(true);
+  // 인라인 추가 폼 상태
+  const [newIcon, setNewIcon] = useState('💊');
+  const [newName, setNewName] = useState('');
+  const [newDosage, setNewDosage] = useState('1정');
+  const [newTimes, setNewTimes] = useState<MedTime[]>(['morning']);
+  const [newRepeat, setNewRepeat] = useState<RepeatType>('daily');
+  const [newTime, setNewTime] = useState('08:00');
+  const [newAlarm, setNewAlarm] = useState(false);
+  const [newDate, setNewDate] = useState('');
+  const [newWeekdays, setNewWeekdays] = useState<number[]>([]);
+  const [adding, setAdding] = useState(false);
+
+  // 검색
+  const [medSearch, setMedSearch] = useState('');
+  const filteredMeds = medSearch.trim()
+    ? items.filter(m => m.name.toLowerCase().includes(medSearch.toLowerCase()))
+    : items;
+
+  // 편집 시트 상태
+  const [editItem, setEditItem] = useState<MedRoutine | null>(null);
+  const [eName, setEName] = useState('');
+  const [eIcon, setEIcon] = useState('💊');
+  const [eDosage, setEDosage] = useState('1정');
+  const [eTimes, setETimes] = useState<MedTime[]>(['morning']);
+  const [eNote, setENote] = useState('');
+  const [eRepeat, setERepeat] = useState<RepeatType>('daily');
+  const [eTime, setETime] = useState('08:00');
+  const [eAlarm, setEAlarm] = useState(false);
+  const [eDate, setEDate] = useState('');
+  const [eWeekdays, setEWeekdays] = useState<number[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  function toggleNewTime(t: MedTime) {
+    setNewTimes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
   }
+  function toggleETime(t: MedTime) {
+    setETimes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+  }
+  function toggleNewWD(d: number) { setNewWeekdays(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d]); }
+  function toggleEWD(d: number) { setEWeekdays(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d]); }
+
+  function repeatLabel(m: MedRoutine): string {
+    const rt = m.repeatType ?? 'daily';
+    if (rt === 'allday') return '종일';
+    if (rt === 'daily') return '매일';
+    if (rt === 'once') return m.date ? `${m.date.slice(5,7)}/${m.date.slice(8,10)}` : '1회성';
+    if (rt === 'scheduled') return (m.weekdays ?? []).map(d => WD_NAMES_SHARED[d]).join('·') || '요일선택';
+    return '';
+  }
+
+  async function handleAdd() {
+    if (!newName.trim()) return;
+    if (!newTimes.length) { alert('복용 시간을 하나 이상 선택해주세요.'); return; }
+    setAdding(true);
+    try {
+      await onAdd({
+        icon: newIcon || '💊', name: newName.trim(), dosage: newDosage, times: newTimes, active: true,
+        repeatType: newRepeat,
+        time: newRepeat !== 'allday' ? newTime : '',
+        alarm: newRepeat !== 'allday' ? newAlarm : false,
+        ...(newRepeat === 'once' ? { date: newDate } : {}),
+        ...(newRepeat === 'scheduled' ? { weekdays: newWeekdays } : {}),
+      });
+      setNewName(''); setNewIcon('💊'); setNewDosage('1정'); setNewTimes(['morning']);
+      setNewRepeat('daily'); setNewTime('08:00'); setNewAlarm(false); setNewDate(''); setNewWeekdays([]);
+    } catch (err) { console.error(err); alert('저장 실패'); }
+    finally { setAdding(false); }
+  }
+
   function openEdit(item: MedRoutine) {
-    setEditId(item.id); setName(item.name); setIcon(item.icon || '💊');
-    setDosage(item.dosage); setTimes(item.times); setNote(item.note || '');
-    setShowForm(true);
+    setEditItem(item); setEName(item.name); setEIcon(item.icon || '💊');
+    setEDosage(item.dosage); setETimes(item.times); setENote(item.note || '');
+    setERepeat(item.repeatType ?? 'daily'); setETime(item.time ?? '08:00');
+    setEAlarm(item.alarm ?? false); setEDate(item.date ?? ''); setEWeekdays(item.weekdays ?? []);
   }
-  function toggleTime(t: MedTime) {
-    setTimes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
-  }
-  async function handleSave() {
-    if (!name.trim()) { alert('약 이름을 입력해주세요.'); return; }
-    if (!times.length) { alert('복용 시간을 하나 이상 선택해주세요.'); return; }
+
+  async function handleSaveEdit() {
+    if (!editItem || !eName.trim()) return;
+    if (!eTimes.length) { alert('복용 시간을 하나 이상 선택해주세요.'); return; }
     setSaving(true);
     try {
-      const data = { icon, name: name.trim(), dosage, times, note, active: true };
-      if (editId) await onUpdate(editId, data);
-      else await onAdd(data);
-      setShowForm(false);
+      await onUpdate(editItem.id, {
+        icon: eIcon || '💊', name: eName.trim(), dosage: eDosage, times: eTimes, note: eNote,
+        repeatType: eRepeat,
+        time: eRepeat !== 'allday' ? eTime : '',
+        alarm: eRepeat !== 'allday' ? eAlarm : false,
+        ...(eRepeat === 'once' ? { date: eDate } : {}),
+        ...(eRepeat === 'scheduled' ? { weekdays: eWeekdays } : {}),
+        updatedAt: new Date().toISOString(),
+      });
+      setEditItem(null);
     } catch (err) { console.error(err); alert('저장 실패'); }
     finally { setSaving(false); }
   }
-  async function handleDelete(id: string) {
-    if (!confirm('삭제할까요?')) return;
-    await onDelete(id);
-    setShowForm(false);
+
+  async function handleDelete() {
+    if (!editItem) return;
+    if (!confirm('이 약을 삭제하시겠어요?')) return;
+    await onDelete(editItem.id);
+    setEditItem(null);
+  }
+
+  function MedRow({ m, onEdit }: { m: MedRoutine; onEdit: () => void }) {
+    const isToday = !!m.showInToday;
+    const rl = repeatLabel(m);
+    const timeStr = (m.repeatType ?? 'daily') !== 'allday' && m.time ? ` · ${m.time}` : '';
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: '#fff', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, lineHeight: 1 }}>
+          {m.icon || '💊'}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+            {m.name}
+          </div>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em', marginTop: 2 }}>
+            {m.dosage} · {m.times.map(t => MED_TIME_LABELS[t]).join('·')}
+            {rl && <span style={{ marginLeft: 4, color: '#BCBAB6' }}>· {rl}{timeStr}</span>}
+          </div>
+        </div>
+        <button
+          onClick={() => onToggleToday(m.id, isToday)}
+          style={{
+            height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
+            background: isToday ? '#0C0C0A' : '#F4F4F0',
+            color: isToday ? '#C5FF00' : '#9A9490',
+            fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
+            textTransform: 'uppercase' as const, transition: 'all .18s', flexShrink: 0,
+          }}
+        >
+          {isToday ? 'Today ON' : 'Today OFF'}
+        </button>
+        <button
+          onClick={onEdit}
+          style={{ width: 28, height: 28, background: 'none', border: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}
+          aria-label="편집"
+        >
+          ✎
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto', overflowY: 'auto' }}>
-      <SubPageHeader title="💊 약 루틴" onClose={onBack} />
-      <div style={{ flex: 1, padding: '16px', overflowY: 'auto' }}>
-        {/* 목록 */}
-        {items.map(item => (
-          <div key={item.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, padding: '14px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 24, flexShrink: 0 }}>{item.icon || '💊'}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{item.name}</div>
-              <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
-                {item.dosage} · {item.times.map(t => MED_TIME_LABELS[t]).join(' · ')}
-              </div>
-            </div>
-            <button onClick={() => openEdit(item)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
-          </div>
-        ))}
-        {items.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>💊</div>
-            복용 중인 약을 등록해보세요
-          </div>
-        )}
-        <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginTop: 8 }}>
-          + 새 약 추가
-        </button>
-      </div>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+      <SubPageHeader title="MEDICATION" onClose={onBack} />
 
-      {/* 등록/편집 시트 */}
-      {showForm && (
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,.4)', backdropFilter: 'blur(3px)', zIndex: 10 }} onClick={() => setShowForm(false)}>
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', padding: '20px 20px 36px' }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, marginBottom: 16 }}>{editId ? '약 수정' : '새 약 추가'}</div>
-            {/* 이름 */}
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="약 이름 (예: 오메가3, 비타민D)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 10, outline: 'none' }} />
-            {/* 용량 */}
-            <input value={dosage} onChange={e => setDosage(e.target.value)} placeholder="용량 (예: 1정, 2캡슐)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 12, outline: 'none' }} />
-            {/* 복용 시간 */}
-            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>복용 시간 (복수 선택)</div>
-            <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 12 }}>
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        {/* Hero */}
+        <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
+          <div style={{ position: 'absolute', top: 18, right: 18, fontSize: 36, opacity: .06, transform: 'rotate(10deg)', lineHeight: 1 }}>💊</div>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.18em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 10 }}>DAILY DOSE</div>
+          <div style={{ fontFamily: f, fontSize: 48, fontWeight: 900, color: '#0C0C0A', lineHeight: .95, letterSpacing: '-.02em', textTransform: 'uppercase' as const }}>MEDS</div>
+          <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 12, lineHeight: 1.5 }}>약 복용 관리 · 복용 시간 · 데일리 체크</div>
+        </div>
+
+        {/* Add Form */}
+        <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>NEW MEDICATION</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input value={newIcon} onChange={e => setNewIcon(e.target.value.slice(0, 4))} placeholder="💊" style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+              <input value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }} placeholder="약 이름 (예: 오메가3, 비타민D)" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+            </div>
+            <input value={newDosage} onChange={e => setNewDosage(e.target.value)} placeholder="용량 (예: 1정, 2캡슐)" style={{ padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
               {ALL_TIMES.map(t => (
-                <button key={t} onClick={() => toggleTime(t)} style={{ padding: '6px 14px', borderRadius: 9999, border: `1.5px solid ${times.includes(t) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: times.includes(t) ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: times.includes(t) ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                <button key={t} onClick={() => toggleNewTime(t)} style={{ padding: '7px 14px', borderRadius: 9999, border: `1.5px solid ${newTimes.includes(t) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: newTimes.includes(t) ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: newTimes.includes(t) ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
                   {MED_TIME_LABELS[t]}
                 </button>
               ))}
             </div>
-            {/* 메모 */}
-            <input value={note} onChange={e => setNote(e.target.value)} placeholder="주의사항 (선택)" style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 14, outline: 'none' }} />
-            {/* 버튼 */}
-            <div style={{ display: 'flex', gap: 8 }}>
-              {editId && <button onClick={() => handleDelete(editId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
-              <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
-                {saving ? '저장 중…' : '저장'}
-              </button>
-            </div>
+            <RepeatFormFieldsShared
+              f={f} rt={newRepeat} setRt={setNewRepeat}
+              wd={newWeekdays} toggleWDFn={toggleNewWD}
+              date_={newDate} setDate_={setNewDate}
+              time_={newTime} setTime_={setNewTime}
+              alarm_={newAlarm} setAlarm_={setNewAlarm}
+            />
+            <button onClick={handleAdd} disabled={adding || !newName.trim()} style={{ padding: '12px 20px', background: newName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: newName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: newName.trim() ? 'pointer' : 'default', transition: 'all .18s' }}>
+              + ADD
+            </button>
           </div>
         </div>
+
+        {/* 약 복용 목록 */}
+        <div style={{ padding: '20px 16px 0' }}>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>약 복용 목록</div>
+          <SearchBar value={medSearch} onChange={setMedSearch} placeholder="약 이름 검색..." />
+          {items.length === 0 ? (
+            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
+              아직 등록된 약이 없습니다.<br />위에서 새 약을 추가해주세요.
+            </div>
+          ) : filteredMeds.length === 0 ? (
+            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
+              &ldquo;{medSearch}&rdquo; 검색 결과 없음
+            </div>
+          ) : (
+            <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
+              {filteredMeds.map(m => <MedRow key={m.id} m={m} onEdit={() => openEdit(m)} />)}
+            </div>
+          )}
+        </div>
+
+        {/* DAILY MEDS — showInToday=true 약 미리보기 */}
+        {items.some(m => m.showInToday) && (
+          <div style={{ padding: '24px 16px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
+                DAILY MEDS
+              </span>
+              <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>
+                TODAY
+              </span>
+              <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>
+                {items.filter(m => m.showInToday).length}개
+              </span>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+              {items.filter(m => m.showInToday).map((m, idx) => (
+                <div
+                  key={m.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '12px 14px',
+                    borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none',
+                    background: '#FAFAF8',
+                  }}
+                >
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, lineHeight: 1 }}>
+                    {m.icon || '💊'}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                      {m.name}
+                    </div>
+                    <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>
+                      {m.dosage} · {m.times.map(t => MED_TIME_LABELS[t]).join(' · ')}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onToggleToday(m.id, true)}
+                    style={{
+                      height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
+                      background: '#0C0C0A', color: '#C5FF00',
+                      fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
+                      textTransform: 'uppercase' as const, flexShrink: 0,
+                    }}
+                  >
+                    Today ON
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div style={{ height: 40 }} />
+      </div>
+
+      {/* 편집 시트 */}
+      {editItem && (
+        <>
+          <div onClick={() => setEditItem(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 310 }} />
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 48px)', maxHeight: '88%', overflowY: 'auto' }}>
+            <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
+            <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>약 편집</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input value={eIcon} onChange={e => setEIcon(e.target.value.slice(0, 4))} placeholder="💊" style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+                <input value={eName} onChange={e => setEName(e.target.value)} placeholder="약 이름" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+              </div>
+              <input value={eDosage} onChange={e => setEDosage(e.target.value)} placeholder="용량 (예: 1정, 2캡슐)" style={{ padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em' }}>복용 시간 (복수 선택)</div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                {ALL_TIMES.map(t => (
+                  <button key={t} onClick={() => toggleETime(t)} style={{ padding: '7px 14px', borderRadius: 9999, border: `1.5px solid ${eTimes.includes(t) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: eTimes.includes(t) ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: eTimes.includes(t) ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
+                    {MED_TIME_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+              <RepeatFormFieldsShared
+                f={f} rt={eRepeat} setRt={setERepeat}
+                wd={eWeekdays} toggleWDFn={toggleEWD}
+                date_={eDate} setDate_={setEDate}
+                time_={eTime} setTime_={setETime}
+                alarm_={eAlarm} setAlarm_={setEAlarm}
+              />
+              <input value={eNote} onChange={e => setENote(e.target.value)} placeholder="주의사항 (선택)" style={{ padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+            </div>
+            <button onClick={handleSaveEdit} disabled={saving} style={{ marginTop: 20, width: '100%', padding: 14, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em', opacity: saving ? .6 : 1 }}>{saving ? '저장 중…' : '저장'}</button>
+            <button onClick={handleDelete} style={{ marginTop: 10, width: '100%', padding: 14, background: 'none', color: '#BA1A1A', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>삭제</button>
+          </div>
+        </>
       )}
     </div>
   );
@@ -2314,8 +2559,30 @@ function HealthView({
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
   const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
-  // 상단 탭
+  // 인라인 빠른 추가 상태
+  const [qIcon, setQIcon] = useState('🏃');
+  const [qName, setQName] = useState('');
+  const [qCatId, setQCatId] = useState('');
+  const [qAdding, setQAdding] = useState(false);
+  const [qRepeat, setQRepeat] = useState<RepeatType>('daily');
+  const [qTime, setQTime] = useState('07:00');
+  const [qAlarm, setQAlarm] = useState(false);
+  const [qDate, setQDate] = useState('');
+  const [qWeekdays, setQWeekdays] = useState<number[]>([]);
+  function toggleQWD(d: number) { setQWeekdays(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d]); }
+
+  // 검색
+  const [healthSearch, setHealthSearch] = useState('');
+  const filteredHealth = healthSearch.trim()
+    ? items.filter(i => i.name.toLowerCase().includes(healthSearch.toLowerCase()))
+    : items;
+
+  // 카테고리 섹션 펼치기
+  const [showCatSection, setShowCatSection] = useState(false);
+
+  // 상단 탭 (unused after restructure but kept for compat)
   const [mainTab, setMainTab] = useState<'routines' | 'categories'>('routines');
+  void mainTab; void setMainTab;
 
   // 카테고리 편집 상태
   const [catEditId, setCatEditId] = useState<string | null>(null);
@@ -2364,6 +2631,11 @@ function HealthView({
   const [goal, setGoal] = useState('');
   const [repeatDays, setRepeatDays] = useState<number[]>([]);
   const [entries, setEntries] = useState<import('@/types/healthroutine').HealthEntry[]>([]);
+  const [hRepeat, setHRepeat] = useState<RepeatType>('daily');
+  const [hTime, setHTime] = useState('07:00');
+  const [hAlarm, setHAlarm] = useState(false);
+  const [hDate, setHDate] = useState('');
+  const [hWeekdays, setHWeekdays] = useState<number[]>([]);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
@@ -2393,16 +2665,32 @@ function HealthView({
     list: items.filter(i => i.type === cat.id),
   })).filter(g => g.list.length > 0);
 
+  function toggleHWD(d: number) { setHWeekdays(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d]); }
+
+  function healthRepeatLabel(item: HealthRoutine): string {
+    const rt = item.repeatType ?? 'daily';
+    if (rt === 'allday') return '종일';
+    if (rt === 'daily') return '매일';
+    if (rt === 'once') return item.date ? `${item.date.slice(5,7)}/${item.date.slice(8,10)}` : '1회성';
+    if (rt === 'scheduled') return (item.weekdays ?? []).map(d => WD_NAMES_SHARED[d]).join('·') || '요일선택';
+    return '';
+  }
+
   function openNew() {
     const firstCat = categories[0];
     setEditId(null); setRoutineIcon(firstCat?.icon || '⭐'); setName('');
     setCatId(firstCat?.id || ''); setSchedule('');
-    setGoal(''); setRepeatDays([]); setEntries([]); setShowForm(true);
+    setGoal(''); setRepeatDays([]); setEntries([]);
+    setHRepeat('daily'); setHTime('07:00'); setHAlarm(false); setHDate(''); setHWeekdays([]);
+    setShowForm(true);
   }
   function openEdit(item: HealthRoutine) {
     setEditId(item.id); setRoutineIcon(item.icon); setName(item.name);
     setCatId(item.type); setSchedule(item.schedule); setGoal(item.goal || '');
-    setRepeatDays(item.repeatDays ?? []); setEntries(item.entries ?? []); setShowForm(true);
+    setRepeatDays(item.repeatDays ?? []); setEntries(item.entries ?? []);
+    setHRepeat(item.repeatType ?? 'daily'); setHTime(item.time ?? '07:00');
+    setHAlarm(item.alarm ?? false); setHDate(item.date ?? ''); setHWeekdays(item.weekdays ?? []);
+    setShowForm(true);
   }
   function toggleDay(d: number) {
     setRepeatDays(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d].sort());
@@ -2433,7 +2721,14 @@ function HealthView({
     setSaving(true);
     try {
       // type 필드에 카테고리 id 저장 (기존 HealthType 호환 유지)
-      const data = { icon: routineIcon, name: name.trim(), type: catId as HealthType, schedule, goal, repeatDays, entries, active: true };
+      const data = {
+        icon: routineIcon, name: name.trim(), type: catId as HealthType, schedule, goal, repeatDays, entries, active: true,
+        repeatType: hRepeat,
+        time: hRepeat !== 'allday' ? hTime : '',
+        alarm: hRepeat !== 'allday' ? hAlarm : false,
+        ...(hRepeat === 'once' ? { date: hDate } : {}),
+        ...(hRepeat === 'scheduled' ? { weekdays: hWeekdays } : {}),
+      };
       if (editId) await onUpdate(editId, data);
       else await onAdd(data);
       setShowForm(false);
@@ -2446,235 +2741,333 @@ function HealthView({
     setShowForm(false);
   }
 
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
-      <SubPageHeader title="🥗 건강 루틴" onClose={onBack} />
+  async function handleQuickAdd() {
+    if (!qName.trim()) return;
+    const cid = qCatId || categories[0]?.id || '';
+    const cat = categories.find(c => c.id === cid);
+    setQAdding(true);
+    try {
+      await onAdd({
+        icon: qIcon || cat?.icon || '🏃', name: qName.trim(), type: cid as HealthType,
+        schedule: '', goal: '', repeatDays: [], entries: [], active: true,
+        repeatType: qRepeat,
+        time: qRepeat !== 'allday' ? qTime : '',
+        alarm: qRepeat !== 'allday' ? qAlarm : false,
+        ...(qRepeat === 'once' ? { date: qDate } : {}),
+        ...(qRepeat === 'scheduled' ? { weekdays: qWeekdays } : {}),
+      });
+      setQName(''); setQIcon('🏃');
+      setQRepeat('daily'); setQTime('07:00'); setQAlarm(false); setQDate(''); setQWeekdays([]);
+    } catch (err) { console.error(err); alert('저장 실패'); }
+    finally { setQAdding(false); }
+  }
 
-      {/* 상단 탭 — 루틴 | 카테고리 */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(12,12,10,.07)', background: '#FAFAF8' }}>
-        {(['routines', 'categories'] as const).map(t => (
-          <button key={t} onClick={() => setMainTab(t)} style={{ flex: 1, padding: '11px 0', border: 'none', background: 'none', fontFamily: f, fontSize: 12, fontWeight: 800, color: mainTab === t ? '#0C0C0A' : '#9A9490', borderBottom: mainTab === t ? '2.5px solid #C5FF00' : '2.5px solid transparent', cursor: 'pointer', letterSpacing: '.04em' }}>
-            {t === 'routines' ? '루틴 목록' : '카테고리 관리'}
+  function HealthRow({ item, isLast }: { item: HealthRoutine; isLast: boolean }) {
+    return (
+      <div style={{ borderBottom: isLast ? 'none' : '1px solid rgba(12,12,10,.07)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, lineHeight: 1 }}>
+            {item.icon}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+              {item.name}
+            </div>
+            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em', marginTop: 2 }}>
+              {healthRepeatLabel(item)}
+              {(item.repeatType ?? 'daily') !== 'allday' && item.time ? ` · ${item.time}` : ''}
+              {item.goal ? ` · 목표: ${item.goal}` : ''}
+            </div>
+          </div>
+          <button
+            onClick={() => onToggleToday(item.id, !!item.showInToday)}
+            style={{
+              height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
+              background: item.showInToday ? '#0C0C0A' : '#F4F4F0',
+              color: item.showInToday ? '#C5FF00' : '#9A9490',
+              fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
+              textTransform: 'uppercase' as const, transition: 'all .18s', flexShrink: 0,
+            }}
+          >
+            {item.showInToday ? 'Today ON' : 'Today OFF'}
           </button>
-        ))}
-      </div>
-
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 80px' }}>
-
-        {/* ── 루틴 목록 탭 ── */}
-        {mainTab === 'routines' && (
-          <>
-            {grouped.length === 0 && items.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>
-                <div style={{ fontSize: 32, marginBottom: 8 }}>🥗</div>
-                루틴을 등록해보세요
+          <button
+            onClick={() => openEdit(item)}
+            style={{ width: 28, height: 28, background: 'none', border: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}
+            aria-label="편집"
+          >
+            ✎
+          </button>
+        </div>
+        {(item.entries ?? []).length > 0 && (
+          <div style={{ borderTop: '1px solid rgba(12,12,10,.06)' }}>
+            {[...(item.entries ?? [])].sort((a, b) => a.time.localeCompare(b.time)).map((e: import('@/types/healthroutine').HealthEntry) => (
+              <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
+                <span style={{ fontFamily: f, fontSize: 12, color: '#4A4846', flex: 1 }}>{e.desc}</span>
               </div>
-            )}
-            {/* 카테고리별 그룹 */}
-            {grouped.map(({ cat, list }) => (
-              <div key={cat.id} style={{ marginBottom: 20 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: '#9A9490', marginBottom: 8 }}>
-                  {cat.icon} {cat.name.toUpperCase()}
-                </div>
-                {list.map(item => (
-                  <div key={item.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, marginBottom: 8, overflow: 'hidden' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
-                      <span style={{ fontSize: 20 }}>{item.icon}</span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>{item.name}</div>
-                        {item.schedule && <div style={{ fontFamily: f, fontSize: 10, color: '#9A9490', marginTop: 1 }}>{item.schedule}{item.goal ? ` · 목표: ${item.goal}` : ''}</div>}
-                        {item.repeatDays?.length ? <div style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>{item.repeatDays.map((d: number) => DAYS[d]).join('·')}</div> : null}
-                      </div>
-                      {/* TODAY 토글 — Habits와 동일 */}
-                    <button onClick={() => onToggleToday(item.id, !!item.showInToday)}
-                      style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: item.showInToday ? '#0C0C0A' : '#F4F4F0', color: item.showInToday ? '#C5FF00' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', transition: 'all .18s', flexShrink: 0 }}>
-                      {item.showInToday ? 'Today ON' : 'Today OFF'}
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+      <SubPageHeader title="HEALTH" onClose={onBack} />
+
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        {/* Hero */}
+        <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
+          <div style={{ position: 'absolute', top: 18, right: 18, fontSize: 36, opacity: .06, transform: 'rotate(10deg)', lineHeight: 1 }}>🥗</div>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.18em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 10 }}>DAILY WELLNESS</div>
+          <div style={{ fontFamily: f, fontSize: 48, fontWeight: 900, color: '#0C0C0A', lineHeight: .95, letterSpacing: '-.02em', textTransform: 'uppercase' as const }}>HEALTH</div>
+          <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 12, lineHeight: 1.5 }}>건강 루틴 관리 · 운동 · 식단 · 데일리 체크</div>
+        </div>
+
+        {/* 빠른 추가 폼 */}
+        <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>NEW ROUTINE</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input value={qIcon} onChange={e => setQIcon(e.target.value.slice(0, 4))} placeholder="🏃" style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+              <input value={qName} onChange={e => setQName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleQuickAdd(); }} placeholder="루틴 이름 (예: 아침 스트레칭)" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+            </div>
+            {categories.length > 0 && (
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                {categories.map(cat => {
+                  const activeCat = qCatId || categories[0]?.id;
+                  return (
+                    <button key={cat.id} onClick={() => setQCatId(cat.id)} style={{ padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${activeCat === cat.id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: activeCat === cat.id ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: activeCat === cat.id ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
+                      {cat.icon} {cat.name}
                     </button>
-                    <button onClick={() => openEdit(item)} style={{ padding: '4px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
-                    </div>
-                    {(item.entries ?? []).length > 0 && (
-                      <div style={{ borderTop: '1px solid rgba(12,12,10,.06)' }}>
-                        {[...(item.entries ?? [])].sort((a, b) => a.time.localeCompare(b.time)).map((e: import('@/types/healthroutine').HealthEntry) => (
-                          <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
-                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
-                            <span style={{ fontFamily: f, fontSize: 12, color: '#4A4846', flex: 1 }}>{e.desc}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                  );
+                })}
+              </div>
+            )}
+            <RepeatFormFieldsShared
+              f={f} rt={qRepeat} setRt={setQRepeat}
+              wd={qWeekdays} toggleWDFn={toggleQWD}
+              date_={qDate} setDate_={setQDate}
+              time_={qTime} setTime_={setQTime}
+              alarm_={qAlarm} setAlarm_={setQAlarm}
+            />
+            <button onClick={handleQuickAdd} disabled={qAdding || !qName.trim()} style={{ padding: '12px 20px', background: qName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: qName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: qName.trim() ? 'pointer' : 'default', transition: 'all .18s' }}>
+              + ADD
+            </button>
+          </div>
+        </div>
+
+        {/* 루틴 목록 */}
+        <div style={{ padding: '20px 16px 0' }}>
+          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>루틴 목록</div>
+          <SearchBar value={healthSearch} onChange={setHealthSearch} placeholder="루틴 이름 검색..." />
+          {items.length === 0 ? (
+            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
+              아직 등록된 루틴이 없습니다.<br />위에서 새 루틴을 추가해주세요.
+            </div>
+          ) : healthSearch.trim() ? (
+            filteredHealth.length === 0 ? (
+              <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
+                &ldquo;{healthSearch}&rdquo; 검색 결과 없음
+              </div>
+            ) : (
+              <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
+                {filteredHealth.map((item, idx) => <HealthRow key={item.id} item={item} isLast={idx === filteredHealth.length - 1} />)}
+              </div>
+            )
+          ) : (
+            <>
+              {grouped.map(({ cat, list }) => (
+                <div key={cat.id} style={{ marginBottom: 16, marginTop: 8 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.1em', color: '#9A9490', marginBottom: 8 }}>
+                    {cat.icon} {cat.name.toUpperCase()}
                   </div>
-                ))}
-              </div>
-            ))}
-            <button onClick={openNew} disabled={categories.length === 0} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: categories.length ? '#9A9490' : '#BCBAB6', cursor: categories.length ? 'pointer' : 'not-allowed', marginTop: 8 }}>
-              {categories.length === 0 ? '먼저 카테고리를 추가해주세요' : '+ 새 루틴 추가'}
-            </button>
-
-            {/* HEALTH — TODAY 목록 (Habits 하단 목록과 동일) */}
-            {items.some(i => i.showInToday) && (
-              <div style={{ padding: '24px 0 0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>HEALTH</span>
-                  <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>TODAY</span>
-                  <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>{items.filter(i => i.showInToday).length}개</span>
-                </div>
-                <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                  {items.filter(i => i.showInToday).map((item, idx) => (
-                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', background: '#FAFAF8' }}>
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
-                        {item.icon}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
-                        {item.entries?.length ? (
-                          <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>{item.entries.length}개 일정</div>
-                        ) : null}
-                      </div>
-                      <button onClick={() => onToggleToday(item.id, true)}
-                        style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 9, fontWeight: 800, letterSpacing: '.08em' }}>
-                        Today ON
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* ── 카테고리 관리 탭 ── */}
-        {mainTab === 'categories' && (
-          <>
-            {categories.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '32px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>카테고리를 추가해주세요</div>
-            )}
-            {categories.map(cat => (
-              <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 14, marginBottom: 8 }}>
-                <span style={{ fontSize: 22, flexShrink: 0 }}>{cat.icon}</span>
-                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{cat.name}</div>
-                <span style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginRight: 4 }}>{items.filter(i => i.type === cat.id).length}개</span>
-                <button onClick={() => openEditCat(cat)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
-              </div>
-            ))}
-            <button onClick={openNewCat} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginTop: 8 }}>
-              + 카테고리 추가
-            </button>
-          </>
-        )}
-      </div>
-
-      {/* 루틴 등록/편집 바텀시트 */}
-      {showForm && (
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,.45)', backdropFilter: 'blur(3px)', zIndex: 10 }} onClick={() => setShowForm(false)}>
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', maxHeight: '92vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
-            <div style={{ padding: '20px 20px 0' }}>
-              <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, marginBottom: 14 }}>{editId ? '루틴 수정' : '새 루틴 추가'}</div>
-
-              {/* 카테고리 선택 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>카테고리</div>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
-                {categories.map(cat => (
-                  <button key={cat.id} onClick={() => { setCatId(cat.id); setRoutineIcon(cat.icon); }}
-                    style={{ padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${catId === cat.id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: catId === cat.id ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: catId === cat.id ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
-                    {cat.icon} {cat.name}
-                  </button>
-                ))}
-              </div>
-
-              {/* 이모지 + 이름 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>루틴 이름</div>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                <input value={routineIcon} onChange={e => setRoutineIcon(e.target.value.slice(0, 4))}
-                  style={{ width: 44, padding: '10px 0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 20, textAlign: 'center', outline: 'none', flexShrink: 0 }} />
-                <input value={name} onChange={e => setName(e.target.value)} placeholder="루틴 이름"
-                  style={{ flex: 1, padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, outline: 'none' }} />
-              </div>
-              <input value={schedule} onChange={e => setSchedule(e.target.value)} placeholder="스케줄 설명 (예: 매일 저녁 7시)"
-                style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 8, outline: 'none', boxSizing: 'border-box' as const }} />
-              <input value={goal} onChange={e => setGoal(e.target.value)} placeholder="목표 (선택)"
-                style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 12, outline: 'none', boxSizing: 'border-box' as const }} />
-
-              {/* 반복 요일 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>반복 요일 (비워두면 매일)</div>
-              <div style={{ display: 'flex', gap: 5, marginBottom: 16 }}>
-                {DAYS.map((d, i) => (
-                  <button key={i} onClick={() => toggleDay(i)} style={{ width: 32, height: 32, borderRadius: 9999, border: `1.5px solid ${repeatDays.includes(i) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: repeatDays.includes(i) ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: repeatDays.includes(i) ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
-                    {d}
-                  </button>
-                ))}
-              </div>
-
-              {/* 시간별 항목 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: '#0C0C0A', marginBottom: 8 }}>시간별 항목</div>
-              {[...entries].sort((a, b) => a.time.localeCompare(b.time)).map(e => (
-                <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: editEntryId === e.id ? '#F5FDD4' : '#F9F9F7', borderRadius: 10, marginBottom: 6, border: `1px solid ${editEntryId === e.id ? '#C5FF00' : 'transparent'}` }}>
-                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
-                  <span style={{ fontFamily: f, fontSize: 12, flex: 1, color: '#4A4846' }}>{e.desc}</span>
-                  <button onClick={() => startEditEntry(e)} style={{ border: 'none', background: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer', padding: '2px 6px' }}>수정</button>
-                  <button onClick={() => deleteEntry(e.id)} style={{ border: 'none', background: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
+                  <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)' }}>
+                    {list.map((item, idx) => <HealthRow key={item.id} item={item} isLast={idx === list.length - 1} />)}
+                  </div>
                 </div>
               ))}
-              {/* 항목 입력 — 24시간 셀렉트 */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, padding: '12px', background: '#F9F9F7', borderRadius: 12, border: '1px solid rgba(12,12,10,.07)' }}>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <select value={entryHour} onChange={e => setEntryHour(e.target.value)}
-                    style={{ width: 72, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, background: '#fff', outline: 'none' }}>
-                    {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map(h => (
-                      <option key={h} value={h}>{h}시</option>
-                    ))}
-                  </select>
-                  <select value={entryMin} onChange={e => setEntryMin(e.target.value)}
-                    style={{ width: 72, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, background: '#fff', outline: 'none' }}>
-                    {['00', '10', '15', '20', '30', '40', '45', '50'].map(m => (
-                      <option key={m} value={m}>{m}분</option>
-                    ))}
-                  </select>
-                  <input value={entryDesc} onChange={e => setEntryDesc(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOrUpdateEntry(); } }}
-                    placeholder="내용 (예: 30분 러닝)"
-                    style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
-                  <button onClick={addOrUpdateEntry} style={{ padding: '8px 12px', background: '#0C0C0A', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>
-                    {editEntryId ? '수정' : '추가'}
+              {grouped.length === 0 && items.length > 0 && (
+                <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
+                  카테고리 없이 등록된 루틴이 있습니다. 편집 시 카테고리를 지정해주세요.
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* DAILY HEALTH — showInToday=true 루틴 미리보기 */}
+        {items.some(i => i.showInToday) && (
+          <div style={{ padding: '24px 16px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>DAILY HEALTH</span>
+              <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>TODAY</span>
+              <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>{items.filter(i => i.showInToday).length}개</span>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+              {items.filter(i => i.showInToday).map((item, idx) => (
+                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', background: '#FAFAF8' }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+                    {item.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
+                    {item.entries?.length ? (
+                      <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>{item.entries.length}개 일정</div>
+                    ) : null}
+                  </div>
+                  <button onClick={() => onToggleToday(item.id, true)}
+                    style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const, flexShrink: 0 }}>
+                    Today ON
                   </button>
                 </div>
-              </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-              <div style={{ display: 'flex', gap: 8, paddingBottom: 28 }}>
-                {editId && <button onClick={() => handleDelete(editId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
-                <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
-                  {saving ? '저장 중…' : '저장'}
+        {/* 카테고리 관리 섹션 (접기/펼치기) */}
+        <div style={{ padding: '24px 16px 0' }}>
+          <button
+            onClick={() => setShowCatSection(p => !p)}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 12 }}
+          >
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>카테고리 관리</span>
+            <span style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6', marginLeft: 4 }}>{showCatSection ? '▲' : '▼'}</span>
+          </button>
+          {showCatSection && (
+            <>
+              {categories.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '24px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>카테고리를 추가해주세요</div>
+              )}
+              {categories.map(cat => (
+                <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 14, marginBottom: 8 }}>
+                  <span style={{ fontSize: 22, flexShrink: 0 }}>{cat.icon}</span>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{cat.name}</div>
+                  <span style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginRight: 4 }}>{items.filter(i => i.type === cat.id).length}개</span>
+                  <button onClick={() => openEditCat(cat)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
+                </div>
+              ))}
+              <button onClick={openNewCat} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginTop: 4 }}>
+                + 카테고리 추가
+              </button>
+            </>
+          )}
+        </div>
+
+        <div style={{ height: 40 }} />
+      </div>
+
+      {/* 루틴 등록/편집 시트 */}
+      {showForm && (
+        <>
+          <div onClick={() => setShowForm(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 310 }} />
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 48px)', maxHeight: '92%', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
+            <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>{editId ? '루틴 수정' : '루틴 추가'}</div>
+
+            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>카테고리</div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 14 }}>
+              {categories.map(cat => (
+                <button key={cat.id} onClick={() => { setCatId(cat.id); setRoutineIcon(cat.icon); }}
+                  style={{ padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${catId === cat.id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: catId === cat.id ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: catId === cat.id ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                  {cat.icon} {cat.name}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>루틴 이름</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <input value={routineIcon} onChange={e => setRoutineIcon(e.target.value.slice(0, 4))}
+                style={{ width: 44, padding: '10px 0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 20, textAlign: 'center', outline: 'none', flexShrink: 0 }} />
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="루틴 이름"
+                style={{ flex: 1, padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, outline: 'none' }} />
+            </div>
+            <input value={goal} onChange={e => setGoal(e.target.value)} placeholder="목표 (선택)"
+              style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, marginBottom: 12, outline: 'none', boxSizing: 'border-box' as const }} />
+
+            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>반복 유형</div>
+            <div style={{ marginBottom: 16 }}>
+              <RepeatFormFieldsShared
+                f={f} rt={hRepeat} setRt={setHRepeat}
+                wd={hWeekdays} toggleWDFn={toggleHWD}
+                date_={hDate} setDate_={setHDate}
+                time_={hTime} setTime_={setHTime}
+                alarm_={hAlarm} setAlarm_={setHAlarm}
+              />
+            </div>
+
+            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: '#0C0C0A', marginBottom: 8 }}>시간별 항목</div>
+            {[...entries].sort((a, b) => a.time.localeCompare(b.time)).map(e => (
+              <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: editEntryId === e.id ? '#F5FDD4' : '#F9F9F7', borderRadius: 10, marginBottom: 6, border: `1px solid ${editEntryId === e.id ? '#C5FF00' : 'transparent'}` }}>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
+                <span style={{ fontFamily: f, fontSize: 12, flex: 1, color: '#4A4846' }}>{e.desc}</span>
+                <button onClick={() => startEditEntry(e)} style={{ border: 'none', background: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer', padding: '2px 6px' }}>수정</button>
+                <button onClick={() => deleteEntry(e.id)} style={{ border: 'none', background: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
+              </div>
+            ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, padding: '12px', background: '#F9F9F7', borderRadius: 12, border: '1px solid rgba(12,12,10,.07)' }}>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <select value={entryHour} onChange={e => setEntryHour(e.target.value)}
+                  style={{ width: 72, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, background: '#fff', outline: 'none' }}>
+                  {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map(h => (
+                    <option key={h} value={h}>{h}시</option>
+                  ))}
+                </select>
+                <select value={entryMin} onChange={e => setEntryMin(e.target.value)}
+                  style={{ width: 72, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, background: '#fff', outline: 'none' }}>
+                  {['00', '10', '15', '20', '30', '40', '45', '50'].map(m => (
+                    <option key={m} value={m}>{m}분</option>
+                  ))}
+                </select>
+                <input value={entryDesc} onChange={e => setEntryDesc(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOrUpdateEntry(); } }}
+                  placeholder="내용 (예: 30분 러닝)"
+                  style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
+                <button onClick={addOrUpdateEntry} style={{ padding: '8px 12px', background: '#0C0C0A', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>
+                  {editEntryId ? '수정' : '추가'}
                 </button>
               </div>
             </div>
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              {editId && <button onClick={() => handleDelete(editId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
+              <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
+                {saving ? '저장 중…' : '저장'}
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
 
-      {/* 카테고리 등록/편집 바텀시트 */}
+      {/* 카테고리 등록/편집 시트 */}
       {showCatForm && (
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,.45)', backdropFilter: 'blur(3px)', zIndex: 10 }} onClick={() => setShowCatForm(false)}>
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', padding: '20px 20px 36px' }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, marginBottom: 16 }}>{catEditId ? '카테고리 수정' : '카테고리 추가'}</div>
+        <>
+          <div onClick={() => setShowCatForm(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 310 }} />
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 28px)', maxHeight: '80%', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
+            <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>{catEditId ? '카테고리 수정' : '카테고리 추가'}</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
               <input value={catIcon} onChange={e => setCatIcon(e.target.value.slice(0, 4))}
                 style={{ width: 52, padding: '10px 0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 22, textAlign: 'center', outline: 'none', flexShrink: 0 }} />
               <input value={catName} onChange={e => setCatName(e.target.value)} placeholder="카테고리 이름"
                 style={{ flex: 1, padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, outline: 'none' }} />
             </div>
-            {/* 자주 쓰는 이모지 빠른 선택 */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' as const }}>
               {['🥗', '🏃', '🍱', '💤', '⭐', '💪', '🧘', '🚴', '🏊', '🎯', '🥑', '💊', '🥦', '🏋️'].map(em => (
                 <button key={em} onClick={() => setCatIcon(em)} style={{ width: 36, height: 36, borderRadius: 9999, border: `1.5px solid ${catIcon === em ? '#0C0C0A' : 'rgba(12,12,10,.1)'}`, background: catIcon === em ? '#F5FDD4' : 'transparent', fontSize: 18, cursor: 'pointer' }}>{em}</button>
               ))}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               {catEditId && <button onClick={() => deleteCat(catEditId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
-              <button onClick={saveCat} disabled={catSaving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: catSaving ? .6 : 1 }}>
+              <button onClick={saveCat} disabled={catSaving} style={{ flex: 1, padding: 14, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: catSaving ? .6 : 1 }}>
                 {catSaving ? '저장 중…' : '저장'}
               </button>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
@@ -2776,47 +3169,6 @@ function TrackerView({
   function toggleWD(wd: number) { setNewWeekdays(p => p.includes(wd) ? p.filter(d => d !== wd) : [...p, wd]); }
   function toggleEWD(wd: number) { setEWeekdays(p => p.includes(wd) ? p.filter(d => d !== wd) : [...p, wd]); }
 
-  function RepeatFormFields({ rt, setRt, wd, toggleWDFn, date_, setDate_, time_, setTime_, alarm_, setAlarm_ }: {
-    rt: RepeatType; setRt: (r: RepeatType) => void;
-    wd: number[]; toggleWDFn: (d: number) => void;
-    date_: string; setDate_: (s: string) => void;
-    time_: string; setTime_: (s: string) => void;
-    alarm_: boolean; setAlarm_: (b: boolean) => void;
-  }) {
-    const rtypes: { key: RepeatType; label: string }[] = [
-      { key: 'allday', label: '종일' }, { key: 'once', label: '1회성' },
-      { key: 'daily', label: '매일' }, { key: 'scheduled', label: '일정등록' },
-    ];
-    return (
-      <>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {rtypes.map(r => (
-            <button key={r.key} onClick={() => setRt(r.key)} style={{ flex: 1, padding: '9px 4px', border: `1.5px solid ${rt === r.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: rt === r.key ? '#fff' : '#4A4846', background: rt === r.key ? '#0C0C0A' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>{r.label}</button>
-          ))}
-        </div>
-        {rt === 'once' && (
-          <input type="date" value={date_} onChange={e => setDate_(e.target.value)} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' as const, marginTop: 8 }} />
-        )}
-        {rt === 'scheduled' && (
-          <div style={{ display: 'flex', gap: 5, justifyContent: 'space-between', marginTop: 8 }}>
-            {WD_NAMES.map((nm, d) => (
-              <button key={d} onClick={() => toggleWDFn(d)} style={{ flex: 1, height: 38, borderRadius: 9999, border: `1.5px solid ${wd.includes(d) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, fontFamily: f, fontSize: 12, fontWeight: 700, color: wd.includes(d) ? '#fff' : '#4A4846', background: wd.includes(d) ? '#0C0C0A' : '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s', padding: 0 }}>{nm}</button>
-            ))}
-          </div>
-        )}
-        {rt !== 'allday' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
-            <input type="time" value={time_} onChange={e => setTime_(e.target.value)} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' as const }} />
-            <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: f, fontSize: 12, fontWeight: 500, color: '#4A4846', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
-              <input type="checkbox" checked={alarm_} onChange={e => setAlarm_(e.target.checked)} style={{ width: 15, height: 15, accentColor: '#0C0C0A' }} />
-              알람
-            </label>
-          </div>
-        )}
-      </>
-    );
-  }
-
   function HabitRow({ h, onEdit }: { h: Habit; onEdit: () => void }) {
     const isToday = !!h.showInToday;
     return (
@@ -2885,7 +3237,7 @@ function TrackerView({
               <input value={newIcon} onChange={e => setNewIcon(e.target.value.slice(0, 4))} placeholder="✦" style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
               <input value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }} placeholder="습관 이름 (예: 모닝 워터 한 잔)" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
             </div>
-            {RepeatFormFields({ rt: newRepeat, setRt: setNewRepeat, wd: newWeekdays, toggleWDFn: toggleWD, date_: newDate, setDate_: setNewDate, time_: newTime, setTime_: setNewTime, alarm_: newAlarm, setAlarm_: setNewAlarm })}
+            <RepeatFormFieldsShared f={f} rt={newRepeat} setRt={setNewRepeat} wd={newWeekdays} toggleWDFn={toggleWD} date_={newDate} setDate_={setNewDate} time_={newTime} setTime_={setNewTime} alarm_={newAlarm} setAlarm_={setNewAlarm} />
             <button onClick={handleAdd} disabled={adding || !newName.trim()} style={{ padding: '12px 20px', background: newName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: newName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: newName.trim() ? 'pointer' : 'default', transition: 'all .18s' }}>
               + ADD
             </button>
@@ -2978,7 +3330,7 @@ function TrackerView({
                 <input value={eIcon} onChange={e => setEIcon(e.target.value.slice(0, 4))} placeholder="✦" style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
                 <input value={eName} onChange={e => setEName(e.target.value)} placeholder="습관 이름" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
               </div>
-              {RepeatFormFields({ rt: eRepeat, setRt: setERepeat, wd: eWeekdays, toggleWDFn: toggleEWD, date_: eDate, setDate_: setEDate, time_: eTime, setTime_: setETime, alarm_: eAlarm, setAlarm_: setEAlarm })}
+              <RepeatFormFieldsShared f={f} rt={eRepeat} setRt={setERepeat} wd={eWeekdays} toggleWDFn={toggleEWD} date_={eDate} setDate_={setEDate} time_={eTime} setTime_={setETime} alarm_={eAlarm} setAlarm_={setEAlarm} />
             </div>
             <button onClick={handleSaveEdit} style={{ marginTop: 20, width: '100%', padding: 14, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em' }}>저장</button>
             <button onClick={handleDeleteHabit} style={{ marginTop: 10, width: '100%', padding: 14, background: 'none', color: '#BA1A1A', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>삭제</button>
@@ -3611,7 +3963,7 @@ function CtPanel({
             {/* Action buttons */}
             <div style={{ padding: '16px 20px 4px', display: 'flex', gap: 8 }}>
               <button onClick={closeSheet} style={{ flex: 1, height: 52, background: '#EEEDE9', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.04em' }}>취소</button>
-              <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 2, height: 52, background: sName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: sName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default', transition: 'opacity .2s', letterSpacing: '.02em' }}>{saving ? '저장중...' : editItem ? '수정 저장' : '저장'}</button>
+              <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 1, height: 52, background: sName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: sName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default', transition: 'opacity .2s', letterSpacing: '.02em' }}>{saving ? '저장중...' : editItem ? '수정' : '저장'}</button>
             </div>
             {editItem && (
               <div style={{ padding: '0 20px' }}>
@@ -3895,6 +4247,18 @@ export default function SetupPage() {
     }
   }
 
+  async function handleToggleMedToday(id: string, current: boolean) {
+    if (!user || !db) { alert('로그인이 필요합니다.'); return; }
+    try {
+      await updateDoc(doc(db, 'users', userId, 'medRoutines', id), {
+        showInToday: !current,
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('[OnStep] 약루틴 TODAY 토글 실패:', err);
+    }
+  }
+
   // ── MedRoutine CRUD ─────────────────────────────────────────────────────────
   async function handleAddMed(m: Omit<MedRoutine, 'id' | 'createdAt' | 'updatedAt'>) {
     if (!user || !db) { alert('로그인이 필요합니다.'); return; }
@@ -4082,6 +4446,7 @@ export default function SetupPage() {
           onAdd={handleAddMed}
           onUpdate={handleUpdateMed}
           onDelete={handleDeleteMed}
+          onToggleToday={handleToggleMedToday}
         />
       )}
       {view === 'health' && (

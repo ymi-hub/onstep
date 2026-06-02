@@ -1,3 +1,6 @@
+import type { RepeatType } from './habit';
+export type { RepeatType };
+
 // 건강·다이어트·운동 루틴
 export type HealthType = 'diet' | 'exercise' | 'meal' | 'sleep' | 'custom';
 
@@ -35,6 +38,11 @@ export type HealthRoutine = {
   goal?: string;
   active: boolean;
   showInToday?: boolean; // TODAY 탭 노출 여부 (Habits와 동일)
+  repeatType?: RepeatType;
+  time?: string;
+  alarm?: boolean;
+  date?: string;
+  weekdays?: number[];
   createdAt: string;
   updatedAt: string;
 };
