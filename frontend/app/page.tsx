@@ -708,18 +708,18 @@ function FlowCard({
                     flexDirection: 'column',
                     alignItems: 'flex-start',
                     padding: '20px 24px 0px',
-                    width: 280,
-                    minWidth: 280,
-                    height: 385,
+                    width: 248,
+                    minWidth: 248,
+                    height: 355,
                     background: '#FFFFFF',
                     border: '1px solid #E5E5E5',
                     opacity: isChecked ? 0.45 : 1,
                     transition: 'opacity .2s',
                   }}>
-                    {/* 이미지 영역 — 230×287, 배경 #F3F3F4 */}
+                    {/* 이미지 영역 — 200×257, 배경 #F3F3F4 */}
                     <div style={{
-                      width: 230,
-                      height: 287,
+                      width: 200,
+                      height: 257,
                       background: '#F3F3F4',
                       overflow: 'hidden',
                       position: 'relative',
@@ -729,7 +729,7 @@ function FlowCard({
                       flexShrink: 0,
                     }}>
                       {(p?.imageUrl || p?.storageUrl)
-                        ? <img src={p!.imageUrl || p!.storageUrl} alt={p?.name} style={{ width: 230, height: 306.66, objectFit: 'cover', display: 'block' }} />
+                        ? <img src={p!.imageUrl || p!.storageUrl} alt={p?.name} style={{ width: 200, height: 274, objectFit: 'cover', display: 'block' }} />
                         : <span style={{ fontSize: 56, opacity: 0.3 }}>🧴</span>
                       }
                       {isChecked && (
@@ -741,7 +741,7 @@ function FlowCard({
 
                     {/* 제품명 */}
                     <div style={{
-                      width: 178,
+                      width: 155,
                       fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                       fontStyle: 'normal',
                       fontWeight: 600,
@@ -760,7 +760,7 @@ function FlowCard({
 
                     {/* Step 넘버 */}
                     <div style={{
-                      width: 230,
+                      width: 200,
                       fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                       fontStyle: 'normal',
                       fontWeight: 400,
@@ -781,13 +781,13 @@ function FlowCard({
                 const waitMins = parseWaitMinutes(item.text);
                 const isActiveTimer = timerLabel === item.text && !!timerEndMs;
                 // 타이머 칩: flex-end + marginBottom으로 칩을 다른 center 칩과 동일 위치에 맞추고,
-                // 벨 아이콘은 컬럼 위에 별도 칩으로 배치 (카드 높이 385px, 이미지 287px 기준 = marginBottom 116)
+                // 벨 아이콘은 컬럼 위에 별도 칩으로 배치 (카드 높이 355px, 이미지 257px 기준 = marginBottom 100)
                 if (waitMins && !isChecked) {
                   return (
                     <div key={idx} style={{
                       flexShrink: 0,
                       alignSelf: 'flex-end',
-                      marginBottom: 116,
+                      marginBottom: 100,
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
                     }}>
                       {/* 벨 아이콘 칩 — 위 (별도 칩) */}
