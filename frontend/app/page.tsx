@@ -2419,21 +2419,23 @@ export default function TodayPage() {
 
         {/* 메인 루틴 카드 — 로딩 / 루틴 있음 / 루틴 없음 분기 */}
         {dataLoading || authLoading ? (
-          // 로딩 중
+          // 로딩 중 — shimmer 스켈레톤
           <div
             style={{
               margin: '0 16px',
-              padding: 40,
-              textAlign: 'center',
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 13,
-              color: '#9A9490',
+              padding: '20px',
               background: '#FFFFFF',
               borderRadius: 20,
               border: '1px solid rgba(12,12,10,.07)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
             }}
           >
-            루틴 불러오는 중...
+            <style>{`@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}`}</style>
+            {[['40%', 11], ['65%', 18], ['85%', 13], ['50%', 13]].map(([w, h], i) => (
+              <div key={i} style={{ width: w as string, height: h as number, borderRadius: 6, background: 'linear-gradient(90deg,#F0EFED 25%,#E8E7E4 50%,#F0EFED 75%)', backgroundSize: '800px 100%', animation: 'shimmer 1.4s infinite linear' }} />
+            ))}
           </div>
         ) : activeSession && todayMorning ? (
           // 오늘 활성 루틴 있음 (나이트 데이터 없어도 시간 기준으로 탭 노출)

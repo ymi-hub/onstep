@@ -214,15 +214,10 @@ function GroqUsageSection() {
         </div>
       </div>
 
-      {/* CTA 푸터 */}
-      <a
-        href="https://console.groq.com/settings/usage"
-        target="_blank"
-        rel="noreferrer"
-        style={{ display: 'block', borderTop: '1px solid #0C0C0A', padding: '10px 12px', fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', textDecoration: 'none' }}
-      >
-        콘솔 →
-      </a>
+      {/* CTA 푸터 — 매일 초기화 안내 */}
+      <div style={{ borderTop: '1px solid #0C0C0A', padding: '10px 12px', fontFamily: f, fontSize: 12, fontWeight: 600, color: '#9A9490' }}>
+        매일 자정 초기화
+      </div>
     </div>
   );
 }
@@ -238,14 +233,14 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
   // 메이크업·룩북은 LOG [아카이브] 탭으로 이동됨
   const cards = {
     left: [
-      { id: 'routine',    badge: '#SESSION',    title: '스킨케어 루틴', sub: 'DAILY CALIBRATIONS',  cta: 'View Steps →',  bg: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', emoji: '🌿', onClick: onOpenSessions,  href: undefined },
-      { id: 'tracker',    badge: '#DAILY',      title: 'HABITS',       sub: 'DAILY TRACKING',       cta: 'Manage →',      bg: 'linear-gradient(135deg,#f5ffe0 0%,#dcff80 100%)', emoji: '⏰', onClick: onOpenTracker,  href: undefined },
-      { id: 'medication', badge: '#MEDICATION', title: '약 루틴',       sub: 'MEDICATION SCHEDULE',  cta: 'Set Pills →',   bg: 'linear-gradient(135deg,#fff8f0 0%,#ffe0b0 100%)', emoji: '💊', onClick: onOpenMedication, href: undefined },
-      { id: 'health', badge: '#HEALTH',    title: '건강 루틴',     sub: 'DIET · EXERCISE · MEAL', cta: 'Plan →',     bg: 'linear-gradient(135deg,#f0fff4 0%,#a0e0b0 100%)', emoji: '🥗', onClick: onOpenHealth, href: undefined },
+      { id: 'routine',    badge: '#SESSION',    title: '스킨케어 루틴', sub: 'DAILY CALIBRATIONS',  cta: '단계 보기 →',  bg: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', emoji: '🌿', onClick: onOpenSessions,  href: undefined },
+      { id: 'tracker',    badge: '#DAILY',      title: '습관 트래커',  sub: 'DAILY TRACKING',       cta: '관리하기 →',   bg: 'linear-gradient(135deg,#f5ffe0 0%,#dcff80 100%)', emoji: '⏰', onClick: onOpenTracker,  href: undefined },
+      { id: 'medication', badge: '#MEDICATION', title: '약 루틴',      sub: 'MEDICATION SCHEDULE',  cta: '설정하기 →',   bg: 'linear-gradient(135deg,#fff8f0 0%,#ffe0b0 100%)', emoji: '💊', onClick: onOpenMedication, href: undefined },
+      { id: 'health', badge: '#HEALTH',    title: '건강 루틴',     sub: 'DIET · EXERCISE · MEAL', cta: '계획하기 →', bg: 'linear-gradient(135deg,#f0fff4 0%,#a0e0b0 100%)', emoji: '🥗', onClick: onOpenHealth, href: undefined },
     ],
     right: [
-      { id: 'care',   badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS',     cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare,   href: undefined },
-      { id: 'diet',   badge: '#RESET',     title: '리셋 플랜',     sub: 'SUPPLEMENT PROTOCOL',    cta: 'Edit Plan →', bg: 'linear-gradient(135deg,#fdf4ff 0%,#e0a0ff 100%)', emoji: '📋', onClick: onOpenDiet,   href: undefined },
+      { id: 'care',   badge: '#INTENSIVE', title: '집중 케어',     sub: 'CRITICAL SYSTEMS',     cta: '관리하기 →',  bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare,   href: undefined },
+      { id: 'diet',   badge: '#RESET',     title: '리셋 플랜',     sub: 'SUPPLEMENT PROTOCOL',  cta: '편집하기 →',  bg: 'linear-gradient(135deg,#fdf4ff 0%,#e0a0ff 100%)', emoji: '📋', onClick: onOpenDiet,   href: undefined },
     ],
   };
 

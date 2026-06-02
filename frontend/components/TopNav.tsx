@@ -103,7 +103,7 @@ export default function TopNav() {
       </button>
 
       {/* 로고 (중앙) — today 화면으로 이동 */}
-      <Link href="/today" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo.png"

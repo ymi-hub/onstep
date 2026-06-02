@@ -2358,7 +2358,7 @@ function LogPageInner() {
                 <div style={{ padding: '32px 20px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, marginBottom: 20 }}>
                   <div style={{ fontSize: 28, marginBottom: 8 }}>{libFilter === 'makeup' ? '💄' : libFilter === 'lookbook' ? '👗' : '📂'}</div>
                   <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>사용 기록이 없어요</div>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>아카이브에서 Today ON을 설정하면 기록됩니다</div>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>라이브러리에서 Today ON을 설정하면 기록됩니다</div>
                 </div>
               );
               const sorted = [...items].sort((a, b) => (b.dates ?? []).length - (a.dates ?? []).length);
