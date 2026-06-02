@@ -343,7 +343,7 @@ function MonthCalendar({
               </span>
 
               {/* 아침(라임)·저녁(오렌지) SVG 고양이 */}
-              <div style={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 1, alignItems: 'center', opacity: 0.8 }}>
                 <CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={14} />
                 <CatBadge color={log?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.12)'} size={14} />
               </div>
@@ -924,7 +924,7 @@ function RecentStrip({
 
               {/* 오늘: 하나라도 완료면 캐릭터 / 나머지: 아침(라임)·저녁(블랙) 닷 */}
               {/* 아침(라임)·저녁(오렌지) SVG 고양이 */}
-              <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 2, alignItems: 'center', opacity: 0.8 }}>
                 <CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={18} />
                 <CatBadge color={log?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.12)'} size={18} />
               </div>
