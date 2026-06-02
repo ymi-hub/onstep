@@ -1604,7 +1604,7 @@ function LogCtPanel({
                   ))}
                 </div>
               )}
-              <button onClick={() => { setPicker('main'); setPickerSearch(''); setPickerSelected(new Set()); }} style={{ padding: '8px 14px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer', marginBottom: 16 }}>제품 +</button>
+              <button onClick={() => { setPicker('main'); setPickerSearch(''); setPickerSelected(new Set()); }} style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0, marginBottom: 16 }}>BOX</button>
 
               {/* T.P.O (룩북만) */}
               {filter === 'lookbook' && (
