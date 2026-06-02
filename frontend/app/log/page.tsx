@@ -786,10 +786,11 @@ function fmtDate(s: string) {
 const TPO_OPTIONS = ['데일리', '오피스', '데이트', '파티', '캐주얼', '포멀', '스포티', '여행'];
 
 function LogLibraryCard({
-  item, products,
+  item, products, onEdit,
 }: {
   item: CtItem;
   products: Map<string, Product>;
+  onEdit?: () => void;
 }) {
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   const isMakeup = item.ctType === 'makeup';
@@ -846,7 +847,24 @@ function LogLibraryCard({
         {/* daily — 우측 정렬 */}
         {item.daily && <div style={{ width: '100%', textAlign: 'right', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#BCBAB6', marginTop: 6, zIndex: 1 }}>{item.daily}</div>}
         {/* 서브 */}
-        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: 20, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || (isMakeup ? 'makeup' : 'lookbook')}</div>
+        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || (isMakeup ? 'makeup' : 'lookbook')}</div>
+        {item.sourceUrl?.trim() && (() => {
+          let domain = item.sourceUrl;
+          try { domain = new URL(item.sourceUrl).hostname; } catch {}
+          return (
+            <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, padding: '8px 12px', border: '1px solid rgba(12,12,10,.15)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+              </svg>
+              SOURCE
+              <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 400, color: '#9A9490' }}>{domain}</span>
+            </a>
+          );
+        })()}
+        {!item.sourceUrl?.trim() && <div style={{ height: 20 }} />}
       </div>
 
       {/* 제품 영역 — 카드 밖 하단, 가로 스크롤 */}
@@ -897,24 +915,9 @@ function LogLibraryCard({
           <span style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6' }}>아직 적용 기록이 없습니다</span>
         )}
       </div>
-
-      {/* 소스 링크 */}
-      {item.sourceUrl?.trim() && (() => {
-        let domain = item.sourceUrl;
-        try { domain = new URL(item.sourceUrl).hostname; } catch {}
-        return (
-          <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, padding: '8px 12px', border: '1px solid rgba(12,12,10,.1)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.02)' }}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
-              <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
-              <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
-            </svg>
-            SOURCE
-            <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 400, color: '#9A9490' }}>{domain}</span>
-          </a>
-        );
-      })()}
+      {onEdit && (
+        <button onClick={onEdit} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', marginTop: 8 }}>편집</button>
+      )}
     </div>
   );
 }
@@ -2336,7 +2339,7 @@ function LogPageInner() {
               );
               const sorted = [...items].sort((a, b) => (b.dates ?? []).length - (a.dates ?? []).length);
               return sorted.map(item => (
-                <LogLibraryCard key={item.id} item={item} products={products} />
+                <LogLibraryCard key={item.id} item={item} products={products} onEdit={() => triggerCollectionEdit(item)} />
               ));
             })()}
           </div>
@@ -2409,7 +2412,24 @@ function LogPageInner() {
                               )}
                             </div>
                             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
-                            <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 6, marginBottom: 20, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || (isMakeup ? 'makeup' : 'lookbook')}</div>
+                            <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || (isMakeup ? 'makeup' : 'lookbook')}</div>
+                            {item.sourceUrl?.trim() && (() => {
+                              let domain = item.sourceUrl!;
+                              try { domain = new URL(item.sourceUrl!).hostname; } catch {}
+                              return (
+                                <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
+                                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, padding: '8px 12px', border: '1px solid rgba(12,12,10,.15)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}
+                                >
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+                                    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                                    <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                                  </svg>
+                                  SOURCE
+                                  <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 400, color: '#9A9490' }}>{domain}</span>
+                                </a>
+                              );
+                            })()}
+                            {!item.sourceUrl?.trim() && <div style={{ height: 20 }} />}
                           </div>
                           {prodItems.length > 0 && (
                             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 0 4px', width: '100%', scrollbarWidth: 'none' as const }}>
@@ -2427,28 +2447,12 @@ function LogPageInner() {
                               })}
                             </div>
                           )}
-                          <div style={{ display: 'flex', gap: 6, marginTop: 12, marginBottom: 4 }}>
-                            <button onClick={() => handleToggleToday(item)} disabled={!!togglingId} style={{ flex: 1, padding: '8px 0', background: isOnToday ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: isOnToday ? '#C5FF00' : '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: togglingId ? 'default' : 'pointer', opacity: togglingId === item.id ? 0.6 : 1, transition: 'all .15s' }}>
+                          <div style={{ display: 'flex', gap: 0, marginTop: 0, marginBottom: 0 }}>
+                            <button onClick={() => handleToggleToday(item)} disabled={!!togglingId} style={{ flex: 1, padding: '12px 0', background: isOnToday ? '#0C0C0A' : '#F3F3F1', color: isOnToday ? '#C5FF00' : '#0C0C0A', border: '1px solid #000000', borderRight: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: togglingId ? 'default' : 'pointer', opacity: togglingId === item.id ? 0.6 : 1, transition: 'all .15s' }}>
                               {togglingId === item.id ? '...' : isOnToday ? 'Today ON' : 'Today OFF'}
                             </button>
-                            <button onClick={() => triggerCollectionEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>편집</button>
+                            <button onClick={() => triggerCollectionEdit(item)} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
                           </div>
-                          {item.sourceUrl?.trim() && (() => {
-                            let domain = item.sourceUrl!;
-                            try { domain = new URL(item.sourceUrl!).hostname; } catch {}
-                            return (
-                              <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
-                                style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '8px 12px', border: '1px solid rgba(12,12,10,.1)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.02)' }}
-                              >
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
-                                  <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
-                                  <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
-                                </svg>
-                                SOURCE
-                                <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 400, color: '#9A9490' }}>{domain}</span>
-                              </a>
-                            );
-                          })()}
                         </div>
                       );
                     })}
