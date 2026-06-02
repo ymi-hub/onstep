@@ -241,10 +241,10 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
       { id: 'routine',    badge: '#SESSION',    title: '스킨케어 루틴', sub: 'DAILY CALIBRATIONS',  cta: 'View Steps →',  bg: 'linear-gradient(135deg,#f0ffe0 0%,#c5ff00 100%)', emoji: '🌿', onClick: onOpenSessions,  href: undefined },
       { id: 'tracker',    badge: '#DAILY',      title: 'HABITS',       sub: 'DAILY TRACKING',       cta: 'Manage →',      bg: 'linear-gradient(135deg,#f5ffe0 0%,#dcff80 100%)', emoji: '⏰', onClick: onOpenTracker,  href: undefined },
       { id: 'medication', badge: '#MEDICATION', title: '약 루틴',       sub: 'MEDICATION SCHEDULE',  cta: 'Set Pills →',   bg: 'linear-gradient(135deg,#fff8f0 0%,#ffe0b0 100%)', emoji: '💊', onClick: onOpenMedication, href: undefined },
+      { id: 'health', badge: '#HEALTH',    title: '건강 루틴',     sub: 'DIET · EXERCISE · MEAL', cta: 'Plan →',     bg: 'linear-gradient(135deg,#f0fff4 0%,#a0e0b0 100%)', emoji: '🥗', onClick: onOpenHealth, href: undefined },
     ],
     right: [
       { id: 'care',   badge: '#INTENSIVE', title: 'SPECIAL CARE', sub: 'CRITICAL SYSTEMS',     cta: 'Intervene →', bg: 'linear-gradient(135deg,#f0f8ff 0%,#a0c8ff 100%)', emoji: '🧴', onClick: onOpenCare,   href: undefined },
-      { id: 'health', badge: '#HEALTH',    title: '건강 루틴',     sub: 'DIET · EXERCISE · MEAL', cta: 'Plan →',     bg: 'linear-gradient(135deg,#f0fff4 0%,#a0e0b0 100%)', emoji: '🥗', onClick: onOpenHealth, href: undefined },
       { id: 'diet',   badge: '#RESET',     title: '리셋 플랜',     sub: 'SUPPLEMENT PROTOCOL',    cta: 'Edit Plan →', bg: 'linear-gradient(135deg,#fdf4ff 0%,#e0a0ff 100%)', emoji: '📋', onClick: onOpenDiet,   href: undefined },
     ],
   };

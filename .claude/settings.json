@@ -7,7 +7,7 @@
             "type": "command",
             "timeout": 180,
             "statusMessage": "커밋 & 배포 중...",
-            "command": "cd /Users/youngmikim/onstep && if git diff --quiet && git diff --cached --quiet && [ -z \"$(git ls-files --others --exclude-standard)\" ]; then exit 0; fi && git add . && git commit -m \"auto: $(date '+%Y-%m-%d %H:%M')\" && git push && cd frontend && npm run build && cd .. && firebase deploy --only hosting 2>&1"
+            "command": "cd /Users/youngmikim/Projects/onstep && if git diff --quiet && git diff --cached --quiet && [ -z \"$(git ls-files --others --exclude-standard)\" ]; then exit 0; fi && git add . && git commit -m \"auto: $(date '+%Y-%m-%d %H:%M')\" && git push && cd frontend && npm run build && cd .. && firebase deploy --only hosting 2>&1"
           }
         ]
       }
