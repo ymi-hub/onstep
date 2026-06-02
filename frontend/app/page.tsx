@@ -701,23 +701,23 @@ function FlowCard({
                 const p = products.get(item.id);
                 const stepNum = slot.items.slice(0, idx + 1).filter(i => i.type === 'product').length;
                 return (
-                  <div key={idx} style={{ flexShrink: 0, width: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s' }}>
-                    <div style={{ width: 200, height: 250, background: '#EEEDE9', borderRadius: '16px 16px 0 0', border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+                  <div key={idx} style={{ flexShrink: 0, width: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, opacity: isChecked ? 0.45 : 1, transition: 'opacity .2s', border: '1px solid #000000', borderRadius: 16, overflow: 'hidden' }}>
+                    <div style={{ width: 200, height: 250, background: '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
                       {(p?.imageUrl || p?.storageUrl)
                         ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         : <span style={{ fontSize: 48, opacity: 0.4 }}>🧴</span>
                       }
                       {isChecked && (
-                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px 16px 0 0', zIndex: 3 }}>
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3 }}>
                           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                         </div>
                       )}
                     </div>
-                    <div style={{ width: '100%', textAlign: 'center' as const, marginTop: 6 }}>
+                    <div style={{ width: '100%', textAlign: 'center' as const, marginTop: 6, paddingBottom: 8 }}>
                       <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, color: '#000000', letterSpacing: '.06em', lineHeight: 1.7 }}>
                         Step{String(stepNum).padStart(2, '0')}
                       </div>
-                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#000000', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#000000', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, padding: '0 8px' }}>
                         {p?.name ?? '?'}
                       </div>
                     </div>
