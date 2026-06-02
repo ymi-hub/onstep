@@ -620,7 +620,7 @@ function SessionsView({
                         onClick={(e) => { e.stopPropagation(); onEdit(s); }}
                         style={{ width: '100%', marginTop: 12, padding: '12px', border: 'none', borderRadius: 12, background: '#0C0C0A', color: '#fff', fontFamily: font, fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, cursor: 'pointer' }}
                       >
-                        편집 →
+                        편집
                       </button>
                     </div>
                   )}
@@ -1100,7 +1100,7 @@ function EditorView({
               transition: 'background .15s',
             }}
           >
-            {saving ? '저장중...' : '저장 →'}
+            {saving ? '저장중...' : '저장'}
           </button>
         </div>
       </div>
@@ -1179,7 +1179,7 @@ function EditorView({
       {/* 하단 고정 저장 버튼 */}
       <div style={{ flexShrink: 0, padding: '10px 16px 16px', background: 'rgba(250,250,248,.97)', borderTop: '1px solid rgba(12,12,10,.07)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
         <button onClick={onSave} disabled={saving} style={{ width: '100%', height: 52, background: saving ? '#D8D6CF' : '#0C0C0A', color: saving ? '#9A9490' : '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'default' : 'pointer', letterSpacing: '.04em' }}>
-          {saving ? '저장중...' : '저장 →'}
+          {saving ? '저장중...' : '저장'}
         </button>
       </div>
 

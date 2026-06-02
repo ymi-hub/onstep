@@ -560,7 +560,7 @@ function ResultSection({
             gap: 6,
           }}
         >
-          {isSaving ? '저장 중...' : '루틴으로 저장 →'}
+          {isSaving ? '저장 중...' : '루틴으로 저장'}
         </button>
       </div>
     </div>
