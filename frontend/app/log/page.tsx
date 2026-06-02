@@ -2293,8 +2293,8 @@ function LogPageInner() {
                   });
                   const hasAny = todayDayLog || todayMotd.length || todayOotd.length || todayCare.length || todayHabits.length
                     || dietPrograms.some(p => p.showInToday)
-                    || healthRoutines.some(h => h.showInToday)
-                    || medRoutines.some(m => m.active);
+                    || healthRoutines.some(h => h.active && h.showInToday)
+                    || medRoutines.some(m => m.active && m.showInToday);
                   if (!hasAny) return null;
 
                   // ── 공통 헬퍼 ──
@@ -2351,9 +2351,9 @@ function LogPageInner() {
                       )}
 
                       {/* ── 💊 약 복용 카드 ── */}
-                      {medRoutines.filter(m => m.active).length > 0 && (() => {
+                      {medRoutines.filter(m => m.active && m.showInToday).length > 0 && (() => {
                         const doneSet = new Set(todayMedLogs.map(l => l.routineId));
-                        const activeMeds = medRoutines.filter(m => m.active);
+                        const activeMeds = medRoutines.filter(m => m.active && m.showInToday);
                         const doneCnt = activeMeds.filter(m => doneSet.has(m.id)).length;
                         const getTime = (m: { time?: string; times?: string[] }) => {
                           if (m.time) return m.time;
@@ -2418,9 +2418,9 @@ function LogPageInner() {
                       })()}
 
                       {/* ── 🏃 건강루틴 카드 ── */}
-                      {healthRoutines.filter(h => h.showInToday).length > 0 && (() => {
+                      {healthRoutines.filter(h => h.active && h.showInToday).length > 0 && (() => {
                         const doneSet = new Set(todayHealthLogs.map(l => l.routineId));
-                        const activeH = healthRoutines.filter(h => h.showInToday);
+                        const activeH = healthRoutines.filter(h => h.active && h.showInToday);
                         const doneCnt = activeH.filter(h => doneSet.has(h.id)).length;
                         return (
                           <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>

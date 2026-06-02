@@ -27,6 +27,7 @@ import {
   deleteDoc,
   doc,
   orderBy,
+  getDocs,
 } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { imageFileToBase64 } from '@/lib/imageUtils';
@@ -4395,7 +4396,10 @@ export default function SetupPage() {
   }
   // 기본 카테고리 5개 자동 생성 (첫 진입 or 빈 경우)
   async function ensureDefaultCategories() {
-    if (!user || !db || healthCategories.length > 0) return;
+    if (!user || !db) return;
+    // React state 대신 Firestore 직접 확인 → 동시 호출 시 중복 생성 방지
+    const existing = await getDocs(collection(db, 'users', userId, 'healthCategories'));
+    if (existing.size > 0) return;
     const now = new Date().toISOString();
     await Promise.all(
       DEFAULT_HEALTH_CATEGORIES.map(c =>
