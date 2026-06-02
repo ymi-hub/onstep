@@ -1583,7 +1583,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
           <span style={{ fontSize: 28 }}>💄</span>
           <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 메이크업을 등록해보세요</div>
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>Setup에서 Today ON으로 설정하면 여기에 표시됩니다</div>
-          <a href="/setup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</a>
+          <Link href="/log?tab=라이브러리&filter=makeup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
         </div>
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 16px' }}>
@@ -1596,7 +1596,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
 
               {/* Hero — 이미지 있을 때만 1:1 square (today.html .editorial-hero 참고) */}
               {item.imageUrl ? (
-                <Link href={`/log?tab=라이브러리&id=${item.id}`} style={{ display: 'block', textDecoration: 'none' }}>
+                <Link href={`/log?tab=라이브러리&filter=makeup&id=${item.id}`} style={{ display: 'block', textDecoration: 'none' }}>
                   <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', background: '#1C1C1C', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
