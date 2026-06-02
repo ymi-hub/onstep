@@ -2521,13 +2521,13 @@ function LogPageInner() {
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 8, flexWrap: 'wrap' as const }}>
                               {todayMotd.length > 0 ? todayMotd.slice(0, 2).map(item => (
                                 <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                                  <div style={{ width: 90, height: 120, borderRadius: 0, overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <div style={{ width: 140, height: 200, borderRadius: 0, overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {item.imageUrl
                                       // eslint-disable-next-line @next/next/no-img-element
                                       ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                       : <span style={{ fontSize: 28 }}>{item.emoji || '💄'}</span>}
                                   </div>
-                                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', width: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                                 </div>
                               )) : <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>없음</span>}
                             </div>
@@ -2535,13 +2535,13 @@ function LogPageInner() {
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 8, flexWrap: 'wrap' as const }}>
                               {todayOotd.length > 0 ? todayOotd.slice(0, 2).map(item => (
                                 <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                                  <div style={{ width: 90, height: 120, borderRadius: 0, overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <div style={{ width: 140, height: 200, borderRadius: 0, overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {item.imageUrl
                                       // eslint-disable-next-line @next/next/no-img-element
                                       ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                       : <span style={{ fontSize: 28 }}>{item.emoji || '👗'}</span>}
                                   </div>
-                                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', width: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                                 </div>
                               )) : <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>없음</span>}
                             </div>
