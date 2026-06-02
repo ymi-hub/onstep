@@ -838,7 +838,7 @@ function LogLibraryCard({
             : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
           }
           {isOnToday && (
-            <div style={{ position: 'absolute', bottom: 12, left: 12, background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 12, fontWeight: 800, letterSpacing: '.12em', padding: '4px 12px', borderRadius: 9999, border: '1.5px solid #C5FF00', zIndex: 4 }}>Today ON</div>
+            <div style={{ position: 'absolute', bottom: 12, left: 12, background: '#0C0C0A', color: '#fff', fontFamily: f, fontSize: 12, fontWeight: 800, letterSpacing: '.12em', padding: '4px 12px', borderRadius: 9999, border: '1.5px solid #C5FF00', zIndex: 4 }}>TODAY</div>
           )}
         </div>
 
@@ -1398,7 +1398,7 @@ function LogCtPanel({
       <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
         <div style={{ width: '100%', height: 340, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, overflow: 'hidden', position: 'relative' }}>
           {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
-          {isOnToday && <div style={{ position: 'absolute', top: 8, right: 8, background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 9, fontWeight: 800, letterSpacing: '.1em', padding: '3px 7px', borderRadius: 9999 }}>Today ON</div>}
+          {isOnToday && <div style={{ position: 'absolute', top: 8, right: 8, background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 9, fontWeight: 800, letterSpacing: '.1em', padding: '3px 7px', borderRadius: 9999 }}>TODAY</div>}
         </div>
         <div style={{ padding: '12px 12px 4px' }}>
           <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 6, textTransform: 'uppercase' as const }}>{BADGE}</div>
@@ -1439,7 +1439,7 @@ function LogCtPanel({
           {/* 하단 그라데이션 + 이름 오버레이 */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px 8px 8px', background: 'linear-gradient(to top, rgba(0,0,0,.6) 0%, transparent 100%)' }}>
             <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
-            {isOnToday && <div style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', letterSpacing: '.08em', marginTop: 2 }}>Today ON</div>}
+            {isOnToday && <div style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', letterSpacing: '.08em', marginTop: 2 }}>TODAY</div>}
           </div>
         </div>
         {/* 소형 제품 썸네일 */}
@@ -2408,7 +2408,7 @@ function LogPageInner() {
                                 : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
                               }
                               {isOnToday && (
-                                <div style={{ position: 'absolute', bottom: 12, left: 12, background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 16, fontWeight: 800, letterSpacing: '.12em', padding: '6px 14px', borderRadius: 9999, border: '1.5px solid #C5FF00', zIndex: 4 }}>Today ON</div>
+                                <div style={{ position: 'absolute', bottom: 12, left: 12, background: '#0C0C0A', color: '#fff', fontFamily: f, fontSize: 16, fontWeight: 800, letterSpacing: '.12em', padding: '6px 14px', borderRadius: 9999, border: '1.5px solid #C5FF00', zIndex: 4 }}>TODAY</div>
                               )}
                             </div>
                             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
