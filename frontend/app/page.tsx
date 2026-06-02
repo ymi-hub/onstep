@@ -1402,19 +1402,69 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
   // FlowCard와 동일한 칩 렌더러
-  function renderChip(item: RoutineItem, idx: number) {
+  function renderChip(item: RoutineItem, idx: number, allItems: RoutineItem[]) {
     if (item.type === 'product') {
       const p = products.get(item.id);
+      const stepNum = allItems.slice(0, idx + 1).filter(i => i.type === 'product').length;
       return (
-        <div key={idx} style={{ flexShrink: 0, width: 200, display: 'flex', flexDirection: 'column', gap: 0 }}>
-          <div style={{ width: 200, height: 200, background: '#EEEDE9', borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <div key={idx} style={{
+          flexShrink: 0,
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          padding: '20px 24px 0px',
+          width: 248,
+          minWidth: 248,
+          height: 355,
+          background: '#FFFFFF',
+          border: '1px solid #E5E5E5',
+        }}>
+          <div style={{
+            width: 200,
+            height: 257,
+            background: '#F3F3F4',
+            overflow: 'hidden',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}>
             {(p?.imageUrl || p?.storageUrl)
-              ? <img src={p!.imageUrl || p!.storageUrl} alt={p!.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <span style={{ fontSize: 48, opacity: 0.4 }}>🧴</span>
+              ? <img src={p!.imageUrl || p!.storageUrl} alt={p?.name} style={{ width: 200, height: 274, objectFit: 'cover', display: 'block' }} />
+              : <span style={{ fontSize: 56, opacity: 0.3 }}>🧴</span>
             }
           </div>
-          <div style={{ fontFamily: f, fontSize: 16, fontWeight: 700, color: '#0C0C0A', marginTop: 8, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%', textAlign: 'center' as const }}>
+          <div style={{
+            width: 155,
+            fontFamily: f,
+            fontWeight: 600,
+            fontSize: 20,
+            lineHeight: '18px',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#000000',
+            marginTop: 14,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap' as const,
+          }}>
             {p?.name ?? '?'}
+          </div>
+          <div style={{
+            width: 200,
+            fontFamily: f,
+            fontWeight: 400,
+            fontSize: 16,
+            lineHeight: '18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            color: '#000000',
+            marginTop: 8,
+          }}>
+            Step{String(stepNum).padStart(2, '0')}.
           </div>
         </div>
       );
@@ -1473,7 +1523,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             {item.items.length > 0 && (
               <div style={{ padding: '10px 16px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
                 <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
-                  {item.items.map((r, i) => renderChip(r, i))}
+                  {item.items.map((r, i) => renderChip(r, i, item.items))}
                 </div>
               </div>
             )}
@@ -1483,7 +1533,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               <div style={{ padding: '8px 16px 12px', borderTop: '1px dashed rgba(12,12,10,.07)' }}>
                 <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#4E7D00', marginBottom: 6 }}>TIP</div>
                 <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
-                  {(item.tipItems ?? []).map((r, i) => renderChip(r, i))}
+                  {(item.tipItems ?? []).map((r, i) => renderChip(r, i, item.tipItems ?? []))}
                 </div>
               </div>
             )}
