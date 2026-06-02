@@ -3043,9 +3043,10 @@ function CtPanel({
 
   // 목록 검색
   const [ctSearch, setCtSearch] = useState('');
-  const filteredCtItems = ctSearch.trim()
+  const filteredCtItems = (ctSearch.trim()
     ? ctItems.filter(i => i.name.toLowerCase().includes(ctSearch.toLowerCase()))
-    : ctItems;
+    : ctItems
+  ).slice().sort((a, b) => (b.published ? 1 : 0) - (a.published ? 1 : 0));
 
   // Inline text input
   const [activeInput, setActiveInput] = useState<{ section: 'main' | 'tip'; type: 'desc' | 'tip' } | null>(null);
