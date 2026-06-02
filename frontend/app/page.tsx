@@ -714,10 +714,10 @@ function FlowCard({
                       )}
                     </div>
                     <div style={{ width: '100%', textAlign: 'center' as const, marginTop: 6 }}>
-                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, color: '#000000', letterSpacing: '.06em', lineHeight: 1.2 }}>
+                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, color: '#000000', letterSpacing: '.06em', lineHeight: 1.7 }}>
                         Step{String(stepNum).padStart(2, '0')}
                       </div>
-                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#000000', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                         {p?.name ?? '?'}
                       </div>
                     </div>
