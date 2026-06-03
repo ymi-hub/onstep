@@ -2467,6 +2467,73 @@ function LogPageInner() {
         {/* ── 기록 탭 — 날짜 중심 타임라인 ── */}
         {mainTab === '기록' && (
           <div style={{ paddingTop: 8 }}>
+
+            {/* ── 스트릭 + 월간 달성률 카드 ── */}
+            {(() => {
+              const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+
+              // 연속 기록일: 오늘부터 거꾸로 연속된 날 수 계산
+              let streak = 0;
+              const MS_PER_DAY = 86_400_000;
+              let checkDate = new Date(todayStr + 'T00:00:00');
+              // 최대 31일(한 달)까지만 체크 (dayLogs 범위 내)
+              for (let i = 0; i < 31; i++) {
+                const ds = toDateStr(checkDate);
+                const log = dayLogs.get(ds);
+                if (log && (log.hasMorning || log.hasEvening)) {
+                  streak++;
+                  checkDate = new Date(checkDate.getTime() - MS_PER_DAY);
+                } else {
+                  break;
+                }
+              }
+
+              // 이번 달 달성률: 완료 일수 / 오늘까지 지난 일수
+              const todayDayNum = new Date(todayStr + 'T00:00:00').getDate();
+              const elapsedDays = isSameMonth(currentMonth, new Date()) ? todayDayNum : totalDaysInMonth;
+              const pct = elapsedDays > 0 ? Math.round((completedDays / elapsedDays) * 100) : 0;
+
+              // 아직 기록이 없으면 카드 숨김
+              if (completedDays === 0) return null;
+
+              return (
+                <div style={{ margin: '0 16px 16px', background: 'linear-gradient(135deg,#EFF9DC,#E6F5C2)', borderRadius: 16, padding: '14px 16px', border: '1px solid rgba(74,119,0,.12)' }}>
+                  <div style={{ display: 'flex', gap: 0, justifyContent: 'space-between' }}>
+
+                    {/* 연속 기록일 */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A7700', letterSpacing: '.06em' }}>연속 기록</span>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+                        <span style={{ fontFamily: f, fontSize: 28, fontWeight: 800, color: '#2D5200', lineHeight: 1 }}>{streak}</span>
+                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A7700' }}>일</span>
+                        {streak >= 3 && <span style={{ fontSize: 14 }}>🔥</span>}
+                      </div>
+                    </div>
+
+                    {/* 구분선 */}
+                    <div style={{ width: 1, background: 'rgba(74,119,0,.2)', margin: '0 12px' }} />
+
+                    {/* 월간 달성률 */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A7700', letterSpacing: '.06em' }}>
+                          {format(currentMonth, 'M월', { locale: ko })} 달성률
+                        </span>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#2D5200' }}>{pct}%</span>
+                      </div>
+                      {/* 프로그레스 바 */}
+                      <div style={{ height: 6, background: 'rgba(74,119,0,.15)', borderRadius: 9999, overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${pct}%`, background: '#4A7700', borderRadius: 9999, transition: 'width .5s ease' }} />
+                      </div>
+                      <span style={{ fontFamily: f, fontSize: 10, color: '#4A7700' }}>
+                        {completedDays}일 완료 / {elapsedDays}일 경과
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             <RecentStrip dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate} />
             <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '16px 16px 0' }} />
             <MonthCalendar
