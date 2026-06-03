@@ -39,7 +39,10 @@ import { imageFileToBase64 } from '@/lib/imageUtils';
 import { useAppContext } from '@/lib/AppContext';
 import { FALLBACK_USER_ID, FONT } from '@/lib/constants';
 import { getTodayDateStr } from '@/lib/dateUtils';
+import { migrateRawSlot, migrateSession } from '@/lib/migration';
+import { useTimer, formatTimerRemain, playAlarmChime } from '@/hooks/useTimer';
 import CatBadge from '@/components/CatBadge';
+import WeatherWidget from '@/components/WeatherWidget';
 import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
 import type { Habit } from '@/types/habit';
@@ -102,59 +105,6 @@ function findActiveSession(sessions: Session[]): Session | null {
 }
 
 // 구버전 슬롯 → SlotDay[] 변환
-function migrateRawSlot(raw: unknown): SlotDay[] {
-  const s = raw as Record<string, unknown>;
-  if (Array.isArray(s.days)) return s.days as SlotDay[];
-  const items: RoutineItem[] = Array.isArray(s.items) ? s.items as RoutineItem[] : [];
-  if (Array.isArray(s.phases)) {
-    const ph = s.phases as Array<{ productIds?: string[]; instruction?: string }>;
-    ph.forEach((p, i) => {
-      (p.productIds ?? []).forEach((id) => items.push({ type: 'product', id }));
-      if (p.instruction) items.push({ type: 'desc', text: p.instruction });
-      if (i < ph.length - 1) items.push({ type: 'plus' });
-    });
-  }
-  return [{ id: 1, items, tipItems: [], expertTip: (s.expertTip as string) ?? '' }];
-}
-
-// Firestore 문서 → Session (구버전 포맷 자동 변환)
-function migrateSession(raw: Record<string, unknown>, id: string): Session {
-  const r = raw;
-  // 최신 포맷: morning.days, evening.days
-  if (r.morning && (r.morning as Record<string, unknown>).days) {
-    return { id, ...(r as Omit<Session, 'id'>) };
-  }
-  // 구 포맷: days 배열 (RoutineDay[])
-  if (Array.isArray(r.days)) {
-    const days = r.days as Array<{ dayNumber: number; morning: unknown; evening: unknown }>;
-    return {
-      id,
-      sessionNumber: r.sessionNumber as number,
-      startDate: (r.startDate as string) ?? '',
-      endDate: (r.endDate as string) ?? '',
-      morningTime: (r.morningTime as string) ?? '07:30',
-      eveningTime: (r.eveningTime as string) ?? '22:00',
-      morning: { days: days.map((d, i) => ({ ...migrateRawSlot(d.morning)[0], id: i + 1 })) },
-      evening: { days: days.map((d, i) => ({ ...migrateRawSlot(d.evening)[0], id: i + 1 })) },
-      createdAt: (r.createdAt as string) ?? '',
-      updatedAt: (r.updatedAt as string) ?? '',
-    };
-  }
-  return {
-    id,
-    sessionNumber: (r.sessionNumber as number) ?? 1,
-    startDate: (r.startDate as string) ?? '',
-    endDate: (r.endDate as string) ?? '',
-    morningTime: (r.morningTime as string) ?? '07:30',
-    eveningTime: (r.eveningTime as string) ?? '22:00',
-    morning: { days: [{ id: 1, items: [], tipItems: [], expertTip: '' }] },
-    evening: { days: [{ id: 1, items: [], tipItems: [], expertTip: '' }] },
-    createdAt: (r.createdAt as string) ?? '',
-    updatedAt: (r.updatedAt as string) ?? '',
-  };
-}
-
-// 오늘(YYYY-MM-DD) 날짜 문자열 반환
 // 오늘 수행해야 하는 습관인지 판별
 function isHabitToday(h: Habit): boolean {
   const todayWD = new Date().getDay();
@@ -165,162 +115,7 @@ function isHabitToday(h: Habit): boolean {
   return false;
 }
 
-// ─── 날씨 위젯 ────────────────────────────────────────────────────────────────
-// Open-Meteo API: 무료, API 키 불필요, 위치 권한으로 현재 날씨 표시
 
-type WeatherData = { temp: number; desc: string; emoji: string };
-
-const WMO_MAP: Record<number, [string, string]> = {
-  0: ['맑음', '☀️'], 1: ['대체로 맑음', '🌤'], 2: ['구름 조금', '⛅️'], 3: ['흐림', '☁️'],
-  45: ['안개', '🌫'], 48: ['안개', '🌫'],
-  51: ['가는 이슬비', '🌦'], 53: ['이슬비', '🌦'], 55: ['짙은 이슬비', '🌦'],
-  61: ['약한 비', '🌧'], 63: ['비', '🌧'], 65: ['강한 비', '🌧'],
-  71: ['약한 눈', '🌨'], 73: ['눈', '🌨'], 75: ['강한 눈', '❄️'],
-  80: ['소나기', '🌦'], 81: ['소나기', '🌧'], 82: ['강한 소나기', '⛈'],
-  95: ['뇌우', '⛈'], 96: ['뇌우+우박', '⛈'], 99: ['강한 뇌우', '⛈'],
-};
-
-function WeatherWidget() {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [locName, setLocName] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  // requested: 캐시 복원 또는 버튼 클릭으로 이미 요청한 상태
-  const [requested, setRequested] = useState(false);
-
-  useEffect(() => {
-    // 캐시된 날씨 복원 (30분 이내)
-    const cached = typeof localStorage !== 'undefined' ? localStorage.getItem('onstep_weather_v5') : null;
-    if (cached) {
-      try {
-        const d = JSON.parse(cached);
-        if (Date.now() - d.ts < 30 * 60 * 1000) {
-          setWeather(d.weather);
-          setLocName(d.locName);
-          setRequested(true);
-          return; // 캐시 유효 → 재요청 불필요
-        }
-      } catch { /* ignore */ }
-    }
-    // 캐시 없거나 만료 → 자동으로 위치 요청
-    fetchWeather();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const fetchWeather = () => {
-    if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      setError('위치 정보를 지원하지 않는 브라우저입니다.');
-      return;
-    }
-    setLoading(true);
-    setRequested(true);
-    setError('');
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude: lat, longitude: lon } = pos.coords;
-        try {
-          // weather_code (언더스코어) 가 현재 Open-Meteo API 표준 필드명
-          const res = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,weather_code&timezone=auto`
-          );
-          const data = await res.json();
-          // weather_code 와 weathercode(구버전) 모두 대응
-          const code: number = data.current?.weather_code ?? data.current?.weathercode ?? 0;
-          const temp: number = Math.round(data.current?.temperature_2m ?? 0);
-          const [desc, emoji] = WMO_MAP[code] ?? ['알 수 없음', '🌡'];
-          const w: WeatherData = { temp, desc, emoji };
-
-          let name = '';
-          try {
-            const geo = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ko`
-            );
-            const gd = await geo.json();
-            name = gd.address?.city || gd.address?.town || gd.address?.county || gd.address?.state || '';
-          } catch { /* 위치명은 없어도 날씨는 표시 */ }
-
-          setWeather(w);
-          setLocName(name);
-          if (typeof localStorage !== 'undefined') {
-            localStorage.setItem('onstep_weather_v5', JSON.stringify({ ts: Date.now(), weather: w, locName: name }));
-          }
-        } catch (e) {
-          console.error('[OnStep] 날씨 fetch 실패:', e);
-          setError('날씨 정보를 가져오지 못했습니다.');
-        }
-        setLoading(false);
-      },
-      (err) => {
-        console.error('[OnStep] 위치 권한 오류:', err.code, err.message);
-        setError(err.code === 1 ? 'denied' : '위치 정보를 가져오지 못했습니다.');
-        setLoading(false);
-      },
-      { timeout: 10000 }
-    );
-  };
-
-  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
-
-  if (loading || !requested) {
-    return (
-      <div style={{ padding: '10px 16px 4px' }}>
-        <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6' }}>날씨 불러오는 중…</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    // 위치 권한 거부 → 시스템 설정으로 안내
-    if (error === 'denied') {
-      return (
-        <div style={{ padding: '10px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>📍 위치 권한 필요</span>
-          <a
-            href="app-settings:"
-            onClick={(e) => {
-              e.preventDefault();
-              // iOS: app-settings, Android/Desktop: permissions API
-              if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                window.location.href = 'app-settings:';
-              } else {
-                // 브라우저 설정 안내
-                alert('브라우저 주소창 왼쪽 자물쇠(🔒) 아이콘 → 위치 → 허용으로 변경해주세요.');
-              }
-            }}
-            style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A', textDecoration: 'underline', cursor: 'pointer' }}
-          >
-            설정 열기
-          </a>
-          <button onClick={() => { setError(''); fetchWeather(); }} style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 11, color: '#9A9490', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>재시도</button>
-        </div>
-      );
-    }
-    return (
-      <div style={{ padding: '10px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>날씨 정보 없음</span>
-        <button onClick={() => { setError(''); fetchWeather(); }} style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 11, color: '#9A9490', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>재시도</button>
-      </div>
-    );
-  }
-
-  if (!weather) return null;
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px 4px' }}>
-      <div style={{ width: 40, height: 40, background: '#C5FF00', borderRadius: 10, border: '2px solid #91C000', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, lineHeight: 1 }}>
-        {weather.emoji}
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {locName && (
-          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#9A9490', letterSpacing: '.04em', lineHeight: 1 }}>{locName}</div>
-        )}
-        <div style={{ fontFamily: f, fontSize: 13, fontWeight: 500, color: '#0C0C0A', lineHeight: 1 }}>
-          {weather.temp}°C · {weather.desc}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─── 세션 히어로 ──────────────────────────────────────────────────────────────
 // today.html .session-hero: 회차 번호 + 날짜 + DAY 진행 도트
@@ -447,38 +242,6 @@ function parseWaitMinutes(text: string): number | null {
   return m ? parseInt(m[1], 10) : null;
 }
 
-// 남은 ms → "M:SS" 포맷
-function formatTimerRemain(ms: number): string {
-  const totalSec = Math.ceil(ms / 1000);
-  const m = Math.floor(totalSec / 60);
-  const s = totalSec % 60;
-  return `${m}:${String(s).padStart(2, '0')}`;
-}
-
-// Web Audio API로 3음 차임 사운드 재생
-// AudioContext를 외부에서 주입받아 재생 — 클릭 시점 컨텍스트 활용
-function playAlarmChime(ctx: AudioContext) {
-  try {
-    const notes = [880, 1046, 1318];
-    notes.forEach((freq, i) => {
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      const t = ctx.currentTime + i * 0.22;
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.45, t + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
-      osc.start(t);
-      osc.stop(t + 0.7);
-    });
-  } catch {
-    // 사운드 미지원 환경에서는 조용히 무시
-  }
-}
-
 // ─── 루틴 플로우 카드 ─────────────────────────────────────────────────────────
 // today.html .flow-step-card: 아침/저녁 탭 + 제품 스트립 + 체크 버튼
 
@@ -509,84 +272,8 @@ function FlowCard({
   const slot = tab === 'morning' ? todayMorning : todayEvening;
   const isChecked = tab === 'morning' ? checked.morning : checked.evening;
 
-  // ── 대기 타이머 state ─────────────────────────────────────────────────────
-  const [timerLabel, setTimerLabel] = useState<string | null>(null);
-  const [timerEndMs, setTimerEndMs] = useState<number | null>(null);
-  const [timerRemainMs, setTimerRemainMs] = useState<number>(0);
-
-  // 알람 배너 state (타이머 종료 시 표시)
-  const [alarmVisible, setAlarmVisible] = useState(false);
-  const [alarmLabel, setAlarmLabel] = useState<string | null>(null);
-  const alarmFiredRef = useRef(false);           // 같은 타이머에서 중복 발화 방지
-  const alarmDismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // AudioContext — 클릭 시점에 미리 생성(iOS 자동재생 정책 대응)
-  const audioCtxRef = useRef<AudioContext | null>(null);
-
-  useEffect(() => {
-    if (!timerEndMs) return;
-    alarmFiredRef.current = false;
-
-    const tick = () => {
-      const remain = Math.max(0, timerEndMs - Date.now());
-      setTimerRemainMs(remain);
-
-      if (remain === 0 && !alarmFiredRef.current) {
-        alarmFiredRef.current = true;
-        setTimerEndMs(null);
-
-        // 사운드 재생 — 미리 생성된 AudioContext 활용 (iOS 자동재생 정책 대응)
-        if (audioCtxRef.current) {
-          const ctx = audioCtxRef.current;
-          if (ctx.state === 'suspended') {
-            ctx.resume().then(() => playAlarmChime(ctx)).catch(() => {});
-          } else if (ctx.state === 'running') {
-            playAlarmChime(ctx);
-          }
-        }
-
-        // 알람 배너 표시
-        setAlarmLabel(timerLabel);
-        setAlarmVisible(true);
-
-        // 8초 후 자동 닫기
-        if (alarmDismissRef.current) clearTimeout(alarmDismissRef.current);
-        alarmDismissRef.current = setTimeout(() => setAlarmVisible(false), 8000);
-      }
-    };
-
-    tick();
-    const id = setInterval(tick, 500);
-    return () => clearInterval(id);
-  }, [timerEndMs, timerLabel]);
-
-  // 언마운트 시 자동 닫기 타이머 정리
-  useEffect(() => () => {
-    if (alarmDismissRef.current) clearTimeout(alarmDismissRef.current);
-  }, []);
-
-  function startTimer(label: string, minutes: number) {
-    setAlarmVisible(false);   // 기존 배너 닫기
-    setTimerLabel(label);
-    setTimerEndMs(Date.now() + minutes * 60_000);
-    // 클릭 시점(사용자 제스처)에 AudioContext 미리 생성 — iOS 자동재생 정책 대응
-    try {
-      const AudioCtx = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (AudioCtx) {
-        if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
-          audioCtxRef.current = new AudioCtx();
-        }
-        // suspended 상태면 resume (iOS Safari)
-        if (audioCtxRef.current.state === 'suspended') {
-          void audioCtxRef.current.resume();
-        }
-      }
-    } catch { /* 미지원 환경 무시 */ }
-  }
-
-  function dismissAlarm() {
-    setAlarmVisible(false);
-    if (alarmDismissRef.current) clearTimeout(alarmDismissRef.current);
-  }
+  // 대기 타이머 — useTimer 훅으로 통합
+  const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, dismissAlarm } = useTimer();
 
   return (
     <>
@@ -869,7 +556,7 @@ function FlowCard({
                   {formatTimerRemain(timerRemainMs)}
                 </span>
                 <button
-                  onClick={() => setTimerEndMs(null)}
+                  onClick={() => dismissAlarm()}
                   style={{ background: 'rgba(255,255,255,.08)', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.45)', fontSize: 13, padding: '3px 7px', borderRadius: 6, lineHeight: 1 }}
                 >
                   ✕
