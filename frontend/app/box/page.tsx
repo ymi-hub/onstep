@@ -171,7 +171,7 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
         onClick={() => onEdit(hero)}
         style={{ padding: '16px 16px 0', cursor: 'pointer' }}
       >
-        <MagImg product={hero} height={260} borderRadius={20} isHero />
+        <MagImg product={hero} borderRadius={20} isHero />
         <div style={{ padding: '12px 0 4px' }}>
           {hero.brand && (
             <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontStyle: 'italic', color: '#0C0C0A', marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -190,7 +190,7 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, padding: '12px 16px 0' }}>
           {rest.map((p) => (
             <div key={p.id} onClick={() => onEdit(p)} style={{ cursor: 'pointer' }}>
-              <MagImg product={p} height={undefined} borderRadius={12} />
+              <MagImg product={p} borderRadius={12} />
               <div style={{ padding: '6px 0 0' }}>
                 {p.brand && (
                   <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontStyle: 'italic', color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -211,19 +211,19 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
 }
 
 // 매거진 이미지 블록 (히어로: 전폭 260px / 소형: 1:1 비율)
-function MagImg({ product, height, borderRadius, isHero }: { product: Product; height?: number; borderRadius: number; isHero?: boolean }) {
+function MagImg({ product, borderRadius, isHero }: { product: Product; borderRadius: number; isHero?: boolean }) {
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
+  const isSkincare = product.domain === 'beauty';
   const fillRate = product.totalAmount > 0 ? Math.min(1, product.currentRemaining / product.totalAmount) : 1;
-  const fillColor = fillRate > 0.5 ? '#C5FF00' : fillRate > 0.2 ? '#B45309' : '#D93025';
   return (
     <div
       style={{
         width: '100%',
-        ...(height ? { height } : { aspectRatio: '1/1' }),
+        aspectRatio: '3/4',
         borderRadius, background: '#EEEDE9',
         backgroundImage: imgUrl ? `url(${imgUrl})` : 'none',
-        backgroundSize: imgUrl ? (isHero ? 'auto 100%' : '100% auto') : 'none',
-        backgroundPosition: 'center top', backgroundRepeat: 'no-repeat',
+        backgroundSize: imgUrl ? 'contain' : 'none',
+        backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative', overflow: 'hidden',
       }}
@@ -234,10 +234,12 @@ function MagImg({ product, height, borderRadius, isHero }: { product: Product; h
           NEW ARRIVAL
         </div>
       )}
-      {/* 상단 잔량 바 */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(0,0,0,.08)' }}>
-        <div style={{ height: '100%', width: `${fillRate * 100}%`, background: fillColor }} />
-      </div>
+      {/* 하단 잔량 바 — 스킨케어(beauty)만 표시 */}
+      {isSkincare && (
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(12,12,10,.08)' }}>
+          <div style={{ height: '100%', width: `${fillRate * 100}%`, background: '#C5FF00' }} />
+        </div>
+      )}
     </div>
   );
 }
@@ -272,13 +274,11 @@ function ProductCard({
   product: Product;
   onClick: () => void;
 }) {
+  const isSkincare = product.domain === 'beauty';
   const fillRate =
     product.totalAmount > 0
       ? Math.min(1, product.currentRemaining / product.totalAmount)
       : 1;
-
-  const fillColor =
-    fillRate > 0.5 ? '#C5FF00' : fillRate > 0.2 ? '#B45309' : '#D93025';
 
   // Firebase Storage URL 또는 구 box.html Cloudinary URL
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
@@ -303,16 +303,19 @@ function ProductCard({
           style={{
             position: 'absolute', inset: 0,
             backgroundImage: `url(${imgUrl})`,
-            backgroundSize: 'cover',
+            backgroundSize: 'contain',
             backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
           }}
         />
       )}
 
-      {/* 상단 잔량 바 */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'rgba(0,0,0,.12)', zIndex: 1 }}>
-        <div style={{ height: '100%', width: `${fillRate * 100}%`, background: fillColor }} />
-      </div>
+      {/* 상단 잔량 바 — 스킨케어(beauty)만 표시 */}
+      {isSkincare && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'rgba(0,0,0,.12)', zIndex: 1 }}>
+          <div style={{ height: '100%', width: `${fillRate * 100}%`, background: '#C5FF00' }} />
+        </div>
+      )}
 
       {/* 제품 플레이스홀더 (이미지 없을 때만) */}
       {!imgUrl && <span style={{ fontSize: 24, opacity: 0.15 }}>✦</span>}
@@ -349,10 +352,10 @@ function ProductCard({
 
 // ─── 리스트 뷰 행 (design/box.html .list-item 구조) ──────────────────────────
 function ListRow({ product, onClick }: { product: Product; onClick: () => void }) {
+  const isSkincare = product.domain === 'beauty';
   const fillRate = product.totalAmount > 0
     ? Math.min(1, product.currentRemaining / product.totalAmount)
     : 1;
-  const fillColor = fillRate > 0.5 ? '#C5FF00' : fillRate > 0.2 ? '#B45309' : '#D93025';
   const pct = Math.round(fillRate * 100);
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
 
@@ -368,10 +371,10 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
       {/* 썸네일 — design/box.html .list-thumb */}
       <div
         style={{
-          width: 44, height: 54, borderRadius: 6, flexShrink: 0,
+          width: 44, aspectRatio: '3/4', borderRadius: 6, flexShrink: 0,
           background: '#EEEDE9', overflow: 'hidden',
           backgroundImage: imgUrl ? `url(${imgUrl})` : 'none',
-          backgroundSize: '100% auto', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat',
+          backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
@@ -402,15 +405,17 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
         </div>
       </div>
 
-      {/* 잔량 바 + 퍼센트 — design/box.html .list-res-col */}
-      <div style={{ width: 44, flexShrink: 0 }}>
-        <div style={{ height: 3, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${pct}%`, background: fillColor, borderRadius: 2 }} />
+      {/* 잔량 바 + 퍼센트 — 스킨케어(beauty)만 표시 */}
+      {isSkincare && (
+        <div style={{ width: 44, flexShrink: 0 }}>
+          <div style={{ height: 3, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${pct}%`, background: '#C5FF00', borderRadius: 2 }} />
+          </div>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', textAlign: 'right', marginTop: 2 }}>
+            {pct}%
+          </div>
         </div>
-        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', textAlign: 'right', marginTop: 2 }}>
-          {pct}%
-        </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -1623,7 +1628,7 @@ function ManageSheet({
                   style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', borderBottom: '1px solid rgba(12,12,10,.07)', opacity: dragDomIdx === idx ? 0.4 : 1, outline: dragDomOver === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 4 }}
                 >
                   {/* 드래그 핸들 */}
-                  <span style={{ cursor: 'grab', color: '#C4C2BE', fontSize: 16, userSelect: 'none' }}>⠿</span>
+                  <span style={{ cursor: 'grab', color: '#C4C2BE', fontSize: 20, userSelect: 'none', paddingRight: 20 }}>⠿</span>
 
                   {/* 이름 편집 */}
                   {renamingDomainId === d.id ? (
@@ -1746,7 +1751,7 @@ function ManageSheet({
                   onDragEnd={() => { setDragCatIdx(null); setDragCatOver(null); }}
                   style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(12,12,10,.07)', opacity: dragCatIdx === idx ? 0.4 : 1, outline: dragCatOver === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 4 }}
                 >
-                  <span style={{ cursor: 'grab', color: '#C4C2BE', fontSize: 16, userSelect: 'none' }}>⠿</span>
+                  <span style={{ cursor: 'grab', color: '#C4C2BE', fontSize: 20, userSelect: 'none', paddingRight: 20 }}>⠿</span>
                   <span style={{ flex: 1, fontFamily: f, fontSize: 14, color: '#0C0C0A' }}>{cat}</span>
                   <button onClick={() => deleteCat(idx)} style={{ width: 24, height: 24, borderRadius: 6, border: 'none', background: 'rgba(186,26,26,.08)', color: '#BA1A1A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>×</button>
                 </div>
@@ -1908,32 +1913,24 @@ function AddProductPage({
       {/* ── 스크롤 콘텐츠 영역 ── */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 0 96px', display: 'flex', flexDirection: 'column' }}>
 
-        {/* ── 제품 이미지 (design/box.html .add-img-block) ── */}
+        {/* ── 제품 이미지 — 220px 고정 영역 ── */}
         <div
           onClick={() => fileInputRef.current?.click()}
-          style={{
-            width: '100%', height: 220, cursor: 'pointer', position: 'relative',
-            background: displayImg ? 'transparent' : '#F4F4F0',
-            backgroundImage: displayImg ? `url(${displayImg})` : 'none',
-            backgroundSize: 'cover', backgroundPosition: 'center',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-          }}
+          style={{ width: '100%', height: 220, cursor: 'pointer', position: 'relative', background: '#F4F4F0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}
         >
-          {!displayImg && (
+          {displayImg ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={displayImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+              <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,.55)', color: '#fff', borderRadius: 6, padding: '5px 10px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700 }}>
+                사진 변경
+              </div>
+            </>
+          ) : (
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 8 }}>✦</div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490' }}>
-                ADD PRODUCT IMAGE
-              </div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>
-                탭하여 갤러리/카메라 선택
-              </div>
-            </div>
-          )}
-          {displayImg && (
-            <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,.55)', color: '#fff', borderRadius: 6, padding: '5px 10px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700 }}>
-              사진 변경
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490' }}>ADD PRODUCT IMAGE</div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 갤러리/카메라 선택</div>
             </div>
           )}
           <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />

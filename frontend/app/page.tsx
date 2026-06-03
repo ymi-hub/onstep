@@ -28,14 +28,14 @@ import {
   orderBy,
   where,
 } from 'firebase/firestore';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
   onAuthStateChanged,
   signInWithRedirect,
   GoogleAuthProvider,
   type User,
 } from 'firebase/auth';
-import { db, auth, storage } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
+import { imageFileToBase64 } from '@/lib/imageUtils';
 import { useAppContext } from '@/lib/AppContext';
 import { FALLBACK_USER_ID } from '@/lib/constants';
 import type { Product } from '@/types/product';
@@ -729,7 +729,7 @@ function FlowCard({
                       flexShrink: 0,
                     }}>
                       {(p?.imageUrl || p?.storageUrl)
-                        ? <img src={p!.imageUrl || p!.storageUrl} alt={p?.name} style={{ width: 200, height: 274, objectFit: 'cover', display: 'block' }} />
+                        ? <img src={p!.imageUrl || p!.storageUrl} alt={p?.name} style={{ width: 200, height: 274, objectFit: 'contain', display: 'block' }} />
                         : <span style={{ fontSize: 56, opacity: 0.3 }}>🧴</span>
                       }
                       {isChecked && (
@@ -1094,72 +1094,43 @@ function TodayHabitSection({
 // ─── 루틴 없을 때 빈 상태 카드 ─────────────────────────────────────────────────
 
 function RoutineEmptyCard() {
+  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+  const steps = [
+    { num: '1', icon: '📦', label: 'BOX', desc: '사용하는 제품을 등록해요', href: '/box', cta: 'BOX 열기 →' },
+    { num: '2', icon: '📋', label: 'SETUP', desc: '루틴 플랜을 설계해요', href: '/setup', cta: 'SETUP 열기 →' },
+    { num: '3', icon: '✅', label: 'TODAY', desc: '매일 체크하고 기록해요', href: null, cta: null },
+  ];
   return (
-    <div
-      style={{
-        margin: '0 16px',
-        background: '#FFFFFF',
-        border: '1px solid rgba(12,12,10,.07)',
-        boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.03)',
-        borderRadius: 20,
-        overflow: 'hidden',
-      }}
-    >
-      {/* 상단 헤더 */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 16px 4px',
-          borderBottom: '1px solid rgba(12,12,10,.07)',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 10,
-            fontWeight: 800,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            background: '#0C0C0A',
-            color: '#A6D900',
-            padding: '3px 10px',
-            borderRadius: 9999,
-          }}
-        >
-          Day 1
-        </span>
-        <span
-          style={{
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 13,
-            fontWeight: 400,
-            color: '#9A9490',
-          }}
-        >
-          0개 제품
-        </span>
+    <div style={{ margin: '0 16px' }}>
+      {/* 안내 헤더 */}
+      <div style={{ padding: '20px 4px 16px', textAlign: 'center' }}>
+        <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490', marginBottom: 6 }}>GETTING STARTED</div>
+        <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.3 }}>시작하는 방법</div>
+        <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 6 }}>아래 순서대로 진행하면 오늘의 루틴이 완성돼요</div>
       </div>
 
-      {/* 빈 상태 — white card 패턴 통일 */}
-      <div style={{ margin: '0 16px', padding: '24px 16px 20px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 28 }}>🌿</span>
-        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘 날짜에 해당하는 루틴이 없어요</div>
-        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, color: '#9A9490', marginBottom: 8 }}>SETUP에서 케어 플랜을 등록해보세요</div>
-        <Link
-          href="/setup"
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            height: 44, width: '100%',
-            background: '#C5FF00', color: '#0C0C0A',
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 13, fontWeight: 800, letterSpacing: '0.06em',
-            textTransform: 'uppercase', borderRadius: 12, textDecoration: 'none',
-          }}
-        >
-          루틴 설정하기 →
-        </Link>
+      {/* 3단계 카드 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 8 }}>
+        {steps.map((s, i) => (
+          <div key={i} style={{ background: '#fff', borderRadius: 16, padding: '16px', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.04)', display: 'flex', alignItems: 'center', gap: 14 }}>
+            {/* 번호 배지 */}
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: i === 2 ? '#F4F4F0' : '#0C0C0A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: i === 2 ? '#BCBAB6' : '#C5FF00' }}>{s.num}</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                <span style={{ fontSize: 14 }}>{s.icon}</span>
+                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: i === 2 ? '#BCBAB6' : '#0C0C0A', letterSpacing: '.06em' }}>{s.label}</span>
+              </div>
+              <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>{s.desc}</div>
+            </div>
+            {s.href && (
+              <Link href={s.href} style={{ flexShrink: 0, height: 34, padding: '0 14px', background: '#C5FF00', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                {s.cta}
+              </Link>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -1271,7 +1242,7 @@ function OOTDSection({
               <Link href={`/log?tab=라이브러리&filter=lookbook&id=${heroLook.id}`} style={{ display: 'block', textDecoration: 'none' }}>
                 <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4', background: '#1C1C1C', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={heroLook.imageUrl} alt={heroLook.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={heroLook.imageUrl} alt={heroLook.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '60px 16px 18px', background: 'linear-gradient(to top,rgba(0,0,0,.56) 0%,transparent 55%)', pointerEvents: 'none' }}>
                     <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,.7)', marginBottom: 5 }}>TODAY&apos;S LOOK</div>
                     <div style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#fff', lineHeight: 1.25 }}>{heroLook.name}</div>
@@ -1302,7 +1273,7 @@ function OOTDSection({
                       <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 4, border: '1px solid #E4E4E7', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                         {imgUrl
                           // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                           : <span style={{ fontSize: 32, opacity: 0.3 }}>👗</span>
                         }
                       </div>
@@ -1335,7 +1306,7 @@ function OOTDSection({
             <div style={{ width: 36, height: 36, borderRadius: 9999, background: '#E8E6E0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
               {ootdLog.photoUrl
                 // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={ootdLog.photoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+                ? <img src={ootdLog.photoUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="" />
                 : '👗'}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -1432,7 +1403,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             flexShrink: 0,
           }}>
             {(p?.imageUrl || p?.storageUrl)
-              ? <img src={p!.imageUrl || p!.storageUrl} alt={p?.name} style={{ width: 200, height: 274, objectFit: 'cover', display: 'block' }} />
+              ? <img src={p!.imageUrl || p!.storageUrl} alt={p?.name} style={{ width: 200, height: 274, objectFit: 'contain', display: 'block' }} />
               : <span style={{ fontSize: 56, opacity: 0.3 }}>🧴</span>
             }
           </div>
@@ -1499,7 +1470,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             {item.imageUrl ? (
               <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', background: '#1C1C1C', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '65%', background: 'linear-gradient(to top, rgba(0,0,0,.72) 0%, transparent 100%)', pointerEvents: 'none' }} />
                 <div style={{ position: 'absolute', bottom: 14, left: 16, right: 16, fontFamily: f, fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-.02em', lineHeight: 1.15, zIndex: 1 }}>
                   {item.emoji} {item.name}
@@ -1598,7 +1569,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                 <Link href={`/log?tab=라이브러리&filter=makeup&id=${item.id}`} style={{ display: 'block', textDecoration: 'none' }}>
                   <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', background: '#1C1C1C', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
                     {/* "EDITORIAL CHOICE" 배지 (우상단) */}
                     <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(0,0,0,.55)', backdropFilter: 'blur(6px)', borderRadius: 6, padding: '4px 10px', fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.12em', color: '#fff', textTransform: 'uppercase' as const }}>
                       EDITORIAL CHOICE
@@ -1633,7 +1604,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                         <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 4, border: '1px solid #E4E4E7', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                           {imgUrl
                             // eslint-disable-next-line @next/next/no-img-element
-                            ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             : <span style={{ fontSize: 24, opacity: 0.3 }}>💄</span>
                           }
                         </div>
@@ -1770,11 +1741,11 @@ function OOTDRecordSheet({
         <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPhotoChange} />
         <div
           onClick={() => fileInputRef.current?.click()}
-          style={{ width: '100%', height: 120, background: photoPreview ? 'none' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 12, overflow: 'hidden', position: 'relative' }}
+          style={{ width: '100%', height: 420, background: photoPreview ? 'none' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 12, overflow: 'hidden', position: 'relative' }}
         >
           {photoPreview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={photoPreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+            <img src={photoPreview} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="" />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 26, opacity: 0.3 }}>📷</span>
@@ -2343,23 +2314,20 @@ export default function TodayPage() {
     if (file) handleOOTDPhotoFile(file);
   };
 
-  // ── OOTD 저장 ──
+  // ── OOTD 저장 (Base64 → Firestore 직접 저장, Storage 미사용) ──
   const handleSaveOOTD = async () => {
     const _db = db;
-    if (!_db || !user) return;
+    if (!_db || !user) { alert('로그인이 필요합니다.'); return; }
     setOotdSaving(true);
     try {
+      // 새 파일이 선택된 경우 Base64로 변환 (400px 리사이즈 + JPEG 70% 압축)
       let photoUrl = ootdLog?.photoUrl ?? '';
-      // 새 파일이 선택된 경우에만 Storage 업로드
-      if (ootdPhotoFile && storage) {
-        const path = `users/${userId}/ootd/${getTodayDateStr()}_${Date.now()}`;
-        const ref = storageRef(storage, path);
-        await uploadBytes(ref, ootdPhotoFile);
-        photoUrl = await getDownloadURL(ref);
+      if (ootdPhotoFile) {
+        photoUrl = await imageFileToBase64(ootdPhotoFile);
       }
+
       const todayStr = getTodayDateStr();
       if (ootdLog) {
-        // 기존 기록 수정
         await updateDoc(doc(_db, 'users', userId, 'ootdLogs', ootdLog.id), {
           theme: ootdTheme,
           note: ootdNote,
@@ -2367,7 +2335,6 @@ export default function TodayPage() {
           updatedAt: new Date().toISOString(),
         });
       } else {
-        // 새 기록 저장
         await addDoc(collection(_db, 'users', userId, 'ootdLogs'), {
           date: todayStr,
           theme: ootdTheme,
@@ -2379,6 +2346,7 @@ export default function TodayPage() {
       setOotdSheetOpen(false);
     } catch (err) {
       console.error('[OnStep] OOTD 저장 실패:', err);
+      alert(`저장에 실패했습니다.\n${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setOotdSaving(false);
     }

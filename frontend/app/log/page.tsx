@@ -11,6 +11,7 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import {
   format,
   startOfMonth,
@@ -51,6 +52,17 @@ import type { CtItem } from '@/types/ctitem';
 import PageHeader from '@/components/PageHeader';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
+
+// 오늘의 룩 기록
+type OOTDLog = {
+  id: string;
+  date: string;      // "YYYY-MM-DD"
+  theme: string;
+  note: string;
+  photoUrl: string;
+  productIds?: string[];
+  createdAt: string;
+};
 
 // Firestore usageLogs에서 읽어온 개별 로그 항목
 type LogEntry = {
@@ -665,6 +677,28 @@ function DayDetail({
         {renderSlot('NIGHT', '🌙', eveningUniq, dayLog?.hasEvening ?? false, eveningExpertProds)}
       </div>
 
+      {/* 오늘 날짜 + 미완료 → TODAY 바로가기 */}
+      {(() => {
+        const todayStr = format(new Date(), 'yyyy-MM-dd');
+        const isToday = dateStr === todayStr;
+        const incomplete = isToday && (!dayLog?.hasMorning || !dayLog?.hasEvening);
+        if (!incomplete) return null;
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        return (
+          <div style={{ margin: '0 12px 12px', padding: '12px 14px', background: '#F5FDD4', border: '1px solid #C5FF00', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A' }}>
+                {!dayLog?.hasMorning && !dayLog?.hasEvening ? '아침·저녁 루틴이 미완료예요' :
+                 !dayLog?.hasMorning ? '아침 루틴이 미완료예요' : '저녁 루틴이 미완료예요'}
+              </div>
+            </div>
+            <Link href="/" style={{ flexShrink: 0, height: 32, padding: '0 14px', background: '#0C0C0A', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+              TODAY →
+            </Link>
+          </div>
+        );
+      })()}
+
       {/* 약 루틴 (Medication) */}
       {(() => {
         const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
@@ -794,7 +828,7 @@ function DayDetail({
                       <div style={{ width: 80, height: 80, borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {item.imageUrl
                           // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                           : <span style={{ fontSize: 32 }}>{item.emoji || '💄'}</span>
                         }
                       </div>
@@ -814,7 +848,7 @@ function DayDetail({
                       <div style={{ width: 80, height: 106, borderRadius: 10, overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {item.imageUrl
                           // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                           : <span style={{ fontSize: 36 }}>{item.emoji || '👗'}</span>
                         }
                       </div>
@@ -994,7 +1028,7 @@ function LogLibraryCard({
         {/* 이미지 — overflow: visible for stamp */}
         <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
           {item.imageUrl
-            ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
             : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
           }
           {isOnToday && (
@@ -1040,7 +1074,7 @@ function LogLibraryCard({
             return (
               <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <div style={{ width: 120, height: 160, borderRadius: 0, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
+                  {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
                 </div>
                 <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
               </div>
@@ -1249,7 +1283,7 @@ function AddItemSheet({
           {/* 이미지 — 탭(갤러리/카메라) + 클립보드 붙여넣기 */}
           <div
             onClick={() => fileRef.current?.click()}
-            style={{ width: '100%', height: 180, background: imgPreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 8, overflow: 'hidden', position: 'relative', backgroundImage: imgPreview ? `url(${imgPreview})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}
+            style={{ width: '100%', height: 180, background: imgPreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 8, overflow: 'hidden', position: 'relative', backgroundImage: imgPreview ? `url(${imgPreview})` : 'none', backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
           >
             {!imgPreview && (
               <div style={{ textAlign: 'center' }}>
@@ -1350,7 +1384,7 @@ function AddItemSheet({
                   <div key={p.id} onClick={() => setSelectedProds(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 16 }}>{ctType === 'makeup' ? '💄' : '👗'}</span>}
+                      {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{ctType === 'makeup' ? '💄' : '👗'}</span>}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
@@ -1566,7 +1600,7 @@ function LogCtPanel({
     if (featured) return (
       <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
         <div style={{ width: '100%', height: 340, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, overflow: 'visible', position: 'relative' }}>
-          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
+          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
           {isOnToday && (
             <div style={{ position: 'absolute', bottom: -46, right: -18, transform: 'rotate(-9deg)', zIndex: 4, width: 72, height: 72, borderRadius: '50%', border: '2.5px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
               <div style={{ position: 'absolute', inset: 4, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
@@ -1588,7 +1622,7 @@ function LogCtPanel({
               return (
                 <div key={idx} style={{ flexShrink: 0, width: 100, display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <div style={{ width: 100, height: 100, borderRadius: 12, background: '#fff', border: '1px solid rgba(12,12,10,.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                    {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 28, opacity: 0.2 }}>🧴</span>}
+                    {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 28, opacity: 0.2 }}>🧴</span>}
                   </div>
                   <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
                 </div>
@@ -1610,7 +1644,7 @@ function LogCtPanel({
       <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
         {/* 이미지 — 이름 오버레이 포함 */}
         <div style={{ width: '100%', height: 180, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, overflow: 'visible', position: 'relative' }}>
-          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
+          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
           {/* 하단 그라데이션 + 이름 오버레이 */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px 8px 8px', background: 'linear-gradient(to top, rgba(0,0,0,.6) 0%, transparent 100%)' }}>
             <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
@@ -1632,7 +1666,7 @@ function LogCtPanel({
               return (
                 <div key={idx} style={{ flexShrink: 0, width: 52, display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <div style={{ width: 52, height: 52, borderRadius: 8, background: '#fff', border: '1px solid rgba(12,12,10,.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 3px rgba(0,0,0,.06)' }}>
-                    {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 16, opacity: 0.2 }}>🧴</span>}
+                    {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16, opacity: 0.2 }}>🧴</span>}
                   </div>
                   <span style={{ fontFamily: f, fontSize: 9, fontWeight: 600, color: '#4A4846', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
                 </div>
@@ -1740,7 +1774,7 @@ function LogCtPanel({
               </div>
 
               {/* 이미지 — 탭(갤러리/카메라) + 클립보드 붙여넣기 */}
-              <div onClick={() => fileRef.current?.click()} style={{ width: '100%', height: 430, background: sImagePreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 8, overflow: 'hidden', position: 'relative', backgroundImage: sImagePreview ? `url(${sImagePreview})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+              <div onClick={() => fileRef.current?.click()} style={{ width: '100%', height: 430, background: sImagePreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 8, overflow: 'hidden', position: 'relative', backgroundImage: sImagePreview ? `url(${sImagePreview})` : 'none', backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
                 {!sImagePreview && (
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 6 }}>📷</div>
@@ -1846,7 +1880,7 @@ function LogCtPanel({
                       <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                         <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 16 }}>{filter === 'makeup' ? '💄' : '👗'}</span>}
+                          {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{filter === 'makeup' ? '💄' : '👗'}</span>}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
@@ -2006,7 +2040,63 @@ function LogPageInner() {
   // ── 탭 상태 ──
   const [mainTab, setMainTab] = useState<'기록' | '라이브러리' | '아카이브'>('기록');
   const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook'>('all');
-  const [libFilter, setLibFilter] = useState<'all' | 'makeup' | 'lookbook'>('all');
+  const [libFilter, setLibFilter] = useState<'all' | 'makeup' | 'lookbook' | 'ootd'>('all');
+
+  // OOTD 편집 시트 상태
+  const [editingOotd, setEditingOotd] = useState<OOTDLog | null>(null);
+  const [ootdEditTheme, setOotdEditTheme] = useState('');
+  const [ootdEditNote, setOotdEditNote] = useState('');
+  const [ootdEditPhotoFile, setOotdEditPhotoFile] = useState<File | null>(null);
+  const [ootdEditPreview, setOotdEditPreview] = useState('');
+  const [ootdEditProductIds, setOotdEditProductIds] = useState<string[]>([]);
+  const [ootdEditSaving, setOotdEditSaving] = useState(false);
+  const [ootdPickerOpen, setOotdPickerOpen] = useState(false);
+  const [ootdPickerSearch, setOotdPickerSearch] = useState('');
+  const ootdFileRef = useRef<HTMLInputElement>(null);
+
+  function openOotdEdit(log: OOTDLog) {
+    setEditingOotd(log);
+    setOotdEditTheme(log.theme || '');
+    setOotdEditNote(log.note || '');
+    setOotdEditPhotoFile(null);
+    setOotdEditPreview(log.photoUrl || '');
+    setOotdEditProductIds(log.productIds ?? []);
+    setOotdPickerSearch('');
+  }
+
+  async function saveOotdEdit() {
+    if (!editingOotd || !db || !user) return;
+    setOotdEditSaving(true);
+    try {
+      let photoUrl = editingOotd.photoUrl ?? '';
+      if (ootdEditPhotoFile) {
+        photoUrl = await imageFileToBase64(ootdEditPhotoFile);
+      }
+      await updateDoc(doc(db, 'users', userId, 'ootdLogs', editingOotd.id), {
+        theme: ootdEditTheme,
+        note: ootdEditNote,
+        photoUrl,
+        productIds: ootdEditProductIds,
+        updatedAt: new Date().toISOString(),
+      });
+      setEditingOotd(null);
+    } catch (err) {
+      console.error('[OnStep] OOTD 수정 실패:', err);
+    } finally {
+      setOotdEditSaving(false);
+    }
+  }
+
+  async function deleteOotdEdit() {
+    if (!editingOotd || !db || !user) return;
+    if (!confirm('이 기록을 삭제할까요?')) return;
+    try {
+      await deleteDoc(doc(db, 'users', userId, 'ootdLogs', editingOotd.id));
+      setEditingOotd(null);
+    } catch (err) {
+      console.error('[OnStep] OOTD 삭제 실패:', err);
+    }
+  }
 
   // ── URL 파라미터로 탭 이동 + 필터 + 특정 아이템 스크롤 ──
   const searchParams = useSearchParams();
@@ -2095,6 +2185,9 @@ function LogPageInner() {
   const [medDayMap, setMedDayMap] = useState<Map<string, Set<string>>>(new Map());
   const [healthDayMap, setHealthDayMap] = useState<Map<string, Set<string>>>(new Map());
   const [dietDayMap, setDietDayMap] = useState<Map<string, Set<string>>>(new Map());
+
+  // OOTD 기록 — 전체 구독
+  const [ootdLogs, setOotdLogs] = useState<OOTDLog[]>([]);
 
   // auth/products/ct → AppContext에서 공유
 
@@ -2205,6 +2298,19 @@ function LogPageInner() {
 
   // products/makeupItems/lookItems → AppContext에서 공유
 
+  // ── OOTD 기록 실시간 구독 ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const q = query(
+      collection(_db, 'users', userId, 'ootdLogs'),
+      orderBy('date', 'desc')
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setOotdLogs(snap.docs.map(d => ({ id: d.id, ...d.data() } as OOTDLog)));
+    });
+    return () => unsub();
+  }, [userId, authLoading, user]);
 
   // 날짜 선택 토글 (이미 선택된 날 클릭 → 선택 해제)
   const handleSelectDate = (ds: string) => {
@@ -2524,7 +2630,7 @@ function LogPageInner() {
                                   <div style={{ width: 140, height: 200, borderRadius: 0, overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {item.imageUrl
                                       // eslint-disable-next-line @next/next/no-img-element
-                                      ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                      ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                       : <span style={{ fontSize: 28 }}>{item.emoji || '💄'}</span>}
                                   </div>
                                   <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
@@ -2538,7 +2644,7 @@ function LogPageInner() {
                                   <div style={{ width: 140, height: 200, borderRadius: 0, overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {item.imageUrl
                                       // eslint-disable-next-line @next/next/no-img-element
-                                      ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                      ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                       : <span style={{ fontSize: 28 }}>{item.emoji || '👗'}</span>}
                                   </div>
                                   <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
@@ -2556,39 +2662,134 @@ function LogPageInner() {
           </div>
         )}
 
-        {/* ── 라이브러리 탭 — 아이템 중심 사용 히스토리 ── */}
-        {mainTab === '아카이브' && (
-          <div style={{ padding: '16px 16px 0' }}>
-            <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
-              {(['all', 'makeup', 'lookbook'] as const).map((f) => {
-                const usedItems = f === 'all'
-                  ? [...makeupItems, ...lookItems].filter(i => (i.dates ?? []).length > 0)
-                  : (f === 'makeup' ? makeupItems : lookItems).filter(i => (i.dates ?? []).length > 0);
+        {/* ── 아카이브 탭 ── */}
+        {mainTab === '아카이브' && (() => {
+          const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+          const usedMakeup = makeupItems.filter(i => (i.dates ?? []).length > 0);
+          const usedLook = lookItems.filter(i => (i.dates ?? []).length > 0);
+          const tabs: { key: 'all' | 'makeup' | 'lookbook' | 'ootd'; label: string; count: number }[] = [
+            { key: 'all',     label: 'ALL',      count: usedMakeup.length + usedLook.length + ootdLogs.length },
+            { key: 'makeup',  label: '💄 메이크업', count: usedMakeup.length },
+            { key: 'lookbook',label: '👗 룩북',   count: usedLook.length },
+            { key: 'ootd',    label: '오늘의룩',  count: ootdLogs.length },
+          ];
+
+          // 아이템 목록 (makeup + lookbook)
+          const ctItems = libFilter === 'all'
+            ? [...usedMakeup, ...usedLook].sort((a, b) => (b.dates ?? []).length - (a.dates ?? []).length)
+            : libFilter === 'makeup' ? usedMakeup
+            : libFilter === 'lookbook' ? usedLook
+            : [];
+
+          // OOTD 카드 리스트 — LogLibraryCard와 동일 CSS
+          const OotdGrid = () => (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+              {ootdLogs.map(log => {
+                const pIds = log.productIds ?? [];
                 return (
-                  <button key={f} onClick={() => setLibFilter(f)} style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${libFilter === f ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: libFilter === f ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: libFilter === f ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 5 }}>
-                    {f === 'all' ? 'ALL' : f === 'makeup' ? '💄 메이크업' : '👗 룩북'}
-                    {usedItems.length > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: '#C5FF00', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{usedItems.length}</span>}
-                  </button>
+                <div key={log.id} style={{ border: '1px solid #000000', background: '#FFFFFF' }}>
+                  {/* 카드 본체 */}
+                  <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 24px 0px', position: 'relative', width: '100%', isolation: 'isolate', flexShrink: 0 }}>
+                    {/* 배지 */}
+                    <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#C6F432', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
+                      <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>#OOTD</span>
+                    </div>
+                    {/* 이미지 */}
+                    <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
+                      {log.photoUrl
+                        ? <img src={log.photoUrl} alt={log.theme} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                        : <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>}
+                    </div>
+                    {/* 제목 (테마) */}
+                    <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: 12, width: '100%', zIndex: 1 }}>
+                      {log.theme || '오늘의 룩'}
+                    </div>
+                    {/* 날짜 + 메모 */}
+                    <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>
+                      {log.date}{log.note ? ` · ${log.note}` : ''}
+                    </div>
+                  </div>
+                  {/* 제품 영역 */}
+                  {pIds.length > 0 && (
+                    <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', width: '100%', scrollbarWidth: 'none' as const, borderTop: '1px solid #000000', boxSizing: 'border-box' as const }}>
+                      {pIds.map((pid, idx) => {
+                        const p = products.get(pid);
+                        const imgSrc = p?.imageUrl ?? (p as (Product & { storageUrl?: string }) | undefined)?.storageUrl;
+                        return (
+                          <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                            <div style={{ width: 120, height: 160, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
+                            </div>
+                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {/* 편집 버튼 */}
+                  <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
+                </div>
                 );
               })}
             </div>
-            {(() => {
-              const allUsed = [...makeupItems, ...lookItems].filter(i => (i.dates ?? []).length > 0);
-              const items = libFilter === 'all' ? allUsed : (libFilter === 'makeup' ? makeupItems : lookItems).filter(i => (i.dates ?? []).length > 0);
-              if (items.length === 0) return (
-                <div style={{ padding: '32px 20px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, marginBottom: 20 }}>
-                  <div style={{ fontSize: 28, marginBottom: 8 }}>{libFilter === 'makeup' ? '💄' : libFilter === 'lookbook' ? '👗' : '📂'}</div>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>사용 기록이 없어요</div>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>라이브러리에서 Today ON을 설정하면 기록됩니다</div>
-                </div>
-              );
-              const sorted = [...items].sort((a, b) => (b.dates ?? []).length - (a.dates ?? []).length);
-              return sorted.map(item => (
-                <LogLibraryCard key={item.id} item={item} products={products} onEdit={() => triggerCollectionEdit(item)} />
-              ));
-            })()}
-          </div>
-        )}
+          );
+
+          return (
+            <div style={{ padding: '16px 16px 0' }}>
+              {/* 필터 탭 */}
+              <div style={{ display: 'flex', gap: 4, marginBottom: 14 }}>
+                {tabs.map(t => (
+                  <button key={t.key} onClick={() => setLibFilter(t.key)}
+                    style={{ flex: 1, height: 28, padding: '0 6px', borderRadius: 9999, border: `1.5px solid ${libFilter === t.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: libFilter === t.key ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: libFilter === t.key ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, whiteSpace: 'nowrap' as const }}>
+                    {t.label}
+                    {t.count > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: libFilter === t.key ? '#C5FF00' : '#EEEDE9', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t.count}</span>}
+                  </button>
+                ))}
+              </div>
+
+              {/* 콘텐츠 */}
+              {libFilter === 'ootd' ? (
+                ootdLogs.length === 0
+                  ? <div style={{ padding: '32px 20px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, marginBottom: 20 }}>
+                      <div style={{ fontSize: 28, marginBottom: 8 }}>👗</div>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>오늘의 룩 기록이 없어요</div>
+                      <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>TODAY 화면에서 기록해보세요</div>
+                    </div>
+                  : <OotdGrid />
+              ) : (
+                <>
+                  {ctItems.length === 0 && libFilter !== 'all' && (
+                    <div style={{ padding: '32px 20px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, marginBottom: 20 }}>
+                      <div style={{ fontSize: 28, marginBottom: 8 }}>{libFilter === 'makeup' ? '💄' : '👗'}</div>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>사용 기록이 없어요</div>
+                      <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>라이브러리에서 Today ON을 설정하면 기록됩니다</div>
+                    </div>
+                  )}
+                  {ctItems.map(item => (
+                    <LogLibraryCard key={item.id} item={item} products={products} onEdit={() => triggerCollectionEdit(item)} />
+                  ))}
+                  {/* ALL일 때 OOTD 그리드도 함께 표시 */}
+                  {libFilter === 'all' && ootdLogs.length > 0 && (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '20px 0 12px' }}>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490' }}>오늘의룩</span>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{ootdLogs.length}개</span>
+                      </div>
+                      <OotdGrid />
+                    </>
+                  )}
+                  {libFilter === 'all' && ctItems.length === 0 && ootdLogs.length === 0 && (
+                    <div style={{ padding: '32px 20px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, marginBottom: 20 }}>
+                      <div style={{ fontSize: 28, marginBottom: 8 }}>📂</div>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>아카이브가 비어있어요</div>
+                      <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>라이브러리에서 Today ON을 설정하면 기록됩니다</div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })()}
 
         {/* ── 아카이브 탭 — 메이크업·룩북 CRUD + Today ON ── */}
         {mainTab === '라이브러리' && (
@@ -2641,7 +2842,7 @@ function LogPageInner() {
                             {/* overflow: visible — 스탬프가 이미지 아래로 삐져나오게 */}
                             <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
                               {item.imageUrl
-                                ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                                ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
                                 : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
                               }
                               {isOnToday && (
@@ -2681,7 +2882,7 @@ function LogPageInner() {
                                 return (
                                   <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
                                     <div style={{ width: 120, height: 160, borderRadius: 0, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                      {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
+                                      {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
                                     </div>
                                     <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
                                   </div>
@@ -2764,6 +2965,131 @@ function LogPageInner() {
           </button>
         </>
       )}
+
+      {/* ── OOTD 편집 시트 ── */}
+      {editingOotd && (() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk','sans-serif'";
+        const THEMES = ['캐주얼', '오피스룩', '스트릿', '미니멀', '빈티지', '스포티', '포멀', '로맨틱'];
+        const displayImg = ootdEditPreview;
+        return (
+          <>
+            <div onClick={() => setEditingOotd(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', padding: '10px 20px calc(env(safe-area-inset-bottom,0px) + 24px)' }}>
+              <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 18px' }} />
+              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', marginBottom: 4 }}>{editingOotd.date}</div>
+              <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 16 }}>오늘의 룩 편집</div>
+
+              {/* 사진 */}
+              <input ref={ootdFileRef} type="file" accept="image/*" style={{ display: 'none' }}
+                onChange={async e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setOotdEditPhotoFile(file);
+                  setOotdEditPreview(URL.createObjectURL(file));
+                }} />
+              <div onClick={() => ootdFileRef.current?.click()}
+                style={{ width: '100%', height: 220, borderRadius: 12, overflow: 'hidden', background: '#F4F4F0', cursor: 'pointer', position: 'relative', marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {displayImg
+                  ? <img src={displayImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  : <span style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>📷 사진 추가</span>}
+                {displayImg && <div style={{ position: 'absolute', bottom: 8, right: 8, background: 'rgba(0,0,0,.5)', color: '#fff', borderRadius: 6, padding: '4px 8px', fontFamily: f, fontSize: 11, fontWeight: 700 }}>사진 변경</div>}
+              </div>
+
+              {/* 테마 */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>테마</div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 14 }}>
+                {THEMES.map(t => (
+                  <button key={t} type="button" onClick={() => setOotdEditTheme(ootdEditTheme === t ? '' : t)}
+                    style={{ padding: '6px 14px', borderRadius: 9999, border: `1.5px solid ${ootdEditTheme === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: ootdEditTheme === t ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: ootdEditTheme === t ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+
+              {/* 메모 */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>메모</div>
+              <textarea value={ootdEditNote} onChange={e => setOotdEditNote(e.target.value)} placeholder="오늘의 룩 메모…"
+                style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#0C0C0A', resize: 'none', height: 72, outline: 'none', boxSizing: 'border-box' as const, marginBottom: 16 }} />
+
+              {/* 제품 등록 — BOX 불러오기 */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>BOX 제품 연결</div>
+              <button type="button" onClick={() => setOotdPickerOpen(true)}
+                style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
+                {ootdEditProductIds.length > 0 ? `${ootdEditProductIds.length}개 선택됨 · 변경` : '+ BOX에서 불러오기'}
+              </button>
+              {ootdEditProductIds.length > 0 && (
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 16 }}>
+                  {ootdEditProductIds.map(pid => {
+                    const p = products.get(pid);
+                    return <span key={pid} style={{ fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>{p?.name ?? pid}</span>;
+                  })}
+                </div>
+              )}
+              {ootdEditProductIds.length === 0 && <div style={{ marginBottom: 16 }} />}
+
+              {/* 버튼 */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                <button type="button" onClick={() => setEditingOotd(null)} style={{ flex: 1, padding: 14, background: '#F4F4F0', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
+                <button type="button" onClick={saveOotdEdit} disabled={ootdEditSaving} style={{ flex: 1, padding: 14, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: ootdEditSaving ? .6 : 1 }}>
+                  {ootdEditSaving ? '저장 중…' : '저장'}
+                </button>
+              </div>
+              <button type="button" onClick={deleteOotdEdit} style={{ width: '100%', padding: 14, background: 'none', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer' }}>삭제</button>
+            </div>
+
+            {/* BOX 제품 피커 바텀시트 */}
+            {ootdPickerOpen && (() => {
+              // OOTD = 룩북과 동일: fashion + acc 도메인
+              const ootdDomainProducts = ctxProducts.filter(p => p.domain === 'fashion' || p.domain === 'acc');
+              const filtered = ootdDomainProducts.filter(p =>
+                ootdPickerSearch.trim() ? p.name.toLowerCase().includes(ootdPickerSearch.toLowerCase()) : true
+              );
+              return (
+                <>
+                  <div onClick={() => setOotdPickerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 320 }} />
+                  <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
+                      <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
+                      <input type="search" value={ootdPickerSearch} onChange={e => setOotdPickerSearch(e.target.value)} placeholder="제품 검색..." autoFocus
+                        style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
+                    </div>
+                    <div style={{ flex: 1, overflowY: 'auto' }}>
+                      {filtered.map(p => {
+                        const sel = ootdEditProductIds.includes(p.id);
+                        const imgSrc = p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl;
+                        return (
+                          <div key={p.id} onClick={() => setOotdEditProductIds(ids => sel ? ids.filter(id => id !== p.id) : [...ids, p.id])}
+                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                              {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>👗</span>}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                              {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                            </div>
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                          </div>
+                        );
+                      })}
+                      {!ootdPickerSearch.trim() && ootdDomainProducts.length === 0 && (
+                        <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6 }}>
+                          BOX에 Fashion · Acc 제품이 없어요<br />이름을 검색하면 바로 등록할 수 있어요
+                        </div>
+                      )}
+                      {ootdPickerSearch.trim() && filtered.length === 0 && (
+                        <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>검색 결과가 없습니다</div>
+                      )}
+                    </div>
+                    <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 20px)', borderTop: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
+                      <button onClick={() => setOotdPickerOpen(false)} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료 ({ootdEditProductIds.length}개)</button>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
+          </>
+        );
+      })()}
     </div>
   );
 }

@@ -85,6 +85,11 @@ main {
   display: none;
 }
 
+/* 시간 스크롤 피커 scrollbar 숨기기 */
+.time-scroll-col::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── 모바일 입력 확대 방지 ── */
 @media (max-width: 430px) {
   input,

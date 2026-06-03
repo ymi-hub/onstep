@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   onAuthStateChanged,
@@ -280,7 +280,20 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
           subtitle="루틴 · 습관 · 케어"
         />
       </div>
-      <div style={{ padding: '24px 16px 8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
+      {/* 시작 가이드 배너 */}
+      <div style={{ margin: '16px 16px 0', padding: '14px 16px', background: '#0C0C0A', borderRadius: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#C5FF00', marginBottom: 3 }}>HOW TO START</div>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: 'rgba(255,255,255,.7)', lineHeight: 1.5 }}>
+            <span style={{ color: '#C5FF00', fontWeight: 700 }}>1 BOX</span> 제품 등록 →{' '}
+            <span style={{ color: '#C5FF00', fontWeight: 700 }}>2 스킨케어 루틴</span> 플랜 설계 →{' '}
+            <span style={{ color: '#C5FF00', fontWeight: 700 }}>3 TODAY</span> 매일 체크
+          </div>
+        </div>
+        <span style={{ fontSize: 28, flexShrink: 0 }}>🌿</span>
+      </div>
+
+      <div style={{ padding: '16px 16px 8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{cards.left.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 64 }}>
           {cards.right.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}
@@ -1152,11 +1165,27 @@ function EditorView({
             </div>
             {/* 아침/저녁 시간 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <div><label style={fieldLabelStyle}>아침 시간</label><input type="time" value={draft.morningTime} onChange={(e) => setDraft((d) => d && { ...d, morningTime: e.target.value })} style={dateInputStyle} /></div>
-              <div><label style={fieldLabelStyle}>저녁 시간</label><input type="time" value={draft.eveningTime} onChange={(e) => setDraft((d) => d && { ...d, eveningTime: e.target.value })} style={dateInputStyle} /></div>
+              <div>
+                <label style={fieldLabelStyle}>아침 시간</label>
+                <TimePickerField value={draft?.morningTime || ''} onChange={v => setDraft(d => d && { ...d, morningTime: v })} f={f} />
+              </div>
+              <div>
+                <label style={fieldLabelStyle}>저녁 시간</label>
+                <TimePickerField value={draft?.eveningTime || ''} onChange={v => setDraft(d => d && { ...d, eveningTime: v })} f={f} />
+              </div>
             </div>
           </div>
         </div>
+
+        {/* 아침/저녁 DAY 수 불일치 경고 */}
+        {draft.morning.days.length !== draft.evening.days.length && (
+          <div style={{ margin: '0 16px 12px', padding: '10px 14px', background: '#FFF8E1', border: '1px solid #FFD54F', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 16 }}>⚠️</span>
+            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#7A5F00', lineHeight: 1.4 }}>
+              아침({draft.morning.days.length}일)과 저녁({draft.evening.days.length}일) DAY 수가 달라요. 저장하면 짧은 쪽 기준으로 TODAY에 표시될 수 있어요.
+            </span>
+          </div>
+        )}
 
         {/* 슬롯 섹션 */}
         <div style={{ padding: '0 16px 16px' }}>
@@ -1983,7 +2012,7 @@ function DietPlanView({
                           <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, overflow: 'hidden' }}>
                             {imgSrc
                               // eslint-disable-next-line @next/next/no-img-element
-                              ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                               : '💊'}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
@@ -2179,10 +2208,109 @@ function DietPlanView({
 
 // ─── SHARED: 반복 유형 폼 필드 (종일/1회성/매일/일정등록) ─────────────────────
 const WD_NAMES_SHARED = ['일', '월', '화', '수', '목', '금', '토'];
+// ─── 24시간 스크롤 타임 피커 (iOS 알람 스타일) ──────────────────────────────
+function TimeScrollPicker({
+  value, onChange, f, rows = 5,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  f: string;
+  rows?: number;
+}) {
+  const ITEM_H = 44;
+  const PAD = Math.floor(rows / 2);
+
+  const parsed = value.match(/^(\d{1,2}):(\d{2})$/);
+  const initH = parsed ? parseInt(parsed[1]) : 0;
+  const initM = parsed ? parseInt(parsed[2]) : 0;
+
+  const hourRef = useRef<HTMLDivElement>(null);
+  const minRef  = useRef<HTMLDivElement>(null);
+
+  // 마운트 시 현재 값으로 스크롤 위치 초기화
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      if (hourRef.current) hourRef.current.scrollTop = initH * ITEM_H;
+      if (minRef.current)  minRef.current.scrollTop  = initM * ITEM_H;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function fire() {
+    const h = Math.min(23, Math.max(0, Math.round((hourRef.current?.scrollTop ?? 0) / ITEM_H)));
+    const m = Math.min(59, Math.max(0, Math.round((minRef.current?.scrollTop  ?? 0) / ITEM_H)));
+    onChange(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+  }
+
+  const colStyle: React.CSSProperties = {
+    height: ITEM_H * rows,
+    overflowY: 'scroll',
+    scrollSnapType: 'y mandatory',
+    scrollbarWidth: 'none',
+    width: 64,
+    flexShrink: 0,
+  };
+  const pad = <div style={{ height: ITEM_H * PAD }} />;
+
+  return (
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F4F0', borderRadius: 16, overflow: 'hidden', width: '100%' }}>
+      {/* 선택 영역 바 */}
+      <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: ITEM_H, transform: 'translateY(-50%)', background: 'rgba(12,12,10,.08)', borderTop: '1.5px solid rgba(12,12,10,.12)', borderBottom: '1.5px solid rgba(12,12,10,.12)', pointerEvents: 'none', zIndex: 1 }} />
+      {/* 상단 그라데이션 */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: ITEM_H * PAD, background: 'linear-gradient(to bottom, #F4F4F0 10%, transparent)', pointerEvents: 'none', zIndex: 2 }} />
+      {/* 하단 그라데이션 */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: ITEM_H * PAD, background: 'linear-gradient(to top, #F4F4F0 10%, transparent)', pointerEvents: 'none', zIndex: 2 }} />
+
+      <div ref={hourRef} onScroll={fire} className="time-scroll-col" style={colStyle}>
+        {pad}
+        {Array.from({ length: 24 }, (_, i) => (
+          <div key={i} style={{ height: ITEM_H, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center', fontFamily: f, fontSize: 24, fontWeight: 700, color: '#0C0C0A' }}>
+            {String(i).padStart(2, '0')}
+          </div>
+        ))}
+        {pad}
+      </div>
+
+      <span style={{ fontFamily: f, fontSize: 24, fontWeight: 800, color: '#0C0C0A', zIndex: 3, flexShrink: 0, padding: '0 6px', lineHeight: 1 }}>:</span>
+
+      <div ref={minRef} onScroll={fire} className="time-scroll-col" style={colStyle}>
+        {pad}
+        {Array.from({ length: 60 }, (_, i) => (
+          <div key={i} style={{ height: ITEM_H, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center', fontFamily: f, fontSize: 24, fontWeight: 700, color: '#0C0C0A' }}>
+            {String(i).padStart(2, '0')}
+          </div>
+        ))}
+        {pad}
+      </div>
+    </div>
+  );
+}
+
+// ─── 시간 입력 필드 + 피커 열기 버튼 ────────────────────────────────────────
+function TimePickerField({ value, onChange, f }: {
+  value: string; onChange: (v: string) => void; f: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 16, fontWeight: 700, color: value ? '#0C0C0A' : '#BCBAB6', background: '#fff', minHeight: 48, display: 'flex', alignItems: 'center' }}>
+          {value || '시간 미설정'}
+        </div>
+        <button type="button" onClick={() => setOpen(p => !p)}
+          style={{ width: 48, height: 48, borderRadius: 12, border: 'none', background: open ? '#0C0C0A' : '#F4F4F0', color: open ? '#C5FF00' : '#4A4846', fontFamily: f, fontSize: open ? 11 : 22, fontWeight: 800, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s' }}>
+          {open ? '확인' : '+'}
+        </button>
+      </div>
+      {open && <TimeScrollPicker value={value || '07:00'} onChange={onChange} f={f} rows={5} />}
+    </div>
+  );
+}
+
 function RepeatFormFieldsShared({
   f, rt, setRt, wd, toggleWDFn, date_, setDate_, time_, setTime_, alarm_, setAlarm_,
 }: {
-  f: string; rt: RepeatType; setRt: (r: RepeatType) => void;
+  f: string; rt: RepeatType | ''; setRt: (r: RepeatType) => void;
   wd: number[]; toggleWDFn: (d: number) => void;
   date_: string; setDate_: (s: string) => void;
   time_: string; setTime_: (s: string) => void;
@@ -2209,31 +2337,12 @@ function RepeatFormFieldsShared({
           ))}
         </div>
       )}
-      {rt !== 'allday' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
-          <input
-            type="text" inputMode="numeric" placeholder="00:00"
-            value={time_}
-            onChange={e => {
-              const v = e.target.value.replace(/[^0-9:]/g, '');
-              // 숫자 2자리 입력 후 자동으로 ':' 삽입
-              if (/^\d{2}$/.test(v)) { setTime_(v + ':'); return; }
-              setTime_(v);
-            }}
-            onBlur={e => {
-              // HH:MM 형식 보정
-              const m = e.target.value.match(/^(\d{1,2}):?(\d{0,2})$/);
-              if (m) {
-                const hh = m[1].padStart(2, '0');
-                const mm = (m[2] || '00').padStart(2, '0');
-                setTime_(`${hh}:${mm}`);
-              }
-            }}
-            style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' as const }}
-          />
-          <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: f, fontSize: 12, fontWeight: 500, color: '#4A4846', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
+      {rt !== 'allday' && rt !== '' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+          <TimePickerField value={time_} onChange={setTime_} f={f} />
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: f, fontSize: 12, fontWeight: 500, color: '#4A4846', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
             <input type="checkbox" checked={alarm_} onChange={e => setAlarm_(e.target.checked)} style={{ width: 15, height: 15, accentColor: '#0C0C0A' }} />
-            알람
+            알람 설정
           </label>
         </div>
       )}
@@ -2259,28 +2368,31 @@ function MedView({
   const [newIcon, setNewIcon] = useState('💊');
   const [newName, setNewName] = useState('');
   const [newDosage, setNewDosage] = useState('1정');
-  const [newTimes, setNewTimes] = useState<MedTime[]>(['morning']);
-  const [newRepeat, setNewRepeat] = useState<RepeatType>('daily');
+  const [newTimes, setNewTimes] = useState<MedTime[]>([]);
+  const [newRepeat, setNewRepeat] = useState<RepeatType | ''>('');
   const [newTime, setNewTime] = useState('08:00');
   const [newAlarm, setNewAlarm] = useState(false);
   const [newDate, setNewDate] = useState('');
   const [newWeekdays, setNewWeekdays] = useState<number[]>([]);
   const [adding, setAdding] = useState(false);
+  const [showAddHint, setShowAddHint] = useState(false);
 
   // 검색
   const [medSearch, setMedSearch] = useState('');
+  // showInToday=true 항목은 DAILY MEDS 미리보기에만 표시, 목록에서는 제외
+  const listMeds = items.filter(m => !m.showInToday);
   const filteredMeds = medSearch.trim()
-    ? items.filter(m => m.name.toLowerCase().includes(medSearch.toLowerCase()))
-    : items;
+    ? listMeds.filter(m => m.name.toLowerCase().includes(medSearch.toLowerCase()))
+    : listMeds;
 
   // 편집 시트 상태
   const [editItem, setEditItem] = useState<MedRoutine | null>(null);
   const [eName, setEName] = useState('');
   const [eIcon, setEIcon] = useState('💊');
   const [eDosage, setEDosage] = useState('1정');
-  const [eTimes, setETimes] = useState<MedTime[]>(['morning']);
+  const [eTimes, setETimes] = useState<MedTime[]>([]);
   const [eNote, setENote] = useState('');
-  const [eRepeat, setERepeat] = useState<RepeatType>('daily');
+  const [eRepeat, setERepeat] = useState<RepeatType | ''>('');
   const [eTime, setETime] = useState('08:00');
   const [eAlarm, setEAlarm] = useState(false);
   const [eDate, setEDate] = useState('');
@@ -2313,14 +2425,14 @@ function MedView({
       await onAdd({
         icon: newIcon || '💊', name: newName.trim(), dosage: newDosage, times: newTimes, active: true,
         showInToday: true,
-        repeatType: newRepeat,
-        time: newRepeat !== 'allday' ? newTime : '',
-        alarm: newRepeat !== 'allday' ? newAlarm : false,
+        repeatType: (newRepeat || 'allday') as RepeatType,
+        time: newRepeat && newRepeat !== 'allday' ? newTime : '',
+        alarm: newRepeat && newRepeat !== 'allday' ? newAlarm : false,
         ...(newRepeat === 'once' ? { date: newDate } : {}),
         ...(newRepeat === 'scheduled' ? { weekdays: newWeekdays } : {}),
       });
-      setNewName(''); setNewIcon('💊'); setNewDosage('1정'); setNewTimes(['morning']);
-      setNewRepeat('daily'); setNewTime('08:00'); setNewAlarm(false); setNewDate(''); setNewWeekdays([]);
+      setNewName(''); setNewIcon('💊'); setNewDosage('1정'); setNewTimes([]);
+      setNewRepeat(''); setNewTime('08:00'); setNewAlarm(false); setNewDate(''); setNewWeekdays([]);
     } catch (err) { console.error(err); alert('저장 실패'); }
     finally { setAdding(false); }
   }
@@ -2328,7 +2440,7 @@ function MedView({
   function openEdit(item: MedRoutine) {
     setEditItem(item); setEName(item.name); setEIcon(item.icon || '💊');
     setEDosage(item.dosage); setETimes(item.times); setENote(item.note || '');
-    setERepeat(item.repeatType ?? 'daily'); setETime(item.time ?? '08:00');
+    setERepeat(item.repeatType ?? ''); setETime(item.time ?? '08:00');
     setEAlarm(item.alarm ?? false); setEDate(item.date ?? ''); setEWeekdays(item.weekdays ?? []);
   }
 
@@ -2339,9 +2451,9 @@ function MedView({
     try {
       await onUpdate(editItem.id, {
         icon: eIcon || '💊', name: eName.trim(), dosage: eDosage, times: eTimes, note: eNote,
-        repeatType: eRepeat,
-        time: eRepeat !== 'allday' ? eTime : '',
-        alarm: eRepeat !== 'allday' ? eAlarm : false,
+        repeatType: (eRepeat || 'allday') as RepeatType,
+        time: eRepeat && eRepeat !== 'allday' ? eTime : '',
+        alarm: eRepeat && eRepeat !== 'allday' ? eAlarm : false,
         ...(eRepeat === 'once' ? { date: eDate } : {}),
         ...(eRepeat === 'scheduled' ? { weekdays: eWeekdays } : {}),
         updatedAt: new Date().toISOString(),
@@ -2356,6 +2468,10 @@ function MedView({
     if (!confirm('이 약을 삭제하시겠어요?')) return;
     await onDelete(editItem.id);
     setEditItem(null);
+  }
+  async function handleDeleteById(id: string) {
+    if (!confirm('이 약을 삭제하시겠어요?')) return;
+    await onDelete(id);
   }
 
   function MedRow({ m, onEdit }: { m: MedRoutine; onEdit: () => void }) {
@@ -2395,6 +2511,13 @@ function MedView({
         >
           ✎
         </button>
+        <button
+          onClick={() => handleDeleteById(m.id)}
+          style={{ width: 28, height: 28, background: 'none', border: 'none', cursor: 'pointer', color: '#DC2626', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}
+          aria-label="삭제"
+        >
+          🗑
+        </button>
       </div>
     );
   }
@@ -2418,7 +2541,7 @@ function MedView({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <input value={newIcon} onChange={e => setNewIcon(e.target.value.slice(0, 4))} placeholder="💊" style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
-              <input value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }} placeholder="약 이름 (예: 오메가3, 비타민D)" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+              <input value={newName} onChange={e => { setNewName(e.target.value); if (e.target.value.trim()) setShowAddHint(false); }} onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }} placeholder="약 이름 (예: 오메가3, 비타민D)" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: `1.5px solid ${showAddHint ? '#E94F6B' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
             </div>
             <input value={newDosage} onChange={e => setNewDosage(e.target.value)} placeholder="용량 (예: 1정, 2캡슐)" style={{ padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
@@ -2435,7 +2558,10 @@ function MedView({
               time_={newTime} setTime_={setNewTime}
               alarm_={newAlarm} setAlarm_={setNewAlarm}
             />
-            <button onClick={handleAdd} disabled={adding || !newName.trim()} style={{ padding: '12px 20px', background: newName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: newName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: newName.trim() ? 'pointer' : 'default', transition: 'all .18s' }}>
+            {showAddHint && (
+              <div style={{ fontFamily: f, fontSize: 12, color: '#E94F6B', fontWeight: 600, paddingLeft: 4 }}>약 이름을 입력해주세요.</div>
+            )}
+            <button onClick={() => { if (!newName.trim()) { setShowAddHint(true); return; } setShowAddHint(false); handleAdd(); }} disabled={adding} style={{ padding: '12px 20px', background: newName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: newName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .18s' }}>
               + ADD
             </button>
           </div>
@@ -2443,19 +2569,32 @@ function MedView({
 
         {/* 약 복용 목록 */}
         <div style={{ padding: '20px 16px 0' }}>
-          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>약 복용 목록</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>전체</span>
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{items.length}개</span>
+          </div>
           <SearchBar value={medSearch} onChange={setMedSearch} placeholder="약 이름 검색..." />
           {items.length === 0 ? (
             <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
               아직 등록된 약이 없습니다.<br />위에서 새 약을 추가해주세요.
             </div>
-          ) : filteredMeds.length === 0 ? (
-            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
-              &ldquo;{medSearch}&rdquo; 검색 결과 없음
+          ) : medSearch.trim() ? (
+            filteredMeds.length === 0 ? (
+              <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
+                &ldquo;{medSearch}&rdquo; 검색 결과 없음
+              </div>
+            ) : (
+              <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
+                {filteredMeds.map(m => <MedRow key={m.id} m={m} onEdit={() => openEdit(m)} />)}
+              </div>
+            )
+          ) : listMeds.length === 0 ? (
+            <div style={{ padding: '20px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
+              모두 Today에 표시 중입니다.
             </div>
           ) : (
             <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
-              {filteredMeds.map(m => <MedRow key={m.id} m={m} onEdit={() => openEdit(m)} />)}
+              {listMeds.map(m => <MedRow key={m.id} m={m} onEdit={() => openEdit(m)} />)}
             </div>
           )}
         </div>
@@ -2568,7 +2707,10 @@ function MedView({
               />
               <input value={eNote} onChange={e => setENote(e.target.value)} placeholder="주의사항 (선택)" style={{ padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
             </div>
-            <button onClick={handleSaveEdit} disabled={saving} style={{ marginTop: 20, width: '100%', padding: 14, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em', opacity: saving ? .6 : 1 }}>{saving ? '저장 중…' : '저장'}</button>
+            <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+              <button onClick={() => setEditItem(null)} style={{ flex: 1, padding: 14, background: '#F4F4F0', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
+              <button onClick={handleSaveEdit} disabled={saving} style={{ flex: 1, padding: 14, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em', opacity: saving ? .6 : 1 }}>{saving ? '저장 중…' : '저장'}</button>
+            </div>
             <button onClick={handleDelete} style={{ marginTop: 10, width: '100%', padding: 14, background: 'none', color: '#BA1A1A', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>삭제</button>
           </div>
         </>
@@ -2602,21 +2744,34 @@ function HealthView({
   const [qName, setQName] = useState('');
   const [qCatId, setQCatId] = useState('');
   const [qAdding, setQAdding] = useState(false);
-  const [qRepeat, setQRepeat] = useState<RepeatType>('daily');
+  const [showQHint, setShowQHint] = useState(false);
+  const [qRepeat, setQRepeat] = useState<RepeatType | ''>('');
   const [qTime, setQTime] = useState('07:00');
   const [qAlarm, setQAlarm] = useState(false);
   const [qDate, setQDate] = useState('');
   const [qWeekdays, setQWeekdays] = useState<number[]>([]);
   function toggleQWD(d: number) { setQWeekdays(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d]); }
 
-  // 검색
+  // 검색 — showInToday=true 항목은 DAILY HEALTH 미리보기에만 표시, 목록에서는 제외
   const [healthSearch, setHealthSearch] = useState('');
+  const listItems = items.filter(i => !i.showInToday);
   const filteredHealth = healthSearch.trim()
-    ? items.filter(i => i.name.toLowerCase().includes(healthSearch.toLowerCase()))
-    : items;
+    ? listItems.filter(i => i.name.toLowerCase().includes(healthSearch.toLowerCase()))
+    : listItems;
 
   // 카테고리 섹션 펼치기
   const [showCatSection, setShowCatSection] = useState(false);
+  // 카테고리 드래그 상태
+  const [dragCatIdx, setDragCatIdx] = useState<number | null>(null);
+  const [dragCatOver, setDragCatOver] = useState<number | null>(null);
+
+  async function moveCat(from: number, to: number) {
+    if (from === to) return;
+    const arr = [...categories];
+    const [moved] = arr.splice(from, 1);
+    arr.splice(to, 0, moved);
+    await Promise.all(arr.map((cat, i) => onUpdateCategory(cat.id, { order: i })));
+  }
 
   // 상단 탭 (unused after restructure but kept for compat)
   const [mainTab, setMainTab] = useState<'routines' | 'categories'>('routines');
@@ -2669,7 +2824,7 @@ function HealthView({
   const [goal, setGoal] = useState('');
   const [repeatDays, setRepeatDays] = useState<number[]>([]);
   const [entries, setEntries] = useState<import('@/types/healthroutine').HealthEntry[]>([]);
-  const [hRepeat, setHRepeat] = useState<RepeatType>('daily');
+  const [hRepeat, setHRepeat] = useState<RepeatType | ''>('');
   const [hTime, setHTime] = useState('07:00');
   const [hAlarm, setHAlarm] = useState(false);
   const [hDate, setHDate] = useState('');
@@ -2697,10 +2852,10 @@ function HealthView({
   // "HH:MM" 그대로 표시 (24시간제 통일)
   function fmtTime(t: string): string { return t ?? ''; }
 
-  // 카테고리별 그룹 (동적 카테고리 기준)
+  // 카테고리별 그룹 — showInToday=true 항목은 DAILY HEALTH 미리보기에만 표시
   const grouped = categories.map(cat => ({
     cat,
-    list: items.filter(i => i.type === cat.id),
+    list: listItems.filter(i => i.type === cat.id),
   })).filter(g => g.list.length > 0);
 
   function toggleHWD(d: number) { setHWeekdays(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d]); }
@@ -2715,18 +2870,17 @@ function HealthView({
   }
 
   function openNew() {
-    const firstCat = categories[0];
-    setEditId(null); setRoutineIcon(firstCat?.icon || '⭐'); setName('');
-    setCatId(firstCat?.id || ''); setSchedule('');
+    setEditId(null); setRoutineIcon('⭐'); setName('');
+    setCatId(''); setSchedule('');
     setGoal(''); setRepeatDays([]); setEntries([]);
-    setHRepeat('daily'); setHTime('07:00'); setHAlarm(false); setHDate(''); setHWeekdays([]);
+    setHRepeat(''); setHTime('07:00'); setHAlarm(false); setHDate(''); setHWeekdays([]);
     setShowForm(true);
   }
   function openEdit(item: HealthRoutine) {
     setEditId(item.id); setRoutineIcon(item.icon); setName(item.name);
     setCatId(item.type); setSchedule(item.schedule); setGoal(item.goal || '');
     setRepeatDays(item.repeatDays ?? []); setEntries(item.entries ?? []);
-    setHRepeat(item.repeatType ?? 'daily'); setHTime(item.time ?? '07:00');
+    setHRepeat(item.repeatType ?? ''); setHTime(item.time ?? '07:00');
     setHAlarm(item.alarm ?? false); setHDate(item.date ?? ''); setHWeekdays(item.weekdays ?? []);
     setShowForm(true);
   }
@@ -2761,9 +2915,9 @@ function HealthView({
       // type 필드에 카테고리 id 저장 (기존 HealthType 호환 유지)
       const data = {
         icon: routineIcon, name: name.trim(), type: catId as HealthType, schedule, goal, repeatDays, entries, active: true,
-        repeatType: hRepeat,
-        time: hRepeat !== 'allday' ? hTime : '',
-        alarm: hRepeat !== 'allday' ? hAlarm : false,
+        repeatType: (hRepeat || 'allday') as RepeatType,
+        time: hRepeat && hRepeat !== 'allday' ? hTime : '',
+        alarm: hRepeat && hRepeat !== 'allday' ? hAlarm : false,
         ...(hRepeat === 'once' ? { date: hDate } : {}),
         ...(hRepeat === 'scheduled' ? { weekdays: hWeekdays } : {}),
       };
@@ -2788,14 +2942,14 @@ function HealthView({
       await onAdd({
         icon: qIcon || cat?.icon || '🏃', name: qName.trim(), type: cid as HealthType,
         schedule: '', goal: '', repeatDays: [], entries: [], active: true,
-        repeatType: qRepeat,
-        time: qRepeat !== 'allday' ? qTime : '',
-        alarm: qRepeat !== 'allday' ? qAlarm : false,
+        repeatType: (qRepeat || 'allday') as RepeatType,
+        time: qRepeat && qRepeat !== 'allday' ? qTime : '',
+        alarm: qRepeat && qRepeat !== 'allday' ? qAlarm : false,
         ...(qRepeat === 'once' ? { date: qDate } : {}),
         ...(qRepeat === 'scheduled' ? { weekdays: qWeekdays } : {}),
       });
       setQName(''); setQIcon('🏃');
-      setQRepeat('daily'); setQTime('07:00'); setQAlarm(false); setQDate(''); setQWeekdays([]);
+      setQRepeat(''); setQTime('07:00'); setQAlarm(false); setQDate(''); setQWeekdays([]);
     } catch (err) { console.error(err); alert('저장 실패'); }
     finally { setQAdding(false); }
   }
@@ -2836,6 +2990,13 @@ function HealthView({
           >
             ✎
           </button>
+          <button
+            onClick={() => handleDelete(item.id)}
+            style={{ width: 28, height: 28, background: 'none', border: 'none', cursor: 'pointer', color: '#DC2626', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}
+            aria-label="삭제"
+          >
+            🗑
+          </button>
         </div>
         {(item.entries ?? []).length > 0 && (
           <div style={{ borderTop: '1px solid rgba(12,12,10,.06)' }}>
@@ -2858,10 +3019,43 @@ function HealthView({
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* Hero */}
         <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 18, right: 18, fontSize: 36, opacity: .06, transform: 'rotate(10deg)', lineHeight: 1 }}>🥗</div>
+          <button
+            onClick={() => setShowCatSection(p => !p)}
+            style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 4, background: showCatSection ? '#0C0C0A' : '#F4F4F0', border: 'none', borderRadius: 9999, padding: '6px 12px', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: showCatSection ? '#C5FF00' : '#9A9490', cursor: 'pointer', textTransform: 'uppercase' as const }}
+          >
+            카테고리 {showCatSection ? '▲' : '▼'}
+          </button>
           <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.18em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 10 }}>DAILY WELLNESS</div>
           <div style={{ fontFamily: f, fontSize: 48, fontWeight: 900, color: '#0C0C0A', lineHeight: .95, letterSpacing: '-.02em', textTransform: 'uppercase' as const }}>HEALTH</div>
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 12, lineHeight: 1.5 }}>건강 루틴 관리 · 운동 · 식단 · 데일리 체크</div>
+          {/* 카테고리 관리 패널 */}
+          {showCatSection && (
+            <div style={{ marginTop: 16, background: '#F4F4F0', borderRadius: 16, padding: '12px' }}>
+              {categories.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '12px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>카테고리를 추가해주세요</div>
+              )}
+              {categories.map((cat, idx) => (
+                <div
+                  key={cat.id}
+                  draggable
+                  onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragCatIdx(idx); }}
+                  onDragOver={(e) => { e.preventDefault(); setDragCatOver(idx); }}
+                  onDrop={(e) => { e.preventDefault(); if (dragCatIdx != null) { void moveCat(dragCatIdx, idx); } setDragCatIdx(null); setDragCatOver(null); }}
+                  onDragEnd={() => { setDragCatIdx(null); setDragCatOver(null); }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(12,12,10,.07)', opacity: dragCatIdx === idx ? 0.4 : 1, outline: dragCatOver === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 4 }}
+                >
+                  <span style={{ cursor: 'grab', color: '#C4C2BE', fontSize: 20, userSelect: 'none' as const, flexShrink: 0, paddingRight: 20 }}>⠿</span>
+                  <span style={{ fontSize: 18, flexShrink: 0 }}>{cat.icon}</span>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{cat.name}</div>
+                  <span style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6' }}>{items.filter(i => i.type === cat.id).length}개</span>
+                  <button onClick={() => openEditCat(cat)} style={{ padding: '4px 8px', background: '#EEEDE9', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846', flexShrink: 0 }}>편집</button>
+                </div>
+              ))}
+              <button onClick={openNewCat} style={{ width: '100%', padding: '10px', border: '1.5px dashed rgba(12,12,10,.2)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginTop: 2 }}>
+                + 카테고리 추가
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 빠른 추가 폼 */}
@@ -2870,12 +3064,12 @@ function HealthView({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <input value={qIcon} onChange={e => setQIcon(e.target.value.slice(0, 4))} placeholder="🏃" style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
-              <input value={qName} onChange={e => setQName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleQuickAdd(); }} placeholder="루틴 이름 (예: 아침 스트레칭)" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+              <input value={qName} onChange={e => { setQName(e.target.value); if (e.target.value.trim()) setShowQHint(false); }} onKeyDown={e => { if (e.key === 'Enter') handleQuickAdd(); }} placeholder="루틴 이름 (예: 아침 스트레칭)" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: `1.5px solid ${showQHint ? '#E94F6B' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
             </div>
             {categories.length > 0 && (
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
                 {categories.map(cat => {
-                  const activeCat = qCatId || categories[0]?.id;
+                  const activeCat = qCatId;
                   return (
                     <button key={cat.id} onClick={() => setQCatId(cat.id)} style={{ padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${activeCat === cat.id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: activeCat === cat.id ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: activeCat === cat.id ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
                       {cat.icon} {cat.name}
@@ -2891,7 +3085,10 @@ function HealthView({
               time_={qTime} setTime_={setQTime}
               alarm_={qAlarm} setAlarm_={setQAlarm}
             />
-            <button onClick={handleQuickAdd} disabled={qAdding || !qName.trim()} style={{ padding: '12px 20px', background: qName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: qName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: qName.trim() ? 'pointer' : 'default', transition: 'all .18s' }}>
+            {showQHint && (
+              <div style={{ fontFamily: f, fontSize: 12, color: '#E94F6B', fontWeight: 600, paddingLeft: 4 }}>루틴 이름을 입력해주세요.</div>
+            )}
+            <button onClick={() => { if (!qName.trim()) { setShowQHint(true); return; } setShowQHint(false); handleQuickAdd(); }} disabled={qAdding} style={{ padding: '12px 20px', background: qName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: qName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .18s' }}>
               + ADD
             </button>
           </div>
@@ -2899,7 +3096,10 @@ function HealthView({
 
         {/* 루틴 목록 */}
         <div style={{ padding: '20px 16px 0' }}>
-          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>루틴 목록</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>전체</span>
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{items.length}개</span>
+          </div>
           <SearchBar value={healthSearch} onChange={setHealthSearch} placeholder="루틴 이름 검색..." />
           {items.length === 0 ? (
             <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
@@ -2915,7 +3115,11 @@ function HealthView({
                 {filteredHealth.map((item, idx) => <HealthRow key={item.id} item={item} isLast={idx === filteredHealth.length - 1} />)}
               </div>
             )
-          ) : (
+          ) : listItems.length === 0 ? (
+            <div style={{ padding: '20px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
+              모두 Today에 표시 중입니다.
+            </div>
+          ) : grouped.length > 0 ? (
             <>
               {grouped.map(({ cat, list }) => (
                 <div key={cat.id} style={{ marginBottom: 16, marginTop: 8 }}>
@@ -2927,12 +3131,11 @@ function HealthView({
                   </div>
                 </div>
               ))}
-              {grouped.length === 0 && items.length > 0 && (
-                <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
-                  카테고리 없이 등록된 루틴이 있습니다. 편집 시 카테고리를 지정해주세요.
-                </div>
-              )}
             </>
+          ) : (
+            <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
+              {listItems.map((item, idx) => <HealthRow key={item.id} item={item} isLast={idx === listItems.length - 1} />)}
+            </div>
           )}
         </div>
 
@@ -2965,35 +3168,6 @@ function HealthView({
             </div>
           </div>
         )}
-
-        {/* 카테고리 관리 섹션 (접기/펼치기) */}
-        <div style={{ padding: '24px 16px 0' }}>
-          <button
-            onClick={() => setShowCatSection(p => !p)}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 12 }}
-          >
-            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>카테고리 관리</span>
-            <span style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6', marginLeft: 4 }}>{showCatSection ? '▲' : '▼'}</span>
-          </button>
-          {showCatSection && (
-            <>
-              {categories.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '24px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>카테고리를 추가해주세요</div>
-              )}
-              {categories.map(cat => (
-                <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 14, marginBottom: 8 }}>
-                  <span style={{ fontSize: 22, flexShrink: 0 }}>{cat.icon}</span>
-                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{cat.name}</div>
-                  <span style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginRight: 4 }}>{items.filter(i => i.type === cat.id).length}개</span>
-                  <button onClick={() => openEditCat(cat)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
-                </div>
-              ))}
-              <button onClick={openNewCat} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginTop: 4 }}>
-                + 카테고리 추가
-              </button>
-            </>
-          )}
-        </div>
 
         <div style={{ height: 40 }} />
       </div>
@@ -3047,19 +3221,12 @@ function HealthView({
               </div>
             ))}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, padding: '12px', background: '#F9F9F7', borderRadius: 12, border: '1px solid rgba(12,12,10,.07)' }}>
+              <TimePickerField
+                value={getEntryTime()}
+                onChange={t => { const [h, m] = t.split(':'); setEntryHour(h); setEntryMin(m); }}
+                f={f}
+              />
               <div style={{ display: 'flex', gap: 6 }}>
-                <select value={entryHour} onChange={e => setEntryHour(e.target.value)}
-                  style={{ width: 72, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, background: '#fff', outline: 'none' }}>
-                  {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map(h => (
-                    <option key={h} value={h}>{h}시</option>
-                  ))}
-                </select>
-                <select value={entryMin} onChange={e => setEntryMin(e.target.value)}
-                  style={{ width: 72, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, background: '#fff', outline: 'none' }}>
-                  {['00', '10', '15', '20', '30', '40', '45', '50'].map(m => (
-                    <option key={m} value={m}>{m}분</option>
-                  ))}
-                </select>
                 <input value={entryDesc} onChange={e => setEntryDesc(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOrUpdateEntry(); } }}
                   placeholder="내용 (예: 30분 러닝)"
@@ -3071,11 +3238,12 @@ function HealthView({
             </div>
 
             <div style={{ display: 'flex', gap: 8 }}>
-              {editId && <button onClick={() => handleDelete(editId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
+              <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '12px', background: '#F4F4F0', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
               <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
                 {saving ? '저장 중…' : '저장'}
               </button>
             </div>
+            {editId && <button onClick={() => handleDelete(editId)} style={{ marginTop: 10, width: '100%', padding: '12px', background: 'none', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer' }}>삭제</button>}
           </div>
         </>
       )}
@@ -3134,11 +3302,13 @@ function TrackerView({
   const [newDate, setNewDate] = useState('');
   const [newWeekdays, setNewWeekdays] = useState<number[]>([]);
   const [adding, setAdding] = useState(false);
+  const [showAddHint, setShowAddHint] = useState(false);
 
   const [habitSearch, setHabitSearch] = useState('');
+  const listHabits = habits.filter(h => !h.showInToday);
   const filteredHabits = habitSearch.trim()
-    ? habits.filter(h => h.name.toLowerCase().includes(habitSearch.toLowerCase()))
-    : habits;
+    ? listHabits.filter(h => h.name.toLowerCase().includes(habitSearch.toLowerCase()))
+    : listHabits;
 
   const [editHabit, setEditHabit] = useState<Habit | null>(null);
   const [eIcon, setEIcon] = useState('');
@@ -3203,6 +3373,10 @@ function TrackerView({
     await onDeleteHabit(editHabit.id);
     setEditHabit(null);
   }
+  async function handleDeleteHabitById(id: string) {
+    if (!confirm('이 습관을 삭제하시겠어요?')) return;
+    await onDeleteHabit(id);
+  }
 
   function toggleWD(wd: number) { setNewWeekdays(p => p.includes(wd) ? p.filter(d => d !== wd) : [...p, wd]); }
   function toggleEWD(wd: number) { setEWeekdays(p => p.includes(wd) ? p.filter(d => d !== wd) : [...p, wd]); }
@@ -3250,6 +3424,13 @@ function TrackerView({
         >
           ✎
         </button>
+        <button
+          onClick={() => handleDeleteHabitById(h.id)}
+          style={{ width: 28, height: 28, background: 'none', border: 'none', cursor: 'pointer', color: '#DC2626', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}
+          aria-label="삭제"
+        >
+          🗑
+        </button>
       </div>
     );
   }
@@ -3273,10 +3454,13 @@ function TrackerView({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <input value={newIcon} onChange={e => setNewIcon(e.target.value.slice(0, 4))} placeholder="✦" style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
-              <input value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }} placeholder="습관 이름 (예: 모닝 워터 한 잔)" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+              <input value={newName} onChange={e => { setNewName(e.target.value); if (e.target.value.trim()) setShowAddHint(false); }} onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }} placeholder="습관 이름 (예: 모닝 워터 한 잔)" maxLength={40} style={{ flex: 1, padding: '12px 14px', border: `1.5px solid ${showAddHint ? '#E94F6B' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
             </div>
             <RepeatFormFieldsShared f={f} rt={newRepeat} setRt={setNewRepeat} wd={newWeekdays} toggleWDFn={toggleWD} date_={newDate} setDate_={setNewDate} time_={newTime} setTime_={setNewTime} alarm_={newAlarm} setAlarm_={setNewAlarm} />
-            <button onClick={handleAdd} disabled={adding || !newName.trim()} style={{ padding: '12px 20px', background: newName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: newName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: newName.trim() ? 'pointer' : 'default', transition: 'all .18s' }}>
+            {showAddHint && (
+              <div style={{ fontFamily: f, fontSize: 12, color: '#E94F6B', fontWeight: 600, paddingLeft: 4 }}>습관 이름을 입력해주세요.</div>
+            )}
+            <button onClick={() => { if (!newName.trim()) { setShowAddHint(true); return; } setShowAddHint(false); handleAdd(); }} disabled={adding} style={{ padding: '12px 20px', background: newName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: newName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .18s' }}>
               + ADD
             </button>
           </div>
@@ -3284,15 +3468,28 @@ function TrackerView({
 
         {/* All habits pool */}
         <div style={{ padding: '20px 16px 0' }}>
-          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>전체 습관 목록</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>전체</span>
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{habits.length}개</span>
+          </div>
           <SearchBar value={habitSearch} onChange={setHabitSearch} placeholder="습관 이름 검색..." />
           {habits.length === 0 ? (
             <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
               아직 등록된 습관이 없습니다.<br />위에서 새 습관을 추가해주세요.
             </div>
-          ) : filteredHabits.length === 0 ? (
-            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
-              &ldquo;{habitSearch}&rdquo; 검색 결과 없음
+          ) : habitSearch.trim() ? (
+            filteredHabits.length === 0 ? (
+              <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
+                &ldquo;{habitSearch}&rdquo; 검색 결과 없음
+              </div>
+            ) : (
+              <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
+                {filteredHabits.map(h => <HabitRow key={h.id} h={h} onEdit={() => openEdit(h)} />)}
+              </div>
+            )
+          ) : listHabits.length === 0 ? (
+            <div style={{ padding: '20px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
+              모두 Today에 표시 중입니다.
             </div>
           ) : (
             <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
@@ -3370,7 +3567,10 @@ function TrackerView({
               </div>
               <RepeatFormFieldsShared f={f} rt={eRepeat} setRt={setERepeat} wd={eWeekdays} toggleWDFn={toggleEWD} date_={eDate} setDate_={setEDate} time_={eTime} setTime_={setETime} alarm_={eAlarm} setAlarm_={setEAlarm} />
             </div>
-            <button onClick={handleSaveEdit} style={{ marginTop: 20, width: '100%', padding: 14, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em' }}>저장</button>
+            <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+              <button onClick={() => setEditHabit(null)} style={{ flex: 1, padding: 14, background: '#F4F4F0', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
+              <button onClick={handleSaveEdit} style={{ flex: 1, padding: 14, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em' }}>저장</button>
+            </div>
             <button onClick={handleDeleteHabit} style={{ marginTop: 10, width: '100%', padding: 14, background: 'none', color: '#BA1A1A', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>삭제</button>
           </div>
         </>
@@ -3870,7 +4070,7 @@ function CtPanel({
                   }}>
                     {sImagePreview ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={sImagePreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={sImagePreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     ) : (
                       <>
                         <span style={{ fontSize: 32, opacity: 0.25 }}>📷</span>
