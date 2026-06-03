@@ -32,6 +32,7 @@ interface AppContextValue {
   user: User | null;
   userId: string;
   authLoading: boolean;
+  dataReady: boolean;   // 첫 Firestore 스냅샷 도착 여부 (sessions 기준)
   products: Product[];
   sessions: Session[];
   habits: Habit[];
@@ -48,6 +49,7 @@ const AppContext = createContext<AppContextValue>({
   user: null,
   userId: FALLBACK_USER_ID,
   authLoading: true,
+  dataReady: false,
   products: [],
   sessions: [],
   habits: [],
@@ -70,6 +72,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
+  const [dataReady, setDataReady] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -90,6 +93,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setUser(u);
       setAuthLoading(false);
       if (!u) {
+        setDataReady(false);
         setProducts([]); setSessions([]); setHabits([]);
         setCareItems([]); setMakeupItems([]); setLookItems([]);
         setMedRoutines([]); setHealthRoutines([]); setHealthCategories([]); setDietPrograms([]);
@@ -111,8 +115,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       ),
       onSnapshot(
         query(collection(_db, 'users', userId, 'routines'), orderBy('sessionNumber', 'desc')),
-        (s) => setSessions(s.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Session, 'id'>) }))),
-        () => {}
+        (s) => { setSessions(s.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Session, 'id'>) }))); setDataReady(true); },
+        () => { setDataReady(true); }
       ),
       onSnapshot(
         query(collection(_db, 'users', userId, 'habits'), orderBy('createdAt', 'asc')),
@@ -160,7 +164,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [userId, authLoading]);
 
   return (
-    <AppContext.Provider value={{ user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories, dietPrograms }}>
+    <AppContext.Provider value={{ user, userId, authLoading, dataReady, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories, dietPrograms }}>
       {children}
     </AppContext.Provider>
   );

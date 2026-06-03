@@ -1,450 +1,248 @@
 'use client';
 
 /**
- * /admin/cleanup
- * BOX 제품 중복 데이터 정리 도구
- *
- * 동작:
- * 1. Firestore에서 products와 sessions(루틴) 전체 로드
- * 2. 같은 이름의 제품을 그룹핑 → 중복 탐지
- * 3. 각 그룹에서 루틴에 참조된 productId를 "보존 대상"으로 표시
- * 4. 나머지(루틴에 없는 중복)를 삭제 후보로 표시
- * 5. 사용자가 확인 후 "삭제 실행" 버튼 클릭 → Firestore 문서 삭제
+ * /admin/cleanup — 전체 컬렉션 데이터 뷰어 + 삭제 도구
+ * 모든 문서를 나열해 직접 선택 → 삭제
  */
 
 import { useEffect, useState } from 'react';
 import {
-  collection,
-  getDocs,
-  deleteDoc,
-  doc,
-  writeBatch,
-  query,
-  orderBy,
+  collection, getDocs, query, orderBy, writeBatch, doc,
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
-import type { Product } from '@/types/product';
-import type { Session, RoutineItem } from '@/types/routine';
 
-// ─── 타입 ─────────────────────────────────────────────────────────────
-/** 같은 이름으로 묶인 중복 그룹 */
-interface DuplicateGroup {
-  name: string;                // 공통 제품명
-  products: ProductWithMeta[]; // 그룹 내 모든 제품
+const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+
+interface DocRow {
+  id: string;
+  label: string;
+  sub?: string;
+  date?: string;
 }
 
-/** 제품 + 루틴 참조 여부 */
-interface ProductWithMeta extends Product {
-  usedInRoutine: boolean;      // 하나 이상의 루틴 슬롯에서 참조됨
-  routineRefs: string[];       // 참조된 세션 ID 목록
-  keepFlag: boolean;           // 이 제품을 남길지 여부 (UI 토글)
+interface CollView {
+  key: string;
+  label: string;
+  icon: string;
+  docs: DocRow[];
+  selected: Set<string>;
+  open: boolean;
 }
 
-// ─── 유틸 ─────────────────────────────────────────────────────────────
-/** Session 전체를 순회하여 사용된 productId Set 반환 */
-function extractProductIds(sessions: Session[]): Map<string, string[]> {
-  // productId → [sessionId, ...] 매핑
-  const map = new Map<string, string[]>();
+const COLLECTIONS = [
+  { key: 'products',       label: '제품 (BOX)',         icon: '📦' },
+  { key: 'routines',       label: '스킨케어 세션',        icon: '🌿' },
+  { key: 'habits',         label: '습관 트래커',          icon: '⏰' },
+  { key: 'medRoutines',    label: '약 루틴',              icon: '💊' },
+  { key: 'healthRoutines', label: '건강 루틴',            icon: '🥗' },
+  { key: 'healthCategories', label: '건강 카테고리',      icon: '🏷' },
+  { key: 'dietPrograms',   label: '다이어트 플랜',        icon: '📋' },
+  { key: 'careItems',      label: '집중케어',             icon: '🧴' },
+  { key: 'makeupItems',    label: '메이크업북',           icon: '💄' },
+  { key: 'lookItems',      label: '룩북',                icon: '👗' },
+  { key: 'ootdLogs',       label: 'OOTD 기록',           icon: '📸' },
+  { key: 'usageLogs',      label: '사용 로그',            icon: '📊' },
+  { key: 'habitLogs',      label: '습관 로그',            icon: '✅' },
+  { key: 'healthLogs',     label: '건강 로그',            icon: '💪' },
+  { key: 'medLogs',        label: '약 복용 로그',         icon: '💉' },
+];
 
-  for (const session of sessions) {
-    // morning / evening 두 슬롯 모두 확인
-    for (const slot of [session.morning, session.evening]) {
-      if (!slot?.days) continue;
-      for (const day of slot.days) {
-        const allItems: RoutineItem[] = [
-          ...(day.items ?? []),
-          ...(day.tipItems ?? []),
-        ];
-        for (const item of allItems) {
-          if (item.type === 'product') {
-            const prev = map.get(item.id) ?? [];
-            if (!prev.includes(session.id)) {
-              map.set(item.id, [...prev, session.id]);
-            }
-          }
-        }
-      }
-    }
+function docLabel(key: string, d: Record<string, unknown>): { label: string; sub?: string; date?: string } {
+  switch (key) {
+    case 'products':        return { label: (d.name as string) || '?', sub: `${d.domain ?? ''}${d.brand ? ' · ' + d.brand : ''}`, date: (d.createdAt as string)?.slice(0, 10) };
+    case 'routines':        return { label: `Session #${d.sessionNumber ?? '?'}`, sub: `${d.startDate ?? ''} ~ ${d.endDate ?? ''}`, date: (d.createdAt as string)?.slice(0, 10) };
+    case 'habits':          return { label: (d.name as string) || '?', sub: d.repeatType as string, date: (d.createdAt as string)?.slice(0, 10) };
+    case 'medRoutines':     return { label: (d.name as string) || '?', sub: (d.dosage as string) || '', date: (d.createdAt as string)?.slice(0, 10) };
+    case 'healthRoutines':  return { label: (d.name as string) || '?', sub: d.repeatType as string, date: (d.createdAt as string)?.slice(0, 10) };
+    case 'healthCategories':return { label: `${d.icon ?? ''} ${d.name ?? '?'}`, sub: `order: ${d.order}` };
+    case 'dietPrograms':    return { label: (d.name as string) || '?', sub: (d.startDate as string) || '', date: (d.createdAt as string)?.slice(0, 10) };
+    case 'careItems':       return { label: (d.name as string) || '?', date: (d.createdAt as string)?.slice(0, 10) };
+    case 'makeupItems':     return { label: (d.name as string) || '?', date: (d.createdAt as string)?.slice(0, 10) };
+    case 'lookItems':       return { label: (d.name as string) || '?', date: (d.createdAt as string)?.slice(0, 10) };
+    case 'ootdLogs':        return { label: (d.date as string) || '?', sub: `${d.theme ?? ''} ${d.note ? '· ' + (d.note as string).slice(0, 20) : ''}` };
+    case 'usageLogs':       return { label: (d.dateStr as string) || '?', sub: `${d.timeSlot ?? ''} · productId: ${(d.productId as string)?.slice(0, 8)}` };
+    case 'habitLogs':       return { label: (d.dateStr as string) || '?', sub: `habitId: ${(d.habitId as string)?.slice(0, 8)}` };
+    case 'healthLogs':      return { label: (d.dateStr as string) || '?', sub: `routineId: ${(d.routineId as string)?.slice(0, 8)}` };
+    case 'medLogs':         return { label: (d.dateStr as string) || '?', sub: `routineId: ${(d.routineId as string)?.slice(0, 8)}` };
+    default:                return { label: d.id as string };
   }
-  return map;
 }
 
-// ─── 컴포넌트 ─────────────────────────────────────────────────────────
 export default function CleanupPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('로그인 확인 중...');
+  const [colls, setColls] = useState<CollView[]>([]);
+  const [deleting, setDeleting] = useState(false);
+  const [logLines, setLogLines] = useState<string[]>([]);
 
-  // 중복 그룹 목록 (이름이 같은 제품이 2개 이상인 것만)
-  const [groups, setGroups] = useState<DuplicateGroup[]>([]);
-  // 단독 제품 중 currentRemaining이 음수인 것
-  const [negativeProducts, setNegativeProducts] = useState<ProductWithMeta[]>([]);
-
-  const [running, setRunning] = useState(false);
-  const [done, setDone] = useState(false);
-
-  // ── 로그인 확인
   useEffect(() => {
-    if (!auth) {
-      setStatus('Firebase 미설정');
-      setLoading(false);
-      return;
-    }
-    return onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        setStatus('로그인이 필요합니다.');
-        setLoading(false);
-      }
+    if (!auth) { setStatus('Firebase 미설정'); setLoading(false); return; }
+    return onAuthStateChanged(auth, u => {
+      if (u) { setUserId(u.uid); }
+      else { setStatus('로그인 필요'); setLoading(false); }
     });
   }, []);
 
-  // ── 데이터 로드 및 분석
   useEffect(() => {
     if (!userId || !db) return;
-    (async () => {
-      try {
-        setStatus('데이터 로드 중...');
-
-        // products 전체 로드
-        const productsSnap = await getDocs(
-          query(collection(db!, 'users', userId, 'products'), orderBy('createdAt', 'asc'))
-        );
-        const rawProducts: Product[] = productsSnap.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<Product, 'id'>),
-        }));
-
-        // sessions(루틴) 전체 로드
-        const sessionsSnap = await getDocs(
-          collection(db!, 'users', userId, 'routines')
-        );
-        const sessions: Session[] = sessionsSnap.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<Session, 'id'>),
-        }));
-
-        // 루틴에서 사용된 productId 추출
-        const routineMap = extractProductIds(sessions);
-
-        // ProductWithMeta로 변환
-        const products: ProductWithMeta[] = rawProducts.map((p) => {
-          const refs = routineMap.get(p.id) ?? [];
-          return {
-            ...p,
-            usedInRoutine: refs.length > 0,
-            routineRefs: refs,
-            keepFlag: refs.length > 0, // 기본값: 루틴에 있으면 보존
-          };
-        });
-
-        // 이름 기준으로 그룹핑
-        const byName = new Map<string, ProductWithMeta[]>();
-        for (const p of products) {
-          const key = p.name.trim().toLowerCase();
-          const prev = byName.get(key) ?? [];
-          byName.set(key, [...prev, p]);
-        }
-
-        // 중복 그룹(2개 이상)만 추출
-        const dupGroups: DuplicateGroup[] = [];
-        for (const [, group] of byName) {
-          if (group.length < 2) continue;
-
-          // 루틴에 있는 것이 없으면 createdAt 최신 것을 keepFlag=true
-          const hasRoutineItem = group.some((p) => p.usedInRoutine);
-          if (!hasRoutineItem) {
-            // 모두 루틴 미참조 → 가장 최신 1개만 보존
-            const sorted = [...group].sort(
-              (a, b) =>
-                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-            sorted[0].keepFlag = true;
-            for (let i = 1; i < sorted.length; i++) sorted[i].keepFlag = false;
-          }
-
-          dupGroups.push({ name: group[0].name, products: group });
-        }
-
-        // 음수 잔량 제품 (단독 제품 중)
-        const negList: ProductWithMeta[] = [];
-        for (const [, group] of byName) {
-          if (group.length === 1 && group[0].currentRemaining < 0) {
-            negList.push(group[0]);
-          }
-        }
-
-        setGroups(dupGroups);
-        setNegativeProducts(negList);
-        setStatus(
-          dupGroups.length === 0
-            ? '중복 제품 없음'
-            : `중복 그룹 ${dupGroups.length}개 발견`
-        );
-      } catch (err) {
-        console.error(err);
-        setStatus('로드 실패: ' + String(err));
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadAll(userId);
   }, [userId]);
 
-  // ── keepFlag 토글 (사용자가 직접 변경 가능)
-  function toggleKeep(groupName: string, productId: string) {
-    setGroups((prev) =>
-      prev.map((g) => {
-        if (g.name.trim().toLowerCase() !== groupName.trim().toLowerCase()) return g;
-        return {
-          ...g,
-          products: g.products.map((p) =>
-            p.id === productId ? { ...p, keepFlag: !p.keepFlag } : p
-          ),
-        };
-      })
-    );
-  }
+  async function loadAll(uid: string) {
+    if (!db) return;
+    setStatus('불러오는 중...');
+    const _db = db;
+    const result: CollView[] = [];
 
-  // ── 삭제 실행
-  async function runCleanup() {
-    if (!userId || !db) return;
-
-    // 삭제 대상 목록 수집
-    const toDelete: string[] = [];
-    for (const g of groups) {
-      for (const p of g.products) {
-        if (!p.keepFlag) toDelete.push(p.id);
+    for (const { key, label, icon } of COLLECTIONS) {
+      try {
+        let q;
+        try { q = query(collection(_db, 'users', uid, key), orderBy('createdAt', 'desc')); }
+        catch { q = collection(_db, 'users', uid, key) as Parameters<typeof getDocs>[0]; }
+        const snap = await getDocs(q);
+        const docs: DocRow[] = snap.docs.map(d => {
+          const data = d.data() as Record<string, unknown>;
+          const { label: lbl, sub, date } = docLabel(key, { ...data, id: d.id });
+          return { id: d.id, label: lbl, sub, date };
+        });
+        result.push({ key, label, icon, docs, selected: new Set(), open: false });
+      } catch {
+        result.push({ key, label, icon, docs: [], selected: new Set(), open: false });
       }
     }
 
-    if (toDelete.length === 0) {
-      alert('삭제할 제품이 없습니다. 보존 플래그를 확인해주세요.');
-      return;
-    }
+    setColls(result);
+    setStatus('');
+    setLoading(false);
+  }
 
-    if (
-      !window.confirm(
-        `${toDelete.length}개의 제품을 Firestore에서 삭제합니다.\n` +
-          '이 작업은 되돌릴 수 없습니다. 계속할까요?'
-      )
-    )
-      return;
+  function toggleOpen(key: string) {
+    setColls(prev => prev.map(c => c.key === key ? { ...c, open: !c.open } : c));
+  }
 
-    setRunning(true);
+  function toggleDoc(collKey: string, docId: string) {
+    setColls(prev => prev.map(c => {
+      if (c.key !== collKey) return c;
+      const sel = new Set(c.selected);
+      sel.has(docId) ? sel.delete(docId) : sel.add(docId);
+      return { ...c, selected: sel };
+    }));
+  }
+
+  function toggleAll(collKey: string) {
+    setColls(prev => prev.map(c => {
+      if (c.key !== collKey) return c;
+      const allSel = c.docs.every(d => c.selected.has(d.id));
+      return { ...c, selected: allSel ? new Set() : new Set(c.docs.map(d => d.id)) };
+    }));
+  }
+
+  const totalSelected = colls.reduce((n, c) => n + c.selected.size, 0);
+
+  async function deleteSelected() {
+    if (!userId || !db || totalSelected === 0) return;
+    const items = colls.flatMap(c => [...c.selected].map(id => ({ coll: c.key, id, label: c.label })));
+    if (!confirm(`${items.length}개 항목을 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
+    setDeleting(true);
+    const _db = db;
+    const lines: string[] = [];
     try {
-      // Firestore writeBatch는 최대 500 ops → 분할
-      const BATCH_SIZE = 400;
-      for (let i = 0; i < toDelete.length; i += BATCH_SIZE) {
-        const batch = writeBatch(db!);
-        const chunk = toDelete.slice(i, i + BATCH_SIZE);
-        for (const id of chunk) {
-          batch.delete(doc(db!, 'users', userId, 'products', id));
-        }
+      // writeBatch 한도(500)를 고려해 청크로 나눔
+      for (let i = 0; i < items.length; i += 400) {
+        const chunk = items.slice(i, i + 400);
+        const batch = writeBatch(_db);
+        chunk.forEach(({ coll, id, label }) => {
+          batch.delete(doc(_db, 'users', userId, coll, id));
+          lines.push(`✓ [${label}] ${id}`);
+        });
         await batch.commit();
       }
-
-      setDone(true);
-      setStatus(`완료: ${toDelete.length}개 삭제됨`);
-
-      // 삭제된 항목을 UI에서 제거
-      setGroups((prev) =>
-        prev
-          .map((g) => ({
-            ...g,
-            products: g.products.filter((p) => p.keepFlag),
-          }))
-          .filter((g) => g.products.length >= 2)
-      );
+      lines.push(`\n총 ${items.length}개 삭제 완료`);
+      setLogLines(lines);
+      await loadAll(userId);
     } catch (err) {
-      console.error(err);
-      alert('삭제 중 오류 발생: ' + String(err));
-    } finally {
-      setRunning(false);
+      lines.push(`✕ 오류: ${err instanceof Error ? err.message : String(err)}`);
+      setLogLines(lines);
     }
+    setDeleting(false);
   }
 
-  // ─── 렌더 ──────────────────────────────────────────────────────────
-  const deleteCount = groups.flatMap((g) => g.products).filter((p) => !p.keepFlag).length;
+  if (loading) return (
+    <div style={{ padding: 40, fontFamily: f, color: '#9A9490', textAlign: 'center' }}>{status}</div>
+  );
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0D0D1A', color: '#fff', padding: '24px 16px', fontFamily: 'DM Sans, sans-serif' }}>
-      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>BOX 중복 제품 정리</h1>
-      <p style={{ color: 'rgba(255,255,255,.4)', fontSize: 13, marginBottom: 24 }}>{status}</p>
+    <div style={{ padding: '20px 16px 120px', fontFamily: f }}>
+      <div style={{ fontSize: 22, fontWeight: 800, color: '#0C0C0A', marginBottom: 4 }}>데이터 정리</div>
+      <div style={{ fontSize: 12, color: '#9A9490', marginBottom: 20 }}>
+        컬렉션을 펼쳐 항목을 선택하고 삭제하세요.
+      </div>
 
-      {loading && <p style={{ color: 'rgba(255,255,255,.5)' }}>분석 중...</p>}
-
-      {!loading && groups.length === 0 && !done && (
-        <p style={{ color: '#4CAF50' }}>중복 제품이 없습니다.</p>
-      )}
-
-      {/* 중복 그룹 목록 */}
-      {groups.map((g) => (
-        <div
-          key={g.name}
-          style={{
-            background: 'rgba(255,255,255,.05)',
-            border: '1px solid rgba(255,255,255,.08)',
-            borderRadius: 16,
-            padding: '16px',
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12 }}>
-            📦 {g.name}
-            <span style={{ color: 'rgba(255,255,255,.4)', fontSize: 12, marginLeft: 8 }}>
-              ({g.products.length}개)
-            </span>
+      {colls.map(c => (
+        <div key={c.key} style={{ marginBottom: 10, border: '1px solid rgba(12,12,10,.1)', borderRadius: 14, overflow: 'hidden' }}>
+          {/* 헤더 */}
+          <div onClick={() => toggleOpen(c.key)}
+            style={{ display: 'flex', alignItems: 'center', padding: '13px 16px', background: '#F9F9F7', cursor: 'pointer', gap: 10 }}>
+            <span style={{ fontSize: 18 }}>{c.icon}</span>
+            <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>{c.label}</span>
+            <span style={{ fontSize: 12, color: '#9A9490' }}>{c.docs.length}개</span>
+            {c.selected.size > 0 && (
+              <span style={{ background: '#FEE2E2', color: '#DC2626', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 9999 }}>
+                {c.selected.size}선택
+              </span>
+            )}
+            <span style={{ fontSize: 12, color: '#BCBAB6' }}>{c.open ? '▲' : '▼'}</span>
           </div>
 
-          {g.products.map((p) => (
-            <div
-              key={p.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '10px 12px',
-                borderRadius: 10,
-                marginBottom: 6,
-                background: p.keepFlag
-                  ? 'rgba(76,175,80,.12)'
-                  : 'rgba(233,79,107,.08)',
-                border: `1px solid ${p.keepFlag ? 'rgba(76,175,80,.3)' : 'rgba(233,79,107,.2)'}`,
-              }}
-            >
-              {/* 체크박스 */}
-              <input
-                type="checkbox"
-                checked={p.keepFlag}
-                onChange={() => toggleKeep(g.name, p.id)}
-                style={{ width: 16, height: 16, cursor: 'pointer' }}
-              />
-
-              <div style={{ flex: 1, fontSize: 13 }}>
-                <span style={{ fontWeight: 600 }}>{p.name}</span>
-                {p.brand && (
-                  <span style={{ color: 'rgba(255,255,255,.4)', marginLeft: 6 }}>
-                    {p.brand}
-                  </span>
-                )}
-                <div style={{ color: 'rgba(255,255,255,.35)', fontSize: 11, marginTop: 2 }}>
-                  잔량: {p.currentRemaining}{p.itemUnit} · 생성:{' '}
-                  {p.createdAt ? new Date(p.createdAt).toLocaleDateString('ko-KR') : '-'}
-                  {' · ID: '}{p.id.slice(0, 8)}...
-                </div>
-              </div>
-
-              {/* 루틴 참조 배지 */}
-              {p.usedInRoutine ? (
-                <span
-                  style={{
-                    background: 'rgba(33,150,243,.25)',
-                    color: '#90CAF9',
-                    borderRadius: 6,
-                    padding: '2px 8px',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  루틴 참조 ✓
-                </span>
+          {/* 문서 목록 */}
+          {c.open && (
+            <div>
+              {c.docs.length === 0 ? (
+                <div style={{ padding: '14px 16px', fontSize: 12, color: '#BCBAB6' }}>데이터 없음</div>
               ) : (
-                <span
-                  style={{
-                    background: 'rgba(255,255,255,.06)',
-                    color: 'rgba(255,255,255,.3)',
-                    borderRadius: 6,
-                    padding: '2px 8px',
-                    fontSize: 11,
-                  }}
-                >
-                  미참조
-                </span>
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderBottom: '1px solid rgba(12,12,10,.06)', background: '#fff' }}>
+                    <button onClick={() => toggleAll(c.key)}
+                      style={{ fontSize: 11, fontWeight: 700, color: '#9A9490', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                      {c.docs.every(d => c.selected.has(d.id)) ? '전체 해제' : '전체 선택'}
+                    </button>
+                    <span style={{ fontSize: 11, color: '#BCBAB6' }}>({c.selected.size}/{c.docs.length})</span>
+                  </div>
+                  {c.docs.map(row => (
+                    <div key={row.id} onClick={() => toggleDoc(c.key, row.id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderBottom: '1px solid rgba(12,12,10,.04)', cursor: 'pointer', background: c.selected.has(row.id) ? '#FEF2F2' : '#fff' }}>
+                      <div style={{ width: 16, height: 16, borderRadius: 3, border: `2px solid ${c.selected.has(row.id) ? '#DC2626' : 'rgba(12,12,10,.2)'}`, background: c.selected.has(row.id) ? '#DC2626' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {c.selected.has(row.id) && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.label}</div>
+                        {row.sub && <div style={{ fontSize: 11, color: '#9A9490', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.sub}</div>}
+                      </div>
+                      {row.date && <span style={{ fontSize: 11, color: '#BCBAB6', flexShrink: 0 }}>{row.date}</span>}
+                    </div>
+                  ))}
+                </>
               )}
-
-              {/* 보존/삭제 표시 */}
-              <span style={{ fontSize: 13, width: 52, textAlign: 'center' }}>
-                {p.keepFlag ? '✅ 보존' : '🗑 삭제'}
-              </span>
             </div>
-          ))}
+          )}
         </div>
       ))}
 
-      {/* 음수 잔량 경고 (참고용) */}
-      {negativeProducts.length > 0 && (
-        <div
-          style={{
-            background: 'rgba(255,193,7,.07)',
-            border: '1px solid rgba(255,193,7,.2)',
-            borderRadius: 16,
-            padding: '16px',
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8, color: '#FFC107' }}>
-            ⚠️ 잔량 음수 제품 (참고 — 중복 아님, 삭제 안 됨)
-          </div>
-          {negativeProducts.map((p) => (
-            <div key={p.id} style={{ fontSize: 13, marginBottom: 4, color: 'rgba(255,255,255,.6)' }}>
-              {p.name} — 잔량 {p.currentRemaining}{p.itemUnit}
-            </div>
-          ))}
+      {/* 삭제 로그 */}
+      {logLines.length > 0 && (
+        <div style={{ marginTop: 16, padding: 14, background: '#F4F4F0', borderRadius: 12, fontSize: 11, fontFamily: 'monospace', whiteSpace: 'pre-wrap', color: '#4A4846', lineHeight: 1.7 }}>
+          {logLines.join('\n')}
         </div>
       )}
 
-      {/* 실행 버튼 */}
-      {!loading && groups.length > 0 && !done && (
-        <div style={{ position: 'sticky', bottom: 24, display: 'flex', gap: 12, marginTop: 24 }}>
-          <button
-            onClick={runCleanup}
-            disabled={running || deleteCount === 0}
-            style={{
-              flex: 1,
-              padding: '14px 0',
-              borderRadius: 12,
-              border: 'none',
-              background: deleteCount > 0 ? '#E94F6B' : 'rgba(255,255,255,.1)',
-              color: deleteCount > 0 ? '#fff' : 'rgba(255,255,255,.3)',
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: deleteCount > 0 ? 'pointer' : 'default',
-            }}
-          >
-            {running ? '삭제 중...' : `🗑 ${deleteCount}개 삭제 실행`}
-          </button>
-        </div>
-      )}
-
-      {done && (
-        <div
-          style={{
-            background: 'rgba(76,175,80,.15)',
-            border: '1px solid rgba(76,175,80,.3)',
-            borderRadius: 16,
-            padding: 20,
-            textAlign: 'center',
-            marginTop: 16,
-          }}
-        >
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#4CAF50' }}>✅ 정리 완료</div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', marginTop: 4 }}>{status}</div>
-          <button
-            onClick={() => (window.location.href = '/box')}
-            style={{
-              marginTop: 16,
-              padding: '10px 24px',
-              borderRadius: 10,
-              border: '1px solid rgba(255,255,255,.2)',
-              background: 'transparent',
-              color: '#fff',
-              cursor: 'pointer',
-            }}
-          >
-            BOX로 돌아가기
+      {/* 하단 고정 삭제 버튼 */}
+      {totalSelected > 0 && (
+        <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 12px)', background: '#FAFAF8', borderTop: '1px solid rgba(12,12,10,.1)' }}>
+          <button onClick={deleteSelected} disabled={deleting}
+            style={{ width: '100%', height: 50, background: '#DC2626', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: deleting ? .7 : 1 }}>
+            {deleting ? '삭제 중…' : `선택한 ${totalSelected}개 영구 삭제`}
           </button>
         </div>
       )}

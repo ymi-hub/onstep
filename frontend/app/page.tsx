@@ -1482,7 +1482,7 @@ export default function TodayPage() {
   }, [router]);
 
   // ── 공유 컨텍스트 (auth + 공유 구독 — layout에서 1회 실행, 탭 전환 시 즉시) ──
-  const { user, userId: ctxUserId, authLoading, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems, medRoutines, healthRoutines, dietPrograms } = useAppContext();
+  const { user, userId: ctxUserId, authLoading, dataReady, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems, medRoutines, healthRoutines, dietPrograms } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 데이터 상태 ──
@@ -1579,10 +1579,10 @@ export default function TodayPage() {
   // ── Firebase Auth 상태 감지 ──
   // sessions/products/habits/ct → AppContext에서 공유 (탭 전환 시 즉시)
 
-  // dataLoading: sessions이 context에서 오면 authLoading 해소 시 완료 처리
+  // dataLoading: sessions 첫 스냅샷 도착 시 완료 (authLoading만으론 불충분 — onSnapshot 미도착 방지)
   useEffect(() => {
-    if (!authLoading) setDataLoading(false);
-  }, [authLoading]);
+    if (dataReady) setDataLoading(false);
+  }, [dataReady]);
 
   // ── 실시간 구독 3: 오늘 체크 기록 (활성 세션이 결정된 후 구독 시작) ──
   const activeSessionId = activeSession?.id;
