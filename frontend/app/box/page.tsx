@@ -729,6 +729,9 @@ export default function BoxPage() {
   const [migrationToast, setMigrationToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [migrating, setMigrating] = useState(false);
 
+  // BOX 최상위 뷰: 제품 목록 vs 지출 분석
+  const [boxView, setBoxView] = useState<'products' | 'spending'>('products');
+
   // 뷰 모드 (매거진 / 갤러리 3열 / 리스트)
   const [viewMode, setViewMode] = useState<'magazine' | 'gallery' | 'list'>('magazine');
   // 정렬 모드
@@ -1047,6 +1050,144 @@ export default function BoxPage() {
           </div>
         }
       />
+
+      {/* ── 제품 / 지출 분석 상위 탭 ── */}
+      <div style={{ display: 'flex', borderBottom: '1px solid rgba(12,12,10,.07)', background: 'rgba(255,255,255,.97)' }}>
+        {(['products', 'spending'] as const).map(v => (
+          <button key={v} onClick={() => setBoxView(v)}
+            style={{
+              flex: 1, height: 42, border: 'none', background: 'none', cursor: 'pointer',
+              fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+              fontSize: 12, fontWeight: 800, letterSpacing: '.02em',
+              color: boxView === v ? '#0C0C0A' : '#9A9490',
+              borderBottom: boxView === v ? '2px solid #C5FF00' : '2px solid transparent',
+              transition: 'all .18s',
+            }}
+          >
+            {v === 'products' ? '제품' : '지출 분석'}
+          </button>
+        ))}
+      </div>
+
+      {/* ── 지출 분석 뷰 ── */}
+      {boxView === 'spending' && (() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+
+        // 가격 있는 beauty 제품만 분석 대상
+        const priced = products
+          .filter(p => parsePrice(p.price) !== null)
+          .map(p => {
+            const price = parsePrice(p.price)!;
+            const dailyUsage = (p.dosePerUse ?? 0) * (p.usesPerDay ?? 0) * ((p.frequencyValue ?? 7) / 7);
+            // CPD: 하루 사용 비용
+            const cpd = p.totalAmount && dailyUsage > 0
+              ? (price / p.totalAmount) * dailyUsage
+              : 0;
+            // 총 사용 기간 (일)
+            const totalDays = p.totalAmount && dailyUsage > 0
+              ? Math.round(p.totalAmount / dailyUsage)
+              : 0;
+            return { ...p, price, cpd, totalDays };
+          })
+          .sort((a, b) => b.cpd - a.cpd);
+
+        // 전체 월간 지출 합계 (CPD × 30)
+        const monthlyTotal = priced.reduce((sum, p) => sum + p.cpd * 30, 0);
+
+        // 전체 제품 총 구매가 합계
+        const purchaseTotal = priced.reduce((sum, p) => sum + p.price, 0);
+
+        if (priced.length === 0) {
+          return (
+            <div style={{ padding: '60px 16px', textAlign: 'center' }}>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>💰</div>
+              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', marginBottom: 6 }}>가격 정보가 없어요</div>
+              <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>제품 편집에서 가격을 입력하면 분석이 시작됩니다</div>
+            </div>
+          );
+        }
+
+        return (
+          <div style={{ padding: '16px 16px calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
+            {/* 요약 카드 */}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+              {/* 월 추정 지출 */}
+              <div style={{ flex: 1, background: '#0C0C0A', borderRadius: 14, padding: '14px 14px 12px' }}>
+                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.5)', letterSpacing: '.06em', marginBottom: 4 }}>월 추정 지출</div>
+                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#C5FF00', lineHeight: 1 }}>
+                  ₩{Math.round(monthlyTotal).toLocaleString()}
+                </div>
+                <div style={{ fontFamily: f, fontSize: 10, color: 'rgba(255,255,255,.4)', marginTop: 4 }}>CPD 합산 × 30일</div>
+              </div>
+              {/* 총 구매가 */}
+              <div style={{ flex: 1, background: '#F5F4F2', borderRadius: 14, padding: '14px 14px 12px', border: '1px solid rgba(12,12,10,.08)' }}>
+                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 4 }}>제품 총 구매가</div>
+                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', lineHeight: 1 }}>
+                  ₩{Math.round(purchaseTotal).toLocaleString()}
+                </div>
+                <div style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginTop: 4 }}>{priced.length}개 제품</div>
+              </div>
+            </div>
+
+            {/* CPD 섹션 헤더 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A', letterSpacing: '.04em' }}>
+                CPD 순위 (하루 소비 비용)
+              </span>
+              <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>높은 순</span>
+            </div>
+
+            {/* 제품별 CPD 카드 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {priced.map((p, idx) => {
+                // 이 제품의 CPD가 총합에서 차지하는 비율 (바 너비용)
+                const maxCpd = priced[0].cpd;
+                const barWidth = maxCpd > 0 ? (p.cpd / maxCpd) * 100 : 0;
+                return (
+                  <div key={p.id} style={{ background: '#fff', borderRadius: 12, padding: '12px 14px', border: '1px solid rgba(12,12,10,.07)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                      <div style={{ flex: 1, minWidth: 0, paddingRight: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#BCBAB6' }}>#{idx + 1}</span>
+                          <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                            {p.name}
+                          </span>
+                        </div>
+                        {p.brand && (
+                          <span style={{ fontFamily: f, fontSize: 11, color: '#9A9490' }}>{p.brand}</span>
+                        )}
+                      </div>
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>
+                          ₩{p.cpd < 10 ? p.cpd.toFixed(1) : Math.round(p.cpd).toLocaleString()}
+                          <span style={{ fontSize: 10, fontWeight: 600, color: '#9A9490' }}>/일</span>
+                        </div>
+                        <div style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginTop: 1 }}>
+                          ₩{Math.round(p.price).toLocaleString()} · {p.totalDays > 0 ? `${p.totalDays}일분` : '-'}
+                        </div>
+                      </div>
+                    </div>
+                    {/* CPD 상대 바 */}
+                    <div style={{ height: 4, background: 'rgba(12,12,10,.07)', borderRadius: 9999, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${barWidth}%`, background: idx === 0 ? '#C5FF00' : '#0C0C0A', opacity: idx === 0 ? 1 : 0.25 + (0.6 * (1 - idx / priced.length)), borderRadius: 9999 }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 미분석 제품 안내 */}
+            {products.filter(p => !parsePrice(p.price)).length > 0 && (
+              <div style={{ marginTop: 16, padding: '10px 14px', background: '#F5F4F2', borderRadius: 10, fontFamily: f, fontSize: 12, color: '#9A9490' }}>
+                💡 가격 미입력 제품 {products.filter(p => !parsePrice(p.price)).length}개는 분석에서 제외됩니다.
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* 아래는 boxView === 'products' 일 때만 표시 */}
+      {boxView === 'products' && <>
 
       {/* 도메인 탭 (Beauty / Fashion / Acc) */}
       {/* design/box.html .domain-tabs 구조 */}
@@ -1459,6 +1600,9 @@ export default function BoxPage() {
           </button>
         </div>
       )}
+
+      {/* boxView === 'products' 블록 닫기 */}
+      </>}
 
       {/* Bottom Toast — 마이그레이션 결과 알림 */}
       {migrationToast && (
