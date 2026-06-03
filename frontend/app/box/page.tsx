@@ -1196,6 +1196,77 @@ export default function BoxPage() {
         </div>
       )}
 
+      {/* ── 소진 임박 배너 (D-7 이하 beauty 제품) ── */}
+      {(() => {
+        // beauty 도메인 제품 중 일일 소비량이 계산 가능하고 잔량이 7일 이하인 것만 필터
+        const urgent = products
+          .filter(p => p.domain === 'beauty')
+          .map(p => {
+            const dailyUsage = (p.dosePerUse ?? 0) * (p.usesPerDay ?? 0) * ((p.frequencyValue ?? 7) / 7);
+            if (dailyUsage <= 0 || (p.currentRemaining ?? 0) <= 0) return null;
+            const daysLeft = Math.floor((p.currentRemaining ?? 0) / dailyUsage);
+            if (daysLeft > 7) return null;
+            return { ...p, daysLeft };
+          })
+          .filter((x): x is Product & { daysLeft: number } => x !== null)
+          .sort((a, b) => a.daysLeft - b.daysLeft);
+
+        if (urgent.length === 0) return null;
+
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        return (
+          <div style={{ padding: '10px 16px 2px' }}>
+            {/* 헤더 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <span style={{ fontSize: 13 }}>⚠️</span>
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#B45309', letterSpacing: '.06em' }}>
+                소진 임박 — {urgent.length}개
+              </span>
+            </div>
+
+            {/* 가로 스크롤 카드 */}
+            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 6 }}>
+              {urgent.map(p => {
+                const isRed = p.daysLeft <= 3;
+                const color = isRed ? '#E94F6B' : '#F97316';
+                const bg = isRed ? 'rgba(233,79,107,.07)' : 'rgba(249,115,22,.07)';
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      // 해당 제품의 도메인 탭으로 이동 + 편집 오픈
+                      setActiveTab(p.domain ?? 'beauty');
+                      setTimeout(() => {
+                        const el = document.getElementById(`product-${p.id}`);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 100);
+                    }}
+                    style={{
+                      flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                      padding: '8px 12px', borderRadius: 10, border: `1.5px solid ${color}20`,
+                      background: bg, cursor: 'pointer', textAlign: 'left', minWidth: 100, maxWidth: 140,
+                    }}
+                  >
+                    <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color, lineHeight: 1, marginBottom: 3 }}>
+                      D-{p.daysLeft}
+                    </span>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                      {p.name}
+                    </span>
+                    {p.brand && (
+                      <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, maxWidth: '100%' }}>
+                        {p.brand}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '8px 0 0' }} />
+          </div>
+        );
+      })()}
+
       {/* 뷰/정렬 바 — design/box.html .view-sort-bar */}
       {!loading && products.length > 0 && (
         <div
