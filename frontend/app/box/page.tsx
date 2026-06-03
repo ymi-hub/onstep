@@ -122,11 +122,12 @@ type FormState = {
   price: string;             // 가격 (예: "₩45,000")
   source: string;            // 구매처
   purchaseUrl: string;       // 구매 링크
-  currentRemaining: number;  // 현재 잔량 (편집 시 수동 조정)
-  imageFile: File | null;    // 새로 선택한 이미지 파일
-  imagePreview: string;      // base64 미리보기
-  imageUrl: string;          // 기존 이미지 URL
-  itemUnit: string;          // 용량 단위: 'ml' | 'g' | '개'
+  currentRemaining: number;    // 현재 잔량 / 남은 개수 (편집 및 신규에서 입력)
+  imageFile: File | null;
+  imagePreview: string;
+  imageUrl: string;
+  itemUnit: string;            // 용량 단위: 'ml' | 'g' | '개'
+  usageDurationMonths: number; // 총 사용 기간(개월) — '개' 단위일 때만 사용, 0=미입력
 };
 
 const INITIAL_FORM: FormState = {
@@ -151,6 +152,7 @@ const INITIAL_FORM: FormState = {
   imagePreview: '',
   imageUrl: '',
   itemUnit: 'ml',
+  usageDurationMonths: 0,
 };
 
 // ─── 매거진 뷰 (design/box.html magazine 뷰 참고) ────────────────────────────
@@ -237,8 +239,10 @@ function AdaptiveImg({ src, style }: { src: string; style?: React.CSSProperties 
 // 매거진 이미지 블록 (히어로: 전폭 / 소형: 3:4 비율)
 function MagImg({ product, borderRadius, isHero }: { product: Product; borderRadius: number; isHero?: boolean }) {
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
-  const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
-  const fillRate = product.totalAmount > 0 ? Math.min(1, product.currentRemaining / product.totalAmount) : 1;
+  // 잔량 바: beauty skincare + 개 단위 제품 모두 표시
+  const hasRemaining = product.totalAmount > 0 && product.currentRemaining != null;
+  const fillRate = hasRemaining ? Math.min(1, product.currentRemaining / product.totalAmount) : 1;
+  const showBar = (product.domain === 'beauty' && product.subCategory !== 'makeup') || product.itemUnit === '개';
   return (
     <div
       style={{
@@ -255,8 +259,8 @@ function MagImg({ product, borderRadius, isHero }: { product: Product; borderRad
           NEW ARRIVAL
         </div>
       )}
-      {/* 하단 잔량 바 — 스킨케어(beauty)만 표시 */}
-      {isSkincare && (
+      {/* 하단 잔량 바 — skincare + 개 단위 */}
+      {showBar && hasRemaining && (
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(12,12,10,.08)', zIndex: 1 }}>
           <div style={{ height: '100%', width: `${fillRate * 100}%`, background: '#C5FF00' }} />
         </div>
@@ -265,20 +269,42 @@ function MagImg({ product, borderRadius, isHero }: { product: Product; borderRad
   );
 }
 
-// 매거진 잔량 바 (얇은 바 + 퍼센트)
+// 매거진 잔량 바 (얇은 바 + 퍼센트 + D-N)
 function MagResBar({ product }: { product: Product }) {
-  if (product.domain !== 'beauty' || product.subCategory === 'makeup') return null;
-  const fillRate = product.totalAmount > 0 ? Math.min(1, product.currentRemaining / product.totalAmount) : 1;
+  const isCountMode = product.itemUnit === '개';
+  const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
+  // 표시 조건: beauty skincare 또는 개 단위 제품
+  if (!isSkincare && !isCountMode) return null;
+  if (!product.totalAmount || product.currentRemaining == null) return null;
+
+  const fillRate = Math.min(1, product.currentRemaining / product.totalAmount);
   const pct = Math.round(fillRate * 100);
+
+  // D-N 계산: 하루 소모량이 있으면 남은 일수 표시
+  const dailyUsage = (product.dosePerUse ?? 0) * (product.usesPerDay ?? 1) * ((product.frequencyValue ?? 7) / 7);
+  const daysLeft = (dailyUsage > 0 && product.currentRemaining > 0)
+    ? Math.floor(product.currentRemaining / dailyUsage)
+    : null;
+
   return (
     <>
       <div style={{ height: 3, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden', marginBottom: 4 }}>
         <div style={{ height: '100%', width: `${pct}%`, background: '#C5FF00', borderRadius: 2 }} />
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490' }}>
-        <span>{product.currentRemaining}{product.itemUnit || '개'} 남음</span>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {calcCostPerUse(product) && <span>1회 {calcCostPerUse(product)}</span>}
+        <span>
+          {isCountMode
+            ? `${product.currentRemaining}개 / ${product.totalAmount}개`
+            : `${product.currentRemaining}${product.itemUnit || 'ml'} 남음`}
+        </span>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {/* D-N: 소모 주기가 있을 때만 */}
+          {daysLeft !== null && (
+            <span style={{ fontWeight: 700, color: daysLeft <= 7 ? '#E94F6B' : daysLeft <= 14 ? '#F97316' : '#9A9490' }}>
+              D-{daysLeft}
+            </span>
+          )}
+          {!isCountMode && calcCostPerUse(product) && <span>1회 {calcCostPerUse(product)}</span>}
           <span>{pct}%</span>
         </div>
       </div>
@@ -898,6 +924,15 @@ export default function BoxPage() {
     setSaving(true);
     try {
       const now = new Date().toISOString();
+      // '개' 단위 + 총 사용 기간 입력 시: 기간에서 하루 소모량 역산 → 기존 urgency/CPD 로직과 호환
+      const isCountMode = form.itemUnit === '개' && form.usageDurationMonths > 0;
+      const derivedDosePerUse = isCountMode
+        ? totalAmount / (form.usageDurationMonths * 30)   // 하루 소모량 (개/일)
+        : form.dosePerUse;
+      const derivedUsesPerDay  = isCountMode ? 1 : form.usesPerDay;
+      const derivedFreqValue   = isCountMode ? 7 : form.daysPerWeek;
+      const derivedFreqType    = isCountMode || form.daysPerWeek === 7 ? 'daily' : 'per_week';
+
       const commonFields = {
         name: form.name.trim(),
         brand: form.brand.trim() || null,
@@ -906,10 +941,11 @@ export default function BoxPage() {
         unitPerPackage: form.unitPerPackage,
         itemUnit: form.itemUnit,
         totalAmount,
-        dosePerUse: form.dosePerUse,
-        usesPerDay: form.usesPerDay,
-        frequencyType: form.daysPerWeek === 7 ? 'daily' : 'per_week',
-        frequencyValue: form.daysPerWeek,
+        dosePerUse: derivedDosePerUse,
+        usesPerDay: derivedUsesPerDay,
+        frequencyType: derivedFreqType,
+        frequencyValue: derivedFreqValue,
+        usageDurationMonths: form.usageDurationMonths > 0 ? form.usageDurationMonths : null,
         purchaseDate: form.purchaseDate || null,
         startDate: form.startDate || null,
         expiryDate: form.expiryDate || null,
@@ -939,7 +975,10 @@ export default function BoxPage() {
           ...commonFields,
           domain: form.formDomain,
           subCategory: hasSubTypes ? form.formSubType : null,
-          currentRemaining: totalAmount,
+          // '개' 모드: 폼에 입력한 남은 개수 사용, 미입력이면 총 개수(새 것)
+          currentRemaining: (form.itemUnit === '개' && form.currentRemaining > 0)
+            ? form.currentRemaining
+            : totalAmount,
           createdAt: now,
         });
         productId = docRef.id;
@@ -998,6 +1037,7 @@ export default function BoxPage() {
       imagePreview: '',
       imageUrl: p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl ?? '',
       itemUnit: (p.itemUnit as string) || 'ml',
+      usageDurationMonths: p.usageDurationMonths ?? 0,
     });
     setEditingProduct(p);
     setIsAddOpen(true);
@@ -2027,10 +2067,26 @@ function AddProductPage({
 
   // 소진 예측 계산
   // 기준 잔량: 편집 모드는 현재 잔량, 신규 등록은 총 용량
+  const isCountMode = form.itemUnit === '개';
+  // 현재 남은 수량: 편집이면 form 값, 신규+개수모드면 form 값(입력한 경우) 또는 총 수량
+  const currentCount = isEditing
+    ? form.currentRemaining
+    : (isCountMode && form.currentRemaining > 0 ? form.currentRemaining : totalAmount);
+
+  // 개수 모드 + 기간 입력: 총량/기간으로 하루 소모량 역산
+  const countDailyRate = (isCountMode && form.usageDurationMonths > 0)
+    ? totalAmount / (form.usageDurationMonths * 30)
+    : null;
+  const countWeeklyRate = countDailyRate !== null ? countDailyRate * 7 : null;
+
+  // ml/g 모드 기존 계산 유지
   const baseForEstimate = isEditing ? form.currentRemaining : totalAmount;
   const dailyUsage = form.dosePerUse * form.usesPerDay * (form.daysPerWeek / 7);
-  // daysPerWeek=0(불규칙)이거나 사용량이 없으면 예측 불가
-  const estimatedDays = dailyUsage > 0 ? Math.round(baseForEstimate / dailyUsage) : null;
+
+  // 예상 소진일 (모드에 따라 분기)
+  const estimatedDays = countDailyRate !== null
+    ? (countDailyRate > 0 ? Math.round(currentCount / countDailyRate) : null)
+    : (dailyUsage > 0 ? Math.round(baseForEstimate / dailyUsage) : null);
 
   // form state에서 domain/subType/cats 동적 계산
   const domain = form.formDomain;
@@ -2359,20 +2415,21 @@ function AddProductPage({
             </div>
           </div>
 
-          {/* ── Asset Count 섹션 (Beauty 도메인 전용 — Skincare·Makeup 모두) ── */}
-          {domain === 'beauty' && (
-            <div>
+          {/* ── Asset Count 섹션 ── */}
+          <div>
               <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 22, fontWeight: 400, letterSpacing: '-0.02em', color: '#1A1C1C', marginBottom: 12 }}>
                 Asset Count
               </div>
               <div style={{ borderTop: '1px solid #C5C6CA', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-                {/* 패키지 수 × 수량 = 총량 */}
+                {/* ── 수량 구조: 박스 수 × 박스당 개수 (개 모드) / 패키지 × ml (ml 모드) ── */}
                 <div>
                   <div style={{ ...labelStyle, marginBottom: 10 }}>수량 구조</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 8, alignItems: 'center', marginBottom: 10 }}>
                     <div>
-                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>패키지 수</div>
+                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>
+                        {isCountMode ? '박스 수' : '패키지 수'}
+                      </div>
                       <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
                         <input
                           type="number" min={1}
@@ -2386,7 +2443,7 @@ function AddProductPage({
                     <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 18, color: '#C5C6CA', paddingTop: 14 }}>×</span>
                     <div>
                       <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>
-                        {form.itemUnit === '개' ? '개당 수량' : `패키지 용량 (${form.itemUnit})`}
+                        {isCountMode ? '박스당 개수' : `패키지 용량 (${form.itemUnit})`}
                       </div>
                       <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
                         <input
@@ -2402,14 +2459,15 @@ function AddProductPage({
                   {/* 단위 선택 */}
                   <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
                     {['ml', 'g', '개'].map((u) => (
-                      <button key={u} onClick={() => setForm((f) => ({ ...f, itemUnit: u }))} style={pillStyle(form.itemUnit === u)}>
+                      <button key={u} onClick={() => setForm((f) => ({ ...f, itemUnit: u, usageDurationMonths: 0 }))} style={pillStyle(form.itemUnit === u)}>
                         {u}
                       </button>
                     ))}
                   </div>
+                  {/* 총량 요약 */}
                   <div style={{ display: 'flex', alignItems: 'center', background: '#F5F5F3', borderRadius: 6, padding: '8px 12px' }}>
                     <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>
-                      {form.itemUnit === '개' ? '총 수량' : '총 용량'}
+                      {isCountMode ? '총 개수' : '총 용량'}
                     </span>
                     <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014', marginLeft: 'auto' }}>
                       {totalAmount}{form.itemUnit}
@@ -2423,89 +2481,154 @@ function AddProductPage({
                   <input type="date" value={form.startDate} onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))} style={dateInputStyle} />
                 </div>
 
-                {/* 현재 잔량 (편집 모드에서만 표시) */}
-                {isEditing && (
+                {/* ── 현재 남은 수량: 개 모드는 신규도 표시 / ml 모드는 편집만 ── */}
+                {(isCountMode || isEditing) && (
                   <div>
-                    <div style={{ ...labelStyle, marginBottom: 6 }}>현재 잔량</div>
+                    <div style={{ ...labelStyle, marginBottom: 6 }}>
+                      {isCountMode ? '현재 남은 개수' : '현재 잔량'}
+                    </div>
+                    {isCountMode && !isEditing && (
+                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 8 }}>
+                        새 것이면 그대로 두세요 (총 {totalAmount}개). 이미 쓰던 것이면 남은 개수를 입력하세요.
+                      </div>
+                    )}
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                       <input
                         type="number"
                         min={0}
-                        value={form.currentRemaining}
+                        value={isCountMode && !isEditing && form.currentRemaining === 0 ? totalAmount : form.currentRemaining}
                         onChange={(e) => setForm((f) => ({ ...f, currentRemaining: Math.max(0, Number(e.target.value)) }))}
                         style={{ ...countInputStyle, textAlign: 'left', fontSize: 22, width: 80 }}
                       />
-                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>{form.itemUnit} / {totalAmount}{form.itemUnit}</span>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>
+                        {form.itemUnit} / {totalAmount}{form.itemUnit}
+                      </span>
                     </div>
-                    {/* 잔량 프로그레스 바 */}
                     <div style={{ marginTop: 6, height: 4, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${Math.min(100, (form.currentRemaining / Math.max(1, totalAmount)) * 100)}%`, background: '#C5FF00', transition: 'width .3s' }} />
+                      <div style={{
+                        height: '100%',
+                        width: `${Math.min(100, (currentCount / Math.max(1, totalAmount)) * 100)}%`,
+                        background: '#C5FF00', transition: 'width .3s',
+                      }} />
                     </div>
                   </div>
                 )}
 
-                {/* 사용 패턴 */}
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 2 }}>
-                    <div style={labelStyle}>사용 패턴</div>
-                    {form.category && CATEGORY_DOSE_DEFAULTS[form.category] && (
-                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9CA3AF' }}>
-                        ({form.category} 기본값 자동 적용)
+                {/* ── 소비 패턴 섹션: 개 모드 vs ml 모드 ── */}
+                {isCountMode ? (
+                  /* 개수 모드: 총 사용 기간으로 역산 */
+                  <div>
+                    <div style={{ ...labelStyle, marginBottom: 2 }}>소진 예측 (선택)</div>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 14 }}>
+                      총 기간을 알면 하루·주간 소모량이 자동 계산됩니다
+                    </div>
+
+                    {/* 총 사용 기간 입력 */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#44474A', whiteSpace: 'nowrap' as const }}>
+                        총 {totalAmount}개로
                       </span>
+                      <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4, width: 70 }}>
+                        <input
+                          type="number" min={1}
+                          placeholder="—"
+                          value={form.usageDurationMonths || ''}
+                          onChange={(e) => { const n = parseInt(e.target.value, 10); setForm((f) => ({ ...f, usageDurationMonths: isNaN(n) ? 0 : n })); }}
+                          style={{ ...countInputStyle, width: '100%', textAlign: 'center' }}
+                        />
+                      </div>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#44474A', whiteSpace: 'nowrap' as const }}>
+                        개월 사용
+                      </span>
+                    </div>
+
+                    {/* 자동 계산 결과 */}
+                    {form.usageDurationMonths > 0 && countDailyRate !== null && (
+                      <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', gap: 0, marginBottom: 8 }}>
+                        <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #E5E4E2' }}>
+                          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '.06em', marginBottom: 2 }}>하루 소모</div>
+                          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014' }}>
+                            {countDailyRate < 1 ? countDailyRate.toFixed(2) : countDailyRate.toFixed(1)}개
+                          </div>
+                        </div>
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '.06em', marginBottom: 2 }}>주간 소모</div>
+                          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014' }}>
+                            {countWeeklyRate !== null ? (countWeeklyRate < 1 ? countWeeklyRate.toFixed(2) : countWeeklyRate.toFixed(1)) : '—'}개
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 예상 소진 */}
+                    {estimatedDays !== null && (
+                      <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>예상 소진</span>
+                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: '#0C1014' }}>
+                          약 {estimatedDays}일 후
+                        </span>
+                      </div>
                     )}
                   </div>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 14 }}>소진 예측에 사용됩니다</div>
+                ) : (
+                  /* ml/g 모드: 기존 사용 패턴 UI */
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 2 }}>
+                      <div style={labelStyle}>사용 패턴</div>
+                      {form.category && CATEGORY_DOSE_DEFAULTS[form.category] && (
+                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9CA3AF' }}>
+                          ({form.category} 기본값 자동 적용)
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 14 }}>소진 예측에 사용됩니다</div>
 
-                  {/* 1회 사용량 — 소수점 직접 입력 */}
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ ...labelStyle, marginBottom: 8 }}>1회 사용량</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
-                      <input
-                        type="number" min={0.01} step="any"
-                        value={form.dosePerUse || ''}
-                        onChange={(e) => { const n = parseFloat(e.target.value); setForm((f) => ({ ...f, dosePerUse: isNaN(n) ? 0 : n })); }}
-                        onBlur={() => setForm((f) => ({ ...f, dosePerUse: Math.max(0.01, f.dosePerUse || 0.01) }))}
-                        style={{ ...countInputStyle, textAlign: 'left', width: 80 }}
-                      />
-                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, color: '#44474A' }}>{form.itemUnit}</span>
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ ...labelStyle, marginBottom: 8 }}>1회 사용량</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
+                        <input
+                          type="number" min={0.01} step="any"
+                          value={form.dosePerUse || ''}
+                          onChange={(e) => { const n = parseFloat(e.target.value); setForm((f) => ({ ...f, dosePerUse: isNaN(n) ? 0 : n })); }}
+                          onBlur={() => setForm((f) => ({ ...f, dosePerUse: Math.max(0.01, f.dosePerUse || 0.01) }))}
+                          style={{ ...countInputStyle, textAlign: 'left', width: 80 }}
+                        />
+                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, color: '#44474A' }}>{form.itemUnit}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ ...labelStyle, marginBottom: 8 }}>하루 횟수</div>
+                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const }}>
+                        {[1, 2, 3, 4].map((n) => (
+                          <button key={n} onClick={() => setForm((f) => ({ ...f, usesPerDay: n }))} style={pillStyle(form.usesPerDay === n)}>
+                            {n === 4 ? '4+회' : `${n}회`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ ...labelStyle, marginBottom: 8 }}>사용 주기</div>
+                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const }}>
+                        {FREQ_OPTIONS.map((opt) => (
+                          <button key={opt.label} onClick={() => setForm((f) => ({ ...f, daysPerWeek: opt.daysPerWeek }))} style={pillStyle(form.daysPerWeek === opt.daysPerWeek)}>
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>예상 소진</span>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: estimatedDays !== null ? '#0C1014' : '#C5C6CA' }}>
+                        {estimatedDays !== null ? `약 ${estimatedDays}일 후` : '불규칙'}
+                      </span>
                     </div>
                   </div>
-
-                  {/* 하루 횟수 */}
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ ...labelStyle, marginBottom: 8 }}>하루 횟수</div>
-                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                      {[1, 2, 3, 4].map((n) => (
-                        <button key={n} onClick={() => setForm((f) => ({ ...f, usesPerDay: n }))} style={pillStyle(form.usesPerDay === n)}>
-                          {n === 4 ? '4+회' : `${n}회`}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 사용 주기 */}
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ ...labelStyle, marginBottom: 8 }}>사용 주기</div>
-                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                      {FREQ_OPTIONS.map((opt) => (
-                        <button key={opt.label} onClick={() => setForm((f) => ({ ...f, daysPerWeek: opt.daysPerWeek }))} style={pillStyle(form.daysPerWeek === opt.daysPerWeek)}>
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 소진 예측 결과 */}
-                  <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>예상 소진</span>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: estimatedDays !== null ? '#0C1014' : '#C5C6CA' }}>
-                      {estimatedDays !== null ? `약 ${estimatedDays}일 후` : '불규칙'}
-                    </span>
-                  </div>
-                </div>
+                )}
               </div>
-            </div>
-          )}
+          </div>
 
           {/* ── 취소 / 저장 ── */}
           <div style={{ display: 'flex', gap: 8 }}>

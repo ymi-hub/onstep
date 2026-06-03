@@ -27,6 +27,11 @@ export interface Product {
   frequencyType: FrequencyType;
   frequencyValue?: number;      // 주 N회인 경우 N
 
+  // 개수 기반 소비 기간 (itemUnit==='개' 일 때 사용)
+  // totalCount = packageCount × unitPerPackage, 이 개수로 몇 개월 사용하는지
+  // → dosePerUse = totalAmount / (usageDurationMonths * 30) 으로 역산해서 저장
+  usageDurationMonths?: number; // 총 사용 기간 (개월), 미입력 시 undefined
+
   // 잔여량
   currentRemaining: number;
 
