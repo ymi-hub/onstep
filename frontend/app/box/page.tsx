@@ -210,33 +210,54 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
   );
 }
 
-// 매거진 이미지 블록 (히어로: 전폭 260px / 소형: 1:1 비율)
+// ─── 적응형 이미지: 좌우 여백이 10px 미만이면 contain→cover 자동 전환 ────────
+function AdaptiveImg({ src, style }: { src: string; style?: React.CSSProperties }) {
+  const [fit, setFit] = useState<'contain' | 'cover'>('contain');
+
+  function handleLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    const img = e.currentTarget;
+    const parent = img.parentElement;
+    if (!parent) return;
+    const cW = parent.clientWidth;
+    const cH = parent.clientHeight;
+    if (!cW || !cH) return;
+    const imgRatio = img.naturalWidth / img.naturalHeight;
+    const containerRatio = cW / cH;
+    // 이미지가 컨테이너보다 세로로 더 긴 경우(portrait) → 좌우 여백 발생
+    if (imgRatio < containerRatio) {
+      const whitespacePerSide = (cW - cH * imgRatio) / 2;
+      if (whitespacePerSide < 10) setFit('cover');
+    }
+  }
+
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={src} alt="" onLoad={handleLoad} style={{ ...style, objectFit: fit }} />;
+}
+
+// 매거진 이미지 블록 (히어로: 전폭 / 소형: 3:4 비율)
 function MagImg({ product, borderRadius, isHero }: { product: Product; borderRadius: number; isHero?: boolean }) {
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
-  const isSkincare = product.domain === 'beauty';
+  const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
   const fillRate = product.totalAmount > 0 ? Math.min(1, product.currentRemaining / product.totalAmount) : 1;
   return (
     <div
       style={{
-        width: '100%',
-        aspectRatio: '3/4',
-        borderRadius, background: '#EEEDE9',
-        backgroundImage: imgUrl ? `url(${imgUrl})` : 'none',
-        backgroundSize: imgUrl ? 'contain' : 'none',
-        backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+        width: '100%', aspectRatio: '3/4', borderRadius, background: '#EEEDE9',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative', overflow: 'hidden',
       }}
     >
-      {!imgUrl && <span style={{ fontSize: isHero ? 48 : 24, opacity: 0.15 }}>✦</span>}
+      {imgUrl
+        ? <AdaptiveImg src={imgUrl} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+        : <span style={{ fontSize: isHero ? 48 : 24, opacity: 0.15 }}>✦</span>}
       {isHero && (
-        <div style={{ position: 'absolute', top: 14, left: 14, background: '#fff', color: '#0C0C0A', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 9999, boxShadow: '0 2px 8px rgba(0,0,0,.12)' }}>
+        <div style={{ position: 'absolute', top: 14, left: 14, background: '#fff', color: '#0C0C0A', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 9999, boxShadow: '0 2px 8px rgba(0,0,0,.12)', zIndex: 1 }}>
           NEW ARRIVAL
         </div>
       )}
       {/* 하단 잔량 바 — 스킨케어(beauty)만 표시 */}
       {isSkincare && (
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(12,12,10,.08)' }}>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(12,12,10,.08)', zIndex: 1 }}>
           <div style={{ height: '100%', width: `${fillRate * 100}%`, background: '#C5FF00' }} />
         </div>
       )}
@@ -246,13 +267,13 @@ function MagImg({ product, borderRadius, isHero }: { product: Product; borderRad
 
 // 매거진 잔량 바 (얇은 바 + 퍼센트)
 function MagResBar({ product }: { product: Product }) {
+  if (product.domain !== 'beauty' || product.subCategory === 'makeup') return null;
   const fillRate = product.totalAmount > 0 ? Math.min(1, product.currentRemaining / product.totalAmount) : 1;
-  const fillColor = fillRate > 0.5 ? '#C5FF00' : fillRate > 0.2 ? '#B45309' : '#D93025';
   const pct = Math.round(fillRate * 100);
   return (
     <>
       <div style={{ height: 3, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden', marginBottom: 4 }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: fillColor, borderRadius: 2 }} />
+        <div style={{ height: '100%', width: `${pct}%`, background: '#C5FF00', borderRadius: 2 }} />
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490' }}>
         <span>{product.currentRemaining}{product.itemUnit || '개'} 남음</span>
@@ -274,7 +295,7 @@ function ProductCard({
   product: Product;
   onClick: () => void;
 }) {
-  const isSkincare = product.domain === 'beauty';
+  const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
   const fillRate =
     product.totalAmount > 0
       ? Math.min(1, product.currentRemaining / product.totalAmount)
@@ -299,15 +320,7 @@ function ProductCard({
     >
       {/* 배경 이미지 (있을 때만) */}
       {imgUrl && (
-        <div
-          style={{
-            position: 'absolute', inset: 0,
-            backgroundImage: `url(${imgUrl})`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
+        <AdaptiveImg src={imgUrl} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
       )}
 
       {/* 상단 잔량 바 — 스킨케어(beauty)만 표시 */}
@@ -334,8 +347,8 @@ function ProductCard({
         {product.name}
       </div>
 
-      {/* 잔량 낮음 경고 뱃지 */}
-      {fillRate < 0.2 && (
+      {/* 잔량 낮음 경고 뱃지 — beauty만 */}
+      {isSkincare && fillRate < 0.2 && (
         <div
           style={{
             position: 'absolute', top: 6, right: 4, zIndex: 2,
@@ -352,7 +365,7 @@ function ProductCard({
 
 // ─── 리스트 뷰 행 (design/box.html .list-item 구조) ──────────────────────────
 function ListRow({ product, onClick }: { product: Product; onClick: () => void }) {
-  const isSkincare = product.domain === 'beauty';
+  const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
   const fillRate = product.totalAmount > 0
     ? Math.min(1, product.currentRemaining / product.totalAmount)
     : 1;
@@ -369,16 +382,10 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
       }}
     >
       {/* 썸네일 — design/box.html .list-thumb */}
-      <div
-        style={{
-          width: 44, aspectRatio: '3/4', borderRadius: 6, flexShrink: 0,
-          background: '#EEEDE9', overflow: 'hidden',
-          backgroundImage: imgUrl ? `url(${imgUrl})` : 'none',
-          backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-      >
-        {!imgUrl && <span style={{ fontSize: 18, opacity: 0.15 }}>✦</span>}
+      <div style={{ width: 44, aspectRatio: '3/4', borderRadius: 6, flexShrink: 0, background: '#EEEDE9', overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {imgUrl
+          ? <AdaptiveImg src={imgUrl} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+          : <span style={{ fontSize: 18, opacity: 0.15 }}>✦</span>}
       </div>
 
       {/* 제품 정보 */}
@@ -397,7 +404,7 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
               {resolveCategory(product.category)}
             </div>
           )}
-          {calcCostPerUse(product) && (
+          {isSkincare && calcCostPerUse(product) && (
             <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9A9490' }}>
               1회 {calcCostPerUse(product)}
             </div>
