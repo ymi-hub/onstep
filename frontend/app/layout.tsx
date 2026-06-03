@@ -1,7 +1,31 @@
 import type { Metadata, Viewport } from 'next';
+import { Plus_Jakarta_Sans, Space_Grotesk, Nanum_Pen_Script } from 'next/font/google';
 import './globals.css';
 import AppShell from '@/components/AppShell';
 import { AppProvider } from '@/lib/AppContext';
+
+// next/font 자체 호스팅 — Google CDN 호출 없이 빌드 시 폰트 파일 포함
+// display: 'swap' → 폰트 로드 중에도 시스템 폰트로 즉시 텍스트 표시 (FOIT 방지)
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-jakarta',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-grotesk',
+});
+
+const nanumPenScript = Nanum_Pen_Script({
+  subsets: ['latin'],
+  weight: ['400'],
+  display: 'swap',
+  variable: '--font-nanum',
+});
 
 export const metadata: Metadata = {
   title: 'OnStep — Life OS',
@@ -39,8 +63,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <body style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif" }}>
+    <html lang="ko" className={`${plusJakartaSans.variable} ${spaceGrotesk.variable} ${nanumPenScript.variable}`}>
+      <body style={{ fontFamily: "var(--font-jakarta), var(--font-grotesk), sans-serif" }}>
         {/* PC에서도 앱 사이즈(430px)로 가운데 표시 */}
         <div
           style={{

@@ -1280,14 +1280,11 @@ export default function BoxPage() {
 
       {/* 제품 목록 영역 */}
       {loading ? (
-        // 로딩 중 표시
-        <div
-          style={{
-            padding: '48px 16px', textAlign: 'center', color: '#9A9490',
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13,
-          }}
-        >
-          로딩 중...
+        // shimmer 스켈레톤
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {[['100%', 44], ['80%', 20], ['60%', 20], ['100%', 120], ['100%', 120]].map(([w, h], i) => (
+            <div key={i} className="shimmer" style={{ width: w as string, height: h as number }} />
+          ))}
         </div>
       ) : sortedFiltered.length === 0 ? (
         // 빈 상태 — 제품이 없을 때

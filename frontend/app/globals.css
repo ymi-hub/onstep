@@ -1,5 +1,4 @@
-/* Google Fonts — THERMAL 디자인 시스템 서체 */
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Nanum+Pen+Script&display=swap");
+/* 폰트는 layout.tsx의 next/font으로 자체 호스팅 — Google CDN 호출 제거 */
 
 @import "tailwindcss";
 
@@ -88,6 +87,18 @@ main {
 /* 시간 스크롤 피커 scrollbar 숨기기 */
 .time-scroll-col::-webkit-scrollbar {
   display: none;
+}
+
+/* ── 공통 shimmer 스켈레톤 ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, #F0EFED 25%, #E8E7E4 50%, #F0EFED 75%);
+  background-size: 1200px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 8px;
 }
 
 /* ── 모바일 입력 확대 방지 ── */

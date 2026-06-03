@@ -29,19 +29,15 @@ import { FALLBACK_USER_ID } from './constants';
 // ── 컨텍스트 타입 ───────────────────────────────────────────────────────────
 
 interface AppContextValue {
-  // Auth
   user: User | null;
   userId: string;
   authLoading: boolean;
-
-  // 공유 데이터 (탭 전환 시 재로딩 없음)
   products: Product[];
   sessions: Session[];
   habits: Habit[];
   careItems: CtItem[];
   makeupItems: CtItem[];
   lookItems: CtItem[];
-  logItems: CtItem[];
   medRoutines: MedRoutine[];
   healthRoutines: HealthRoutine[];
   healthCategories: HealthCategory[];
@@ -58,7 +54,6 @@ const AppContext = createContext<AppContextValue>({
   careItems: [],
   makeupItems: [],
   lookItems: [],
-  logItems: [],
   medRoutines: [],
   healthRoutines: [],
   healthCategories: [],
@@ -81,7 +76,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [careItems, setCareItems] = useState<CtItem[]>([]);
   const [makeupItems, setMakeupItems] = useState<CtItem[]>([]);
   const [lookItems, setLookItems] = useState<CtItem[]>([]);
-  const [logItems, setLogItems] = useState<CtItem[]>([]);
   const [medRoutines, setMedRoutines] = useState<MedRoutine[]>([]);
   const [healthRoutines, setHealthRoutines] = useState<HealthRoutine[]>([]);
   const [healthCategories, setHealthCategories] = useState<HealthCategory[]>([]);
@@ -97,7 +91,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setAuthLoading(false);
       if (!u) {
         setProducts([]); setSessions([]); setHabits([]);
-        setCareItems([]); setMakeupItems([]); setLookItems([]); setLogItems([]);
+        setCareItems([]); setMakeupItems([]); setLookItems([]);
         setMedRoutines([]); setHealthRoutines([]); setHealthCategories([]); setDietPrograms([]);
       }
     });
@@ -110,25 +104,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const _db = db;
 
     const subs = [
-      // Products
       onSnapshot(
         query(collection(_db, 'users', userId, 'products'), orderBy('createdAt', 'desc')),
         (s) => setProducts(s.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Product, 'id'>) }))),
         () => {}
       ),
-      // Sessions (routines)
       onSnapshot(
         query(collection(_db, 'users', userId, 'routines'), orderBy('sessionNumber', 'desc')),
         (s) => setSessions(s.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Session, 'id'>) }))),
         () => {}
       ),
-      // Habits
       onSnapshot(
         query(collection(_db, 'users', userId, 'habits'), orderBy('createdAt', 'asc')),
         (s) => setHabits(s.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Habit, 'id'>) }))),
         () => {}
       ),
-      // Care / Makeup / Look CT 아이템
       onSnapshot(
         query(collection(_db, 'users', userId, 'careItems'), orderBy('createdAt', 'desc')),
         (s) => setCareItems(s.docs.map((d) => ({ id: d.id, ...d.data() } as CtItem))),
@@ -144,25 +134,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         (s) => setLookItems(s.docs.map((d) => ({ id: d.id, ...d.data() } as CtItem))),
         () => {}
       ),
-      // 약 루틴
       onSnapshot(
         query(collection(_db, 'users', userId, 'medRoutines'), orderBy('createdAt', 'asc')),
         (s) => setMedRoutines(s.docs.map((d) => ({ id: d.id, ...d.data() } as MedRoutine))),
         () => {}
       ),
-      // 건강·다이어트 루틴
       onSnapshot(
         query(collection(_db, 'users', userId, 'healthRoutines'), orderBy('createdAt', 'asc')),
         (s) => setHealthRoutines(s.docs.map((d) => ({ id: d.id, ...d.data() } as HealthRoutine))),
         () => {}
       ),
-      // 건강 루틴 카테고리
       onSnapshot(
         query(collection(_db, 'users', userId, 'healthCategories'), orderBy('order', 'asc')),
         (s) => setHealthCategories(s.docs.map((d) => ({ id: d.id, ...d.data() } as HealthCategory))),
         () => {}
       ),
-      // 다이어트 플랜
       onSnapshot(
         query(collection(_db, 'users', userId, 'dietPrograms'), orderBy('createdAt', 'desc')),
         (s) => setDietPrograms(s.docs.map((d) => ({ id: d.id, ...d.data() } as DietProgram))),
@@ -174,7 +160,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [userId, authLoading]);
 
   return (
-    <AppContext.Provider value={{ user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, logItems, medRoutines, healthRoutines, healthCategories, dietPrograms }}>
+    <AppContext.Provider value={{ user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories, dietPrograms }}>
       {children}
     </AppContext.Provider>
   );

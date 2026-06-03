@@ -867,12 +867,14 @@ function LoginRequiredCard({ onLogin }: { onLogin: () => void }) {
 function OOTDSection({
   ootdLog,
   onRecord,
+  onViewLog,
   user,
   activeLookItems,
   products,
 }: {
   ootdLog: OOTDLog | null;
   onRecord: () => void;
+  onViewLog: () => void;
   user: User | null;
   activeLookItems: CtItem[];
   products: Map<string, Product>;
@@ -969,7 +971,7 @@ function OOTDSection({
             <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>로그인하면 OOTD를 기록할 수 있어요</div>
           </div>
         ) : ootdLog ? (
-          <div onClick={onRecord} style={{ border: '1.5px solid #4caf78', borderRadius: 9999, minHeight: 52, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
+          <div onClick={onViewLog} style={{ border: '1.5px solid #4caf78', borderRadius: 9999, minHeight: 52, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
             <div style={{ width: 36, height: 36, borderRadius: 9999, background: '#E8E6E0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
               {ootdLog.photoUrl
                 // eslint-disable-next-line @next/next/no-img-element
@@ -2066,9 +2068,8 @@ export default function TodayPage() {
               gap: 10,
             }}
           >
-            <style>{`@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}`}</style>
             {[['40%', 11], ['65%', 18], ['85%', 13], ['50%', 13]].map(([w, h], i) => (
-              <div key={i} style={{ width: w as string, height: h as number, borderRadius: 6, background: 'linear-gradient(90deg,#F0EFED 25%,#E8E7E4 50%,#F0EFED 75%)', backgroundSize: '800px 100%', animation: 'shimmer 1.4s infinite linear' }} />
+              <div key={i} className="shimmer" style={{ width: w as string, height: h as number }} />
             ))}
           </div>
         ) : activeSession && todayMorning ? (
@@ -2364,6 +2365,7 @@ export default function TodayPage() {
         <OOTDSection
           ootdLog={ootdLog}
           onRecord={handleOpenOOTDSheet}
+          onViewLog={() => router.push('/log?tab=아카이브&filter=ootd')}
           user={user}
           activeLookItems={activeLookItems}
           products={products}
