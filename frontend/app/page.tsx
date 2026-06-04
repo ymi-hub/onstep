@@ -1518,25 +1518,35 @@ export default function TodayPage() {
   const [dietChecked, setDietChecked] = useState<Set<string>>(new Set()); // "programId:slotId"
   const [dietLogs, setDietLogs] = useState<{ id: string; programId: string; slotId: string }[]>([]);
 
-  // ── 날짜 변경 감지 (자정 리셋) ──
+  // ── 날짜 변경 감지 (자정 리셋) + 스킨케어 탭 자동 전환 ──
   // todayKey: 자정에 업데이트 → 모든 루틴(습관/약/건강/OOTD/스킨케어 모닝) 리셋
   // nightKey: 04:00에 업데이트 → 스킨케어 나이트만 리셋 (18:00~04:00 나이트 구간 종료)
+  // activeTab: 04:00 → 'morning', 18:00 → 'evening' 자동 전환
   const [todayKey, setTodayKey] = useState(() => getTodayDateStr());
   const [nightKey, setNightKey] = useState(() => getEveningDateStr());
   useEffect(() => {
+    function calcTab() {
+      const h = new Date().getHours();
+      return h >= 4 && h < 18 ? 'morning' as const : 'evening' as const;
+    }
     function bumpDate() {
       setTodayKey(getTodayDateStr());
-      // 자정엔 nightKey도 동시에 갱신 (날짜 넘어가면 eveningDateStr도 바뀜)
       setNightKey(getEveningDateStr());
     }
     function bumpNight() {
-      // 04:00 — 나이트 루틴 구간 종료, nightKey를 오늘 날짜로 전환
+      // 04:00 — 나이트 루틴 구간 종료, 탭을 모닝으로 전환
       setNightKey(getEveningDateStr());
+      setActiveTab('morning');
+    }
+    function bumpEvening() {
+      // 18:00 — 모닝 루틴 구간 종료, 탭을 나이트로 전환
+      setActiveTab('evening');
     }
     function handleVisibility() {
       if (document.visibilityState === 'visible') {
         setTodayKey(getTodayDateStr());
         setNightKey(getEveningDateStr());
+        setActiveTab(calcTab()); // 포그라운드 복귀 시 현재 시간 기준으로 탭 재계산
       }
     }
     document.addEventListener('visibilitychange', handleVisibility);
@@ -1551,7 +1561,7 @@ export default function TodayPage() {
     }
     scheduleMidnight();
 
-    // 04:00 타이머 — 나이트 스킨케어 리셋
+    // 04:00 타이머 — 나이트 스킨케어 리셋 + 모닝 탭 전환
     let nightTimer: ReturnType<typeof setTimeout>;
     function schedule4AM() {
       const now = new Date();
@@ -1562,10 +1572,22 @@ export default function TodayPage() {
     }
     schedule4AM();
 
+    // 18:00 타이머 — 모닝 구간 종료, 이브닝 탭 전환
+    let eveningTimer: ReturnType<typeof setTimeout>;
+    function schedule18() {
+      const now = new Date();
+      let next18 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0, 0);
+      if (now >= next18) next18.setDate(next18.getDate() + 1);
+      const msLeft = next18.getTime() - now.getTime();
+      eveningTimer = setTimeout(() => { bumpEvening(); schedule18(); }, msLeft);
+    }
+    schedule18();
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility);
       clearTimeout(midnightTimer);
       clearTimeout(nightTimer);
+      clearTimeout(eveningTimer);
     };
   }, []);
 
