@@ -2352,8 +2352,8 @@ function AddProductPage({
                         <input
                           type="number" min={1}
                           value={form.packageCount || ''}
-                          onChange={(e) => { const n = parseInt(e.target.value, 10); setForm((f) => ({ ...f, packageCount: isNaN(n) ? 0 : n })); }}
-                          onBlur={() => setForm((f) => ({ ...f, packageCount: Math.max(1, f.packageCount || 1) }))}
+                          onChange={(e) => { const n = parseInt(e.target.value, 10); setForm((f) => ({ ...f, packageCount: isNaN(n) ? 0 : n, ...(isCountMode && !isEditing ? { currentRemaining: (isNaN(n) ? 0 : n) * f.unitPerPackage } : {}) })); }}
+                          onBlur={() => setForm((f) => ({ ...f, packageCount: Math.max(1, f.packageCount || 1), ...(isCountMode && !isEditing ? { currentRemaining: Math.max(1, f.packageCount || 1) * f.unitPerPackage } : {}) }))}
                           style={countInputStyle}
                         />
                       </div>
@@ -2367,8 +2367,8 @@ function AddProductPage({
                         <input
                           type="number" min={0.1} step="any"
                           value={form.unitPerPackage || ''}
-                          onChange={(e) => { const n = parseFloat(e.target.value); setForm((f) => ({ ...f, unitPerPackage: isNaN(n) ? 0 : n })); }}
-                          onBlur={() => setForm((f) => ({ ...f, unitPerPackage: Math.max(0.1, f.unitPerPackage || 1) }))}
+                          onChange={(e) => { const n = parseFloat(e.target.value); setForm((f) => ({ ...f, unitPerPackage: isNaN(n) ? 0 : n, ...(isCountMode && !isEditing ? { currentRemaining: f.packageCount * (isNaN(n) ? 0 : n) } : {}) })); }}
+                          onBlur={() => setForm((f) => ({ ...f, unitPerPackage: Math.max(0.1, f.unitPerPackage || 1), ...(isCountMode && !isEditing ? { currentRemaining: f.packageCount * Math.max(0.1, f.unitPerPackage || 1) } : {}) }))}
                           style={countInputStyle}
                         />
                       </div>
