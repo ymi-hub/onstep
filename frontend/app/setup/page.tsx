@@ -1181,15 +1181,6 @@ function EditorView({
           </div>
         </div>
 
-        {/* 아침/저녁 DAY 수 불일치 경고 */}
-        {draft.morning.days.length !== draft.evening.days.length && (
-          <div style={{ margin: '0 16px 12px', padding: '10px 14px', background: '#FFF8E1', border: '1px solid #FFD54F', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 16 }}>⚠️</span>
-            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#7A5F00', lineHeight: 1.4 }}>
-              아침({draft.morning.days.length}일)과 저녁({draft.evening.days.length}일) DAY 수가 달라요. 저장하면 짧은 쪽 기준으로 TODAY에 표시될 수 있어요.
-            </span>
-          </div>
-        )}
 
         {/* 슬롯 섹션 */}
         <div style={{ padding: '0 16px 16px' }}>
