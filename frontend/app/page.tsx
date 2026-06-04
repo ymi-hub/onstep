@@ -1509,18 +1509,36 @@ export default function TodayPage() {
   const [dietLogs, setDietLogs] = useState<{ id: string; programId: string; slotId: string }[]>([]);
 
   // ── 날짜 변경 감지 (자정 리셋) ──
-  // visibilitychange: 앱이 백그라운드에서 돌아올 때 날짜가 바뀌었으면 키를 갱신
-  // → 키가 바뀌면 날짜 의존 구독들이 새 날짜로 재실행됨
+  // 1) visibilitychange: 앱이 백그라운드에서 돌아올 때 날짜 체크
+  // 2) 자정 setTimeout: 앱을 켜놓은 채 자정을 넘겨도 정확히 리셋
+  // → todayKey가 바뀌면 날짜 의존 구독 전체가 새 날짜로 재실행됨
   const [todayKey, setTodayKey] = useState(() => getTodayDateStr());
   useEffect(() => {
+    function bumpDate() {
+      setTodayKey(getTodayDateStr());
+    }
     function handleVisibility() {
-      if (document.visibilityState === 'visible') {
-        const newDate = getTodayDateStr();
-        setTodayKey(prev => prev !== newDate ? newDate : prev);
-      }
+      if (document.visibilityState === 'visible') bumpDate();
     }
     document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
+
+    // 자정 정각까지 남은 ms 계산 후 setTimeout → 이후 매 24h 반복
+    let timer: ReturnType<typeof setTimeout>;
+    function scheduleMidnight() {
+      const now = new Date();
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const msLeft = midnight.getTime() - now.getTime();
+      timer = setTimeout(() => {
+        bumpDate();
+        scheduleMidnight(); // 다음 날 자정도 예약
+      }, msLeft);
+    }
+    scheduleMidnight();
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      clearTimeout(timer);
+    };
   }, []);
 
   // ── OOTD 상태 ──
