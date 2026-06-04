@@ -2688,7 +2688,7 @@ function LogPageInner() {
               />
             ) : (
               <>
-                {dayLogs.size === 0 && <EmptyState isLoading={dataLoading || authLoading} />}
+                {dayLogs.size === 0 && isSameMonth(currentMonth, new Date()) && <EmptyState isLoading={dataLoading || authLoading} />}
 
                 {/* 오늘의 루틴 · 룩 · 메이크업 목록 */}
                 {(() => {
