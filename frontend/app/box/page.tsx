@@ -1402,11 +1402,31 @@ export default function BoxPage() {
         return (
           <div style={{ padding: '10px 26px 2px' }}>
             {/* 헤더 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-              <span style={{ fontSize: 13 }}>⚠️</span>
-              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#B45309', letterSpacing: '.06em' }}>
-                소진 임박 — {urgent.length}개
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 13 }}>⚠️</span>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#B45309', letterSpacing: '.06em' }}>
+                  소진 임박 — {urgent.length}개
+                </span>
+              </div>
+              {/* 전체 불규칙 일괄 적용 */}
+              <button
+                onClick={async () => {
+                  if (!db || !confirm(`소진 임박 ${urgent.length}개 제품을 모두 "불규칙"으로 변경할까요?`)) return;
+                  await Promise.all(
+                    urgent.map(p => updateDoc(doc(db!, 'users', userId, 'products', p.id), {
+                      frequencyValue: 0,
+                      frequencyType: 'as_needed',
+                      dosePerUse: p.dosePerUse ?? 1,
+                      usesPerDay: p.usesPerDay ?? 1,
+                      updatedAt: new Date().toISOString(),
+                    }))
+                  );
+                }}
+                style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#B45309', background: 'rgba(180,83,9,.08)', border: '1px solid rgba(180,83,9,.2)', borderRadius: 9999, padding: '4px 10px', cursor: 'pointer' }}
+              >
+                전체 불규칙 적용
+              </button>
             </div>
 
             {/* 가로 스크롤 카드 */}
