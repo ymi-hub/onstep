@@ -342,7 +342,7 @@ function FlowCard({
       }}
     >
       {/* ① 최상단: MORNING / NIGHT 탭 */}
-      <div style={{ display: 'flex', padding: '24px 26px 0', gap: 6 }}>
+      <div style={{ display: 'flex', padding: '24px 26px 10px', gap: 6 }}>
         {(['morning', 'evening'] as const).map((t) => (
           <button
             key={t}
