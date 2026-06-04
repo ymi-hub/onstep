@@ -641,14 +641,18 @@ function SessionsView({
               <button
                 onClick={() => setVisibleCount(n => n + 5)}
                 style={{
-                  width: '100%', padding: '14px 16px',
+                  width: '100%', padding: '16px 0',
                   border: 'none', borderTop: '1px solid rgba(12,12,10,.07)',
-                  background: 'none', fontFamily: font, fontSize: 13,
-                  fontWeight: 700, color: '#9A9490', cursor: 'pointer',
-                  letterSpacing: '.04em',
+                  background: 'none', cursor: 'pointer',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
                 }}
               >
-                더보기 ▼ ({filteredSessions.length - visibleCount}개 더)
+                <span style={{ fontFamily: font, fontSize: 13, fontWeight: 700, color: '#0C0C0A', letterSpacing: '.06em' }}>
+                  MORE ({visibleCount}/{filteredSessions.length})
+                </span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
               </button>
             )}
           </div>

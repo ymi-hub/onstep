@@ -2640,19 +2640,24 @@ function LogPageInner() {
                       )}
 
                       {/* ── 💊 약 복용 카드 ── */}
-                      {medRoutines.filter(m => m.active && m.showInToday).length > 0 && (() => {
+                      {medRoutines.filter(m => m.active).length > 0 && (() => {
                         const doneSet = new Set(todayMedLogs.map(l => l.routineId));
-                        const activeMeds = medRoutines.filter(m => m.active && m.showInToday);
+                        const activeMeds = medRoutines.filter(m => m.active);
                         const doneCnt = activeMeds.filter(m => doneSet.has(m.id)).length;
                         const getTime = (m: { time?: string; times?: string[] }) => {
                           if (m.time) return m.time;
                           const first = (m.times ?? [])[0];
                           return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
                         };
-                        const morningMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'morning' || t === 'lunch'));
-                        const nightMeds   = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
-                        const ungrouped   = activeMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
-                        const nightAll    = [...nightMeds, ...ungrouped];
+                        // 오전 / 오후 / 저녁 3구간으로 분리
+                        const amMeds = activeMeds.filter(m => (m.times ?? []).includes('morning'));
+                        const pmMeds = activeMeds.filter(m => (m.times ?? []).includes('lunch'));
+                        const evMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
+                        const groups = [
+                          { label: '아침', color: '#6B7CE8', meds: amMeds },
+                          { label: '점심', color: '#E8A86B', meds: pmMeds },
+                          { label: '저녁', color: '#E86BAA', meds: evMeds },
+                        ].filter(g => g.meds.length > 0);
                         const MedRow = ({ m }: { m: typeof activeMeds[0] }) => {
                           const done = doneSet.has(m.id);
                           return (
@@ -2666,19 +2671,13 @@ function LogPageInner() {
                         return (
                           <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
                             <CardHeader emoji="💊" title="약 복용" badge={`${doneCnt}/${activeMeds.length}`} />
-                            <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                              {morningMeds.length > 0 && (
-                                <div>
-                                  <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#6B7CE8', marginBottom: 5 }}>·+ +°.Morning°·++·° *</div>
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>{morningMeds.map(m => <MedRow key={m.id} m={m} />)}</div>
+                            <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                              {groups.map((g, gi) => (
+                                <div key={g.label}>
+                                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: g.color, letterSpacing: '.06em', marginBottom: 5 }}>{g.label}</div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>{g.meds.map(m => <MedRow key={m.id} m={m} />)}</div>
                                 </div>
-                              )}
-                              {nightAll.length > 0 && (
-                                <div style={{ marginTop: morningMeds.length > 0 ? 6 : 0 }}>
-                                  <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#E86BAA', marginBottom: 5 }}>·+ +°.Night°·++·° *</div>
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>{nightAll.map(m => <MedRow key={m.id} m={m} />)}</div>
-                                </div>
-                              )}
+                              ))}
                             </div>
                           </div>
                         );
