@@ -147,6 +147,27 @@ function StampBadge({ size = 22, rotate = -10, full = false }: { size?: number; 
   );
 }
 
+// 빨간 원형 도장 뱃지 — CtItem TODAY 뱃지와 동일한 스타일
+function TodayStampBadge({ size = 88, rotate = -9, label = 'TODAY', f = "'Plus Jakarta Sans','Space Grotesk',sans-serif" }: { size?: number; rotate?: number; label?: string; f?: string }) {
+  const logoSz = Math.round(size * 0.38);
+  const borderW = Math.max(1.5, Math.round(size * 0.034));
+  const fs = Math.max(6, Math.round(size * 0.09));
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: '50%',
+      border: `${borderW}px solid rgba(190,30,30,.75)`,
+      background: 'rgba(255,255,255,.82)',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      mixBlendMode: 'multiply' as const, flexShrink: 0, position: 'relative',
+      transform: `rotate(${rotate}deg)`,
+    }}>
+      <div style={{ position: 'absolute', inset: Math.round(size * 0.055), borderRadius: '50%', border: '1px solid rgba(190,30,30,.28)', pointerEvents: 'none' }} />
+      <img src="/logo.png" alt="" style={{ width: logoSz, height: logoSz, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
+      <div style={{ fontFamily: f, fontSize: fs, fontWeight: 900, letterSpacing: '.28em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -1, position: 'relative', zIndex: 1, whiteSpace: 'nowrap' as const }}>{label}</div>
+    </div>
+  );
+}
+
 function MonthCalendar({
   currentMonth,
   dayLogs,
@@ -162,6 +183,7 @@ function MonthCalendar({
   hasDiet,
   onToggleMorning,
   onToggleEvening,
+  sessionStartMap,
 }: {
   currentMonth: Date;
   dayLogs: Map<string, DayLog>;
@@ -177,6 +199,7 @@ function MonthCalendar({
   hasDiet: boolean;
   onToggleMorning?: () => void;
   onToggleEvening?: () => void;
+  sessionStartMap?: Map<string, string>; // date → session label (e.g. "관리3회")
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -353,6 +376,7 @@ function MonthCalendar({
           const medDone = hasMed && (medDayMap.get(ds)?.size ?? 0) > 0;
           const healthDone = hasHealth && (healthDayMap.get(ds)?.size ?? 0) > 0;
           const dietDone = hasDiet && (dietDayMap.get(ds)?.size ?? 0) > 0;
+          const sessionLabel = sessionStartMap?.get(ds);
 
           return (
             <button
@@ -374,8 +398,8 @@ function MonthCalendar({
                 overflow: 'hidden',
               }}
             >
-              {/* bothDone 도장 오버레이 */}
-              {bothDone && (
+              {/* bothDone 고양이 도장 오버레이 */}
+              {bothDone && !sessionLabel && (
                 <span style={{
                   position: 'absolute',
                   inset: 0,
@@ -386,6 +410,18 @@ function MonthCalendar({
                   pointerEvents: 'none',
                 }}>
                   <StampBadge size={40} rotate={-12} full />
+                </span>
+              )}
+
+              {/* 스킨케어 세션 시작일 — TODAY 도장 뱃지 */}
+              {sessionLabel && (
+                <span style={{
+                  position: 'absolute',
+                  top: -8, right: -8,
+                  pointerEvents: 'none',
+                  zIndex: 4,
+                }}>
+                  <TodayStampBadge size={32} rotate={-10} label={sessionLabel} />
                 </span>
               )}
 
@@ -653,6 +689,11 @@ function DayDetail({
       }}
     >
       {/* 날짜 헤더 */}
+      {(() => {
+        const startSession = sessions.find(s => s.startDate === dateStr);
+        const startLabel = startSession ? (startSession.sessionTag ?? `${startSession.sessionNumber}회`) : null;
+        const fh = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        return (
       <div
         style={{
           display: 'flex',
@@ -661,8 +702,16 @@ function DayDetail({
           padding: '14px 16px',
           borderBottom: '1px solid #0C0C0A',
           background: '#F4F4F0',
+          position: 'relative',
+          overflow: 'visible',
         }}
       >
+        {/* 세션 시작일 TODAY 도장 뱃지 */}
+        {startLabel && (
+          <div style={{ position: 'absolute', top: -14, right: 52, zIndex: 5, pointerEvents: 'none' }}>
+            <TodayStampBadge size={56} rotate={-10} label={startLabel} f={fh} />
+          </div>
+        )}
         <div>
           <div
             style={{
@@ -714,6 +763,8 @@ function DayDetail({
           ×
         </button>
       </div>
+        );
+      })()}
 
       {/* 아침 / 저녁 카드 (나란히 배치) */}
       <div style={{ display: 'flex', gap: 8, padding: 12 }}>
@@ -2632,6 +2683,7 @@ function LogPageInner() {
               hasDiet={dietPrograms.some(p => p.showInToday)}
               onToggleMorning={handleToggleMorning}
               onToggleEvening={handleToggleEvening}
+              sessionStartMap={new Map(sessions.map(s => [s.startDate, s.sessionTag ?? `${s.sessionNumber}회`]))}
             />
             {selectedDate ? (
               <DayDetail
@@ -2916,7 +2968,11 @@ function LogPageInner() {
                                   </div>
                                   <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                                 </div>
-                              )) : <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>없음</span>}
+                              )) : (
+                                <div style={{ width: 140, height: 200, borderRadius: 0, background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <TodayStampBadge size={68} rotate={-9} label="MOTD" f={f} />
+                                </div>
+                              )}
                             </div>
                             {/* OOTD */}
                             <div style={{ display: 'flex', flexDirection: 'row', gap: 8, flexWrap: 'wrap' as const }}>
@@ -2930,7 +2986,11 @@ function LogPageInner() {
                                   </div>
                                   <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                                 </div>
-                              )) : <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>없음</span>}
+                              )) : (
+                                <div style={{ width: 140, height: 200, borderRadius: 0, background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <TodayStampBadge size={68} rotate={-9} label="OOTD" f={f} />
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
