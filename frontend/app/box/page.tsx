@@ -129,6 +129,11 @@ type FormState = {
   imageUrl: string;
   itemUnit: string;            // 용량 단위: 'ml' | 'g' | '개'
   usageDurationMonths: number; // 총 사용 기간(개월) — '개' 단위일 때만 사용, 0=미입력
+  // Fashion / Acc 전용
+  material: string;            // 소재 (예: 코튼, 린넨)
+  careGuide: string;           // 케어 방법 (예: 손세탁)
+  specialNote: string;         // 특이사항 (Acc)
+  materialType: string;        // Acc 재질 칩 (금/은/가죽/패브릭/플라스틱/기타)
 };
 
 const INITIAL_FORM: FormState = {
@@ -154,6 +159,10 @@ const INITIAL_FORM: FormState = {
   imageUrl: '',
   itemUnit: '개',
   usageDurationMonths: 0,
+  material: '',
+  careGuide: '',
+  specialNote: '',
+  materialType: '',
 };
 
 // ─── 매거진 뷰 (design/box.html magazine 뷰 참고) ────────────────────────────
@@ -956,6 +965,11 @@ export default function BoxPage() {
         source: form.source.trim() || null,
         purchaseUrl: form.purchaseUrl.trim() || null,
         ...(form.imagePreview ? { imageUrl: form.imagePreview } : {}),
+        // Fashion / Acc 전용 필드
+        ...(form.material.trim() ? { material: form.material.trim() } : {}),
+        ...(form.careGuide.trim() ? { careGuide: form.careGuide.trim() } : {}),
+        ...(form.specialNote.trim() ? { specialNote: form.specialNote.trim() } : {}),
+        ...(form.materialType ? { materialType: form.materialType } : {}),
         updatedAt: now,
       };
 
@@ -1041,6 +1055,10 @@ export default function BoxPage() {
       imageUrl: p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl ?? '',
       itemUnit: (p.itemUnit as string) || 'ml',
       usageDurationMonths: p.usageDurationMonths ?? 0,
+      material: (p as Product & { material?: string }).material ?? '',
+      careGuide: (p as Product & { careGuide?: string }).careGuide ?? '',
+      specialNote: (p as Product & { specialNote?: string }).specialNote ?? '',
+      materialType: (p as Product & { materialType?: string }).materialType ?? '',
     });
     setEditingProduct(p);
     setIsAddOpen(true);
@@ -2347,8 +2365,67 @@ function AddProductPage({
             </div>
           </div>
 
-          {/* ── Asset Count 섹션 ── */}
-          <div>
+          {/* ── Fashion 섹션 ── */}
+          {domain === 'fashion' && (
+            <div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 22, fontWeight: 400, letterSpacing: '-0.02em', color: '#1A1C1C', marginBottom: 12 }}>
+                Fashion Info
+              </div>
+              <div style={{ borderTop: '1px solid #C5C6CA', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <div>
+                  <div style={labelStyle}>Material</div>
+                  <input
+                    value={form.material}
+                    onChange={e => setForm(f => ({ ...f, material: e.target.value }))}
+                    placeholder="예: 코튼, 린넨, 울"
+                    style={{ ...underlineInputStyle, fontSize: 15 }}
+                  />
+                </div>
+                <div>
+                  <div style={labelStyle}>Care Guide</div>
+                  <input
+                    value={form.careGuide}
+                    onChange={e => setForm(f => ({ ...f, careGuide: e.target.value }))}
+                    placeholder="예: 손세탁, 드라이 클리닝"
+                    style={{ ...underlineInputStyle, fontSize: 15 }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Acc 섹션 ── */}
+          {domain === 'acc' && (
+            <div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 22, fontWeight: 400, letterSpacing: '-0.02em', color: '#1A1C1C', marginBottom: 12 }}>
+                Acc Info
+              </div>
+              <div style={{ borderTop: '1px solid #C5C6CA', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <div>
+                  <div style={{ ...labelStyle, marginBottom: 10 }}>Material Type</div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                    {['금', '은', '가죽', '패브릭', '플라스틱', '기타'].map(m => (
+                      <button key={m} onClick={() => setForm(f => ({ ...f, materialType: f.materialType === m ? '' : m }))} style={pillStyle(form.materialType === m)}>
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Special Note</div>
+                  <input
+                    value={form.specialNote}
+                    onChange={e => setForm(f => ({ ...f, specialNote: e.target.value }))}
+                    placeholder="보존 상태, 수선 이력 등…"
+                    style={{ ...underlineInputStyle, fontSize: 14 }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Asset Count 섹션 (Beauty 전용) ── */}
+          {domain === 'beauty' && <div>
               <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 22, fontWeight: 400, letterSpacing: '-0.02em', color: '#1A1C1C', marginBottom: 12 }}>
                 Asset Count
               </div>
@@ -2571,7 +2648,7 @@ function AddProductPage({
                   </div>
                 )}
               </div>
-          </div>
+          </div>}
 
           {/* ── 취소 / 저장 ── */}
           <div style={{ display: 'flex', gap: 8 }}>
