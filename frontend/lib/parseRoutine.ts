@@ -1,4 +1,4 @@
-// lib/parseRoutine.ts — Groq API 호출 유틸리티 (무료, 카드 불필요)
+// lib/parseRoutine.ts — Google Gemini API 호출 유틸리티 (무료, 카드 불필요)
 import { incrementGroqUsage } from './groqUsage';
 //
 // 함수 두 가지:
@@ -49,72 +49,31 @@ function cleanJson(raw: string): string {
   return s;
 }
 
-async function callGroq(prompt: string, maxTokens = 800): Promise<string> {
-  const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
-  if (!apiKey) throw new Error('Groq API 키가 없습니다. .env.local에 NEXT_PUBLIC_GROQ_API_KEY를 추가하세요.');
+async function callGemini(prompt: string, maxTokens = 800): Promise<string> {
+  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  if (!apiKey) throw new Error('AI 키가 없습니다. .env.local에 NEXT_PUBLIC_GEMINI_API_KEY를 추가하세요.');
 
-  // 모델 폴백 체인 — 앞에서부터 시도, 실패 시 자동으로 다음 모델로 전환
-  const MODEL_CHAIN = [
-    'llama-3.3-70b-versatile',   // 1순위: TPM 300K, 고품질
-    'llama-3.1-8b-instant',      // 2순위: TPM 250K, 빠름
-    'llama3-8b-8192',            // 3순위: 안정적인 구형 모델
-  ];
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: maxTokens },
+      }),
+    }
+  );
 
-  // 모델을 다음으로 넘겨야 하는 에러 키워드
-  const SKIP_KEYWORDS = ['decommissioned', 'deprecated', 'no longer supported', 'not found', 'does not exist'];
-
-  function parseWaitMs(msg: string, attempt: number): number {
-    const msMatch = msg.match(/try again in ([\d.]+)ms/);
-    const sMatch  = msg.match(/try again in ([\d.]+)s/);
-    if (msMatch) return Math.ceil(parseFloat(msMatch[1])) + 300;
-    if (sMatch)  return Math.ceil(parseFloat(sMatch[1])) * 1000 + 1000;
-    return (attempt + 1) * 3000;
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
+    throw new Error(err.error?.message || `Gemini API 오류 (${res.status})`);
   }
 
-  let lastError = '';
-
-  for (const model of MODEL_CHAIN) {
-    const body = JSON.stringify({
-      model,
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.1,
-      max_tokens: maxTokens,
-    });
-
-    const doFetch = () =>
-      fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body,
-      });
-
-    let res = await doFetch();
-
-    // 429 Rate limit → 최대 3회 재시도 후 다음 모델로
-    for (let attempt = 0; attempt < 3 && res.status === 429; attempt++) {
-      const errBody = await res.json().catch(() => ({})) as { error?: { message?: string } };
-      await new Promise(r => setTimeout(r, parseWaitMs(errBody.error?.message ?? '', attempt)));
-      res = await doFetch();
-    }
-
-    if (res.status === 429) { lastError = `${model} rate limit 초과`; continue; }
-
-    // 모델 지원 중단·미존재 → 다음 모델로
-    if (!res.ok) {
-      const errBody = await res.json().catch(() => ({})) as { error?: { message?: string } };
-      const msg = errBody.error?.message ?? '';
-      lastError = msg;
-      if (SKIP_KEYWORDS.some(k => msg.toLowerCase().includes(k))) continue;
-      throw new Error(msg || `Groq API 오류 (${res.status})`);
-    }
-
-    const data = await res.json() as { choices?: { message?: { content?: string } }[] };
-    const raw = data.choices?.[0]?.message?.content ?? '';
-    if (!raw) throw new Error('AI 응답이 비어 있습니다.');
-    return cleanJson(raw);
-  }
-
-  throw new Error(`AI 파싱 실패: ${lastError || '모든 모델 응답 없음'}`);
+  const data = await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  if (!raw) throw new Error('AI 응답이 비어 있습니다.');
+  return cleanJson(raw);
 }
 
 // ── 1. ROUTINE EDIT 패널용 — 단계 시퀀스만 추출 ──────────────────────────────
@@ -280,7 +239,7 @@ ${text}`;
 }
 
 export async function parseRoutinePhases(text: string, productNames?: string[]): Promise<ParsedPhase[]> {
-  const json = await callGroq(buildPhasesPrompt(text, productNames));
+  const json = await callGemini(buildPhasesPrompt(text, productNames));
   const parsed = JSON.parse(json) as { phases: ParsedPhase[] };
   incrementGroqUsage();
   return parsed.phases ?? [];
@@ -321,6 +280,6 @@ ${text}`;
 
 export async function parseRoutineText(text: string): Promise<ParsedResult> {
   // 여러 슬롯·단계를 담은 전체 세션 출력은 1024로 잘릴 수 있어 1500 사용
-  const json = await callGroq(buildFullPrompt(text), 1500);
+  const json = await callGemini(buildFullPrompt(text), 1500);
   return JSON.parse(json) as ParsedResult;
 }

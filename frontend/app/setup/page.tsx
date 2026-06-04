@@ -201,7 +201,7 @@ function GroqUsageSection() {
       <div style={{ padding: '10px 12px 0' }}>
         <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>#AI</div>
         <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, marginBottom: 3, letterSpacing: '-.01em' }}>AI 사용량</div>
-        <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' as const, color: '#9A9490' }}>GROQ FREE TIER</div>
+        <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' as const, color: '#9A9490' }}>GEMINI FREE TIER</div>
       </div>
 
       {/* 수치 + 프로그레스 바 */}
@@ -1356,7 +1356,7 @@ function AiImportPanel({
     return items;
   }
 
-  const hasGroqKey = !!process.env.NEXT_PUBLIC_GROQ_API_KEY;
+  const hasGroqKey = !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
   const handleParse = async () => {
     if (!text.trim() || !hasGroqKey) return;
@@ -1404,7 +1404,7 @@ function AiImportPanel({
             <div style={{ padding: '16px 16px 32px' }}>
               {!hasGroqKey && (
                 <div style={{ marginBottom: 12, padding: '10px 14px', background: '#FFFAE0', border: '1px solid rgba(200,160,0,.2)', borderRadius: 10, fontFamily: f, fontSize: 12, color: '#7A6000' }}>
-                  ⚙️ <strong>AI 분석 준비 중</strong> — .env.local에 <code>NEXT_PUBLIC_GROQ_API_KEY</code>를 추가하면 사용할 수 있어요.
+                  ⚙️ <strong>AI 분석 준비 중</strong> — .env.local에 <code>NEXT_PUBLIC_GEMINI_API_KEY</code>를 추가하면 사용할 수 있어요.
                 </div>
               )}
               {error && (
