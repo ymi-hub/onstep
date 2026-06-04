@@ -345,9 +345,10 @@ function ProductCard({
         justifyContent: 'center',
       }}
     >
-      {/* 배경 이미지 (있을 때만) */}
+      {/* 배경 이미지 (있을 때만) — 갤러리 셀은 항상 cover로 꽉 채움 */}
       {imgUrl && (
-        <AdaptiveImg src={imgUrl} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imgUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
       )}
 
       {/* 상단 잔량 바 — 스킨케어(beauty)만 표시 */}
@@ -1547,7 +1548,7 @@ export default function BoxPage() {
         <MagazineView products={sortedFiltered} onEdit={openEdit} />
       ) : viewMode === 'gallery' ? (
         // 갤러리 그리드 (3열) — design/box.html .gallery-grid
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5, paddingBottom: 100 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 1.5, paddingBottom: 100 }}>
           {sortedFiltered.map((p) => (
             <ProductCard key={p.id} product={p} onClick={() => openEdit(p)} />
           ))}
