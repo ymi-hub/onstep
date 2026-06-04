@@ -413,15 +413,29 @@ function MonthCalendar({
                 </span>
               )}
 
-              {/* 스킨케어 세션 시작일 — TODAY 도장 뱃지 */}
+              {/* 스킨케어 세션 시작일 — 소형 라벨 뱃지 */}
               {sessionLabel && (
                 <span style={{
                   position: 'absolute',
-                  top: -8, right: -8,
+                  top: -9, right: -5,
                   pointerEvents: 'none',
                   zIndex: 4,
+                  background: 'rgba(255,255,255,.96)',
+                  border: '1.5px solid rgba(190,30,30,.72)',
+                  borderRadius: 4,
+                  padding: '1.5px 4px',
+                  fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                  fontSize: 7.5,
+                  fontWeight: 900,
+                  color: 'rgba(145,15,15,.9)',
+                  letterSpacing: '-.01em',
+                  whiteSpace: 'nowrap' as const,
+                  transform: 'rotate(-8deg)',
+                  transformOrigin: 'right top',
+                  lineHeight: 1.2,
+                  boxShadow: '0 1px 2px rgba(190,30,30,.18)',
                 }}>
-                  <TodayStampBadge size={32} rotate={-10} label={sessionLabel} />
+                  {sessionLabel}
                 </span>
               )}
 
@@ -2683,7 +2697,11 @@ function LogPageInner() {
               hasDiet={dietPrograms.some(p => p.showInToday)}
               onToggleMorning={handleToggleMorning}
               onToggleEvening={handleToggleEvening}
-              sessionStartMap={new Map(sessions.map(s => [s.startDate, s.sessionTag ?? `${s.sessionNumber}회`]))}
+              sessionStartMap={new Map(
+                sessions
+                  .filter(s => (s.sessionTag ?? '').trim().length > 0)
+                  .map(s => [s.startDate, s.sessionTag!.trim()])
+              )}
             />
             {selectedDate ? (
               <DayDetail
