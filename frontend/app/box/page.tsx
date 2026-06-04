@@ -134,6 +134,7 @@ type FormState = {
   careGuide: string;           // 케어 방법 (예: 손세탁)
   specialNote: string;         // 특이사항 (Acc)
   materialType: string;        // Acc 재질 칩 (금/은/가죽/패브릭/플라스틱/기타)
+  boxLocation: string;         // 보관 위치 (예: 안방 드레스룸, 욕실 선반)
 };
 
 const INITIAL_FORM: FormState = {
@@ -163,6 +164,7 @@ const INITIAL_FORM: FormState = {
   careGuide: '',
   specialNote: '',
   materialType: '',
+  boxLocation: '',
 };
 
 // ─── 매거진 뷰 (design/box.html magazine 뷰 참고) ────────────────────────────
@@ -970,6 +972,7 @@ export default function BoxPage() {
         ...(form.careGuide.trim() ? { careGuide: form.careGuide.trim() } : {}),
         ...(form.specialNote.trim() ? { specialNote: form.specialNote.trim() } : {}),
         ...(form.materialType ? { materialType: form.materialType } : {}),
+        boxLocation: form.boxLocation.trim() || null,
         updatedAt: now,
       };
 
@@ -1059,6 +1062,7 @@ export default function BoxPage() {
       careGuide: (p as Product & { careGuide?: string }).careGuide ?? '',
       specialNote: (p as Product & { specialNote?: string }).specialNote ?? '',
       materialType: (p as Product & { materialType?: string }).materialType ?? '',
+      boxLocation: p.boxLocation ?? '',
     });
     setEditingProduct(p);
     setIsAddOpen(true);
@@ -2649,6 +2653,29 @@ function AddProductPage({
                 )}
               </div>
           </div>}
+
+          {/* ── 보관 위치 ── */}
+          <div>
+            <div style={labelStyle}>보관 위치</div>
+            <input
+              value={form.boxLocation}
+              onChange={e => setForm(f => ({ ...f, boxLocation: e.target.value }))}
+              placeholder="예: 욕실 선반, 안방 드레스룸"
+              style={{ ...underlineInputStyle, fontSize: 15 }}
+            />
+          </div>
+
+          {/* ── 제품명 미입력 안내 ── */}
+          {isNameEmpty && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 14px', background: 'rgba(233,79,107,.06)', borderRadius: 10, border: '1px solid rgba(233,79,107,.2)' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E94F6B" strokeWidth="2.5" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#E94F6B' }}>
+                제품명을 입력해야 저장할 수 있어요
+              </span>
+            </div>
+          )}
 
           {/* ── 취소 / 저장 ── */}
           <div style={{ display: 'flex', gap: 8 }}>
