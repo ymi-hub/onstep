@@ -2207,39 +2207,37 @@ export default function TodayPage() {
           onToggle={handleToggleHabit}
         />
 
-        {/* 약 루틴 섹션 — 현재 시각 ±1시간 내 복용 항목만 노출 */}
+        {/* 약 루틴 섹션 — 아침(04-12) / 오후(12-18) / 저녁(18-04) 3구간 */}
         {(() => {
           const fMed = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
           const activeMeds = medRoutines.filter(m => m.active);
           if (activeMeds.length === 0) return null;
 
-          const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + (m || 0); };
-          const nowMin = today.getHours() * 60 + today.getMinutes();
+          const nowHour = today.getHours();
+          // 현재 시간대: am=04~11 / pm=12~17 / ev=18~03
+          const period = nowHour >= 4 && nowHour < 12 ? 'am' : nowHour >= 12 && nowHour < 18 ? 'pm' : 'ev';
 
-          const getTime = (m: { time?: string; times?: string[] }) => {
+          // 각 구간 대표 시각 (MedItem 시각 표시용)
+          const slotTime = (m: typeof activeMeds[0], slot: 'am' | 'pm' | 'ev'): string => {
             if (m.time) return m.time;
-            const first = (m.times ?? [])[0];
-            return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
+            if (slot === 'am') return '09:00';
+            if (slot === 'pm') return '12:00';
+            return (m.times ?? []).includes('bedtime') ? '22:00' : '18:00';
           };
 
-          // ±1시간 창 내에 있는 항목만 표시
-          const inWindow = (m: typeof activeMeds[0]) => {
-            const t = toMin(getTime(m));
-            return nowMin >= t - 60 && nowMin <= t + 60;
-          };
+          // 구간별 항목 분류
+          const amMeds = activeMeds.filter(m => (m.times ?? []).includes('morning'));
+          const pmMeds = activeMeds.filter(m => (m.times ?? []).includes('lunch'));
+          const evMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
 
-          const morningMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'morning' || t === 'lunch'));
-          const nightMeds   = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
-          const ungrouped   = activeMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
-          const nightAll    = [...nightMeds, ...ungrouped];
+          // 현재 구간에 해당하는 그룹만 노출
+          const visAm = period === 'am' ? amMeds : [];
+          const visPm = period === 'pm' ? pmMeds : [];
+          const visEv = period === 'ev' ? evMeds : [];
 
-          const visMorning = morningMeds.filter(inWindow);
-          const visNight   = nightAll.filter(inWindow);
+          if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0) return null;
 
-          // 현재 시각에 해당하는 항목 없으면 섹션 자체 숨김
-          if (visMorning.length === 0 && visNight.length === 0) return null;
-
-          const MedItem = ({ m }: { m: typeof activeMeds[0] }) => {
+          const MedItem = ({ m, slot }: { m: typeof activeMeds[0]; slot: 'am' | 'pm' | 'ev' }) => {
             const isDone = medChecked.has(m.id);
             return (
               <div onClick={() => handleToggleMed(m.id)}
@@ -2247,8 +2245,28 @@ export default function TodayPage() {
                 <div style={{ width: 20, height: 20, borderRadius: 5, border: `1.5px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.25)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
                   {isDone && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </div>
-                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 700, color: isDone ? '#C5C6CA' : '#44474A', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{getTime(m)}</span>
+                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 700, color: isDone ? '#C5C6CA' : '#44474A', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{slotTime(m, slot)}</span>
                 <span style={{ fontFamily: fMed, fontSize: 14, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+              </div>
+            );
+          };
+
+          // 구간 헤더 레이블 정의
+          const GROUP_META = {
+            am: { label: '·+ +°.아침°·++·° *',  color: '#6B7CE8' },
+            pm: { label: '·+ +°.오후°·++·° *',  color: '#D4923A' },
+            ev: { label: '·+ +°.저녁°·++·° *',  color: '#E86BAA' },
+          };
+
+          const MedGroup = ({ slot, items }: { slot: 'am' | 'pm' | 'ev'; items: typeof activeMeds }) => {
+            if (items.length === 0) return null;
+            const { label, color } = GROUP_META[slot];
+            return (
+              <div>
+                <div style={{ padding: '7px 16px 5px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+                  <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color, letterSpacing: '.03em' }}>{label}</span>
+                </div>
+                {items.map(m => <MedItem key={m.id} m={m} slot={slot} />)}
               </div>
             );
           };
@@ -2272,25 +2290,10 @@ export default function TodayPage() {
                     </div>
                   </div>
 
-                  {/* Morning 그룹 — 현재 창에 해당 항목 있을 때만 */}
-                  {visMorning.length > 0 && (
-                    <div>
-                      <div style={{ padding: '7px 16px 5px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
-                        <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color: '#6B7CE8', letterSpacing: '.03em' }}>·+ +°.Morning°·++·° *</span>
-                      </div>
-                      {visMorning.map(m => <MedItem key={m.id} m={m} />)}
-                    </div>
-                  )}
+                  <MedGroup slot="am" items={visAm} />
+                  <MedGroup slot="pm" items={visPm} />
+                  <MedGroup slot="ev" items={visEv} />
 
-                  {/* Night 그룹 — 현재 창에 해당 항목 있을 때만 */}
-                  {visNight.length > 0 && (
-                    <div>
-                      <div style={{ padding: '7px 16px 5px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
-                        <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color: '#E86BAA', letterSpacing: '.03em' }}>·+ +°.Night°·++·° *</span>
-                      </div>
-                      {visNight.map(m => <MedItem key={m.id} m={m} />)}
-                    </div>
-                  )}
                   {/* 카드 안쪽 하단 오른쪽 List → */}
                   <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 16px 12px', borderTop: '1px solid rgba(12,12,10,.05)' }}>
                     <Link href="/setup#medication" style={{ fontFamily: fMed, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
