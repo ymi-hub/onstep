@@ -2167,7 +2167,7 @@ export default function TodayPage() {
           const _toMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
           const _inWin = (t: string) => { const tm = _toMin(t); return _nowMin >= tm - 60 && _nowMin <= tm + 60; };
           const filteredHabits = todayHabits.filter(h =>
-            !h.time || h.repeatType === 'allday' || _inWin(h.time)
+            !h.time || h.repeatType === 'allday' || _inWin(h.time) || habitChecked.has(h.id)
           );
           return (
             <TodayHabitSection
@@ -2211,9 +2211,9 @@ export default function TodayPage() {
           const pmMeds = activeMeds.filter(m => (m.times ?? []).includes('lunch'));
           const evMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
 
-          const visAm = period === 'am' ? amMeds.filter(m => inWin(slotTime(m, 'am'))) : [];
-          const visPm = period === 'pm' ? pmMeds.filter(m => inWin(slotTime(m, 'pm'))) : [];
-          const visEv = period === 'ev' ? evMeds.filter(m => inWin(slotTime(m, 'ev'))) : [];
+          const visAm = amMeds.filter(m => (period === 'am' && inWin(slotTime(m, 'am'))) || medChecked.has(m.id));
+          const visPm = pmMeds.filter(m => (period === 'pm' && inWin(slotTime(m, 'pm'))) || medChecked.has(m.id));
+          const visEv = evMeds.filter(m => (period === 'ev' && inWin(slotTime(m, 'ev'))) || medChecked.has(m.id));
 
           if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0) return null;
 
@@ -2386,7 +2386,7 @@ export default function TodayPage() {
             if (h.time && h.time.includes(':')) return _hInWin(h.time);
             return true;
           };
-          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h) && isHealthVisible(h));
+          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h) && (isHealthVisible(h) || healthChecked.has(h.id)));
           if (visHealth.length === 0) return null;
           // 대표 시간: entries 중 가장 이른 시간, 없으면 h.time, 없으면 ''
           const primaryTime = (h: { time?: string; entries?: { time: string }[] }) => {
