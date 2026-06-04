@@ -348,6 +348,7 @@ function FlowCard({
             key={t}
             onClick={() => onTabChange(t)}
             style={{
+              flex: 1,
               height: 32,
               padding: '0 26px',
               borderRadius: 9999,
