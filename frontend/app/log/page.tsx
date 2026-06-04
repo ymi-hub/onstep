@@ -398,21 +398,6 @@ function MonthCalendar({
                 overflow: 'visible',
               }}
             >
-              {/* bothDone 고양이 도장 오버레이 */}
-              {bothDone && !sessionLabel && (
-                <span style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: 0.55,
-                  pointerEvents: 'none',
-                }}>
-                  <StampBadge size={40} rotate={-12} full />
-                </span>
-              )}
-
               {/* 스킨케어 세션 시작일 — 날짜 아래, 고양이/이모지 위 오버레이 */}
               {sessionLabel && (
                 <span style={{
