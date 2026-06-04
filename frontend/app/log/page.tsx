@@ -2728,38 +2728,6 @@ function LogPageInner() {
 
                   return (
                     <div style={{ margin: '12px 16px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {/* ── 🌿 스킨케어 카드 ── */}
-                      {!dataLoading && (
-                        <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
-                          <CardHeader emoji="🌿" title="스킨케어"
-                            badge={todayDayLog?.hasMorning && todayDayLog?.hasEvening ? '아침·저녁 완료' : todayDayLog?.hasMorning ? '아침 완료' : todayDayLog?.hasEvening ? '저녁 완료' : '미완료'}
-                          />
-                          <div style={{ padding: '8px 14px 10px', display: 'flex', gap: 8 }}>
-                            {(['morning', 'evening'] as const).map(slot => {
-                              const done = slot === 'morning' ? (todayDayLog?.hasMorning ?? false) : (todayDayLog?.hasEvening ?? false);
-                              return (
-                                <div key={slot} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderRadius: 10, background: done ? 'rgba(197,255,0,.1)' : 'rgba(12,12,10,.03)', border: `1px solid ${done ? 'rgba(166,217,0,.3)' : 'rgba(12,12,10,.07)'}` }}>
-                                  <span style={{ fontSize: 13 }}>{slot === 'morning' ? '☀' : '🌙'}</span>
-                                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#4A7700' : '#BCBAB6' }}>{slot === 'morning' ? '아침' : '저녁'}</span>
-                                  {done && <span style={{ marginLeft: 'auto', display: 'flex' }}><CatBadge color={slot === 'morning' ? '#C5FF00' : '#f7bc45'} size={16} /></span>}
-                                </div>
-                              );
-                            })}
-                          </div>
-                          {todayCare.length > 0 && (
-                            <div style={{ borderTop: '1px solid rgba(12,12,10,.05)', padding: '6px 14px 10px', display: 'flex', flexDirection: 'column', gap: 5 }}>
-                              {todayCare.map(item => (
-                                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                                  <span style={{ fontSize: 12 }}>🧴</span>
-                                  <span style={{ fontFamily: f, fontSize: 12, color: '#0C0C0A', flex: 1 }}>{item.name}</span>
-                                  <span style={{ fontFamily: f, fontSize: 9, fontWeight: 700, color: '#4A9ED6', letterSpacing: '.04em' }}>집중</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
                       {/* ── 💊 약 복용 카드 ── */}
                       {medRoutines.filter(m => m.active).length > 0 && (() => {
                         const doneSet = new Set(todayMedLogs.map(l => l.routineId));
