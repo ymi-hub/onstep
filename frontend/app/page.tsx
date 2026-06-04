@@ -855,8 +855,8 @@ function OOTDSection({
 
       <div style={{ padding: '0 16px' }}>
 
-        {/* 룩북 미등록 빈 상태 안내 */}
-        {!heroLook && (
+        {/* 룩북 미등록 빈 상태 안내 — 로그인된 상태에서만 표시 (비로그인 시 아래 카드로 대체) */}
+        {!heroLook && user && (
           <div style={{ padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 12 }}>
             <span style={{ fontSize: 28 }}>👗</span>
             <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 룩을 등록해보세요</div>
@@ -927,13 +927,7 @@ function OOTDSection({
         )}
 
         {/* ── RECORD LOOK / Logged 카드 ── */}
-        {!user ? (
-          <div style={{ padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 28 }}>👗</span>
-            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 룩을 기록해보세요</div>
-            <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>로그인하면 OOTD를 기록할 수 있어요</div>
-          </div>
-        ) : ootdLog ? (
+        {!user ? null : ootdLog ? (
           <div onClick={onViewLog} style={{ border: '1.5px solid #4caf78', borderRadius: 9999, minHeight: 52, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
             <div style={{ width: 36, height: 36, borderRadius: 9999, background: '#E8E6E0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
               {ootdLog.photoUrl
@@ -2125,8 +2119,11 @@ export default function TodayPage() {
         {/* #Flow 섹션 헤더 */}
         <SectionHeader title="#Flow" />
 
-        {/* 메인 루틴 카드 — 로딩 / 루틴 있음 / 루틴 없음 분기 */}
-        {dataLoading || authLoading ? (
+        {/* 메인 루틴 카드 — 비로그인 / 로딩 / 루틴 있음 / 루틴 없음 분기 */}
+        {!user && !authLoading ? (
+          // 로그인 안 된 상태 — dataLoading이 영원히 true가 되는 걸 방지하기 위해 먼저 체크
+          <LoginRequiredCard onLogin={handleLogin} />
+        ) : dataLoading || authLoading ? (
           // 로딩 중 — shimmer 스켈레톤
           <div
             style={{
@@ -2158,9 +2155,6 @@ export default function TodayPage() {
             onToggle={handleToggle}
             saving={saving}
           />
-        ) : !user && !authLoading ? (
-          // 로그인 안 된 상태
-          <LoginRequiredCard onLogin={handleLogin} />
         ) : (
           // 오늘 날짜에 해당하는 루틴 없음
           <RoutineEmptyCard />
@@ -2442,6 +2436,31 @@ export default function TodayPage() {
               </div>
             </div>
           </div>
+          );
+        })()}
+
+        {/* 비로그인 시 Habits · Medication · Health · OOTD 기능 소개 */}
+        {!user && !authLoading && (() => {
+          const fT = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+          const TeaserCard = ({ icon, title, desc, col }: { icon: string; title: string; desc: string; col: string }) => (
+            <div style={{ margin: '0 16px', padding: '14px 16px', background: '#fff', borderRadius: 16, border: `1.5px solid ${col}22`, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: `${col}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{icon}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: fT, fontSize: 13, fontWeight: 800, color: '#0C0C0A', letterSpacing: '.04em' }}>{title}</div>
+                <div style={{ fontFamily: fT, fontSize: 11, color: '#9A9490', marginTop: 2 }}>{desc}</div>
+              </div>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: col, flexShrink: 0 }} />
+            </div>
+          );
+          return (
+            <>
+              <SectionHeader title="#Habits" />
+              <TeaserCard icon="🗓" title="습관 트래커" desc="매일 반복할 습관을 등록하고 체크하세요" col="#F5A623" />
+              <SectionHeader title="#Medication" />
+              <TeaserCard icon="💊" title="약 루틴" desc="복용 약과 시간을 등록해 타이밍을 놓치지 마세요" col="#6B7CE8" />
+              <SectionHeader title="#Health" />
+              <TeaserCard icon="🏃" title="건강 루틴" desc="운동, 수분, 수면 등 건강 루틴을 관리하세요" col="#4CAF50" />
+            </>
           );
         })()}
 
