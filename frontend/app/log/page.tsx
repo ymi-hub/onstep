@@ -539,7 +539,9 @@ function DayDetail({
           {label}
         </span>
         {hasLog && (
-          <span style={{ marginLeft: 'auto', fontSize: 16, lineHeight: 1 }}>🐱</span>
+          <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+            <CatBadge color={label === 'MORNING' ? '#C5FF00' : '#f7bc45'} size={18} />
+          </span>
         )}
       </div>
 
@@ -631,9 +633,13 @@ function DayDetail({
               marginTop: 2,
             }}
           >
-            {dayLog
-              ? `${dayLog.hasMorning ? '아침 🐱' : ''}${dayLog.hasMorning && dayLog.hasEvening ? ' · ' : ''}${dayLog.hasEvening ? '저녁 🐱' : ''}`
-              : '기록 없음'}
+            {dayLog ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                {dayLog.hasMorning && <><CatBadge color="#C5FF00" size={13} /><span>아침</span></>}
+                {dayLog.hasMorning && dayLog.hasEvening && <span> · </span>}
+                {dayLog.hasEvening && <><CatBadge color="#f7bc45" size={13} /><span>저녁</span></>}
+              </span>
+            ) : '기록 없음'}
           </div>
         </div>
 
@@ -705,8 +711,8 @@ function DayDetail({
           const done = medChecked.has(m.id);
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
-              <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#8AB000' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
-                {done ? '🐱' : '○'}
+              <div style={{ width: 14, height: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {done ? <CatBadge color="#C5FF00" size={14} /> : <span style={{ fontSize: 9, color: 'rgba(12,12,10,.3)' }}>○</span>}
               </div>
               <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{getTime(m)}</span>
               <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
@@ -745,8 +751,8 @@ function DayDetail({
                 const done = healthChecked.has(h.id);
                 return (
                   <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
-                    <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#8AB000' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
-                      {done ? '🐱' : '○'}
+                    <div style={{ width: 14, height: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {done ? <CatBadge color="#C5FF00" size={14} /> : <span style={{ fontSize: 9, color: 'rgba(12,12,10,.3)' }}>○</span>}
                     </div>
                     <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{h.time ?? '—'}</span>
                     <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
@@ -779,7 +785,7 @@ function DayDetail({
               return (
                 <div key={p.id} style={{ marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                    {programDone && <span style={{ fontSize: 14, lineHeight: 1, flexShrink: 0 }}>🐱</span>}
+                    {programDone && <CatBadge color="#C5FF00" size={14} />}
                     <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A' }}>{p.name}</span>
                     <span style={{ fontFamily: f, fontWeight: 400, color: '#9A9490', fontSize: 10 }}>D+{dayN} · {pat.label}</span>
                   </div>
@@ -2587,8 +2593,8 @@ function LogPageInner() {
                     </div>
                   );
                   const CheckDot = ({ done }: { done: boolean }) => (
-                    <div style={{ width: 16, height: 16, borderRadius: 4, background: done ? '#C5FF00' : 'transparent', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
-                      {done ? '🐱' : ''}
+                    <div style={{ width: 16, height: 16, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {done ? <CatBadge color="#C5FF00" size={16} /> : <div style={{ width: 14, height: 14, borderRadius: 3, border: '1.5px solid rgba(12,12,10,.2)' }} />}
                     </div>
                   );
 
@@ -2612,7 +2618,7 @@ function LogPageInner() {
                                 <div key={slot} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderRadius: 10, background: done ? 'rgba(197,255,0,.1)' : 'rgba(12,12,10,.03)', border: `1px solid ${done ? 'rgba(166,217,0,.3)' : 'rgba(12,12,10,.07)'}` }}>
                                   <span style={{ fontSize: 13 }}>{slot === 'morning' ? '☀' : '🌙'}</span>
                                   <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#4A7700' : '#BCBAB6' }}>{slot === 'morning' ? '아침' : '저녁'}</span>
-                                  {done && <span style={{ marginLeft: 'auto', fontSize: 14, lineHeight: 1 }}>🐱</span>}
+                                  {done && <span style={{ marginLeft: 'auto', display: 'flex' }}><CatBadge color={slot === 'morning' ? '#C5FF00' : '#f7bc45'} size={16} /></span>}
                                 </div>
                               );
                             })}
