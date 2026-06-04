@@ -806,14 +806,14 @@ function EditorView({
       .split(/[\s\+\-·,:]+/)
       .map(t => t.trim())
       .filter(Boolean);
-    // 한국어 조사 (1자): 을,를,이,가,은,는,도,와,과,에,의,로,서,만,도
     const KO_PARTICLES = new Set(['을','를','이','가','은','는','도','와','과','에','의','로','서','만','랑','이랑']);
+    const norm = (s: string) => s.toLowerCase().replace(/\s+/g, '');
     const matched = products.filter((p) => {
       const name = p.name.toLowerCase().trim();
+      const nameNorm = norm(p.name);
       if (!name) return false;
       return tokens.some(t => {
-        if (t === name) return true;
-        // 제품명 뒤에 한국어 조사 1자만 허용 (예: "쉬를"→"쉬", "라이지레이어드밤을"→"라이지레이어드밤")
+        if (t === name || norm(t) === nameNorm) return true;
         if (t.startsWith(name) && t.length === name.length + 1) {
           return KO_PARTICLES.has(t[t.length - 1]);
         }
