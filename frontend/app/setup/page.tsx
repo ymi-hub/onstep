@@ -2675,7 +2675,7 @@ function MedView({
                 {/* 아침(파랑) / 점심(오렌지) / 저녁(핑크) 3구간 */}
                 {([
                   { label: '아침', col: '#6B7CE8', meds: amMeds },
-                  { label: '점심', col: '#E8A86B', meds: pmMeds },
+                  { label: '오후', col: '#E8A86B', meds: pmMeds },
                   { label: '저녁', col: '#E86BAA', meds: evAll },
                 ] as const).map(g => g.meds.length > 0 && (
                   <div key={g.label}>

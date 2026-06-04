@@ -739,7 +739,7 @@ function DayDetail({
           <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
             <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>💊 약 루틴</div>
             <MedGroup label="아침" col="#6B7CE8" meds={amMeds} />
-            <MedGroup label="점심" col="#E8A86B" meds={pmMeds} />
+            <MedGroup label="오후" col="#E8A86B" meds={pmMeds} />
             <MedGroup label="저녁" col="#E86BAA" meds={evAll} />
           </div>
         );
@@ -2667,7 +2667,7 @@ function LogPageInner() {
                         };
                         const groups = [
                           { label: '아침', color: '#6B7CE8', meds: activeMeds.filter(m => periodOfD(m) === 'am') },
-                          { label: '점심', color: '#E8A86B', meds: activeMeds.filter(m => periodOfD(m) === 'pm') },
+                          { label: '오후', color: '#E8A86B', meds: activeMeds.filter(m => periodOfD(m) === 'pm') },
                           { label: '저녁', color: '#E86BAA', meds: activeMeds.filter(m => periodOfD(m) === 'ev') },
                         ].filter(g => g.meds.length > 0);
                         const MedRow = ({ m }: { m: typeof activeMeds[0] }) => {

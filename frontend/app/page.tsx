@@ -2245,7 +2245,7 @@ export default function TodayPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 16px' }}>
                 {visAm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#6B7CE8', letterSpacing: '.1em', padding: '2px 2px 2px 4px' }}>아침</div>}
                 {visAm.map(m => <MedBar key={m.id} m={m} slot="am" />)}
-                {visPm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#E8A86B', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>점심</div>}
+                {visPm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#E8A86B', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>오후</div>}
                 {visPm.map(m => <MedBar key={m.id} m={m} slot="pm" />)}
                 {visEv.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#E86BAA', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>저녁</div>}
                 {visEv.map(m => <MedBar key={m.id} m={m} slot="ev" />)}
