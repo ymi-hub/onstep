@@ -244,24 +244,9 @@ function MonthCalendar({
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
           <span style={{ fontFamily: fTag, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-0.01em' }}>
             {isSameMonth(currentMonth, new Date())
-              ? format(new Date(), 'yyyy년 M월 d일', { locale: ko })
+              ? format(new Date(), 'yyyy년 M월 d일(EEE) · 오늘의 기록', { locale: ko })
               : format(currentMonth, 'yyyy년 M월', { locale: ko })}
           </span>
-          <div style={{ display: 'flex', gap: 4 }}>
-            <Tag label={`완료 ${fullDays}일차`} active={fullDays > 0} />
-            <span
-              onClick={isCurMonth ? (e) => { e.stopPropagation(); onToggleMorning?.(); } : undefined}
-              style={{ cursor: isCurMonth ? 'pointer' : 'default' }}
-            >
-              <Tag label="아침" active={hasMorning} />
-            </span>
-            <span
-              onClick={isCurMonth ? (e) => { e.stopPropagation(); onToggleEvening?.(); } : undefined}
-              style={{ cursor: isCurMonth ? 'pointer' : 'default' }}
-            >
-              <Tag label="저녁" active={hasEvening} />
-            </span>
-          </div>
         </div>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, transition: 'transform .2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
           <path d="M3 5.5L8 10.5L13 5.5" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -2743,11 +2728,6 @@ function LogPageInner() {
 
                   return (
                     <div style={{ margin: '12px 16px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {/* 날짜 라벨 */}
-                      <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', padding: '0 2px' }}>
-                        {format(new Date(), 'M월 d일 (EEE)', { locale: ko })} · 오늘의 기록
-                      </div>
-
                       {/* ── 🌿 스킨케어 카드 ── */}
                       {!dataLoading && (
                         <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
