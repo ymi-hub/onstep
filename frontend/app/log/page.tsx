@@ -2460,23 +2460,33 @@ function LogPageInner() {
             {(() => {
               const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
 
-              // 연속 기록일: 가장 최근 완료일부터 거꾸로 역산
-              // 오늘 기록이 없으면 어제부터 시작 (당일 루틴 미완료여도 스트릭 유지)
-              let streak = 0;
+              // 연속 기록일: 완료된 날짜 배열에서 역산
+              // - dayLogs에서 완료된 날짜만 추출해 오름차순 정렬
+              // - 가장 최근 완료일이 오늘 또는 어제여야 스트릭 유효
               const MS_PER_DAY = 86_400_000;
-              let checkDate = new Date(todayStr + 'T00:00:00');
-              const todayLog = dayLogs.get(todayStr);
-              if (!todayLog || (!todayLog.hasMorning && !todayLog.hasEvening)) {
-                checkDate = new Date(checkDate.getTime() - MS_PER_DAY);
-              }
-              for (let i = 0; i < 31; i++) {
-                const ds = toDateStr(checkDate);
-                const log = dayLogs.get(ds);
-                if (log && (log.hasMorning || log.hasEvening)) {
-                  streak++;
-                  checkDate = new Date(checkDate.getTime() - MS_PER_DAY);
-                } else {
-                  break;
+              const noon = (ds: string) => new Date(ds + 'T12:00:00').getTime();
+              const prevDay = (ds: string) => toDateStr(new Date(noon(ds) - MS_PER_DAY));
+
+              const doneDates = Array.from(dayLogs.entries())
+                .filter(([, log]) => log.hasMorning || log.hasEvening)
+                .map(([ds]) => ds)
+                .sort();
+
+              let streak = 0;
+              if (doneDates.length > 0) {
+                const newest = doneDates[doneDates.length - 1];
+                const yesterday = prevDay(todayStr);
+                // 가장 최근 완료가 오늘 또는 어제일 때만 스트릭 유효
+                if (newest === todayStr || newest === yesterday) {
+                  let expected = newest;
+                  for (let i = doneDates.length - 1; i >= 0; i--) {
+                    if (doneDates[i] === expected) {
+                      streak++;
+                      expected = prevDay(expected);
+                    } else {
+                      break;
+                    }
+                  }
                 }
               }
 
