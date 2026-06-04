@@ -2210,7 +2210,11 @@ export default function TodayPage() {
           const visPm = pmMeds.filter(m => (period === 'pm' && inWin(slotTime(m, 'pm'))) || medChecked.has(m.id));
           const visEv = evMeds.filter(m => (period === 'ev' && inWin(slotTime(m, 'ev'))) || medChecked.has(m.id));
 
-          if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0) return null;
+          // times 배열 없는 완료 항목 — 어느 그룹에도 속하지 않지만 체크됐으면 표시
+          const assignedIds = new Set([...amMeds, ...pmMeds, ...evMeds].map(m => m.id));
+          const orphanChecked = activeMeds.filter(m => medChecked.has(m.id) && !assignedIds.has(m.id));
+
+          if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0 && orphanChecked.length === 0) return null;
 
           const allVisMeds = [...visAm, ...visPm, ...visEv];
           const MedBar = ({ m, slot }: { m: typeof activeMeds[0]; slot: 'am' | 'pm' | 'ev' }) => {
@@ -2234,6 +2238,7 @@ export default function TodayPage() {
                 {visAm.map(m => <MedBar key={m.id} m={m} slot="am" />)}
                 {visPm.map(m => <MedBar key={m.id} m={m} slot="pm" />)}
                 {visEv.map(m => <MedBar key={m.id} m={m} slot="ev" />)}
+                {orphanChecked.map(m => <MedBar key={m.id} m={m} slot={period} />)}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
                   <Link href="/setup#medication" style={{ fontFamily: fMed, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
                 </div>
