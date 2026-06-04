@@ -285,9 +285,9 @@ function MagResBar({ product }: { product: Product }) {
   const fillRate = Math.min(1, product.currentRemaining / product.totalAmount);
   const pct = Math.round(fillRate * 100);
 
-  // D-N 계산: 하루 소모량이 있으면 남은 일수 표시
+  // D-N 계산: 시작일 없으면 미개봉 제품이므로 표시 안 함
   const dailyUsage = (product.dosePerUse ?? 0) * (product.usesPerDay ?? 1) * ((product.frequencyValue ?? 7) / 7);
-  const daysLeft = (dailyUsage > 0 && product.currentRemaining > 0)
+  const daysLeft = (product.startDate && dailyUsage > 0 && product.currentRemaining > 0)
     ? Math.floor(product.currentRemaining / dailyUsage)
     : null;
 
@@ -1382,10 +1382,11 @@ export default function BoxPage() {
 
       {/* ── 소진 임박 배너 (D-7 이하 beauty 제품) ── */}
       {(() => {
-        // beauty 도메인 제품 중 일일 소비량이 계산 가능하고 잔량이 7일 이하인 것만 필터
+        // 시작일 있고, 소비량 계산 가능하고, 잔량 7일 이하인 제품만
         const urgent = products
           .filter(p => p.domain === 'beauty')
           .map(p => {
+            if (!p.startDate) return null; // 시작일 없으면 미개봉 → 제외
             const dailyUsage = (p.dosePerUse ?? 0) * (p.usesPerDay ?? 0) * ((p.frequencyValue ?? 7) / 7);
             if (dailyUsage <= 0 || (p.currentRemaining ?? 0) <= 0) return null;
             const daysLeft = Math.floor((p.currentRemaining ?? 0) / dailyUsage);
