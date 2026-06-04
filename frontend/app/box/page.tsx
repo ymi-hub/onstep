@@ -276,7 +276,7 @@ function MagImg({ product, borderRadius, isHero }: { product: Product; borderRad
 
 // 매거진 잔량 바 (얇은 바 + 퍼센트 + D-N)
 function MagResBar({ product }: { product: Product }) {
-  const isCountMode = product.itemUnit === '개';
+  const isCountMode = product.itemUnit === '개' || product.itemUnit === 'ea';
   const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
   // 표시 조건: beauty skincare 또는 개 단위 제품
   if (!isSkincare && !isCountMode) return null;
@@ -300,7 +300,7 @@ function MagResBar({ product }: { product: Product }) {
         <span style={{ whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1, minWidth: 0 }}>
           {isCountMode
             ? `${product.currentRemaining}/${product.totalAmount}개`
-            : `${product.currentRemaining}${product.itemUnit || 'ml'}`}
+            : `${product.currentRemaining}${product.itemUnit === 'ea' ? '개' : (product.itemUnit || 'ml')}`}
         </span>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
           {daysLeft !== null && (
@@ -658,7 +658,7 @@ async function migrateOldBoxAssets(uid: string, force = false): Promise<{ count:
           category:        CAT_KEY_MAP[a.catKey as string] ?? (a.catKey as string) ?? null,
           packageCount:    Number(a.packageCount) || 1,
           unitPerPackage:  Number(a.unitPerPackage) || 1,
-          itemUnit:        (a.itemUnit as string) || 'ea',
+          itemUnit:        (a.itemUnit as string) === 'ea' ? '개' : ((a.itemUnit as string) || '개'),
           totalAmount:     Number(a.totalAmount) || 1,
           dosePerUse:      Number(a.dosePerUse) || 1,
           usesPerDay:      Number(a.usesPerDay) || 1,
