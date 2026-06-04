@@ -706,11 +706,11 @@ function DayDetail({
         // 아침(파랑) 04-12 · 점심(오렌지) 12-18 · 저녁(핑크) 18-04
         // times 배열 우선, 없으면 time 필드 시간대로 결정
         const periodOf = (m: { time?: string; times?: string[] }): 'am' | 'pm' | 'ev' => {
+          if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
           const ts = m.times ?? [];
           if (ts.includes('morning')) return 'am';
           if (ts.includes('lunch')) return 'pm';
           if (ts.some((t: string) => t === 'evening' || t === 'bedtime')) return 'ev';
-          if (m.time) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
           return 'ev';
         };
         const amMeds = activeMeds.filter(m => periodOf(m) === 'am');
@@ -2658,11 +2658,11 @@ function LogPageInner() {
                         };
                         // 아침(파랑) 04-12 · 점심(오렌지) 12-18 · 저녁(핑크) 18-04
                         const periodOfD = (m: { time?: string; times?: string[] }): 'am' | 'pm' | 'ev' => {
+                          if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
                           const ts = m.times ?? [];
                           if (ts.includes('morning')) return 'am';
                           if (ts.includes('lunch')) return 'pm';
                           if (ts.some((t: string) => t === 'evening' || t === 'bedtime')) return 'ev';
-                          if (m.time) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
                           return 'ev';
                         };
                         const groups = [

@@ -2199,11 +2199,12 @@ export default function TodayPage() {
 
           // 구간별 항목 분류 (times 배열 우선, 없으면 time 필드 시간대 fallback)
           const periodOf = (m: typeof activeMeds[0]): 'am' | 'pm' | 'ev' => {
+            // 실제 time 필드 우선 → times 배열 fallback
+            if (hasTime(m)) { const h = parseInt(m.time!.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
             const ts = m.times ?? [];
             if (ts.includes('morning')) return 'am';
             if (ts.includes('lunch')) return 'pm';
             if (ts.some((t: string) => t === 'evening' || t === 'bedtime')) return 'ev';
-            if (hasTime(m)) { const h = parseInt(m.time!.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
             return 'ev';
           };
           const amMeds = activeMeds.filter(m => periodOf(m) === 'am');

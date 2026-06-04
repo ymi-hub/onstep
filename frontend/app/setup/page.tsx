@@ -2585,11 +2585,11 @@ function MedView({
         {(() => {
           // 아침/오후/저녁 구분 헬퍼
           const periodOfM = (m: MedRoutine): 'am' | 'pm' | 'ev' => {
+            if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
             const ts = m.times ?? [];
             if (ts.includes('morning')) return 'am';
             if (ts.includes('lunch')) return 'pm';
             if (ts.some(t => t === 'evening' || t === 'bedtime')) return 'ev';
-            if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
             return 'ev';
           };
           const MED_GROUPS = [
@@ -2652,11 +2652,11 @@ function MedView({
           const todayMeds   = items.filter(m => m.showInToday);
           // 아침(파랑) 04-12 · 점심(오렌지) 12-18 · 저녁(핑크) 18-04
           const periodOfS = (m: { time?: string; times?: string[] }): 'am' | 'pm' | 'ev' => {
+            if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
             const ts = m.times ?? [];
             if (ts.includes('morning')) return 'am';
             if (ts.includes('lunch')) return 'pm';
             if (ts.some(t => t === 'evening' || t === 'bedtime')) return 'ev';
-            if (m.time) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
             return 'ev';
           };
           const amMeds = todayMeds.filter(m => periodOfS(m) === 'am');
