@@ -40,7 +40,7 @@ function SkeletonCard({ lines = 2 }: { lines?: number }) {
   return (
     <div
       style={{
-        margin: '0 16px',
+        margin: '0 24px',
         padding: '20px 20px',
         background: '#FFFFFF',
         border: '1px solid rgba(12,12,10,.07)',
@@ -65,14 +65,14 @@ export default function Loading() {
       <style>{SHIMMER_CSS}</style>
 
       {/* 페이지 헤더 영역 */}
-      <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+      <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
         <Skeleton width="25%" height={10} radius={4} style={{ marginBottom: 8 }} />
         <Skeleton width="45%" height={28} radius={6} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 20 }}>
         {/* 섹션 레이블 */}
-        <div style={{ padding: '0 16px' }}>
+        <div style={{ padding: '0 24px' }}>
           <Skeleton width="20%" height={11} radius={4} />
         </div>
 
@@ -80,7 +80,7 @@ export default function Loading() {
         <SkeletonCard lines={3} />
 
         {/* 섹션 레이블 */}
-        <div style={{ padding: '4px 16px 0' }}>
+        <div style={{ padding: '4px 24px 0' }}>
           <Skeleton width="25%" height={11} radius={4} />
         </div>
 

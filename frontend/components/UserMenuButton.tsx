@@ -24,7 +24,7 @@ export default function UserMenuButton({
       <button
         onClick={onLogin}
         style={{
-          height: 44, padding: '0 16px', borderRadius: 9999,
+          height: 44, padding: '0 24px', borderRadius: 9999,
           background: '#0C0C0A', border: 'none', cursor: 'pointer',
           color: '#C5FF00',
           fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",

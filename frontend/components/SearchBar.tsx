@@ -21,7 +21,7 @@ export default function SearchBar({ value, onChange, placeholder = '검색...' }
         background: 'rgba(250,250,248,.96)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        padding: '8px 16px',
+        padding: '8px 24px',
         borderBottom: '1px solid rgba(12,12,10,.07)',
       }}
     >

@@ -30,7 +30,7 @@ export default function SubPageHeader({ title, onClose, right }: SubPageHeaderPr
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 16px',
+        padding: '0 24px',
         height: 56,
         background: 'rgba(250,250,248,.92)',
         backdropFilter: 'blur(20px)',

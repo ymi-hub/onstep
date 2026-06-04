@@ -135,7 +135,7 @@ export default function ImagePicker({
             )}
           </>
         ) : (
-          <div style={{ textAlign: 'center', padding: '0 16px' }}>
+          <div style={{ textAlign: 'center', padding: '0 24px' }}>
             <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 8 }}>📷</div>
             <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490' }}>{placeholderLabel}</div>
             <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 갤러리/카메라 선택</div>
