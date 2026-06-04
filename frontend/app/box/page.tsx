@@ -253,7 +253,11 @@ function MagImg({ product, borderRadius, isHero }: { product: Product; borderRad
       }}
     >
       {imgUrl
-        ? <AdaptiveImg src={imgUrl} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+        // 히어로는 AdaptiveImg(비율 적응), 3열 소형은 cover로 고정
+        ? isHero
+          ? <AdaptiveImg src={imgUrl} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+          // eslint-disable-next-line @next/next/no-img-element
+          : <img src={imgUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
         : <span style={{ fontSize: isHero ? 48 : 24, opacity: 0.15 }}>✦</span>}
       {isHero && (
         <div style={{ position: 'absolute', top: 14, left: 14, background: '#fff', color: '#0C0C0A', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 9999, boxShadow: '0 2px 8px rgba(0,0,0,.12)', zIndex: 1 }}>
@@ -292,20 +296,18 @@ function MagResBar({ product }: { product: Product }) {
       <div style={{ height: 3, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden', marginBottom: 4 }}>
         <div style={{ height: '100%', width: `${pct}%`, background: '#C5FF00', borderRadius: 2 }} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490' }}>
-        <span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9A9490', gap: 2, flexWrap: 'nowrap' as const }}>
+        <span style={{ whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1, minWidth: 0 }}>
           {isCountMode
-            ? `${product.currentRemaining}개 / ${product.totalAmount}개`
-            : `${product.currentRemaining}${product.itemUnit || 'ml'} 남음`}
+            ? `${product.currentRemaining}/${product.totalAmount}개`
+            : `${product.currentRemaining}${product.itemUnit || 'ml'}`}
         </span>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {/* D-N: 소모 주기가 있을 때만 */}
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
           {daysLeft !== null && (
             <span style={{ fontWeight: 700, color: daysLeft <= 7 ? '#E94F6B' : daysLeft <= 14 ? '#F97316' : '#9A9490' }}>
               D-{daysLeft}
             </span>
           )}
-          {!isCountMode && calcCostPerUse(product) && <span>1회 {calcCostPerUse(product)}</span>}
           <span>{pct}%</span>
         </div>
       </div>
