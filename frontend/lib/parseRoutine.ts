@@ -53,17 +53,26 @@ async function callGemini(prompt: string, maxTokens = 800): Promise<string> {
   const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
   if (!apiKey) throw new Error('AI 키가 없습니다. .env.local에 NEXT_PUBLIC_GEMINI_API_KEY를 추가하세요.');
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: maxTokens },
-      }),
-    }
-  );
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.1, maxOutputTokens: maxTokens },
+  });
+
+  // AQ. 형식 키: x-goog-api-key 헤더 방식
+  // AIzaSy 형식 키: ?key= URL 파라미터 방식 (fallback)
+  const isNewFormat = apiKey.startsWith('AQ.');
+  const url = isNewFormat
+    ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+    : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(isNewFormat ? { 'x-goog-api-key': apiKey } : {}),
+    },
+    body,
+  });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
