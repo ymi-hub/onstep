@@ -2725,6 +2725,13 @@ function LogPageInner() {
                       {done ? <CatBadge color="#C5FF00" size={16} /> : <div style={{ width: 14, height: 14, borderRadius: 3, border: '1.5px solid rgba(12,12,10,.2)' }} />}
                     </div>
                   );
+                  const ColorDot = ({ done, color }: { done: boolean; color: string }) => (
+                    <div style={{ width: 16, height: 16, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: 14, height: 14, borderRadius: '50%', background: done ? color : 'transparent', border: `2px solid ${color}`, opacity: done ? 1 : 0.45, transition: 'all .18s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {done && <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.2 5.8L6.5 2.2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                      </div>
+                    </div>
+                  );
 
                   return (
                     <div style={{ margin: '12px 16px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -2752,11 +2759,11 @@ function LogPageInner() {
                           { label: '오후', color: '#E8A86B', meds: activeMeds.filter(m => periodOfD(m) === 'pm') },
                           { label: '저녁', color: '#E86BAA', meds: activeMeds.filter(m => periodOfD(m) === 'ev') },
                         ].filter(g => g.meds.length > 0);
-                        const MedRow = ({ m }: { m: typeof activeMeds[0] }) => {
+                        const MedRow = ({ m, col }: { m: typeof activeMeds[0]; col: string }) => {
                           const done = doneSet.has(m.id);
                           return (
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <CheckDot done={done} />
+                              <ColorDot done={done} color={col} />
                               <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', width: 38, flexShrink: 0 }}>{getTime(m)}</span>
                               <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
                             </div>
@@ -2769,7 +2776,7 @@ function LogPageInner() {
                               {groups.map((g, gi) => (
                                 <div key={g.label}>
                                   <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: g.color, letterSpacing: '.06em', marginBottom: 5 }}>{g.label}</div>
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>{g.meds.map(m => <MedRow key={m.id} m={m} />)}</div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>{g.meds.map(m => <MedRow key={m.id} m={m} col={g.color} />)}</div>
                                 </div>
                               ))}
                             </div>
@@ -2820,7 +2827,7 @@ function LogPageInner() {
                                 })();
                                 return (
                                   <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <CheckDot done={done} />
+                                    <ColorDot done={done} color="rgb(8,191,16)" />
                                     <span style={{ fontSize: 13, flexShrink: 0 }}>{h.icon || '🏃'}</span>
                                     {pt && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', width: 38, flexShrink: 0 }}>{pt}</span>}
                                     <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
