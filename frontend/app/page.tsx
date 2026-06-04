@@ -2401,14 +2401,18 @@ export default function TodayPage() {
                         </span>
                       </div>
                     </div>
-                    {/* 우: 시간별 항목 */}
-                    {(h.entries ?? []).length > 0 && (
+                    {/* 우: 시간 표시 — entries가 있으면 항목별 시간, 없으면 h.time */}
+                    {(h.entries ?? []).length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-end', flexShrink: 0 }}>
                         {[...(h.entries ?? [])].sort((a, b) => a.time.localeCompare(b.time)).map(e => (
                           <span key={e.id} style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#C5FF00', padding: '2px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{e.time}</span>
                         ))}
                       </div>
-                    )}
+                    ) : h.time ? (
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#C5FF00', padding: '2px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
+                        {h.alarm ? '🔔 ' : ''}{h.time}
+                      </span>
+                    ) : null}
                   </div>
                 );
               })}
