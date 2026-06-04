@@ -121,8 +121,8 @@ function isHealthToday(h: { repeatType?: string; date?: string; weekdays?: numbe
   const todayStr = getTodayDateStr();
   if (!h.repeatType || h.repeatType === 'allday' || h.repeatType === 'daily') return true;
   if (h.repeatType === 'once') {
-    // date 없거나 빈 값이면 오늘 일정으로 취급
-    if (!h.date || h.date === '') return true;
+    // date 없거나 YYYY-MM-DD 형식이 아니면 오늘 일정으로 취급 (date='-' 등 포함)
+    if (!h.date || !/^\d{4}-\d{2}-\d{2}$/.test(h.date)) return true;
     return h.date === todayStr;
   }
   if (h.repeatType === 'scheduled') return (h.weekdays ?? []).includes(todayWD);
@@ -1886,6 +1886,8 @@ export default function TodayPage() {
       const _db = db;
       if (!_db || !user) return;
       const todayStr = getTodayDateStr();
+      // 낙관적 업데이트: Firestore 응답 전에 즉시 UI 반영
+      setHabitChecked(prev => { const s = new Set(prev); if (s.has(habitId)) s.delete(habitId); else s.add(habitId); return s; });
       try {
         if (habitChecked.has(habitId)) {
           const log = habitLogs.find((l) => l.habitId === habitId);
@@ -1899,6 +1901,7 @@ export default function TodayPage() {
         }
       } catch (err) {
         console.error('[OnStep] 습관 토글 실패:', err);
+        // 실패 시 롤백: onSnapshot이 재확인 처리
       }
     },
     [user, userId, habitChecked, habitLogs]
@@ -1949,6 +1952,7 @@ export default function TodayPage() {
       const _db = db;
       if (!_db || !user) return;
       const todayStr = getTodayDateStr();
+      setHealthChecked(prev => { const s = new Set(prev); if (s.has(routineId)) s.delete(routineId); else s.add(routineId); return s; });
       try {
         if (healthChecked.has(routineId)) {
           const log = healthLogs.find((l) => l.routineId === routineId);
@@ -1973,6 +1977,7 @@ export default function TodayPage() {
       const _db = db;
       if (!_db || !user) return;
       const todayStr = getTodayDateStr();
+      setMedChecked(prev => { const s = new Set(prev); if (s.has(routineId)) s.delete(routineId); else s.add(routineId); return s; });
       try {
         if (medChecked.has(routineId)) {
           const log = medLogs.find((l) => l.routineId === routineId);
@@ -2161,22 +2166,12 @@ export default function TodayPage() {
           <RoutineEmptyCard />
         )}
 
-        {/* 오늘의 습관 — 루틴 유무와 무관하게 항상 표시 (시간 있는 항목은 ±1시간 창만 노출) */}
-        {(() => {
-          const _nowMin = today.getHours() * 60 + today.getMinutes();
-          const _toMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
-          const _inWin = (t: string) => { const tm = _toMin(t); return _nowMin >= tm - 60 && _nowMin <= tm + 60; };
-          const filteredHabits = todayHabits.filter(h =>
-            !h.time || h.repeatType === 'allday' || _inWin(h.time) || habitChecked.has(h.id)
-          );
-          return (
-            <TodayHabitSection
-              todayHabits={filteredHabits}
-              habitChecked={habitChecked}
-              onToggle={handleToggleHabit}
-            />
-          );
-        })()}
+        {/* 오늘의 습관 — 루틴 유무와 무관하게 항상 표시 (showInToday=true 전체) */}
+        <TodayHabitSection
+          todayHabits={todayHabits}
+          habitChecked={habitChecked}
+          onToggle={handleToggleHabit}
+        />
 
         {/* 약 루틴 섹션 — 아침(04-12) / 오후(12-18) / 저녁(18-04) 3구간 */}
         {(() => {

@@ -539,22 +539,7 @@ function DayDetail({
           {label}
         </span>
         {hasLog && (
-          <span
-            style={{
-              marginLeft: 'auto',
-              width: 18,
-              height: 18,
-              borderRadius: 9999,
-              background: '#C5FF00',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </span>
+          <span style={{ marginLeft: 'auto', fontSize: 16, lineHeight: 1 }}>🐱</span>
         )}
       </div>
 
@@ -647,7 +632,7 @@ function DayDetail({
             }}
           >
             {dayLog
-              ? `${dayLog.hasMorning ? '아침 ✓' : ''}${dayLog.hasMorning && dayLog.hasEvening ? ' · ' : ''}${dayLog.hasEvening ? '저녁 ✓' : ''}`
+              ? `${dayLog.hasMorning ? '아침 🐱' : ''}${dayLog.hasMorning && dayLog.hasEvening ? ' · ' : ''}${dayLog.hasEvening ? '저녁 🐱' : ''}`
               : '기록 없음'}
           </div>
         </div>
@@ -721,7 +706,7 @@ function DayDetail({
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
               <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#8AB000' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
-                {done ? '✓' : '○'}
+                {done ? '🐱' : '○'}
               </div>
               <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{getTime(m)}</span>
               <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
@@ -761,7 +746,7 @@ function DayDetail({
                 return (
                   <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
                     <div style={{ width: 14, height: 14, borderRadius: 3, background: done ? '#C5FF00' : 'rgba(12,12,10,.06)', border: `1.5px solid ${done ? '#8AB000' : 'rgba(12,12,10,.14)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
-                      {done ? '✓' : '○'}
+                      {done ? '🐱' : '○'}
                     </div>
                     <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{h.time ?? '—'}</span>
                     <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
@@ -794,7 +779,7 @@ function DayDetail({
               return (
                 <div key={p.id} style={{ marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                    {programDone && <span style={{ width: 14, height: 14, borderRadius: 3, background: '#C5FF00', border: '1.5px solid #8AB000', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>✓</span>}
+                    {programDone && <span style={{ fontSize: 14, lineHeight: 1, flexShrink: 0 }}>🐱</span>}
                     <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A' }}>{p.name}</span>
                     <span style={{ fontFamily: f, fontWeight: 400, color: '#9A9490', fontSize: 10 }}>D+{dayN} · {pat.label}</span>
                   </div>
@@ -2223,7 +2208,17 @@ function LogPageInner() {
       snap.docs.forEach((d) => {
         const data = d.data() as Omit<LogEntry, 'id'>;
         const entry: LogEntry = { id: d.id, ...data };
-        const ds = entry.dateStr;
+        // 저녁 로그가 자정~04:00 사이에 기록된 경우 getEveningDateStr()이 어제 날짜로 저장함.
+        // LOG에서는 실제 기록 시각 기준 달력 날짜로 귀속(어제 → 오늘)해 올바른 날에 표시.
+        let ds = entry.dateStr;
+        if (entry.timeSlot === 'evening' && entry.loggedAt) {
+          const h = new Date(entry.loggedAt).getHours();
+          if (h < 4) {
+            const d2 = new Date(entry.dateStr + 'T12:00:00');
+            d2.setDate(d2.getDate() + 1);
+            ds = toDateStr(d2);
+          }
+        }
         if (!logsMap.has(ds)) {
           logsMap.set(ds, { dateStr: ds, hasMorning: false, hasEvening: false, entries: [] });
         }
@@ -2593,7 +2588,7 @@ function LogPageInner() {
                   );
                   const CheckDot = ({ done }: { done: boolean }) => (
                     <div style={{ width: 16, height: 16, borderRadius: 4, background: done ? '#C5FF00' : 'transparent', border: `1.5px solid ${done ? '#A6D900' : 'rgba(12,12,10,.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#0C0C0A', flexShrink: 0 }}>
-                      {done ? '✓' : ''}
+                      {done ? '🐱' : ''}
                     </div>
                   );
 
@@ -2617,7 +2612,7 @@ function LogPageInner() {
                                 <div key={slot} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderRadius: 10, background: done ? 'rgba(197,255,0,.1)' : 'rgba(12,12,10,.03)', border: `1px solid ${done ? 'rgba(166,217,0,.3)' : 'rgba(12,12,10,.07)'}` }}>
                                   <span style={{ fontSize: 13 }}>{slot === 'morning' ? '☀' : '🌙'}</span>
                                   <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#4A7700' : '#BCBAB6' }}>{slot === 'morning' ? '아침' : '저녁'}</span>
-                                  {done && <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 900, color: '#5A8A00' }}>✓</span>}
+                                  {done && <span style={{ marginLeft: 'auto', fontSize: 14, lineHeight: 1 }}>🐱</span>}
                                 </div>
                               );
                             })}
