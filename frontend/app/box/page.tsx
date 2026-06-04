@@ -2197,8 +2197,28 @@ function AddProductPage({
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={displayImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-              <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,.55)', color: '#fff', borderRadius: 6, padding: '5px 10px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700 }}>
-                사진 변경
+              <div style={{ position: 'absolute', bottom: 10, right: 10, display: 'flex', gap: 6 }}>
+                <button
+                  onClick={async (e) => { e.stopPropagation();
+                    try {
+                      const items = await navigator.clipboard.read();
+                      for (const item of items) {
+                        for (const type of item.types) {
+                          if (type.startsWith('image/')) {
+                            const blob = await item.getType(type);
+                            void applyImageFile(new File([blob], 'pasted.png', { type }));
+                            return;
+                          }
+                        }
+                      }
+                      alert('클립보드에 이미지가 없습니다.');
+                    } catch { fileInputRef.current?.click(); }
+                  }}
+                  style={{ background: 'rgba(0,0,0,.55)', color: '#fff', border: 'none', borderRadius: 6, padding: '5px 10px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                >📋 붙여넣기</button>
+                <div style={{ background: 'rgba(0,0,0,.55)', color: '#fff', borderRadius: 6, padding: '5px 10px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700 }}>
+                  사진 변경
+                </div>
               </div>
             </>
           ) : (
@@ -2210,7 +2230,7 @@ function AddProductPage({
           )}
           <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
         </div>
-        {/* 클립보드 붙여넣기 버튼 — 모바일/PC 공통 */}
+        {/* 클립보드 붙여넣기 버튼 — 이미지 없을 때 */}
         {!displayImg && (
           <button
             onClick={async () => {
