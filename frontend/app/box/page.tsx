@@ -141,7 +141,7 @@ const INITIAL_FORM: FormState = {
   unitPerPackage: 1,
   usesPerDay: 2,
   dosePerUse: 0.3,
-  daysPerWeek: 7,
+  daysPerWeek: 0,
   purchaseDate: '',
   expiryDate: '',
   startDate: '',
@@ -152,7 +152,7 @@ const INITIAL_FORM: FormState = {
   imageFile: null,
   imagePreview: '',
   imageUrl: '',
-  itemUnit: 'ml',
+  itemUnit: '개',
   usageDurationMonths: 0,
 };
 
