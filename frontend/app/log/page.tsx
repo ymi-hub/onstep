@@ -976,7 +976,7 @@ function RecentStrip({
   });
 
   return (
-    <div style={{ padding: '0 26px 0' }}>
+    <div style={{ margin: '0 26px' }}>
       <div
         style={{
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
@@ -990,7 +990,7 @@ function RecentStrip({
       >
         최근 7일
       </div>
-      <div style={{ display: 'flex', gap: 6 }}>
+      <div style={{ display: 'flex', gap: 6, width: '100%' }}>
         {days.map((day) => {
           const ds = toDateStr(day);
           const log = dayLogs.get(ds);
