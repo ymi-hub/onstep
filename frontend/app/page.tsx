@@ -684,69 +684,37 @@ function TodayHabitSection({
   return (
     <div>
       {/* 섹션 헤더 */}
-      <SectionHeader title="#Habits" action={`${doneCount}/${todayHabits.length}`} barColor="#C5FF00" textColor="#0C0C0A" />
+      <SectionHeader title="#Habits" action={`${doneCount}/${todayHabits.length}`} />
 
-      {/* 습관 목록 */}
-      <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
-        {todayHabits.map((h, idx) => {
+      {/* 습관 목록 — 오렌지 컬러 바 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 16px' }}>
+        {todayHabits.map((h) => {
           const isDone = habitChecked.has(h.id);
           return (
-            <div
-              key={h.id}
-              onClick={() => onToggle(h.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '14px 16px',
-                borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none',
-                cursor: 'pointer',
-                background: isDone ? 'rgba(197,255,0,.08)' : 'transparent',
-                transition: 'background .18s',
-              }}
-            >
-              {/* 체크박스 */}
-              <div style={{
-                width: 22, height: 22, borderRadius: 6,
-                border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`,
-                background: isDone ? '#C5FF00' : '#fff',
-                flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'all .2s',
-              }}>
-                {isDone && (
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                )}
+            <div key={h.id} onClick={() => onToggle(h.id)}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 16, background: isDone ? 'rgba(245,166,35,0.55)' : '#F5A623', cursor: 'pointer', transition: 'background .18s' }}>
+              {/* 동그라미 체크 */}
+              <div style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.85)', background: isDone ? '#fff' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F5A623" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
               </div>
-              {/* 이모지 아이콘 */}
-              <span style={{ fontSize: 18, lineHeight: 1, width: 24, textAlign: 'center', flexShrink: 0 }}>
-                {h.icon || '✦'}
-              </span>
-              {/* 시간 (앞에 고정, allday 제외) */}
+              {/* 아이콘 */}
+              <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '✦'}</span>
+              {/* 시간 */}
               {h.time && h.repeatType !== 'allday' && (
-                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: isDone ? '#C5C6CA' : '#44474A', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
-                  {h.alarm ? '🔔' : ''}{h.time}
+                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
+                  {h.time}
                 </span>
               )}
-              {/* 습관 이름 */}
-              <span style={{
-                fontFamily: f, fontSize: 15, fontWeight: 400,
-                color: isDone ? '#9A9490' : '#0C0C0A',
-                textDecoration: isDone ? 'line-through' : 'none',
-                transition: 'all .18s', flex: 1, minWidth: 0,
-              }}>
+              {/* 이름 */}
+              <span style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#fff', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0, opacity: isDone ? 0.7 : 1 }}>
                 {h.name}
               </span>
             </div>
           );
         })}
-        {/* 카드 안쪽 하단 오른쪽 List → */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 16px 12px', borderTop: '1px solid rgba(12,12,10,.05)' }}>
-          <Link href="/setup#tracker" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
-            List →
-          </Link>
+        {/* List → */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
+          <Link href="/setup#tracker" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
         </div>
       </div>
     </div>
@@ -2249,44 +2217,30 @@ export default function TodayPage() {
 
           if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0) return null;
 
-          const MedItem = ({ m, slot }: { m: typeof activeMeds[0]; slot: 'am' | 'pm' | 'ev' }) => {
+          const allVisMeds = [...visAm, ...visPm, ...visEv];
+          const MedBar = ({ m, slot }: { m: typeof activeMeds[0]; slot: 'am' | 'pm' | 'ev' }) => {
             const isDone = medChecked.has(m.id);
             return (
               <div onClick={() => handleToggleMed(m.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 16px', borderTop: '1px solid rgba(12,12,10,.05)', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.06)' : 'transparent', transition: 'background .18s' }}>
-                <div style={{ width: 20, height: 20, borderRadius: 5, border: `1.5px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.25)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                  {isDone && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 16, background: isDone ? 'rgba(74,134,232,0.55)' : '#4A86E8', cursor: 'pointer', transition: 'background .18s' }}>
+                <div style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.85)', background: isDone ? '#fff' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                  {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4A86E8" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </div>
-                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 700, color: isDone ? '#C5C6CA' : '#44474A', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{slotTime(m, slot)}</span>
-                <span style={{ fontFamily: fMed, fontSize: 14, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
-              </div>
-            );
-          };
-
-          const MedGroup = ({ slot, items }: { slot: 'am' | 'pm' | 'ev'; items: typeof activeMeds }) => {
-            if (items.length === 0) return null;
-            return (
-              <div>
-                {items.map((m, i) => <MedItem key={m.id} m={m} slot={slot} />)}
+                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{slotTime(m, slot)}</span>
+                <span style={{ fontFamily: fMed, fontSize: 15, fontWeight: 700, color: '#fff', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, opacity: isDone ? 0.7 : 1 }}>{m.name}</span>
               </div>
             );
           };
 
           return (
             <>
-              <SectionHeader title="#Medication" barColor="#4A7DE8" textColor="#FFFFFF" />
-              <div style={{ margin: '4px 16px 8px' }}>
-                <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
-                  <MedGroup slot="am" items={visAm} />
-                  <MedGroup slot="pm" items={visPm} />
-                  <MedGroup slot="ev" items={visEv} />
-
-                  {/* 카드 안쪽 하단 오른쪽 List → */}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 16px 12px', borderTop: '1px solid rgba(12,12,10,.05)' }}>
-                    <Link href="/setup#medication" style={{ fontFamily: fMed, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
-                      List →
-                    </Link>
-                  </div>
+              <SectionHeader title="#Medication" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 16px' }}>
+                {visAm.map(m => <MedBar key={m.id} m={m} slot="am" />)}
+                {visPm.map(m => <MedBar key={m.id} m={m} slot="pm" />)}
+                {visEv.map(m => <MedBar key={m.id} m={m} slot="ev" />)}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
+                  <Link href="/setup#medication" style={{ fontFamily: fMed, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
                 </div>
               </div>
             </>
@@ -2442,38 +2396,35 @@ export default function TodayPage() {
           };
           return (
           <div>
-            <SectionHeader title="#Health" action={`${visHealth.length}개`} barColor="#E94F6B" textColor="#FFFFFF" />
-            <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
-              {visHealth.map((h, idx) => {
+            <SectionHeader title="#Health" action={`${visHealth.length}개`} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 16px' }}>
+              {visHealth.map((h) => {
                 const isDone = healthChecked.has(h.id);
                 const pt = primaryTime(h);
                 return (
                   <div key={h.id} onClick={() => handleToggleHealth(h.id)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
-                    {/* 체크박스 */}
-                    <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                      {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 16, background: isDone ? 'rgba(76,175,80,0.55)' : '#4CAF50', cursor: 'pointer', transition: 'background .18s' }}>
+                    {/* 동그라미 체크 */}
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.85)', background: isDone ? '#fff' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                      {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                     </div>
                     {/* 아이콘 */}
-                    <span style={{ fontSize: 18, lineHeight: 1, width: 24, textAlign: 'center', flexShrink: 0 }}>{h.icon || '🥗'}</span>
-                    {/* 시간 (앞에 고정) */}
+                    <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '🥗'}</span>
+                    {/* 시간 */}
                     {pt && (
-                      <span style={{ fontFamily: fH, fontSize: 13, fontWeight: 700, color: isDone ? '#C5C6CA' : '#44474A', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
-                        {h.alarm ? '🔔' : ''}{pt}
+                      <span style={{ fontFamily: fH, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
+                        {pt}
                       </span>
                     )}
                     {/* 이름 */}
-                    <span style={{ fontFamily: fH, fontSize: 15, fontWeight: 400, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', transition: 'all .18s', flex: 1, minWidth: 0 }}>
+                    <span style={{ fontFamily: fH, fontSize: 15, fontWeight: 700, color: '#fff', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0, opacity: isDone ? 0.7 : 1 }}>
                       {h.name}
                     </span>
                   </div>
                 );
               })}
-              {/* 카드 안쪽 하단 오른쪽 List → */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 16px 12px', borderTop: '1px solid rgba(12,12,10,.05)' }}>
-                <Link href="/setup#health" style={{ fontFamily: fH, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
-                  List →
-                </Link>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
+                <Link href="/setup#health" style={{ fontFamily: fH, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
               </div>
             </div>
           </div>
