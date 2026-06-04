@@ -2616,10 +2616,12 @@ function MedView({
         {/* DAILY MEDS — showInToday=true 약 미리보기 (Today 카드 스타일) */}
         {items.some(m => m.showInToday) && (() => {
           const todayMeds   = items.filter(m => m.showInToday);
-          const morningMeds = todayMeds.filter(m => (m.times ?? []).some(t => t === 'morning' || t === 'lunch'));
-          const nightMeds   = todayMeds.filter(m => (m.times ?? []).some(t => t === 'evening' || t === 'bedtime'));
-          const ungrouped   = todayMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
-          const nightAll    = [...nightMeds, ...ungrouped];
+          // 아침(파랑) 04-12 · 점심(오렌지) 12-18 · 저녁(핑크) 18-04
+          const amMeds  = todayMeds.filter(m => (m.times ?? []).includes('morning'));
+          const pmMeds  = todayMeds.filter(m => (m.times ?? []).includes('lunch'));
+          const evMeds  = todayMeds.filter(m => (m.times ?? []).some(t => t === 'evening' || t === 'bedtime'));
+          const orphan  = todayMeds.filter(m => !amMeds.includes(m) && !pmMeds.includes(m) && !evMeds.includes(m));
+          const evAll   = [...evMeds, ...orphan];
           const now         = new Date();
 
           const getTime = (m: MedRoutine) => {
@@ -2664,25 +2666,19 @@ function MedView({
                   </span>
                 </div>
 
-                {/* Morning 그룹 */}
-                {morningMeds.length > 0 && (
-                  <div>
+                {/* 아침(파랑) / 점심(오렌지) / 저녁(핑크) 3구간 */}
+                {([
+                  { label: '아침', col: '#6B7CE8', meds: amMeds },
+                  { label: '점심', col: '#E8A86B', meds: pmMeds },
+                  { label: '저녁', col: '#E86BAA', meds: evAll },
+                ] as const).map(g => g.meds.length > 0 && (
+                  <div key={g.label}>
                     <div style={{ padding: '7px 14px 5px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
-                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color: '#6B7CE8' }}>·+ +°.Morning°·++·° *</span>
+                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color: g.col }}>·+ +°.{g.label}°·++·° *</span>
                     </div>
-                    {morningMeds.map(m => <PreviewRow key={m.id} m={m} />)}
+                    {g.meds.map(m => <PreviewRow key={m.id} m={m} />)}
                   </div>
-                )}
-
-                {/* Night 그룹 */}
-                {nightAll.length > 0 && (
-                  <div>
-                    <div style={{ padding: '7px 14px 5px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
-                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color: '#E86BAA' }}>·+ +°.Night°·++·° *</span>
-                    </div>
-                    {nightAll.map(m => <PreviewRow key={m.id} m={m} />)}
-                  </div>
-                )}
+                ))}
               </div>
             </div>
           );

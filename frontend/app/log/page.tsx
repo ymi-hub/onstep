@@ -703,37 +703,37 @@ function DayDetail({
           const first = (m.times ?? [])[0];
           return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
         };
-        const morningMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'morning' || t === 'lunch'));
-        const nightMeds   = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
-        const ungrouped   = activeMeds.filter(m => !morningMeds.includes(m) && !nightMeds.includes(m));
-        const nightAll    = [...nightMeds, ...ungrouped];
-        const MedRow = ({ m }: { m: import('@/types/medication').MedRoutine }) => {
+        // 아침(파랑) 04-12 · 점심(오렌지) 12-18 · 저녁(핑크) 18-04
+        const amMeds  = activeMeds.filter(m => (m.times ?? []).includes('morning'));
+        const pmMeds  = activeMeds.filter(m => (m.times ?? []).includes('lunch'));
+        const evMeds  = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
+        const orphan  = activeMeds.filter(m => !amMeds.includes(m) && !pmMeds.includes(m) && !evMeds.includes(m));
+        const evAll   = [...evMeds, ...orphan];
+        const MedRow = ({ m, col }: { m: import('@/types/medication').MedRoutine; col: string }) => {
           const done = medChecked.has(m.id);
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
               <div style={{ width: 14, height: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {done ? <CatBadge color="#C5FF00" size={14} /> : <span style={{ fontSize: 9, color: 'rgba(12,12,10,.3)' }}>○</span>}
               </div>
-              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{getTime(m)}</span>
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? col : '#44474A', width: 36, flexShrink: 0 }}>{getTime(m)}</span>
               <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
             </div>
           );
         };
+        const MedGroup = ({ label, col, meds }: { label: string; col: string; meds: import('@/types/medication').MedRoutine[] }) =>
+          meds.length === 0 ? null : (
+            <div style={{ marginBottom: 6 }}>
+              <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: col, letterSpacing: '.04em', marginBottom: 3 }}>·+ +°.{label}°·++·° *</div>
+              {meds.map(m => <MedRow key={m.id} m={m} col={col} />)}
+            </div>
+          );
         return (
           <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
             <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>💊 약 루틴</div>
-            {morningMeds.length > 0 && (
-              <div style={{ marginBottom: nightAll.length > 0 ? 8 : 0 }}>
-                <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#6B7CE8', letterSpacing: '.04em', marginBottom: 4 }}>·+ +°.Morning°·++·° *</div>
-                {morningMeds.map(m => <MedRow key={m.id} m={m} />)}
-              </div>
-            )}
-            {nightAll.length > 0 && (
-              <div>
-                <div style={{ fontFamily: "'Courier New',monospace", fontSize: 9, color: '#E86BAA', letterSpacing: '.04em', marginBottom: 4 }}>·+ +°.Night°·++·° *</div>
-                {nightAll.map(m => <MedRow key={m.id} m={m} />)}
-              </div>
-            )}
+            <MedGroup label="아침" col="#6B7CE8" meds={amMeds} />
+            <MedGroup label="점심" col="#E8A86B" meds={pmMeds} />
+            <MedGroup label="저녁" col="#E86BAA" meds={evAll} />
           </div>
         );
       })()}
@@ -2650,13 +2650,14 @@ function LogPageInner() {
                           return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
                         };
                         // 오전 / 오후 / 저녁 3구간으로 분리
-                        const amMeds = activeMeds.filter(m => (m.times ?? []).includes('morning'));
-                        const pmMeds = activeMeds.filter(m => (m.times ?? []).includes('lunch'));
-                        const evMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
+                        const amMeds  = activeMeds.filter(m => (m.times ?? []).includes('morning'));
+                        const pmMeds  = activeMeds.filter(m => (m.times ?? []).includes('lunch'));
+                        const evMeds  = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
+                        const orphanM = activeMeds.filter(m => !amMeds.includes(m) && !pmMeds.includes(m) && !evMeds.includes(m));
                         const groups = [
                           { label: '아침', color: '#6B7CE8', meds: amMeds },
                           { label: '점심', color: '#E8A86B', meds: pmMeds },
-                          { label: '저녁', color: '#E86BAA', meds: evMeds },
+                          { label: '저녁', color: '#E86BAA', meds: [...evMeds, ...orphanM] },
                         ].filter(g => g.meds.length > 0);
                         const MedRow = ({ m }: { m: typeof activeMeds[0] }) => {
                           const done = doneSet.has(m.id);

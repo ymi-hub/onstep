@@ -2217,13 +2217,16 @@ export default function TodayPage() {
           if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0 && orphanChecked.length === 0) return null;
 
           const allVisMeds = [...visAm, ...visPm, ...visEv];
+          // 슬롯별 색상: 아침(파랑) · 점심(오렌지) · 저녁(핑크)
+          const slotColor = (s: 'am' | 'pm' | 'ev') => s === 'am' ? '#6B7CE8' : s === 'pm' ? '#E8A86B' : '#E86BAA';
           const MedBar = ({ m, slot }: { m: typeof activeMeds[0]; slot: 'am' | 'pm' | 'ev' }) => {
             const isDone = medChecked.has(m.id);
+            const col = slotColor(slot);
             return (
               <div onClick={() => handleToggleMed(m.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: isDone ? 'rgba(74,134,232,0.55)' : '#4A86E8', cursor: 'pointer', transition: 'background .18s' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: isDone ? `${col}88` : col, cursor: 'pointer', transition: 'background .18s' }}>
                 <div style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.85)', background: isDone ? '#fff' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                  {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4A86E8" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                  {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={col} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </div>
                 <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{slotTime(m, slot)}</span>
                 <span style={{ fontFamily: fMed, fontSize: 14, fontWeight: 700, color: '#fff', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, opacity: isDone ? 0.7 : 1 }}>{m.name}</span>
