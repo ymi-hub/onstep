@@ -1418,14 +1418,7 @@ export default function BoxPage() {
                 return (
                   <button
                     key={p.id}
-                    onClick={() => {
-                      // 해당 제품의 도메인 탭으로 이동 + 편집 오픈
-                      setActiveTab(p.domain ?? 'beauty');
-                      setTimeout(() => {
-                        const el = document.getElementById(`product-${p.id}`);
-                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }, 100);
-                    }}
+                    onClick={() => openEdit(p)}
                     style={{
                       flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
                       padding: '8px 12px', borderRadius: 10, border: `1.5px solid ${color}20`,
