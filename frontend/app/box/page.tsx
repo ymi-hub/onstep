@@ -2103,6 +2103,7 @@ function AddProductPage({
 }) {
   const isEditing = !!editingProduct;
   const isNameEmpty = !form.name.trim();
+  const [saveAttempted, setSaveAttempted] = useState(false);
 
   // 소진 예측 계산
   // 기준 잔량: 편집 모드는 현재 잔량, 신규 등록은 총 용량
@@ -2215,11 +2216,29 @@ function AddProductPage({
                   <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490' }}>*필수</div>
                 </div>
                 <input
+                  id="add-product-name"
                   value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="제품명"
-                  style={{ ...underlineInputStyle, fontSize: 18, borderBottomColor: isNameEmpty ? '#C5C6CA' : '#6B7280' }}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, name: e.target.value }));
+                    if (saveAttempted && e.target.value.trim()) setSaveAttempted(false);
+                  }}
+                  placeholder="제품명을 입력하세요"
+                  style={{
+                    ...underlineInputStyle, fontSize: 18,
+                    borderBottomColor: saveAttempted && isNameEmpty ? '#E94F6B' : isNameEmpty ? '#C5C6CA' : '#6B7280',
+                    borderBottomWidth: saveAttempted && isNameEmpty ? 2 : 1,
+                  }}
                 />
+                {saveAttempted && isNameEmpty && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 6 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#E94F6B" strokeWidth="2.5" strokeLinecap="round">
+                      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#E94F6B' }}>
+                      제품명은 필수 항목입니다
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* 브랜드 + 구매처 */}
@@ -2665,18 +2684,6 @@ function AddProductPage({
             />
           </div>
 
-          {/* ── 제품명 미입력 안내 ── */}
-          {isNameEmpty && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 14px', background: 'rgba(233,79,107,.06)', borderRadius: 10, border: '1px solid rgba(233,79,107,.2)' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E94F6B" strokeWidth="2.5" strokeLinecap="round">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-              <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#E94F6B' }}>
-                제품명을 입력해야 저장할 수 있어요
-              </span>
-            </div>
-          )}
-
           {/* ── 취소 / 저장 ── */}
           <div style={{ display: 'flex', gap: 8 }}>
             <button
@@ -2686,14 +2693,24 @@ function AddProductPage({
               취소
             </button>
             <button
-              onClick={onSave}
-              disabled={saving || isNameEmpty}
+              onClick={() => {
+                if (isNameEmpty) {
+                  setSaveAttempted(true);
+                  // 제품명 입력란으로 스크롤
+                  document.getElementById('add-product-name')?.focus();
+                  document.getElementById('add-product-name')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  return;
+                }
+                onSave();
+              }}
+              disabled={saving}
               style={{
                 flex: 1, height: 52,
-                background: isNameEmpty ? '#D8D6CF' : '#0C0C0A',
+                background: '#0C0C0A',
                 color: '#fff', border: 'none', borderRadius: 12,
                 fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-                fontSize: 15, fontWeight: 700, cursor: isNameEmpty ? 'default' : 'pointer',
+                fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                opacity: saving ? 0.5 : 1,
               }}
             >
               {saving ? '저장 중...' : '저장'}
