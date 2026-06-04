@@ -3164,23 +3164,32 @@ function HealthView({
               <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>{items.filter(i => i.showInToday).length}개</span>
             </div>
             <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-              {items.filter(i => i.showInToday).map((item, idx) => (
-                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', background: '#FAFAF8' }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
-                    {item.icon}
+              {items.filter(i => i.showInToday).map((item, idx) => {
+                // 시간 표시: entries의 time 목록, 없으면 item.time
+                const timedEntries = (item.entries ?? []).filter(e => e.time && e.time.includes(':'));
+                const timeStr = timedEntries.length > 0
+                  ? timedEntries.map(e => e.time).sort().join(' · ')
+                  : (item.time && item.time.includes(':') ? item.time : '');
+                return (
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', background: '#FAFAF8' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+                      {item.icon}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
+                      {timeStr ? (
+                        <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4CAF50', marginTop: 2 }}>{timeStr}</div>
+                      ) : item.entries?.length ? (
+                        <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>{item.entries.length}개 일정</div>
+                      ) : null}
+                    </div>
+                    <button onClick={() => onToggleToday(item.id, true)}
+                      style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const, flexShrink: 0 }}>
+                      Today ON
+                    </button>
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
-                    {item.entries?.length ? (
-                      <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>{item.entries.length}개 일정</div>
-                    ) : null}
-                  </div>
-                  <button onClick={() => onToggleToday(item.id, true)}
-                    style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const, flexShrink: 0 }}>
-                    Today ON
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
