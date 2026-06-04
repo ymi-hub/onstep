@@ -2415,8 +2415,16 @@ function AddProductPage({
                       <input
                         type="number"
                         min={0}
-                        value={isCountMode && !isEditing && form.currentRemaining === 0 ? totalAmount : form.currentRemaining}
-                        onChange={(e) => setForm((f) => ({ ...f, currentRemaining: Math.max(0, Number(e.target.value)) }))}
+                        value={
+                          isCountMode && !isEditing && form.currentRemaining === 0
+                            ? totalAmount
+                            : form.currentRemaining || ''
+                        }
+                        onChange={(e) => {
+                          const n = parseFloat(e.target.value);
+                          setForm((f) => ({ ...f, currentRemaining: isNaN(n) ? 0 : Math.max(0, n) }));
+                        }}
+                        onBlur={() => setForm((f) => ({ ...f, currentRemaining: f.currentRemaining || 0 }))}
                         style={{ ...countInputStyle, textAlign: 'left', fontSize: 22, width: 80 }}
                       />
                       <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>
