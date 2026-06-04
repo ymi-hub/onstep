@@ -684,7 +684,7 @@ function TodayHabitSection({
   return (
     <div>
       {/* 섹션 헤더 */}
-      <SectionHeader title="#Habits" action={`${doneCount}/${todayHabits.length}`} />
+      <SectionHeader title="#Habits" action={`${doneCount}/${todayHabits.length}`} barColor="#C5FF00" textColor="#0C0C0A" />
 
       {/* 습관 목록 */}
       <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
@@ -2274,7 +2274,7 @@ export default function TodayPage() {
 
           return (
             <>
-              <SectionHeader title="#Medication" />
+              <SectionHeader title="#Medication" barColor="#4A7DE8" textColor="#FFFFFF" />
               <div style={{ margin: '4px 16px 8px' }}>
                 <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
                   <MedGroup slot="am" items={visAm} />
@@ -2442,7 +2442,7 @@ export default function TodayPage() {
           };
           return (
           <div>
-            <SectionHeader title="#Health" action={`${visHealth.length}개`} />
+            <SectionHeader title="#Health" action={`${visHealth.length}개`} barColor="#E94F6B" textColor="#FFFFFF" />
             <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
               {visHealth.map((h, idx) => {
                 const isDone = healthChecked.has(h.id);
