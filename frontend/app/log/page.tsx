@@ -510,6 +510,8 @@ function DayDetail({
   medChecked,
   healthChecked,
   dietChecked,
+  onToggleMorning,
+  onToggleEvening,
 }: {
   dateStr: string;
   dayLog: DayLog | undefined;
@@ -524,6 +526,8 @@ function DayDetail({
   medChecked: Set<string>;
   healthChecked: Set<string>;
   dietChecked: Set<string>;
+  onToggleMorning?: () => void;
+  onToggleEvening?: () => void;
 }) {
   const dateLabel = format(parseISO(dateStr), 'M월 d일 (EEE)', { locale: ko });
 
@@ -726,6 +730,44 @@ function DayDetail({
               </span>
             ) : '기록 없음'}
           </div>
+
+          {/* 수동 완료 토글 버튼 */}
+          {(onToggleMorning || onToggleEvening) && (
+            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+              {onToggleMorning && (
+                <button
+                  onClick={onToggleMorning}
+                  style={{
+                    height: 28, padding: '0 12px', borderRadius: 9999,
+                    border: `1.5px solid ${dayLog?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.2)'}`,
+                    background: dayLog?.hasMorning ? '#C5FF00' : 'transparent',
+                    fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                    fontSize: 11, fontWeight: 700,
+                    color: dayLog?.hasMorning ? '#2D5200' : '#9A9490',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {dayLog?.hasMorning ? '☀ 아침 취소' : '+ 아침 완료'}
+                </button>
+              )}
+              {onToggleEvening && (
+                <button
+                  onClick={onToggleEvening}
+                  style={{
+                    height: 28, padding: '0 12px', borderRadius: 9999,
+                    border: `1.5px solid ${dayLog?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.2)'}`,
+                    background: dayLog?.hasEvening ? '#f7bc45' : 'transparent',
+                    fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                    fontSize: 11, fontWeight: 700,
+                    color: dayLog?.hasEvening ? '#7A4F00' : '#9A9490',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {dayLog?.hasEvening ? '🌙 저녁 취소' : '+ 저녁 완료'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 닫기 버튼 */}
@@ -2112,31 +2154,40 @@ function LogPageInner() {
     await deleteDoc(doc(db, 'users', userId, filter === 'makeup' ? 'makeupItems' : 'lookItems', id));
   }
 
-  // ── 아침/저녁 태그 토글 — usageLog 직접 추가/삭제 ──
-  async function handleToggleMorning() {
+  // ── 아침/저녁 수동 완료 토글 — 날짜 지정 버전 ──
+  async function handleToggleMorningForDate(dateStr: string) {
     const _db = db;
     if (!_db || !user) return;
-    const todayStr = format(new Date(), 'yyyy-MM-dd');
-    const todayLog = dayLogs.get(todayStr);
-    if (todayLog?.hasMorning) {
-      const entries = todayLog.entries.filter(e => e.timeSlot === 'morning');
+    const dayLog = dayLogs.get(dateStr);
+    if (dayLog?.hasMorning) {
+      const entries = dayLog.entries.filter(e => e.timeSlot === 'morning');
       await Promise.all(entries.map(e => deleteDoc(doc(_db, 'users', userId, 'usageLogs', e.id))));
     } else {
-      await addDoc(collection(_db, 'users', userId, 'usageLogs'), { timeSlot: 'morning', dateStr: todayStr, loggedAt: new Date().toISOString(), type: 'manual' });
+      await addDoc(collection(_db, 'users', userId, 'usageLogs'), {
+        timeSlot: 'morning', dateStr,
+        loggedAt: new Date(dateStr + 'T09:00:00').toISOString(),
+        type: 'manual',
+      });
     }
   }
-  async function handleToggleEvening() {
+  async function handleToggleEveningForDate(dateStr: string) {
     const _db = db;
     if (!_db || !user) return;
-    const todayStr = format(new Date(), 'yyyy-MM-dd');
-    const todayLog = dayLogs.get(todayStr);
-    if (todayLog?.hasEvening) {
-      const entries = todayLog.entries.filter(e => e.timeSlot === 'evening');
+    const dayLog = dayLogs.get(dateStr);
+    if (dayLog?.hasEvening) {
+      const entries = dayLog.entries.filter(e => e.timeSlot === 'evening');
       await Promise.all(entries.map(e => deleteDoc(doc(_db, 'users', userId, 'usageLogs', e.id))));
     } else {
-      await addDoc(collection(_db, 'users', userId, 'usageLogs'), { timeSlot: 'evening', dateStr: todayStr, loggedAt: new Date().toISOString(), type: 'manual' });
+      await addDoc(collection(_db, 'users', userId, 'usageLogs'), {
+        timeSlot: 'evening', dateStr,
+        loggedAt: new Date(dateStr + 'T21:00:00').toISOString(),
+        type: 'manual',
+      });
     }
   }
+  // 오늘 날짜용 래퍼 (MonthCalendar 기존 props 호환)
+  async function handleToggleMorning() { return handleToggleMorningForDate(format(new Date(), 'yyyy-MM-dd')); }
+  async function handleToggleEvening() { return handleToggleEveningForDate(format(new Date(), 'yyyy-MM-dd')); }
 
   // Today 즉시 적용/해제 — Firestore 업데이트 → AppContext onSnapshot 자동 반영
   async function handleToggleToday(item: CtItem) {
@@ -2549,6 +2600,8 @@ function LogPageInner() {
                 dateStr={selectedDate} dayLog={selectedDayLog} products={products} sessions={sessions}
                 makeupItems={makeupItems} lookItems={lookItems}
                 onClose={() => setSelectedDate(null)}
+                onToggleMorning={() => handleToggleMorningForDate(selectedDate)}
+                onToggleEvening={() => handleToggleEveningForDate(selectedDate)}
                 medRoutines={medRoutines}
                 healthRoutines={healthRoutines}
                 dietPrograms={dietPrograms}
