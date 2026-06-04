@@ -38,7 +38,7 @@ import ImagePicker from '@/components/ImagePicker';
 // ─── BOX 설정 타입 ────────────────────────────────────────────────────────────
 type SubTypeConfig = { id: string; label: string; cats: string[] };
 type DomainConfig  = { id: string; label: string; subTypes?: SubTypeConfig[]; cats?: string[] };
-type BoxConfig     = { domains: DomainConfig[] };
+type BoxConfig     = { domains: DomainConfig[]; storageLocations?: string[] };
 
 // 최초 접속 시 사용할 기본 설정값
 const DEFAULT_BOX_CONFIG: BoxConfig = {
@@ -1730,6 +1730,7 @@ export default function BoxPage() {
         saving={saving}
         editingProduct={editingProduct}
         boxConfig={boxConfig}
+        onSaveBoxConfig={saveBoxConfig}
         onDelete={editingProduct ? () => { handleDelete(editingProduct.id); setIsAddOpen(false); setEditingProduct(null); } : undefined}
         onOpenCatEditor={() => setManageOpen(true)}
       />
@@ -2093,6 +2094,7 @@ function AddProductPage({
   saving,
   editingProduct,
   boxConfig,
+  onSaveBoxConfig,
   onDelete,
   onOpenCatEditor,
 }: {
@@ -2105,12 +2107,15 @@ function AddProductPage({
   saving: boolean;
   editingProduct: Product | null;
   boxConfig: BoxConfig;
+  onSaveBoxConfig: (config: BoxConfig) => Promise<void>;
   onDelete?: () => void;
   onOpenCatEditor?: () => void;
 }) {
   const isEditing = !!editingProduct;
   const isNameEmpty = !form.name.trim();
   const [saveAttempted, setSaveAttempted] = useState(false);
+  const [addingLoc, setAddingLoc] = useState(false);
+  const [newLocName, setNewLocName] = useState('');
 
   // 소진 예측 계산
   // 기준 잔량: 편집 모드는 현재 잔량, 신규 등록은 총 용량
@@ -2680,74 +2685,99 @@ function AddProductPage({
               </div>
           </div>}
 
-          {/* ── Storage View — 보관 위치 이미지 + 장소 ── */}
-          <div>
-            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 22, fontWeight: 400, letterSpacing: '-0.02em', color: '#1A1C1C', marginBottom: 12 }}>
-              Storage View
-            </div>
-            <div style={{ borderTop: '1px solid #C5C6CA', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* ── Storage View — 보관 위치 이미지 + 장소 태그 ── */}
+          {(() => {
+            const f2 = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+            const locs: string[] = boxConfig.storageLocations ?? ['안방 화장대', '욕실 선반'];
 
-              {/* 보관 장소 이미지 */}
-              <div
-                style={{ border: '1px solid #C5C6CA', background: '#F9F9F9', overflow: 'hidden', cursor: 'pointer', borderRadius: 4 }}
-                onClick={() => {
-                  const input = document.createElement('input');
-                  input.type = 'file';
-                  input.accept = 'image/*';
-                  input.onchange = async (e) => {
-                    const file = (e.target as HTMLInputElement).files?.[0];
-                    if (!file) return;
-                    const { imageFileToBase64 } = await import('@/lib/imageUtils');
-                    const b64 = await imageFileToBase64(file);
-                    setForm(f => ({ ...f, storageImagePreview: b64 }));
-                  };
-                  input.click();
-                }}
-              >
-                {/* 이미지 영역 192px */}
-                <div style={{ width: '100%', height: 192, background: '#DADADA', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                  {(form.storageImagePreview || form.storageImageUrl) ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={form.storageImagePreview || form.storageImageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                      <svg width="28" height="25" viewBox="0 0 24 24" fill="#44474A"><path d="M20 5h-2.83L15 3H9L6.83 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
-                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#6B7280' }}>ADD STORAGE PHOTO</div>
-                    </div>
-                  )}
-                  {(form.storageImagePreview || form.storageImageUrl) && (
-                    <button
-                      onClick={e => { e.stopPropagation(); setForm(f => ({ ...f, storageImagePreview: '', storageImageUrl: '' })); }}
-                      style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 9999, background: 'rgba(0,0,0,.5)', border: 'none', color: '#fff', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    >×</button>
-                  )}
+            async function addLocation() {
+              if (!newLocName.trim()) return;
+              const updated = { ...boxConfig, storageLocations: [...locs, newLocName.trim()] };
+              await onSaveBoxConfig(updated);
+              setForm(f => ({ ...f, boxLocation: newLocName.trim() }));
+              setNewLocName('');
+              setAddingLoc(false);
+            }
+
+            async function removeLocation(loc: string) {
+              const updated = { ...boxConfig, storageLocations: locs.filter(l => l !== loc) };
+              await onSaveBoxConfig(updated);
+              if (form.boxLocation === loc) setForm(f => ({ ...f, boxLocation: '' }));
+            }
+
+            return (
+              <div>
+                <div style={{ fontFamily: f2, fontSize: 22, fontWeight: 400, letterSpacing: '-0.02em', color: '#1A1C1C', marginBottom: 12 }}>
+                  Storage View
                 </div>
-                {/* 위치 정보 행 */}
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: 16, gap: 16 }}>
-                  <svg width="18" height="22" viewBox="0 0 24 24" fill="#44474A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: '0.6px', textTransform: 'uppercase' as const, color: '#44474A' }}>
-                      CURRENT LOCATION <span style={{ fontSize: 11, fontWeight: 600, color: '#44474A', opacity: .7, textTransform: 'lowercase' as const, letterSpacing: '.02em' }}>현재 위치</span>
+                <div style={{ borderTop: '1px solid #C5C6CA', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+                  {/* 보관 장소 이미지 — ImagePicker 컴포넌트 (클립보드 지원) */}
+                  <div style={{ border: '1px solid #C5C6CA', background: '#F9F9F9', borderRadius: 4, overflow: 'hidden' }}>
+                    <ImagePicker
+                      preview={form.storageImagePreview || form.storageImageUrl}
+                      onChange={(_, b64) => setForm(f => ({ ...f, storageImagePreview: b64 }))}
+                      onClear={() => setForm(f => ({ ...f, storageImagePreview: '', storageImageUrl: '' }))}
+                      height={192}
+                      placeholderLabel="ADD STORAGE PHOTO"
+                      isOpen={isOpen}
+                    />
+                    {/* 위치 정보 행 */}
+                    <div style={{ display: 'flex', alignItems: 'center', padding: 14, gap: 12, borderTop: '1px solid #E5E5E5' }}>
+                      <svg width="16" height="20" viewBox="0 0 24 24" fill="#44474A" style={{ flexShrink: 0 }}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                      <div>
+                        <div style={{ fontFamily: f2, fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, color: '#9CA3AF', marginBottom: 2 }}>CURRENT LOCATION</div>
+                        <div style={{ fontFamily: f2, fontSize: 15, color: form.boxLocation.trim() ? '#1A1C1C' : '#9CA3AF' }}>
+                          {form.boxLocation.trim() || '위치를 선택하세요'}
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 400, color: form.boxLocation.trim() ? '#1A1C1C' : '#9CA3AF' }}>
-                      {form.boxLocation.trim() || '위치를 입력하세요'}
+                  </div>
+
+                  {/* 위치 태그 칩 */}
+                  <div>
+                    <div style={{ fontFamily: f2, fontSize: 12, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase' as const, color: '#44474A', marginBottom: 10 }}>보관 위치</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, marginBottom: 8 }}>
+                      {locs.map(loc => (
+                        <div key={loc} style={{ display: 'flex', alignItems: 'center', gap: 0, borderRadius: 9999, border: `1.5px solid ${form.boxLocation === loc ? '#0C0C0A' : 'rgba(12,12,10,.18)'}`, background: form.boxLocation === loc ? '#0C0C0A' : 'transparent', overflow: 'hidden' }}>
+                          <button
+                            onClick={() => setForm(f => ({ ...f, boxLocation: f.boxLocation === loc ? '' : loc }))}
+                            style={{ padding: '6px 12px 6px 14px', background: 'none', border: 'none', fontFamily: f2, fontSize: 11, fontWeight: 700, color: form.boxLocation === loc ? '#fff' : '#44474A', cursor: 'pointer', letterSpacing: '.04em' }}
+                          >
+                            {loc}
+                          </button>
+                          <button
+                            onClick={() => removeLocation(loc)}
+                            style={{ padding: '6px 10px 6px 0', background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: form.boxLocation === loc ? 'rgba(255,255,255,.6)' : '#BCBAB6', lineHeight: 1 }}
+                          >×</button>
+                        </div>
+                      ))}
+                      {/* 위치 추가 버튼 */}
+                      {!addingLoc ? (
+                        <button
+                          onClick={() => setAddingLoc(true)}
+                          style={{ padding: '6px 12px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.18)', background: 'transparent', fontFamily: f2, fontSize: 11, fontWeight: 700, color: '#9CA3AF', cursor: 'pointer', letterSpacing: '.04em' }}
+                        >+ 추가</button>
+                      ) : (
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', width: '100%' }}>
+                          <input
+                            autoFocus
+                            value={newLocName}
+                            onChange={e => setNewLocName(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') addLocation(); if (e.key === 'Escape') { setAddingLoc(false); setNewLocName(''); } }}
+                            placeholder="위치 이름 (예: 욕실 선반)"
+                            style={{ flex: 1, height: 36, padding: '0 12px', border: '1.5px solid #0C0C0A', borderRadius: 9999, fontFamily: f2, fontSize: 12, outline: 'none' }}
+                          />
+                          <button onClick={addLocation} style={{ height: 36, padding: '0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: f2, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>저장</button>
+                          <button onClick={() => { setAddingLoc(false); setNewLocName(''); }} style={{ height: 36, padding: '0 10px', background: 'transparent', border: '1px solid rgba(12,12,10,.2)', borderRadius: 9999, fontFamily: f2, fontSize: 12, cursor: 'pointer', color: '#9A9490' }}>취소</button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* 보관 위치 텍스트 입력 */}
-              <div>
-                <div style={labelStyle}>보관 위치</div>
-                <input
-                  value={form.boxLocation}
-                  onChange={e => setForm(f => ({ ...f, boxLocation: e.target.value }))}
-                  placeholder="예: 욕실 선반, 안방 드레스룸"
-                  style={{ ...underlineInputStyle, fontSize: 15 }}
-                />
-              </div>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* ── 취소 / 저장 ── */}
           <div style={{ display: 'flex', gap: 8 }}>
