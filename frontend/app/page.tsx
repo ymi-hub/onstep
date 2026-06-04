@@ -1196,10 +1196,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             {/* 참고 링크 */}
             <SourceLink url={item.sourceUrl} />
 
-            {/* 카드 하단: 편집 버튼 */}
-            <div style={{ display: 'flex', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-              <a href="/setup#care" style={{ flex: 1, display: 'block', padding: '12px 0', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em', textAlign: 'center' as const }}>List →</a>
-              <a href={`/setup#care`} style={{ flex: 1, display: 'block', padding: '12px 0', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', textDecoration: 'none', letterSpacing: '.04em', textAlign: 'center' as const, borderLeft: '1px solid rgba(12,12,10,.06)' }}>편집</a>
+            {/* 카드 하단: List → */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(12,12,10,.06)', padding: '10px 16px 12px' }}>
+              <a href="/setup#care" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</a>
             </div>
           </div>
         ))}
