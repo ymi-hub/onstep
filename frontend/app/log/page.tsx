@@ -344,28 +344,46 @@ function MonthCalendar({
           const log = dayLogs.get(ds);
           const isSelected = selectedDate === ds;
           const today = isToday(day);
-          const hasLog = !!log;
           const bothDone = !!(log?.hasMorning && log?.hasEvening);
-          const anyDone = !!(log?.hasMorning || log?.hasEvening);
+          const medDone = hasMed && (medDayMap.get(ds)?.size ?? 0) > 0;
+          const healthDone = hasHealth && (healthDayMap.get(ds)?.size ?? 0) > 0;
+          const dietDone = hasDiet && (dietDayMap.get(ds)?.size ?? 0) > 0;
 
           return (
             <button
               key={ds}
               onClick={() => onSelectDate(isSelected ? '' : ds)}
               style={{
+                position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 3,
+                gap: 2,
                 padding: '6px 2px',
                 background: isSelected ? '#0C0C0A' : 'transparent',
                 border: today && !isSelected ? '1.5px solid rgba(12,12,10,.2)' : '1.5px solid transparent',
                 borderRadius: 10,
                 cursor: 'pointer',
                 transition: 'background .15s',
+                overflow: 'hidden',
               }}
             >
+              {/* bothDone 도장 오버레이 */}
+              {bothDone && (
+                <span style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: 0.15,
+                  pointerEvents: 'none',
+                }}>
+                  <StampBadge size={38} rotate={-8} full />
+                </span>
+              )}
+
               {/* 날짜 숫자 */}
               <span
                 style={{
@@ -373,22 +391,28 @@ function MonthCalendar({
                   fontSize: 13,
                   fontWeight: isSelected || today ? 800 : 400,
                   color: isSelected ? '#FFFFFF' : today ? '#0C0C0A' : '#4A4846',
+                  position: 'relative',
                 }}
               >
                 {format(day, 'd')}
               </span>
 
-              {/* 아침(라임)·저녁(오렌지) SVG 고양이 */}
-              <div style={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                <span style={{ opacity: log?.hasMorning ? 1 : 0.8 }}><CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={14} /></span>
-                <span style={{ opacity: log?.hasEvening ? 1 : 0.8 }}><CatBadge color={log?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.12)'} size={14} /></span>
+              {/* 아침(라임)·저녁(오렌지) 고양이 */}
+              <div style={{ display: 'flex', gap: 1, alignItems: 'center', position: 'relative' }}>
+                <span style={{ opacity: log?.hasMorning ? 1 : 0.18 }}>
+                  <CatBadge color={log?.hasMorning ? '#C5FF00' : '#0C0C0A'} size={12} />
+                </span>
+                <span style={{ opacity: log?.hasEvening ? 1 : 0.18 }}>
+                  <CatBadge color={log?.hasEvening ? '#f7bc45' : '#0C0C0A'} size={12} />
+                </span>
               </div>
-              {/* 약·건강·식단 이모지 행 — 활성 루틴 흐리게 표시 */}
+
+              {/* 약·건강·식단 이모지 — 완료시 컬러, 미완료시 흐리게 */}
               {(hasMed || hasHealth || hasDiet) && (
-                <div style={{ display: 'flex', gap: 2, alignItems: 'center', marginTop: 1 }}>
-                  {hasMed && <span style={{ fontSize: 9, lineHeight: 1, opacity: 0.7, filter: 'grayscale(1)' }}>💊</span>}
-                  {hasHealth && <span style={{ fontSize: 9, lineHeight: 1, opacity: 0.7, filter: 'grayscale(1)' }}>🏃</span>}
-                  {hasDiet && <span style={{ fontSize: 9, lineHeight: 1, opacity: 0.7, filter: 'grayscale(1)' }}>📋</span>}
+                <div style={{ display: 'flex', gap: 1, alignItems: 'center', position: 'relative' }}>
+                  {hasMed && <span style={{ fontSize: 8, lineHeight: 1, opacity: medDone ? 1 : 0.2, filter: medDone ? 'none' : 'grayscale(1)' }}>💊</span>}
+                  {hasHealth && <span style={{ fontSize: 8, lineHeight: 1, opacity: healthDone ? 1 : 0.2, filter: healthDone ? 'none' : 'grayscale(1)' }}>🏃</span>}
+                  {hasDiet && <span style={{ fontSize: 8, lineHeight: 1, opacity: dietDone ? 1 : 0.2, filter: dietDone ? 'none' : 'grayscale(1)' }}>📋</span>}
                 </div>
               )}
             </button>
