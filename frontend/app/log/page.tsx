@@ -52,6 +52,7 @@ import type { Product } from '@/types/product';
 import type { CtItem } from '@/types/ctitem';
 import PageHeader from '@/components/PageHeader';
 import CatBadge from '@/components/CatBadge';
+import ImagePicker from '@/components/ImagePicker';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -1259,8 +1260,6 @@ function AddItemSheet({
   const [pickerSearch, setPickerSearch] = useState('');
   const [selectedProds, setSelectedProds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
-
   const domainProducts = ctType === 'makeup'
     ? Array.from(products.values()).filter(p => p.domain === 'beauty' && p.subCategory === 'makeup')
     : Array.from(products.values()).filter(p => p.domain === 'fashion' || p.domain === 'acc');
@@ -1268,51 +1267,6 @@ function AddItemSheet({
   const filteredProds = pickerSearch.trim()
     ? domainProducts.filter(p => p.name.toLowerCase().includes(pickerSearch.toLowerCase()))
     : domainProducts;
-
-  // 파일 → Base64 변환 → 미리보기 (Storage 없이 Firestore에 직접 저장)
-  async function applyImageFile(file: File) {
-    try {
-      const base64 = await imageFileToBase64(file);
-      setImgFile(file);
-      setImgPreview(base64);
-    } catch (err) {
-      console.error('[OnStep] imageFileToBase64 실패, FileReader 폴백:', err);
-      if (file.size > 500 * 1024) {
-        alert('이미지 파일이 너무 큽니다. 500KB 이하 파일을 선택해주세요.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = ev => { const r = ev.target?.result; if (typeof r === 'string') { setImgFile(file); setImgPreview(r); } };
-      reader.onerror = () => { alert('이미지를 불러오지 못했습니다. 다른 파일을 선택해주세요.'); };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  function handleImg(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) void applyImageFile(file);
-    e.target.value = '';
-  }
-
-  // ⌘V / Ctrl+V 클립보드 이미지 붙여넣기
-  useEffect(() => {
-    function onPaste(e: ClipboardEvent) {
-      const items = e.clipboardData?.items;
-      if (!items) return;
-      for (const item of Array.from(items)) {
-        if (item.type.startsWith('image/')) {
-          const blob = item.getAsFile();
-          if (blob) {
-            void applyImageFile(new File([blob], 'pasted-image.png', { type: blob.type }));
-            e.preventDefault();
-            break;
-          }
-        }
-      }
-    }
-    document.addEventListener('paste', onPaste);
-    return () => document.removeEventListener('paste', onPaste);
-  }, []);
 
   // 검색어로 제품 없을 때 → BOX에 즉시 등록 후 피커에 추가
   async function registerAndAddProduct(prodName: string) {
@@ -1369,45 +1323,16 @@ function AddItemSheet({
           </div>
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginBottom: 20 }}>등록 후 Library에서 Today 즉시 적용 가능</div>
 
-          {/* 이미지 — 탭(갤러리/카메라) + 클립보드 붙여넣기 */}
-          <div
-            onClick={() => fileRef.current?.click()}
-            style={{ width: '100%', height: 180, background: imgPreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 8, overflow: 'hidden', position: 'relative', backgroundImage: imgPreview ? `url(${imgPreview})` : 'none', backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
-          >
-            {!imgPreview && (
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 6 }}>📷</div>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490' }}>BASELINE 이미지</div>
-                <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 갤러리/카메라 선택</div>
-              </div>
-            )}
-            {imgPreview && (
-              <button onClick={e => { e.stopPropagation(); setImgFile(null); setImgPreview(''); }} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.5)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-            )}
+          {/* 이미지 */}
+          <div style={{ marginBottom: 16 }}>
+            <ImagePicker
+              preview={imgPreview}
+              onChange={(file, base64) => { setImgFile(file); setImgPreview(base64); }}
+              onClear={() => { setImgFile(null); setImgPreview(''); }}
+              height={180}
+              placeholderLabel="BASELINE 이미지"
+            />
           </div>
-          {/* 클립보드 붙여넣기 버튼 — 모바일/PC 공통 */}
-          {!imgPreview && (
-            <button
-              onClick={async () => {
-                try {
-                  const items = await navigator.clipboard.read();
-                  for (const item of items) {
-                    for (const type of item.types) {
-                      if (type.startsWith('image/')) {
-                        const blob = await item.getType(type);
-                        void applyImageFile(new File([blob], 'pasted.png', { type }));
-                        return;
-                      }
-                    }
-                  }
-                  alert('클립보드에 이미지가 없습니다.');
-                } catch { fileRef.current?.click(); }
-              }}
-              style={{ width: '100%', padding: '10px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 16 }}
-            >📋 클립보드에서 붙여넣기</button>
-          )}
-          {imgPreview && <div style={{ marginBottom: 16 }} />}
-          <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImg} />
 
           {/* 이모지 + 이름 */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
@@ -1651,25 +1576,6 @@ function LogCtPanel({
     setPicker(null);
   }
 
-  async function applyImg(file: File) {
-    try {
-      const base64 = await imageFileToBase64(file);
-      setSImageFile(file);
-      setSImagePreview(base64);
-    } catch (err) {
-      console.error('[OnStep] imageFileToBase64 실패, FileReader 폴백:', err);
-      if (file.size > 500 * 1024) {
-        alert('이미지 파일이 너무 큽니다. 500KB 이하 파일을 선택해주세요.');
-        return;
-      }
-      setSImageFile(file);
-      const reader = new FileReader();
-      reader.onload = ev => { const r = ev.target?.result; if (typeof r === 'string') setSImagePreview(r); };
-      reader.onerror = () => { alert('이미지를 불러오지 못했습니다. 다른 파일을 선택해주세요.'); };
-      reader.readAsDataURL(file);
-    }
-  }
-
   // HubCard 스타일 카드 — setup HubView와 동일한 구조
   const BG = filter === 'makeup'
     ? 'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)'
@@ -1774,23 +1680,6 @@ function LogCtPanel({
     );
   }
 
-  const fileRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (!sheetOpen) return;
-    function onPaste(e: ClipboardEvent) {
-      const items = e.clipboardData?.items;
-      if (!items) return;
-      for (const item of Array.from(items)) {
-        if (item.type.startsWith('image/')) {
-          const blob = item.getAsFile();
-          if (blob) { void applyImg(new File([blob], 'pasted.png', { type: blob.type })); e.preventDefault(); break; }
-        }
-      }
-    }
-    document.addEventListener('paste', onPaste);
-    return () => document.removeEventListener('paste', onPaste);
-  }, [sheetOpen]);
-
   return (
     <>
       {/* 카드 목록 — hiddenMode일 때 숨김 (편집 시트만 사용) */}
@@ -1862,39 +1751,16 @@ function LogCtPanel({
                 {sSourceUrl && <button onClick={() => setSSourceUrl('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#BCBAB6', fontSize: 14, padding: 0 }}>✕</button>}
               </div>
 
-              {/* 이미지 — 탭(갤러리/카메라) + 클립보드 붙여넣기 */}
-              <div onClick={() => fileRef.current?.click()} style={{ width: '100%', height: 430, background: sImagePreview ? 'transparent' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 8, overflow: 'hidden', position: 'relative', backgroundImage: sImagePreview ? `url(${sImagePreview})` : 'none', backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-                {!sImagePreview && (
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 6 }}>📷</div>
-                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490' }}>이미지 추가</div>
-                    <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 갤러리/카메라 선택</div>
-                  </div>
-                )}
-                {sImagePreview && <button onClick={e => { e.stopPropagation(); setSImageFile(null); setSImagePreview(''); }} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.5)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>}
+              {/* 이미지 */}
+              <div style={{ marginBottom: 16 }}>
+                <ImagePicker
+                  preview={sImagePreview}
+                  onChange={(file, base64) => { setSImageFile(file); setSImagePreview(base64); }}
+                  onClear={() => { setSImageFile(null); setSImagePreview(''); }}
+                  height={430}
+                  placeholderLabel="이미지 추가"
+                />
               </div>
-              {!sImagePreview && (
-                <button
-                  onClick={async () => {
-                    try {
-                      const items = await navigator.clipboard.read();
-                      for (const item of items) {
-                        for (const type of item.types) {
-                          if (type.startsWith('image/')) {
-                            const blob = await item.getType(type);
-                            void applyImg(new File([blob], 'pasted.png', { type }));
-                            return;
-                          }
-                        }
-                      }
-                      alert('클립보드에 이미지가 없습니다.');
-                    } catch { fileRef.current?.click(); }
-                  }}
-                  style={{ width: '100%', padding: '10px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 16 }}
-                >📋 클립보드에서 붙여넣기</button>
-              )}
-              {sImagePreview && <div style={{ marginBottom: 16 }} />}
-              <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { const file = e.target.files?.[0]; if (file) void applyImg(file); e.target.value = ''; }} />
 
               {/* 아이템 매핑 */}
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, marginTop: 8 }}>아이템 매핑</div>

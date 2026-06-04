@@ -49,6 +49,7 @@ import SearchBar from '@/components/SearchBar';
 import SubPageHeader from '@/components/SubPageHeader';
 import PageHeader from '@/components/PageHeader';
 import { parseRoutineText, parseRoutinePhases, type ParsedResult } from '@/lib/parseRoutine';
+import ImagePicker from '@/components/ImagePicker';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
@@ -4152,78 +4153,19 @@ function CtPanel({
             </div>
 
             {/* 이미지 — 전체 ct타입 공통 (care: 4:3 / makeup: 1:1 / lookbook: 3:4) */}
-            {(
-              <div style={{ padding: '16px 20px 0' }}>
-                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, display: 'block' }}>
-                  {ctType === 'care' ? '케어 이미지' : ctType === 'makeup' ? '메이크업 이미지' : '룩 이미지'}
-                </span>
-                <label style={{ display: 'block', cursor: 'pointer' }}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={async e => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      try {
-                        const base64 = await imageFileToBase64(file);
-                        setSImageFile(file); setSImagePreview(base64);
-                      } catch (err) {
-                        console.error('[OnStep] imageFileToBase64 실패, FileReader 폴백:', err);
-                        if (file.size > 500 * 1024) {
-                          alert('이미지 파일이 너무 큽니다. 500KB 이하 파일을 선택해주세요.');
-                          return;
-                        }
-                        setSImageFile(file);
-                        const reader = new FileReader();
-                        reader.onload = ev => { const r = ev.target?.result; if (typeof r === 'string') setSImagePreview(r); };
-                        reader.onerror = () => { alert('이미지를 불러오지 못했습니다. 다른 파일을 선택해주세요.'); };
-                        reader.readAsDataURL(file);
-                      }
-                      e.target.value = '';
-                    }}
-                  />
-                  <div style={{
-                    width: '100%',
-                    aspectRatio: ctType === 'care' ? '4/3' : ctType === 'makeup' ? '1/1' : '3/4',
-                    borderRadius: 16,
-                    background: sImagePreview ? 'transparent' : '#EDECE9',
-                    border: sImagePreview ? 'none' : '1.5px dashed rgba(12,12,10,.18)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexDirection: 'column' as const,
-                    gap: 8,
-                    overflow: 'hidden',
-                    position: 'relative' as const,
-                  }}>
-                    {sImagePreview ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={sImagePreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    ) : (
-                      <>
-                        <span style={{ fontSize: 32, opacity: 0.25 }}>📷</span>
-                        <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>탭하여 이미지 추가</span>
-                      </>
-                    )}
-                    {sImagePreview && (
-                      <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,.5)', borderRadius: 8, padding: '4px 10px', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff' }}>
-                        변경
-                      </div>
-                    )}
-                  </div>
-                </label>
-                {sImagePreview && (
-                  <button
-                    type="button"
-                    onClick={() => { setSImageFile(null); setSImagePreview(''); }}
-                    style={{ marginTop: 6, width: '100%', padding: '8px', border: '1.5px solid rgba(186,26,26,.25)', borderRadius: 10, background: 'none', fontFamily: f, fontSize: 12, color: '#BA1A1A', cursor: 'pointer', fontWeight: 700 }}
-                  >
-                    이미지 제거
-                  </button>
-                )}
-              </div>
-            )}  {/* end image section */}
+            <div style={{ padding: '16px 20px 0' }}>
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, display: 'block' }}>
+                {ctType === 'care' ? '케어 이미지' : ctType === 'makeup' ? '메이크업 이미지' : '룩 이미지'}
+              </span>
+              <ImagePicker
+                preview={sImagePreview}
+                onChange={(file, base64) => { setSImageFile(file); setSImagePreview(base64); }}
+                onClear={() => { setSImageFile(null); setSImagePreview(''); }}
+                aspectRatio={ctType === 'care' ? '4/3' : ctType === 'makeup' ? '1/1' : '3/4'}
+                placeholderLabel={ctType === 'care' ? 'CARE IMAGE' : ctType === 'makeup' ? 'MAKEUP IMAGE' : 'LOOK IMAGE'}
+              />
+            </div>
+            {/* end image section */}
 
             {/* Item mapping */}
             <div style={{ padding: '0 20px' }}>

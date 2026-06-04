@@ -42,6 +42,7 @@ import { toDateStr, getTodayDateStr, getEveningDateStr } from '@/lib/dateUtils';
 import { migrateRawSlot, migrateSession } from '@/lib/migration';
 import { useTimer, formatTimerRemain, playAlarmChime } from '@/hooks/useTimer';
 import CatBadge from '@/components/CatBadge';
+import ImagePicker from '@/components/ImagePicker';
 import WeatherWidget from '@/components/WeatherWidget';
 import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
@@ -1277,8 +1278,7 @@ function OOTDRecordSheet({
   note,
   onNoteChange,
   photoPreview,
-  onPhotoChange,
-  onPhotoFile,
+  onPhotoApply,
   onSave,
   onDelete,
   saving,
@@ -1291,35 +1291,11 @@ function OOTDRecordSheet({
   note: string;
   onNoteChange: (v: string) => void;
   photoPreview: string;
-  onPhotoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onPhotoFile: (file: File) => void;
+  onPhotoApply: (file: File, base64: string) => void;
   onSave: () => void;
   onDelete: () => void;
   saving: boolean;
 }) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Ctrl/Cmd + V 클립보드 이미지 붙여넣기 (시트가 열려 있을 때만)
-  useEffect(() => {
-    if (!open) return;
-    function onPaste(e: ClipboardEvent) {
-      const items = e.clipboardData?.items;
-      if (!items) return;
-      for (const item of Array.from(items)) {
-        if (item.type.startsWith('image/')) {
-          const blob = item.getAsFile();
-          if (blob) {
-            onPhotoFile(new File([blob], 'pasted-image.png', { type: blob.type }));
-            e.preventDefault();
-            break;
-          }
-        }
-      }
-    }
-    document.addEventListener('paste', onPaste);
-    return () => document.removeEventListener('paste', onPaste);
-  }, [open, onPhotoFile]);
-
   return (
     <>
       {/* 백드롭 */}
@@ -1359,20 +1335,14 @@ function OOTDRecordSheet({
         <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', marginBottom: 8 }}>
           사진 <span style={{ fontWeight: 400 }}>선택</span>
         </div>
-        <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPhotoChange} />
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          style={{ width: '100%', height: 420, background: photoPreview ? 'none' : '#F4F4F0', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 12, overflow: 'hidden', position: 'relative' }}
-        >
-          {photoPreview ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={photoPreview} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="" />
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 26, opacity: 0.3 }}>📷</span>
-              <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490' }}>탭하여 추가 · 붙여넣기(⌘V)</span>
-            </div>
-          )}
+        <div style={{ marginBottom: 12 }}>
+          <ImagePicker
+            preview={photoPreview}
+            onChange={onPhotoApply}
+            height={420}
+            placeholderLabel="OOTD 이미지"
+            isOpen={open}
+          />
         </div>
 
         {/* 메모 */}
@@ -2034,16 +2004,11 @@ export default function TodayPage() {
     setOotdSheetOpen(true);
   };
 
-  // ── OOTD 사진 적용 (파일 선택 + 붙여넣기 공통) ──
-  const handleOOTDPhotoFile = useCallback((file: File) => {
+  // ── OOTD 사진 적용 (파일 선택 + 붙여넣기 공통) — ImagePicker가 base64 변환까지 처리 ──
+  const handleOOTDPhotoApply = useCallback((file: File, base64: string) => {
     setOotdPhotoFile(file);
-    setOotdPhotoPreview(URL.createObjectURL(file));
+    setOotdPhotoPreview(base64);
   }, []);
-
-  const handleOOTDPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleOOTDPhotoFile(file);
-  };
 
   // ── OOTD 저장 (Base64 → Firestore 직접 저장, Storage 미사용) ──
   const handleSaveOOTD = async () => {
@@ -2051,11 +2016,8 @@ export default function TodayPage() {
     if (!_db || !user) { alert('로그인이 필요합니다.'); return; }
     setOotdSaving(true);
     try {
-      // 새 파일이 선택된 경우 Base64로 변환 (400px 리사이즈 + JPEG 70% 압축)
-      let photoUrl = ootdLog?.photoUrl ?? '';
-      if (ootdPhotoFile) {
-        photoUrl = await imageFileToBase64(ootdPhotoFile);
-      }
+      // ImagePicker가 이미 base64로 변환한 preview 사용
+      const photoUrl = ootdPhotoPreview || (ootdLog?.photoUrl ?? '');
 
       const todayStr = getTodayDateStr();
       if (ootdLog) {
@@ -2472,8 +2434,7 @@ export default function TodayPage() {
         note={ootdNote}
         onNoteChange={setOotdNote}
         photoPreview={ootdPhotoPreview}
-        onPhotoChange={handleOOTDPhotoChange}
-        onPhotoFile={handleOOTDPhotoFile}
+        onPhotoApply={handleOOTDPhotoApply}
         onSave={handleSaveOOTD}
         onDelete={handleDeleteOOTD}
         saving={ootdSaving}

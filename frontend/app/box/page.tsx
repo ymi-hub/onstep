@@ -32,6 +32,7 @@ import { FALLBACK_USER_ID } from '@/lib/constants';
 import { imageFileToBase64 } from '@/lib/imageUtils';
 import type { Product } from '@/types/product';
 import PageHeader from '@/components/PageHeader';
+import ImagePicker from '@/components/ImagePicker';
 
 
 // ─── BOX 설정 타입 ────────────────────────────────────────────────────────────
@@ -2093,56 +2094,6 @@ function AddProductPage({
   const subType = form.formSubType;
   const domainCfg = boxConfig.domains.find(d => d.id === domain);
   const cats = domainCfg ? getDomainCats(domainCfg, subType) : [];
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // 파일 → Base64 변환 → 폼 상태 적용 (Storage 없이 Firestore에 직접 저장)
-  async function applyImageFile(file: File) {
-    try {
-      const base64 = await imageFileToBase64(file);
-      setForm((f) => ({ ...f, imageFile: file, imagePreview: base64 }));
-    } catch (err) {
-      console.error('[OnStep] imageFileToBase64 실패, FileReader 폴백:', err);
-      if (file.size > 500 * 1024) {
-        alert('이미지 파일이 너무 큽니다. 500KB 이하 파일을 선택해주세요.');
-        return;
-      }
-      setForm((f) => ({ ...f, imageFile: file }));
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const r = ev.target?.result; if (typeof r === 'string') setForm((f) => ({ ...f, imagePreview: r }));
-      };
-      reader.onerror = () => { alert('이미지를 불러오지 못했습니다. 다른 파일을 선택해주세요.'); };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  // 파일 input에서 선택
-  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) void applyImageFile(file);
-  }
-
-  // Ctrl/Cmd + V 클립보드 이미지 붙여넣기 (폼이 열려 있을 때만)
-  useEffect(() => {
-    if (!isOpen) return;
-    function onPaste(e: ClipboardEvent) {
-      const items = e.clipboardData?.items;
-      if (!items) return;
-      for (const item of Array.from(items)) {
-        if (item.type.startsWith('image/')) {
-          const blob = item.getAsFile();
-          if (blob) {
-            void applyImageFile(new File([blob], 'pasted-image.png', { type: blob.type }));
-            e.preventDefault();
-            break;
-          }
-        }
-      }
-    }
-    document.addEventListener('paste', onPaste);
-    return () => document.removeEventListener('paste', onPaste);
-  }, [isOpen]);
-
   // 현재 표시할 이미지 (새로 선택한 미리보기 > 기존 URL)
   const displayImg = form.imagePreview || form.imageUrl;
 
@@ -2188,69 +2139,14 @@ function AddProductPage({
       {/* ── 스크롤 콘텐츠 영역 ── */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 0 96px', display: 'flex', flexDirection: 'column' }}>
 
-        {/* ── 제품 이미지 — 220px 고정 영역 ── */}
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          style={{ width: '100%', height: 220, cursor: 'pointer', position: 'relative', background: '#F4F4F0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}
-        >
-          {displayImg ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={displayImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-              <div style={{ position: 'absolute', bottom: 10, right: 10, display: 'flex', gap: 6 }}>
-                <button
-                  onClick={async (e) => { e.stopPropagation();
-                    try {
-                      const items = await navigator.clipboard.read();
-                      for (const item of items) {
-                        for (const type of item.types) {
-                          if (type.startsWith('image/')) {
-                            const blob = await item.getType(type);
-                            void applyImageFile(new File([blob], 'pasted.png', { type }));
-                            return;
-                          }
-                        }
-                      }
-                      alert('클립보드에 이미지가 없습니다.');
-                    } catch { fileInputRef.current?.click(); }
-                  }}
-                  style={{ background: 'rgba(0,0,0,.55)', color: '#fff', border: 'none', borderRadius: 6, padding: '5px 10px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
-                >📋 붙여넣기</button>
-                <div style={{ background: 'rgba(0,0,0,.55)', color: '#fff', borderRadius: 6, padding: '5px 10px', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700 }}>
-                  사진 변경
-                </div>
-              </div>
-            </>
-          ) : (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 8 }}>✦</div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490' }}>ADD PRODUCT IMAGE</div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 갤러리/카메라 선택</div>
-            </div>
-          )}
-          <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
-        </div>
-        {/* 클립보드 붙여넣기 버튼 — 이미지 없을 때 */}
-        {!displayImg && (
-          <button
-            onClick={async () => {
-              try {
-                const items = await navigator.clipboard.read();
-                for (const item of items) {
-                  for (const type of item.types) {
-                    if (type.startsWith('image/')) {
-                      const blob = await item.getType(type);
-                      void applyImageFile(new File([blob], 'pasted.png', { type }));
-                      return;
-                    }
-                  }
-                }
-                alert('클립보드에 이미지가 없습니다.');
-              } catch { fileInputRef.current?.click(); }
-            }}
-            style={{ width: '100%', padding: '10px', border: '1.5px dashed rgba(12,12,10,.14)', background: 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}
-          >📋 클립보드에서 붙여넣기</button>
-        )}
+        {/* ── 제품 이미지 ── */}
+        <ImagePicker
+          preview={displayImg}
+          onChange={(file, base64) => setForm(f => ({ ...f, imageFile: file, imagePreview: base64 }))}
+          height={220}
+          placeholderLabel="ADD PRODUCT IMAGE"
+          isOpen={isOpen}
+        />
 
         {/* ── 폼 콘텐츠 ── */}
         <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 32 }}>
