@@ -134,7 +134,9 @@ type FormState = {
   careGuide: string;           // 케어 방법 (예: 손세탁)
   specialNote: string;         // 특이사항 (Acc)
   materialType: string;        // Acc 재질 칩 (금/은/가죽/패브릭/플라스틱/기타)
-  boxLocation: string;         // 보관 위치 (예: 안방 드레스룸, 욕실 선반)
+  boxLocation: string;         // 보관 위치 이름 (예: 안방 드레스룸, 욕실 선반)
+  storageImagePreview: string; // 보관 장소 이미지 base64 미리보기
+  storageImageUrl: string;     // 기존 보관 장소 이미지 URL
 };
 
 const INITIAL_FORM: FormState = {
@@ -165,6 +167,8 @@ const INITIAL_FORM: FormState = {
   specialNote: '',
   materialType: '',
   boxLocation: '',
+  storageImagePreview: '',
+  storageImageUrl: '',
 };
 
 // ─── 매거진 뷰 (design/box.html magazine 뷰 참고) ────────────────────────────
@@ -973,6 +977,7 @@ export default function BoxPage() {
         ...(form.specialNote.trim() ? { specialNote: form.specialNote.trim() } : {}),
         ...(form.materialType ? { materialType: form.materialType } : {}),
         boxLocation: form.boxLocation.trim() || null,
+        ...(form.storageImagePreview ? { storageImageUrl: form.storageImagePreview } : form.storageImageUrl ? { storageImageUrl: form.storageImageUrl } : {}),
         updatedAt: now,
       };
 
@@ -1063,6 +1068,8 @@ export default function BoxPage() {
       specialNote: (p as Product & { specialNote?: string }).specialNote ?? '',
       materialType: (p as Product & { materialType?: string }).materialType ?? '',
       boxLocation: p.boxLocation ?? '',
+      storageImagePreview: '',
+      storageImageUrl: (p as Product & { storageImageUrl?: string }).storageImageUrl ?? '',
     });
     setEditingProduct(p);
     setIsAddOpen(true);
@@ -2673,15 +2680,73 @@ function AddProductPage({
               </div>
           </div>}
 
-          {/* ── 보관 위치 ── */}
+          {/* ── Storage View — 보관 위치 이미지 + 장소 ── */}
           <div>
-            <div style={labelStyle}>보관 위치</div>
-            <input
-              value={form.boxLocation}
-              onChange={e => setForm(f => ({ ...f, boxLocation: e.target.value }))}
-              placeholder="예: 욕실 선반, 안방 드레스룸"
-              style={{ ...underlineInputStyle, fontSize: 15 }}
-            />
+            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 22, fontWeight: 400, letterSpacing: '-0.02em', color: '#1A1C1C', marginBottom: 12 }}>
+              Storage View
+            </div>
+            <div style={{ borderTop: '1px solid #C5C6CA', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              {/* 보관 장소 이미지 */}
+              <div
+                style={{ border: '1px solid #C5C6CA', background: '#F9F9F9', overflow: 'hidden', cursor: 'pointer', borderRadius: 4 }}
+                onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.onchange = async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (!file) return;
+                    const { imageFileToBase64 } = await import('@/lib/imageUtils');
+                    const b64 = await imageFileToBase64(file);
+                    setForm(f => ({ ...f, storageImagePreview: b64 }));
+                  };
+                  input.click();
+                }}
+              >
+                {/* 이미지 영역 192px */}
+                <div style={{ width: '100%', height: 192, background: '#DADADA', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  {(form.storageImagePreview || form.storageImageUrl) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={form.storageImagePreview || form.storageImageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                      <svg width="28" height="25" viewBox="0 0 24 24" fill="#44474A"><path d="M20 5h-2.83L15 3H9L6.83 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
+                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#6B7280' }}>ADD STORAGE PHOTO</div>
+                    </div>
+                  )}
+                  {(form.storageImagePreview || form.storageImageUrl) && (
+                    <button
+                      onClick={e => { e.stopPropagation(); setForm(f => ({ ...f, storageImagePreview: '', storageImageUrl: '' })); }}
+                      style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 9999, background: 'rgba(0,0,0,.5)', border: 'none', color: '#fff', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >×</button>
+                  )}
+                </div>
+                {/* 위치 정보 행 */}
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: 16, gap: 16 }}>
+                  <svg width="18" height="22" viewBox="0 0 24 24" fill="#44474A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: '0.6px', textTransform: 'uppercase' as const, color: '#44474A' }}>
+                      CURRENT LOCATION <span style={{ fontSize: 11, fontWeight: 600, color: '#44474A', opacity: .7, textTransform: 'lowercase' as const, letterSpacing: '.02em' }}>현재 위치</span>
+                    </div>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 400, color: form.boxLocation.trim() ? '#1A1C1C' : '#9CA3AF' }}>
+                      {form.boxLocation.trim() || '위치를 입력하세요'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 보관 위치 텍스트 입력 */}
+              <div>
+                <div style={labelStyle}>보관 위치</div>
+                <input
+                  value={form.boxLocation}
+                  onChange={e => setForm(f => ({ ...f, boxLocation: e.target.value }))}
+                  placeholder="예: 욕실 선반, 안방 드레스룸"
+                  style={{ ...underlineInputStyle, fontSize: 15 }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* ── 취소 / 저장 ── */}
