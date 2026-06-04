@@ -692,9 +692,9 @@ function TodayHabitSection({
           const isDone = habitChecked.has(h.id);
           return (
             <div key={h.id} onClick={() => onToggle(h.id)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: '#F5A623', opacity: isDone ? 0.5 : 1, cursor: 'pointer', transition: 'opacity .18s' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: 'rgb(254,160,4)', opacity: isDone ? 0.5 : 1, cursor: 'pointer', transition: 'opacity .18s' }}>
               <div style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.85)', background: isDone ? '#fff' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .2s' }}>
-                {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F5A623" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgb(254,160,4)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
               </div>
               <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '✦'}</span>
               {h.time && h.repeatType !== 'allday' && (
@@ -2206,12 +2206,12 @@ export default function TodayPage() {
             const col = slotColor(slot);
             return (
               <div onClick={() => handleToggleMed(m.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: col, opacity: isDone ? 0.5 : 1, cursor: 'pointer', transition: 'opacity .18s' }}>
-                <div style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.85)', background: isDone ? '#fff' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                  {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={col} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: 'transparent', border: `1px solid ${col}`, opacity: isDone ? 0.5 : 1, cursor: 'pointer', transition: 'opacity .18s' }}>
+                <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${col}`, background: isDone ? col : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                  {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </div>
-                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{slotTime(m, slot)}</span>
-                <span style={{ fontFamily: fMed, fontSize: 14, fontWeight: 700, color: '#fff', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 700, color: col, width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{slotTime(m, slot)}</span>
+                <span style={{ fontFamily: fMed, fontSize: 14, fontWeight: 700, color: col, textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
               </div>
             );
           };
@@ -2391,10 +2391,10 @@ export default function TodayPage() {
                 const pt = primaryTime(h);
                 return (
                   <div key={h.id} onClick={() => handleToggleHealth(h.id)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: '#4CAF50', opacity: isDone ? 0.5 : 1, cursor: 'pointer', transition: 'opacity .18s' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: 'rgb(8,191,16)', opacity: isDone ? 0.5 : 1, cursor: 'pointer', transition: 'opacity .18s' }}>
                     {/* 동그라미 체크 */}
                     <div style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.85)', background: isDone ? '#fff' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                      {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                      {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgb(8,191,16)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                     </div>
                     {/* 아이콘 */}
                     <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '🥗'}</span>
