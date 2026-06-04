@@ -2582,36 +2582,70 @@ function MedView({
         </div>
 
         {/* 약 복용 목록 */}
-        <div style={{ padding: '20px 16px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>전체</span>
-            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{items.length}개</span>
-          </div>
-          <SearchBar value={medSearch} onChange={setMedSearch} placeholder="약 이름 검색..." />
-          {items.length === 0 ? (
-            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
-              아직 등록된 약이 없습니다.<br />위에서 새 약을 추가해주세요.
-            </div>
-          ) : medSearch.trim() ? (
-            filteredMeds.length === 0 ? (
-              <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
-                &ldquo;{medSearch}&rdquo; 검색 결과 없음
+        {(() => {
+          // 아침/오후/저녁 구분 헬퍼
+          const periodOfM = (m: MedRoutine): 'am' | 'pm' | 'ev' => {
+            const ts = m.times ?? [];
+            if (ts.includes('morning')) return 'am';
+            if (ts.includes('lunch')) return 'pm';
+            if (ts.some(t => t === 'evening' || t === 'bedtime')) return 'ev';
+            if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
+            return 'ev';
+          };
+          const MED_GROUPS = [
+            { key: 'am' as const, label: '아침', col: '#6B7CE8' },
+            { key: 'pm' as const, label: '오후', col: '#E8A86B' },
+            { key: 'ev' as const, label: '저녁', col: '#E86BAA' },
+          ];
+          const GroupedList = ({ meds }: { meds: MedRoutine[] }) => (
+            <>
+              {MED_GROUPS.map(g => {
+                const gMeds = meds.filter(m => periodOfM(m) === g.key);
+                if (gMeds.length === 0) return null;
+                return (
+                  <div key={g.key}>
+                    <div style={{ padding: '8px 16px 4px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 10, color: g.col, letterSpacing: '.04em' }}>·+ +°.{g.label}°·++·° *</span>
+                    </div>
+                    {gMeds.map(m => <MedRow key={m.id} m={m} onEdit={() => openEdit(m)} />)}
+                  </div>
+                );
+              })}
+            </>
+          );
+          return (
+            <div style={{ padding: '20px 16px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>전체</span>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{items.length}개</span>
               </div>
-            ) : (
-              <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
-                {filteredMeds.map(m => <MedRow key={m.id} m={m} onEdit={() => openEdit(m)} />)}
-              </div>
-            )
-          ) : listMeds.length === 0 ? (
-            <div style={{ padding: '20px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
-              모두 Today에 표시 중입니다.
+              <SearchBar value={medSearch} onChange={setMedSearch} placeholder="약 이름 검색..." />
+              {items.length === 0 ? (
+                <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
+                  아직 등록된 약이 없습니다.<br />위에서 새 약을 추가해주세요.
+                </div>
+              ) : medSearch.trim() ? (
+                filteredMeds.length === 0 ? (
+                  <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
+                    &ldquo;{medSearch}&rdquo; 검색 결과 없음
+                  </div>
+                ) : (
+                  <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
+                    <GroupedList meds={filteredMeds} />
+                  </div>
+                )
+              ) : listMeds.length === 0 ? (
+                <div style={{ padding: '20px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
+                  모두 Today에 표시 중입니다.
+                </div>
+              ) : (
+                <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
+                  <GroupedList meds={listMeds} />
+                </div>
+              )}
             </div>
-          ) : (
-            <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)', marginTop: 8 }}>
-              {listMeds.map(m => <MedRow key={m.id} m={m} onEdit={() => openEdit(m)} />)}
-            </div>
-          )}
-        </div>
+          );
+        })()}
 
         {/* DAILY MEDS — showInToday=true 약 미리보기 (Today 카드 스타일) */}
         {items.some(m => m.showInToday) && (() => {
