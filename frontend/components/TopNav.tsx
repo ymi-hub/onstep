@@ -71,7 +71,7 @@ export default function TopNav() {
     >
       <div
         style={{
-          padding: '0 24px',
+          padding: '0 26px',
           height: 64,
           display: 'flex',
           alignItems: 'center',

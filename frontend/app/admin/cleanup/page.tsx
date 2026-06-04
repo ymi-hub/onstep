@@ -174,7 +174,7 @@ export default function CleanupPage() {
   );
 
   return (
-    <div style={{ padding: '20px 24px 120px', fontFamily: f }}>
+    <div style={{ padding: '20px 26px 120px', fontFamily: f }}>
       <div style={{ fontSize: 22, fontWeight: 800, color: '#0C0C0A', marginBottom: 4 }}>데이터 정리</div>
       <div style={{ fontSize: 12, color: '#9A9490', marginBottom: 20 }}>
         컬렉션을 펼쳐 항목을 선택하고 삭제하세요.
@@ -184,7 +184,7 @@ export default function CleanupPage() {
         <div key={c.key} style={{ marginBottom: 10, border: '1px solid rgba(12,12,10,.1)', borderRadius: 14, overflow: 'hidden' }}>
           {/* 헤더 */}
           <div onClick={() => toggleOpen(c.key)}
-            style={{ display: 'flex', alignItems: 'center', padding: '13px 24px', background: '#F9F9F7', cursor: 'pointer', gap: 10 }}>
+            style={{ display: 'flex', alignItems: 'center', padding: '13px 26px', background: '#F9F9F7', cursor: 'pointer', gap: 10 }}>
             <span style={{ fontSize: 18 }}>{c.icon}</span>
             <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>{c.label}</span>
             <span style={{ fontSize: 12, color: '#9A9490' }}>{c.docs.length}개</span>
@@ -200,10 +200,10 @@ export default function CleanupPage() {
           {c.open && (
             <div>
               {c.docs.length === 0 ? (
-                <div style={{ padding: '14px 24px', fontSize: 12, color: '#BCBAB6' }}>데이터 없음</div>
+                <div style={{ padding: '14px 26px', fontSize: 12, color: '#BCBAB6' }}>데이터 없음</div>
               ) : (
                 <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 24px', borderBottom: '1px solid rgba(12,12,10,.06)', background: '#fff' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 26px', borderBottom: '1px solid rgba(12,12,10,.06)', background: '#fff' }}>
                     <button onClick={() => toggleAll(c.key)}
                       style={{ fontSize: 11, fontWeight: 700, color: '#9A9490', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                       {c.docs.every(d => c.selected.has(d.id)) ? '전체 해제' : '전체 선택'}
@@ -212,7 +212,7 @@ export default function CleanupPage() {
                   </div>
                   {c.docs.map(row => (
                     <div key={row.id} onClick={() => toggleDoc(c.key, row.id)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 24px', borderBottom: '1px solid rgba(12,12,10,.04)', cursor: 'pointer', background: c.selected.has(row.id) ? '#FEF2F2' : '#fff' }}>
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 26px', borderBottom: '1px solid rgba(12,12,10,.04)', cursor: 'pointer', background: c.selected.has(row.id) ? '#FEF2F2' : '#fff' }}>
                       <div style={{ width: 16, height: 16, borderRadius: 3, border: `2px solid ${c.selected.has(row.id) ? '#DC2626' : 'rgba(12,12,10,.2)'}`, background: c.selected.has(row.id) ? '#DC2626' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {c.selected.has(row.id) && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
                       </div>
@@ -239,7 +239,7 @@ export default function CleanupPage() {
 
       {/* 하단 고정 삭제 버튼 */}
       {totalSelected > 0 && (
-        <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', padding: '12px 24px calc(env(safe-area-inset-bottom,0px) + 12px)', background: '#FAFAF8', borderTop: '1px solid rgba(12,12,10,.1)' }}>
+        <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', padding: '12px 26px calc(env(safe-area-inset-bottom,0px) + 12px)', background: '#FAFAF8', borderTop: '1px solid rgba(12,12,10,.1)' }}>
           <button onClick={deleteSelected} disabled={deleting}
             style={{ width: '100%', height: 50, background: '#DC2626', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: deleting ? .7 : 1 }}>
             {deleting ? '삭제 중…' : `선택한 ${totalSelected}개 영구 삭제`}

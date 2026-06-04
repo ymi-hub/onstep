@@ -32,7 +32,7 @@ const F = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 export default function PageHeader({ label, title, subtitle, right }: PageHeaderProps) {
   return (
     // 전체 헤더 영역 — 좌우 패딩 16px, 위 20px, 아래 14px
-    <div style={{ padding: '20px 24px 14px' }}>
+    <div style={{ padding: '20px 26px 14px' }}>
 
       {/* 상단 행: 레이블(좌) + 우측 슬롯(우) */}
       <div

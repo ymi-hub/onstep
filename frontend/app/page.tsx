@@ -151,7 +151,7 @@ function SessionHero({
   const dateStr = format(today, 'M월 d일 (EEE)', { locale: ko });
 
   return (
-    <div style={{ padding: '12px 24px 4px' }}>
+    <div style={{ padding: '12px 26px 4px' }}>
       {/* 회차 번호 */}
       <div
         style={{
@@ -333,7 +333,7 @@ function FlowCard({
 
     <div
       style={{
-        margin: '0 24px',
+        margin: '0 26px',
         background: '#FFFFFF',
         border: '1px solid rgba(12,12,10,.07)',
         boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.03)',
@@ -342,14 +342,14 @@ function FlowCard({
       }}
     >
       {/* ① 최상단: MORNING / NIGHT 탭 */}
-      <div style={{ display: 'flex', padding: '12px 24px 0', gap: 6 }}>
+      <div style={{ display: 'flex', padding: '12px 26px 0', gap: 6 }}>
         {(['morning', 'evening'] as const).map((t) => (
           <button
             key={t}
             onClick={() => onTabChange(t)}
             style={{
               height: 32,
-              padding: '0 24px',
+              padding: '0 26px',
               borderRadius: 9999,
               border: tab === t ? 'none' : '1px solid rgba(12,12,10,.1)',
               cursor: 'pointer',
@@ -376,7 +376,7 @@ function FlowCard({
 
       {/* ② 칩 스트립 + EXPERT TIP */}
       {slot.items.length > 0 ? (
-        <div style={{ padding: '10px 24px 0' }}>
+        <div style={{ padding: '10px 26px 0' }}>
           <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
             {slot.items.map((item, idx) => {
               if (item.type === 'product') {
@@ -389,7 +389,7 @@ function FlowCard({
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'flex-start',
-                    padding: '20px 24px 0px',
+                    padding: '20px 26px 0px',
                     width: 248,
                     minWidth: 248,
                     height: 355,
@@ -594,7 +594,7 @@ function FlowCard({
           )}
         </div>
       ) : (
-        <div style={{ margin: '0 0 0 0', padding: '24px 24px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <div style={{ margin: '0 0 0 0', padding: '24px 26px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>🧴</span>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>이 시간대에 등록된 제품이 없습니다</div>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>SETUP에서 루틴에 제품을 추가해보세요</div>
@@ -603,7 +603,7 @@ function FlowCard({
       )}
 
       {/* ④ 체크 버튼 — 제품이 없으면 비활성 */}
-      <div style={{ padding: '12px 24px 14px' }}>
+      <div style={{ padding: '12px 26px 14px' }}>
         {(() => {
           const hasProducts = slot.items.some(i => i.type === 'product');
           return (
@@ -688,7 +688,7 @@ function TodayHabitSection({
       <SectionHeader title="#Habits" action={`${doneCount}/${todayHabits.length}`} />
 
       {/* 습관 목록 — 오렌지 컬러 바 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 24px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 26px' }}>
         {todayHabits.map((h) => {
           const isDone = habitChecked.has(h.id);
           return (
@@ -728,7 +728,7 @@ function RoutineEmptyCard() {
     { num: '3', icon: '✅', label: 'TODAY', desc: '매일 체크하고 기록해요', href: null, cta: null },
   ];
   return (
-    <div style={{ margin: '0 24px' }}>
+    <div style={{ margin: '0 26px' }}>
       {/* 안내 헤더 */}
       <div style={{ padding: '20px 4px 16px', textAlign: 'center' }}>
         <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490', marginBottom: 6 }}>GETTING STARTED</div>
@@ -769,12 +769,12 @@ function LoginRequiredCard({ onLogin }: { onLogin: () => void }) {
   return (
     <div
       style={{
-        margin: '0 24px',
+        margin: '0 26px',
         background: '#FFFFFF',
         border: '1px solid rgba(12,12,10,.07)',
         boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.03)',
         borderRadius: 20,
-        padding: '32px 24px',
+        padding: '32px 26px',
         textAlign: 'center',
       }}
     >
@@ -807,7 +807,7 @@ function LoginRequiredCard({ onLogin }: { onLogin: () => void }) {
           color: '#C5FF00',
           border: 'none',
           borderRadius: 12,
-          padding: '10px 24px',
+          padding: '10px 26px',
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
           fontSize: 13,
           fontWeight: 700,
@@ -850,11 +850,11 @@ function OOTDSection({
     <div>
       <SectionHeader title="#OOTD" />
 
-      <div style={{ padding: '0 24px' }}>
+      <div style={{ padding: '0 26px' }}>
 
         {/* 룩북 미등록 빈 상태 안내 — 로그인된 상태에서만 표시 (비로그인 시 아래 카드로 대체) */}
         {!heroLook && user && (
-          <div style={{ padding: '20px 24px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+          <div style={{ padding: '20px 26px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 12 }}>
             <span style={{ fontSize: 28 }}>👗</span>
             <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 룩을 등록해보세요</div>
             <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>Setup에서 Today ON으로 설정하면 여기에 표시됩니다</div>
@@ -872,7 +872,7 @@ function OOTDSection({
                 <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4', background: '#1C1C1C', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={heroLook.imageUrl} alt={heroLook.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '60px 24px 18px', background: 'linear-gradient(to top,rgba(0,0,0,.56) 0%,transparent 55%)', pointerEvents: 'none' }}>
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '60px 26px 18px', background: 'linear-gradient(to top,rgba(0,0,0,.56) 0%,transparent 55%)', pointerEvents: 'none' }}>
                     <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,.7)', marginBottom: 5 }}>TODAY&apos;S LOOK</div>
                     <div style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#fff', lineHeight: 1.25 }}>{heroLook.name}</div>
                     {heroLook.desc && <div style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{heroLook.desc}</div>}
@@ -881,7 +881,7 @@ function OOTDSection({
               </Link>
             ) : (
               /* 이미지 없을 때: 텍스트 제목 */
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 24px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 26px 0' }}>
                 <span style={{ fontSize: 22, flexShrink: 0 }}>{heroLook.emoji || '👗'}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{heroLook.name}</div>
@@ -917,7 +917,7 @@ function OOTDSection({
             <SourceLink url={heroLook.sourceUrl} />
 
             {/* 카드 하단: List → LOG 라이브러리 */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 24px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 26px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
               <Link href="/log?tab=라이브러리" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
             </div>
           </div>
@@ -925,7 +925,7 @@ function OOTDSection({
 
         {/* ── RECORD LOOK / Logged 카드 ── */}
         {!user ? null : ootdLog ? (
-          <div onClick={onViewLog} style={{ border: '1.5px solid #4caf78', borderRadius: 9999, minHeight: 52, padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
+          <div onClick={onViewLog} style={{ border: '1.5px solid #4caf78', borderRadius: 9999, minHeight: 52, padding: '14px 26px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
             <div style={{ width: 36, height: 36, borderRadius: 9999, background: '#E8E6E0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
               {ootdLog.photoUrl
                 // eslint-disable-next-line @next/next/no-img-element
@@ -941,7 +941,7 @@ function OOTDSection({
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
         ) : (
-          <div onClick={onRecord} style={{ border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 9999, minHeight: 52, padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
+          <div onClick={onRecord} style={{ border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 9999, minHeight: 52, padding: '14px 26px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
             <div style={{ width: 36, height: 36, background: '#E8E6E0', borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>📷</div>
             <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: '#9A9490', flex: 1 }}>RECORD LOOK</span>
             <div style={{ width: 30, height: 30, background: '#C5FF00', borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, lineHeight: 1, color: '#0C0C0A', flexShrink: 0, fontWeight: 300 }}>+</div>
@@ -966,7 +966,7 @@ function SourceLink({ url }: { url?: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 24px', borderTop: '1px solid rgba(12,12,10,.07)', textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.02)' }}
+      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 26px', borderTop: '1px solid rgba(12,12,10,.07)', textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.02)' }}
     >
       {/* 링크 아이콘 */}
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
@@ -1007,7 +1007,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
-          padding: '20px 24px 0px',
+          padding: '20px 26px 0px',
           width: 248,
           minWidth: 248,
           height: 355,
@@ -1085,7 +1085,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
     <div>
       <SectionHeader title="#Intensive Care" />
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 24px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 26px' }}>
         {items.map((item) => (
           <div key={item.id} style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
 
@@ -1100,7 +1100,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 </div>
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 24px 12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 26px 12px' }}>
                 <span style={{ fontSize: 20 }}>{item.emoji}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{item.name}</div>
@@ -1115,7 +1115,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
 
             {/* 메인 칩 스트립 */}
             {item.items.length > 0 && (
-              <div style={{ padding: '10px 24px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+              <div style={{ padding: '10px 26px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
                 <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
                   {item.items.map((r, i) => renderChip(r, i, item.items))}
                 </div>
@@ -1124,7 +1124,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
 
             {/* TIP 칩 스트립 */}
             {(item.tipItems?.length ?? 0) > 0 && (
-              <div style={{ padding: '8px 24px 12px', borderTop: '1px dashed rgba(12,12,10,.07)' }}>
+              <div style={{ padding: '8px 26px 12px', borderTop: '1px dashed rgba(12,12,10,.07)' }}>
                 <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#4E7D00', marginBottom: 6 }}>TIP</div>
                 <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
                   {(item.tipItems ?? []).map((r, i) => renderChip(r, i, item.tipItems ?? []))}
@@ -1134,7 +1134,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
 
             {/* TIPS */}
             {item.expertTip && (
-              <div style={{ padding: '8px 24px 20px' }}>
+              <div style={{ padding: '8px 26px 20px' }}>
                 <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 24, gap: 8, background: '#FAFAFA', border: '1px solid #E4E4E7', borderRadius: 16, overflow: 'visible' }}>
                   <svg width="29" height="27" viewBox="0 0 29 27" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', left: -8, top: -8, zIndex: 2 }}>
                     <path d="M6 26.982C4.875 26.982 3.7625 26.707 2.6625 26.157C1.5625 25.607 0.675 24.882 0 23.982C0.65 23.982 1.3125 23.7257 1.9875 23.2132C2.6625 22.7007 3 21.957 3 20.982C3 19.732 3.4375 18.6695 4.3125 17.7945C5.1875 16.9195 6.25 16.482 7.5 16.482C8.75 16.482 9.8125 16.9195 10.6875 17.7945C11.5625 18.6695 12 19.732 12 20.982C12 22.632 11.4125 24.0445 10.2375 25.2195C9.0625 26.3945 7.65 26.982 6 26.982ZM6 23.982C6.825 23.982 7.53125 23.6882 8.11875 23.1007C8.70625 22.5133 9 21.807 9 20.982C9 20.557 8.85625 20.2008 8.56875 19.9132C8.28125 19.6257 7.925 19.482 7.5 19.482C7.075 19.482 6.71875 19.6257 6.43125 19.9132C6.14375 20.2008 6 20.557 6 20.982C6 21.557 5.93125 22.082 5.79375 22.557C5.65625 23.032 5.475 23.482 5.25 23.907C5.375 23.957 5.5 23.982 5.625 23.982C5.75 23.982 5.875 23.982 6 23.982ZM14.625 17.982L10.5 13.857L23.925 0.432C24.2 0.157 24.5437 0.01325 24.9562 0.00075C25.3687 -0.01175 25.725 0.132 26.025 0.432L28.05 2.457C28.35 2.757 28.5 3.107 28.5 3.507C28.5 3.907 28.35 4.257 28.05 4.557L14.625 17.982Z" fill="#0C0C0A"/>
@@ -1151,7 +1151,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             <SourceLink url={item.sourceUrl} />
 
             {/* 카드 하단: List → */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(12,12,10,.06)', padding: '10px 24px 12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(12,12,10,.06)', padding: '10px 26px 12px' }}>
               <a href="/setup#care" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</a>
             </div>
           </div>
@@ -1171,14 +1171,14 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
     <div>
       <SectionHeader title="#MOTD" />
       {items.length === 0 && (
-        <div style={{ margin: '0 24px', padding: '20px 24px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <div style={{ margin: '0 26px', padding: '20px 26px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>💄</span>
           <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 메이크업을 등록해보세요</div>
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>Setup에서 Today ON으로 설정하면 여기에 표시됩니다</div>
           <Link href="/log?tab=라이브러리&filter=makeup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
         </div>
       )}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 24px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 26px' }}>
         {items.map((item) => {
           const prodIds = item.items
             .filter((r): r is { type: 'product'; id: string } => r.type === 'product')
@@ -1205,7 +1205,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
                 </Link>
               ) : (
                 /* 이미지 없을 때 — 텍스트 제목 */
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 24px 0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 26px 0' }}>
                   <span style={{ fontSize: 22, flexShrink: 0 }}>{item.emoji || '💄'}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{item.name}</div>
@@ -1239,7 +1239,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
 
               {/* TIPS */}
               {item.expertTip && (
-                <div style={{ padding: '8px 24px 20px' }}>
+                <div style={{ padding: '8px 26px 20px' }}>
                   <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 24, gap: 8, background: '#FAFAFA', border: '1px solid #E4E4E7', borderRadius: 16, overflow: 'visible' }}>
                     <svg width="29" height="27" viewBox="0 0 29 27" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', left: -8, top: -8, zIndex: 2 }}>
                       <path d="M6 26.982C4.875 26.982 3.7625 26.707 2.6625 26.157C1.5625 25.607 0.675 24.882 0 23.982C0.65 23.982 1.3125 23.7257 1.9875 23.2132C2.6625 22.7007 3 21.957 3 20.982C3 19.732 3.4375 18.6695 4.3125 17.7945C5.1875 16.9195 6.25 16.482 7.5 16.482C8.75 16.482 9.8125 16.9195 10.6875 17.7945C11.5625 18.6695 12 19.732 12 20.982C12 22.632 11.4125 24.0445 10.2375 25.2195C9.0625 26.3945 7.65 26.982 6 26.982ZM6 23.982C6.825 23.982 7.53125 23.6882 8.11875 23.1007C8.70625 22.5133 9 21.807 9 20.982C9 20.557 8.85625 20.2008 8.56875 19.9132C8.28125 19.6257 7.925 19.482 7.5 19.482C7.075 19.482 6.71875 19.6257 6.43125 19.9132C6.14375 20.2008 6 20.557 6 20.982C6 21.557 5.93125 22.082 5.79375 22.557C5.65625 23.032 5.475 23.482 5.25 23.907C5.375 23.957 5.5 23.982 5.625 23.982C5.75 23.982 5.875 23.982 6 23.982ZM14.625 17.982L10.5 13.857L23.925 0.432C24.2 0.157 24.5437 0.01325 24.9562 0.00075C25.3687 -0.01175 25.725 0.132 26.025 0.432L28.05 2.457C28.35 2.757 28.5 3.107 28.5 3.507C28.5 3.907 28.35 4.257 28.05 4.557L14.625 17.982Z" fill="#0C0C0A"/>
@@ -1256,7 +1256,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
               <SourceLink url={item.sourceUrl} />
 
               {/* 카드 하단: List → LOG 라이브러리 (OOTD 동일 패턴) */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 24px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 26px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
                 <Link href="/log?tab=라이브러리&filter=makeup" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
               </div>
             </div>
@@ -1324,7 +1324,7 @@ function OOTDRecordSheet({
               key={t}
               type="button"
               onClick={() => onThemeChange(t)}
-              style={{ padding: '8px 24px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#0A0A0A' : 'rgba(12,12,10,.14)'}`, background: theme === t ? '#0A0A0A' : 'transparent', color: theme === t ? '#C5FF00' : '#0C0C0A', fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ padding: '8px 26px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#0A0A0A' : 'rgba(12,12,10,.14)'}`, background: theme === t ? '#0A0A0A' : 'transparent', color: theme === t ? '#C5FF00' : '#0C0C0A', fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >
               {t}
             </button>
@@ -2085,7 +2085,7 @@ export default function TodayPage() {
           // 로딩 중 — shimmer 스켈레톤
           <div
             style={{
-              margin: '0 24px',
+              margin: '0 26px',
               padding: '20px',
               background: '#FFFFFF',
               borderRadius: 20,
@@ -2181,7 +2181,7 @@ export default function TodayPage() {
           return (
             <>
               <SectionHeader title="#Medication" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 24px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 26px' }}>
                 {visAm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#4285F4', letterSpacing: '.1em', padding: '2px 2px 2px 4px' }}>아침</div>}
                 {visAm.map(m => <MedBar key={m.id} m={m} slot="am" />)}
                 {visPm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#E8A86B', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>오후</div>}
@@ -2258,11 +2258,11 @@ export default function TodayPage() {
                   </span>
                 }
               />
-              <div style={{ margin: '0 24px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
+              <div style={{ margin: '0 26px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
                 {visibleItems.map((item, idx) => {
                   if (item.isWarning) {
                     return (
-                      <div key={item.id} style={{ padding: '10px 24px', background: '#FEF2F2', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div key={item.id} style={{ padding: '10px 26px', background: '#FEF2F2', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 16 }}>⚠️</span>
                         <span style={{ fontFamily: fDiet, fontSize: 12, fontWeight: 700, color: '#DC2626' }}>{item.text}</span>
                       </div>
@@ -2273,7 +2273,7 @@ export default function TodayPage() {
                   const isDone = dietChecked.has(key);
                   return (
                     <div key={slot.id} onClick={() => handleToggleDiet(p.id, slot.id)}
-                      style={{ padding: '12px 24px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
+                      style={{ padding: '12px 26px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                         <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
                           {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
@@ -2347,7 +2347,7 @@ export default function TodayPage() {
           return (
           <div>
             <SectionHeader title="#Health" action={`${visHealth.length}개`} />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 26px' }}>
               {visHealth.map((h) => {
                 const isDone = healthChecked.has(h.id);
                 const pt = primaryTime(h);
@@ -2385,7 +2385,7 @@ export default function TodayPage() {
         {!user && !authLoading && (() => {
           const fT = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
           const TeaserCard = ({ icon, title, desc, col }: { icon: string; title: string; desc: string; col: string }) => (
-            <div style={{ margin: '0 24px', padding: '14px 24px', background: '#fff', borderRadius: 16, border: `1.5px solid ${col}22`, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ margin: '0 26px', padding: '14px 26px', background: '#fff', borderRadius: 16, border: `1.5px solid ${col}22`, display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: `${col}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{icon}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontFamily: fT, fontSize: 13, fontWeight: 800, color: '#0C0C0A', letterSpacing: '.04em' }}>{title}</div>

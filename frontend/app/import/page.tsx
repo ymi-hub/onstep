@@ -125,7 +125,7 @@ function InputSection({
       {/* 섹션 헤더 */}
       <div
         style={{
-          padding: '14px 24px',
+          padding: '14px 26px',
           borderBottom: '1px solid rgba(12,12,10,.07)',
           display: 'flex',
           alignItems: 'center',
@@ -181,7 +181,7 @@ function InputSection({
         rows={8}
         style={{
           width: '100%',
-          padding: '14px 24px',
+          padding: '14px 26px',
           border: 'none',
           outline: 'none',
           resize: 'vertical',
@@ -199,7 +199,7 @@ function InputSection({
       {/* 하단 버튼 영역 */}
       <div
         style={{
-          padding: '12px 24px',
+          padding: '12px 26px',
           borderTop: '1px solid rgba(12,12,10,.07)',
           display: 'flex',
           alignItems: 'center',
@@ -292,14 +292,14 @@ function ResultSection({
   const matchedCount = Array.from(productMatches.values()).filter((m) => m.matched).length;
 
   return (
-    <div style={{ padding: '0 24px' }}>
+    <div style={{ padding: '0 26px' }}>
       {/* 분석 결과 헤더 카드 */}
       <div
         style={{
           background: 'linear-gradient(135deg, #f0ffe0 0%, #e8ffc0 100%)',
           border: '1px solid rgba(197,255,0,.3)',
           borderRadius: 16,
-          padding: '14px 24px',
+          padding: '14px 26px',
           marginBottom: 12,
           display: 'flex',
           alignItems: 'center',
@@ -361,7 +361,7 @@ function ResultSection({
             {/* 시간대 헤더 */}
             <div
               style={{
-                padding: '12px 24px',
+                padding: '12px 26px',
                 borderBottom: '1px solid rgba(12,12,10,.07)',
                 background: '#F4F4F0',
                 display: 'flex',
@@ -394,7 +394,7 @@ function ResultSection({
             </div>
 
             {/* 루틴 → 단계 목록 */}
-            <div style={{ padding: '10px 24px 14px' }}>
+            <div style={{ padding: '10px 26px 14px' }}>
               {dayRoutines.map((routine) =>
                 routine.phases.map((phase) => (
                   <div
@@ -813,7 +813,7 @@ export default function ImportPage() {
 
       <div style={{ paddingTop: 16 }}>
         {/* 페이지 헤더 */}
-        <div style={{ padding: '0 24px 4px' }}>
+        <div style={{ padding: '0 26px 4px' }}>
           <h1
             style={{
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
@@ -843,7 +843,7 @@ export default function ImportPage() {
         {errorMsg && (
           <div
             style={{
-              margin: '12px 24px 0',
+              margin: '12px 26px 0',
               padding: '10px 14px',
               background: '#FFF0F0',
               border: '1px solid rgba(255,0,0,.15)',
@@ -885,7 +885,7 @@ export default function ImportPage() {
         {pageState === 'input' && products.length === 0 && !authLoading && (
           <div
             style={{
-              margin: '0 24px',
+              margin: '0 26px',
               padding: '12px 14px',
               background: '#F4F4F0',
               border: '1px solid rgba(12,12,10,.07)',
