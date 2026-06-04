@@ -38,7 +38,7 @@ import { db, auth } from '@/lib/firebase';
 import { imageFileToBase64 } from '@/lib/imageUtils';
 import { useAppContext } from '@/lib/AppContext';
 import { FALLBACK_USER_ID, FONT } from '@/lib/constants';
-import { getTodayDateStr, getEveningDateStr } from '@/lib/dateUtils';
+import { toDateStr, getTodayDateStr, getEveningDateStr } from '@/lib/dateUtils';
 import { migrateRawSlot, migrateSession } from '@/lib/migration';
 import { useTimer, formatTimerRemain, playAlarmChime } from '@/hooks/useTimer';
 import CatBadge from '@/components/CatBadge';
@@ -1670,6 +1670,7 @@ export default function TodayPage() {
   }, [userId, authLoading, user, activeSessionId, todayKey]); // todayKey: 자정 리셋
 
   // ── 실시간 구독 3b: 나이트 체크 기록 (04:00에 리셋) ──
+  // loggedAt으로 이중 검증: 구 버전 코드가 자정 넘어 저장한 잘못된 dateStr 데이터 필터링
   useEffect(() => {
     if (authLoading || !user || !db || !activeSessionId) return;
     const _db = db;
@@ -1681,7 +1682,18 @@ export default function TodayPage() {
       where('timeSlot', '==', 'evening')
     );
     const unsub = onSnapshot(q, (snap) => {
-      setChecked((prev) => ({ ...prev, evening: !snap.empty }));
+      // loggedAt 시간대 검증: 18:00~03:59만 유효한 나이트 로그
+      const hasValid = snap.docs.some((d) => {
+        const loggedAt = new Date(d.data().loggedAt as string);
+        const h = loggedAt.getHours();
+        if (h >= 4 && h < 18) return false; // 모닝 구간(04~17:59)에 저장된 건 제외
+        // 나이트 구간: h < 4 → 전날, h >= 18 → 당일
+        const logDay = h < 4
+          ? toDateStr(new Date(loggedAt.getFullYear(), loggedAt.getMonth(), loggedAt.getDate() - 1))
+          : toDateStr(loggedAt);
+        return logDay === eveningDateStr;
+      });
+      setChecked((prev) => ({ ...prev, evening: hasValid }));
     }, (err) => console.error('[OnStep] 나이트 체크 기록 로드 실패:', err));
     return () => unsub();
   }, [userId, authLoading, user, activeSessionId, nightKey]); // nightKey: 04:00 리셋
@@ -1958,6 +1970,25 @@ export default function TodayPage() {
     });
     return () => unsub();
   }, [userId, authLoading, user, todayKey]);
+
+  // ── 1회성 건강 루틴 만료 시 자동 삭제 ──
+  // todayKey 변경(자정) 시 date < today 인 repeatType==='once' 항목 삭제
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    const todayStr = getTodayDateStr();
+    const expired = healthRoutines.filter(
+      (h) => h.repeatType === 'once' && h.date && h.date < todayStr
+    );
+    if (expired.length === 0) return;
+    expired.forEach(async (h) => {
+      try {
+        await deleteDoc(doc(_db, 'users', userId, 'healthRoutines', h.id));
+      } catch (err) {
+        console.error('[OnStep] 1회성 건강루틴 만료 삭제 실패:', err);
+      }
+    });
+  }, [todayKey, userId, authLoading, user, healthRoutines]);
 
   // ── 건강 루틴 토글 (완료/해제) ──
   const handleToggleHealth = useCallback(
