@@ -2460,11 +2460,15 @@ function LogPageInner() {
             {(() => {
               const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
 
-              // 연속 기록일: 오늘부터 거꾸로 연속된 날 수 계산
+              // 연속 기록일: 가장 최근 완료일부터 거꾸로 역산
+              // 오늘 기록이 없으면 어제부터 시작 (당일 루틴 미완료여도 스트릭 유지)
               let streak = 0;
               const MS_PER_DAY = 86_400_000;
               let checkDate = new Date(todayStr + 'T00:00:00');
-              // 최대 31일(한 달)까지만 체크 (dayLogs 범위 내)
+              const todayLog = dayLogs.get(todayStr);
+              if (!todayLog || (!todayLog.hasMorning && !todayLog.hasEvening)) {
+                checkDate = new Date(checkDate.getTime() - MS_PER_DAY);
+              }
               for (let i = 0; i < 31; i++) {
                 const ds = toDateStr(checkDate);
                 const log = dayLogs.get(ds);
