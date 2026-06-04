@@ -2207,12 +2207,11 @@ export default function TodayPage() {
           const pmMeds = activeMeds.filter(m => periodOf(m) === 'pm');
           const evMeds = activeMeds.filter(m => periodOf(m) === 'ev');
 
-          // 특정 time 없으면 해당 구간 전체에서 표시; time 있으면 ±1h 창
-          // 오늘 로그가 있는 항목은 시간 창 밖이어도 표시 (해제해도 Firestore 확인 전까지 유지)
+          // 시간 지정된 항목: ±1h 창 또는 이미 로그됨. 시간 미지정 항목: 항상 표시
           const medLoggedIds = new Set(medLogs.map(l => l.routineId));
-          const visAm = amMeds.filter(m => (period === 'am' && (!hasTime(m) || inWin(slotTime(m, 'am')))) || medLoggedIds.has(m.id));
-          const visPm = pmMeds.filter(m => (period === 'pm' && (!hasTime(m) || inWin(slotTime(m, 'pm')))) || medLoggedIds.has(m.id));
-          const visEv = evMeds.filter(m => (period === 'ev' && (!hasTime(m) || inWin(slotTime(m, 'ev')))) || medLoggedIds.has(m.id));
+          const visAm = amMeds.filter(m => !hasTime(m) || inWin(slotTime(m, 'am')) || medLoggedIds.has(m.id));
+          const visPm = pmMeds.filter(m => !hasTime(m) || inWin(slotTime(m, 'pm')) || medLoggedIds.has(m.id));
+          const visEv = evMeds.filter(m => !hasTime(m) || inWin(slotTime(m, 'ev')) || medLoggedIds.has(m.id));
 
           // times 배열 없는 완료 항목 — 어느 그룹에도 속하지 않지만 로그가 있으면 표시
           const assignedIds = new Set([...amMeds, ...pmMeds, ...evMeds].map(m => m.id));
@@ -2396,8 +2395,7 @@ export default function TodayPage() {
             if (h.time && h.time.includes(':')) return _hInWin(h.time);
             return true;
           };
-          const healthLoggedIds = new Set(healthLogs.map(l => l.routineId));
-          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h) && (isHealthVisible(h) || healthLoggedIds.has(h.id)));
+          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h));
           if (visHealth.length === 0) return null;
           // 대표 시간: entries 중 가장 이른 시간, 없으면 h.time, 없으면 ''
           const primaryTime = (h: { time?: string; entries?: { time: string }[] }) => {
