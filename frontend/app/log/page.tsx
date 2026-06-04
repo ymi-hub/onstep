@@ -2476,10 +2476,8 @@ function LogPageInner() {
                 }
               }
 
-              // 이번 달 달성률: 완료 일수 / 오늘까지 지난 일수
-              const todayDayNum = new Date(todayStr + 'T00:00:00').getDate();
-              const elapsedDays = isSameMonth(currentMonth, new Date()) ? todayDayNum : totalDaysInMonth;
-              const pct = elapsedDays > 0 ? Math.round((completedDays / elapsedDays) * 100) : 0;
+              // 이번 달 달성률: 완료 일수 / 해당 월 총 일수
+              const pct = totalDaysInMonth > 0 ? Math.round((completedDays / totalDaysInMonth) * 100) : 0;
 
               // 아직 기록이 없으면 카드 숨김
               if (completedDays === 0) return null;
@@ -2514,7 +2512,7 @@ function LogPageInner() {
                         <div style={{ height: '100%', width: `${pct}%`, background: '#4A7700', borderRadius: 9999, transition: 'width .5s ease' }} />
                       </div>
                       <span style={{ fontFamily: f, fontSize: 10, color: '#4A7700' }}>
-                        {completedDays}일 완료 / {elapsedDays}일 경과
+                        {completedDays}일 완료 / {totalDaysInMonth}일
                       </span>
                     </div>
                   </div>
