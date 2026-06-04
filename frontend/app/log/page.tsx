@@ -417,11 +417,12 @@ function MonthCalendar({
               {sessionLabel && (
                 <span style={{
                   position: 'absolute',
-                  top: 19,
+                  top: 29,
                   left: '50%',
                   transform: 'translateX(-50%) rotate(-6deg)',
                   pointerEvents: 'none',
                   zIndex: 4,
+                  opacity: 0.7,
                   background: 'rgba(255,255,255,.97)',
                   border: '1.5px solid rgba(190,30,30,.72)',
                   borderRadius: 4,
