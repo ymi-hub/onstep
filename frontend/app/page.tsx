@@ -390,7 +390,7 @@ function FlowCard({
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'flex-start',
-                    padding: '20px 20px 0px',
+                    padding: '20px 26px 0px',
                     width: 240,
                     minWidth: 240,
                     height: 350,
