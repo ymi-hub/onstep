@@ -2458,9 +2458,10 @@ export default function TodayPage() {
           const _hInWin = (t: string) => { const tm = _hToMin(t); return _hNowMin >= tm - 60 && _hNowMin <= tm + 60; };
           // 시간 정보 없으면 항상 노출, 있으면 ±1시간 내 항목만
           const isHealthVisible = (h: { time?: string; entries?: { time: string }[] }) => {
-            const entries = h.entries ?? [];
-            if (entries.length > 0) return entries.some(e => _hInWin(e.time));
-            if (h.time) return _hInWin(h.time);
+            // 시간 값이 있는 entries만 필터 (빈 문자열/undefined 제외)
+            const timedEntries = (h.entries ?? []).filter(e => e.time && e.time.includes(':'));
+            if (timedEntries.length > 0) return timedEntries.some(e => _hInWin(e.time));
+            if (h.time && h.time.includes(':')) return _hInWin(h.time);
             return true; // 시간 없는 항목은 종일 노출
           };
           const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h) && isHealthVisible(h));
