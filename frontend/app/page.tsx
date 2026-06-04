@@ -120,7 +120,11 @@ function isHealthToday(h: { repeatType?: string; date?: string; weekdays?: numbe
   const todayWD = new Date().getDay();
   const todayStr = getTodayDateStr();
   if (!h.repeatType || h.repeatType === 'allday' || h.repeatType === 'daily') return true;
-  if (h.repeatType === 'once') return h.date === todayStr;
+  if (h.repeatType === 'once') {
+    // date 없거나 빈 값이면 오늘 일정으로 취급
+    if (!h.date || h.date === '') return true;
+    return h.date === todayStr;
+  }
   if (h.repeatType === 'scheduled') return (h.weekdays ?? []).includes(todayWD);
   return false;
 }
@@ -2440,21 +2444,21 @@ export default function TodayPage() {
           );
         })}
 
-        {/* 건강 루틴 섹션 — showInToday=true + 오늘 날짜 해당, 항상 노출 */}
+        {/* 건강 루틴 섹션 — showInToday=true + 오늘 날짜 해당 + ±1시간 창 */}
         {(() => {
           const fH = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h));
-          // 디버그: 전체 상태 표시 (문제 확인 후 제거)
-          if (visHealth.length === 0) return (
-            <div style={{ margin: '0 16px 8px', background: '#FFF8E1', border: '1px solid #FFC107', borderRadius: 12, padding: '10px 14px', fontFamily: fH, fontSize: 11 }}>
-              <b>Health 진단</b> — 전체:{healthRoutines.length}개 / Today ON:{healthRoutines.filter(h=>h.showInToday).length}개 / 오늘 해당:{healthRoutines.filter(h=>h.showInToday&&isHealthToday(h)).length}개
-              {healthRoutines.map(h=>(
-                <div key={h.id} style={{marginTop:4,color:'#555'}}>
-                  [{h.showInToday?'ON':'off'}] {h.name} | repeat={h.repeatType||'없음'} | date={h.date||'-'} | time={h.time||'-'} | entries={h.entries?.length||0}개
-                </div>
-              ))}
-            </div>
-          );
+          const _hNowMin = today.getHours() * 60 + today.getMinutes();
+          const _hToMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
+          const _hInWin = (t: string) => { const tm = _hToMin(t); return _hNowMin >= tm - 60 && _hNowMin <= tm + 60; };
+          // 시간 있으면 ±1시간 창, 없으면 종일 노출
+          const isHealthVisible = (h: { time?: string; entries?: { time: string }[] }) => {
+            const timedEntries = (h.entries ?? []).filter(e => e.time && e.time.includes(':'));
+            if (timedEntries.length > 0) return timedEntries.some(e => _hInWin(e.time));
+            if (h.time && h.time.includes(':')) return _hInWin(h.time);
+            return true;
+          };
+          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h) && isHealthVisible(h));
+          if (visHealth.length === 0) return null;
           // 대표 시간: entries 중 가장 이른 시간, 없으면 h.time, 없으면 ''
           const primaryTime = (h: { time?: string; entries?: { time: string }[] }) => {
             const timed = (h.entries ?? []).map(e => e.time).filter(t => t && t.includes(':'));
