@@ -1356,8 +1356,10 @@ function AiImportPanel({
     return items;
   }
 
+  const hasGroqKey = !!process.env.NEXT_PUBLIC_GROQ_API_KEY;
+
   const handleParse = async () => {
-    if (!text.trim()) return;
+    if (!text.trim() || !hasGroqKey) return;
     setPanelPhase('parsing');
     setError('');
     try {
@@ -1400,6 +1402,11 @@ function AiImportPanel({
           {panelPhase === 'input' || panelPhase === 'parsing' ? (
             // ── 입력 단계 ──
             <div style={{ padding: '16px 16px 32px' }}>
+              {!hasGroqKey && (
+                <div style={{ marginBottom: 12, padding: '10px 14px', background: '#FFFAE0', border: '1px solid rgba(200,160,0,.2)', borderRadius: 10, fontFamily: f, fontSize: 12, color: '#7A6000' }}>
+                  ⚙️ <strong>AI 분석 준비 중</strong> — .env.local에 <code>NEXT_PUBLIC_GROQ_API_KEY</code>를 추가하면 사용할 수 있어요.
+                </div>
+              )}
               {error && (
                 <div style={{ marginBottom: 12, padding: '10px 14px', background: '#FFF0F0', border: '1px solid rgba(255,0,0,.15)', borderRadius: 10, fontFamily: f, fontSize: 12, color: '#CC0000', display: 'flex', gap: 6, alignItems: 'flex-start' }}>
                   <span style={{ flexShrink: 0 }}>⚠️</span>{error}
@@ -1409,18 +1416,18 @@ function AiImportPanel({
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                disabled={panelPhase === 'parsing'}
+                disabled={panelPhase === 'parsing' || !hasGroqKey}
                 placeholder={`예시:\n아침은\n구해줘앰플+새살세럼 섞어서 얇게 펴바르고-인투토너-델마크림으로 마무리\n\n하루아침은\n버터토너-델마세럼-라이지세럼으로 마무리`}
                 rows={7}
-                style={{ width: '100%', padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, lineHeight: 1.7, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const }}
+                style={{ width: '100%', padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, lineHeight: 1.7, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const, opacity: hasGroqKey ? 1 : 0.5 }}
               />
               <div style={{ marginTop: 4, fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>
                 루틴 텍스트를 붙여넣으세요{text.length > 0 ? ` · ${text.length}자` : ''}
               </div>
               <button
                 onClick={handleParse}
-                disabled={panelPhase === 'parsing' || !text.trim()}
-                style={{ marginTop: 14, width: '100%', height: 44, borderRadius: 10, border: 'none', background: panelPhase === 'parsing' || !text.trim() ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: panelPhase === 'parsing' || !text.trim() ? '#9A9490' : '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 800, cursor: panelPhase === 'parsing' || !text.trim() ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                disabled={panelPhase === 'parsing' || !text.trim() || !hasGroqKey}
+                style={{ marginTop: 14, width: '100%', height: 44, borderRadius: 10, border: 'none', background: (panelPhase === 'parsing' || !text.trim() || !hasGroqKey) ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: (panelPhase === 'parsing' || !text.trim() || !hasGroqKey) ? '#9A9490' : '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 800, cursor: (panelPhase === 'parsing' || !text.trim() || !hasGroqKey) ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
                 {panelPhase === 'parsing' ? (
                   <>

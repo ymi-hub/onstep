@@ -160,6 +160,8 @@ function MonthCalendar({
   hasMed,
   hasHealth,
   hasDiet,
+  onToggleMorning,
+  onToggleEvening,
 }: {
   currentMonth: Date;
   dayLogs: Map<string, DayLog>;
@@ -173,6 +175,8 @@ function MonthCalendar({
   hasMed: boolean;
   hasHealth: boolean;
   hasDiet: boolean;
+  onToggleMorning?: () => void;
+  onToggleEvening?: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -192,8 +196,9 @@ function MonthCalendar({
     <span style={{
       fontFamily: fTag, fontSize: 11, fontWeight: 800,
       padding: '3px 9px', borderRadius: 9999,
-      background: active ? '#0C0C0A' : '#EEEDE9',
+      background: active ? '#0C0C0A' : 'transparent',
       color: active ? '#C5FF00' : '#BCBAB6',
+      border: active ? '1.5px solid transparent' : '1.5px dashed #BCBAB6',
       letterSpacing: '.04em', whiteSpace: 'nowrap' as const,
     }}>{label}</span>
   );
@@ -214,12 +219,20 @@ function MonthCalendar({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
           <span style={{ fontFamily: fTag, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-0.01em' }}>
-            {format(currentMonth, 'yyyy년 M월', { locale: ko })}
+            {isSameMonth(currentMonth, new Date())
+              ? format(new Date(), 'yyyy년 M월 d일', { locale: ko })
+              : format(currentMonth, 'yyyy년 M월', { locale: ko })}
           </span>
           <div style={{ display: 'flex', gap: 4 }}>
-            <Tag label={`${fullDays}일차`} active={fullDays > 0} />
-            <Tag label="아침" active={hasMorning} />
-            <Tag label="저녁" active={hasEvening} />
+            <Tag label={`완료 ${fullDays}일차`} active={fullDays > 0} />
+            <span onClick={isSameMonth(currentMonth, new Date()) ? onToggleMorning : undefined}
+              style={{ cursor: isSameMonth(currentMonth, new Date()) ? 'pointer' : 'default' }}>
+              <Tag label="아침" active={hasMorning} />
+            </span>
+            <span onClick={isSameMonth(currentMonth, new Date()) ? onToggleEvening : undefined}
+              style={{ cursor: isSameMonth(currentMonth, new Date()) ? 'pointer' : 'default' }}>
+              <Tag label="저녁" active={hasEvening} />
+            </span>
           </div>
         </div>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, transition: 'transform .2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
@@ -2168,6 +2181,32 @@ function LogPageInner() {
     await deleteDoc(doc(db, 'users', userId, filter === 'makeup' ? 'makeupItems' : 'lookItems', id));
   }
 
+  // ── 아침/저녁 태그 토글 — usageLog 직접 추가/삭제 ──
+  async function handleToggleMorning() {
+    const _db = db;
+    if (!_db || !user) return;
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const todayLog = dayLogs.get(todayStr);
+    if (todayLog?.hasMorning) {
+      const entries = todayLog.entries.filter(e => e.timeSlot === 'morning');
+      await Promise.all(entries.map(e => deleteDoc(doc(_db, 'users', userId, 'usageLogs', e.id))));
+    } else {
+      await addDoc(collection(_db, 'users', userId, 'usageLogs'), { timeSlot: 'morning', dateStr: todayStr, loggedAt: new Date().toISOString(), type: 'manual' });
+    }
+  }
+  async function handleToggleEvening() {
+    const _db = db;
+    if (!_db || !user) return;
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const todayLog = dayLogs.get(todayStr);
+    if (todayLog?.hasEvening) {
+      const entries = todayLog.entries.filter(e => e.timeSlot === 'evening');
+      await Promise.all(entries.map(e => deleteDoc(doc(_db, 'users', userId, 'usageLogs', e.id))));
+    } else {
+      await addDoc(collection(_db, 'users', userId, 'usageLogs'), { timeSlot: 'evening', dateStr: todayStr, loggedAt: new Date().toISOString(), type: 'manual' });
+    }
+  }
+
   // Today 즉시 적용/해제 — Firestore 업데이트 → AppContext onSnapshot 자동 반영
   async function handleToggleToday(item: CtItem) {
     if (!db || togglingId) return;
@@ -2562,6 +2601,8 @@ function LogPageInner() {
               hasMed={medRoutines.some(m => m.active)}
               hasHealth={healthRoutines.some(h => h.active && h.showInToday)}
               hasDiet={dietPrograms.some(p => p.showInToday)}
+              onToggleMorning={handleToggleMorning}
+              onToggleEvening={handleToggleEvening}
             />
             {selectedDate ? (
               <DayDetail

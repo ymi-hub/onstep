@@ -2208,13 +2208,15 @@ export default function TodayPage() {
           const evMeds = activeMeds.filter(m => periodOf(m) === 'ev');
 
           // 특정 time 없으면 해당 구간 전체에서 표시; time 있으면 ±1h 창
-          const visAm = amMeds.filter(m => (period === 'am' && (!hasTime(m) || inWin(slotTime(m, 'am')))) || medChecked.has(m.id));
-          const visPm = pmMeds.filter(m => (period === 'pm' && (!hasTime(m) || inWin(slotTime(m, 'pm')))) || medChecked.has(m.id));
-          const visEv = evMeds.filter(m => (period === 'ev' && (!hasTime(m) || inWin(slotTime(m, 'ev')))) || medChecked.has(m.id));
+          // 오늘 로그가 있는 항목은 시간 창 밖이어도 표시 (해제해도 Firestore 확인 전까지 유지)
+          const medLoggedIds = new Set(medLogs.map(l => l.routineId));
+          const visAm = amMeds.filter(m => (period === 'am' && (!hasTime(m) || inWin(slotTime(m, 'am')))) || medLoggedIds.has(m.id));
+          const visPm = pmMeds.filter(m => (period === 'pm' && (!hasTime(m) || inWin(slotTime(m, 'pm')))) || medLoggedIds.has(m.id));
+          const visEv = evMeds.filter(m => (period === 'ev' && (!hasTime(m) || inWin(slotTime(m, 'ev')))) || medLoggedIds.has(m.id));
 
-          // times 배열 없는 완료 항목 — 어느 그룹에도 속하지 않지만 체크됐으면 표시
+          // times 배열 없는 완료 항목 — 어느 그룹에도 속하지 않지만 로그가 있으면 표시
           const assignedIds = new Set([...amMeds, ...pmMeds, ...evMeds].map(m => m.id));
-          const orphanChecked = activeMeds.filter(m => medChecked.has(m.id) && !assignedIds.has(m.id));
+          const orphanChecked = activeMeds.filter(m => medLoggedIds.has(m.id) && !assignedIds.has(m.id));
 
           if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0 && orphanChecked.length === 0) return null;
 
@@ -2394,7 +2396,8 @@ export default function TodayPage() {
             if (h.time && h.time.includes(':')) return _hInWin(h.time);
             return true;
           };
-          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h) && (isHealthVisible(h) || healthChecked.has(h.id)));
+          const healthLoggedIds = new Set(healthLogs.map(l => l.routineId));
+          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h) && (isHealthVisible(h) || healthLoggedIds.has(h.id)));
           if (visHealth.length === 0) return null;
           // 대표 시간: entries 중 가장 이른 시간, 없으면 h.time, 없으면 ''
           const primaryTime = (h: { time?: string; entries?: { time: string }[] }) => {
