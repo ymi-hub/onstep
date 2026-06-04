@@ -395,7 +395,7 @@ function MonthCalendar({
                 borderRadius: 10,
                 cursor: 'pointer',
                 transition: 'background .15s',
-                overflow: 'hidden',
+                overflow: 'visible',
               }}
             >
               {/* bothDone 고양이 도장 오버레이 */}
@@ -2974,38 +2974,38 @@ function LogPageInner() {
                             <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A', marginLeft: 'auto' }}>👗 OOTD</span>
                           </div>
                           <div style={{ padding: '10px 14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                            {/* MOTD */}
-                            <div style={{ display: 'flex', flexDirection: 'row', gap: 8, flexWrap: 'wrap' as const }}>
-                              {todayMotd.length > 0 ? todayMotd.slice(0, 2).map(item => (
-                                <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                                  <div style={{ width: 140, height: 200, borderRadius: 0, overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {/* MOTD — 컬럼 전체 너비 채움 */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
+                              {todayMotd.length > 0 ? todayMotd.slice(0, 1).map(item => (
+                                <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%' }}>
+                                  <div style={{ width: '100%', aspectRatio: '0.7', overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {item.imageUrl
                                       // eslint-disable-next-line @next/next/no-img-element
                                       ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                                      : <span style={{ fontSize: 28 }}>{item.emoji || '💄'}</span>}
+                                      : <span style={{ fontSize: 36 }}>{item.emoji || '💄'}</span>}
                                   </div>
-                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                                 </div>
                               )) : (
-                                <div style={{ width: 140, height: 200, borderRadius: 0, background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ width: '100%', aspectRatio: '0.7', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                   <TodayStampBadge size={68} rotate={-9} label="MOTD" f={f} />
                                 </div>
                               )}
                             </div>
-                            {/* OOTD */}
-                            <div style={{ display: 'flex', flexDirection: 'row', gap: 8, flexWrap: 'wrap' as const }}>
-                              {todayOotd.length > 0 ? todayOotd.slice(0, 2).map(item => (
-                                <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                                  <div style={{ width: 140, height: 200, borderRadius: 0, overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {/* OOTD — 컬럼 전체 너비 채움 */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
+                              {todayOotd.length > 0 ? todayOotd.slice(0, 1).map(item => (
+                                <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%' }}>
+                                  <div style={{ width: '100%', aspectRatio: '0.7', overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {item.imageUrl
                                       // eslint-disable-next-line @next/next/no-img-element
                                       ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                                      : <span style={{ fontSize: 28 }}>{item.emoji || '👗'}</span>}
+                                      : <span style={{ fontSize: 36 }}>{item.emoji || '👗'}</span>}
                                   </div>
-                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                                 </div>
                               )) : (
-                                <div style={{ width: 140, height: 200, borderRadius: 0, background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ width: '100%', aspectRatio: '0.7', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                   <TodayStampBadge size={68} rotate={-9} label="OOTD" f={f} />
                                 </div>
                               )}
