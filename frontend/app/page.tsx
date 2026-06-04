@@ -1092,9 +1092,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
 
             {/* 헤더: 이미지 있으면 hero (4:3 landscape), 없으면 이모지+제목 */}
             {item.imageUrl ? (
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', background: '#1C1C1C', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
+                <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '65%', background: 'linear-gradient(to top, rgba(0,0,0,.72) 0%, transparent 100%)', pointerEvents: 'none' }} />
                 <div style={{ position: 'absolute', bottom: 14, left: 16, right: 16, fontFamily: f, fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-.02em', lineHeight: 1.15, zIndex: 1 }}>
                   {item.emoji} {item.name}
@@ -1190,9 +1190,9 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
               {/* Hero — 이미지 있을 때만 1:1 square (today.html .editorial-hero 참고) */}
               {item.imageUrl ? (
                 <Link href={`/log?tab=라이브러리&filter=makeup&id=${item.id}`} style={{ display: 'block', textDecoration: 'none' }}>
-                  <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', background: '#1C1C1C', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', overflow: 'hidden' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
+                    <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                     {/* "EDITORIAL CHOICE" 배지 (우상단) */}
                     <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(0,0,0,.55)', backdropFilter: 'blur(6px)', borderRadius: 6, padding: '4px 10px', fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.12em', color: '#fff', textTransform: 'uppercase' as const }}>
                       EDITORIAL CHOICE
