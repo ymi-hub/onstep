@@ -693,7 +693,7 @@ function TodayHabitSection({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                gap: 10,
                 padding: '14px 16px',
                 borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none',
                 cursor: 'pointer',
@@ -701,51 +701,40 @@ function TodayHabitSection({
                 transition: 'background .18s',
               }}
             >
-              {/* 좌: 체크 + 아이콘 + 이름 */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                {/* 체크박스 */}
-                <div style={{
-                  width: 22, height: 22, borderRadius: 6,
-                  border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`,
-                  background: isDone ? '#C5FF00' : '#fff',
-                  flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all .2s',
-                }}>
-                  {isDone && (
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  )}
-                </div>
-                {/* 이모지 아이콘 */}
-                <span style={{ fontSize: 18, lineHeight: 1, width: 24, textAlign: 'center', flexShrink: 0 }}>
-                  {h.icon || '✦'}
-                </span>
-                {/* 습관 이름 */}
-                <span style={{
-                  fontFamily: f, fontSize: 15, fontWeight: 400,
-                  color: isDone ? '#9A9490' : '#0C0C0A',
-                  textDecoration: isDone ? 'line-through' : 'none',
-                  transition: 'all .18s',
-                }}>
-                  {h.name}
-                </span>
+              {/* 체크박스 */}
+              <div style={{
+                width: 22, height: 22, borderRadius: 6,
+                border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`,
+                background: isDone ? '#C5FF00' : '#fff',
+                flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all .2s',
+              }}>
+                {isDone && (
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
               </div>
-
-              {/* 우: 알람 시각 — Health와 동일 스타일 */}
+              {/* 이모지 아이콘 */}
+              <span style={{ fontSize: 18, lineHeight: 1, width: 24, textAlign: 'center', flexShrink: 0 }}>
+                {h.icon || '✦'}
+              </span>
+              {/* 시간 (앞에 고정, allday 제외) */}
               {h.time && h.repeatType !== 'allday' && (
-                <span style={{
-                  fontFamily: f, fontSize: 11, fontWeight: 700,
-                  background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A',
-                  color: isDone ? '#BCBAB6' : '#C5FF00',
-                  padding: '2px 8px', borderRadius: 9999,
-                  whiteSpace: 'nowrap' as const, flexShrink: 0,
-                  display: 'flex', alignItems: 'center', gap: 4,
-                }}>
-                  {h.alarm ? '🔔 ' : ''}{h.time}
+                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: isDone ? '#C5C6CA' : '#44474A', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
+                  {h.alarm ? '🔔' : ''}{h.time}
                 </span>
               )}
+              {/* 습관 이름 */}
+              <span style={{
+                fontFamily: f, fontSize: 15, fontWeight: 400,
+                color: isDone ? '#9A9490' : '#0C0C0A',
+                textDecoration: isDone ? 'line-through' : 'none',
+                transition: 'all .18s', flex: 1, minWidth: 0,
+              }}>
+                {h.name}
+              </span>
             </div>
           );
         })}
@@ -2451,61 +2440,49 @@ export default function TodayPage() {
           );
         })}
 
-        {/* 건강 루틴 섹션 — showInToday=true + 오늘 날짜 해당 + ±1시간 창 */}
+        {/* 건강 루틴 섹션 — showInToday=true + 오늘 날짜 해당, 항상 노출 */}
         {(() => {
-          const _hNowMin = today.getHours() * 60 + today.getMinutes();
-          const _hToMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
-          const _hInWin = (t: string) => { const tm = _hToMin(t); return _hNowMin >= tm - 60 && _hNowMin <= tm + 60; };
-          // 시간 정보 없으면 항상 노출, 있으면 ±1시간 내 항목만
-          const isHealthVisible = (h: { time?: string; entries?: { time: string }[] }) => {
-            // 시간 값이 있는 entries만 필터 (빈 문자열/undefined 제외)
-            const timedEntries = (h.entries ?? []).filter(e => e.time && e.time.includes(':'));
-            if (timedEntries.length > 0) return timedEntries.some(e => _hInWin(e.time));
-            if (h.time && h.time.includes(':')) return _hInWin(h.time);
-            return true; // 시간 없는 항목은 종일 노출
-          };
-          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h) && isHealthVisible(h));
+          const fH = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h));
           if (visHealth.length === 0) return null;
+          // 대표 시간: entries 중 가장 이른 시간, 없으면 h.time, 없으면 ''
+          const primaryTime = (h: { time?: string; entries?: { time: string }[] }) => {
+            const timed = (h.entries ?? []).map(e => e.time).filter(t => t && t.includes(':'));
+            if (timed.length > 0) return timed.sort()[0];
+            return h.time && h.time.includes(':') ? h.time : '';
+          };
           return (
           <div>
             <SectionHeader title="#Health" action={`${visHealth.length}개`} />
             <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
               {visHealth.map((h, idx) => {
                 const isDone = healthChecked.has(h.id);
+                const pt = primaryTime(h);
                 return (
                   <div key={h.id} onClick={() => handleToggleHealth(h.id)}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
-                    {/* 좌: 체크 + 아이콘 + 이름 */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      {/* 체크박스 */}
-                      <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                        {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                      </div>
-                      <span style={{ fontSize: 18, lineHeight: 1, width: 24, textAlign: 'center', flexShrink: 0 }}>{h.icon || '🥗'}</span>
-                      <div style={{ minWidth: 0 }}>
-                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 400, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', transition: 'all .18s' }}>
-                          {h.name}
-                        </span>
-                      </div>
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
+                    {/* 체크박스 */}
+                    <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                      {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                     </div>
-                    {/* 우: 시간 표시 — entries가 있으면 항목별 시간, 없으면 h.time */}
-                    {(h.entries ?? []).length > 0 ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-end', flexShrink: 0 }}>
-                        {[...(h.entries ?? [])].sort((a, b) => a.time.localeCompare(b.time)).map(e => (
-                          <span key={e.id} style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#C5FF00', padding: '2px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{e.time}</span>
-                        ))}
-                      </div>
-                    ) : h.time ? (
-                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#C5FF00', padding: '2px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
-                        {h.alarm ? '🔔 ' : ''}{h.time}
+                    {/* 아이콘 */}
+                    <span style={{ fontSize: 18, lineHeight: 1, width: 24, textAlign: 'center', flexShrink: 0 }}>{h.icon || '🥗'}</span>
+                    {/* 시간 (앞에 고정) */}
+                    {pt && (
+                      <span style={{ fontFamily: fH, fontSize: 13, fontWeight: 700, color: isDone ? '#C5C6CA' : '#44474A', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
+                        {h.alarm ? '🔔' : ''}{pt}
                       </span>
-                    ) : null}
+                    )}
+                    {/* 이름 */}
+                    <span style={{ fontFamily: fH, fontSize: 15, fontWeight: 400, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none', transition: 'all .18s', flex: 1, minWidth: 0 }}>
+                      {h.name}
+                    </span>
                   </div>
                 );
               })}
               {/* 카드 안쪽 하단 오른쪽 List → */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 16px 12px', borderTop: '1px solid rgba(12,12,10,.05)' }}>
-                <Link href="/setup#health" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
+                <Link href="/setup#health" style={{ fontFamily: fH, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
                   List →
                 </Link>
               </div>
