@@ -976,7 +976,7 @@ function RecentStrip({
   });
 
   return (
-    <div style={{ margin: '0 26px' }}>
+    <div style={{ padding: '0 26px', overflow: 'hidden' }}>
       <div
         style={{
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
@@ -990,7 +990,7 @@ function RecentStrip({
       >
         최근 7일
       </div>
-      <div style={{ display: 'flex', gap: 6, width: '100%' }}>
+      <div style={{ display: 'flex', gap: 4 }}>
         {days.map((day) => {
           const ds = toDateStr(day);
           const log = dayLogs.get(ds);
@@ -1048,9 +1048,9 @@ function RecentStrip({
 
               {/* 오늘: 하나라도 완료면 캐릭터 / 나머지: 아침(라임)·저녁(블랙) 닷 */}
               {/* 아침(라임)·저녁(오렌지) SVG 고양이 */}
-              <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <span style={{ opacity: log?.hasMorning ? 1 : 0.8 }}><CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={18} /></span>
-                <span style={{ opacity: log?.hasEvening ? 1 : 0.8 }}><CatBadge color={log?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.12)'} size={18} /></span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center' }}>
+                <span style={{ opacity: log?.hasMorning ? 1 : 0.8 }}><CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={14} /></span>
+                <span style={{ opacity: log?.hasEvening ? 1 : 0.8 }}><CatBadge color={log?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.12)'} size={14} /></span>
               </div>
             </button>
           );
