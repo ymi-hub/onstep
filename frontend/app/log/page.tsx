@@ -2201,17 +2201,9 @@ function LogPageInner() {
       snap.docs.forEach((d) => {
         const data = d.data() as Omit<LogEntry, 'id'>;
         const entry: LogEntry = { id: d.id, ...data };
-        // 저녁 로그가 자정~04:00 사이에 기록된 경우 getEveningDateStr()이 어제 날짜로 저장함.
-        // LOG에서는 실제 기록 시각 기준 달력 날짜로 귀속(어제 → 오늘)해 올바른 날에 표시.
-        let ds = entry.dateStr;
-        if (entry.timeSlot === 'evening' && entry.loggedAt) {
-          const h = new Date(entry.loggedAt).getHours();
-          if (h < 4) {
-            const d2 = new Date(entry.dateStr + 'T12:00:00');
-            d2.setDate(d2.getDate() + 1);
-            ds = toDateStr(d2);
-          }
-        }
+        // getEveningDateStr()이 이미 자정 넘어도 올바른 세션 날짜로 저장하므로
+        // 별도 변환 없이 dateStr을 그대로 사용
+        const ds = entry.dateStr;
         if (!logsMap.has(ds)) {
           logsMap.set(ds, { dateStr: ds, hasMorning: false, hasEvening: false, entries: [] });
         }
