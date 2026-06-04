@@ -413,27 +413,27 @@ function MonthCalendar({
                 </span>
               )}
 
-              {/* 스킨케어 세션 시작일 — 소형 라벨 뱃지 */}
+              {/* 스킨케어 세션 시작일 — 날짜 아래, 고양이/이모지 위 오버레이 */}
               {sessionLabel && (
                 <span style={{
                   position: 'absolute',
-                  top: -9, right: -5,
+                  top: 19,
+                  left: '50%',
+                  transform: 'translateX(-50%) rotate(-6deg)',
                   pointerEvents: 'none',
                   zIndex: 4,
-                  background: 'rgba(255,255,255,.96)',
+                  background: 'rgba(255,255,255,.97)',
                   border: '1.5px solid rgba(190,30,30,.72)',
                   borderRadius: 4,
-                  padding: '1.5px 4px',
+                  padding: '1.5px 5px',
                   fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                   fontSize: 7.5,
                   fontWeight: 900,
                   color: 'rgba(145,15,15,.9)',
                   letterSpacing: '-.01em',
                   whiteSpace: 'nowrap' as const,
-                  transform: 'rotate(-8deg)',
-                  transformOrigin: 'right top',
                   lineHeight: 1.2,
-                  boxShadow: '0 1px 2px rgba(190,30,30,.18)',
+                  boxShadow: '0 1px 3px rgba(190,30,30,.2)',
                 }}>
                   {sessionLabel}
                 </span>
