@@ -2324,7 +2324,17 @@ function RepeatFormFieldsShared({
     <>
       <div style={{ display: 'flex', gap: 6 }}>
         {rtypes.map(r => (
-          <button type="button" key={r.key} onClick={() => setRt(r.key)} style={{ flex: 1, padding: '9px 4px', border: `1.5px solid ${rt === r.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: rt === r.key ? '#fff' : '#4A4846', background: rt === r.key ? '#0C0C0A' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>{r.label}</button>
+          <button type="button" key={r.key} onClick={() => {
+            setRt(r.key);
+            // 1회성 선택 시 날짜가 비어있으면 오늘 날짜 자동 적용
+            if (r.key === 'once' && !date_) {
+              const d = new Date();
+              const y = d.getFullYear();
+              const m = String(d.getMonth() + 1).padStart(2, '0');
+              const dd = String(d.getDate()).padStart(2, '0');
+              setDate_(`${y}-${m}-${dd}`);
+            }
+          }} style={{ flex: 1, padding: '9px 4px', border: `1.5px solid ${rt === r.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: rt === r.key ? '#fff' : '#4A4846', background: rt === r.key ? '#0C0C0A' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>{r.label}</button>
         ))}
       </div>
       {rt === 'once' && (

@@ -2263,22 +2263,11 @@ export default function TodayPage() {
             );
           };
 
-          // 구간 헤더 레이블 정의
-          const GROUP_META = {
-            am: { label: '·+ +°.아침°·++·° *',  color: '#6B7CE8' },
-            pm: { label: '·+ +°.오후°·++·° *',  color: '#D4923A' },
-            ev: { label: '·+ +°.저녁°·++·° *',  color: '#E86BAA' },
-          };
-
           const MedGroup = ({ slot, items }: { slot: 'am' | 'pm' | 'ev'; items: typeof activeMeds }) => {
             if (items.length === 0) return null;
-            const { label, color } = GROUP_META[slot];
             return (
               <div>
-                <div style={{ padding: '7px 16px 5px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
-                  <span style={{ fontFamily: "'Courier New',monospace", fontSize: 11, color, letterSpacing: '.03em' }}>{label}</span>
-                </div>
-                {items.map(m => <MedItem key={m.id} m={m} slot={slot} />)}
+                {items.map((m, i) => <MedItem key={m.id} m={m} slot={slot} />)}
               </div>
             );
           };
@@ -2288,20 +2277,6 @@ export default function TodayPage() {
               <SectionHeader title="#Medication" />
               <div style={{ margin: '4px 16px 8px' }}>
                 <div style={{ background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
-                  {/* 카드 헤더 */}
-                  <div style={{ padding: '14px 16px 12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
-                      <span style={{ fontSize: 15 }}>💊</span>
-                      <span style={{ fontFamily: "'Courier New',monospace", fontSize: 13, fontWeight: 700, color: '#0C0C0A', letterSpacing: '.01em' }}>Today♡·⁺°———</span>
-                    </div>
-                    <div style={{ fontFamily: fMed, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                      {today.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </div>
-                    <div style={{ fontFamily: fMed, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
-                      {today.toLocaleDateString('ko-KR', { weekday: 'long' })}
-                    </div>
-                  </div>
-
                   <MedGroup slot="am" items={visAm} />
                   <MedGroup slot="pm" items={visPm} />
                   <MedGroup slot="ev" items={visEv} />
