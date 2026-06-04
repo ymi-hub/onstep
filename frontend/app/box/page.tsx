@@ -928,14 +928,13 @@ export default function BoxPage() {
     setSaving(true);
     try {
       const now = new Date().toISOString();
-      // '개' 단위 + 총 사용 기간 입력 시: 기간에서 하루 소모량 역산 → 기존 urgency/CPD 로직과 호환
-      const isCountMode = form.itemUnit === '개' && form.usageDurationMonths > 0;
-      const derivedDosePerUse = isCountMode
-        ? totalAmount / (form.usageDurationMonths * 30)   // 하루 소모량 (개/일)
-        : form.dosePerUse;
-      const derivedUsesPerDay  = isCountMode ? 1 : form.usesPerDay;
-      const derivedFreqValue   = isCountMode ? 7 : form.daysPerWeek;
-      const derivedFreqType    = isCountMode || form.daysPerWeek === 7 ? 'daily' : 'per_week';
+      // '개' 단위: dosePerUse=1(개/회), usesPerDay/daysPerWeek 직접 저장
+      // 기존 urgency/CPD 로직: dailyUsage = dosePerUse × usesPerDay × (freq/7) = 1 × n × f/7
+      const isCountModeSave = form.itemUnit === '개';
+      const derivedDosePerUse = isCountModeSave ? 1 : form.dosePerUse;
+      const derivedUsesPerDay = form.usesPerDay;
+      const derivedFreqValue  = form.daysPerWeek;
+      const derivedFreqType   = form.daysPerWeek === 7 ? 'daily' : 'per_week';
 
       const commonFields = {
         name: form.name.trim(),
@@ -2077,20 +2076,20 @@ function AddProductPage({
     ? form.currentRemaining
     : (isCountMode && form.currentRemaining > 0 ? form.currentRemaining : totalAmount);
 
-  // 개수 모드 + 기간 입력: 총량/기간으로 하루 소모량 역산
-  const countDailyRate = (isCountMode && form.usageDurationMonths > 0)
-    ? totalAmount / (form.usageDurationMonths * 30)
-    : null;
+  // 하루 소모량 계산 (개 모드: dosePerUse=1 × usesPerDay × freq/7)
+  const dailyUsage = isCountMode
+    ? (form.daysPerWeek > 0 ? form.usesPerDay * (form.daysPerWeek / 7) : 0)
+    : form.dosePerUse * form.usesPerDay * (form.daysPerWeek / 7);
+
+  const countDailyRate = isCountMode && dailyUsage > 0 ? dailyUsage : null;
   const countWeeklyRate = countDailyRate !== null ? countDailyRate * 7 : null;
 
-  // ml/g 모드 기존 계산 유지
   const baseForEstimate = isEditing ? form.currentRemaining : totalAmount;
-  const dailyUsage = form.dosePerUse * form.usesPerDay * (form.daysPerWeek / 7);
 
-  // 예상 소진일 (모드에 따라 분기)
-  const estimatedDays = countDailyRate !== null
-    ? (countDailyRate > 0 ? Math.round(currentCount / countDailyRate) : null)
-    : (dailyUsage > 0 ? Math.round(baseForEstimate / dailyUsage) : null);
+  // 예상 소진일
+  const estimatedDays = dailyUsage > 0
+    ? Math.round((isCountMode ? currentCount : baseForEstimate) / dailyUsage)
+    : null;
 
   // form state에서 domain/subType/cats 동적 계산
   const domain = form.formDomain;
@@ -2443,34 +2442,39 @@ function AddProductPage({
 
                 {/* ── 소비 패턴 섹션: 개 모드 vs ml 모드 ── */}
                 {isCountMode ? (
-                  /* 개수 모드: 총 사용 기간으로 역산 */
+                  /* 개수 모드: 하루 횟수 + 사용 주기 직접 입력 */
                   <div>
-                    <div style={{ ...labelStyle, marginBottom: 2 }}>소진 예측 (선택)</div>
-                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 14 }}>
-                      총 기간을 알면 하루·주간 소모량이 자동 계산됩니다
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 2 }}>
+                      <div style={labelStyle}>사용 패턴</div>
+                    </div>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 14 }}>소진 예측에 사용됩니다</div>
+
+                    {/* 하루 횟수 */}
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ ...labelStyle, marginBottom: 8 }}>하루 횟수</div>
+                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const }}>
+                        {[1, 2, 3, 4].map((n) => (
+                          <button key={n} onClick={() => setForm((f) => ({ ...f, usesPerDay: n }))} style={pillStyle(form.usesPerDay === n)}>
+                            {n === 4 ? '4+회' : `${n}회`}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
-                    {/* 총 사용 기간 입력 */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#44474A', whiteSpace: 'nowrap' as const }}>
-                        총 {totalAmount}개로
-                      </span>
-                      <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4, width: 70 }}>
-                        <input
-                          type="number" min={1}
-                          placeholder="—"
-                          value={form.usageDurationMonths || ''}
-                          onChange={(e) => { const n = parseInt(e.target.value, 10); setForm((f) => ({ ...f, usageDurationMonths: isNaN(n) ? 0 : n })); }}
-                          style={{ ...countInputStyle, width: '100%', textAlign: 'center' }}
-                        />
+                    {/* 사용 주기 */}
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ ...labelStyle, marginBottom: 8 }}>사용 주기</div>
+                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const }}>
+                        {FREQ_OPTIONS.map((opt) => (
+                          <button key={opt.label} onClick={() => setForm((f) => ({ ...f, daysPerWeek: opt.daysPerWeek }))} style={pillStyle(form.daysPerWeek === opt.daysPerWeek)}>
+                            {opt.label}
+                          </button>
+                        ))}
                       </div>
-                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#44474A', whiteSpace: 'nowrap' as const }}>
-                        개월 사용
-                      </span>
                     </div>
 
                     {/* 자동 계산 결과 */}
-                    {form.usageDurationMonths > 0 && countDailyRate !== null && (
+                    {countDailyRate !== null && (
                       <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', gap: 0, marginBottom: 8 }}>
                         <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #E5E4E2' }}>
                           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '.06em', marginBottom: 2 }}>하루 소모</div>
@@ -2488,14 +2492,12 @@ function AddProductPage({
                     )}
 
                     {/* 예상 소진 */}
-                    {estimatedDays !== null && (
-                      <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>예상 소진</span>
-                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: '#0C1014' }}>
-                          약 {estimatedDays}일 후
-                        </span>
-                      </div>
-                    )}
+                    <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>예상 소진</span>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: estimatedDays !== null ? '#0C1014' : '#C5C6CA' }}>
+                        {estimatedDays !== null ? `약 ${estimatedDays}일 후` : '불규칙'}
+                      </span>
+                    </div>
                   </div>
                 ) : (
                   /* ml/g 모드: 기존 사용 패턴 UI */
