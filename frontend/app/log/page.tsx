@@ -186,11 +186,12 @@ function MonthCalendar({
   });
   const startBlank = getDay(days[0]);
   const fullDays = Array.from(dayLogs.values()).filter(l => l.hasMorning && l.hasEvening).length;
-  const morningOnly = Array.from(dayLogs.values()).filter(l => l.hasMorning && !l.hasEvening).length;
-  const eveningOnly = Array.from(dayLogs.values()).filter(l => !l.hasMorning && l.hasEvening).length;
-  // 태그별 활성화 조건
-  const hasMorning = fullDays > 0 || morningOnly > 0;
-  const hasEvening = fullDays > 0 || eveningOnly > 0;
+  // 태그 활성화: 현재 월이면 오늘 로그 기준, 과거 월이면 월 전체 기준
+  const isCurMonth = isSameMonth(currentMonth, new Date());
+  const todayDs = format(new Date(), 'yyyy-MM-dd');
+  const todayLog = dayLogs.get(todayDs);
+  const hasMorning = isCurMonth ? !!todayLog?.hasMorning : Array.from(dayLogs.values()).some(l => l.hasMorning);
+  const hasEvening = isCurMonth ? !!todayLog?.hasEvening : Array.from(dayLogs.values()).some(l => l.hasEvening);
   const fTag = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
   const Tag = ({ label, active }: { label: string; active: boolean }) => (
     <span style={{
@@ -225,12 +226,16 @@ function MonthCalendar({
           </span>
           <div style={{ display: 'flex', gap: 4 }}>
             <Tag label={`완료 ${fullDays}일차`} active={fullDays > 0} />
-            <span onClick={isSameMonth(currentMonth, new Date()) ? onToggleMorning : undefined}
-              style={{ cursor: isSameMonth(currentMonth, new Date()) ? 'pointer' : 'default' }}>
+            <span
+              onClick={isCurMonth ? (e) => { e.stopPropagation(); onToggleMorning?.(); } : undefined}
+              style={{ cursor: isCurMonth ? 'pointer' : 'default' }}
+            >
               <Tag label="아침" active={hasMorning} />
             </span>
-            <span onClick={isSameMonth(currentMonth, new Date()) ? onToggleEvening : undefined}
-              style={{ cursor: isSameMonth(currentMonth, new Date()) ? 'pointer' : 'default' }}>
+            <span
+              onClick={isCurMonth ? (e) => { e.stopPropagation(); onToggleEvening?.(); } : undefined}
+              style={{ cursor: isCurMonth ? 'pointer' : 'default' }}
+            >
               <Tag label="저녁" active={hasEvening} />
             </span>
           </div>
@@ -377,10 +382,10 @@ function MonthCalendar({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  opacity: 0.15,
+                  opacity: 0.55,
                   pointerEvents: 'none',
                 }}>
-                  <StampBadge size={38} rotate={-8} full />
+                  <StampBadge size={40} rotate={-12} full />
                 </span>
               )}
 

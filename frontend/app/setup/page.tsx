@@ -170,6 +170,73 @@ function migrateSession(raw: Record<string, unknown>, id: string): Session {
 
 // Appbar / BackButton 제거됨 → SubPageHeader 공통 컴포넌트로 대체
 
+// ─── 고스트 캐릭터 SVG ────────────────────────────────────────────────────────
+const GHOST_BODY = "M15 1 C8 1 2 7 2 15 L2 27 Q5 33 8 27 Q11.5 33 15 27 Q18.5 33 22 27 Q25 33 28 27 L28 15 C28 7 22 1 15 1 Z";
+function GhostHappy({ size = 28 }: { size?: number }) {
+  const h = Math.round(size * 1.2);
+  return (
+    <svg width={size} height={h} viewBox="0 0 30 34" fill="none">
+      <path d={GHOST_BODY} fill="white" stroke="#0C0C0A" strokeWidth="1.6" strokeLinejoin="round"/>
+      <path d="M8.5 14 Q11 11 13.5 14" stroke="#0C0C0A" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+      <path d="M16.5 14 Q19 11 21.5 14" stroke="#0C0C0A" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+      <path d="M8.5 18 Q15 25 21.5 18" stroke="#0C0C0A" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+      <line x1="0" y1="11" x2="2" y2="12.5" stroke="#0C0C0A" strokeWidth="1.3" strokeLinecap="round"/>
+      <line x1="0" y1="14.5" x2="2" y2="14.5" stroke="#0C0C0A" strokeWidth="1.3" strokeLinecap="round"/>
+      <line x1="28" y1="11" x2="30" y2="12.5" stroke="#0C0C0A" strokeWidth="1.3" strokeLinecap="round"/>
+    </svg>
+  );
+}
+function GhostCrying({ size = 28 }: { size?: number }) {
+  const h = Math.round(size * 1.2);
+  return (
+    <svg width={size} height={h} viewBox="0 0 30 34" fill="none">
+      <path d={GHOST_BODY} fill="white" stroke="#0C0C0A" strokeWidth="1.6" strokeLinejoin="round"/>
+      <ellipse cx="10.5" cy="13" rx="3" ry="3.5" fill="#0C0C0A"/>
+      <ellipse cx="10.5" cy="12.2" rx="1.1" ry="1.2" fill="white"/>
+      <ellipse cx="19.5" cy="13" rx="3" ry="3.5" fill="#0C0C0A"/>
+      <ellipse cx="19.5" cy="12.2" rx="1.1" ry="1.2" fill="white"/>
+      <path d="M9 17 Q8 21 9.5 24" stroke="#6EC6F5" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path d="M11 17 Q11.5 22 10 25" stroke="#6EC6F5" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+      <path d="M18.5 17 Q17.5 21 19 24" stroke="#6EC6F5" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path d="M20.5 17 Q21 22 19.5 25" stroke="#6EC6F5" strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+      <path d="M10 21.5 Q15 19 20 21.5" stroke="#0C0C0A" strokeWidth="1.7" strokeLinecap="round" fill="none"/>
+    </svg>
+  );
+}
+function GhostAngry({ size = 28 }: { size?: number }) {
+  const h = Math.round(size * 1.2);
+  return (
+    <svg width={size} height={h} viewBox="0 0 30 34" fill="none">
+      <path d={GHOST_BODY} fill="#FFE4E0" stroke="#0C0C0A" strokeWidth="1.6" strokeLinejoin="round"/>
+      <path d="M13.5 5.5 Q12.5 4 13.5 3 Q15 2 15.5 3.5 Q16 5 14.5 5.5 Q13.5 6 13.5 5.5" stroke="#0C0C0A" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+      <path d="M8.5 12 L13 14.5" stroke="#0C0C0A" strokeWidth="1.9" strokeLinecap="round"/>
+      <path d="M17 14.5 L21.5 12" stroke="#0C0C0A" strokeWidth="1.9" strokeLinecap="round"/>
+      <circle cx="11" cy="16.5" r="2" fill="#0C0C0A"/>
+      <circle cx="19" cy="16.5" r="2" fill="#0C0C0A"/>
+      <path d="M10 22 Q15 18.5 20 22" stroke="#0C0C0A" strokeWidth="1.7" strokeLinecap="round" fill="none"/>
+    </svg>
+  );
+}
+function GhostSurprised({ size = 28 }: { size?: number }) {
+  const h = Math.round(size * 1.2);
+  return (
+    <svg width={size} height={h} viewBox="0 0 30 34" fill="none">
+      <path d={GHOST_BODY} fill="white" stroke="#0C0C0A" strokeWidth="1.6" strokeLinejoin="round"/>
+      <line x1="15" y1="7" x2="15" y2="1" stroke="#0C0C0A" strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="15" y1="7" x2="10" y2="2.5" stroke="#0C0C0A" strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="15" y1="7" x2="20" y2="2.5" stroke="#0C0C0A" strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="15" y1="7" x2="7" y2="6" stroke="#0C0C0A" strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="15" y1="7" x2="23" y2="6" stroke="#0C0C0A" strokeWidth="1.4" strokeLinecap="round"/>
+      <circle cx="10.5" cy="15" r="3" fill="#0C0C0A"/>
+      <ellipse cx="11.3" cy="14" rx="1.1" ry="1.1" fill="white"/>
+      <circle cx="19.5" cy="15" r="3" fill="#0C0C0A"/>
+      <ellipse cx="20.3" cy="14" rx="1.1" ry="1.1" fill="white"/>
+      <ellipse cx="15" cy="21.5" rx="3" ry="3.5" fill="#0C0C0A"/>
+      <ellipse cx="15.8" cy="20.5" rx="1.2" ry="1.5" fill="white"/>
+    </svg>
+  );
+}
+
 // ─── HUB 뷰 ─────────────────────────────────────────────────────────────────
 // ─── Groq 사용량 카드 ─────────────────────────────────────────────────────────
 function GroqUsageSection() {
@@ -290,7 +357,12 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
             <span style={{ color: '#C5FF00', fontWeight: 700 }}>3 TODAY</span> 매일 체크
           </div>
         </div>
-        <span style={{ fontSize: 28, flexShrink: 0 }}>🌿</span>
+        <div style={{ display: 'flex', gap: 4, flexShrink: 0, alignItems: 'flex-end' }}>
+          <GhostHappy size={26} />
+          <GhostCrying size={26} />
+          <GhostAngry size={26} />
+          <GhostSurprised size={26} />
+        </div>
       </div>
 
       <div style={{ padding: '16px 16px 8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
