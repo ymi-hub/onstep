@@ -19,7 +19,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 // ─── 애니메이션 keyframes ──────────────────────────────────────────────────
@@ -506,7 +506,7 @@ export default function OnboardingPage() {
   function signInWithGoogle() {
     localStorage.setItem('onstep_onboarded', '1');
     if (auth) {
-      signInWithRedirect(auth, new GoogleAuthProvider());
+      signInWithPopup(auth, new GoogleAuthProvider()).then(() => router.push('/'));
     } else {
       router.push('/');
     }

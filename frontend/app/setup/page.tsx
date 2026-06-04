@@ -14,7 +14,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   onAuthStateChanged,
-  signInWithRedirect,
+  signInWithPopup,
   GoogleAuthProvider,
   signOut,
   type User,
@@ -4363,7 +4363,7 @@ export default function SetupPage() {
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
     }
     catch (err) { console.error('[OnStep] 로그인 실패:', err); }
   }

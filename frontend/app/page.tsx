@@ -30,7 +30,7 @@ import {
 } from 'firebase/firestore';
 import {
   onAuthStateChanged,
-  signInWithRedirect,
+  signInWithPopup,
   GoogleAuthProvider,
   type User,
 } from 'firebase/auth';
@@ -2016,7 +2016,7 @@ export default function TodayPage() {
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
     } catch (err) {
       console.error('[OnStep] 로그인 실패:', err);
     }
