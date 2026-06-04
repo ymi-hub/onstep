@@ -4308,7 +4308,7 @@ const dateInputStyle: React.CSSProperties = {
 };
 
 // ─── 메인 컴포넌트 ────────────────────────────────────────────────────────────
-const VALID_VIEWS: View[] = ['hub', 'sessions', 'editor', 'tracker', 'care', 'makeup', 'lookbook'];
+const VALID_VIEWS: View[] = ['hub', 'sessions', 'editor', 'tracker', 'care', 'makeup', 'lookbook', 'medication', 'health'];
 
 export default function SetupPage() {
   // ── 공유 컨텍스트 ──

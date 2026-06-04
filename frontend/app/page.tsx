@@ -2270,6 +2270,12 @@ export default function TodayPage() {
                   )}
                 </div>
               </div>
+              {/* List → SETUP#medication 딥링크 */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                <Link href="/setup#medication" style={{ fontFamily: fMed, fontSize: 12, fontWeight: 700, color: '#9A9490', textDecoration: 'none', letterSpacing: '.04em' }}>
+                  List →
+                </Link>
+              </div>
             </>
           );
         })()}
@@ -2438,6 +2444,12 @@ export default function TodayPage() {
                   </div>
                 );
               })}
+            </div>
+            {/* List → SETUP#health 딥링크 */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8, padding: '0 16px' }}>
+              <Link href="/setup#health" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#9A9490', textDecoration: 'none', letterSpacing: '.04em' }}>
+                List →
+              </Link>
             </div>
           </div>
         )}
