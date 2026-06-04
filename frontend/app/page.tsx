@@ -2166,55 +2166,34 @@ export default function TodayPage() {
         {/* 약 루틴 섹션 — 아침(04-12) / 오후(12-18) / 저녁(18-04) 3구간 */}
         {(() => {
           const fMed = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-          const activeMeds = medRoutines.filter(m => m.active);
+          // showInToday=true 또는 active=true 인 약 루틴 모두 표시
+          const activeMeds = medRoutines.filter(m => m.showInToday || m.active);
           if (activeMeds.length === 0) return null;
 
-          const nowHour = today.getHours();
-          const nowMin = today.getHours() * 60 + today.getMinutes();
-          // 현재 시간대: am=04~11 / pm=12~17 / ev=18~03
-          const period = nowHour >= 4 && nowHour < 12 ? 'am' : nowHour >= 12 && nowHour < 18 ? 'pm' : 'ev';
-
-          const toMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
-
-          // 특정 time이 있으면 ±1h 창, 없으면 해당 구간 내내 표시
-          const hasTime = (m: typeof activeMeds[0]) => !!(m.time && m.time.trim());
-          const inWin = (t: string) => {
-            const tm = toMin(t);
-            const now = (period === 'ev' && nowMin < 240) ? nowMin + 1440 : nowMin;
-            const target = (period === 'ev' && tm < 240) ? tm + 1440 : tm;
-            return now >= target - 60 && now <= target + 60;
-          };
-
-          // 각 구간 대표 시각 (MedItem 표시용 — 실제 time 없으면 구간 대표 시각)
+          // 구간별 대표 시각
           const slotTime = (m: typeof activeMeds[0], slot: 'am' | 'pm' | 'ev'): string => {
-            if (hasTime(m)) return m.time!;
+            if (m.time && m.time.trim()) return m.time;
             if (slot === 'am') return '09:00';
             if (slot === 'pm') return '13:00';
             return (m.times ?? []).includes('bedtime') ? '22:00' : '19:00';
           };
 
-          // 구간별 항목 분류 (times 배열 우선, 없으면 time 필드 시간대 fallback)
+          // 구간 분류 (times 배열 우선, 없으면 time 필드 시간대 fallback)
           const periodOf = (m: typeof activeMeds[0]): 'am' | 'pm' | 'ev' => {
-            // 실제 time 필드 우선 → times 배열 fallback
-            if (hasTime(m)) { const h = parseInt(m.time!.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
+            if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
             const ts = m.times ?? [];
             if (ts.includes('morning')) return 'am';
             if (ts.includes('lunch')) return 'pm';
             if (ts.some((t: string) => t === 'evening' || t === 'bedtime')) return 'ev';
             return 'ev';
           };
-          const amMeds = activeMeds.filter(m => periodOf(m) === 'am');
-          const pmMeds = activeMeds.filter(m => periodOf(m) === 'pm');
-          const evMeds = activeMeds.filter(m => periodOf(m) === 'ev');
 
-          // 시간 지정된 항목: ±1h 창 또는 이미 로그됨. 시간 미지정 항목: 항상 표시
+          // 시간창 필터 없이 구간별 전체 표시
           const medLoggedIds = new Set(medLogs.map(l => l.routineId));
-          const visAm = amMeds.filter(m => !hasTime(m) || inWin(slotTime(m, 'am')) || medLoggedIds.has(m.id));
-          const visPm = pmMeds.filter(m => !hasTime(m) || inWin(slotTime(m, 'pm')) || medLoggedIds.has(m.id));
-          const visEv = evMeds.filter(m => !hasTime(m) || inWin(slotTime(m, 'ev')) || medLoggedIds.has(m.id));
-
-          // times 배열 없는 완료 항목 — 어느 그룹에도 속하지 않지만 로그가 있으면 표시
-          const assignedIds = new Set([...amMeds, ...pmMeds, ...evMeds].map(m => m.id));
+          const visAm = activeMeds.filter(m => periodOf(m) === 'am');
+          const visPm = activeMeds.filter(m => periodOf(m) === 'pm');
+          const visEv = activeMeds.filter(m => periodOf(m) === 'ev');
+          const assignedIds = new Set([...visAm, ...visPm, ...visEv].map(m => m.id));
           const orphanChecked = activeMeds.filter(m => medLoggedIds.has(m.id) && !assignedIds.has(m.id));
 
           if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0 && orphanChecked.length === 0) return null;
@@ -2247,7 +2226,7 @@ export default function TodayPage() {
                 {visPm.map(m => <MedBar key={m.id} m={m} slot="pm" />)}
                 {visEv.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#E86BAA', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>저녁</div>}
                 {visEv.map(m => <MedBar key={m.id} m={m} slot="ev" />)}
-                {orphanChecked.map(m => <MedBar key={m.id} m={m} slot={period} />)}
+                {orphanChecked.map(m => <MedBar key={m.id} m={m} slot="ev" />)}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
                   <Link href="/setup#medication" style={{ fontFamily: fMed, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
                 </div>
