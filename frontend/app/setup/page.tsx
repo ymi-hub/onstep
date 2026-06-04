@@ -1417,7 +1417,7 @@ function AiImportPanel({
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 disabled={panelPhase === 'parsing' || !hasGroqKey}
-                placeholder={`예시:\n아침은\n구해줘앰플+새살세럼 섞어서 얇게 펴바르고-인투토너-델마크림으로 마무리\n\n하루아침은\n버터토너-델마세럼-라이지세럼으로 마무리`}
+                placeholder={`예시:\n구해줘앰플- 인투토너-인투앰플-델마토너-델마세럼-라이지세럼-다앰플- 케이크크림+골드스팟+기미가라크림을 섞어서 두껍게 펴바르고- 인미리코드팩-20분뒤에 띄어내고- 델마크림-오션크림-오션세럼으로 마무리!`}
                 rows={7}
                 style={{ width: '100%', padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, lineHeight: 1.7, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const, opacity: hasGroqKey ? 1 : 0.5 }}
               />
