@@ -2200,12 +2200,22 @@ export default function TodayPage() {
           <RoutineEmptyCard />
         )}
 
-        {/* 오늘의 습관 — 루틴 유무와 무관하게 항상 표시 */}
-        <TodayHabitSection
-          todayHabits={todayHabits}
-          habitChecked={habitChecked}
-          onToggle={handleToggleHabit}
-        />
+        {/* 오늘의 습관 — 루틴 유무와 무관하게 항상 표시 (시간 있는 항목은 ±1시간 창만 노출) */}
+        {(() => {
+          const _nowMin = today.getHours() * 60 + today.getMinutes();
+          const _toMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
+          const _inWin = (t: string) => { const tm = _toMin(t); return _nowMin >= tm - 60 && _nowMin <= tm + 60; };
+          const filteredHabits = todayHabits.filter(h =>
+            !h.time || h.repeatType === 'allday' || _inWin(h.time)
+          );
+          return (
+            <TodayHabitSection
+              todayHabits={filteredHabits}
+              habitChecked={habitChecked}
+              onToggle={handleToggleHabit}
+            />
+          );
+        })()}
 
         {/* 약 루틴 섹션 — 아침(04-12) / 오후(12-18) / 저녁(18-04) 3구간 */}
         {(() => {
@@ -2214,8 +2224,18 @@ export default function TodayPage() {
           if (activeMeds.length === 0) return null;
 
           const nowHour = today.getHours();
+          const nowMin = today.getHours() * 60 + today.getMinutes();
           // 현재 시간대: am=04~11 / pm=12~17 / ev=18~03
           const period = nowHour >= 4 && nowHour < 12 ? 'am' : nowHour >= 12 && nowHour < 18 ? 'pm' : 'ev';
+
+          const toMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
+          // ±1시간 창 (저녁 구간 자정 경계: nowMin < 4*60 이면 +1440 보정)
+          const inWin = (t: string) => {
+            const tm = toMin(t);
+            const now = (period === 'ev' && nowMin < 240) ? nowMin + 1440 : nowMin;
+            const target = (period === 'ev' && tm < 240) ? tm + 1440 : tm;
+            return now >= target - 60 && now <= target + 60;
+          };
 
           // 각 구간 대표 시각 (MedItem 시각 표시용)
           const slotTime = (m: typeof activeMeds[0], slot: 'am' | 'pm' | 'ev'): string => {
@@ -2225,15 +2245,14 @@ export default function TodayPage() {
             return (m.times ?? []).includes('bedtime') ? '22:00' : '18:00';
           };
 
-          // 구간별 항목 분류
+          // 구간별 항목 분류 + ±1시간 필터
           const amMeds = activeMeds.filter(m => (m.times ?? []).includes('morning'));
           const pmMeds = activeMeds.filter(m => (m.times ?? []).includes('lunch'));
           const evMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
 
-          // 현재 구간에 해당하는 그룹만 노출
-          const visAm = period === 'am' ? amMeds : [];
-          const visPm = period === 'pm' ? pmMeds : [];
-          const visEv = period === 'ev' ? evMeds : [];
+          const visAm = period === 'am' ? amMeds.filter(m => inWin(slotTime(m, 'am'))) : [];
+          const visPm = period === 'pm' ? pmMeds.filter(m => inWin(slotTime(m, 'pm'))) : [];
+          const visEv = period === 'ev' ? evMeds.filter(m => inWin(slotTime(m, 'ev'))) : [];
 
           if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0) return null;
 
@@ -2432,12 +2451,25 @@ export default function TodayPage() {
           );
         })}
 
-        {/* 건강 루틴 섹션 — showInToday=true + 오늘 날짜 해당 (1회성 포함) */}
-        {healthRoutines.filter(h => h.showInToday && isHealthToday(h)).length > 0 && (
+        {/* 건강 루틴 섹션 — showInToday=true + 오늘 날짜 해당 + ±1시간 창 */}
+        {(() => {
+          const _hNowMin = today.getHours() * 60 + today.getMinutes();
+          const _hToMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
+          const _hInWin = (t: string) => { const tm = _hToMin(t); return _hNowMin >= tm - 60 && _hNowMin <= tm + 60; };
+          // 시간 정보 없으면 항상 노출, 있으면 ±1시간 내 항목만
+          const isHealthVisible = (h: { time?: string; entries?: { time: string }[] }) => {
+            const entries = h.entries ?? [];
+            if (entries.length > 0) return entries.some(e => _hInWin(e.time));
+            if (h.time) return _hInWin(h.time);
+            return true; // 시간 없는 항목은 종일 노출
+          };
+          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h) && isHealthVisible(h));
+          if (visHealth.length === 0) return null;
+          return (
           <div>
-            <SectionHeader title="#Health" action={`${healthRoutines.filter(h => h.showInToday && isHealthToday(h)).length}개`} />
+            <SectionHeader title="#Health" action={`${visHealth.length}개`} />
             <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
-              {healthRoutines.filter(h => h.showInToday && isHealthToday(h)).map((h, idx) => {
+              {visHealth.map((h, idx) => {
                 const isDone = healthChecked.has(h.id);
                 return (
                   <div key={h.id} onClick={() => handleToggleHealth(h.id)}
@@ -2478,7 +2510,8 @@ export default function TodayPage() {
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* 집중케어 섹션 — 오늘 기간에 해당하는 published 아이템 */}
         <CareSection items={activeCareItems} products={products} />
