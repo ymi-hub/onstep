@@ -184,11 +184,19 @@ function MonthCalendar({
   const fullDays = Array.from(dayLogs.values()).filter(l => l.hasMorning && l.hasEvening).length;
   const morningOnly = Array.from(dayLogs.values()).filter(l => l.hasMorning && !l.hasEvening).length;
   const eveningOnly = Array.from(dayLogs.values()).filter(l => !l.hasMorning && l.hasEvening).length;
-  const completionParts: string[] = [];
-  if (fullDays > 0) completionParts.push(`${fullDays}일`);
-  if (morningOnly > 0) completionParts.push(`아침 ${morningOnly}`);
-  if (eveningOnly > 0) completionParts.push(`저녁 ${eveningOnly}`);
-  const completionText = completionParts.join(' + ');
+  // 태그별 활성화 조건
+  const hasMorning = fullDays > 0 || morningOnly > 0;
+  const hasEvening = fullDays > 0 || eveningOnly > 0;
+  const fTag = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+  const Tag = ({ label, active }: { label: string; active: boolean }) => (
+    <span style={{
+      fontFamily: fTag, fontSize: 11, fontWeight: 800,
+      padding: '3px 9px', borderRadius: 9999,
+      background: active ? '#0C0C0A' : '#EEEDE9',
+      color: active ? '#C5FF00' : '#BCBAB6',
+      letterSpacing: '.04em', whiteSpace: 'nowrap' as const,
+    }}>{label}</span>
+  );
 
   return (
     <div style={{ margin: '0 16px 16px', border: '1px solid #0C0C0A', borderRadius: 16, overflow: 'hidden', background: '#fff' }}>
@@ -204,15 +212,15 @@ function MonthCalendar({
           userSelect: 'none',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-0.01em' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
+          <span style={{ fontFamily: fTag, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-0.01em' }}>
             {format(currentMonth, 'yyyy년 M월', { locale: ko })}
           </span>
-          {completionText && (
-            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#4A7700', background: 'rgba(197,255,0,.18)', padding: '2px 8px', borderRadius: 9999 }}>
-              {completionText} 완료
-            </span>
-          )}
+          <div style={{ display: 'flex', gap: 4 }}>
+            <Tag label={`${fullDays}일차`} active={fullDays > 0} />
+            <Tag label="아침" active={hasMorning} />
+            <Tag label="저녁" active={hasEvening} />
+          </div>
         </div>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, transition: 'transform .2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
           <path d="M3 5.5L8 10.5L13 5.5" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
