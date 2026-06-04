@@ -38,7 +38,7 @@ import { db, auth } from '@/lib/firebase';
 import { imageFileToBase64 } from '@/lib/imageUtils';
 import { useAppContext } from '@/lib/AppContext';
 import { FALLBACK_USER_ID, FONT } from '@/lib/constants';
-import { getTodayDateStr } from '@/lib/dateUtils';
+import { getTodayDateStr, getEveningDateStr } from '@/lib/dateUtils';
 import { migrateRawSlot, migrateSession } from '@/lib/migration';
 import { useTimer, formatTimerRemain, playAlarmChime } from '@/hooks/useTimer';
 import CatBadge from '@/components/CatBadge';
@@ -110,6 +110,16 @@ function isHabitToday(h: Habit): boolean {
   const todayWD = new Date().getDay();
   const todayStr = getTodayDateStr();
   if (h.repeatType === 'allday' || h.repeatType === 'daily') return true;
+  if (h.repeatType === 'once') return h.date === todayStr;
+  if (h.repeatType === 'scheduled') return (h.weekdays ?? []).includes(todayWD);
+  return false;
+}
+
+// 오늘 수행해야 하는 건강 루틴인지 판별 (repeatType 없으면 매일 표시)
+function isHealthToday(h: { repeatType?: string; date?: string; weekdays?: number[] }): boolean {
+  const todayWD = new Date().getDay();
+  const todayStr = getTodayDateStr();
+  if (!h.repeatType || h.repeatType === 'allday' || h.repeatType === 'daily') return true;
   if (h.repeatType === 'once') return h.date === todayStr;
   if (h.repeatType === 'scheduled') return (h.weekdays ?? []).includes(todayWD);
   return false;
@@ -1509,35 +1519,53 @@ export default function TodayPage() {
   const [dietLogs, setDietLogs] = useState<{ id: string; programId: string; slotId: string }[]>([]);
 
   // ── 날짜 변경 감지 (자정 리셋) ──
-  // 1) visibilitychange: 앱이 백그라운드에서 돌아올 때 날짜 체크
-  // 2) 자정 setTimeout: 앱을 켜놓은 채 자정을 넘겨도 정확히 리셋
-  // → todayKey가 바뀌면 날짜 의존 구독 전체가 새 날짜로 재실행됨
+  // todayKey: 자정에 업데이트 → 모든 루틴(습관/약/건강/OOTD/스킨케어 모닝) 리셋
+  // nightKey: 04:00에 업데이트 → 스킨케어 나이트만 리셋 (18:00~04:00 나이트 구간 종료)
   const [todayKey, setTodayKey] = useState(() => getTodayDateStr());
+  const [nightKey, setNightKey] = useState(() => getEveningDateStr());
   useEffect(() => {
     function bumpDate() {
       setTodayKey(getTodayDateStr());
+      // 자정엔 nightKey도 동시에 갱신 (날짜 넘어가면 eveningDateStr도 바뀜)
+      setNightKey(getEveningDateStr());
+    }
+    function bumpNight() {
+      // 04:00 — 나이트 루틴 구간 종료, nightKey를 오늘 날짜로 전환
+      setNightKey(getEveningDateStr());
     }
     function handleVisibility() {
-      if (document.visibilityState === 'visible') bumpDate();
+      if (document.visibilityState === 'visible') {
+        setTodayKey(getTodayDateStr());
+        setNightKey(getEveningDateStr());
+      }
     }
     document.addEventListener('visibilitychange', handleVisibility);
 
-    // 자정 정각까지 남은 ms 계산 후 setTimeout → 이후 매 24h 반복
-    let timer: ReturnType<typeof setTimeout>;
+    // 자정 타이머 — 모든 루틴 리셋
+    let midnightTimer: ReturnType<typeof setTimeout>;
     function scheduleMidnight() {
       const now = new Date();
       const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
       const msLeft = midnight.getTime() - now.getTime();
-      timer = setTimeout(() => {
-        bumpDate();
-        scheduleMidnight(); // 다음 날 자정도 예약
-      }, msLeft);
+      midnightTimer = setTimeout(() => { bumpDate(); scheduleMidnight(); }, msLeft);
     }
     scheduleMidnight();
 
+    // 04:00 타이머 — 나이트 스킨케어 리셋
+    let nightTimer: ReturnType<typeof setTimeout>;
+    function schedule4AM() {
+      const now = new Date();
+      let next4 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 4, 0, 0, 0);
+      if (now >= next4) next4.setDate(next4.getDate() + 1);
+      const msLeft = next4.getTime() - now.getTime();
+      nightTimer = setTimeout(() => { bumpNight(); schedule4AM(); }, msLeft);
+    }
+    schedule4AM();
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility);
-      clearTimeout(timer);
+      clearTimeout(midnightTimer);
+      clearTimeout(nightTimer);
     };
   }, []);
 
@@ -1601,27 +1629,42 @@ export default function TodayPage() {
     if (dataReady) setDataLoading(false);
   }, [dataReady]);
 
-  // ── 실시간 구독 3: 오늘 체크 기록 (활성 세션이 결정된 후 구독 시작) ──
+  // ── 실시간 구독 3a: 모닝 체크 기록 (자정에 리셋) ──
   const activeSessionId = activeSession?.id;
   useEffect(() => {
     if (authLoading || !user || !db || !activeSessionId) return;
     const _db = db;
-    const todayStr = getTodayDateStr();
+    const morningDateStr = getTodayDateStr();
     const q = query(
       collection(_db, 'users', userId, 'usageLogs'),
       where('routineId', '==', activeSessionId),
-      where('dateStr', '==', todayStr)
+      where('dateStr', '==', morningDateStr),
+      where('timeSlot', '==', 'morning')
     );
     const unsub = onSnapshot(q, (snap) => {
-      setChecked({
-        morning: snap.docs.some((d) => d.data().timeSlot === 'morning'),
-        evening: snap.docs.some((d) => d.data().timeSlot === 'evening'),
-      });
-    }, (err) => console.error('[OnStep] 체크 기록 로드 실패:', err));
+      setChecked((prev) => ({ ...prev, morning: !snap.empty }));
+    }, (err) => console.error('[OnStep] 모닝 체크 기록 로드 실패:', err));
     return () => unsub();
   }, [userId, authLoading, user, activeSessionId, todayKey]); // todayKey: 자정 리셋
 
-  // ── 실시간 구독 4: 오늘 OOTD 기록 ──
+  // ── 실시간 구독 3b: 나이트 체크 기록 (04:00에 리셋) ──
+  useEffect(() => {
+    if (authLoading || !user || !db || !activeSessionId) return;
+    const _db = db;
+    const eveningDateStr = getEveningDateStr(); // 04:00 이전엔 어제, 이후엔 오늘
+    const q = query(
+      collection(_db, 'users', userId, 'usageLogs'),
+      where('routineId', '==', activeSessionId),
+      where('dateStr', '==', eveningDateStr),
+      where('timeSlot', '==', 'evening')
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setChecked((prev) => ({ ...prev, evening: !snap.empty }));
+    }, (err) => console.error('[OnStep] 나이트 체크 기록 로드 실패:', err));
+    return () => unsub();
+  }, [userId, authLoading, user, activeSessionId, nightKey]); // nightKey: 04:00 리셋
+
+  // ── 실시간 구독 4: 오늘 OOTD 기록 (자정 리셋) ──
   useEffect(() => {
     if (authLoading || !user || !db) return;
     const _db = db;
@@ -1639,7 +1682,7 @@ export default function TodayPage() {
       }
     }, (err) => console.error('[OnStep] OOTD 로드 실패:', err));
     return () => unsub();
-  }, [userId, authLoading, user]);
+  }, [userId, authLoading, user, todayKey]); // todayKey: 자정 리셋
 
   // ── 실시간 구독 6: 오늘 습관 완료 기록 ──
   // todayKey가 바뀌면(자정 경과) 새 날짜로 재구독 → 체크 상태 자동 리셋
@@ -1726,7 +1769,8 @@ export default function TodayPage() {
       // UI 먼저 체크 상태로 변경
       setChecked((prev) => ({ ...prev, [time]: true }));
 
-      const todayStr = getTodayDateStr();
+      // 모닝: 오늘 날짜 / 나이트: 04:00 이전이면 어제 날짜 (저녁 구간이 날짜를 넘김)
+      const dateStr = time === 'morning' ? getTodayDateStr() : getEveningDateStr();
 
       try {
         const logsRef = collection(_db, 'users', userId, 'usageLogs');
@@ -1739,7 +1783,7 @@ export default function TodayPage() {
             amount: 0,
             type: 'use',
             timeSlot: time,
-            dateStr: todayStr,
+            dateStr,
             loggedAt: new Date().toISOString(),
             note: `${time === 'morning' ? '아침' : '저녁'} 루틴 완료 — Day ${todayDayNumber}`,
           });
@@ -1750,14 +1794,14 @@ export default function TodayPage() {
               const product = products.get(productId);
               const amount = product?.dosePerUse ?? 0;
 
-              // 💡 dateStr 필드: 나중에 오늘 로그 복원 시 쿼리에 사용
+              // dateStr: 모닝은 오늘, 나이트는 04:00 이전이면 어제 (저녁 구간 날짜)
               await addDoc(logsRef, {
                 routineId: activeSession.id,
                 productId,
                 amount,
                 type: 'use',
                 timeSlot: time,
-                dateStr: todayStr,
+                dateStr,
                 loggedAt: new Date().toISOString(),
                 note: `${time === 'morning' ? '아침' : '저녁'} 루틴 완료 — Day ${todayDayNumber}`,
               });
@@ -1795,13 +1839,13 @@ export default function TodayPage() {
       setSaving(true);
       setChecked((prev) => ({ ...prev, [time]: false }));
 
-      const todayStr = getTodayDateStr();
+      const dateStr = time === 'morning' ? getTodayDateStr() : getEveningDateStr();
 
       try {
         const q = query(
           collection(_db, 'users', userId, 'usageLogs'),
           where('routineId', '==', activeSession.id),
-          where('dateStr', '==', todayStr),
+          where('dateStr', '==', dateStr),
           where('timeSlot', '==', time)
         );
         const snap = await getDocs(q);
@@ -2334,12 +2378,12 @@ export default function TodayPage() {
           );
         })}
 
-        {/* 건강 루틴 섹션 — showInToday=true 인 것만 (Habits와 동일) */}
-        {healthRoutines.filter(h => h.showInToday).length > 0 && (
+        {/* 건강 루틴 섹션 — showInToday=true + 오늘 날짜 해당 (1회성 포함) */}
+        {healthRoutines.filter(h => h.showInToday && isHealthToday(h)).length > 0 && (
           <div>
-            <SectionHeader title="#Health" action={`${healthRoutines.filter(h => h.showInToday).length}개`} />
+            <SectionHeader title="#Health" action={`${healthRoutines.filter(h => h.showInToday && isHealthToday(h)).length}개`} />
             <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
-              {healthRoutines.filter(h => h.showInToday).map((h, idx) => {
+              {healthRoutines.filter(h => h.showInToday && isHealthToday(h)).map((h, idx) => {
                 const isDone = healthChecked.has(h.id);
                 return (
                   <div key={h.id} onClick={() => handleToggleHealth(h.id)}
