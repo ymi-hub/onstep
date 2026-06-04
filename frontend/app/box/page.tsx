@@ -2376,7 +2376,7 @@ function AddProductPage({
                   </div>
                   {/* 단위 선택 */}
                   <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
-                    {['ml', 'g', '개'].map((u) => (
+                    {['개', 'ml', 'g'].map((u) => (
                       <button key={u} onClick={() => setForm((f) => ({ ...f, itemUnit: u, usageDurationMonths: 0 }))} style={pillStyle(form.itemUnit === u)}>
                         {u}
                       </button>
