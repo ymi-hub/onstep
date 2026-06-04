@@ -749,12 +749,14 @@ function DayDetail({
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {activeRoutines.map(h => {
                 const done = healthChecked.has(h.id);
+                const timed = (h.entries ?? []).map((e: { time: string }) => e.time).filter((t: string) => t && t.includes(':'));
+                const pt = timed.length > 0 ? (timed as string[]).sort()[0] : (h.time && h.time.includes(':') ? h.time : '');
                 return (
                   <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
                     <div style={{ width: 14, height: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {done ? <CatBadge color="#C5FF00" size={14} /> : <span style={{ fontSize: 9, color: 'rgba(12,12,10,.3)' }}>○</span>}
                     </div>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{h.time ?? '—'}</span>
+                    {pt && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{pt}</span>}
                     <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
                   </div>
                 );
@@ -2695,7 +2697,10 @@ function LogPageInner() {
                                   <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <CheckDot done={done} />
                                     <span style={{ fontSize: 13, flexShrink: 0 }}>{h.icon || '•'}</span>
-                                    <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1 }}>{h.name}</span>
+                                    {h.time && h.repeatType !== 'allday' && (
+                                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', width: 38, flexShrink: 0 }}>{h.time}</span>
+                                    )}
+                                    <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
                                   </div>
                                 );
                               })}
@@ -2715,11 +2720,17 @@ function LogPageInner() {
                             <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                               {activeH.map(h => {
                                 const done = doneSet.has(h.id);
+                                const pt = (() => {
+                                  const timed = (h.entries ?? []).map((e: { time: string }) => e.time).filter((t: string) => t && t.includes(':'));
+                                  if (timed.length > 0) return (timed as string[]).sort()[0];
+                                  return h.time && h.time.includes(':') ? h.time : '';
+                                })();
                                 return (
                                   <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <CheckDot done={done} />
                                     <span style={{ fontSize: 13, flexShrink: 0 }}>{h.icon || '🏃'}</span>
-                                    <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1 }}>{h.name}</span>
+                                    {pt && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', width: 38, flexShrink: 0 }}>{pt}</span>}
+                                    <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
                                   </div>
                                 );
                               })}
