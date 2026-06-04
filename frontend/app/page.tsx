@@ -749,20 +749,12 @@ function TodayHabitSection({
             </div>
           );
         })}
-      </div>
-
-      {/* 하단 List → 링크 (HABITS 화면으로 이동) */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8, padding: '0 16px' }}>
-        <Link
-          href="/setup#tracker"
-          style={{
-            fontFamily: f, fontSize: 12, fontWeight: 700,
-            color: '#9A9490', textDecoration: 'none',
-            letterSpacing: '.04em',
-          }}
-        >
-          List →
-        </Link>
+        {/* 카드 안쪽 하단 오른쪽 List → */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 16px 12px', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+          <Link href="/setup#tracker" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
+            List →
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -2299,13 +2291,13 @@ export default function TodayPage() {
                       {visNight.map(m => <MedItem key={m.id} m={m} />)}
                     </div>
                   )}
+                  {/* 카드 안쪽 하단 오른쪽 List → */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 16px 12px', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+                    <Link href="/setup#medication" style={{ fontFamily: fMed, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
+                      List →
+                    </Link>
+                  </div>
                 </div>
-              </div>
-              {/* List → SETUP#medication 딥링크 */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-                <Link href="/setup#medication" style={{ fontFamily: fMed, fontSize: 12, fontWeight: 700, color: '#9A9490', textDecoration: 'none', letterSpacing: '.04em' }}>
-                  List →
-                </Link>
               </div>
             </>
           );
@@ -2475,12 +2467,12 @@ export default function TodayPage() {
                   </div>
                 );
               })}
-            </div>
-            {/* List → SETUP#health 딥링크 */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8, padding: '0 16px' }}>
-              <Link href="/setup#health" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#9A9490', textDecoration: 'none', letterSpacing: '.04em' }}>
-                List →
-              </Link>
+              {/* 카드 안쪽 하단 오른쪽 List → */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 16px 12px', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+                <Link href="/setup#health" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>
+                  List →
+                </Link>
+              </div>
             </div>
           </div>
         )}
