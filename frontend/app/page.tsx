@@ -2444,7 +2444,17 @@ export default function TodayPage() {
         {(() => {
           const fH = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
           const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h));
-          if (visHealth.length === 0) return null;
+          // 디버그: 전체 상태 표시 (문제 확인 후 제거)
+          if (visHealth.length === 0) return (
+            <div style={{ margin: '0 16px 8px', background: '#FFF8E1', border: '1px solid #FFC107', borderRadius: 12, padding: '10px 14px', fontFamily: fH, fontSize: 11 }}>
+              <b>Health 진단</b> — 전체:{healthRoutines.length}개 / Today ON:{healthRoutines.filter(h=>h.showInToday).length}개 / 오늘 해당:{healthRoutines.filter(h=>h.showInToday&&isHealthToday(h)).length}개
+              {healthRoutines.map(h=>(
+                <div key={h.id} style={{marginTop:4,color:'#555'}}>
+                  [{h.showInToday?'ON':'off'}] {h.name} | repeat={h.repeatType||'없음'} | date={h.date||'-'} | time={h.time||'-'} | entries={h.entries?.length||0}개
+                </div>
+              ))}
+            </div>
+          );
           // 대표 시간: entries 중 가장 이른 시간, 없으면 h.time, 없으면 ''
           const primaryTime = (h: { time?: string; entries?: { time: string }[] }) => {
             const timed = (h.entries ?? []).map(e => e.time).filter(t => t && t.includes(':'));
