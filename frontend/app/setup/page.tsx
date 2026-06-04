@@ -2617,11 +2617,17 @@ function MedView({
         {items.some(m => m.showInToday) && (() => {
           const todayMeds   = items.filter(m => m.showInToday);
           // 아침(파랑) 04-12 · 점심(오렌지) 12-18 · 저녁(핑크) 18-04
-          const amMeds  = todayMeds.filter(m => (m.times ?? []).includes('morning'));
-          const pmMeds  = todayMeds.filter(m => (m.times ?? []).includes('lunch'));
-          const evMeds  = todayMeds.filter(m => (m.times ?? []).some(t => t === 'evening' || t === 'bedtime'));
-          const orphan  = todayMeds.filter(m => !amMeds.includes(m) && !pmMeds.includes(m) && !evMeds.includes(m));
-          const evAll   = [...evMeds, ...orphan];
+          const periodOfS = (m: { time?: string; times?: string[] }): 'am' | 'pm' | 'ev' => {
+            const ts = m.times ?? [];
+            if (ts.includes('morning')) return 'am';
+            if (ts.includes('lunch')) return 'pm';
+            if (ts.some(t => t === 'evening' || t === 'bedtime')) return 'ev';
+            if (m.time) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
+            return 'ev';
+          };
+          const amMeds = todayMeds.filter(m => periodOfS(m) === 'am');
+          const pmMeds = todayMeds.filter(m => periodOfS(m) === 'pm');
+          const evAll  = todayMeds.filter(m => periodOfS(m) === 'ev');
           const now         = new Date();
 
           const getTime = (m: MedRoutine) => {

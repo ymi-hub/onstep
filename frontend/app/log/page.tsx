@@ -704,11 +704,18 @@ function DayDetail({
           return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
         };
         // 아침(파랑) 04-12 · 점심(오렌지) 12-18 · 저녁(핑크) 18-04
-        const amMeds  = activeMeds.filter(m => (m.times ?? []).includes('morning'));
-        const pmMeds  = activeMeds.filter(m => (m.times ?? []).includes('lunch'));
-        const evMeds  = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
-        const orphan  = activeMeds.filter(m => !amMeds.includes(m) && !pmMeds.includes(m) && !evMeds.includes(m));
-        const evAll   = [...evMeds, ...orphan];
+        // times 배열 우선, 없으면 time 필드 시간대로 결정
+        const periodOf = (m: { time?: string; times?: string[] }): 'am' | 'pm' | 'ev' => {
+          const ts = m.times ?? [];
+          if (ts.includes('morning')) return 'am';
+          if (ts.includes('lunch')) return 'pm';
+          if (ts.some((t: string) => t === 'evening' || t === 'bedtime')) return 'ev';
+          if (m.time) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
+          return 'ev';
+        };
+        const amMeds = activeMeds.filter(m => periodOf(m) === 'am');
+        const pmMeds = activeMeds.filter(m => periodOf(m) === 'pm');
+        const evAll  = activeMeds.filter(m => periodOf(m) === 'ev');
         const MedRow = ({ m, col }: { m: import('@/types/medication').MedRoutine; col: string }) => {
           const done = medChecked.has(m.id);
           return (
@@ -2649,15 +2656,19 @@ function LogPageInner() {
                           const first = (m.times ?? [])[0];
                           return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
                         };
-                        // 오전 / 오후 / 저녁 3구간으로 분리
-                        const amMeds  = activeMeds.filter(m => (m.times ?? []).includes('morning'));
-                        const pmMeds  = activeMeds.filter(m => (m.times ?? []).includes('lunch'));
-                        const evMeds  = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
-                        const orphanM = activeMeds.filter(m => !amMeds.includes(m) && !pmMeds.includes(m) && !evMeds.includes(m));
+                        // 아침(파랑) 04-12 · 점심(오렌지) 12-18 · 저녁(핑크) 18-04
+                        const periodOfD = (m: { time?: string; times?: string[] }): 'am' | 'pm' | 'ev' => {
+                          const ts = m.times ?? [];
+                          if (ts.includes('morning')) return 'am';
+                          if (ts.includes('lunch')) return 'pm';
+                          if (ts.some((t: string) => t === 'evening' || t === 'bedtime')) return 'ev';
+                          if (m.time) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
+                          return 'ev';
+                        };
                         const groups = [
-                          { label: '아침', color: '#6B7CE8', meds: amMeds },
-                          { label: '점심', color: '#E8A86B', meds: pmMeds },
-                          { label: '저녁', color: '#E86BAA', meds: [...evMeds, ...orphanM] },
+                          { label: '아침', color: '#6B7CE8', meds: activeMeds.filter(m => periodOfD(m) === 'am') },
+                          { label: '점심', color: '#E8A86B', meds: activeMeds.filter(m => periodOfD(m) === 'pm') },
+                          { label: '저녁', color: '#E86BAA', meds: activeMeds.filter(m => periodOfD(m) === 'ev') },
                         ].filter(g => g.meds.length > 0);
                         const MedRow = ({ m }: { m: typeof activeMeds[0] }) => {
                           const done = doneSet.has(m.id);

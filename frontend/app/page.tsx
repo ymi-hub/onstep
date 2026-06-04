@@ -2185,7 +2185,9 @@ export default function TodayPage() {
           const period = nowHour >= 4 && nowHour < 12 ? 'am' : nowHour >= 12 && nowHour < 18 ? 'pm' : 'ev';
 
           const toMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
-          // ±1시간 창 (저녁 구간 자정 경계: nowMin < 4*60 이면 +1440 보정)
+
+          // 특정 time이 있으면 ±1h 창, 없으면 해당 구간 내내 표시
+          const hasTime = (m: typeof activeMeds[0]) => !!(m.time && m.time.trim());
           const inWin = (t: string) => {
             const tm = toMin(t);
             const now = (period === 'ev' && nowMin < 240) ? nowMin + 1440 : nowMin;
@@ -2193,22 +2195,31 @@ export default function TodayPage() {
             return now >= target - 60 && now <= target + 60;
           };
 
-          // 각 구간 대표 시각 (MedItem 시각 표시용)
+          // 각 구간 대표 시각 (MedItem 표시용 — 실제 time 없으면 구간 대표 시각)
           const slotTime = (m: typeof activeMeds[0], slot: 'am' | 'pm' | 'ev'): string => {
-            if (m.time) return m.time;
+            if (hasTime(m)) return m.time!;
             if (slot === 'am') return '09:00';
-            if (slot === 'pm') return '12:00';
-            return (m.times ?? []).includes('bedtime') ? '22:00' : '18:00';
+            if (slot === 'pm') return '13:00';
+            return (m.times ?? []).includes('bedtime') ? '22:00' : '19:00';
           };
 
-          // 구간별 항목 분류 + ±1시간 필터
-          const amMeds = activeMeds.filter(m => (m.times ?? []).includes('morning'));
-          const pmMeds = activeMeds.filter(m => (m.times ?? []).includes('lunch'));
-          const evMeds = activeMeds.filter(m => (m.times ?? []).some((t: string) => t === 'evening' || t === 'bedtime'));
+          // 구간별 항목 분류 (times 배열 우선, 없으면 time 필드 시간대 fallback)
+          const periodOf = (m: typeof activeMeds[0]): 'am' | 'pm' | 'ev' => {
+            const ts = m.times ?? [];
+            if (ts.includes('morning')) return 'am';
+            if (ts.includes('lunch')) return 'pm';
+            if (ts.some((t: string) => t === 'evening' || t === 'bedtime')) return 'ev';
+            if (hasTime(m)) { const h = parseInt(m.time!.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
+            return 'ev';
+          };
+          const amMeds = activeMeds.filter(m => periodOf(m) === 'am');
+          const pmMeds = activeMeds.filter(m => periodOf(m) === 'pm');
+          const evMeds = activeMeds.filter(m => periodOf(m) === 'ev');
 
-          const visAm = amMeds.filter(m => (period === 'am' && inWin(slotTime(m, 'am'))) || medChecked.has(m.id));
-          const visPm = pmMeds.filter(m => (period === 'pm' && inWin(slotTime(m, 'pm'))) || medChecked.has(m.id));
-          const visEv = evMeds.filter(m => (period === 'ev' && inWin(slotTime(m, 'ev'))) || medChecked.has(m.id));
+          // 특정 time 없으면 해당 구간 전체에서 표시; time 있으면 ±1h 창
+          const visAm = amMeds.filter(m => (period === 'am' && (!hasTime(m) || inWin(slotTime(m, 'am')))) || medChecked.has(m.id));
+          const visPm = pmMeds.filter(m => (period === 'pm' && (!hasTime(m) || inWin(slotTime(m, 'pm')))) || medChecked.has(m.id));
+          const visEv = evMeds.filter(m => (period === 'ev' && (!hasTime(m) || inWin(slotTime(m, 'ev')))) || medChecked.has(m.id));
 
           // times 배열 없는 완료 항목 — 어느 그룹에도 속하지 않지만 체크됐으면 표시
           const assignedIds = new Set([...amMeds, ...pmMeds, ...evMeds].map(m => m.id));
