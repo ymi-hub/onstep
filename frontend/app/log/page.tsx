@@ -467,13 +467,13 @@ function MonthCalendar({
         </div>
         {hasMed && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 12, opacity: 0.7, filter: 'grayscale(1)' }}>💊</span>
+            <span style={{ fontSize: 12 }}>💊</span>
             <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>약 복용</span>
           </div>
         )}
         {hasHealth && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 12, opacity: 0.7, filter: 'grayscale(1)' }}>🏃</span>
+            <span style={{ fontSize: 12 }}>🏃</span>
             <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>건강 루틴</span>
           </div>
         )}
