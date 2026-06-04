@@ -62,8 +62,8 @@ async function callGemini(prompt: string, maxTokens = 800): Promise<string> {
   // AIzaSy 형식 키: ?key= URL 파라미터 방식 (fallback)
   const isNewFormat = apiKey.startsWith('AQ.');
   const url = isNewFormat
-    ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
-    : `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent'
+    : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
 
   const res = await fetch(url, {
     method: 'POST',
