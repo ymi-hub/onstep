@@ -376,8 +376,8 @@ function MonthCalendar({
                 justifyContent: 'center',
                 gap: 2,
                 padding: '6px 2px',
-                background: isSelected ? '#0C0C0A' : 'transparent',
-                border: today && !isSelected ? '1.5px solid rgba(12,12,10,.2)' : '1.5px solid transparent',
+                background: isSelected && !today ? '#0C0C0A' : 'transparent',
+                border: isSelected && today ? '1px solid #C5FF00' : today && !isSelected ? '1.5px solid rgba(12,12,10,.2)' : '1.5px solid transparent',
                 borderRadius: 10,
                 cursor: 'pointer',
                 transition: 'background .15s',
@@ -1053,12 +1053,14 @@ function RecentStrip({
                 gap: 5,
                 padding: '8px 4px',
                 borderRadius: 12,
-                border: isSelected
+                border: isSelected && today
+                  ? '1px solid #C5FF00'
+                  : isSelected
                   ? '2px solid rgba(0,0,0,0.5)'
                   : today
                   ? '1.5px solid rgba(12,12,10,.2)'
                   : '1.5px solid transparent',
-                background: isSelected ? 'rgba(0,0,0,0.5)' : bothDone ? '#F5FDD4' : 'transparent',
+                background: isSelected && today ? 'transparent' : isSelected ? 'rgba(0,0,0,0.5)' : bothDone ? '#F5FDD4' : 'transparent',
                 cursor: 'pointer',
                 transition: 'all .15s',
               }}
