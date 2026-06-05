@@ -38,7 +38,11 @@ import ImagePicker from '@/components/ImagePicker';
 // ─── BOX 설정 타입 ────────────────────────────────────────────────────────────
 type SubTypeConfig = { id: string; label: string; cats: string[] };
 type DomainConfig  = { id: string; label: string; subTypes?: SubTypeConfig[]; cats?: string[] };
-type BoxConfig     = { domains: DomainConfig[]; storageLocations?: string[] };
+type BoxConfig     = {
+  domains: DomainConfig[];
+  storageLocations?: string[];                          // legacy (beauty 공통 fallback)
+  domainStorageLocations?: Record<string, string[]>;   // 도메인별 보관 위치
+};
 
 // 최초 접속 시 사용할 기본 설정값
 const DEFAULT_BOX_CONFIG: BoxConfig = {
@@ -55,6 +59,22 @@ const DEFAULT_BOX_CONFIG: BoxConfig = {
     { id: 'acc',     label: 'ACC',      cats: ['귀걸이','목걸이','팔찌','반지','시계','선글라스','기타'] },
   ],
 };
+
+// 도메인 ID → 보관 위치 저장 키 결정
+// beauty(skincare·makeup) 공통 사용 → 키 'beauty'
+// fashion / health / acc → 도메인 id 그대로
+function storageLocKey(domainId: string): string {
+  return domainId; // beauty·fashion·health·acc 모두 그대로 사용
+}
+
+// boxConfig에서 도메인별 보관 위치 목록 반환 (legacy storageLocations 포함 fallback)
+function getStorageLocs(config: BoxConfig, domainId: string): string[] {
+  const key = storageLocKey(domainId);
+  if (config.domainStorageLocations?.[key]?.length) return config.domainStorageLocations[key];
+  // beauty fallback: 기존 storageLocations
+  if (domainId === 'beauty' && config.storageLocations?.length) return config.storageLocations;
+  return [];
+}
 
 // boxConfig에서 특정 도메인/서브타입의 카테고리 목록 추출
 function getDomainCats(domain: DomainConfig, subTypeId?: string): string[] {
@@ -378,18 +398,33 @@ function ProductCard({
       {/* 제품 플레이스홀더 (이미지 없을 때만) */}
       {!imgUrl && <span style={{ fontSize: 24, opacity: 0.15 }}>✦</span>}
 
-      {/* 하단 제품명 바 (그라데이션 오버레이) */}
+      {/* 하단 제품명 + 보관 위치 (그라데이션 오버레이) */}
       <div
         style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1,
           padding: '22px 5px 4px',
           background: 'linear-gradient(transparent, rgba(0,0,0,.72))',
-          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: '.04em',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}
       >
-        {product.name}
+        {product.boxLocation && (
+          <div style={{
+            fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+            fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,.65)',
+            letterSpacing: '.08em', textTransform: 'uppercase' as const,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const,
+            paddingLeft: 5, marginBottom: 1,
+          }}>
+            📍 {product.boxLocation}
+          </div>
+        )}
+        <div style={{
+          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+          fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: '.04em',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const,
+          paddingLeft: 5,
+        }}>
+          {product.name}
+        </div>
       </div>
 
       {/* 잔량 낮음 경고 뱃지 — beauty만 */}
@@ -443,10 +478,15 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
         <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {product.name}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3, flexWrap: 'wrap' as const }}>
           {product.category && (
-            <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', background: '#F4F4F0', padding: '2px 5px', borderRadius: 3 }}>
+            <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', background: '#F4F4F0', padding: '2px 5px', borderRadius: 3 }}>
               {resolveCategory(product.category)}
+            </div>
+          )}
+          {product.boxLocation && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '2px 6px', borderRadius: 9999, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+              📍 {product.boxLocation}
             </div>
           )}
           {isSkincare && calcCostPerUse(product) && (
@@ -2693,12 +2733,24 @@ function AddProductPage({
           {/* ── Storage View — 보관 위치 이미지 + 장소 태그 ── */}
           {(() => {
             const f2 = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-            const locs: string[] = boxConfig.storageLocations ?? ['안방 화장대', '욕실 선반'];
+            // 현재 폼 도메인 기준 보관 위치 목록
+            const locKey = storageLocKey(domain);
+            const locs: string[] = getStorageLocs(boxConfig, domain);
+
+            // 변경된 locs 배열을 domainStorageLocations에 저장하는 헬퍼
+            function buildUpdated(next: string[]): BoxConfig {
+              return {
+                ...boxConfig,
+                domainStorageLocations: {
+                  ...boxConfig.domainStorageLocations,
+                  [locKey]: next,
+                },
+              };
+            }
 
             async function addLocation() {
               if (!newLocName.trim()) return;
-              const updated = { ...boxConfig, storageLocations: [...locs, newLocName.trim()] };
-              await onSaveBoxConfig(updated);
+              await onSaveBoxConfig(buildUpdated([...locs, newLocName.trim()]));
               setForm(f => ({ ...f, boxLocation: newLocName.trim() }));
               setNewLocName('');
               setAddingLoc(false);
@@ -2706,16 +2758,14 @@ function AddProductPage({
 
             async function removeLocation(idx: number) {
               const loc = locs[idx];
-              const next = locs.filter((_, i) => i !== idx);
-              await onSaveBoxConfig({ ...boxConfig, storageLocations: next });
+              await onSaveBoxConfig(buildUpdated(locs.filter((_, i) => i !== idx)));
               if (form.boxLocation === loc) setForm(f => ({ ...f, boxLocation: '' }));
             }
 
             async function saveEditLoc(idx: number) {
               const trimmed = editLocName.trim();
               if (!trimmed) { setEditLocIdx(null); return; }
-              const next = locs.map((l, i) => i === idx ? trimmed : l);
-              await onSaveBoxConfig({ ...boxConfig, storageLocations: next });
+              await onSaveBoxConfig(buildUpdated(locs.map((l, i) => i === idx ? trimmed : l)));
               if (form.boxLocation === locs[idx]) setForm(f => ({ ...f, boxLocation: trimmed }));
               setEditLocIdx(null);
               setEditLocName('');
@@ -2726,8 +2776,11 @@ function AddProductPage({
               const next = [...locs];
               const [moved] = next.splice(from, 1);
               next.splice(to, 0, moved);
-              await onSaveBoxConfig({ ...boxConfig, storageLocations: next });
+              await onSaveBoxConfig(buildUpdated(next));
             }
+
+            // 도메인 레이블 (헤더 표시용)
+            const domainLabel = boxConfig.domains.find(d => d.id === domain)?.label ?? domain;
 
             return (
               <div>
@@ -2759,7 +2812,10 @@ function AddProductPage({
 
                   {/* 보관 위치 목록 — 편집 + 드래그 재배치 */}
                   <div>
-                    <div style={{ fontFamily: f2, fontSize: 12, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase' as const, color: '#44474A', marginBottom: 10 }}>보관 위치</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                      <div style={{ fontFamily: f2, fontSize: 12, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase' as const, color: '#44474A' }}>보관 위치</div>
+                      <span style={{ fontFamily: f2, fontSize: 10, fontWeight: 800, background: '#0C0C0A', color: '#C5FF00', padding: '2px 8px', borderRadius: 9999, letterSpacing: '.06em' }}>{domainLabel.toUpperCase()}</span>
+                    </div>
 
                     {/* 위치 행 목록 */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 8 }}>
