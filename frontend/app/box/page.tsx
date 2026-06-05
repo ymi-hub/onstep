@@ -216,9 +216,14 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
               {hero.brand}
             </div>
           )}
-          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 500, color: '#0C0C0A', marginBottom: 8, lineHeight: 1.3 }}>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 500, color: '#0C0C0A', lineHeight: 1.3, marginBottom: hero.boxLocation ? 6 : 8 }}>
             {hero.name}
           </div>
+          {hero.boxLocation && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '2px 8px', borderRadius: 9999, marginBottom: 8, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+              📍 {hero.boxLocation}
+            </div>
+          )}
           <MagResBar product={hero} />
         </div>
       </div>
@@ -235,9 +240,14 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
                     {p.brand}
                   </div>
                 )}
-                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 500, color: '#0C0C0A', lineHeight: 1.3, marginBottom: 6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 500, color: '#0C0C0A', lineHeight: 1.3, marginBottom: p.boxLocation ? 4 : 6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
                   {p.name}
                 </div>
+                {p.boxLocation && (
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 9, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '2px 6px', borderRadius: 9999, marginBottom: 4, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                    📍 {p.boxLocation}
+                  </div>
+                )}
                 <MagResBar product={p} />
               </div>
             </div>
@@ -398,33 +408,19 @@ function ProductCard({
       {/* 제품 플레이스홀더 (이미지 없을 때만) */}
       {!imgUrl && <span style={{ fontSize: 24, opacity: 0.15 }}>✦</span>}
 
-      {/* 하단 제품명 + 보관 위치 (그라데이션 오버레이) */}
+      {/* 하단 제품명 바 (그라데이션 오버레이) */}
       <div
         style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1,
           padding: '22px 5px 4px',
           background: 'linear-gradient(transparent, rgba(0,0,0,.72))',
-        }}
-      >
-        {product.boxLocation && (
-          <div style={{
-            fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-            fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,.65)',
-            letterSpacing: '.08em', textTransform: 'uppercase' as const,
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const,
-            paddingLeft: 5, marginBottom: 1,
-          }}>
-            📍 {product.boxLocation}
-          </div>
-        )}
-        <div style={{
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
           fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: '.04em',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           paddingLeft: 5,
-        }}>
-          {product.name}
-        </div>
+        }}
+      >
+        {product.name}
       </div>
 
       {/* 잔량 낮음 경고 뱃지 — beauty만 */}
