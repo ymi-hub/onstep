@@ -814,6 +814,8 @@ export default function BoxPage() {
 
   // BOX 최상위 뷰: 제품 목록 vs 지출 분석
   const [boxView, setBoxView] = useState<'products' | 'spending'>('products');
+  // 지출 분석 도메인 필터
+  const [spendingFilter, setSpendingFilter] = useState<string>('all');
 
   // 뷰 모드 (매거진 / 갤러리 3열 / 리스트)
   const [viewMode, setViewMode] = useState<'magazine' | 'gallery' | 'list'>('magazine');
@@ -1183,7 +1185,20 @@ export default function BoxPage() {
       {boxView === 'spending' && (() => {
         const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
 
-        // 가격 있는 beauty 제품만 분석 대상
+        const domainLabels: Record<string, string> = {
+          beauty: 'Beauty',
+          fashion: 'Fashion',
+          health: '약·비타민',
+          acc: 'ACC',
+        };
+        const domainColors: Record<string, string> = {
+          beauty: '#C5FF00',  // Lime
+          fashion: '#0C0C0A', // Black
+          health: '#B45309',  // Amber
+          acc: '#9A9490',     // Silver
+        };
+
+        // 가격 있는 전체 제품 분석 대상
         const priced = products
           .filter(p => parsePrice(p.price) !== null)
           .map(p => {
@@ -1201,12 +1216,7 @@ export default function BoxPage() {
           })
           .sort((a, b) => b.cpd - a.cpd);
 
-        // 전체 월간 지출 합계 (CPD × 30)
-        const monthlyTotal = priced.reduce((sum, p) => sum + p.cpd * 30, 0);
-
-        // 전체 제품 총 구매가 합계
-        const purchaseTotal = priced.reduce((sum, p) => sum + p.price, 0);
-
+        // 가격 정보가 아예 없는 경우
         if (priced.length === 0) {
           return (
             <div style={{ padding: '60px 26px', textAlign: 'center' }}>
@@ -1217,41 +1227,90 @@ export default function BoxPage() {
           );
         }
 
+        // 선택한 필터(spendingFilter)에 맞게 데이터 필터링
+        const filteredPriced = spendingFilter === 'all'
+          ? priced
+          : priced.filter(p => p.domain === spendingFilter);
+
+        // 선택 도메인의 통계
+        const filteredPurchaseTotal = filteredPriced.reduce((sum, p) => sum + p.price, 0);
+        const filteredMonthlyTotal = filteredPriced.reduce((sum, p) => sum + p.cpd * 30, 0);
+
         return (
           <div style={{ padding: '16px 26px calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
-            {/* 요약 카드 */}
+            
+            {/* 전체/도메인 요약 카드 */}
             <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
               {/* 월 추정 지출 */}
               <div style={{ flex: 1, background: '#0C0C0A', borderRadius: 14, padding: '14px 14px 12px' }}>
-                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.5)', letterSpacing: '.06em', marginBottom: 4 }}>월 추정 지출</div>
-                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#C5FF00', lineHeight: 1 }}>
-                  ₩{Math.round(monthlyTotal).toLocaleString()}
+                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.5)', letterSpacing: '.06em', marginBottom: 4 }}>
+                  {spendingFilter === 'all' ? '전체 월 추정 지출' : `${domainLabels[spendingFilter]} 월 추정 지출`}
                 </div>
-                <div style={{ fontFamily: f, fontSize: 10, color: 'rgba(255,255,255,.4)', marginTop: 4 }}>CPD 합산 × 30일</div>
+                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#C5FF00', lineHeight: 1 }}>
+                  ₩{Math.round(filteredMonthlyTotal).toLocaleString()}
+                </div>
+                <div style={{ fontFamily: f, fontSize: 10, color: 'rgba(255,255,255,.4)', marginTop: 4 }}>
+                  {spendingFilter === 'all' ? 'CPD 합산 × 30일' : '해당 도메인 30일분'}
+                </div>
               </div>
               {/* 총 구매가 */}
               <div style={{ flex: 1, background: '#F5F4F2', borderRadius: 14, padding: '14px 14px 12px', border: '1px solid rgba(12,12,10,.08)' }}>
-                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 4 }}>제품 총 구매가</div>
-                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', lineHeight: 1 }}>
-                  ₩{Math.round(purchaseTotal).toLocaleString()}
+                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 4 }}>
+                  {spendingFilter === 'all' ? '전체 총 구매 금액' : `${domainLabels[spendingFilter]} 총 구매 금액`}
                 </div>
-                <div style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginTop: 4 }}>{priced.length}개 제품</div>
+                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', lineHeight: 1 }}>
+                  ₩{Math.round(filteredPurchaseTotal).toLocaleString()}
+                </div>
+                <div style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginTop: 4 }}>{filteredPriced.length}개 제품</div>
               </div>
+            </div>
+
+            {/* 도메인 필터 칩 */}
+            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', marginBottom: 16, paddingBottom: 4 }} className="hide-scrollbar">
+              <button
+                onClick={() => setSpendingFilter('all')}
+                style={{
+                  padding: '6px 14px', borderRadius: 9999,
+                  border: `1.5px solid ${spendingFilter === 'all' ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
+                  background: spendingFilter === 'all' ? '#0C0C0A' : 'transparent',
+                  color: spendingFilter === 'all' ? '#C5FF00' : '#0C0C0A',
+                  fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
+                  cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .15s',
+                }}
+              >
+                전체
+              </button>
+              {boxConfig.domains.map(({ id, label }) => (
+                <button
+                  key={id}
+                  onClick={() => setSpendingFilter(id)}
+                  style={{
+                    padding: '6px 14px', borderRadius: 9999,
+                    border: `1.5px solid ${spendingFilter === id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
+                    background: spendingFilter === id ? '#0C0C0A' : 'transparent',
+                    color: spendingFilter === id ? '#C5FF00' : '#0C0C0A',
+                    fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
+                    cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .15s',
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
 
             {/* CPD 섹션 헤더 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A', letterSpacing: '.04em' }}>
-                CPD 순위 (하루 소비 비용)
+                {spendingFilter === 'all' ? '지출 순위 (하루 소비 비용)' : `${domainLabels[spendingFilter]} 지출 순위`}
               </span>
               <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>높은 순</span>
             </div>
 
             {/* 제품별 CPD 카드 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {priced.map((p, idx) => {
+              {filteredPriced.map((p, idx) => {
                 // 이 제품의 CPD가 총합에서 차지하는 비율 (바 너비용)
-                const maxCpd = priced[0].cpd;
+                const maxCpd = filteredPriced[0]?.cpd || 1;
                 const barWidth = maxCpd > 0 ? (p.cpd / maxCpd) * 100 : 0;
                 return (
                   <div key={p.id} style={{ background: '#fff', borderRadius: 12, padding: '12px 14px', border: '1px solid rgba(12,12,10,.07)' }}>
@@ -1262,6 +1321,12 @@ export default function BoxPage() {
                           <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                             {p.name}
                           </span>
+                          {/* 도메인 배지 */}
+                          {spendingFilter === 'all' && (
+                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 700, color: domainColors[p.domain] === '#0C0C0A' ? '#9A9490' : domainColors[p.domain], background: domainColors[p.domain] === '#0C0C0A' ? '#EEEDE9' : 'rgba(0,0,0,.04)', padding: '1px 5px', borderRadius: 4 }}>
+                              {domainLabels[p.domain]}
+                            </span>
+                          )}
                         </div>
                         {p.brand && (
                           <span style={{ fontFamily: f, fontSize: 11, color: '#9A9490' }}>{p.brand}</span>
@@ -1279,7 +1344,7 @@ export default function BoxPage() {
                     </div>
                     {/* CPD 상대 바 */}
                     <div style={{ height: 4, background: 'rgba(12,12,10,.07)', borderRadius: 9999, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${barWidth}%`, background: idx === 0 ? '#C5FF00' : '#0C0C0A', opacity: idx === 0 ? 1 : 0.25 + (0.6 * (1 - idx / priced.length)), borderRadius: 9999 }} />
+                      <div style={{ height: '100%', width: `${barWidth}%`, background: idx === 0 ? '#C5FF00' : '#0C0C0A', opacity: idx === 0 ? 1 : 0.25 + (0.6 * (1 - idx / filteredPriced.length)), borderRadius: 9999 }} />
                     </div>
                   </div>
                 );
