@@ -2116,6 +2116,11 @@ function AddProductPage({
   const [saveAttempted, setSaveAttempted] = useState(false);
   const [addingLoc, setAddingLoc] = useState(false);
   const [newLocName, setNewLocName] = useState('');
+  // 보관 위치 편집·드래그 상태
+  const [editLocIdx, setEditLocIdx] = useState<number | null>(null);
+  const [editLocName, setEditLocName] = useState('');
+  const [dragLocIdx, setDragLocIdx] = useState<number | null>(null);
+  const [dragLocOverIdx, setDragLocOverIdx] = useState<number | null>(null);
 
   // 소진 예측 계산
   // 기준 잔량: 편집 모드는 현재 잔량, 신규 등록은 총 용량
@@ -2699,10 +2704,29 @@ function AddProductPage({
               setAddingLoc(false);
             }
 
-            async function removeLocation(loc: string) {
-              const updated = { ...boxConfig, storageLocations: locs.filter(l => l !== loc) };
-              await onSaveBoxConfig(updated);
+            async function removeLocation(idx: number) {
+              const loc = locs[idx];
+              const next = locs.filter((_, i) => i !== idx);
+              await onSaveBoxConfig({ ...boxConfig, storageLocations: next });
               if (form.boxLocation === loc) setForm(f => ({ ...f, boxLocation: '' }));
+            }
+
+            async function saveEditLoc(idx: number) {
+              const trimmed = editLocName.trim();
+              if (!trimmed) { setEditLocIdx(null); return; }
+              const next = locs.map((l, i) => i === idx ? trimmed : l);
+              await onSaveBoxConfig({ ...boxConfig, storageLocations: next });
+              if (form.boxLocation === locs[idx]) setForm(f => ({ ...f, boxLocation: trimmed }));
+              setEditLocIdx(null);
+              setEditLocName('');
+            }
+
+            async function moveLoc(from: number, to: number) {
+              if (from === to) return;
+              const next = [...locs];
+              const [moved] = next.splice(from, 1);
+              next.splice(to, 0, moved);
+              await onSaveBoxConfig({ ...boxConfig, storageLocations: next });
             }
 
             return (
@@ -2712,7 +2736,7 @@ function AddProductPage({
                 </div>
                 <div style={{ borderTop: '1px solid #C5C6CA', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-                  {/* 보관 장소 이미지 — ImagePicker 컴포넌트 (클립보드 지원) */}
+                  {/* 보관 장소 이미지 */}
                   <div style={{ border: '1px solid #C5C6CA', background: '#F9F9F9', borderRadius: 4, overflow: 'hidden' }}>
                     <ImagePicker
                       preview={form.storageImagePreview || form.storageImageUrl}
@@ -2722,7 +2746,6 @@ function AddProductPage({
                       placeholderLabel="ADD STORAGE PHOTO"
                       isOpen={isOpen}
                     />
-                    {/* 위치 정보 행 */}
                     <div style={{ display: 'flex', alignItems: 'center', padding: 14, gap: 12, borderTop: '1px solid #E5E5E5' }}>
                       <svg width="16" height="20" viewBox="0 0 24 24" fill="#44474A" style={{ flexShrink: 0 }}><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                       <div>
@@ -2734,45 +2757,107 @@ function AddProductPage({
                     </div>
                   </div>
 
-                  {/* 위치 태그 칩 */}
+                  {/* 보관 위치 목록 — 편집 + 드래그 재배치 */}
                   <div>
                     <div style={{ fontFamily: f2, fontSize: 12, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase' as const, color: '#44474A', marginBottom: 10 }}>보관 위치</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, marginBottom: 8 }}>
-                      {locs.map(loc => (
-                        <div key={loc} style={{ display: 'flex', alignItems: 'center', gap: 0, borderRadius: 9999, border: `1.5px solid ${form.boxLocation === loc ? '#0C0C0A' : 'rgba(12,12,10,.18)'}`, background: form.boxLocation === loc ? '#0C0C0A' : 'transparent', overflow: 'hidden' }}>
-                          <button
-                            onClick={() => setForm(f => ({ ...f, boxLocation: f.boxLocation === loc ? '' : loc }))}
-                            style={{ padding: '6px 12px 6px 14px', background: 'none', border: 'none', fontFamily: f2, fontSize: 11, fontWeight: 700, color: form.boxLocation === loc ? '#fff' : '#44474A', cursor: 'pointer', letterSpacing: '.04em' }}
-                          >
-                            {loc}
-                          </button>
-                          <button
-                            onClick={() => removeLocation(loc)}
-                            style={{ padding: '6px 10px 6px 0', background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: form.boxLocation === loc ? 'rgba(255,255,255,.6)' : '#BCBAB6', lineHeight: 1 }}
-                          >×</button>
+
+                    {/* 위치 행 목록 */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 8 }}>
+                      {locs.map((loc, idx) => (
+                        <div
+                          key={idx}
+                          draggable
+                          onDragStart={() => setDragLocIdx(idx)}
+                          onDragOver={e => { e.preventDefault(); setDragLocOverIdx(idx); }}
+                          onDrop={e => { e.preventDefault(); if (dragLocIdx != null) moveLoc(dragLocIdx, idx); setDragLocIdx(null); setDragLocOverIdx(null); }}
+                          onDragEnd={() => { setDragLocIdx(null); setDragLocOverIdx(null); }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '8px 10px', borderRadius: 10,
+                            border: `1.5px solid ${dragLocOverIdx === idx ? '#C5FF00' : form.boxLocation === loc ? '#0C0C0A' : 'rgba(12,12,10,.12)'}`,
+                            background: dragLocOverIdx === idx ? '#F5FFD4' : form.boxLocation === loc ? '#0C0C0A' : '#fff',
+                            opacity: dragLocIdx === idx ? 0.4 : 1,
+                            transition: 'border-color .15s, background .15s',
+                            cursor: 'grab',
+                          }}
+                        >
+                          {/* 드래그 핸들 */}
+                          <span style={{ color: form.boxLocation === loc ? 'rgba(255,255,255,.4)' : '#C4C2BE', fontSize: 16, lineHeight: 1, userSelect: 'none' as const, flexShrink: 0 }}>⠿</span>
+
+                          {/* 이름 — 더블클릭 또는 편집 아이콘으로 편집 모드 */}
+                          {editLocIdx === idx ? (
+                            <input
+                              autoFocus
+                              value={editLocName}
+                              onChange={e => setEditLocName(e.target.value)}
+                              onKeyDown={e => { if (e.key === 'Enter') saveEditLoc(idx); if (e.key === 'Escape') { setEditLocIdx(null); setEditLocName(''); } }}
+                              onBlur={() => saveEditLoc(idx)}
+                              style={{ flex: 1, height: 28, padding: '0 8px', border: '1.5px solid #0C0C0A', borderRadius: 6, fontFamily: f2, fontSize: 13, fontWeight: 600, outline: 'none', background: '#fff', color: '#0C0C0A' }}
+                            />
+                          ) : (
+                            <span
+                              onDoubleClick={() => { setEditLocIdx(idx); setEditLocName(loc); setAddingLoc(false); }}
+                              style={{ flex: 1, fontFamily: f2, fontSize: 13, fontWeight: 600, color: form.boxLocation === loc ? '#fff' : '#0C0C0A', cursor: 'text', userSelect: 'none' as const }}
+                            >
+                              {loc}
+                            </span>
+                          )}
+
+                          {/* 편집 버튼 */}
+                          {editLocIdx !== idx && (
+                            <button
+                              onClick={() => { setEditLocIdx(idx); setEditLocName(loc); setAddingLoc(false); }}
+                              style={{ width: 26, height: 26, background: 'none', border: 'none', cursor: 'pointer', color: form.boxLocation === loc ? 'rgba(255,255,255,.5)' : '#BCBAB6', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, flexShrink: 0 }}
+                              title="이름 편집"
+                            >✎</button>
+                          )}
+
+                          {/* 선택 토글 */}
+                          {editLocIdx !== idx && (
+                            <button
+                              onClick={() => setForm(f => ({ ...f, boxLocation: f.boxLocation === loc ? '' : loc }))}
+                              style={{ width: 26, height: 26, background: form.boxLocation === loc ? 'rgba(255,255,255,.15)' : 'rgba(12,12,10,.06)', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                              title="선택"
+                            >
+                              {form.boxLocation === loc
+                                ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                : <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                              }
+                            </button>
+                          )}
+
+                          {/* 삭제 */}
+                          {editLocIdx !== idx && (
+                            <button
+                              onClick={() => removeLocation(idx)}
+                              style={{ width: 26, height: 26, background: 'none', border: 'none', cursor: 'pointer', color: form.boxLocation === loc ? 'rgba(255,255,255,.5)' : '#BCBAB6', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, flexShrink: 0 }}
+                              title="삭제"
+                            >×</button>
+                          )}
                         </div>
                       ))}
-                      {/* 위치 추가 버튼 */}
-                      {!addingLoc ? (
-                        <button
-                          onClick={() => setAddingLoc(true)}
-                          style={{ padding: '6px 12px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.18)', background: 'transparent', fontFamily: f2, fontSize: 11, fontWeight: 700, color: '#9CA3AF', cursor: 'pointer', letterSpacing: '.04em' }}
-                        >+ 추가</button>
-                      ) : (
-                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', width: '100%' }}>
-                          <input
-                            autoFocus
-                            value={newLocName}
-                            onChange={e => setNewLocName(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') addLocation(); if (e.key === 'Escape') { setAddingLoc(false); setNewLocName(''); } }}
-                            placeholder="위치 이름 (예: 욕실 선반)"
-                            style={{ flex: 1, height: 36, padding: '0 12px', border: '1.5px solid #0C0C0A', borderRadius: 9999, fontFamily: f2, fontSize: 12, outline: 'none' }}
-                          />
-                          <button onClick={addLocation} style={{ height: 36, padding: '0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: f2, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>저장</button>
-                          <button onClick={() => { setAddingLoc(false); setNewLocName(''); }} style={{ height: 36, padding: '0 10px', background: 'transparent', border: '1px solid rgba(12,12,10,.2)', borderRadius: 9999, fontFamily: f2, fontSize: 12, cursor: 'pointer', color: '#9A9490' }}>취소</button>
-                        </div>
-                      )}
                     </div>
+
+                    {/* 위치 추가 */}
+                    {!addingLoc ? (
+                      <button
+                        onClick={() => { setAddingLoc(true); setEditLocIdx(null); }}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1.5px dashed rgba(12,12,10,.18)', background: 'transparent', fontFamily: f2, fontSize: 12, fontWeight: 700, color: '#9CA3AF', cursor: 'pointer', letterSpacing: '.04em' }}
+                      >+ 위치 추가</button>
+                    ) : (
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <input
+                          autoFocus
+                          value={newLocName}
+                          onChange={e => setNewLocName(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') addLocation(); if (e.key === 'Escape') { setAddingLoc(false); setNewLocName(''); } }}
+                          placeholder="위치 이름 (예: 욕실 선반)"
+                          style={{ flex: 1, height: 38, padding: '0 12px', border: '1.5px solid #0C0C0A', borderRadius: 10, fontFamily: f2, fontSize: 13, outline: 'none' }}
+                        />
+                        <button onClick={addLocation} style={{ height: 38, padding: '0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 10, fontFamily: f2, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>저장</button>
+                        <button onClick={() => { setAddingLoc(false); setNewLocName(''); }} style={{ height: 38, padding: '0 10px', background: 'transparent', border: '1px solid rgba(12,12,10,.2)', borderRadius: 10, fontFamily: f2, fontSize: 12, cursor: 'pointer', color: '#9A9490' }}>취소</button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
