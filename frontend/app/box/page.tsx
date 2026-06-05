@@ -1306,8 +1306,7 @@ export default function BoxPage() {
           display: 'flex',
           borderBottom: '1px solid rgba(12,12,10,.07)',
           position: 'sticky', top: 56, zIndex: 8,
-          background: 'rgba(255,255,255,.94)', backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          background: '#FAFAF8',
         }}
       >
         {boxConfig.domains.map(({ id, label }) => (
@@ -1361,8 +1360,7 @@ export default function BoxPage() {
       <div
         style={{
           position: 'sticky', top: 97, zIndex: 7,
-          background: 'rgba(255,255,255,.95)', backdropFilter: 'blur(14px)',
-          WebkitBackdropFilter: 'blur(14px)',
+          background: '#FAFAF8',
           padding: '8px 26px', borderBottom: '1px solid rgba(12,12,10,.07)',
         }}
       >
@@ -1395,8 +1393,7 @@ export default function BoxPage() {
           style={{
             display: 'flex',
             borderBottom: '1px solid rgba(12,12,10,.07)',
-            background: 'rgba(255,255,255,.94)', backdropFilter: 'blur(14px)',
-            WebkitBackdropFilter: 'blur(14px)',
+            background: '#FAFAF8',
             position: 'sticky', top: 145, zIndex: 6,
           }}
         >
