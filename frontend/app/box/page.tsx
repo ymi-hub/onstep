@@ -1340,16 +1340,19 @@ export default function BoxPage() {
           onClick={() => handleTabChange('all')}
           title="전체 보기"
           style={{
-            padding: '11px 14px 10px',
+            padding: '8px 14px 9px',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
             fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 15, fontWeight: 700,
             color: activeTab === 'all' ? '#0C0C0A' : '#9A9490',
             background: 'none', border: 'none', cursor: 'pointer',
             borderBottom: activeTab === 'all' ? '3px solid #C5FF00' : '3px solid transparent',
             transition: 'all .18s', lineHeight: 1,
           }}
         >
-          ⊞
+          <span style={{ fontSize: 15, fontWeight: 700, lineHeight: 1 }}>⊞</span>
+          <span style={{ fontSize: 9, fontWeight: 800, color: activeTab === 'all' ? '#4E7D00' : '#BCBAB6', letterSpacing: '.02em' }}>
+            {products.length}
+          </span>
         </button>
       </div>
 
