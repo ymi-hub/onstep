@@ -39,8 +39,9 @@ import type { Habit, RepeatType } from '@/types/habit';
 import type { CtItem, CtType } from '@/types/ctitem';
 import type { MedRoutine, MedTime } from '@/types/medication';
 import { MED_TIME_LABELS } from '@/types/medication';
-import type { HealthRoutine, HealthType } from '@/types/healthroutine';
-import { HEALTH_TYPE_LABELS, HEALTH_TYPE_ICONS } from '@/types/healthroutine';
+import type { HealthRoutine, HealthType, IntervalUnit } from '@/types/healthroutine';
+import { HEALTH_TYPE_LABELS, HEALTH_TYPE_ICONS, INTERVAL_PRESETS } from '@/types/healthroutine';
+import { calcNextDueDate, getDaysUntilDue, dueBadgeLabel, dueBadgeColor, toDateStr } from '@/lib/dateUtils';
 import type { HealthCategory } from '@/types/healthcategory';
 import { DEFAULT_HEALTH_CATEGORIES } from '@/types/healthcategory';
 import type { DietProgram, DietPattern, DietTimelineItem, DietSlot, DietWarning, DietItem } from '@/types/dietplan';
@@ -2384,32 +2385,37 @@ function TimePickerField({ value, onChange, f }: {
 
 function RepeatFormFieldsShared({
   f, rt, setRt, wd, toggleWDFn, date_, setDate_, time_, setTime_, alarm_, setAlarm_,
+  intervalUnit_, setIntervalUnit_, intervalValue_, setIntervalValue_,
+  lastDoneDate_, setLastDoneDate_, dueSoonDays_, setDueSoonDays_,
 }: {
   f: string; rt: RepeatType | ''; setRt: (r: RepeatType) => void;
   wd: number[]; toggleWDFn: (d: number) => void;
   date_: string; setDate_: (s: string) => void;
   time_: string; setTime_: (s: string) => void;
   alarm_: boolean; setAlarm_: (b: boolean) => void;
+  // interval 전용 (없으면 undefined — 기존 Habit·Med 폼은 안 넘김)
+  intervalUnit_?: IntervalUnit; setIntervalUnit_?: (u: IntervalUnit) => void;
+  intervalValue_?: number; setIntervalValue_?: (v: number) => void;
+  lastDoneDate_?: string; setLastDoneDate_?: (s: string) => void;
+  dueSoonDays_?: number; setDueSoonDays_?: (n: number) => void;
 }) {
+  const showInterval = !!setIntervalUnit_; // interval 지원 여부
+
   const rtypes: { key: RepeatType; label: string }[] = [
     { key: 'allday', label: '종일' }, { key: 'once', label: '1회성' },
-    { key: 'daily', label: '매일' }, { key: 'scheduled', label: '일정등록' },
+    { key: 'daily', label: '매일' }, { key: 'scheduled', label: '요일' },
+    ...(showInterval ? [{ key: 'interval' as RepeatType, label: '주기' }] : []),
   ];
   return (
     <>
-      <div style={{ display: 'flex', gap: 6 }}>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
         {rtypes.map(r => (
           <button type="button" key={r.key} onClick={() => {
             setRt(r.key);
-            // 1회성 선택 시 날짜가 비어있으면 오늘 날짜 자동 적용
             if (r.key === 'once' && !date_) {
-              const d = new Date();
-              const y = d.getFullYear();
-              const m = String(d.getMonth() + 1).padStart(2, '0');
-              const dd = String(d.getDate()).padStart(2, '0');
-              setDate_(`${y}-${m}-${dd}`);
+              setDate_(toDateStr());
             }
-          }} style={{ flex: 1, padding: '9px 4px', border: `1.5px solid ${rt === r.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: rt === r.key ? '#fff' : '#4A4846', background: rt === r.key ? '#0C0C0A' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>{r.label}</button>
+          }} style={{ flex: '1 1 0', minWidth: 52, padding: '9px 4px', border: `1.5px solid ${rt === r.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: rt === r.key ? '#fff' : '#4A4846', background: rt === r.key ? '#0C0C0A' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>{r.label}</button>
         ))}
       </div>
       {rt === 'once' && (
@@ -2422,7 +2428,51 @@ function RepeatFormFieldsShared({
           ))}
         </div>
       )}
-      {rt !== 'allday' && rt !== '' && (
+      {rt === 'interval' && showInterval && setIntervalUnit_ && setIntervalValue_ && setLastDoneDate_ && setDueSoonDays_ && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+          {/* 프리셋 버튼 */}
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const }}>
+            {INTERVAL_PRESETS.map(p => {
+              const active = intervalUnit_ === p.unit && intervalValue_ === p.value;
+              return (
+                <button type="button" key={p.label} onClick={() => { setIntervalUnit_(p.unit); setIntervalValue_(p.value); }} style={{ flex: '1 1 0', minWidth: 48, height: 36, borderRadius: 10, border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: active ? '#0C0C0A' : '#fff', color: active ? '#C5FF00' : '#4A4846', fontFamily: f, fontSize: 11, fontWeight: 800, cursor: 'pointer', transition: 'all .15s' }}>{p.label}</button>
+              );
+            })}
+          </div>
+          {/* 커스텀 입력 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', whiteSpace: 'nowrap' as const }}>직접 입력</span>
+            <input
+              type="number" min={1} max={999} value={intervalValue_ ?? 1}
+              onChange={e => setIntervalValue_(Math.max(1, parseInt(e.target.value) || 1))}
+              style={{ width: 56, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none', textAlign: 'center' as const }}
+            />
+            <select value={intervalUnit_ ?? 'week'} onChange={e => setIntervalUnit_(e.target.value as IntervalUnit)} style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none' }}>
+              <option value="day">일마다</option>
+              <option value="week">주마다</option>
+              <option value="month">개월마다</option>
+              <option value="year">년마다</option>
+            </select>
+          </div>
+          {/* 마지막 수행일 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>마지막 수행일</span>
+            <input type="date" value={lastDoneDate_ ?? ''} onChange={e => setLastDoneDate_(e.target.value)} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' as const }} />
+            {lastDoneDate_ && intervalUnit_ && intervalValue_ && (
+              <span style={{ fontFamily: f, fontSize: 11, color: '#4CAF50', fontWeight: 700 }}>
+                다음 수행일: {calcNextDueDate(lastDoneDate_, intervalUnit_, intervalValue_)}
+              </span>
+            )}
+          </div>
+          {/* 알림 며칠 전 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', whiteSpace: 'nowrap' as const }}>TODAY 표시 (며칠 전부터)</span>
+            <input type="number" min={0} max={30} value={dueSoonDays_ ?? 3} onChange={e => setDueSoonDays_(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: 56, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', background: '#fff', outline: 'none', textAlign: 'center' as const }} />
+            <span style={{ fontFamily: f, fontSize: 11, color: '#9A9490' }}>일 전</span>
+          </div>
+        </div>
+      )}
+      {rt !== 'allday' && rt !== 'interval' && rt !== '' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
           <TimePickerField value={time_} onChange={setTime_} f={f} />
           <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: f, fontSize: 12, fontWeight: 500, color: '#4A4846', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
@@ -2952,6 +3002,16 @@ function HealthView({
   const [hWeekdays, setHWeekdays] = useState<number[]>([]);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  // interval 전용 상태
+  const [hIntervalUnit, setHIntervalUnit] = useState<IntervalUnit>('week');
+  const [hIntervalValue, setHIntervalValue] = useState(1);
+  const [hLastDoneDate, setHLastDoneDate] = useState('');
+  const [hDueSoonDays, setHDueSoonDays] = useState(3);
+  // 빠른 추가 폼 interval 상태
+  const [qIntervalUnit, setQIntervalUnit] = useState<IntervalUnit>('week');
+  const [qIntervalValue, setQIntervalValue] = useState(1);
+  const [qLastDoneDate, setQLastDoneDate] = useState('');
+  const [qDueSoonDays, setQDueSoonDays] = useState(3);
 
   // ── 항목(entry) 편집 상태 ──
   const [editEntryId, setEditEntryId] = useState<string | null>(null);
@@ -2987,6 +3047,11 @@ function HealthView({
     if (rt === 'daily') return '매일';
     if (rt === 'once') return item.date ? `${item.date.slice(5,7)}/${item.date.slice(8,10)}` : '1회성';
     if (rt === 'scheduled') return (item.weekdays ?? []).map(d => WD_NAMES_SHARED[d]).join('·') || '요일선택';
+    if (rt === 'interval' && item.intervalUnit && item.intervalValue) {
+      const unitLabel: Record<IntervalUnit, string> = { day: '일', week: '주', month: '개월', year: '년' };
+      const preset = INTERVAL_PRESETS.find(p => p.unit === item.intervalUnit && p.value === item.intervalValue);
+      return preset ? preset.label : `${item.intervalValue}${unitLabel[item.intervalUnit]}마다`;
+    }
     return '';
   }
 
@@ -2995,6 +3060,7 @@ function HealthView({
     setCatId(''); setSchedule('');
     setGoal(''); setRepeatDays([]); setEntries([]);
     setHRepeat(''); setHTime('07:00'); setHAlarm(false); setHDate(''); setHWeekdays([]);
+    setHIntervalUnit('week'); setHIntervalValue(1); setHLastDoneDate(''); setHDueSoonDays(3);
     setShowForm(true);
   }
   function openEdit(item: HealthRoutine) {
@@ -3003,6 +3069,10 @@ function HealthView({
     setRepeatDays(item.repeatDays ?? []); setEntries(item.entries ?? []);
     setHRepeat(item.repeatType ?? ''); setHTime(item.time ?? '07:00');
     setHAlarm(item.alarm ?? false); setHDate(item.date ?? ''); setHWeekdays(item.weekdays ?? []);
+    setHIntervalUnit(item.intervalUnit ?? 'week');
+    setHIntervalValue(item.intervalValue ?? 1);
+    setHLastDoneDate(item.lastDoneDate ?? '');
+    setHDueSoonDays(item.dueSoonDays ?? 3);
     setShowForm(true);
   }
   function toggleDay(d: number) {
@@ -3033,14 +3103,20 @@ function HealthView({
     if (!name.trim()) { alert('루틴 이름을 입력해주세요.'); return; }
     setSaving(true);
     try {
-      // type 필드에 카테고리 id 저장 (기존 HealthType 호환 유지)
+      const isInterval = hRepeat === 'interval';
       const data = {
         icon: routineIcon, name: name.trim(), type: catId as HealthType, schedule, goal, repeatDays, entries, active: true,
         repeatType: (hRepeat || 'allday') as RepeatType,
-        time: hRepeat && hRepeat !== 'allday' ? hTime : '',
-        alarm: hRepeat && hRepeat !== 'allday' ? hAlarm : false,
+        time: hRepeat && hRepeat !== 'allday' && !isInterval ? hTime : '',
+        alarm: hRepeat && hRepeat !== 'allday' && !isInterval ? hAlarm : false,
         ...(hRepeat === 'once' ? { date: hDate } : {}),
         ...(hRepeat === 'scheduled' ? { weekdays: hWeekdays } : {}),
+        ...(isInterval ? {
+          intervalUnit: hIntervalUnit,
+          intervalValue: hIntervalValue,
+          lastDoneDate: hLastDoneDate || undefined,
+          dueSoonDays: hDueSoonDays,
+        } : {}),
       };
       if (editId) await onUpdate(editId, data);
       else await onAdd(data);
@@ -3058,24 +3134,41 @@ function HealthView({
     if (!qName.trim()) return;
     const cid = qCatId || categories[0]?.id || '';
     const cat = categories.find(c => c.id === cid);
+    const isInterval = qRepeat === 'interval';
     setQAdding(true);
     try {
       await onAdd({
         icon: qIcon || cat?.icon || '🏃', name: qName.trim(), type: cid as HealthType,
         schedule: '', goal: '', repeatDays: [], entries: [], active: true,
         repeatType: (qRepeat || 'allday') as RepeatType,
-        time: qRepeat && qRepeat !== 'allday' ? qTime : '',
-        alarm: qRepeat && qRepeat !== 'allday' ? qAlarm : false,
+        time: qRepeat && qRepeat !== 'allday' && !isInterval ? qTime : '',
+        alarm: qRepeat && qRepeat !== 'allday' && !isInterval ? qAlarm : false,
         ...(qRepeat === 'once' ? { date: qDate } : {}),
         ...(qRepeat === 'scheduled' ? { weekdays: qWeekdays } : {}),
+        ...(isInterval ? {
+          intervalUnit: qIntervalUnit,
+          intervalValue: qIntervalValue,
+          lastDoneDate: qLastDoneDate || undefined,
+          dueSoonDays: qDueSoonDays,
+        } : {}),
       });
       setQName(''); setQIcon('🏃');
       setQRepeat(''); setQTime('07:00'); setQAlarm(false); setQDate(''); setQWeekdays([]);
+      setQIntervalUnit('week'); setQIntervalValue(1); setQLastDoneDate(''); setQDueSoonDays(3);
     } catch (err) { console.error(err); alert('저장 실패'); }
     finally { setQAdding(false); }
   }
 
   function HealthRow({ item, isLast }: { item: HealthRoutine; isLast: boolean }) {
+    // interval 타입이면 D-N 배지 계산
+    const dueBadge = (() => {
+      if (item.repeatType !== 'interval' || !item.intervalUnit || !item.intervalValue) return null;
+      const nextDue = calcNextDueDate(item.lastDoneDate, item.intervalUnit, item.intervalValue);
+      const days = getDaysUntilDue(nextDue);
+      const { bg, color } = dueBadgeColor(days);
+      return { label: dueBadgeLabel(days), bg, color, nextDue };
+    })();
+
     return (
       <div style={{ borderBottom: isLast ? 'none' : '1px solid rgba(12,12,10,.07)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
@@ -3083,12 +3176,20 @@ function HealthView({
             {item.icon}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-              {item.name}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, flex: 1, minWidth: 0 }}>
+                {item.name}
+              </div>
+              {dueBadge && (
+                <span style={{ flexShrink: 0, fontFamily: f, fontSize: 10, fontWeight: 800, background: dueBadge.bg, color: dueBadge.color, padding: '2px 8px', borderRadius: 9999, letterSpacing: '.04em', whiteSpace: 'nowrap' as const }}>
+                  {dueBadge.label}
+                </span>
+              )}
             </div>
             <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em', marginTop: 2 }}>
               {healthRepeatLabel(item)}
-              {(item.repeatType ?? 'daily') !== 'allday' && item.time ? ` · ${item.time}` : ''}
+              {item.repeatType === 'interval' && item.lastDoneDate ? ` · 마지막: ${item.lastDoneDate.slice(5).replace('-', '/')}` : ''}
+              {(item.repeatType ?? 'daily') !== 'allday' && item.repeatType !== 'interval' && item.time ? ` · ${item.time}` : ''}
               {item.goal ? ` · 목표: ${item.goal}` : ''}
             </div>
           </div>
@@ -3205,6 +3306,10 @@ function HealthView({
               date_={qDate} setDate_={setQDate}
               time_={qTime} setTime_={setQTime}
               alarm_={qAlarm} setAlarm_={setQAlarm}
+              intervalUnit_={qIntervalUnit} setIntervalUnit_={setQIntervalUnit}
+              intervalValue_={qIntervalValue} setIntervalValue_={setQIntervalValue}
+              lastDoneDate_={qLastDoneDate} setLastDoneDate_={setQLastDoneDate}
+              dueSoonDays_={qDueSoonDays} setDueSoonDays_={setQDueSoonDays}
             />
             {showQHint && (
               <div style={{ fontFamily: f, fontSize: 12, color: '#E94F6B', fontWeight: 600, paddingLeft: 4 }}>루틴 이름을 입력해주세요.</div>
@@ -3338,6 +3443,10 @@ function HealthView({
                 date_={hDate} setDate_={setHDate}
                 time_={hTime} setTime_={setHTime}
                 alarm_={hAlarm} setAlarm_={setHAlarm}
+                intervalUnit_={hIntervalUnit} setIntervalUnit_={setHIntervalUnit}
+                intervalValue_={hIntervalValue} setIntervalValue_={setHIntervalValue}
+                lastDoneDate_={hLastDoneDate} setLastDoneDate_={setHLastDoneDate}
+                dueSoonDays_={hDueSoonDays} setDueSoonDays_={setHDueSoonDays}
               />
             </div>
 

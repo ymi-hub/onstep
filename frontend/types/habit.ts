@@ -1,4 +1,4 @@
-export type RepeatType = 'allday' | 'once' | 'daily' | 'scheduled';
+export type RepeatType = 'allday' | 'once' | 'daily' | 'scheduled' | 'interval';
 
 export type Habit = {
   id: string;

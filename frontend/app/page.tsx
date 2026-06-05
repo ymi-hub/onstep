@@ -38,7 +38,7 @@ import { db, auth } from '@/lib/firebase';
 import { imageFileToBase64 } from '@/lib/imageUtils';
 import { useAppContext } from '@/lib/AppContext';
 import { FALLBACK_USER_ID, FONT } from '@/lib/constants';
-import { toDateStr, getTodayDateStr, getEveningDateStr } from '@/lib/dateUtils';
+import { toDateStr, getTodayDateStr, getEveningDateStr, calcNextDueDate, getDaysUntilDue, dueBadgeLabel, dueBadgeColor } from '@/lib/dateUtils';
 import { migrateRawSlot, migrateSession } from '@/lib/migration';
 import { useTimer, formatTimerRemain, playAlarmChime } from '@/hooks/useTimer';
 import CatBadge from '@/components/CatBadge';
@@ -117,16 +117,26 @@ function isHabitToday(h: Habit): boolean {
 }
 
 // 오늘 수행해야 하는 건강 루틴인지 판별 (repeatType 없으면 매일 표시)
-function isHealthToday(h: { repeatType?: string; date?: string; weekdays?: number[] }): boolean {
+function isHealthToday(h: {
+  repeatType?: string; date?: string; weekdays?: number[];
+  intervalUnit?: import('@/types/healthroutine').IntervalUnit;
+  intervalValue?: number; lastDoneDate?: string; dueSoonDays?: number;
+}): boolean {
   const todayWD = new Date().getDay();
   const todayStr = getTodayDateStr();
   if (!h.repeatType || h.repeatType === 'allday' || h.repeatType === 'daily') return true;
   if (h.repeatType === 'once') {
-    // date 없거나 YYYY-MM-DD 형식이 아니면 오늘 일정으로 취급 (date='-' 등 포함)
     if (!h.date || !/^\d{4}-\d{2}-\d{2}$/.test(h.date)) return true;
     return h.date === todayStr;
   }
   if (h.repeatType === 'scheduled') return (h.weekdays ?? []).includes(todayWD);
+  if (h.repeatType === 'interval') {
+    if (!h.intervalUnit || !h.intervalValue) return false;
+    const nextDue = calcNextDueDate(h.lastDoneDate, h.intervalUnit, h.intervalValue);
+    const days = getDaysUntilDue(nextDue);
+    const threshold = h.dueSoonDays ?? 3;
+    return days <= threshold; // 오늘 포함 N일 이내면 TODAY에 표시
+  }
   return false;
 }
 
@@ -1913,23 +1923,33 @@ export default function TodayPage() {
       const _db = db;
       if (!_db || !user) return;
       const todayStr = getTodayDateStr();
+      const isChecking = !healthChecked.has(routineId);
       setHealthChecked(prev => { const s = new Set(prev); if (s.has(routineId)) s.delete(routineId); else s.add(routineId); return s; });
       try {
-        if (healthChecked.has(routineId)) {
+        if (!isChecking) {
+          // 체크 해제
           const log = healthLogs.find((l) => l.routineId === routineId);
           if (log) await deleteDoc(doc(_db, 'users', userId, 'healthLogs', log.id));
         } else {
+          // 체크 완료
           await addDoc(collection(_db, 'users', userId, 'healthLogs'), {
             routineId,
             dateStr: todayStr,
             completedAt: new Date().toISOString(),
           });
+          // interval 루틴이면 lastDoneDate를 오늘로 업데이트
+          const routine = healthRoutines.find(h => h.id === routineId);
+          if (routine?.repeatType === 'interval') {
+            await updateDoc(doc(_db, 'users', userId, 'healthRoutines', routineId), {
+              lastDoneDate: todayStr,
+            });
+          }
         }
       } catch (err) {
         console.error('[OnStep] 건강루틴 토글 실패:', err);
       }
     },
-    [user, userId, healthChecked, healthLogs]
+    [user, userId, healthChecked, healthLogs, healthRoutines]
   );
 
   // ── 약 루틴 토글 ──
@@ -2352,6 +2372,13 @@ export default function TodayPage() {
               {visHealth.map((h) => {
                 const isDone = healthChecked.has(h.id);
                 const pt = primaryTime(h);
+                // interval 루틴 D-N 배지
+                const dBadge = (() => {
+                  if (h.repeatType !== 'interval' || !h.intervalUnit || !h.intervalValue) return null;
+                  const nd = calcNextDueDate(h.lastDoneDate, h.intervalUnit, h.intervalValue);
+                  const d = getDaysUntilDue(nd);
+                  return { label: dueBadgeLabel(d), ...dueBadgeColor(d) };
+                })();
                 return (
                   <div key={h.id} onClick={() => handleToggleHealth(h.id)}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: 'rgb(8,191,16)', opacity: isDone ? 0.5 : 1, cursor: 'pointer', transition: 'opacity .18s' }}>
@@ -2361,12 +2388,12 @@ export default function TodayPage() {
                     </div>
                     {/* 아이콘 */}
                     <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '🥗'}</span>
-                    {/* 시간 */}
-                    {pt && (
-                      <span style={{ fontFamily: fH, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
-                        {pt}
-                      </span>
-                    )}
+                    {/* 시간 또는 D-N 배지 */}
+                    {dBadge ? (
+                      <span style={{ fontFamily: fH, fontSize: 10, fontWeight: 800, background: dBadge.bg, color: dBadge.color, padding: '2px 7px', borderRadius: 9999, flexShrink: 0 }}>{dBadge.label}</span>
+                    ) : pt ? (
+                      <span style={{ fontFamily: fH, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{pt}</span>
+                    ) : null}
                     {/* 이름 */}
                     <span style={{ fontFamily: fH, fontSize: 14, fontWeight: 700, color: '#fff', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>
                       {h.name}
