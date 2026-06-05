@@ -1360,7 +1360,7 @@ export default function BoxPage() {
       {/* design/box.html .box-search-bar */}
       <div
         style={{
-          position: 'sticky', top: 49, zIndex: 7,
+          position: 'sticky', top: 55, zIndex: 7,
           background: 'rgba(255,255,255,.95)', backdropFilter: 'blur(14px)',
           WebkitBackdropFilter: 'blur(14px)',
           padding: '8px 26px', borderBottom: '1px solid rgba(12,12,10,.07)',
@@ -1397,7 +1397,7 @@ export default function BoxPage() {
             borderBottom: '1px solid rgba(12,12,10,.07)',
             background: 'rgba(255,255,255,.94)', backdropFilter: 'blur(14px)',
             WebkitBackdropFilter: 'blur(14px)',
-            position: 'sticky', top: 97, zIndex: 6,
+            position: 'sticky', top: 103, zIndex: 6,
           }}
         >
           {activeDomain.subTypes.map((st) => (
