@@ -474,15 +474,10 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
         <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {product.name}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3, flexWrap: 'wrap' as const }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
           {product.category && (
             <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', background: '#F4F4F0', padding: '2px 5px', borderRadius: 3 }}>
               {resolveCategory(product.category)}
-            </div>
-          )}
-          {product.boxLocation && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '2px 6px', borderRadius: 9999, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-              📍 {product.boxLocation}
             </div>
           )}
           {isSkincare && calcCostPerUse(product) && (
@@ -492,6 +487,13 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
           )}
         </div>
       </div>
+
+      {/* 📍 보관 위치 — 오른쪽 정렬 */}
+      {product.boxLocation && (
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, flexShrink: 0, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '3px 8px', borderRadius: 9999, maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+          📍 {product.boxLocation}
+        </div>
+      )}
 
       {/* 잔량 바 + 퍼센트 — 스킨케어(beauty)만 표시 */}
       {isSkincare && (
