@@ -2940,14 +2940,35 @@ function AddProductPage({
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 8, alignItems: 'center', marginBottom: 10 }}>
                     <div>
                       <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>
-                        {isCountMode ? '박스 수' : '패키지 수'}
+                        {isSkincare && isCountMode ? '총 구매 개수 (병/개)' : (isCountMode ? '박스 수' : '패키지 수')}
                       </div>
                       <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
                         <input
                           type="number" min={1}
                           value={form.packageCount || ''}
-                          onChange={(e) => { const n = parseInt(e.target.value, 10); setForm((f) => ({ ...f, packageCount: isNaN(n) ? 0 : n, ...(isCountMode && !isEditing ? { currentRemaining: (isNaN(n) ? 0 : n) * f.unitPerPackage } : {}) })); }}
-                          onBlur={() => setForm((f) => ({ ...f, packageCount: Math.max(1, f.packageCount || 1), ...(isCountMode && !isEditing ? { currentRemaining: Math.max(1, f.packageCount || 1) * f.unitPerPackage } : {}) }))}
+                          onChange={(e) => {
+                            const n = parseInt(e.target.value, 10);
+                            const pkgCount = isNaN(n) ? 0 : n;
+                            setForm((f) => {
+                              const defaultRem = (isSkincare && isCountMode) ? pkgCount : pkgCount * f.unitPerPackage;
+                              return {
+                                ...f,
+                                packageCount: pkgCount,
+                                ...(!isEditing ? { currentRemaining: defaultRem } : {})
+                              };
+                            });
+                          }}
+                          onBlur={() => {
+                            setForm((f) => {
+                              const pkgCount = Math.max(1, f.packageCount || 1);
+                              const defaultRem = (isSkincare && isCountMode) ? pkgCount : pkgCount * f.unitPerPackage;
+                              return {
+                                ...f,
+                                packageCount: pkgCount,
+                                ...(!isEditing ? { currentRemaining: defaultRem } : {})
+                              };
+                            });
+                          }}
                           style={countInputStyle}
                         />
                       </div>
@@ -2955,14 +2976,35 @@ function AddProductPage({
                     <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 18, color: '#C5C6CA', paddingTop: 14 }}>×</span>
                     <div>
                       <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>
-                        {isCountMode ? '박스당 개수' : `패키지 용량 (${form.itemUnit})`}
+                        {isSkincare && isCountMode ? '개당 용량 (ml)' : (isCountMode ? '박스당 개수' : `패키지 용량 (${form.itemUnit})`)}
                       </div>
                       <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
                         <input
                           type="number" min={0.1} step="any"
                           value={form.unitPerPackage || ''}
-                          onChange={(e) => { const n = parseFloat(e.target.value); setForm((f) => ({ ...f, unitPerPackage: isNaN(n) ? 0 : n, ...(isCountMode && !isEditing ? { currentRemaining: f.packageCount * (isNaN(n) ? 0 : n) } : {}) })); }}
-                          onBlur={() => setForm((f) => ({ ...f, unitPerPackage: Math.max(0.1, f.unitPerPackage || 1), ...(isCountMode && !isEditing ? { currentRemaining: f.packageCount * Math.max(0.1, f.unitPerPackage || 1) } : {}) }))}
+                          onChange={(e) => {
+                            const n = parseFloat(e.target.value);
+                            const unitVal = isNaN(n) ? 0 : n;
+                            setForm((f) => {
+                              const defaultRem = (isSkincare && isCountMode) ? f.packageCount : f.packageCount * unitVal;
+                              return {
+                                ...f,
+                                unitPerPackage: unitVal,
+                                ...(!isEditing ? { currentRemaining: defaultRem } : {})
+                              };
+                            });
+                          }}
+                          onBlur={() => {
+                            setForm((f) => {
+                              const unitVal = Math.max(0.1, f.unitPerPackage || 1);
+                              const defaultRem = (isSkincare && isCountMode) ? f.packageCount : f.packageCount * unitVal;
+                              return {
+                                ...f,
+                                unitPerPackage: unitVal,
+                                ...(!isEditing ? { currentRemaining: defaultRem } : {})
+                              };
+                            });
+                          }}
                           style={countInputStyle}
                         />
                       </div>
@@ -2979,10 +3021,10 @@ function AddProductPage({
                   {/* 총량 요약 */}
                   <div style={{ display: 'flex', alignItems: 'center', background: '#F5F5F3', borderRadius: 6, padding: '8px 12px' }}>
                     <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>
-                      {isCountMode ? '총 개수' : '총 용량'}
+                      {isSkincare && isCountMode ? '총 용량 (환산)' : (isCountMode ? '총 개수' : '총 용량')}
                     </span>
                     <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014', marginLeft: 'auto' }}>
-                      {totalAmount}{form.itemUnit}
+                      {isSkincare && isCountMode ? `${totalAmount}ml` : `${totalAmount}${form.itemUnit}`}
                     </span>
                   </div>
                 </div>
@@ -2993,24 +3035,27 @@ function AddProductPage({
                   <input type="date" value={form.startDate} onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))} style={dateInputStyle} />
                 </div>
 
-                {/* ── 현재 남은 수량: 개 모드는 신규도 표시 / ml 모드는 편집만 ── */}
+                {/* ── 현재 남은 수량 ── */}
                 {(isCountMode || isEditing) && (
                   <div>
                     <div style={{ ...labelStyle, marginBottom: 6 }}>
-                      {isCountMode ? '현재 남은 개수' : '현재 잔량'}
+                      {isSkincare && isCountMode ? '현재 남은 개수' : (isCountMode ? '현재 남은 개수' : '현재 잔량')}
                     </div>
                     {isCountMode && !isEditing && (
                       <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 8 }}>
-                        새 것이면 그대로 두세요 (총 {totalAmount}개). 이미 쓰던 것이면 남은 개수를 입력하세요.
+                        {isSkincare
+                          ? `새 것이면 그대로 두세요 (총 ${form.packageCount}개). 이미 쓰던 것이면 남은 개수를 입력하세요 (예: 1.5).`
+                          : `새 것이면 그대로 두세요 (총 ${totalAmount}개). 이미 쓰던 것이면 남은 개수를 입력하세요.`}
                       </div>
                     )}
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                       <input
                         type="number"
                         min={0}
+                        step="any"
                         value={
                           isCountMode && !isEditing && form.currentRemaining === 0
-                            ? totalAmount
+                            ? (isSkincare ? form.packageCount : totalAmount)
                             : form.currentRemaining || ''
                         }
                         onChange={(e) => {
@@ -3020,14 +3065,16 @@ function AddProductPage({
                         onBlur={() => setForm((f) => ({ ...f, currentRemaining: f.currentRemaining || 0 }))}
                         style={{ ...countInputStyle, textAlign: 'left', fontSize: 22, width: 80 }}
                       />
-                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>
-                        {form.itemUnit} / {totalAmount}{form.itemUnit}
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>
+                        {isSkincare && isCountMode
+                          ? `개 / 총 ${form.packageCount}개 (남은 용량: ${currentCount * form.unitPerPackage}ml / ${totalAmount}ml)`
+                          : `${form.itemUnit} / ${totalAmount}${form.itemUnit}`}
                       </span>
                     </div>
                     <div style={{ marginTop: 6, height: 4, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden' }}>
                       <div style={{
                         height: '100%',
-                        width: `${Math.min(100, (currentCount / Math.max(1, totalAmount)) * 100)}%`,
+                        width: `${Math.min(100, (currentCount / Math.max(1, (isSkincare && isCountMode ? form.packageCount : totalAmount))) * 100)}%`,
                         background: '#C5FF00', transition: 'width .3s',
                       }} />
                     </div>
