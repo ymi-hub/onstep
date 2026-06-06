@@ -3118,12 +3118,27 @@ function AddProductPage({
                     </div>
                   </div>
                   {/* 단위 선택 */}
-                  <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
-                    {['개', 'ml', 'g'].map((u) => (
-                      <button key={u} onClick={() => setForm((f) => ({ ...f, itemUnit: u, usageDurationMonths: 0 }))} style={pillStyle(form.itemUnit === u)}>
-                        {u}
-                      </button>
-                    ))}
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
+                    {['개', 'ml', 'g'].map((u) => {
+                      let label = u;
+                      if (isSkincare) {
+                        if (u === '개') label = '개수 + 용량(ml) 결합';
+                        else if (u === 'ml') label = '용량(ml) 단독';
+                        else if (u === 'g') label = '중량(g) 단독';
+                      }
+                      return (
+                        <button
+                          key={u}
+                          onClick={() => setForm((f) => ({ ...f, itemUnit: u, usageDurationMonths: 0 }))}
+                          style={{
+                            ...pillStyle(form.itemUnit === u),
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
                   </div>
                   {/* 총량 요약 */}
                   <div style={{ display: 'flex', alignItems: 'center', background: '#F5F5F3', borderRadius: 6, padding: '8px 12px' }}>
