@@ -1726,9 +1726,18 @@ export default function BoxPage() {
           .filter(p => p.domain === 'beauty')
           .map(p => {
             if (!p.startDate) return null; // 시작일 없으면 미개봉 → 제외
-            const dailyUsage = (p.dosePerUse ?? 0) * (p.usesPerDay ?? 0) * ((p.frequencyValue ?? 7) / 7);
-            if (dailyUsage <= 0 || (p.currentRemaining ?? 0) <= 0) return null;
-            const daysLeft = Math.floor((p.currentRemaining ?? 0) / dailyUsage);
+            const isCountMode = p.itemUnit === '개' || p.itemUnit === 'ea';
+            const isSkincare = p.domain === 'beauty' && p.subCategory !== 'makeup';
+            
+            const { remaining } = getVirtualRemaining(p);
+            const dailyUsage = (p.dosePerUse ?? 0) * (p.usesPerDay ?? 1) * ((p.frequencyValue ?? 7) / 7);
+            if (dailyUsage <= 0 || remaining <= 0) return null;
+            
+            const remainingVolumeForDDay = (isSkincare && isCountMode)
+              ? remaining * (p.unitPerPackage ?? 1)
+              : remaining;
+              
+            const daysLeft = Math.floor(remainingVolumeForDDay / dailyUsage);
             if (daysLeft > 7) return null;
             return { ...p, daysLeft };
           })
