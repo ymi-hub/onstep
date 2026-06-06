@@ -161,8 +161,9 @@ function getVirtualRemaining(product: Product): { remaining: number; pct: number
 const CATEGORY_DOSE_DEFAULTS: Record<string, { dose: number; unit: string }> = {
   '세럼':     { dose: 0.3,  unit: 'ml' },
   '에센스':   { dose: 0.3,  unit: 'ml' },
-  '크림':     { dose: 0.45, unit: 'ml' },
-  '아이크림': { dose: 0.12, unit: 'ml' },
+  '앰플':     { dose: 0.3,  unit: 'ml' },
+  '크림':     { dose: 0.45, unit: 'g' },
+  '아이크림': { dose: 0.12, unit: 'g' },
   '토너':     { dose: 2.0,  unit: 'ml' },
   '선크림':   { dose: 1.25, unit: 'ml' },
   '클렌저':   { dose: 0.6,  unit: 'ml' },
@@ -2683,10 +2684,25 @@ function AddProductPage({
     setForm
   ]);
 
+  const isSkincare = form.formDomain === 'beauty' && form.formSubType === 'skincare';
+
+  // 현재 카테고리의 기본 단위 (ml 또는 g, 기본값은 ml)
+  const categoryDefault = form.category ? CATEGORY_DOSE_DEFAULTS[form.category] : null;
+  const baseUnit = categoryDefault ? categoryDefault.unit : 'ml';
+
+  // ── 스킨케어 카테고리 변경 시 단독 단위(ml / g) 보정 ──
+  useEffect(() => {
+    if (!isSkincare) return;
+    if (form.itemUnit !== '개' && baseUnit !== '개') {
+      if (form.itemUnit !== baseUnit) {
+        setForm((f) => ({ ...f, itemUnit: baseUnit }));
+      }
+    }
+  }, [isSkincare, baseUnit, form.itemUnit, setForm]);
+
   // 소진 예측 계산
   // 기준 잔량: 편집 모드는 현재 잔량, 신규 등록은 총 용량
   const isCountMode = form.itemUnit === '개';
-  const isSkincare = form.formDomain === 'beauty' && form.formSubType === 'skincare';
   
   // 현재 남은 수량: 편집이면 form 값, 신규+개수모드면 form 값(입력한 경우) 또는 총 수량
   const currentCount = isEditing
@@ -2925,8 +2941,9 @@ function AddProductPage({
                             ...f,
                             category: f.category === cat ? '' : cat,
                             // 카테고리 선택 시 해당 카테고리의 기본 사용량·단위 자동 적용
+                            // 단, 기존 단위가 '개'(결합 모드)였을 때는 결합 모드 상태를 유지하기 위해 '개'로 남김
                             ...(f.category !== cat && def
-                              ? { dosePerUse: def.dose, itemUnit: def.unit }
+                              ? { dosePerUse: def.dose, itemUnit: f.itemUnit === '개' ? '개' : def.unit }
                               : {}),
                           }));
                         }}
@@ -3083,7 +3100,7 @@ function AddProductPage({
                     <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 18, color: '#C5C6CA', paddingTop: 14 }}>×</span>
                     <div>
                       <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>
-                        {isSkincare && isCountMode ? '개당 용량 (ml)' : (isCountMode ? '박스당 개수' : `패키지 용량 (${form.itemUnit})`)}
+                        {isSkincare && isCountMode ? (baseUnit === 'g' ? '개당 중량 (g)' : '개당 용량 (ml)') : (isCountMode ? '박스당 개수' : `패키지 용량 (${form.itemUnit})`)}
                       </div>
                       <div style={{ borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
                         <input
@@ -3119,34 +3136,47 @@ function AddProductPage({
                   </div>
                   {/* 단위 선택 */}
                   <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-                    {['개', 'ml', 'g'].map((u) => {
-                      let label = u;
-                      if (isSkincare) {
-                        if (u === '개') label = '개수 + 용량(ml) 결합';
-                        else if (u === 'ml') label = '용량(ml) 단독';
-                        else if (u === 'g') label = '중량(g) 단독';
-                      }
-                      return (
-                        <button
-                          key={u}
-                          onClick={() => setForm((f) => ({ ...f, itemUnit: u, usageDurationMonths: 0 }))}
-                          style={{
-                            ...pillStyle(form.itemUnit === u),
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
+                    {(() => {
+                      const unitOptions = (() => {
+                        if (!isSkincare) return ['개', 'ml', 'g'];
+                        if (baseUnit === 'ml') return ['개', 'ml'];
+                        if (baseUnit === 'g') return ['개', 'g'];
+                        if (baseUnit === '개') return ['개'];
+                        return ['개', 'ml'];
+                      })();
+                      return unitOptions.map((u) => {
+                        let label = u;
+                        if (isSkincare) {
+                          if (u === '개') {
+                            label = baseUnit === 'g' ? '개수 + 중량(g) 결합' : (baseUnit === '개' ? '개수 단독' : '개수 + 용량(ml) 결합');
+                          } else if (u === 'ml') {
+                            label = '용량(ml) 단독';
+                          } else if (u === 'g') {
+                            label = '중량(g) 단독';
+                          }
+                        }
+                        return (
+                          <button
+                            key={u}
+                            onClick={() => setForm((f) => ({ ...f, itemUnit: u, usageDurationMonths: 0 }))}
+                            style={{
+                              ...pillStyle(form.itemUnit === u),
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      });
+                    })()}
                   </div>
                   {/* 총량 요약 */}
                   <div style={{ display: 'flex', alignItems: 'center', background: '#F5F5F3', borderRadius: 6, padding: '8px 12px' }}>
                     <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>
-                      {isSkincare && isCountMode ? '총 용량 (환산)' : (isCountMode ? '총 개수' : '총 용량')}
+                      {isSkincare && isCountMode ? (baseUnit === 'g' ? '총 중량 (환산)' : '총 용량 (환산)') : (isCountMode ? '총 개수' : '총 용량')}
                     </span>
                     <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014', marginLeft: 'auto' }}>
-                      {isSkincare && isCountMode ? `${totalAmount}ml` : `${totalAmount}${form.itemUnit}`}
+                      {isSkincare && isCountMode ? `${totalAmount}${baseUnit}` : `${totalAmount}${form.itemUnit}`}
                     </span>
                   </div>
                 </div>
@@ -3189,7 +3219,7 @@ function AddProductPage({
                       />
                       <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>
                         {isSkincare && isCountMode
-                          ? `개 / 총 ${form.packageCount}개 (남은 용량: ${currentCount * form.unitPerPackage}ml / ${totalAmount}ml)`
+                          ? `개 / 총 ${form.packageCount}개 (남은 ${baseUnit === 'g' ? '중량' : '용량'}: ${currentCount * form.unitPerPackage}${baseUnit} / ${totalAmount}${baseUnit})`
                           : `${form.itemUnit} / ${totalAmount}${form.itemUnit}`}
                       </span>
                     </div>
@@ -3315,7 +3345,7 @@ function AddProductPage({
                             onBlur={() => setForm((f) => ({ ...f, dosePerUse: Math.max(0.01, f.dosePerUse || 0.01) }))}
                             style={{ ...countInputStyle, textAlign: 'left', width: 80 }}
                           />
-                          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, color: '#44474A' }}>ml</span>
+                          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, color: '#44474A' }}>{baseUnit}</span>
                           {form.unitPerPackage > 0 && form.dosePerUse > 0 && (
                             <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9CA3AF', marginLeft: 8 }}>
                               (약 {(form.dosePerUse / form.unitPerPackage).toFixed(2)}개 소모)
