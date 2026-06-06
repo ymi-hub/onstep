@@ -362,6 +362,11 @@ function MagResBar({ product }: { product: Product }) {
           <span>{pct}%</span>
         </div>
       </div>
+      {isSkincare && calcCostPerUse(product) && (
+        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 9, color: '#9A9490', marginTop: 3, textAlign: 'left' }}>
+          1회 {calcCostPerUse(product)}
+        </div>
+      )}
     </>
   );
 }
@@ -435,12 +440,20 @@ function ProductCard({
         {product.totalAmount > 0 && product.currentRemaining != null && (
           <div
             style={{
-              fontSize: 9, fontWeight: 700, color: '#C5FF00', letterSpacing: '.02em',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              fontSize: 9, fontWeight: 700, letterSpacing: '.02em',
             }}
           >
-            {product.itemUnit === '개' || product.itemUnit === 'ea'
-              ? `${product.currentRemaining}/${product.totalAmount}개`
-              : `${product.currentRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
+            <span style={{ color: '#C5FF00' }}>
+              {product.itemUnit === '개' || product.itemUnit === 'ea'
+                ? `${product.currentRemaining}/${product.totalAmount}개`
+                : `${product.currentRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
+            </span>
+            {isSkincare && calcCostPerUse(product) && (
+              <span style={{ color: 'rgba(255,255,255,.6)', fontSize: 8.5 }}>
+                1회 {calcCostPerUse(product)}
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -1296,6 +1309,7 @@ export default function BoxPage() {
           .filter(p => parsePrice(p.price) !== null)
           .map(p => {
             const price = parsePrice(p.price)!;
+            const isSkincare = p.domain === 'beauty' && p.subCategory === 'skincare';
             const dailyUsage = (p.dosePerUse ?? 0) * (p.usesPerDay ?? 0) * ((p.frequencyValue ?? 7) / 7);
             
             let cpd = 0;
@@ -1305,9 +1319,14 @@ export default function BoxPage() {
               // 사용 패턴이 존재하면 정밀 계산
               cpd = (price / p.totalAmount) * dailyUsage;
               totalDays = Math.round(p.totalAmount / dailyUsage);
+            } else if (isSkincare && p.totalAmount && p.dosePerUse) {
+              // 스킨케어이면서 사용 패턴이 불규칙인 경우: 하루 1회 펌핑(사용)을 가상으로 가정하여 CPD 계산
+              const virtualDailyUsage = p.dosePerUse;
+              cpd = (price / p.totalAmount) * virtualDailyUsage;
+              totalDays = Math.round(p.totalAmount / virtualDailyUsage);
             } else {
-              // 사용 패턴 정보가 없는 경우 도메인별 사용 기간(일수) 가정 적용
-              // - 뷰티 (스킨케어/메이크업): 180일 (6개월)
+              // 사용 패턴 정보가 없는 경우 도메인별 사용 기간(일수) 가정 적용 (스킨케어 외 도메인)
+              // - 뷰티 메이크업: 180일 (6개월)
               // - 약/비타민 (health): 60일 (2개월)
               // - 패션/ACC (fashion/acc): 365일 (1년)
               let defaultDays = 180;
@@ -1447,7 +1466,7 @@ export default function BoxPage() {
                           <span style={{ fontSize: 10, fontWeight: 600, color: '#9A9490' }}>/일</span>
                         </div>
                         <div style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginTop: 1 }}>
-                          ₩{Math.round(p.price).toLocaleString()} · {p.totalDays > 0 ? `${p.totalDays}일분` : '-'}
+                          ₩{Math.round(p.price).toLocaleString()} · {p.domain === 'beauty' && p.subCategory === 'skincare' && calcCostPerUse({ ...p, price: String(p.price) } as Product) ? `1회 ${calcCostPerUse({ ...p, price: String(p.price) } as Product)}` : (p.totalDays > 0 ? `${p.totalDays}일분` : '-')}
                         </div>
                       </div>
                     </div>
