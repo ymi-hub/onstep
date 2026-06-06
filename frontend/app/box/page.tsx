@@ -30,7 +30,7 @@ import { db, auth } from '@/lib/firebase';
 import { useAppContext } from '@/lib/AppContext';
 import { FALLBACK_USER_ID } from '@/lib/constants';
 import { imageFileToBase64 } from '@/lib/imageUtils';
-import type { Product } from '@/types/product';
+import type { Product, ProductDomain } from '@/types/product';
 import PageHeader from '@/components/PageHeader';
 import ImagePicker from '@/components/ImagePicker';
 
@@ -812,10 +812,20 @@ export default function BoxPage() {
   const [migrationToast, setMigrationToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [migrating, setMigrating] = useState(false);
 
-  // BOX 최상위 뷰: 제품 목록 vs 지출 분석
-  const [boxView, setBoxView] = useState<'products' | 'spending'>('products');
+  // BOX 최상위 뷰: 제품 목록 vs 지출 분석 vs 보관장소
+  const [boxView, setBoxView] = useState<'products' | 'spending' | 'storage'>('products');
   // 지출 분석 도메인 필터
   const [spendingFilter, setSpendingFilter] = useState<string>('all');
+
+  // 보관장소 추가 및 편집 상태
+  const [addingStorageLoc, setAddingStorageLoc] = useState(false);
+  const [newStorageLocName, setNewStorageLocName] = useState('');
+  const [locEditOpen, setLocEditOpen] = useState(false);
+  const [editTargetLocName, setEditTargetLocName] = useState('');
+  const [editTargetLocDomain, setEditTargetLocDomain] = useState('');
+  const [editLocNewNameVal, setEditLocNewNameVal] = useState('');
+  const [editLocNewPhotoVal, setEditLocNewPhotoVal] = useState('');
+  const [locEditSaving, setLocEditSaving] = useState(false);
 
   // 뷰 모드 (매거진 / 갤러리 3열 / 리스트)
   const [viewMode, setViewMode] = useState<'magazine' | 'gallery' | 'list'>('magazine');
@@ -1134,6 +1144,57 @@ export default function BoxPage() {
     if (domain?.subTypes?.length) setSubType(domain.subTypes[0].id);
   }
 
+  // ── 보관장소 관련 핸들러 ──────────────────────────────────────────────────
+  async function handleAddStorageLoc() {
+    const trimmed = newStorageLocName.trim();
+    if (!trimmed) return;
+    if (activeTab === 'all') return;
+    
+    const locKey = activeTab;
+    const currentLocs = getStorageLocs(boxConfig, activeTab);
+    if (currentLocs.includes(trimmed)) {
+      alert('이미 등록된 보관장소 이름입니다.');
+      return;
+    }
+    
+    const updated = {
+      ...boxConfig,
+      domainStorageLocations: {
+        ...boxConfig.domainStorageLocations,
+        [locKey]: [...currentLocs, trimmed],
+      },
+    };
+    await saveBoxConfig(updated);
+    setNewStorageLocName('');
+    setAddingStorageLoc(false);
+  }
+
+  function openAddForLocation(locName: string, domainId: string) {
+    const locProducts = products.filter(p => p.boxLocation === locName);
+    const existingPhoto = locProducts.find(p => p.storageImageUrl)?.storageImageUrl || '';
+    
+    setForm({
+      ...INITIAL_FORM,
+      formDomain: domainId,
+      boxLocation: locName,
+      storageImageUrl: existingPhoto,
+    });
+    setEditingProduct(null);
+    setIsAddOpen(true);
+  }
+
+  function openLocEditor(locName: string, domain: string) {
+    setEditTargetLocName(locName);
+    setEditTargetLocDomain(domain);
+    setEditLocNewNameVal(locName);
+    
+    const locProducts = products.filter(p => p.boxLocation === locName);
+    const existingPhoto = locProducts.find(p => p.storageImageUrl)?.storageImageUrl || '';
+    setEditLocNewPhotoVal(existingPhoto);
+    
+    setLocEditOpen(true);
+  }
+
   function handleSubTypeChange(type: string) {
     setSubType(type);
     setActiveCategory('ALL');
@@ -1163,9 +1224,9 @@ export default function BoxPage() {
         }
       />
 
-      {/* ── 제품 / 지출 분석 상위 탭 ── */}
+      {/* ── 제품 / 지출 분석 / 보관장소 상위 탭 ── */}
       <div style={{ display: 'flex', borderBottom: '1px solid rgba(12,12,10,.07)', background: 'rgba(255,255,255,.97)' }}>
-        {(['products', 'spending'] as const).map(v => (
+        {(['products', 'spending', 'storage'] as const).map(v => (
           <button key={v} onClick={() => setBoxView(v)}
             style={{
               flex: 1, height: 42, border: 'none', background: 'none', cursor: 'pointer',
@@ -1176,7 +1237,7 @@ export default function BoxPage() {
               transition: 'all .18s',
             }}
           >
-            {v === 'products' ? '제품' : '지출 분석'}
+            {v === 'products' ? '제품' : v === 'spending' ? '지출 분석' : '보관장소'}
           </button>
         ))}
       </div>
@@ -1361,65 +1422,67 @@ export default function BoxPage() {
         );
       })()}
 
-      {/* 아래는 boxView === 'products' 일 때만 표시 */}
-      {boxView === 'products' && <>
-
-      {/* 도메인 탭 (Beauty / Fashion / Acc) */}
-      {/* design/box.html .domain-tabs 구조 */}
-      <div
-        style={{
-          display: 'flex',
-          borderBottom: '1px solid rgba(12,12,10,.07)',
-          position: 'sticky', top: 0, zIndex: 8,
-          background: 'rgba(255,255,255,.94)', backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-        }}
-      >
-        {boxConfig.domains.map(({ id, label }) => (
-          <button
-            key={id}
-            onClick={() => handleTabChange(id)}
-            style={{
-              flex: 1, textAlign: 'center', padding: '11px 6px 10px',
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
-              color: activeTab === id ? '#0C0C0A' : '#9A9490',
-              background: 'none', border: 'none', cursor: 'pointer',
-              borderBottom: activeTab === id ? '3px solid #C5FF00' : '3px solid transparent',
-              transition: 'all .18s', whiteSpace: 'nowrap',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
-            }}
-          >
-            <span>{activeTab === id ? `#${label}` : label}</span>
-            <span style={{
-              fontSize: 9, fontWeight: 800,
-              color: activeTab === id ? '#4E7D00' : '#BCBAB6',
-              letterSpacing: '.02em',
-            }}>
-              {products.filter(p => p.domain === id).length}
-            </span>
-          </button>
-        ))}
-        {/* ⊞ 전체 보기 버튼 */}
-        <button
-          onClick={() => handleTabChange('all')}
-          title="전체 보기"
+      {/* 아래는 boxView === 'products' 또는 'storage' 일 때만 표시 */}
+      {(boxView === 'products' || boxView === 'storage') && (
+        <div
           style={{
-            padding: '8px 14px 9px',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-            fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            color: activeTab === 'all' ? '#0C0C0A' : '#9A9490',
-            background: 'none', border: 'none', cursor: 'pointer',
-            borderBottom: activeTab === 'all' ? '3px solid #C5FF00' : '3px solid transparent',
-            transition: 'all .18s', lineHeight: 1,
+            display: 'flex',
+            borderBottom: '1px solid rgba(12,12,10,.07)',
+            position: 'sticky', top: 0, zIndex: 8,
+            background: 'rgba(255,255,255,.94)', backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
           }}
         >
-          <span style={{ fontSize: 15, fontWeight: 700, lineHeight: 1 }}>⊞</span>
-          <span style={{ fontSize: 9, fontWeight: 800, color: activeTab === 'all' ? '#4E7D00' : '#BCBAB6', letterSpacing: '.02em' }}>
-            {products.length}
-          </span>
-        </button>
-      </div>
+          {boxConfig.domains.map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => handleTabChange(id)}
+              style={{
+                flex: 1, textAlign: 'center', padding: '11px 6px 10px',
+                fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+                fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
+                color: activeTab === id ? '#0C0C0A' : '#9A9490',
+                background: 'none', border: 'none', cursor: 'pointer',
+                borderBottom: activeTab === id ? '3px solid #C5FF00' : '3px solid transparent',
+                transition: 'all .18s', whiteSpace: 'nowrap',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
+              }}
+            >
+              <span>{activeTab === id ? `#${label}` : label}</span>
+              <span style={{
+                fontSize: 9, fontWeight: 800,
+                color: activeTab === id ? '#4E7D00' : '#BCBAB6',
+                letterSpacing: '.02em',
+              }}>
+                {products.filter(p => p.domain === id).length}
+              </span>
+            </button>
+          ))}
+          {/* ⊞ 전체 보기 버튼 */}
+          <button
+            onClick={() => handleTabChange('all')}
+            title="전체 보기"
+            style={{
+              padding: '8px 14px 9px',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+              color: activeTab === 'all' ? '#0C0C0A' : '#9A9490',
+              background: 'none', border: 'none', cursor: 'pointer',
+              borderBottom: activeTab === 'all' ? '3px solid #C5FF00' : '3px solid transparent',
+              transition: 'all .18s', lineHeight: 1,
+            }}
+          >
+            <span style={{ fontSize: 15, fontWeight: 700, lineHeight: 1 }}>⊞</span>
+            <span style={{ fontSize: 9, fontWeight: 800, color: activeTab === 'all' ? '#4E7D00' : '#BCBAB6', letterSpacing: '.02em' }}>
+              {products.length}
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* 아래는 boxView === 'products' 일 때만 표시 */}
+      {boxView === 'products' && (
+        <>
 
       {/* 검색 바 */}
       {/* design/box.html .box-search-bar */}
@@ -1792,9 +1855,234 @@ export default function BoxPage() {
           </button>
         </div>
       )}
+    </>
+  )}
 
-      {/* boxView === 'products' 블록 닫기 */}
-      </>}
+      {/* ── 보관장소 뷰 ── */}
+      {boxView === 'storage' && (() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        const targetDomains = activeTab === 'all'
+          ? boxConfig.domains.map(d => d.id)
+          : [activeTab];
+
+        const configLocs = targetDomains.flatMap(dId => getStorageLocs(boxConfig, dId));
+        const productLocs = products
+          .filter(p => targetDomains.includes(p.domain) && p.boxLocation)
+          .map(p => p.boxLocation!);
+        const uniqueLocs = Array.from(new Set([...configLocs, ...productLocs]));
+
+        const storageList = uniqueLocs.map(locName => {
+          const locProducts = products.filter(p => p.boxLocation === locName && targetDomains.includes(p.domain));
+          const coverProduct = locProducts.find(p => p.storageImageUrl);
+          const domainId = (locProducts[0]?.domain || (boxConfig.domains.find(d => getStorageLocs(boxConfig, d.id).includes(locName))?.id) || targetDomains[0] || 'beauty') as ProductDomain;
+          return {
+            name: locName,
+            products: locProducts,
+            coverUrl: coverProduct?.storageImageUrl || null,
+            domain: domainId,
+          };
+        });
+
+        const unassignedProducts = products.filter(p => !p.boxLocation && targetDomains.includes(p.domain));
+        if (unassignedProducts.length > 0) {
+          storageList.push({
+            name: '위치 미지정',
+            products: unassignedProducts,
+            coverUrl: null,
+            domain: (targetDomains[0] || 'beauty') as ProductDomain,
+          });
+        }
+
+        const domainLabels: Record<string, string> = {
+          beauty: 'Beauty',
+          fashion: 'Fashion',
+          health: '약·비타민',
+          acc: 'ACC',
+        };
+        const domainColors: Record<string, string> = {
+          beauty: '#C5FF00',
+          fashion: '#0C0C0A',
+          health: '#B45309',
+          acc: '#9A9490',
+        };
+
+        return (
+          <div style={{ padding: '16px 26px calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
+            {/* 보관장소 추가 바 (전체 보기 아닐 때만 표시) */}
+            {activeTab !== 'all' && (
+              <div style={{ marginBottom: 20, background: '#fff', borderRadius: 14, padding: 16, border: '1px solid rgba(12,12,10,.07)' }}>
+                {!addingStorageLoc ? (
+                  <button
+                    onClick={() => setAddingStorageLoc(true)}
+                    style={{
+                      width: '100%', padding: '10px 0', border: '1.5px dashed rgba(12,12,10,.14)',
+                      borderRadius: 10, background: 'transparent', cursor: 'pointer',
+                      fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    }}
+                  >
+                    <span>+ 새 보관장소 추가</span>
+                  </button>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A' }}>새 보관장소 이름</div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input
+                        autoFocus
+                        value={newStorageLocName}
+                        onChange={e => setNewStorageLocName(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') handleAddStorageLoc();
+                          if (e.key === 'Escape') { setAddingStorageLoc(false); setNewStorageLocName(''); }
+                        }}
+                        placeholder="예: 안방 화장대, 드레스룸 A"
+                        style={{
+                          flex: 1, padding: '0 14px', height: 38,
+                          border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8,
+                          fontFamily: f, fontSize: 13, outline: 'none',
+                        }}
+                      />
+                      <button
+                        onClick={handleAddStorageLoc}
+                        style={{
+                          height: 38, padding: '0 16px', background: '#0C0C0A', color: '#fff',
+                          border: 'none', borderRadius: 8, fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                        }}
+                      >
+                        추가
+                      </button>
+                      <button
+                        onClick={() => { setAddingStorageLoc(false); setNewStorageLocName(''); }}
+                        style={{
+                          height: 38, padding: '0 12px', background: 'transparent',
+                          border: '1px solid rgba(12,12,10,.14)', borderRadius: 8,
+                          fontFamily: f, fontSize: 12, color: '#9A9490', cursor: 'pointer',
+                        }}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {storageList.length === 0 ? (
+              <div style={{ padding: '60px 16px', textAlign: 'center' }}>
+                <div style={{ fontSize: 36, marginBottom: 12 }}>📍</div>
+                <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', marginBottom: 6 }}>보관장소가 없습니다</div>
+                <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>새 보관장소를 추가하거나 제품 편집에서 위치를 등록해보세요</div>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
+                {storageList.map((item) => {
+                  const isUnassigned = item.name === '위치 - 미지정' || item.name === '위치 미지정';
+                  return (
+                    <div
+                      key={item.name}
+                      style={{
+                        background: '#fff', borderRadius: 20, padding: 16,
+                        border: '1px solid rgba(12,12,10,.07)',
+                        boxShadow: '0 4px 18px rgba(0,0,0,.02)',
+                        display: 'flex', flexDirection: 'column', gap: 12,
+                      }}
+                    >
+                      {/* 헤더 */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                          <span style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {item.name}
+                          </span>
+                          {activeTab === 'all' && !isUnassigned && (
+                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: domainColors[item.domain] === '#0C0C0A' ? '#9A9490' : domainColors[item.domain], letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                              {domainLabels[item.domain]}
+                            </span>
+                          )}
+                        </div>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A', background: '#EEEDE9', padding: '3px 8px', borderRadius: 9999 }}>
+                          {item.products.length}개
+                        </span>
+                      </div>
+
+                      {/* 이미지 영역 */}
+                      <div style={{ width: '100%', height: 140, background: '#F4F4F0', borderRadius: 12, overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {item.coverUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.coverUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                            <span style={{ fontSize: 24, opacity: 0.35 }}>📍</span>
+                            {!isUnassigned && (
+                              <span style={{ fontFamily: f, fontSize: 9, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em' }}>
+                                사진 미등록
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 가로 상품 리스트 */}
+                      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }} className="hide-scrollbar">
+                        {item.products.map(p => {
+                          const pImg = p.imageUrl ?? (p as any).storageUrl;
+                          return (
+                            <button
+                              key={p.id}
+                              onClick={() => openEdit(p)}
+                              style={{
+                                width: 44, height: 44, borderRadius: 8, flexShrink: 0,
+                                background: '#EEEDE9', overflow: 'hidden', position: 'relative',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                border: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', padding: 0,
+                              }}
+                              title={p.name}
+                            >
+                              {pImg ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={pImg} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                <span style={{ fontSize: 12, opacity: 0.3 }}>✦</span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* 푸터 액션 */}
+                      {!isUnassigned && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 4, borderTop: '1px solid rgba(12,12,10,.05)', paddingTop: 10 }}>
+                          <button
+                            onClick={() => openLocEditor(item.name, item.domain)}
+                            style={{
+                              flex: 1, padding: '7px 0', border: '1px solid rgba(12,12,10,.08)',
+                              borderRadius: 8, background: 'transparent', cursor: 'pointer',
+                              fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                            }}
+                          >
+                            <span>📍 관리</span>
+                          </button>
+                          <button
+                            onClick={() => openAddForLocation(item.name, item.domain)}
+                            style={{
+                              flex: 1, padding: '7px 0', border: 'none',
+                              borderRadius: 8, background: '#0C0C0A', cursor: 'pointer',
+                              fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                            }}
+                          >
+                            <span>+ 제품 추가</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Bottom Toast — 마이그레이션 결과 알림 */}
       {migrationToast && (
@@ -1847,6 +2135,18 @@ export default function BoxPage() {
         onClose={() => setManageOpen(false)}
         config={boxConfig}
         onConfigChange={saveBoxConfig}
+      />
+
+      {/* 보관장소 편집 시트 */}
+      <LocationEditSheet
+        open={locEditOpen}
+        onClose={() => setLocEditOpen(false)}
+        config={boxConfig}
+        onConfigChange={saveBoxConfig}
+        locName={editTargetLocName}
+        domain={editTargetLocDomain}
+        products={products}
+        userId={userId}
       />
     </div>
   );
@@ -3078,4 +3378,223 @@ function pillStyle(isActive: boolean): React.CSSProperties {
     color: isActive ? '#fff' : '#44474A',
     cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .18s',
   };
+}
+
+// ─── 보관장소 편집 시트 ────────────────────────────────────────────────────────
+interface LocationEditSheetProps {
+  open: boolean;
+  onClose: () => void;
+  config: BoxConfig;
+  onConfigChange: (c: BoxConfig) => void;
+  locName: string;
+  domain: string;
+  products: Product[];
+  userId: string;
+}
+
+function LocationEditSheet({
+  open,
+  onClose,
+  config,
+  onConfigChange,
+  locName,
+  domain,
+  products,
+  userId,
+}: LocationEditSheetProps) {
+  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+  const [nameVal, setNameVal] = useState('');
+  const [photoVal, setPhotoVal] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  // Sync state with props when opened
+  useEffect(() => {
+    if (open) {
+      setNameVal(locName);
+      const locProducts = products.filter(p => p.boxLocation === locName);
+      const existingPhoto = locProducts.find(p => p.storageImageUrl)?.storageImageUrl || '';
+      setPhotoVal(existingPhoto);
+    }
+  }, [open, locName, products]);
+
+  if (!open) return null;
+
+  async function handleSave() {
+    const trimmed = nameVal.trim();
+    if (!trimmed) {
+      alert('보관장소 이름을 입력해주세요.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const isNameChanged = trimmed !== locName;
+      const existingProducts = products.filter(p => p.boxLocation === locName);
+
+      // 1. Update name on all products in this location
+      if (isNameChanged) {
+        const batch = existingProducts.map(p =>
+          updateDoc(doc(db!, 'users', userId, 'products', p.id), {
+            boxLocation: trimmed,
+            updatedAt: new Date().toISOString(),
+          })
+        );
+        await Promise.all(batch);
+      }
+
+      // 2. Update photo on all products in this location (if photo changed or cleared)
+      const currentPhoto = existingProducts.find(p => p.storageImageUrl)?.storageImageUrl || '';
+      if (photoVal !== currentPhoto) {
+        const targetProducts = products.filter(p => p.boxLocation === (isNameChanged ? trimmed : locName));
+        const batch = targetProducts.map(p =>
+          updateDoc(doc(db!, 'users', userId, 'products', p.id), {
+            storageImageUrl: photoVal || null,
+            updatedAt: new Date().toISOString(),
+          })
+        );
+        await Promise.all(batch);
+      }
+
+      // 3. Update name in config
+      if (isNameChanged) {
+        const updatedConfig = { ...config };
+        const locKey = domain;
+        const currentLocs = getStorageLocs(config, locKey);
+        const nextLocs = currentLocs.map(l => l === locName ? trimmed : l);
+
+        updatedConfig.domainStorageLocations = {
+          ...config.domainStorageLocations,
+          [locKey]: nextLocs,
+        };
+        onConfigChange(updatedConfig);
+      }
+
+      onClose();
+    } catch (err) {
+      console.error('보관장소 수정 실패:', err);
+      alert('보관장소 저장에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!confirm(`"${locName}" 보관장소를 삭제하시겠습니까?\n이 위치에 저장된 제품들은 "위치 미지정" 상태로 변경됩니다.`)) return;
+    setDeleting(true);
+    try {
+      // 1. Clear boxLocation and storageImageUrl on all products in this location
+      const existingProducts = products.filter(p => p.boxLocation === locName);
+      const batch = existingProducts.map(p =>
+        updateDoc(doc(db!, 'users', userId, 'products', p.id), {
+          boxLocation: null,
+          storageImageUrl: null,
+          updatedAt: new Date().toISOString(),
+        })
+      );
+      await Promise.all(batch);
+
+      // 2. Remove location from boxConfig
+      const updatedConfig = { ...config };
+      const locKey = domain;
+      const currentLocs = getStorageLocs(config, locKey);
+      const nextLocs = currentLocs.filter(l => l !== locName);
+
+      updatedConfig.domainStorageLocations = {
+        ...config.domainStorageLocations,
+        [locKey]: nextLocs,
+      };
+      onConfigChange(updatedConfig);
+
+      onClose();
+    } catch (err) {
+      console.error('보관장소 삭제 실패:', err);
+      alert('보관장소 삭제에 실패했습니다.');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 110,
+        background: 'rgba(0,0,0,.5)', backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: '100%', maxWidth: 440, background: '#fff',
+          borderRadius: '24px 24px 0 0', padding: '20px 26px calc(env(safe-area-inset-bottom,0px) + 24px)',
+          display: 'flex', flexDirection: 'column', gap: 20,
+          boxShadow: '0 -8px 32px rgba(0,0,0,.12)',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* 상단 바 */}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: 36, height: 4, background: '#E5E7EB', borderRadius: 2 }} />
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>📍 보관장소 관리</span>
+          <button
+            onClick={onClose}
+            style={{ width: 30, height: 30, borderRadius: '50%', background: '#F4F4F0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}
+          >✕</button>
+        </div>
+
+        {/* 위치 이름 입력 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={labelStyle}>보관장소 이름</label>
+          <input
+            value={nameVal}
+            onChange={e => setNameVal(e.target.value)}
+            style={underlineInputStyle}
+            placeholder="위치 이름 입력..."
+          />
+        </div>
+
+        {/* 위치 사진 관리 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={labelStyle}>보관장소 사진</label>
+          <ImagePicker
+            preview={photoVal}
+            onChange={(_, b64) => setPhotoVal(b64)}
+            onClear={() => setPhotoVal('')}
+            height={160}
+            placeholderLabel="ADD LOCATION PHOTO"
+          />
+        </div>
+
+        {/* 액션 버튼 */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+          <button
+            onClick={onClose}
+            style={{ flex: 1, height: 48, background: '#fff', color: '#4A4846', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+          >
+            취소
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            style={{ flex: 1, height: 48, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.5 : 1 }}
+          >
+            {saving ? '저장 중...' : '저장'}
+          </button>
+        </div>
+
+        {/* 삭제 버튼 */}
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          style={{ width: '100%', height: 44, background: 'transparent', border: '1.5px solid #EF4444', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#EF4444', cursor: 'pointer', opacity: deleting ? 0.5 : 1 }}
+        >
+          {deleting ? '삭제 중...' : '보관장소 삭제'}
+        </button>
+      </div>
+    </div>
+  );
 }

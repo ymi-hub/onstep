@@ -43,6 +43,7 @@ export interface Product {
   // 이미지
   imageUrl?: string;     // Firebase Storage URL (신규) 또는 Cloudinary URL (구 box.html 마이그레이션)
   storageUrl?: string;   // 레거시 필드 — 구 box.html 마이그레이션 데이터 일부에 존재, imageUrl 없을 때 폴백
+  storageImageUrl?: string; // 보관 장소 이미지 URL (신규)
 
   // 구매 정보
   price?: string;        // 가격 (예: "₩45,000")
