@@ -286,8 +286,15 @@ function AdaptiveImg({ src, style }: { src: string; style?: React.CSSProperties 
 function MagImg({ product, borderRadius, isHero }: { product: Product; borderRadius: number; isHero?: boolean }) {
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
   // 잔량 바: beauty skincare + 개 단위 제품 모두 표시
+  const isCountMode = product.itemUnit === '개' || product.itemUnit === 'ea';
+  const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
   const hasRemaining = product.totalAmount > 0 && product.currentRemaining != null;
-  const fillRate = hasRemaining ? Math.min(1, product.currentRemaining / product.totalAmount) : 1;
+  
+  const divisor = (isSkincare && isCountMode && product.packageCount > 0)
+    ? product.packageCount
+    : product.totalAmount;
+    
+  const fillRate = hasRemaining ? Math.min(1, product.currentRemaining / divisor) : 1;
   const showBar = (product.domain === 'beauty' && product.subCategory !== 'makeup') || product.itemUnit === '개';
   return (
     <div
@@ -327,7 +334,11 @@ function MagResBar({ product }: { product: Product }) {
   if (!isSkincare && !isCountMode) return null;
   if (!product.totalAmount || product.currentRemaining == null) return null;
 
-  const fillRate = Math.min(1, product.currentRemaining / product.totalAmount);
+  const divisor = (isSkincare && isCountMode && product.packageCount > 0)
+    ? product.packageCount
+    : product.totalAmount;
+
+  const fillRate = Math.min(1, product.currentRemaining / divisor);
   const pct = Math.round(fillRate * 100);
 
   // D-N 계산: 뷰티-스킨케어 제품이고 사용 시작일이 있는 경우에만 소진 디데이 노출
@@ -350,7 +361,7 @@ function MagResBar({ product }: { product: Product }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9A9490', gap: 2, flexWrap: 'nowrap' as const }}>
         <span style={{ whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1, minWidth: 0 }}>
           {isCountMode
-            ? `${product.currentRemaining}/${product.totalAmount}개`
+            ? `${product.currentRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
             : `${product.currentRemaining}${product.itemUnit === 'ea' ? '개' : (product.itemUnit || 'ml')}`}
         </span>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
@@ -380,10 +391,16 @@ function ProductCard({
   product: Product;
   onClick: () => void;
 }) {
+  const isCountMode = product.itemUnit === '개' || product.itemUnit === 'ea';
   const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
+  
+  const divisor = (isSkincare && isCountMode && product.packageCount > 0)
+    ? product.packageCount
+    : product.totalAmount;
+
   const fillRate =
-    product.totalAmount > 0
-      ? Math.min(1, product.currentRemaining / product.totalAmount)
+    divisor > 0
+      ? Math.min(1, product.currentRemaining / divisor)
       : 1;
 
   // Firebase Storage URL 또는 구 box.html Cloudinary URL
@@ -446,7 +463,7 @@ function ProductCard({
           >
             <span style={{ color: '#C5FF00' }}>
               {product.itemUnit === '개' || product.itemUnit === 'ea'
-                ? `${product.currentRemaining}/${product.totalAmount}개`
+                ? `${product.currentRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
                 : `${product.currentRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
             </span>
             {isSkincare && calcCostPerUse(product) && (
@@ -476,9 +493,15 @@ function ProductCard({
 
 // ─── 리스트 뷰 행 (design/box.html .list-item 구조) ──────────────────────────
 function ListRow({ product, onClick }: { product: Product; onClick: () => void }) {
+  const isCountMode = product.itemUnit === '개' || product.itemUnit === 'ea';
   const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
-  const fillRate = product.totalAmount > 0
-    ? Math.min(1, product.currentRemaining / product.totalAmount)
+  
+  const divisor = (isSkincare && isCountMode && product.packageCount > 0)
+    ? product.packageCount
+    : product.totalAmount;
+
+  const fillRate = divisor > 0
+    ? Math.min(1, product.currentRemaining / divisor)
     : 1;
   const pct = Math.round(fillRate * 100);
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
@@ -540,7 +563,7 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
             <span>{pct}%</span>
             <span style={{ fontWeight: 700, color: '#4A4846' }}>
               {product.itemUnit === '개' || product.itemUnit === 'ea'
-                ? `${product.currentRemaining}/${product.totalAmount}개`
+                ? `${product.currentRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
                 : `${product.currentRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
             </span>
           </div>
