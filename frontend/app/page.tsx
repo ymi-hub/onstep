@@ -1095,8 +1095,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
       );
     }
     
-    if (item.type === 'desc' || item.type === 'tip') {
-      const isTip = item.type === 'tip';
+    if (item.type === 'desc') {
+      const guideNum = allItems.slice(0, idx + 1).filter(i => i.type === 'desc').length;
+      const guideLabel = `GUIDE ${String(guideNum).padStart(2, '0')}`;
       return (
         <div
           key={idx}
@@ -1111,8 +1112,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             width: 170,
             minWidth: 170,
             height: 260,
-            background: isTip ? 'rgba(197,255,0,0.06)' : 'rgba(33,133,253,0.05)',
-            border: isTip ? '1px solid rgba(197,255,0,0.3)' : '1px solid rgba(33,133,253,0.2)',
+            background: 'rgba(12,12,10,0.03)',
+            border: '1.5px solid #0C0C0A',
             borderRadius: 14,
             boxShadow: '0 4px 12px rgba(0,0,0,.02)',
             transition: 'all .2s ease-in-out',
@@ -1121,12 +1122,61 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           {/* 상단 타입 뱃지 */}
           <div style={{
             alignSelf: 'flex-start',
-            background: isTip ? '#C5FF00' : '#2185fd',
-            color: isTip ? '#000000' : '#FFFFFF',
+            background: '#0C0C0A', color: '#C5FF00',
+            fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
+            padding: '3px 8px', borderRadius: 6, lineHeight: 1, marginBottom: 12
+          }}>
+            {guideLabel}
+          </div>
+          {/* 설명 본문 */}
+          <div style={{
+            fontFamily: f,
+            fontWeight: 700,
+            fontSize: 16,
+            lineHeight: '1.45',
+            color: '#0C0C0A',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 6,
+            WebkitBoxOrient: 'vertical',
+          }}>
+            {item.text}
+          </div>
+        </div>
+      );
+    }
+
+    if (item.type === 'tip') {
+      return (
+        <div
+          key={idx}
+          className="care-step-card"
+          style={{
+            flexShrink: 0,
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            padding: '16px',
+            width: 170,
+            minWidth: 170,
+            height: 260,
+            background: 'rgba(197,255,0,0.06)',
+            border: '1px solid rgba(197,255,0,0.3)',
+            borderRadius: 14,
+            boxShadow: '0 4px 12px rgba(0,0,0,.02)',
+            transition: 'all .2s ease-in-out',
+          }}
+        >
+          {/* 상단 타입 뱃지 */}
+          <div style={{
+            alignSelf: 'flex-start',
+            background: '#C5FF00', color: '#000000',
             fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.08em',
             padding: '3px 8px', borderRadius: 6, lineHeight: 1, marginBottom: 12
           }}>
-            {isTip ? 'TIP' : 'GUIDE'}
+            TIP
           </div>
           {/* 설명 본문 */}
           <div style={{
@@ -1196,38 +1246,17 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           }
         `}</style>
 
-        {items.map((item) => {
-          const guides = item.items.filter(r => r.type === 'desc');
-          const tempSteps = item.items.filter(r => r.type !== 'desc');
-          const routineSteps: RoutineItem[] = [];
-          for (let i = 0; i < tempSteps.length; i++) {
-            const current = tempSteps[i];
-            const isConnector = current.type === 'plus' || current.type === 'minus';
-            if (isConnector) {
-              if (routineSteps.length === 0) continue;
-              const prev = routineSteps[routineSteps.length - 1];
-              if (prev.type === 'plus' || prev.type === 'minus') continue;
-            }
-            routineSteps.push(current);
-          }
-          if (routineSteps.length > 0) {
-            const last = routineSteps[routineSteps.length - 1];
-            if (last.type === 'plus' || last.type === 'minus') {
-              routineSteps.pop();
-            }
-          }
-
-          return (
-            <div
-              key={item.id}
-              style={{
-                background: '#fff',
-                borderRadius: 24,
-                overflow: 'hidden',
-                boxShadow: '0 4px 24px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.03)',
-                border: '1px solid rgba(0,0,0,.02)',
-              }}
-            >
+        {items.map((item) => (
+          <div
+            key={item.id}
+            style={{
+              background: '#fff',
+              borderRadius: 24,
+              overflow: 'hidden',
+              boxShadow: '0 4px 24px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.03)',
+              border: '1px solid rgba(0,0,0,.02)',
+            }}
+          >
             {/* 헤더 영역 */}
             {item.imageUrl ? (
               <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
@@ -1318,32 +1347,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 </div>
               </div>
             )}
-
-            {/* GUIDE 영역 (카드 상단 노출) */}
-            {guides.length > 0 && (
-              <div style={{ padding: '20px 20px 0 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {guides.map((g, idx) => (
-                  <div key={idx} style={{
-                    padding: '14px 18px',
-                    background: 'rgba(33,133,253,0.05)',
-                    border: '1px solid rgba(33,133,253,0.18)',
-                    borderRadius: 14,
-                    display: 'flex',
-                    gap: 10,
-                    alignItems: 'flex-start'
-                  }}>
-                    <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>📋</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#2185fd', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>GUIDE</div>
-                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#1A2F4C', lineHeight: 1.45 }}>{g.text}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
             {/* 메인 루틴 카드 가로 스크롤 */}
-            {routineSteps.length > 0 && (
+            {item.items.length > 0 && (
               <div style={{ padding: '20px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
                 <div style={{
                   fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: '#9CA3AF',
@@ -1352,7 +1357,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   Routine Steps
                 </div>
                 <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'center', paddingBottom: 4 }}>
-                  {routineSteps.map((r, i) => renderChip(r, i, routineSteps))}
+                  {item.items.map((r, i) => renderChip(r, i, item.items))}
                 </div>
               </div>
             )}
@@ -1440,8 +1445,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               </Link>
             </div>
           </div>
-        );
-      })}
+        ))}
       </div>
     </div>
   );
