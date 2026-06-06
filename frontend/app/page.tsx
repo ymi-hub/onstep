@@ -1000,35 +1000,44 @@ function SourceLink({ url }: { url?: string }) {
 }
 
 // ─── 집중케어 섹션 ───────────────────────────────────────────────────────────
-// FlowCard 칩 스타일과 동일하게 구현 (제품·설명·TIP·+·→ 칩 + EXPERT TIP)
 
 function CareSection({ items, products }: { items: CtItem[]; products: Map<string, Product> }) {
   if (items.length === 0) return null;
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
-  // FlowCard와 동일한 칩 렌더러
+  // 업그레이드된 칩/카드 렌더러
   function renderChip(item: RoutineItem, idx: number, allItems: RoutineItem[]) {
     if (item.type === 'product') {
       const p = products.get(item.id);
       const stepNum = allItems.slice(0, idx + 1).filter(i => i.type === 'product').length;
+      const stepLabel = `STEP ${String(stepNum).padStart(2, '0')}`;
       return (
-        <div key={idx} style={{
-          flexShrink: 0,
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-          padding: '20px 26px 0px',
-          width: 248,
-          minWidth: 248,
-          height: 355,
-          background: '#FFFFFF',
-          border: '1px solid #000000',
-        }}>
+        <div
+          key={idx}
+          className="care-step-card"
+          style={{
+            flexShrink: 0,
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+            padding: '12px',
+            width: 170,
+            minWidth: 170,
+            height: 260,
+            background: '#FFFFFF',
+            border: '1px solid rgba(0,0,0,.08)',
+            borderRadius: 14,
+            boxShadow: '0 4px 12px rgba(0,0,0,.03)',
+            transition: 'all .2s ease-in-out',
+            cursor: 'pointer',
+          }}
+        >
+          {/* 이미지 영역 */}
           <div style={{
-            width: 200,
-            height: 257,
-            background: '#F3F3F4',
+            height: 150,
+            background: '#F8F8FA',
+            borderRadius: 10,
             overflow: 'hidden',
             position: 'relative',
             display: 'flex',
@@ -1037,120 +1046,339 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             flexShrink: 0,
           }}>
             {(p?.imageUrl || p?.storageUrl)
-              ? <img src={p!.imageUrl || p!.storageUrl} alt={p?.name} style={{ width: 200, height: 274, objectFit: 'contain', display: 'block' }} />
-              : <span style={{ fontSize: 56, opacity: 0.3 }}>🧴</span>
+              ? <img src={p!.imageUrl || p!.storageUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', padding: 8 }} />
+              : <span style={{ fontSize: 36, opacity: 0.3 }}>🧴</span>
             }
+            {/* Step 뱃지 (좌상단 플로팅) */}
+            <div style={{
+              position: 'absolute', top: 8, left: 8,
+              background: '#0C0C0A', color: '#C5FF00',
+              fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
+              padding: '3px 8px', borderRadius: 6, lineHeight: 1
+            }}>
+              {stepLabel}
+            </div>
           </div>
-          <div style={{
-            width: 155,
-            fontFamily: f,
-            fontWeight: 600,
-            fontSize: 20,
-            lineHeight: '18px',
-            display: 'flex',
-            alignItems: 'center',
-            color: '#000000',
-            marginTop: 14,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap' as const,
-          }}>
-            {p?.name ?? '?'}
-          </div>
-          <div style={{
-            width: 200,
-            fontFamily: f,
-            fontWeight: 400,
-            fontSize: 16,
-            lineHeight: '18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            color: '#000000',
-            marginTop: 8,
-          }}>
-            Step{String(stepNum).padStart(2, '0')}.
+          {/* 제품 정보 영역 */}
+          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, justifyContent: 'space-between' }}>
+            <div style={{
+              fontFamily: f,
+              fontWeight: 700,
+              fontSize: 13,
+              lineHeight: '1.35',
+              color: '#000000',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}>
+              {p?.name ?? '?'}
+            </div>
+            {p?.brand && (
+              <div style={{
+                fontFamily: f,
+                fontWeight: 500,
+                fontSize: 10,
+                color: '#9A9490',
+                textTransform: 'uppercase',
+                letterSpacing: '.02em',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
+                {p.brand}
+              </div>
+            )}
           </div>
         </div>
       );
     }
-    if (item.type === 'desc') return (
-      <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '5px 10px', background: '#2185fd', borderRadius: 16, fontSize: 12, fontWeight: 400, color: '#fff', whiteSpace: 'nowrap' as const, lineHeight: 1, fontFamily: f }}>
-        {item.text}
-      </div>
-    );
-    if (item.type === 'tip') return (
-      <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '0 8px', minWidth: 36, height: 22, background: 'rgba(197,255,0,.22)', borderRadius: 12, fontSize: 12, fontWeight: 800, color: '#4E7D00', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' as const, fontFamily: f }}>
-        {item.text || 'TIP'}
-      </div>
-    );
-    if (item.type === 'plus') return (
-      <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(33,150,243,.12)', color: '#1976D2', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>+</div>
-    );
-    return (
-      <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(255,152,0,.2)', color: '#E65100', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>→</div>
-    );
+    
+    if (item.type === 'desc' || item.type === 'tip') {
+      const isTip = item.type === 'tip';
+      return (
+        <div
+          key={idx}
+          className="care-step-card"
+          style={{
+            flexShrink: 0,
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            padding: '16px',
+            width: 170,
+            minWidth: 170,
+            height: 260,
+            background: isTip ? 'rgba(197,255,0,0.06)' : 'rgba(33,133,253,0.05)',
+            border: isTip ? '1px solid rgba(197,255,0,0.3)' : '1px solid rgba(33,133,253,0.2)',
+            borderRadius: 14,
+            boxShadow: '0 4px 12px rgba(0,0,0,.02)',
+            transition: 'all .2s ease-in-out',
+          }}
+        >
+          {/* 상단 타입 뱃지 */}
+          <div style={{
+            alignSelf: 'flex-start',
+            background: isTip ? '#C5FF00' : '#2185fd',
+            color: isTip ? '#000000' : '#FFFFFF',
+            fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.08em',
+            padding: '3px 8px', borderRadius: 6, lineHeight: 1, marginBottom: 12
+          }}>
+            {isTip ? 'TIP' : 'GUIDE'}
+          </div>
+          {/* 설명 본문 */}
+          <div style={{
+            fontFamily: f,
+            fontWeight: 500,
+            fontSize: 12,
+            lineHeight: '1.5',
+            color: '#1A1C1E',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 8,
+            WebkitBoxOrient: 'vertical',
+          }}>
+            {item.text}
+          </div>
+        </div>
+      );
+    }
+
+    if (item.type === 'plus' || item.type === 'minus') {
+      const isPlus = item.type === 'plus';
+      return (
+        <div
+          key={idx}
+          style={{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 32,
+            height: 260,
+          }}
+        >
+          <div style={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            background: isPlus ? 'rgba(33,150,243,.08)' : 'rgba(249,115,22,.08)',
+            color: isPlus ? '#1976D2' : '#F97316',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 14,
+            fontWeight: 800,
+            fontFamily: f,
+          }}>
+            {isPlus ? '+' : '→'}
+          </div>
+        </div>
+      );
+    }
+
+    return null;
   }
 
   return (
     <div>
       <SectionHeader title="#Intensive Care" />
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 26px' }}>
-        {items.map((item) => (
-          <div key={item.id} style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 26px' }}>
+        <style>{`
+          .care-step-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(12, 12, 10, 0.18) !important;
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08) !important;
+          }
+        `}</style>
 
-            {/* 헤더: 이미지 있으면 hero (4:3 landscape), 없으면 이모지+제목 */}
+        {items.map((item) => (
+          <div
+            key={item.id}
+            style={{
+              background: '#fff',
+              borderRadius: 24,
+              overflow: 'hidden',
+              boxShadow: '0 4px 24px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.03)',
+              border: '1px solid rgba(0,0,0,.02)',
+            }}
+          >
+            {/* 헤더 영역 */}
             {item.imageUrl ? (
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden' }}>
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '65%', background: 'linear-gradient(to top, rgba(0,0,0,.72) 0%, transparent 100%)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', bottom: 14, left: 16, right: 16, fontFamily: f, fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-.02em', lineHeight: 1.15, zIndex: 1 }}>
-                  {item.emoji} {item.name}
-                </div>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 26px 12px' }}>
-                <span style={{ fontSize: 20 }}>{item.emoji}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{item.name}</div>
-                  {item.periodStart && (
-                    <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
-                      {item.periodStart}{item.periodEnd ? ` → ${item.periodEnd}` : ''}
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '70%', background: 'linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 100%)', pointerEvents: 'none' }} />
+                {/* 배지 & 타이틀 */}
+                <div style={{ position: 'absolute', bottom: 16, left: 20, right: 20, zIndex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                    <div style={{
+                      display: 'inline-block',
+                      background: '#C5FF00', color: '#000',
+                      fontFamily: f, fontWeight: 900, fontSize: 9, letterSpacing: '.12em',
+                      padding: '4px 8px', borderRadius: 4, lineHeight: 1
+                    }}>
+                      INTENSIVE PROGRAM
+                    </div>
+                  </div>
+                  <div style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-.02em', lineHeight: 1.2, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
+                    {item.category && (
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        background: 'rgba(255,255,255,0.25)', color: '#fff',
+                        fontFamily: f, fontWeight: 800, fontSize: 10, letterSpacing: '.06em',
+                        padding: '3px 7px', borderRadius: 4, lineHeight: 1.1, backdropFilter: 'blur(4px)',
+                        flexShrink: 0
+                      }}>
+                        {item.category}
+                      </span>
+                    )}
+                    <span>{item.emoji} {item.name}</span>
+                  </div>
+                  {item.desc && (
+                    <div style={{ fontFamily: f, fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 4, fontWeight: 500 }}>
+                      {item.desc}
                     </div>
                   )}
                 </div>
               </div>
+            ) : (
+              <div style={{
+                background: 'linear-gradient(135deg, #1A1C20 0%, #0F1113 100%)',
+                padding: '24px 20px',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  position: 'absolute', top: '-20%', right: '-10%', width: '120px', height: '120px',
+                  background: 'rgba(197, 255, 0, 0.12)', borderRadius: '50%', filter: 'blur(30px)'
+                }} />
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                    <div style={{
+                      display: 'inline-block',
+                      background: '#C5FF00', color: '#000',
+                      fontFamily: f, fontWeight: 900, fontSize: 9, letterSpacing: '.12em',
+                      padding: '4px 8px', borderRadius: 4, lineHeight: 1
+                    }}>
+                      INTENSIVE PROGRAM
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    {item.category && (
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        background: 'rgba(197, 255, 0, 0.15)', color: '#C5FF00',
+                        fontFamily: f, fontWeight: 800, fontSize: 10, letterSpacing: '.06em',
+                        padding: '3px 7px', borderRadius: 4, lineHeight: 1.1,
+                        flexShrink: 0
+                      }}>
+                        {item.category}
+                      </span>
+                    )}
+                    <span style={{ fontSize: 24 }}>{item.emoji}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#FFFFFF', letterSpacing: '-.01em' }}>
+                        {item.name}
+                      </div>
+                      {item.desc && (
+                        <div style={{ fontFamily: f, fontSize: 13, color: '#9CA3AF', marginTop: 4, fontWeight: 500 }}>
+                          {item.desc}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
 
-            {/* 메인 칩 스트립 */}
+            {/* 메인 루틴 카드 가로 스크롤 */}
             {item.items.length > 0 && (
-              <div style={{ padding: '10px 26px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
+              <div style={{ padding: '20px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
+                <div style={{
+                  fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: '#9CA3AF',
+                  textTransform: 'uppercase', marginBottom: 12
+                }}>
+                  Routine Steps
+                </div>
+                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'center', paddingBottom: 4 }}>
                   {item.items.map((r, i) => renderChip(r, i, item.items))}
                 </div>
               </div>
             )}
 
-            {/* TIP 칩 스트립 */}
+            {/* TIP 루틴 세로 스택형 Rich List */}
             {(item.tipItems?.length ?? 0) > 0 && (
-              <div style={{ padding: '8px 26px 12px', borderTop: '1px dashed rgba(12,12,10,.07)' }}>
-                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#4E7D00', marginBottom: 6 }}>TIP</div>
-                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
-                  {(item.tipItems ?? []).map((r, i) => renderChip(r, i, item.tipItems ?? []))}
+              <div style={{ padding: '20px', borderBottom: '1px dashed rgba(12,12,10,.05)', background: '#FAFBF9' }}>
+                <div style={{
+                  fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: '#4E7D00',
+                  textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6
+                }}>
+                  <span style={{ fontSize: 13 }}>💡</span> Tips & Special Care
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {(item.tipItems ?? []).map((r, idx) => {
+                    if (r.type === 'product') {
+                      const p = products.get(r.id);
+                      const imgUrl = p?.imageUrl || p?.storageUrl;
+                      return (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(33,133,253,0.12)', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
+                          <div style={{ width: 40, height: 40, borderRadius: 8, background: '#F3F4F6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {imgUrl ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 18 }}>🧴</span>}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#2185fd', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>MAPPED PRODUCT</div>
+                            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#1A1C1E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p?.name ?? '?'}</div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    if (r.type === 'tip') {
+                      return (
+                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: 'rgba(197,255,0,0.05)', borderRadius: 14, border: '1px solid rgba(197,255,0,0.25)', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
+                          <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>💡</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#4E7D00', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>SPECIAL TIP</div>
+                            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#2C3A1A', lineHeight: 1.45 }}>{r.text}</div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    if (r.type === 'desc') {
+                      return (
+                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
+                          <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>📋</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>NOTICE / DETAILS</div>
+                            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 500, color: '#374151', lineHeight: 1.45 }}>{r.text}</div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
                 </div>
               </div>
             )}
 
-            {/* TIPS */}
+            {/* EXPERT TIP */}
             {item.expertTip && (
-              <div style={{ padding: '8px 26px 20px' }}>
-                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 24, gap: 8, background: '#FAFAFA', border: '1px solid #E4E4E7', borderRadius: 16, overflow: 'visible' }}>
+              <div style={{ padding: '20px 20px 24px' }}>
+                <div style={{
+                  position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                  padding: '20px 24px', gap: 6, background: '#FAFAFA', border: '1px solid #E4E4E7',
+                  borderRadius: 16, overflow: 'visible'
+                }}>
                   <svg width="29" height="27" viewBox="0 0 29 27" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', left: -8, top: -8, zIndex: 2 }}>
                     <path d="M6 26.982C4.875 26.982 3.7625 26.707 2.6625 26.157C1.5625 25.607 0.675 24.882 0 23.982C0.65 23.982 1.3125 23.7257 1.9875 23.2132C2.6625 22.7007 3 21.957 3 20.982C3 19.732 3.4375 18.6695 4.3125 17.7945C5.1875 16.9195 6.25 16.482 7.5 16.482C8.75 16.482 9.8125 16.9195 10.6875 17.7945C11.5625 18.6695 12 19.732 12 20.982C12 22.632 11.4125 24.0445 10.2375 25.2195C9.0625 26.3945 7.65 26.982 6 26.982ZM6 23.982C6.825 23.982 7.53125 23.6882 8.11875 23.1007C8.70625 22.5133 9 21.807 9 20.982C9 20.557 8.85625 20.2008 8.56875 19.9132C8.28125 19.6257 7.925 19.482 7.5 19.482C7.075 19.482 6.71875 19.6257 6.43125 19.9132C6.14375 20.2008 6 20.557 6 20.982C6 21.557 5.93125 22.082 5.79375 22.557C5.65625 23.032 5.475 23.482 5.25 23.907C5.375 23.957 5.5 23.982 5.625 23.982C5.75 23.982 5.875 23.982 6 23.982ZM14.625 17.982L10.5 13.857L23.925 0.432C24.2 0.157 24.5437 0.01325 24.9562 0.00075C25.3687 -0.01175 25.725 0.132 26.025 0.432L28.05 2.457C28.35 2.757 28.5 3.107 28.5 3.507C28.5 3.907 28.35 4.257 28.05 4.557L14.625 17.982Z" fill="#0C0C0A"/>
                   </svg>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 900, fontSize: 10, lineHeight: '15px', letterSpacing: 1, color: '#A1A1AA', alignSelf: 'stretch', zIndex: 1 }}>TIPS</div>
+                  <div style={{ fontFamily: f, fontWeight: 900, fontSize: 10, letterSpacing: 1.2, color: '#A1A1AA', textTransform: 'uppercase' }}>Expert Advice</div>
                   <div style={{ fontFamily: "'Nanum Pen Script',cursive", fontWeight: 500, fontSize: 22, lineHeight: '28px', color: '#27272A', alignSelf: 'stretch', zIndex: 1 }}>
                     {highlightProductNames(item.expertTip, products)}
                   </div>
@@ -1159,11 +1387,13 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             )}
 
             {/* 참고 링크 */}
-            <SourceLink url={item.sourceUrl} />
+            {item.sourceUrl && <SourceLink url={item.sourceUrl} />}
 
-            {/* 카드 하단: List → */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(12,12,10,.06)', padding: '10px 26px 12px' }}>
-              <Link href="/setup#care" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
+            {/* 카드 하단 메뉴 */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(12,12,10,.05)', padding: '12px 20px', background: '#FAFBFB' }}>
+              <Link href="/setup#care" style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9CA3AF', textDecoration: 'none', letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                Edit Program →
+              </Link>
             </div>
           </div>
         ))}
@@ -1539,13 +1769,7 @@ export default function TodayPage() {
   const todayDayNumber = activeSession ? calcTodayDayNumber(activeSession) : 1;
   // 오늘 활성 CT 아이템 필터링
   const todayStr0 = getTodayDateStr();
-  const activeCareItems = careItems.filter((item) => {
-    if (!item.published) return false;
-    if (item.periodStart && item.periodEnd) {
-      return todayStr0 >= item.periodStart && todayStr0 <= item.periodEnd;
-    }
-    return true;
-  });
+  const activeCareItems = careItems.filter(item => item.published);
   const activeMakeupItems = makeupItems.filter((item) => {
     if (!item.published) return false;
     if (item.dates && item.dates.length > 0) {

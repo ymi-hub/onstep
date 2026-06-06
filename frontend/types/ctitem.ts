@@ -8,6 +8,7 @@ export type CtItem = {
   emoji: string;
   name: string;
   desc: string;
+  category?: string;            // 집중케어 카테고리 (예: '열감', '수분', '알러지', '트러블')
   items: RoutineItem[];
   tipItems: RoutineItem[];
   expertTip?: string;

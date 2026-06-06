@@ -28,6 +28,8 @@ import {
   doc,
   orderBy,
   getDocs,
+  getDoc,
+  setDoc,
 } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { imageFileToBase64 } from '@/lib/imageUtils';
@@ -3848,6 +3850,7 @@ function CtPanel({
   const [sEmoji, setSEmoji] = useState('');
   const [sName, setSName] = useState('');
   const [sDesc, setSDesc] = useState('');
+  const [sCategory, setSCategory] = useState(''); // 집중케어 카테고리
   const [sItems, setSItems] = useState<RoutineItem[]>([]);
   const [sTipItems, setSTipItems] = useState<RoutineItem[]>([]);
   const [sExpertTip, setSExpertTip] = useState('');
@@ -3865,17 +3868,91 @@ function CtPanel({
   // 참고 링크
   const [sSourceUrl, setSSourceUrl] = useState('');
 
+  // 검색 상태
+  const [ctSearch, setCtSearch] = useState('');
+
+  // 카테고리 필터 (집중케어 전용)
+  const [careCategoryFilter, setCareCategoryFilter] = useState('전체');
+
+  // 집중케어 카테고리 커스텀 설정
+  const [careCategories, setCareCategories] = useState<string[]>(['열감', '수분', '알러지', '트러블']);
+  const [careConfigLoading, setCareConfigLoading] = useState(false);
+  const [categoryManageOpen, setCategoryManageOpen] = useState(false);
+  const [newCatInput, setNewCatInput] = useState('');
+
+  useEffect(() => {
+    if (!userId || ctType !== 'care' || !db) return;
+    async function loadCareConfig() {
+      setCareConfigLoading(true);
+      try {
+        const docRef = doc(db!, 'users', userId, 'settings', 'careConfig');
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data && Array.isArray(data.categories)) {
+            setCareCategories(data.categories);
+          }
+        } else {
+          await setDoc(docRef, { categories: ['열감', '수분', '알러지', '트러블'] });
+        }
+      } catch (err) {
+        console.error('Failed to load careConfig:', err);
+      } finally {
+        setCareConfigLoading(false);
+      }
+    }
+    loadCareConfig();
+  }, [userId, ctType]);
+
+  async function saveCareCategories(newCats: string[]) {
+    setCareCategories(newCats);
+    if (!userId || !db) return;
+    try {
+      const docRef = doc(db!, 'users', userId, 'settings', 'careConfig');
+      await setDoc(docRef, { categories: newCats });
+    } catch (err) {
+      console.error('Failed to save careConfig:', err);
+      alert('카테고리 저장에 실패했습니다.');
+    }
+  }
+
+  // 집중케어 카테고리 드래그 앤 드롭 정렬 상태
+  const [dragCareCatIdx, setDragCareCatIdx] = useState<number | null>(null);
+  const [dragCareCatOver, setDragCareCatOver] = useState<number | null>(null);
+
+  async function moveCareCat(from: number, to: number) {
+    if (from === to) return;
+    const updated = [...careCategories];
+    const [moved] = updated.splice(from, 1);
+    updated.splice(to, 0, moved);
+    await saveCareCategories(updated);
+  }
+
+  // 집중케어 목록 MORE 기능용 상태 (기본 10개 노출)
+  const [visibleCtCount, setVisibleCtCount] = useState(10);
+
+  // 필터나 검색어가 바뀔 때 더보기 카운트 초기화
+  useEffect(() => {
+    setVisibleCtCount(10);
+  }, [ctSearch, careCategoryFilter]);
+
   // Product picker inside sheet
   const [picker, setPicker] = useState<'main' | 'tip' | null>(null);
   const [pickerSearch, setPickerSearch] = useState('');
   const [pickerSelected, setPickerSelected] = useState<Set<string>>(new Set());
 
-  // 목록 검색
-  const [ctSearch, setCtSearch] = useState('');
-  const filteredCtItems = (ctSearch.trim()
-    ? ctItems.filter(i => i.name.toLowerCase().includes(ctSearch.toLowerCase()))
-    : ctItems
-  ).slice().sort((a, b) => (b.published ? 1 : 0) - (a.published ? 1 : 0));
+  // 목록 검색 및 카테고리 필터링
+  const filteredCtItems = (() => {
+    let list = ctItems;
+    if (ctSearch.trim()) {
+      const q = ctSearch.toLowerCase();
+      list = list.filter(i => i.name.toLowerCase().includes(q) || (i.category ?? '').toLowerCase().includes(q));
+    }
+    if (ctType === 'care' && careCategoryFilter !== '전체') {
+      list = list.filter(i => (i.category || '기타') === careCategoryFilter);
+    }
+    return list.slice().sort((a, b) => (b.published ? 1 : 0) - (a.published ? 1 : 0));
+  })();
 
   // Inline text input
   const [activeInput, setActiveInput] = useState<{ section: 'main' | 'tip'; type: 'desc' | 'tip' } | null>(null);
@@ -3921,6 +3998,7 @@ function CtPanel({
 
   function openNew() {
     setEditItem(null); setSEmoji(m.icon); setSName(''); setSDesc('');
+    setSCategory('');
     setSItems([]); setSTipItems([]); setSExpertTip('');
     setSPeriodStart(''); setSPeriodEnd(''); setSDates([]); setSTpo([]);
     setSPublished(false);
@@ -3931,6 +4009,7 @@ function CtPanel({
 
   function openEdit(item: CtItem) {
     setEditItem(item); setSEmoji(item.emoji); setSName(item.name); setSDesc(item.desc);
+    setSCategory(item.category ?? '');
     setSItems(item.items); setSTipItems(item.tipItems); setSExpertTip(item.expertTip ?? '');
     setSPeriodStart(item.periodStart ?? ''); setSPeriodEnd(item.periodEnd ?? '');
     setSDates(item.dates ?? []); setSTpo(item.tpo ?? []);
@@ -3951,6 +4030,7 @@ function CtPanel({
       emoji: sEmoji || m.icon,
       name: sName.trim(),
       desc: sDesc.trim(),
+      category: ctType === 'care' ? sCategory : '',
       items: sItems,
       tipItems: sTipItems,
       expertTip: sExpertTip.trim(),
@@ -3958,7 +4038,6 @@ function CtPanel({
       ...(sSourceUrl.trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
       // 기존 imageUrl 유지 (새 파일 선택 전까지)
       ...(sImagePreview ? { imageUrl: sImagePreview } : {}),
-      ...(ctType === 'care' && sPeriodStart ? { periodStart: sPeriodStart, ...(sPeriodEnd ? { periodEnd: sPeriodEnd } : {}) } : {}),
       ...(ctType !== 'care' ? { dates: sDates } : {}),
       ...(ctType === 'lookbook' ? { tpo: sTpo } : {}),
     };
@@ -4140,6 +4219,12 @@ function CtPanel({
       <div style={{ background: '#fff', border: `1.5px solid ${item.published ? '#0C0C0A' : 'rgba(12,12,10,.07)'}`, borderRadius: 16, overflow: 'hidden', marginBottom: 12, transition: 'border-color .2s' }}>
         <div style={{ padding: '14px 26px 10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            {/* 카테고리 뱃지 */}
+            {ctType === 'care' && item.category && (
+              <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: '#0C0C0A', color: '#C5FF00', flexShrink: 0 }}>
+                {item.category}
+              </span>
+            )}
             <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{item.emoji}</span>
             <span style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#0C0C0A', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
             <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, padding: '3px 8px', borderRadius: 8, flexShrink: 0, background: item.published ? '#0C0C0A' : '#E4E2DC', color: item.published ? '#fff' : '#9A9490' }}>
@@ -4149,15 +4234,26 @@ function CtPanel({
           {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', lineHeight: 1.5, marginBottom: 10 }}>{item.desc}</div>}
           {prodItems.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingBottom: 4, marginBottom: 8 }}>
-              {prodItems.map((it, idx) => (
-                <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 56 }}>
-                  <div style={{ width: 56, height: 56, borderRadius: 10, background: '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, marginBottom: 4 }}>✦</div>
-                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, wordBreak: 'break-word' as const }}>{productName(it.id)}</div>
-                </div>
-              ))}
+              {prodItems.map((it, idx) => {
+                const p = products.find(prod => prod.id === it.id);
+                const imgUrl = p?.imageUrl || p?.storageUrl;
+                return (
+                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 56 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 10, background: '#F3F4F6', border: '1px solid rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative', marginBottom: 4 }}>
+                      {imgUrl ? (
+                        <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <span style={{ fontSize: 20, opacity: 0.35 }}>🧴</span>
+                      )}
+                    </div>
+                    <div style={{ fontFamily: f, fontSize: 9, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.25, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', wordBreak: 'break-all' as const, maxWidth: 56 }}>
+                      {p?.name ?? '?'}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
-          {item.periodStart && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginBottom: 6 }}>{fmtDate(item.periodStart)} – {fmtDate(item.periodEnd ?? '')}</div>}
           {item.dates && item.dates.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
               {item.dates.map(d => <span key={d} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: '#E4E2DC', color: '#4A4846' }}>{fmtDate(d)}</span>)}
@@ -4166,6 +4262,44 @@ function CtPanel({
           {item.tpo && item.tpo.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
               {item.tpo.map(tp => <span key={tp} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'rgba(197,255,0,.15)', color: '#4E7D00', border: '1px solid rgba(132,176,0,.3)' }}>{tp}</span>)}
+            </div>
+          )}
+          {ctType === 'care' && (item.tipItems?.length ?? 0) > 0 && (
+            <div style={{ marginTop: 8, borderTop: '1px dashed rgba(12,12,10,.05)', paddingTop: 8 }}>
+              <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#4E7D00', letterSpacing: '.08em', marginBottom: 6, textTransform: 'uppercase' }}>Tips & Details</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {item.tipItems.map((tip, idx) => {
+                  if (tip.type === 'tip') {
+                    return (
+                      <span key={idx} style={{ fontFamily: f, fontSize: 11, background: 'rgba(197,255,0,0.12)', color: '#4E7D00', padding: '3px 8px', borderRadius: 6, fontWeight: 500 }}>
+                        💡 {tip.text}
+                      </span>
+                    );
+                  }
+                  if (tip.type === 'desc') {
+                    return (
+                      <span key={idx} style={{ fontFamily: f, fontSize: 11, background: 'rgba(12,12,10,0.05)', color: '#4A4846', padding: '3px 8px', borderRadius: 6, fontWeight: 500 }}>
+                        📋 {tip.text}
+                      </span>
+                    );
+                  }
+                  if (tip.type === 'product') {
+                    const p = products.find(prod => prod.id === tip.id);
+                    return (
+                      <span key={idx} style={{ fontFamily: f, fontSize: 11, background: 'rgba(33,133,253,0.08)', color: '#1976D2', padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>
+                        🧴 {p?.name ?? '?'}
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            </div>
+          )}
+          {ctType === 'care' && item.expertTip && (
+            <div style={{ marginTop: 8, background: '#FAFAFA', padding: '8px 12px', borderRadius: 8, border: '1px solid #E4E4E7' }}>
+              <span style={{ fontFamily: f, fontSize: 9, fontWeight: 900, color: '#A1A1AA', textTransform: 'uppercase', display: 'block', marginBottom: 2 }}>Expert Advice</span>
+              <span style={{ fontFamily: "'Nanum Pen Script',cursive", fontSize: 18, color: '#27272A', lineHeight: 1 }}>{item.expertTip}</span>
             </div>
           )}
         </div>
@@ -4193,9 +4327,72 @@ function CtPanel({
         {/* 검색 바 — 아이템 없어도 항상 표시 */}
         <SearchBar value={ctSearch} onChange={setCtSearch} placeholder={`${m.heroTitle} 이름 검색...`} />
 
+        {/* 집중케어 카테고리 필터 칩 (care only) */}
+        {ctType === 'care' && (() => {
+          const uniqueCategories = Array.from(
+            new Set(
+              ctItems
+                .map(item => item.category)
+                .filter((cat): cat is string => !!cat && cat.trim() !== '')
+            )
+          );
+          const extraCats = uniqueCategories.filter(cat => !careCategories.includes(cat) && cat !== '기타');
+          const filterCats = ['전체', ...careCategories, ...extraCats, '기타'];
+
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 20px 8px', borderBottom: '1px solid rgba(12,12,10,.04)', gap: 12 }}>
+              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none', flex: 1 }}>
+                {filterCats.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCareCategoryFilter(cat)}
+                    style={{
+                      flexShrink: 0,
+                      padding: '5px 12px',
+                      borderRadius: 9999,
+                      border: 'none',
+                      background: careCategoryFilter === cat ? '#0C0C0A' : '#EEEDE9',
+                      color: careCategoryFilter === cat ? '#C5FF00' : '#4A4846',
+                      fontFamily: f,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all .12s',
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setCategoryManageOpen(true)}
+                style={{
+                  flexShrink: 0,
+                  padding: '5px 10px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(12,12,10,.1)',
+                  background: '#fff',
+                  color: '#4A4846',
+                  fontFamily: f,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 3,
+                }}
+              >
+                ⚙️ 편집
+              </button>
+            </div>
+          );
+        })()}
+
         {ctItems.length > 0 && (
           <div style={{ padding: '8px 20px 0', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
-            {ctSearch.trim() ? `${filteredCtItems.length} / ${ctItems.length} items` : `${ctItems.length} items`}
+            {ctSearch.trim() || careCategoryFilter !== '전체' ? `${filteredCtItems.length} / ${ctItems.length} items` : `${ctItems.length} items`}
           </div>
         )}
 
@@ -4210,7 +4407,45 @@ function CtPanel({
             <div style={{ padding: '36px 0', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>
               &ldquo;{ctSearch}&rdquo; 검색 결과 없음
             </div>
-          ) : filteredCtItems.map(item => <CtCard key={item.id} item={item} />)}
+          ) : (
+            <>
+              {filteredCtItems.slice(0, visibleCtCount).map((item, idx) => (
+                <div key={item.id} id={`ct-card-${idx}`}>
+                  <CtCard item={item} />
+                </div>
+              ))}
+              
+              {/* 더보기 버튼 */}
+              {filteredCtItems.length > visibleCtCount && (
+                <button
+                  onClick={() => {
+                    const prevCount = visibleCtCount;
+                    setVisibleCtCount(n => n + 10);
+                    setTimeout(() => {
+                      const el = document.getElementById(`ct-card-${prevCount}`);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }, 100);
+                  }}
+                  style={{
+                    width: '100%', padding: '16px 0',
+                    border: 'none', borderTop: '1px solid rgba(12,12,10,.05)',
+                    background: 'none', cursor: 'pointer',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                    marginTop: 8
+                  }}
+                >
+                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', letterSpacing: '.06em' }}>
+                    MORE ({visibleCtCount}/{filteredCtItems.length})
+                  </span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </button>
+              )}
+            </>
+          )}
         </div>
         <div style={{ height: 40 }} />
       </div>
@@ -4236,6 +4471,54 @@ function CtPanel({
                 <input value={sName} onChange={e => setSName(e.target.value)} placeholder="이름" style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
               </div>
               <textarea value={sDesc} onChange={e => setSDesc(e.target.value)} placeholder="간단한 설명 (선택)..." rows={2} style={{ marginTop: 8, width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }} />
+
+              {/* 집중케어 카테고리 선택 (care only) */}
+              {ctType === 'care' && (
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490', marginBottom: 6 }}>카테고리</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                    {careCategories.map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setSCategory(sCategory === cat ? '' : cat)}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: 8,
+                          border: `1.5px solid ${sCategory === cat ? '#0C0C0A' : 'rgba(12,12,10,.1)'}`,
+                          background: sCategory === cat ? '#0C0C0A' : 'transparent',
+                          color: sCategory === cat ? '#C5FF00' : '#4A4846',
+                          fontFamily: f,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'all .15s',
+                        }}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    value={sCategory}
+                    onChange={e => setSCategory(e.target.value)}
+                    placeholder="카테고리 직접 입력 (예: 기타, 영양 등)"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1.5px solid rgba(12,12,10,.14)',
+                      borderRadius: 12,
+                      fontFamily: f,
+                      fontSize: 13,
+                      color: '#0C0C0A',
+                      background: '#fff',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+              )}
 
               {/* 참고 링크 — 간단한 설명 바로 아래 */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginTop: 8 }}>
@@ -4311,20 +4594,7 @@ function CtPanel({
               />
             </div>
 
-            {/* Period — care only (선택 사항, 나중에 편집 가능) */}
-            {ctType === 'care' && (
-              <div style={{ padding: '16px 20px 0' }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>케어 기간</span>
-                  <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>선택 · 나중에 편집 가능</span>
-                </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <input type="date" value={sPeriodStart} onChange={e => setSPeriodStart(e.target.value)} style={{ flex: 1, padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
-                  <span style={{ color: '#9A9490', fontSize: 12 }}>→</span>
-                  <input type="date" value={sPeriodEnd} onChange={e => setSPeriodEnd(e.target.value)} style={{ flex: 1, padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
-                </div>
-              </div>
-            )}
+
 
             {/* T.P.O — lookbook only */}
             {ctType === 'lookbook' && (
@@ -4361,10 +4631,6 @@ function CtPanel({
                   const next = !sPublished;
                   setSPublished(next);
                   const today = new Date().toISOString().slice(0, 10);
-                  // ON으로 켤 때 케어: 시작일이 비어있으면 오늘 날짜 자동 입력
-                  if (next && ctType === 'care' && !sPeriodStart) {
-                    setSPeriodStart(today);
-                  }
                   // ON으로 켤 때 makeup/lookbook: 오늘 날짜를 dates[]에 자동 추가
                   if (next && ctType !== 'care') {
                     setSDates(prev => prev.includes(today) ? prev : [...prev, today].sort());
@@ -4458,6 +4724,138 @@ function CtPanel({
               </div>
             </>
           )}
+
+        </>
+      )}
+
+      {/* Category Management Sheet */}
+      {categoryManageOpen && (
+        <>
+          <div onClick={() => setCategoryManageOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 310 }} />
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 24px)', maxHeight: '80%', overflowY: 'auto', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+            <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#0C0C0A' }}>집중케어 카테고리 관리</span>
+              <button onClick={() => setCategoryManageOpen(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9A9490' }}>✕</button>
+            </div>
+
+            {/* 현재 카테고리 리스트 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+              {careCategories.map((cat, idx) => (
+                <div
+                  key={cat}
+                  draggable
+                  onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragCareCatIdx(idx); }}
+                  onDragOver={(e) => { e.preventDefault(); setDragCareCatOver(idx); }}
+                  onDrop={(e) => { e.preventDefault(); if (dragCareCatIdx != null) { void moveCareCat(dragCareCatIdx, idx); } setDragCareCatIdx(null); setDragCareCatOver(null); }}
+                  onDragEnd={() => { setDragCareCatIdx(null); setDragCareCatOver(null); }}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 16px',
+                    background: '#fff',
+                    borderRadius: 12,
+                    border: '1px solid rgba(12,12,10,.06)',
+                    opacity: dragCareCatIdx === idx ? 0.4 : 1,
+                    outline: dragCareCatOver === idx ? '2px dashed #C5FF00' : 'none',
+                    outlineOffset: 2,
+                    cursor: 'grab',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
+                    <span style={{ cursor: 'grab', color: '#C4C2BE', fontSize: 18, userSelect: 'none' as const, flexShrink: 0 }}>⠿</span>
+                    <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{cat}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button
+                      type="button"
+                      onClick={() => { if (idx > 0) void moveCareCat(idx, idx - 1); }}
+                      disabled={idx === 0}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: idx === 0 ? 'rgba(12,12,10,.14)' : '#0C0C0A',
+                        fontSize: 12,
+                        fontWeight: 900,
+                        cursor: idx === 0 ? 'default' : 'pointer',
+                        padding: '6px 8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      title="위로 이동"
+                    >
+                      ▲
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { if (idx < careCategories.length - 1) void moveCareCat(idx, idx + 1); }}
+                      disabled={idx === careCategories.length - 1}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: idx === careCategories.length - 1 ? 'rgba(12,12,10,.14)' : '#0C0C0A',
+                        fontSize: 12,
+                        fontWeight: 900,
+                        cursor: idx === careCategories.length - 1 ? 'default' : 'pointer',
+                        padding: '6px 8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      title="아래로 이동"
+                    >
+                      ▼
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`'${cat}' 카테고리를 삭제하시겠습니까?`)) {
+                          saveCareCategories(careCategories.filter(c => c !== cat));
+                        }
+                      }}
+                      style={{ background: 'none', border: 'none', color: '#BA1A1A', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginLeft: 8 }}
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {careCategories.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 13, color: '#9A9490' }}>등록된 카테고리가 없습니다.</div>
+              )}
+            </div>
+
+            {/* 새 카테고리 추가 폼 */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                value={newCatInput}
+                onChange={e => setNewCatInput(e.target.value)}
+                placeholder="새 카테고리 이름"
+                maxLength={12}
+                style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }}
+              />
+              <button
+                onClick={() => {
+                  const cleaned = newCatInput.trim();
+                  if (!cleaned) return;
+                  if (careCategories.includes(cleaned)) {
+                    alert('이미 존재하는 카테고리입니다.');
+                    return;
+                  }
+                  saveCareCategories([...careCategories, cleaned]);
+                  setNewCatInput('');
+                }}
+                style={{ padding: '0 20px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+              >
+                + 추가
+              </button>
+            </div>
+            
+            <div style={{ height: 20 }} />
+          </div>
         </>
       )}
     </div>
