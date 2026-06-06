@@ -99,8 +99,62 @@ function calcCostPerUse(product: Product): string | null {
   const cost = (price / product.totalAmount) * product.dosePerUse;
   if (!isFinite(cost) || cost <= 0) return null;
   return cost < 10
-    ? `약 ₩${cost.toFixed(1)}`
-    : `약 ₩${Math.round(cost).toLocaleString()}`;
+    ? `약 ${cost.toFixed(1)}원`
+    : `약 ${Math.round(cost).toLocaleString()}원`;
+}
+
+// 실시간 경과 시간에 따른 가상 잔량 및 퍼센트 계산
+function getVirtualRemaining(product: Product): { remaining: number; pct: number; fillRate: number } {
+  const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
+  const isCountMode = product.itemUnit === '개' || product.itemUnit === 'ea';
+  const divisor = (isSkincare && isCountMode && product.packageCount > 0)
+    ? product.packageCount
+    : product.totalAmount;
+
+  const baseRemaining = product.currentRemaining ?? divisor;
+
+  // 자동 소진 계산 조건: 뷰티-스킨케어, 시작일이 있고, 사용 패턴이 "불규칙"이 아닌 경우
+  const dailyUsage = (product.dosePerUse ?? 0) * (product.usesPerDay ?? 1) * ((product.frequencyValue ?? 7) / 7);
+  const hasRegularPattern = product.frequencyValue !== 0 && dailyUsage > 0;
+
+  if (isSkincare && product.startDate && hasRegularPattern && product.updatedAt) {
+    const updateDate = new Date(product.updatedAt);
+    const today = new Date();
+    
+    // 순수 날짜(일수) 단위로 차이 연산
+    const diffTime = today.setHours(0,0,0,0) - updateDate.setHours(0,0,0,0);
+    const daysSinceUpdate = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+
+    if (daysSinceUpdate > 0) {
+      if (isCountMode) {
+        const dailyCountUsage = dailyUsage / (product.unitPerPackage || 1);
+        const virtualRemaining = Math.max(0, baseRemaining - (daysSinceUpdate * dailyCountUsage));
+        const roundedRemaining = Math.round(virtualRemaining * 100) / 100;
+        const fillRate = Math.min(1, roundedRemaining / divisor);
+        return {
+          remaining: roundedRemaining,
+          pct: Math.round(fillRate * 100),
+          fillRate
+        };
+      } else {
+        const virtualRemaining = Math.max(0, baseRemaining - (daysSinceUpdate * dailyUsage));
+        const roundedRemaining = Math.round(virtualRemaining * 10) / 10;
+        const fillRate = Math.min(1, roundedRemaining / divisor);
+        return {
+          remaining: roundedRemaining,
+          pct: Math.round(fillRate * 100),
+          fillRate
+        };
+      }
+    }
+  }
+
+  const fillRate = divisor > 0 ? Math.min(1, baseRemaining / divisor) : 1;
+  return {
+    remaining: baseRemaining,
+    pct: Math.round(fillRate * 100),
+    fillRate
+  };
 }
 
 // 카테고리별 기본 1회 사용량 (벤치마킹 데이터 기반 표준값)
@@ -289,12 +343,7 @@ function MagImg({ product, borderRadius, isHero }: { product: Product; borderRad
   const isCountMode = product.itemUnit === '개' || product.itemUnit === 'ea';
   const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
   const hasRemaining = product.totalAmount > 0 && product.currentRemaining != null;
-  
-  const divisor = (isSkincare && isCountMode && product.packageCount > 0)
-    ? product.packageCount
-    : product.totalAmount;
-    
-  const fillRate = hasRemaining ? Math.min(1, product.currentRemaining / divisor) : 1;
+  const { fillRate } = getVirtualRemaining(product);
   const showBar = (product.domain === 'beauty' && product.subCategory !== 'makeup') || product.itemUnit === '개';
   return (
     <div
@@ -338,20 +387,21 @@ function MagResBar({ product }: { product: Product }) {
     ? product.packageCount
     : product.totalAmount;
 
-  const fillRate = Math.min(1, product.currentRemaining / divisor);
-  const pct = Math.round(fillRate * 100);
+  const { remaining, pct, fillRate } = getVirtualRemaining(product);
 
   // D-N 계산: 뷰티-스킨케어 제품이고 사용 시작일이 있는 경우에만 소진 디데이 노출
   const dailyUsage = (product.dosePerUse ?? 0) * (product.usesPerDay ?? 1) * ((product.frequencyValue ?? 7) / 7);
   
   // 개수 모드이면서 스킨케어인 경우, 남은 개수에 개당 용량을 곱해 용량(ml)으로 환산하여 디데이 계산
   const remainingVolumeForDDay = (isSkincare && isCountMode)
-    ? (product.currentRemaining ?? 0) * (product.unitPerPackage ?? 1)
-    : (product.currentRemaining ?? 0);
+    ? remaining * (product.unitPerPackage ?? 1)
+    : remaining;
 
   const daysLeft = (isSkincare && product.startDate && dailyUsage > 0 && remainingVolumeForDDay > 0)
     ? Math.floor(remainingVolumeForDDay / dailyUsage)
     : null;
+
+  const formattedRemaining = remaining % 1 === 0 ? remaining : remaining.toFixed(1);
 
   return (
     <>
@@ -361,8 +411,8 @@ function MagResBar({ product }: { product: Product }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9A9490', gap: 2, flexWrap: 'nowrap' as const }}>
         <span style={{ whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1, minWidth: 0 }}>
           {isCountMode
-            ? `${product.currentRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
-            : `${product.currentRemaining}${product.itemUnit === 'ea' ? '개' : (product.itemUnit || 'ml')}`}
+            ? `${formattedRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
+            : `${formattedRemaining}${product.itemUnit === 'ea' ? '개' : (product.itemUnit || 'ml')}`}
         </span>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
           {daysLeft !== null && (
@@ -373,11 +423,6 @@ function MagResBar({ product }: { product: Product }) {
           <span>{pct}%</span>
         </div>
       </div>
-      {isSkincare && calcCostPerUse(product) && (
-        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 9, color: '#9A9490', marginTop: 3, textAlign: 'left' }}>
-          1회 {calcCostPerUse(product)}
-        </div>
-      )}
     </>
   );
 }
@@ -394,14 +439,8 @@ function ProductCard({
   const isCountMode = product.itemUnit === '개' || product.itemUnit === 'ea';
   const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
   
-  const divisor = (isSkincare && isCountMode && product.packageCount > 0)
-    ? product.packageCount
-    : product.totalAmount;
-
-  const fillRate =
-    divisor > 0
-      ? Math.min(1, product.currentRemaining / divisor)
-      : 1;
+  const { remaining, pct, fillRate } = getVirtualRemaining(product);
+  const formattedRemaining = remaining % 1 === 0 ? remaining : remaining.toFixed(1);
 
   // Firebase Storage URL 또는 구 box.html Cloudinary URL
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
@@ -463,14 +502,9 @@ function ProductCard({
           >
             <span style={{ color: '#C5FF00' }}>
               {product.itemUnit === '개' || product.itemUnit === 'ea'
-                ? `${product.currentRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
-                : `${product.currentRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
+                ? `${formattedRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
+                : `${formattedRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
             </span>
-            {isSkincare && calcCostPerUse(product) && (
-              <span style={{ color: 'rgba(255,255,255,.6)', fontSize: 8.5 }}>
-                1회 {calcCostPerUse(product)}
-              </span>
-            )}
           </div>
         )}
       </div>
@@ -496,14 +530,8 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
   const isCountMode = product.itemUnit === '개' || product.itemUnit === 'ea';
   const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
   
-  const divisor = (isSkincare && isCountMode && product.packageCount > 0)
-    ? product.packageCount
-    : product.totalAmount;
-
-  const fillRate = divisor > 0
-    ? Math.min(1, product.currentRemaining / divisor)
-    : 1;
-  const pct = Math.round(fillRate * 100);
+  const { remaining, pct, fillRate } = getVirtualRemaining(product);
+  const formattedRemaining = remaining % 1 === 0 ? remaining : remaining.toFixed(1);
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
 
   return (
@@ -538,11 +566,6 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
               {resolveCategory(product.category)}
             </div>
           )}
-          {isSkincare && calcCostPerUse(product) && (
-            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9A9490' }}>
-              1회 {calcCostPerUse(product)}
-            </div>
-          )}
         </div>
       </div>
 
@@ -563,8 +586,8 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
             <span>{pct}%</span>
             <span style={{ fontWeight: 700, color: '#4A4846' }}>
               {product.itemUnit === '개' || product.itemUnit === 'ea'
-                ? `${product.currentRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
-                : `${product.currentRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
+                ? `${formattedRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
+                : `${formattedRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
             </span>
           </div>
         </div>
@@ -1175,7 +1198,7 @@ export default function BoxPage() {
       price: p.price ?? '',
       source: p.source ?? '',
       purchaseUrl: p.purchaseUrl ?? '',
-      currentRemaining: p.currentRemaining ?? 0,
+      currentRemaining: getVirtualRemaining(p).remaining,
       imageFile: null,
       imagePreview: '',
       imageUrl: p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl ?? '',
@@ -1398,7 +1421,7 @@ export default function BoxPage() {
                   {spendingFilter === 'all' ? '전체 월 추정 지출' : `${domainLabels[spendingFilter]} 월 추정 지출`}
                 </div>
                 <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#C5FF00', lineHeight: 1 }}>
-                  ₩{Math.round(filteredMonthlyTotal).toLocaleString()}
+                  {Math.round(filteredMonthlyTotal).toLocaleString()}원
                 </div>
                 <div style={{ fontFamily: f, fontSize: 10, color: 'rgba(255,255,255,.4)', marginTop: 4 }}>
                   {spendingFilter === 'all' ? 'CPD 합산 × 30일' : '해당 도메인 30일분'}
@@ -1410,7 +1433,7 @@ export default function BoxPage() {
                   {spendingFilter === 'all' ? '전체 총 구매 금액' : `${domainLabels[spendingFilter]} 총 구매 금액`}
                 </div>
                 <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', lineHeight: 1 }}>
-                  ₩{Math.round(filteredPurchaseTotal).toLocaleString()}
+                  {Math.round(filteredPurchaseTotal).toLocaleString()}원
                 </div>
                 <div style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginTop: 4 }}>{filteredPriced.length}개 제품</div>
               </div>
@@ -1485,11 +1508,11 @@ export default function BoxPage() {
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
                         <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>
-                          ₩{p.cpd < 10 ? p.cpd.toFixed(1) : Math.round(p.cpd).toLocaleString()}
+                          {p.cpd < 10 ? p.cpd.toFixed(1) : Math.round(p.cpd).toLocaleString()}원
                           <span style={{ fontSize: 10, fontWeight: 600, color: '#9A9490' }}>/일</span>
                         </div>
                         <div style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginTop: 1 }}>
-                          ₩{Math.round(p.price).toLocaleString()} · {p.domain === 'beauty' && p.subCategory === 'skincare' && calcCostPerUse({ ...p, price: String(p.price) } as Product) ? `1회 ${calcCostPerUse({ ...p, price: String(p.price) } as Product)}` : (p.totalDays > 0 ? `${p.totalDays}일분` : '-')}
+                          {Math.round(p.price).toLocaleString()}원 · {p.domain === 'beauty' && p.subCategory === 'skincare' && calcCostPerUse({ ...p, price: String(p.price) } as Product) ? `1회 ${calcCostPerUse({ ...p, price: String(p.price) } as Product)}` : (p.totalDays > 0 ? `${p.totalDays}일분` : '-')}
                         </div>
                       </div>
                     </div>
@@ -2618,6 +2641,48 @@ function AddProductPage({
   const [dragLocIdx, setDragLocIdx] = useState<number | null>(null);
   const [dragLocOverIdx, setDragLocOverIdx] = useState<number | null>(null);
 
+  // 스킨케어 개수 모드 시 목표 사용 기간에 따른 1회 사용량(dosePerUse) 자동 역산 연동
+  useEffect(() => {
+    const isCountMode = form.itemUnit === '개';
+    const isSkincare = form.formDomain === 'beauty' && form.formSubType === 'skincare';
+    
+    // 불규칙인 경우 사용 기간 초기화 및 계산 건너뜀
+    if (form.daysPerWeek === 0) {
+      if (form.usageDurationMonths !== 0) {
+        setForm((f) => ({ ...f, usageDurationMonths: 0 }));
+      }
+      return;
+    }
+
+    if (isSkincare && isCountMode && form.usageDurationMonths > 0) {
+      if (form.usesPerDay > 0 && form.daysPerWeek > 0) {
+        const totalDays = form.usageDurationMonths * 30;
+        const daysPerWeekRate = form.daysPerWeek / 7;
+        const totalUses = totalDays * form.usesPerDay * daysPerWeekRate;
+        const totalVolume = form.packageCount * form.unitPerPackage;
+        const calculatedDose = totalVolume / totalUses;
+        
+        // 소수점 4자리까지 반올림
+        const roundedDose = Math.round(calculatedDose * 10000) / 10000;
+        
+        if (Math.abs(form.dosePerUse - roundedDose) > 0.0001) {
+          setForm((f) => ({ ...f, dosePerUse: roundedDose }));
+        }
+      }
+    }
+  }, [
+    form.usageDurationMonths,
+    form.packageCount,
+    form.unitPerPackage,
+    form.usesPerDay,
+    form.daysPerWeek,
+    form.formDomain,
+    form.formSubType,
+    form.itemUnit,
+    form.dosePerUse,
+    setForm
+  ]);
+
   // 소진 예측 계산
   // 기준 잔량: 편집 모드는 현재 잔량, 신규 등록은 총 용량
   const isCountMode = form.itemUnit === '개';
@@ -3154,6 +3219,93 @@ function AddProductPage({
                               {opt.label}
                             </button>
                           ))}
+                        </div>
+                      </div>
+
+                      {/* 목표 사용 기간 */}
+                      <div style={{ marginBottom: 14 }}>
+                        <div style={{ ...labelStyle, marginBottom: 8 }}>목표 사용 기간</div>
+                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                          {[1, 2, 3, 4, 6].map((m) => {
+                            const isSelected = form.usageDurationMonths === m;
+                            const isDisabled = form.daysPerWeek === 0;
+                            return (
+                              <button
+                                key={m}
+                                disabled={isDisabled}
+                                onClick={() => setForm((f) => ({ ...f, usageDurationMonths: m }))}
+                                style={{
+                                  ...pillStyle(isSelected),
+                                  opacity: isDisabled ? 0.5 : 1,
+                                  cursor: isDisabled ? 'not-allowed' : 'pointer'
+                                }}
+                              >
+                                {m}개월
+                              </button>
+                            );
+                          })}
+                          <button
+                            disabled={form.daysPerWeek === 0}
+                            onClick={() => setForm((f) => {
+                              const isCustom = ![1, 2, 3, 4, 6].includes(f.usageDurationMonths) && f.usageDurationMonths > 0;
+                              return {
+                                ...f,
+                                usageDurationMonths: isCustom ? f.usageDurationMonths : 5
+                              };
+                            })}
+                            style={{
+                              ...pillStyle(![1, 2, 3, 4, 6].includes(form.usageDurationMonths) && form.usageDurationMonths > 0),
+                              opacity: form.daysPerWeek === 0 ? 0.5 : 1,
+                              cursor: form.daysPerWeek === 0 ? 'not-allowed' : 'pointer'
+                            }}
+                          >
+                            직접 입력
+                          </button>
+                        </div>
+
+                        {/* 직접 입력 시 상세 입력 필드 */}
+                        {![1, 2, 3, 4, 6].includes(form.usageDurationMonths) && form.usageDurationMonths > 0 && form.daysPerWeek > 0 && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4, width: 120 }}>
+                            <input
+                              type="number"
+                              min={1}
+                              max={60}
+                              value={form.usageDurationMonths || ''}
+                              onChange={(e) => {
+                                const n = parseInt(e.target.value, 10);
+                                setForm((f) => ({ ...f, usageDurationMonths: isNaN(n) ? 0 : n }));
+                              }}
+                              style={{ ...countInputStyle, textAlign: 'left', width: 60 }}
+                            />
+                            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, color: '#44474A' }}>개월</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 1회 사용량 */}
+                      <div style={{ marginBottom: 14 }}>
+                        <div style={{ ...labelStyle, marginBottom: 8 }}>1회 사용량</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid #C5C6CA', paddingBottom: 4 }}>
+                          <input
+                            type="number" min={0.01} step="any"
+                            value={form.dosePerUse || ''}
+                            onChange={(e) => {
+                              const n = parseFloat(e.target.value);
+                              setForm((f) => ({
+                                ...f,
+                                dosePerUse: isNaN(n) ? 0 : n,
+                                usageDurationMonths: 0 // 수동 편집 시 목표 개월 칩 해제
+                              }));
+                            }}
+                            onBlur={() => setForm((f) => ({ ...f, dosePerUse: Math.max(0.01, f.dosePerUse || 0.01) }))}
+                            style={{ ...countInputStyle, textAlign: 'left', width: 80 }}
+                          />
+                          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, color: '#44474A' }}>ml</span>
+                          {form.unitPerPackage > 0 && form.dosePerUse > 0 && (
+                            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9CA3AF', marginLeft: 8 }}>
+                              (약 {(form.dosePerUse / form.unitPerPackage).toFixed(2)}개 소모)
+                            </span>
+                          )}
                         </div>
                       </div>
 
