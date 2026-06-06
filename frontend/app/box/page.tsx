@@ -50,7 +50,7 @@ const DEFAULT_BOX_CONFIG: BoxConfig = {
     {
       id: 'beauty', label: 'Beauty',
       subTypes: [
-        { id: 'skincare', label: 'Skincare', cats: ['토너','에센스','세럼','크림','클렌저','선크림','마스크팩','아이크림','기타'] },
+        { id: 'skincare', label: 'Skincare', cats: ['토너','에센스','세럼','앰플','크림','클렌저','선크림','마스크팩','아이크림','기타'] },
         { id: 'makeup',   label: 'Makeup',   cats: ['파운데이션','립','아이','블러셔','컨실러','기타'] },
       ],
     },
@@ -928,18 +928,45 @@ export default function BoxPage() {
     getDoc(ref).then((snap) => {
       if (snap.exists()) {
         const cfg = snap.data() as BoxConfig;
-        // 약·비타민 도메인 없으면 자동 추가
+        let changed = false;
+
+        // 1. 약·비타민 도메인 없으면 자동 추가
         const hasHealth = cfg.domains?.some(d => d.id === 'health');
         if (!hasHealth) {
           const healthDomain = DEFAULT_BOX_CONFIG.domains.find(d => d.id === 'health');
           if (healthDomain) {
-            const updated = { ...cfg, domains: [...(cfg.domains ?? []), healthDomain] };
-            setBoxConfig(updated);
-            setDoc(ref, updated);
-            return;
+            cfg.domains = [...(cfg.domains ?? []), healthDomain];
+            changed = true;
           }
         }
-        setBoxConfig(cfg);
+
+        // 2. skincare 카테고리에 '앰플'이 없으면 자동 추가
+        const beautyDomain = cfg.domains?.find(d => d.id === 'beauty');
+        const skincareSubType = beautyDomain?.subTypes?.find(st => st.id === 'skincare');
+        if (skincareSubType && Array.isArray(skincareSubType.cats) && !skincareSubType.cats.includes('앰플')) {
+          const catsList = [...skincareSubType.cats];
+          const serumIndex = catsList.indexOf('세럼');
+          if (serumIndex !== -1) {
+            catsList.splice(serumIndex + 1, 0, '앰플');
+          } else {
+            const etcIndex = catsList.indexOf('기타');
+            if (etcIndex !== -1) {
+              catsList.splice(etcIndex, 0, '앰플');
+            } else {
+              catsList.push('앰플');
+            }
+          }
+          skincareSubType.cats = catsList;
+          changed = true;
+        }
+
+        if (changed) {
+          const updated = { ...cfg };
+          setBoxConfig(updated);
+          setDoc(ref, updated);
+        } else {
+          setBoxConfig(cfg);
+        }
       } else {
         setDoc(ref, DEFAULT_BOX_CONFIG);
       }
@@ -1052,15 +1079,15 @@ export default function BoxPage() {
 
   // ── 제품 저장 (신규 추가 or 기존 수정) ──────────────────────────────────
   async function handleSave() {
-    if (!form.name.trim()) return;
+    if (!String(form.name || '').trim()) return;
     if (!db) { alert('.env.local에 Firebase 설정을 먼저 입력해주세요.'); return; }
 
     // 중복 이름 체크 (신규 등록 시, 전체 도메인 대상)
     if (!editingProduct) {
-      const normInput = form.name.trim().normalize('NFC').toLowerCase()
+      const normInput = String(form.name || '').trim().normalize('NFC').toLowerCase()
         .replace(/\s+/g, ' ').replace(/[^\p{L}\p{N} ]/gu, '');
       const normProd = (n: string) =>
-        n.trim().normalize('NFC').toLowerCase()
+        String(n || '').trim().normalize('NFC').toLowerCase()
           .replace(/\s+/g, ' ').replace(/[^\p{L}\p{N} ]/gu, '');
 
       const dup = products.find(p => normProd(p.name) === normInput);
@@ -1094,8 +1121,8 @@ export default function BoxPage() {
         : 'daily';
 
       const commonFields = {
-        name: form.name.trim(),
-        brand: form.brand.trim() || null,
+        name: String(form.name || '').trim(),
+        brand: String(form.brand || '').trim() || null,
         category: form.category || null,
         packageCount: form.packageCount,
         unitPerPackage: form.unitPerPackage,
@@ -1109,16 +1136,16 @@ export default function BoxPage() {
         purchaseDate: form.purchaseDate || null,
         startDate: form.startDate || null,
         expiryDate: form.expiryDate || null,
-        price: form.price.trim() || null,
-        source: form.source.trim() || null,
-        purchaseUrl: form.purchaseUrl.trim() || null,
+        price: String(form.price || '').trim() || null,
+        source: String(form.source || '').trim() || null,
+        purchaseUrl: String(form.purchaseUrl || '').trim() || null,
         ...(form.imagePreview ? { imageUrl: form.imagePreview } : {}),
         // Fashion / Acc 전용 필드
-        ...(form.material.trim() ? { material: form.material.trim() } : {}),
-        ...(form.careGuide.trim() ? { careGuide: form.careGuide.trim() } : {}),
-        ...(form.specialNote.trim() ? { specialNote: form.specialNote.trim() } : {}),
+        ...(String(form.material || '').trim() ? { material: String(form.material || '').trim() } : {}),
+        ...(String(form.careGuide || '').trim() ? { careGuide: String(form.careGuide || '').trim() } : {}),
+        ...(String(form.specialNote || '').trim() ? { specialNote: String(form.specialNote || '').trim() } : {}),
         ...(form.materialType ? { materialType: form.materialType } : {}),
-        boxLocation: form.boxLocation.trim() || null,
+        boxLocation: String(form.boxLocation || '').trim() || null,
         ...(form.storageImagePreview ? { storageImageUrl: form.storageImagePreview } : form.storageImageUrl ? { storageImageUrl: form.storageImageUrl } : {}),
         updatedAt: now,
       };
@@ -1183,35 +1210,35 @@ export default function BoxPage() {
     }
     setSubType(resolvedSubType);
     setForm({
-      name: p.name,
-      brand: p.brand ?? '',
-      category: resolvedCategory,
-      formDomain: (p.domain as string) || boxConfig.domains[0]?.id || 'beauty',
-      formSubType: resolvedSubType,
+      name: String(p.name ?? ''),
+      brand: String(p.brand ?? ''),
+      category: String(resolvedCategory ?? ''),
+      formDomain: String(p.domain || boxConfig.domains[0]?.id || 'beauty'),
+      formSubType: String(resolvedSubType ?? ''),
       packageCount: p.packageCount ?? 1,
       unitPerPackage: p.unitPerPackage ?? 1,
       usesPerDay: p.usesPerDay ?? 1,
       dosePerUse: p.dosePerUse ?? 1,
       daysPerWeek: p.frequencyValue ?? 7,
-      purchaseDate: p.purchaseDate ?? '',
-      expiryDate: p.expiryDate ?? '',
-      startDate: p.startDate ?? '',
-      price: p.price ?? '',
-      source: p.source ?? '',
-      purchaseUrl: p.purchaseUrl ?? '',
+      purchaseDate: String(p.purchaseDate ?? ''),
+      expiryDate: String(p.expiryDate ?? ''),
+      startDate: String(p.startDate ?? ''),
+      price: String(p.price ?? ''),
+      source: String(p.source ?? ''),
+      purchaseUrl: String(p.purchaseUrl ?? ''),
       currentRemaining: getVirtualRemaining(p).remaining,
       imageFile: null,
       imagePreview: '',
-      imageUrl: p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl ?? '',
-      itemUnit: (p.itemUnit as string) || 'ml',
+      imageUrl: String(p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl ?? ''),
+      itemUnit: String(p.itemUnit || 'ml'),
       usageDurationMonths: p.usageDurationMonths ?? 0,
-      material: (p as Product & { material?: string }).material ?? '',
-      careGuide: (p as Product & { careGuide?: string }).careGuide ?? '',
-      specialNote: (p as Product & { specialNote?: string }).specialNote ?? '',
-      materialType: (p as Product & { materialType?: string }).materialType ?? '',
-      boxLocation: p.boxLocation ?? '',
+      material: String((p as Product & { material?: string }).material ?? ''),
+      careGuide: String((p as Product & { careGuide?: string }).careGuide ?? ''),
+      specialNote: String((p as Product & { specialNote?: string }).specialNote ?? ''),
+      materialType: String((p as Product & { materialType?: string }).materialType ?? ''),
+      boxLocation: String(p.boxLocation ?? ''),
       storageImagePreview: '',
-      storageImageUrl: (p as Product & { storageImageUrl?: string }).storageImageUrl ?? '',
+      storageImageUrl: String((p as Product & { storageImageUrl?: string }).storageImageUrl ?? ''),
     });
     setEditingProduct(p);
     setIsAddOpen(true);
