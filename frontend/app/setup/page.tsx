@@ -4495,7 +4495,7 @@ export default function SetupPage() {
   const { user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories, dietPrograms } = useAppContext();
 
   const [view, setView] = useState<View>('hub');
-  const [loadingSessions, setLoadingSessions] = useState(true);
+  const [loadingSessions, setLoadingSessions] = useState(authLoading);
   const [draft, setDraft] = useState<EditorDraft | null>(null);
   const [saving, setSaving] = useState(false);
   const [sessionsKey, setSessionsKey] = useState(0);

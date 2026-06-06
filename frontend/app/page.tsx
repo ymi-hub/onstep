@@ -609,7 +609,7 @@ function FlowCard({
           <span style={{ fontSize: 28 }}>🧴</span>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>이 시간대에 등록된 제품이 없습니다</div>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>SETUP에서 루틴에 제품을 추가해보세요</div>
-          <a href="/setup" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 2 }}>SETUP 바로가기 →</a>
+          <Link href="/setup" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 2 }}>SETUP 바로가기 →</Link>
         </div>
       )}
 
@@ -1163,7 +1163,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
 
             {/* 카드 하단: List → */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(12,12,10,.06)', padding: '10px 26px 12px' }}>
-              <a href="/setup#care" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</a>
+              <Link href="/setup#care" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
             </div>
           </div>
         ))}
@@ -1419,7 +1419,7 @@ export default function TodayPage() {
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 데이터 상태 ──
-  const [dataLoading, setDataLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(!dataReady);
 
   // ── UI 상태 ──
   // 04:00~17:59 → MORNING, 18:00~03:59 → NIGHT
