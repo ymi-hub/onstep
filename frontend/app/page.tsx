@@ -1138,27 +1138,53 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           }}
         >
           {isActiveTimer ? (
-            /* 타이머 작동 중일 때: 가운데 크게 ⏱️ 아이콘과 잔여 시간 표시 */
+            /* 타이머 작동 중일 때: 가운데 크게 타이머 그래픽 이미지와 잔여 시간 표시 */
             <div style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
               flex: 1,
-              gap: 8,
+              gap: 12,
               padding: '10px 0'
             }}>
-              {/* 큰 타이머 이모티콘 */}
-              <span style={{ fontSize: 36, filter: 'drop-shadow(0 2px 8px rgba(197,255,0,0.3))' }}>⏱️</span>
+              {/* 대형 타이머 그래픽 이미지 (실시간 진행률 링 포함) */}
+              <div style={{ position: 'relative', width: 84, height: 84, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="84" height="84" viewBox="0 0 24 24" fill="none" style={{ transform: 'rotate(-90deg)' }}>
+                  {/* 회색 배경 링 */}
+                  <circle cx="12" cy="12" r="9" stroke="rgba(12,12,10,0.06)" strokeWidth="2" />
+                  {/* 실시간 라임색 진행률 링 */}
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="9"
+                    stroke="#C5FF00"
+                    strokeWidth="2"
+                    strokeDasharray="56.5"
+                    strokeDashoffset={56.5 * (1 - (timerRemainMs / (waitMins * 60_000)))}
+                    strokeLinecap="round"
+                    style={{ transition: 'stroke-dashoffset 0.5s linear' }}
+                  />
+                </svg>
+                {/* 중앙 시계바늘 아이콘 */}
+                <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </div>
+                {/* 상단 버튼 장식 */}
+                <div style={{ position: 'absolute', top: 2, width: 8, height: 4, background: '#0C0C0A', borderRadius: '2px 2px 0 0' }} />
+              </div>
+
               {/* 실시간 남은 시간 */}
               <div style={{
                 fontFamily: f,
                 fontWeight: 800,
-                fontSize: 26,
+                fontSize: 28, // 한층 더 크게
                 color: '#000000',
                 fontVariantNumeric: 'tabular-nums',
                 letterSpacing: '.02em',
-                marginTop: 6
+                marginTop: 4
               }}>
                 {formatTimerRemain(timerRemainMs)}
               </div>
@@ -1170,7 +1196,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 color: '#9A9490',
                 textTransform: 'uppercase',
                 letterSpacing: '.08em',
-                marginTop: 4
+                marginTop: 2
               }}>
                 TIMER RUNNING
               </div>
