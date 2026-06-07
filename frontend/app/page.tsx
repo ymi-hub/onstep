@@ -1112,8 +1112,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             width: 170,
             minWidth: 170,
             height: 260,
-            background: 'rgba(12,12,10,0.03)',
-            border: '1.5px solid #0C0C0A',
+            background: 'rgba(33,133,253,0.05)',
+            border: '1.5px solid rgba(33,133,253,0.3)',
             borderRadius: 14,
             boxShadow: '0 4px 12px rgba(0,0,0,.02)',
             transition: 'all .2s ease-in-out',
@@ -1122,7 +1122,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           {/* 상단 타입 뱃지 */}
           <div style={{
             alignSelf: 'flex-start',
-            background: '#0C0C0A', color: '#C5FF00',
+            background: '#2185fd', color: '#FFFFFF',
             fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
             padding: '3px 8px', borderRadius: 6, lineHeight: 1, marginBottom: 12
           }}>
@@ -1131,10 +1131,10 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           {/* 설명 본문 */}
           <div style={{
             fontFamily: f,
-            fontWeight: 700,
+            fontWeight: 500,
             fontSize: 16,
             lineHeight: '1.45',
-            color: '#0C0C0A',
+            color: '#1A2F4C',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
