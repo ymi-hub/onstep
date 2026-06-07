@@ -1123,7 +1123,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'flex-start',
+            justifyContent: 'space-between', // 상단 고정 및 중앙/하단 정렬을 위해 space-between 사용
             padding: '16px 14px 14px',
             width: 170,
             minWidth: 170,
@@ -1137,22 +1137,38 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             position: 'relative',
           }}
         >
-          {/* 상단 GUIDE 뱃지 */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
-            <div style={{
-              background: '#C5FF00', color: '#000000',
-              fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
-              padding: '3px 8px', borderRadius: 6, lineHeight: 1
-            }}>
-              {guideLabel}
-            </div>
-          </div>
-
           {isTimerCard ? (
             /* 1. 타이머용 GUIDE 카드 */
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, width: '100%' }}>
-              
-              {/* 대형 타이머 그래픽 이미지 (클릭 전/후 모두 노출) */}
+            <>
+              {/* 상단 고정 영역: GUIDE 뱃지 + 설명문구 */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 6 }}>
+                  <div style={{
+                    background: '#C5FF00', color: '#000000',
+                    fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
+                    padding: '3px 8px', borderRadius: 6, lineHeight: 1
+                  }}>
+                    {guideLabel}
+                  </div>
+                </div>
+                {/* 상단 고정 설명문구 */}
+                <div style={{
+                  fontFamily: f,
+                  fontWeight: 700,
+                  fontSize: 14, // 콤팩트 가독성
+                  lineHeight: '1.4',
+                  color: '#9A9490', // 클릭 전/후 상시 그레이 컬러 유지하여 정보 제공
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2, // 2줄 고정
+                  WebkitBoxOrient: 'vertical',
+                }}>
+                  {item.text}
+                </div>
+              </div>
+
+              {/* 가운데 영역: 대형 타이머 그래픽 이미지 (정중앙 세로 정렬) */}
               <div style={{
                 position: 'relative',
                 width: 84,
@@ -1160,13 +1176,14 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '8px 0',
+                alignSelf: 'center',
+                margin: 'auto 0', // flex 내에서 세로 정중앙 배치
                 transition: 'all 0.3s ease',
               }}>
                 <svg width="84" height="84" viewBox="0 0 24 24" fill="none" style={{ transform: 'rotate(-90deg)' }}>
                   {/* 회색 배경 링 */}
                   <circle cx="12" cy="12" r="9" stroke="rgba(12,12,10,0.06)" strokeWidth="2" />
-                  {/* 진행률 링: 활성화 시 라임색으로 동작, 비활성화 시 연한 회색/그레이조 */}
+                  {/* 진행률 링 */}
                   <circle
                     cx="12"
                     cy="12"
@@ -1189,13 +1206,13 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 <div style={{ position: 'absolute', top: 2, width: 8, height: 4, background: '#0C0C0A', borderRadius: '2px 2px 0 0', opacity: isActiveTimer ? 1 : 0.35 }} />
               </div>
 
-              {isActiveTimer ? (
-                /* 1-A. 타이머 작동 중 상태 (실시간 남은 시간 크게 + 가이드 텍스트 작게) */
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginTop: 'auto' }}>
+              {/* 하단 영역: 실시간 남은 시간 또는 타이머 가이드 배너 */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                {isActiveTimer ? (
                   <div style={{
                     fontFamily: f,
                     fontWeight: 800,
-                    fontSize: 28,
+                    fontSize: 24, // 콤팩트하고 크게 표시
                     color: '#000000',
                     fontVariantNumeric: 'tabular-nums',
                     letterSpacing: '.02em',
@@ -1203,62 +1220,49 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   }}>
                     {formatTimerRemain(timerRemainMs)}
                   </div>
+                ) : (
                   <div style={{
                     fontFamily: f,
-                    fontWeight: 600,
-                    fontSize: 11,
+                    fontWeight: 700,
+                    fontSize: 10,
                     color: '#9A9490',
-                    textAlign: 'center',
-                    marginTop: 6,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 1,
-                    WebkitBoxOrient: 'vertical',
-                    width: '100%'
+                    textTransform: 'uppercase',
+                    letterSpacing: '.06em',
+                    lineHeight: 1
                   }}>
-                    {item.text}
+                    {waitMins}분 타이머 (Tap)
                   </div>
-                </div>
-              ) : (
-                /* 1-B. 타이머 대기 상태 (클릭 전: 가이드 본문 아래에 그레이로 표시) */
-                <div style={{
-                  fontFamily: f,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  lineHeight: '1.4',
-                  color: '#9A9490', // 클릭 전 그레이
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  textAlign: 'center',
-                  marginTop: 'auto',
-                  width: '100%'
-                }}>
-                  {item.text}
-                </div>
-              )}
-
-            </div>
+                )}
+              </div>
+            </>
           ) : (
-            /* 2. 일반 가이드 카드 (타이머가 없는 기존 텍스트 레이아웃) */
-            <div style={{
-              fontFamily: f,
-              fontWeight: 700,
-              fontSize: 18,
-              lineHeight: '1.45',
-              color: '#0C0C0A',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
-              WebkitLineClamp: 6,
-              WebkitBoxOrient: 'vertical',
-              marginTop: 4
-            }}>
-              {item.text}
-            </div>
+            /* 2. 일반 GUIDE 카드 (타이머가 없는 기존 텍스트 레이아웃) */
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
+                <div style={{
+                  background: '#C5FF00', color: '#000000',
+                  fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
+                  padding: '3px 8px', borderRadius: 6, lineHeight: 1
+                }}>
+                  {guideLabel}
+                </div>
+              </div>
+              <div style={{
+                fontFamily: f,
+                fontWeight: 700,
+                fontSize: 18, // 기존 16에서 18px로 상향
+                lineHeight: '1.45',
+                color: '#0C0C0A',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: 6,
+                WebkitBoxOrient: 'vertical',
+                flex: 1
+              }}>
+                {item.text}
+              </div>
+            </>
           )}
         </div>
       );
