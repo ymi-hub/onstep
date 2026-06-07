@@ -1129,9 +1129,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             minWidth: 170,
             height: 260,
             background: 'rgba(12,12,10,0.03)',
-            border: isActiveTimer ? '2px solid #C5FF00' : '1.5px solid #0C0C0A', // 활성 시 라임색 테두리
+            border: isActiveTimer ? '2px solid #0C0C0A' : '1.5px solid rgba(12, 12, 10, 0.15)', // 클릭 전 그레이 테두리, 클릭 후 블랙 테두리
             borderRadius: 14,
-            boxShadow: isActiveTimer ? '0 0 0 3px rgba(197,255,0,0.4), 0 4px 12px rgba(0,0,0,.02)' : '0 4px 12px rgba(0,0,0,.02)',
+            boxShadow: isActiveTimer ? '0 6px 18px rgba(0,0,0,.08)' : '0 4px 12px rgba(0,0,0,.02)',
             transition: 'all .2s ease-in-out',
             cursor: isTimerCard ? 'pointer' : 'default',
             position: 'relative',
