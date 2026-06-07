@@ -1155,9 +1155,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 <div style={{
                   fontFamily: f,
                   fontWeight: 700,
-                  fontSize: 14, // 콤팩트 가독성
-                  lineHeight: '1.4',
-                  color: '#9A9490', // 클릭 전/후 상시 그레이 컬러 유지하여 정보 제공
+                  fontSize: 18, // 다른 설명문구와 동일한 18px
+                  lineHeight: '1.45',
+                  color: '#0C0C0A', // 다른 설명문구와 동일하게 선명한 블랙으로 노출
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   display: '-webkit-box',
