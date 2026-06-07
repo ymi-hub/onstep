@@ -298,7 +298,7 @@ function FlowCard({
   const isChecked = tab === 'morning' ? checked.morning : checked.evening;
 
   // 대기 타이머 — useTimer 훅으로 통합
-  const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, dismissAlarm } = useTimer();
+  const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, stopTimer, dismissAlarm } = useTimer();
 
   return (
     <>
@@ -582,7 +582,7 @@ function FlowCard({
                   {formatTimerRemain(timerRemainMs)}
                 </span>
                 <button
-                  onClick={() => dismissAlarm()}
+                  onClick={() => stopTimer()}
                   style={{ background: 'rgba(255,255,255,.08)', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.45)', fontSize: 13, padding: '3px 7px', borderRadius: 6, lineHeight: 1 }}
                 >
                   ✕
@@ -1006,7 +1006,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
   // 타이머 훅 도입
-  const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, dismissAlarm } = useTimer();
+  const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, stopTimer, dismissAlarm } = useTimer();
 
   // 업그레이드된 칩/카드 렌더러
   function renderChip(item: RoutineItem, idx: number, allItems: RoutineItem[]) {
@@ -1111,7 +1111,11 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           className="care-step-card"
           onClick={() => {
             if (isTimerCard) {
-              startTimer(item.text, waitMins);
+              if (isActiveTimer) {
+                stopTimer();
+              } else {
+                startTimer(item.text, waitMins);
+              }
             }
           }}
           style={{
@@ -1200,7 +1204,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               }}>
                 {item.text}
               </div>
-              {/* N분이 파싱된 타이머 카드일 때만 설명 하단에 알람 이모티콘 노출 */}
+              {/* N분이 파싱된 타이머 카드일 때만 설명 하단에 비활성 타이머 아이콘 노출 */}
               {isTimerCard && (
                 <div style={{
                   marginTop: 'auto',
@@ -1208,11 +1212,12 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   alignItems: 'center',
                   gap: 6,
                   fontSize: 13,
-                  color: '#888888',
+                  color: '#9A9490',
+                  opacity: 0.65,
                 }}>
-                  <span>🔔</span>
+                  <span style={{ filter: 'grayscale(1)', fontSize: 14 }}>⏱️</span>
                   <span style={{ fontSize: 10, fontFamily: f, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#9A9490' }}>
-                    Tap to Timer
+                    {waitMins}분 타이머 (Tap)
                   </span>
                 </div>
               )}
@@ -1503,7 +1508,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                           {formatTimerRemain(timerRemainMs)}
                         </span>
                         <button
-                          onClick={() => dismissAlarm()}
+                          onClick={() => stopTimer()}
                           style={{ background: 'rgba(255,255,255,.08)', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.45)', fontSize: 13, padding: '3px 7px', borderRadius: 6, lineHeight: 1 }}
                         >
                           ✕

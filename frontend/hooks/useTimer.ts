@@ -40,6 +40,7 @@ export interface TimerState {
   alarmVisible: boolean;
   alarmLabel: string | null;
   startTimer: (label: string, minutes: number) => void;
+  stopTimer: () => void;
   dismissAlarm: () => void;
 }
 
@@ -147,9 +148,16 @@ export function useTimer(): TimerState {
     } catch { /* 미지원 환경 무시 */ }
   }
 
+  function stopTimer() {
+    setTimerEndMs(null);
+    setTimerLabel(null);
+    setTimerRemainMs(0);
+    setAlarmVisible(false);
+  }
+
   function dismissAlarm() {
     setAlarmVisible(false);
   }
 
-  return { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, dismissAlarm };
+  return { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, stopTimer, dismissAlarm };
 }
