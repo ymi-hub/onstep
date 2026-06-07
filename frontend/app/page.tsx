@@ -1122,7 +1122,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           {/* 상단 타입 뱃지 */}
           <div style={{
             alignSelf: 'flex-start',
-            background: '#0C0C0A', color: '#C5FF00',
+            background: '#C5FF00', color: '#000000',
             fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
             padding: '3px 8px', borderRadius: 6, lineHeight: 1, marginBottom: 12
           }}>
@@ -1356,7 +1356,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 }}>
                   Routine Steps
                 </div>
-                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'center', paddingBottom: 4 }}>
+                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'center', paddingTop: 10, paddingBottom: 10 }}>
                   {item.items.map((r, i) => renderChip(r, i, item.items))}
                 </div>
               </div>
