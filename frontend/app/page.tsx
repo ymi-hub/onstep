@@ -1229,7 +1229,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     lineHeight: '1.45',
                     textAlign: 'center'
                   }}>
-                    {waitMins}분 뒤
+                    {waitMins}분
                   </div>
                 )}
               </div>
