@@ -1158,10 +1158,26 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
-            WebkitLineClamp: 6,
+            WebkitLineClamp: 4, // 이모티콘 공간 확보를 위해 4줄로 조절
             WebkitBoxOrient: 'vertical',
+            marginBottom: 8,
           }}>
             {item.text}
+          </div>
+          {/* 알람 이모티콘 */}
+          <div style={{
+            marginTop: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 13,
+            color: isActiveTimer ? '#C5FF00' : '#888888',
+            transition: 'color .2s',
+          }}>
+            <span>🔔</span>
+            <span style={{ fontSize: 10, fontFamily: f, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: isActiveTimer ? '#C5FF00' : '#9A9490' }}>
+              {isActiveTimer ? 'Timer Active' : 'Tap to Timer'}
+            </span>
           </div>
         </div>
       );
