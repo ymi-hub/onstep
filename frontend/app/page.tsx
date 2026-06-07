@@ -1224,9 +1224,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   <div style={{
                     fontFamily: f,
                     fontWeight: 700,
-                    fontSize: 14,
+                    fontSize: 18, // 상단 설명 본문 크기(18px)와 완벽히 통일
                     color: '#9A9490',
-                    lineHeight: '1.4',
+                    lineHeight: '1.45',
                     textAlign: 'center'
                   }}>
                     {waitMins}분 뒤
