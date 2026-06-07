@@ -1101,14 +1101,19 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
     if (item.type === 'desc') {
       const guideNum = allItems.slice(0, idx + 1).filter(i => i.type === 'desc').length;
       const guideLabel = `GUIDE ${String(guideNum).padStart(2, '0')}`;
-      const waitMins = parseWaitMinutes(item.text) || 10; // "10분 타이머" 파싱 및 기본값 적용
-      const isActiveTimer = timerLabel === item.text && !!timerEndMs;
+      const waitMins = parseWaitMinutes(item.text); // "N분" 파싱 (없으면 null)
+      const isTimerCard = waitMins !== null;
+      const isActiveTimer = isTimerCard && timerLabel === item.text && !!timerEndMs;
       
       return (
         <div
           key={idx}
           className="care-step-card"
-          onClick={() => startTimer(item.text, waitMins)}
+          onClick={() => {
+            if (isTimerCard) {
+              startTimer(item.text, waitMins);
+            }
+          }}
           style={{
             flexShrink: 0,
             boxSizing: 'border-box',
@@ -1124,61 +1129,95 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             borderRadius: 14,
             boxShadow: isActiveTimer ? '0 0 0 3px rgba(197,255,0,0.4), 0 4px 12px rgba(0,0,0,.02)' : '0 4px 12px rgba(0,0,0,.02)',
             transition: 'all .2s ease-in-out',
-            cursor: 'pointer',
+            cursor: isTimerCard ? 'pointer' : 'default',
             position: 'relative',
           }}
         >
-          {/* 상단 타입 뱃지 & 실시간 타이머 */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 12 }}>
+          {isActiveTimer ? (
+            /* 타이머 작동 중일 때: 가운데 크게 ⏱️ 아이콘과 잔여 시간 표시 */
             <div style={{
-              background: '#C5FF00', color: '#000000',
-              fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
-              padding: '3px 8px', borderRadius: 6, lineHeight: 1
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: 1,
+              gap: 8,
+              padding: '10px 0'
             }}>
-              {guideLabel}
-            </div>
-            {isActiveTimer && (
+              {/* 큰 타이머 이모티콘 */}
+              <span style={{ fontSize: 36, filter: 'drop-shadow(0 2px 8px rgba(197,255,0,0.3))' }}>⏱️</span>
+              {/* 실시간 남은 시간 */}
               <div style={{
-                background: '#C5FF00', color: '#000000',
-                fontFamily: f, fontWeight: 800, fontSize: 10,
-                padding: '3px 6px', borderRadius: 6, lineHeight: 1,
-                fontVariantNumeric: 'tabular-nums'
+                fontFamily: f,
+                fontWeight: 800,
+                fontSize: 26,
+                color: '#000000',
+                fontVariantNumeric: 'tabular-nums',
+                letterSpacing: '.02em',
+                marginTop: 6
               }}>
-                ⏱️ {formatTimerRemain(timerRemainMs)}
+                {formatTimerRemain(timerRemainMs)}
               </div>
-            )}
-          </div>
-          {/* 설명 본문 */}
-          <div style={{
-            fontFamily: f,
-            fontWeight: 700,
-            fontSize: 18, // 기존 16에서 18px로 상향
-            lineHeight: '1.45',
-            color: '#0C0C0A',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: '-webkit-box',
-            WebkitLineClamp: 4, // 이모티콘 공간 확보를 위해 4줄로 조절
-            WebkitBoxOrient: 'vertical',
-            marginBottom: 8,
-          }}>
-            {item.text}
-          </div>
-          {/* 알람 이모티콘 */}
-          <div style={{
-            marginTop: 'auto',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 13,
-            color: isActiveTimer ? '#C5FF00' : '#888888',
-            transition: 'color .2s',
-          }}>
-            <span>🔔</span>
-            <span style={{ fontSize: 10, fontFamily: f, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: isActiveTimer ? '#C5FF00' : '#9A9490' }}>
-              {isActiveTimer ? 'Timer Active' : 'Tap to Timer'}
-            </span>
-          </div>
+              {/* 상태 텍스트 */}
+              <div style={{
+                fontFamily: f,
+                fontWeight: 700,
+                fontSize: 9,
+                color: '#9A9490',
+                textTransform: 'uppercase',
+                letterSpacing: '.08em',
+                marginTop: 4
+              }}>
+                TIMER RUNNING
+              </div>
+            </div>
+          ) : (
+            /* 대기 상태 또는 일반 가이드 카드 */
+            <>
+              {/* 상단 타입 뱃지 */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 12 }}>
+                <div style={{
+                  background: '#C5FF00', color: '#000000',
+                  fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
+                  padding: '3px 8px', borderRadius: 6, lineHeight: 1
+                }}>
+                  {guideLabel}
+                </div>
+              </div>
+              {/* 설명 본문 */}
+              <div style={{
+                fontFamily: f,
+                fontWeight: 700,
+                fontSize: 18, // 기존 16에서 18px로 상향
+                lineHeight: '1.45',
+                color: '#0C0C0A',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: isTimerCard ? 4 : 6, // 타이머 카드면 아래 이모티콘 공간 확보를 위해 4줄, 일반 카드는 6줄
+                WebkitBoxOrient: 'vertical',
+                marginBottom: 8,
+              }}>
+                {item.text}
+              </div>
+              {/* N분이 파싱된 타이머 카드일 때만 설명 하단에 알람 이모티콘 노출 */}
+              {isTimerCard && (
+                <div style={{
+                  marginTop: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 13,
+                  color: '#888888',
+                }}>
+                  <span>🔔</span>
+                  <span style={{ fontSize: 10, fontFamily: f, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: '#9A9490' }}>
+                    Tap to Timer
+                  </span>
+                </div>
+              )}
+            </>
+          )}
         </div>
       );
     }
