@@ -20,6 +20,7 @@ export type CtItem = {
   dates?: string[];
   tpo?: string[];
   published: boolean;
+  order?: number;
   createdAt: string;
   updatedAt: string;
 };

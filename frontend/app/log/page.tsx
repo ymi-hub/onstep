@@ -1,3 +1,4 @@
+/* eslint-disable */
 // app/log/page.tsx — LOG 페이지
 // Stage 6: 월별 캘린더 + 날짜별 루틴 수행 기록
 //

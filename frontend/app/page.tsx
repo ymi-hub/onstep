@@ -296,12 +296,20 @@ function FlowCard({
 }) {
   const slot = tab === 'morning' ? todayMorning : todayEvening;
   const isChecked = tab === 'morning' ? checked.morning : checked.evening;
+  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
   // 대기 타이머 — useTimer 훅으로 통합
   const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, stopTimer, dismissAlarm } = useTimer();
 
   return (
     <>
+      <style>{`
+        .care-step-card:hover {
+          transform: translateY(-4px);
+          border-color: #0C0C0A !important;
+          box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08) !important;
+        }
+      `}</style>
     {/* ── 알람 배너: 타이머 종료 시 화면 최상단 고정 오버레이 ── */}
     {alarmVisible && alarmLabel && (
       <div
@@ -388,32 +396,39 @@ function FlowCard({
       {/* ② 칩 스트립 + EXPERT TIP */}
       {slot.items.length > 0 ? (
         <div style={{ padding: '10px 26px 0' }}>
-          <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'flex-end', paddingBottom: 4 }}>
+          <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'center', paddingBottom: 10, paddingTop: 10 }}>
             {slot.items.map((item, idx) => {
               if (item.type === 'product') {
                 const p = products.get(item.id);
                 const stepNum = slot.items.slice(0, idx + 1).filter(i => i.type === 'product').length;
                 return (
-                  <div key={idx} style={{
-                    flexShrink: 0,
-                    boxSizing: 'border-box',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
-                    padding: '20px 20px 0px',
-                    width: 240,
-                    minWidth: 240,
-                    height: 350,
-                    background: '#FFFFFF',
-                    border: '1px solid #000000',
-                    opacity: isChecked ? 0.45 : 1,
-                    transition: 'opacity .2s',
-                  }}>
+                  <div
+                    key={idx}
+                    className="care-step-card"
+                    style={{
+                      flexShrink: 0,
+                      boxSizing: 'border-box',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      padding: '20px 20px 0px',
+                      width: 240,
+                      minWidth: 240,
+                      height: 350,
+                      background: '#FFFFFF',
+                      border: '1px solid rgba(12,12,10,.07)',
+                      borderRadius: 16,
+                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02)',
+                      opacity: isChecked ? 0.45 : 1,
+                      transition: 'all .2s ease-in-out',
+                    }}
+                  >
                     {/* 이미지 영역 — 200×257, 배경 #F3F3F4 */}
                     <div style={{
                       width: 200,
                       height: 257,
                       background: '#F3F3F4',
+                      borderRadius: 10,
                       overflow: 'hidden',
                       position: 'relative',
                       display: 'flex',
@@ -473,44 +488,134 @@ function FlowCard({
               if (item.type === 'desc') {
                 const waitMins = parseWaitMinutes(item.text);
                 const isActiveTimer = timerLabel === item.text && !!timerEndMs;
-                // 타이머 칩: flex-end + marginBottom으로 칩을 다른 center 칩과 동일 위치에 맞추고,
-                // 벨 아이콘은 컬럼 위에 별도 칩으로 배치 (카드 높이 355px, 이미지 257px 기준 = marginBottom 100)
-                if (waitMins && !isChecked) {
+                
+                if (waitMins) {
+                  const guideNum = slot.items.slice(0, idx + 1).filter(i => i.type === 'desc' && parseWaitMinutes(i.text) !== null).length;
+                  const guideLabel = `GUIDE ${String(guideNum).padStart(2, '0')}`;
+                  
                   return (
-                    <div key={idx} style={{
-                      flexShrink: 0,
-                      alignSelf: 'flex-end',
-                      marginBottom: 100,
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-                    }}>
-                      {/* 벨 아이콘 칩 — 위 (별도 칩) */}
-                      <div
-                        onClick={() => startTimer(item.text, waitMins)}
-                        style={{
-                          width: 48, height: 48, borderRadius: '50%',
-                          background: isActiveTimer ? '#C5FF00' : 'rgba(197,255,0,.15)',
-                          border: isActiveTimer ? '2px solid #C5FF00' : '1.5px solid rgba(197,255,0,.5)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          cursor: 'pointer', flexShrink: 0,
-                          boxShadow: isActiveTimer ? '0 0 0 4px rgba(197,255,0,.25)' : 'none',
-                          transition: 'all .2s',
-                        }}
-                      >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={isActiveTimer ? '#0C0C0A' : '#4E7D00'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                        </svg>
-                      </div>
-                      {/* desc 텍스트 칩 — 아래 (다른 desc 칩과 동일 위치) */}
-                      <div style={{
-                        padding: '5px 10px',
-                        background: isActiveTimer ? '#1a6fd8' : '#2185fd',
-                        borderRadius: 16, border: isActiveTimer ? '1.5px solid #C5FF00' : '1px solid rgba(0,0,0,.06)',
-                        fontSize: 12, fontWeight: 400, color: '#fff', whiteSpace: 'nowrap' as const, lineHeight: 1,
+                    <div
+                      key={idx}
+                      className="care-step-card"
+                      onClick={() => {
+                        if (isActiveTimer) {
+                          stopTimer();
+                        } else {
+                          startTimer(item.text, waitMins);
+                        }
+                      }}
+                      style={{
+                        flexShrink: 0,
+                        boxSizing: 'border-box',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        padding: '20px 18px 18px',
+                        width: 240,
+                        minWidth: 240,
+                        height: 350,
+                        background: 'rgba(12,12,10,0.03)',
+                        border: isActiveTimer ? '2px solid #0066FF' : '1px solid rgba(12,12,10,.07)',
+                        borderRadius: 16,
+                        boxShadow: isActiveTimer ? '0 6px 18px rgba(0,0,0,.08)' : '0 4px 16px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.02)',
+                        transition: 'all .2s ease-in-out',
+                        cursor: 'pointer',
+                        position: 'relative',
                         opacity: isChecked ? 0.45 : 1,
-                        fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                      }}
+                    >
+                      {/* 상단 고정 영역: GUIDE 뱃지 + 설명문구 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
+                          <div style={{
+                            background: '#C5FF00', color: '#000000',
+                            fontFamily: f, fontWeight: 800, fontSize: 10, letterSpacing: '.06em',
+                            padding: '3px 8px', borderRadius: 6, lineHeight: 1
+                          }}>
+                            {isActiveTimer ? "TAB하여 중지" : "TAB하여 실행"}
+                          </div>
+                        </div>
+                        {/* 설명 문구 */}
+                        <div style={{
+                          fontFamily: f,
+                          fontWeight: 700,
+                          fontSize: 20,
+                          lineHeight: '1.4',
+                          color: '#0C0C0A',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                        }}>
+                          {item.text}
+                        </div>
+                      </div>
+
+                      {/* 가운데 영역: 대형 타이머 그래픽 이미지 */}
+                      <div style={{
+                        position: 'relative',
+                        width: 110,
+                        height: 110,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        alignSelf: 'center',
+                        margin: 'auto 0',
+                        transition: 'all 0.3s ease',
                       }}>
-                        {item.text}
+                        <svg width="110" height="110" viewBox="0 0 24 24" fill="none" style={{ transform: 'rotate(-90deg)' }}>
+                          {/* 회색 배경 링 */}
+                          <circle cx="12" cy="12" r="9" stroke="rgba(12,12,10,0.06)" strokeWidth="2" />
+                          {/* 진행률 링 */}
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            stroke={isActiveTimer ? '#C5FF00' : 'rgba(12,12,10,0.15)'}
+                            strokeWidth="2"
+                            strokeDasharray="56.5"
+                            strokeDashoffset={isActiveTimer ? 56.5 * (1 - (timerRemainMs / (waitMins * 60_000))) : 0}
+                            strokeLinecap="round"
+                            style={{ transition: 'stroke-dashoffset 0.5s linear' }}
+                          />
+                        </svg>
+                        {/* 중앙 시계바늘 아이콘 */}
+                        <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActiveTimer ? 1 : 0.35 }}>
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="12 6 12 12 16 14" />
+                          </svg>
+                        </div>
+                        {/* 상단 스톱워치 버튼 데코 */}
+                        <div style={{ position: 'absolute', top: 2, width: 10, height: 5, background: '#0C0C0A', borderRadius: '2px 2px 0 0', opacity: isActiveTimer ? 1 : 0.35 }} />
+                      </div>
+
+                      {/* 하단 영역: 실시간 남은 시간 또는 타이머 가이드 배너 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                        {isActiveTimer ? (
+                          <div style={{
+                            fontFamily: f,
+                            fontWeight: 800,
+                            fontSize: 28,
+                            color: '#000000',
+                            fontVariantNumeric: 'tabular-nums',
+                            letterSpacing: '.02em',
+                            lineHeight: 1
+                          }}>
+                            {formatTimerRemain(timerRemainMs)}
+                          </div>
+                        ) : (
+                          <div style={{
+                            fontFamily: f,
+                            fontWeight: 700,
+                            fontSize: 22,
+                            color: '#9A9490',
+                            lineHeight: '1.45',
+                            textAlign: 'center'
+                          }}>
+                            {waitMins}분
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -1099,220 +1204,182 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
     }
     
     if (item.type === 'desc') {
-      const guideNum = allItems.slice(0, idx + 1).filter(i => i.type === 'desc').length;
-      const guideLabel = `GUIDE ${String(guideNum).padStart(2, '0')}`;
       const waitMins = parseWaitMinutes(item.text); // "N분" 파싱 (없으면 null)
       const isTimerCard = waitMins !== null;
-      const isActiveTimer = isTimerCard && timerLabel === item.text && !!timerEndMs;
       
-      return (
-        <div
-          key={idx}
-          className="care-step-card"
-          onClick={() => {
-            if (isTimerCard) {
+      if (isTimerCard) {
+        const isActiveTimer = timerLabel === item.text && !!timerEndMs;
+        
+        return (
+          <div
+            key={idx}
+            className="care-step-card"
+            onClick={() => {
               if (isActiveTimer) {
                 stopTimer();
               } else {
                 startTimer(item.text, waitMins);
               }
-            }
-          }}
-          style={{
-            flexShrink: 0,
-            boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between', // 상단 고정 및 중앙/하단 정렬을 위해 space-between 사용
-            padding: '16px 14px 14px',
-            width: 170,
-            minWidth: 170,
-            height: 260,
-            background: 'rgba(12,12,10,0.03)',
-            border: isActiveTimer ? '2px solid #0C0C0A' : '1.5px solid rgba(12, 12, 10, 0.15)', // 클릭 전 그레이 테두리, 클릭 후 블랙 테두리
-            borderRadius: 14,
-            boxShadow: isActiveTimer ? '0 6px 18px rgba(0,0,0,.08)' : '0 4px 12px rgba(0,0,0,.02)',
-            transition: 'all .2s ease-in-out',
-            cursor: isTimerCard ? 'pointer' : 'default',
-            position: 'relative',
-          }}
-        >
-          {isTimerCard ? (
-            /* 1. 타이머용 GUIDE 카드 */
-            <>
-              {/* 상단 고정 영역: GUIDE 뱃지 + 설명문구 */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '100%' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 6 }}>
-                  <div style={{
-                    background: '#C5FF00', color: '#000000',
-                    fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
-                    padding: '3px 8px', borderRadius: 6, lineHeight: 1
-                  }}>
-                    {guideLabel}
-                  </div>
-                </div>
-                {/* 상단 고정 설명문구 */}
-                <div style={{
-                  fontFamily: f,
-                  fontWeight: 700,
-                  fontSize: 18, // 다른 설명문구와 동일한 18px
-                  lineHeight: '1.45',
-                  color: '#0C0C0A', // 다른 설명문구와 동일하게 선명한 블랙으로 노출
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2, // 2줄 고정
-                  WebkitBoxOrient: 'vertical',
-                }}>
-                  {item.text}
-                </div>
-              </div>
-
-              {/* 가운데 영역: 대형 타이머 그래픽 이미지 (정중앙 세로 정렬) */}
-              <div style={{
-                position: 'relative',
-                width: 84,
-                height: 84,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                alignSelf: 'center',
-                margin: 'auto 0', // flex 내에서 세로 정중앙 배치
-                transition: 'all 0.3s ease',
-              }}>
-                <svg width="84" height="84" viewBox="0 0 24 24" fill="none" style={{ transform: 'rotate(-90deg)' }}>
-                  {/* 회색 배경 링 */}
-                  <circle cx="12" cy="12" r="9" stroke="rgba(12,12,10,0.06)" strokeWidth="2" />
-                  {/* 진행률 링 */}
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="9"
-                    stroke={isActiveTimer ? '#C5FF00' : 'rgba(12,12,10,0.15)'}
-                    strokeWidth="2"
-                    strokeDasharray="56.5"
-                    strokeDashoffset={isActiveTimer ? 56.5 * (1 - (timerRemainMs / (waitMins * 60_000))) : 0}
-                    strokeLinecap="round"
-                    style={{ transition: 'stroke-dashoffset 0.5s linear' }}
-                  />
-                </svg>
-                {/* 중앙 시계바늘 아이콘 */}
-                <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActiveTimer ? 1 : 0.35 }}>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                </div>
-                {/* 상단 스톱워치 버튼 데코 */}
-                <div style={{ position: 'absolute', top: 2, width: 8, height: 4, background: '#0C0C0A', borderRadius: '2px 2px 0 0', opacity: isActiveTimer ? 1 : 0.35 }} />
-              </div>
-
-              {/* 하단 영역: 실시간 남은 시간 또는 타이머 가이드 배너 */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                {isActiveTimer ? (
-                  <div style={{
-                    fontFamily: f,
-                    fontWeight: 800,
-                    fontSize: 24, // 콤팩트하고 크게 표시
-                    color: '#000000',
-                    fontVariantNumeric: 'tabular-nums',
-                    letterSpacing: '.02em',
-                    lineHeight: 1
-                  }}>
-                    {formatTimerRemain(timerRemainMs)}
-                  </div>
-                ) : (
-                  <div style={{
-                    fontFamily: f,
-                    fontWeight: 700,
-                    fontSize: 18, // 상단 설명 본문 크기(18px)와 완벽히 통일
-                    color: '#9A9490',
-                    lineHeight: '1.45',
-                    textAlign: 'center'
-                  }}>
-                    {waitMins}분
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            /* 2. 일반 GUIDE 카드 (타이머가 없는 기존 텍스트 레이아웃) */
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
+            }}
+            style={{
+              flexShrink: 0,
+              boxSizing: 'border-box',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              padding: '16px 14px 14px',
+              width: 170,
+              minWidth: 170,
+              height: 260,
+              background: 'rgba(12,12,10,0.03)',
+              border: isActiveTimer ? '2px solid #0066FF' : '1px solid rgba(12,12,10,.07)',
+              borderRadius: 16,
+              boxShadow: isActiveTimer ? '0 6px 18px rgba(0,0,0,.08)' : '0 4px 16px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.02)',
+              transition: 'all .2s ease-in-out',
+              cursor: 'pointer',
+              position: 'relative',
+            }}
+          >
+            {/* 상단 고정 영역: GUIDE 뱃지 + 설명문구 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 6 }}>
                 <div style={{
                   background: '#C5FF00', color: '#000000',
                   fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
                   padding: '3px 8px', borderRadius: 6, lineHeight: 1
                 }}>
-                  {guideLabel}
+                  {isActiveTimer ? "TAB하여 중지" : "TAB하여 실행"}
                 </div>
               </div>
+              {/* 상단 고정 설명문구 */}
               <div style={{
                 fontFamily: f,
                 fontWeight: 700,
-                fontSize: 18, // 기존 16에서 18px로 상향
+                fontSize: 18,
                 lineHeight: '1.45',
                 color: '#0C0C0A',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 display: '-webkit-box',
-                WebkitLineClamp: 6,
+                WebkitLineClamp: 2,
                 WebkitBoxOrient: 'vertical',
-                flex: 1
               }}>
                 {item.text}
               </div>
-            </>
-          )}
-        </div>
-      );
-    }
+            </div>
 
+            {/* 가운데 영역: 대형 타이머 그래픽 이미지 */}
+            <div style={{
+              position: 'relative',
+              width: 84,
+              height: 84,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              alignSelf: 'center',
+              margin: 'auto 0',
+              transition: 'all 0.3s ease',
+            }}>
+              <svg width="84" height="84" viewBox="0 0 24 24" fill="none" style={{ transform: 'rotate(-90deg)' }}>
+                {/* 회색 배경 링 */}
+                <circle cx="12" cy="12" r="9" stroke="rgba(12,12,10,0.06)" strokeWidth="2" />
+                {/* 진행률 링 */}
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="9"
+                  stroke={isActiveTimer ? '#C5FF00' : 'rgba(12,12,10,0.15)'}
+                  strokeWidth="2"
+                  strokeDasharray="56.5"
+                  strokeDashoffset={isActiveTimer ? 56.5 * (1 - (timerRemainMs / (waitMins * 60_000))) : 0}
+                  strokeLinecap="round"
+                  style={{ transition: 'stroke-dashoffset 0.5s linear' }}
+                />
+              </svg>
+              {/* 중앙 시계바늘 아이콘 */}
+              <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActiveTimer ? 1 : 0.35 }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              </div>
+              {/* 상단 스톱워치 버튼 데코 */}
+              <div style={{ position: 'absolute', top: 2, width: 8, height: 4, background: '#0C0C0A', borderRadius: '2px 2px 0 0', opacity: isActiveTimer ? 1 : 0.35 }} />
+            </div>
+
+            {/* 하단 영역: 실시간 남은 시간 또는 타이머 가이드 배너 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+              {isActiveTimer ? (
+                <div style={{
+                  fontFamily: f,
+                  fontWeight: 800,
+                  fontSize: 24,
+                  color: '#000000',
+                  fontVariantNumeric: 'tabular-nums',
+                  letterSpacing: '.02em',
+                  lineHeight: 1
+                }}>
+                  {formatTimerRemain(timerRemainMs)}
+                </div>
+              ) : (
+                <div style={{
+                  fontFamily: f,
+                  fontWeight: 700,
+                  fontSize: 18,
+                  color: '#9A9490',
+                  lineHeight: '1.45',
+                  textAlign: 'center'
+                }}>
+                  {waitMins}분
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      } else {
+        // 일반 가이드 설명 (타이머가 없는 것) -> 콤팩트한 연결 칩으로 렌더링
+        return (
+          <div
+            key={idx}
+            style={{
+              flexShrink: 0,
+              padding: '6px 14px',
+              background: 'rgba(12,12,10,0.03)',
+              border: '1px solid rgba(12,12,10,0.08)',
+              borderRadius: 9999,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#4A4846',
+              fontFamily: f,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {item.text}
+          </div>
+        );
+      }
+    }
+    
     if (item.type === 'tip') {
       return (
         <div
           key={idx}
-          className="care-step-card"
           style={{
             flexShrink: 0,
-            boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            padding: '20px 16px 16px',
-            width: 170,
-            minWidth: 170,
-            height: 260,
-            background: 'rgba(197,255,0,0.06)',
-            border: '1px solid rgba(197,255,0,0.3)',
-            borderRadius: 14,
-            boxShadow: '0 4px 12px rgba(0,0,0,.02)',
-            transition: 'all .2s ease-in-out',
+            padding: '6px 14px',
+            background: 'rgba(197,255,0,0.08)',
+            border: '1px solid rgba(197,255,0,0.25)',
+            borderRadius: 9999,
+            fontSize: 12,
+            fontWeight: 800,
+            color: '#4E7D00',
+            fontFamily: f,
+            whiteSpace: 'nowrap',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
           }}
         >
-          {/* 상단 타입 뱃지 */}
-          <div style={{
-            alignSelf: 'flex-start',
-            background: '#C5FF00', color: '#000000',
-            fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.08em',
-            padding: '3px 8px', borderRadius: 6, lineHeight: 1, marginBottom: 12
-          }}>
-            TIP
-          </div>
-          {/* 설명 본문 */}
-          <div style={{
-            fontFamily: f,
-            fontWeight: 500,
-            fontSize: 12,
-            lineHeight: '1.5',
-            color: '#1A1C1E',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: '-webkit-box',
-            WebkitLineClamp: 8,
-            WebkitBoxOrient: 'vertical',
-          }}>
-            {item.text}
-          </div>
+          💡 {item.text || 'TIP'}
         </div>
       );
     }
@@ -1327,20 +1394,19 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: 32,
-            height: 260,
+            width: 24,
           }}
         >
           <div style={{
-            width: 24,
-            height: 24,
+            width: 20,
+            height: 20,
             borderRadius: '50%',
             background: isPlus ? 'rgba(33,150,243,.08)' : 'rgba(249,115,22,.08)',
             color: isPlus ? '#1976D2' : '#F97316',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: 800,
             fontFamily: f,
           }}>

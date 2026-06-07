@@ -22,23 +22,6 @@ export default function WeatherWidget() {
   const [error, setError] = useState('');
   const [requested, setRequested] = useState(false);
 
-  useEffect(() => {
-    const cached = typeof localStorage !== 'undefined' ? localStorage.getItem('onstep_weather_v5') : null;
-    if (cached) {
-      try {
-        const d = JSON.parse(cached);
-        if (Date.now() - d.ts < 30 * 60 * 1000) {
-          setWeather(d.weather);
-          setLocName(d.locName);
-          setRequested(true);
-          return;
-        }
-      } catch { /* ignore */ }
-    }
-    fetchWeather();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const fetchWeather = () => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
       setError('위치 정보를 지원하지 않는 브라우저입니다.');
@@ -88,6 +71,23 @@ export default function WeatherWidget() {
       { timeout: 10000 }
     );
   };
+
+  useEffect(() => {
+    const cached = typeof localStorage !== 'undefined' ? localStorage.getItem('onstep_weather_v5') : null;
+    if (cached) {
+      try {
+        const d = JSON.parse(cached);
+        if (Date.now() - d.ts < 30 * 60 * 1000) {
+          setWeather(d.weather);
+          setLocName(d.locName);
+          setRequested(true);
+          return;
+        }
+      } catch { /* ignore */ }
+    }
+    fetchWeather();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading || !requested) {
     return (

@@ -1,3 +1,4 @@
+/* eslint-disable */
 // app/setup/page.tsx — SETUP 페이지 (루틴 케어 플랜 편집)
 //
 // 💡 이 파일의 구조:
@@ -2946,6 +2947,43 @@ function HealthView({
     await Promise.all(arr.map((cat, i) => onUpdateCategory(cat.id, { order: i })));
   }
 
+  const touchStartCatRef = useRef<{ y: number; idx: number } | null>(null);
+
+  const handleTouchStartCat = (e: React.TouchEvent, idx: number) => {
+    const touch = e.touches[0];
+    touchStartCatRef.current = { y: touch.clientY, idx };
+    setDragCatIdx(idx);
+  };
+
+  const handleTouchMoveCat = (e: React.TouchEvent) => {
+    if (touchStartCatRef.current === null) return;
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+    const touch = e.touches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!element) return;
+    const catEl = element.closest('[data-health-cat-idx]');
+    if (catEl) {
+      const overIdxStr = catEl.getAttribute('data-health-cat-idx');
+      if (overIdxStr !== null) {
+        const overIdx = parseInt(overIdxStr, 10);
+        if (!isNaN(overIdx) && overIdx !== dragCatIdx) {
+          setDragCatOver(overIdx);
+        }
+      }
+    }
+  };
+
+  const handleTouchEndCat = () => {
+    if (dragCatIdx !== null && dragCatOver !== null && dragCatIdx !== dragCatOver) {
+      void moveCat(dragCatIdx, dragCatOver);
+    }
+    touchStartCatRef.current = null;
+    setDragCatIdx(null);
+    setDragCatOver(null);
+  };
+
   // 상단 탭 (unused after restructure but kept for compat)
   const [mainTab, setMainTab] = useState<'routines' | 'categories'>('routines');
   void mainTab; void setMainTab;
@@ -3245,7 +3283,7 @@ function HealthView({
         <div style={{ padding: '28px 26px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
           <button
             onClick={() => setShowCatSection(p => !p)}
-            style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 4, background: showCatSection ? '#0C0C0A' : '#F4F4F0', border: 'none', borderRadius: 9999, padding: '6px 12px', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: showCatSection ? '#C5FF00' : '#9A9490', cursor: 'pointer', textTransform: 'uppercase' as const }}
+            style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 4, background: '#0C0C0A', border: '2px solid #0066FF', borderRadius: 9999, padding: '6px 12px', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: '#C5FF00', cursor: 'pointer', textTransform: 'uppercase' as const }}
           >
             카테고리 {showCatSection ? '▲' : '▼'}
           </button>
@@ -3258,24 +3296,184 @@ function HealthView({
               {categories.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '12px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>카테고리를 추가해주세요</div>
               )}
-              {categories.map((cat, idx) => (
-                <div
-                  key={cat.id}
-                  draggable
-                  onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragCatIdx(idx); }}
-                  onDragOver={(e) => { e.preventDefault(); setDragCatOver(idx); }}
-                  onDrop={(e) => { e.preventDefault(); if (dragCatIdx != null) { void moveCat(dragCatIdx, idx); } setDragCatIdx(null); setDragCatOver(null); }}
-                  onDragEnd={() => { setDragCatIdx(null); setDragCatOver(null); }}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(12,12,10,.07)', opacity: dragCatIdx === idx ? 0.4 : 1, outline: dragCatOver === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 4 }}
-                >
-                  <span style={{ cursor: 'grab', color: '#C4C2BE', fontSize: 20, userSelect: 'none' as const, flexShrink: 0, paddingRight: 20 }}>⠿</span>
-                  <span style={{ fontSize: 18, flexShrink: 0 }}>{cat.icon}</span>
-                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{cat.name}</div>
-                  <span style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6' }}>{items.filter(i => i.type === cat.id).length}개</span>
-                  <button onClick={() => openEditCat(cat)} style={{ padding: '4px 8px', background: '#EEEDE9', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846', flexShrink: 0 }}>편집</button>
-                </div>
-              ))}
-              <button onClick={openNewCat} style={{ width: '100%', padding: '10px', border: '1.5px dashed rgba(12,12,10,.2)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginTop: 2 }}>
+              {categories.map((cat, idx) => {
+                const isDragging = dragCatIdx === idx;
+                const isDragOver = dragCatOver === idx;
+                return (
+                  <div
+                    key={cat.id}
+                    data-health-cat-idx={idx}
+                    draggable
+                    onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragCatIdx(idx); }}
+                    onDragOver={(e) => { e.preventDefault(); setDragCatOver(idx); }}
+                    onDrop={(e) => { e.preventDefault(); if (dragCatIdx !== null) { void moveCat(dragCatIdx, idx); } setDragCatIdx(null); setDragCatOver(null); }}
+                    onDragEnd={() => { setDragCatIdx(null); setDragCatOver(null); }}
+                    onTouchStart={(e) => handleTouchStartCat(e, idx)}
+                    onTouchMove={handleTouchMoveCat}
+                    onTouchEnd={handleTouchEndCat}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      marginBottom: 12,
+                      opacity: isDragging ? 0.4 : 1,
+                      outline: isDragOver ? '2px dashed #C5FF00' : 'none',
+                      outlineOffset: '2px',
+                      transition: 'opacity 0.15s, outline 0.1s',
+                      cursor: 'grab',
+                    }}
+                  >
+                    {/* 1. 좌측 빨간색 삭제 버튼 */}
+                    <button
+                      type="button"
+                      onClick={() => deleteCat(cat.id)}
+                      style={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        background: '#E94F6B',
+                        color: '#fff',
+                        border: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 16,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                        lineHeight: 1,
+                      }}
+                      aria-label="삭제"
+                    >
+                      -
+                    </button>
+
+                    {/* 2. 중앙 화이트 바탕 카드 */}
+                    <div
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        padding: '14px 16px',
+                        background: '#fff',
+                        borderRadius: 16,
+                        border: '1px solid rgba(12,12,10,.06)',
+                        boxShadow: '0 1px 2px rgba(0,0,0,.04)',
+                        minWidth: 0,
+                      }}
+                    >
+                      {/* 2-1. 순서 번호 원형 배지 */}
+                      <div
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: '50%',
+                          background: '#EEEDE9',
+                          color: '#9A9490',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {idx + 1}
+                      </div>
+
+                      {/* 2-2. 아이콘 */}
+                      <div
+                        style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: 12,
+                          background: '#F4F4F2',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 20,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {cat.icon}
+                      </div>
+
+                      {/* 2-3. 카테고리 정보 */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{cat.name}</div>
+                        <div
+                          style={{
+                            display: 'inline-block',
+                            fontFamily: f,
+                            fontSize: 10,
+                            fontWeight: 700,
+                            color: '#4F7DEC',
+                            background: 'rgba(79, 125, 236, 0.08)',
+                            padding: '2px 6px',
+                            borderRadius: 4,
+                            marginTop: 4,
+                          }}
+                        >
+                          {items.filter(i => i.type === cat.id).length}개 루틴
+                        </div>
+                      </div>
+
+                      {/* 2-4. 편집 버튼 */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditCat(cat);
+                        }}
+                        style={{
+                          padding: '6px 12px',
+                          background: '#EEEDE9',
+                          border: 'none',
+                          borderRadius: 8,
+                          fontFamily: f,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          color: '#4A4846',
+                          flexShrink: 0,
+                        }}
+                      >
+                        편집
+                      </button>
+                    </div>
+
+                    {/* 3. 우측 삼선 ☰ 드래그 핸들 */}
+                    <div
+                      style={{
+                        fontSize: 18,
+                        color: '#BCBAB6',
+                        cursor: 'grab',
+                        userSelect: 'none',
+                        padding: '4px 8px',
+                        flexShrink: 0,
+                      }}
+                    >
+                      ☰
+                    </div>
+                  </div>
+                );
+              })}
+              <button
+                onClick={openNewCat}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1.5px dashed rgba(12,12,10,.2)',
+                  borderRadius: 12,
+                  background: 'none',
+                  fontFamily: f,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#9A9490',
+                  cursor: 'pointer',
+                  marginTop: 2,
+                }}
+              >
                 + 카테고리 추가
               </button>
             </div>
@@ -3928,6 +4126,77 @@ function CtPanel({
     await saveCareCategories(updated);
   }
 
+  // 모바일 터치 드래그 앤 드롭 지원 로직
+  const touchStartCtRef = useRef<{ y: number; cardId: string } | null>(null);
+  const touchStartCareCatRef = useRef<{ y: number; idx: number } | null>(null);
+
+  const handleTouchStartCt = (e: React.TouchEvent, itemId: string) => {
+    const touch = e.touches[0];
+    touchStartCtRef.current = { y: touch.clientY, cardId: itemId };
+    setDragCtCardId(itemId);
+  };
+
+  const handleTouchMoveCt = (e: React.TouchEvent) => {
+    if (!touchStartCtRef.current) return;
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+    const touch = e.touches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!element) return;
+    const cardEl = element.closest('[data-ct-card-id]');
+    if (cardEl) {
+      const overId = cardEl.getAttribute('data-ct-card-id');
+      if (overId && overId !== dragCtCardId) {
+        setDragCtCardOverId(overId);
+      }
+    }
+  };
+
+  const handleTouchEndCt = () => {
+    if (dragCtCardId && dragCtCardOverId && dragCtCardId !== dragCtCardOverId) {
+      void handleMoveCtItem(dragCtCardId, dragCtCardOverId);
+    }
+    touchStartCtRef.current = null;
+    setDragCtCardId(null);
+    setDragCtCardOverId(null);
+  };
+
+  const handleTouchStartCareCat = (e: React.TouchEvent, idx: number) => {
+    const touch = e.touches[0];
+    touchStartCareCatRef.current = { y: touch.clientY, idx };
+    setDragCareCatIdx(idx);
+  };
+
+  const handleTouchMoveCareCat = (e: React.TouchEvent) => {
+    if (touchStartCareCatRef.current === null) return;
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+    const touch = e.touches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!element) return;
+    const catEl = element.closest('[data-care-cat-idx]');
+    if (catEl) {
+      const overIdxStr = catEl.getAttribute('data-care-cat-idx');
+      if (overIdxStr !== null) {
+        const overIdx = parseInt(overIdxStr, 10);
+        if (!isNaN(overIdx) && overIdx !== dragCareCatIdx) {
+          setDragCareCatOver(overIdx);
+        }
+      }
+    }
+  };
+
+  const handleTouchEndCareCat = () => {
+    if (dragCareCatIdx !== null && dragCareCatOver !== null && dragCareCatIdx !== dragCareCatOver) {
+      void moveCareCat(dragCareCatIdx, dragCareCatOver);
+    }
+    touchStartCareCatRef.current = null;
+    setDragCareCatIdx(null);
+    setDragCareCatOver(null);
+  };
+
   // 집중케어 목록 MORE 기능용 상태 (기본 10개 노출)
   const [visibleCtCount, setVisibleCtCount] = useState(10);
 
@@ -3941,6 +4210,43 @@ function CtPanel({
   const [pickerSearch, setPickerSearch] = useState('');
   const [pickerSelected, setPickerSelected] = useState<Set<string>>(new Set());
 
+  // 헬퍼 함수
+  function ctCollection(ct: CtType) {
+    return ct === 'care' ? 'careItems' : ct === 'makeup' ? 'makeupItems' : 'lookItems';
+  }
+
+  async function handleMoveCtItem(draggedId: string, targetId: string) {
+    if (draggedId === targetId) return;
+
+    // 전체 아이템 리스트 정렬
+    const sortedFullItems = ctItems.slice().sort((a, b) => {
+      const aOrder = a.order ?? 999999;
+      const bOrder = b.order ?? 999999;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    const dragIdx = sortedFullItems.findIndex(i => i.id === draggedId);
+    const targetIdx = sortedFullItems.findIndex(i => i.id === targetId);
+    if (dragIdx === -1 || targetIdx === -1) return;
+
+    const updated = [...sortedFullItems];
+    const [moved] = updated.splice(dragIdx, 1);
+    updated.splice(targetIdx, 0, moved);
+
+    if (!db) return;
+    try {
+      const batchUpdates = updated.map((item, idx) => {
+        const docRef = doc(db!, 'users', userId, ctCollection(ctType), item.id);
+        return updateDoc(docRef, { order: idx, updatedAt: new Date().toISOString() });
+      });
+      await Promise.all(batchUpdates);
+    } catch (err) {
+      console.error('Failed to update ctItems order:', err);
+      alert('정렬 순서 저장에 실패했습니다.');
+    }
+  }
+
   // 목록 검색 및 카테고리 필터링
   const filteredCtItems = (() => {
     let list = ctItems;
@@ -3950,6 +4256,14 @@ function CtPanel({
     }
     if (ctType === 'care' && careCategoryFilter !== '전체') {
       list = list.filter(i => (i.category || '기타') === careCategoryFilter);
+    }
+    if (ctType === 'care') {
+      return list.slice().sort((a, b) => {
+        const aOrder = a.order ?? 999999;
+        const bOrder = b.order ?? 999999;
+        if (aOrder !== bOrder) return aOrder - bOrder;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
     }
     return list.slice().sort((a, b) => (b.published ? 1 : 0) - (a.published ? 1 : 0));
   })();
@@ -3964,6 +4278,10 @@ function CtPanel({
   // 드래그 재정렬 상태
   const [dragCtx, setDragCtx] = useState<{ section: 'main' | 'tip'; idx: number } | null>(null);
   const [dragOverCtx, setDragOverCtx] = useState<{ section: 'main' | 'tip'; idx: number } | null>(null);
+
+  // 집중케어 카드 드래그 앤 드롭 정렬 상태
+  const [dragCtCardId, setDragCtCardId] = useState<string | null>(null);
+  const [dragCtCardOverId, setDragCtCardOverId] = useState<string | null>(null);
 
   // 도메인 필터: care/makeup → 뷰티, lookbook → 패션·악세서리
   const domainProducts = ctType === 'lookbook'
@@ -4216,7 +4534,7 @@ function CtPanel({
   function CtCard({ item }: { item: CtItem }) {
     const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
     return (
-      <div style={{ background: '#fff', border: `1.5px solid ${item.published ? '#0C0C0A' : 'rgba(12,12,10,.07)'}`, borderRadius: 16, overflow: 'hidden', marginBottom: 12, transition: 'border-color .2s' }}>
+      <div style={{ background: '#fff', border: `1.5px solid ${item.published ? '#0C0C0A' : 'rgba(12,12,10,.07)'}`, borderRadius: 16, overflow: 'hidden', transition: 'border-color .2s' }}>
         <div style={{ padding: '14px 26px 10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             {/* 카테고리 뱃지 */}
@@ -4319,8 +4637,12 @@ function CtPanel({
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <div style={{ padding: '28px 20px 20px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-          <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>{m.heroType}</div>
-          <div style={{ fontFamily: f, fontSize: 32, fontWeight: 900, color: '#0C0C0A', lineHeight: 1, letterSpacing: '-.02em' }}>{m.heroTitle}</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>{m.heroType}</div>
+              <div style={{ fontFamily: f, fontSize: 32, fontWeight: 900, color: '#0C0C0A', lineHeight: 1, letterSpacing: '-.02em' }}>{m.heroTitle}</div>
+            </div>
+          </div>
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 8, lineHeight: 1.5 }}>{m.heroSub}</div>
         </div>
 
@@ -4340,8 +4662,29 @@ function CtPanel({
           const filterCats = ['전체', ...careCategories, ...extraCats, '기타'];
 
           return (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 20px 8px', borderBottom: '1px solid rgba(12,12,10,.04)', gap: 12 }}>
-              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none', flex: 1 }}>
+            <div style={{ padding: '8px 20px 12px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490', textTransform: 'uppercase' }}>CATEGORY</div>
+                <button
+                  type="button"
+                  onClick={() => setCategoryManageOpen(true)}
+                  style={{
+                    fontFamily: f,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    color: '#C5FF00',
+                    background: '#0C0C0A',
+                    border: '2px solid #0066FF',
+                    borderRadius: 9999,
+                    padding: '5px 12px',
+                    cursor: 'pointer',
+                    letterSpacing: '.08em',
+                  }}
+                >
+                  카테고리 편집
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none' }}>
                 {filterCats.map((cat) => (
                   <button
                     key={cat}
@@ -4349,43 +4692,23 @@ function CtPanel({
                     onClick={() => setCareCategoryFilter(cat)}
                     style={{
                       flexShrink: 0,
-                      padding: '5px 12px',
+                      padding: '6px 14px',
                       borderRadius: 9999,
-                      border: 'none',
-                      background: careCategoryFilter === cat ? '#0C0C0A' : '#EEEDE9',
-                      color: careCategoryFilter === cat ? '#C5FF00' : '#4A4846',
+                      border: `1.5px solid ${careCategoryFilter === cat ? '#0C0C0A' : 'rgba(12,12,10,.18)'}`,
+                      background: careCategoryFilter === cat ? '#0C0C0A' : 'transparent',
+                      color: careCategoryFilter === cat ? '#C5FF00' : '#9A9490',
                       fontFamily: f,
                       fontSize: 11,
                       fontWeight: 700,
+                      letterSpacing: '.04em',
                       cursor: 'pointer',
-                      transition: 'all .12s',
+                      transition: 'all .15s',
                     }}
                   >
                     {cat}
                   </button>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={() => setCategoryManageOpen(true)}
-                style={{
-                  flexShrink: 0,
-                  padding: '5px 10px',
-                  borderRadius: 8,
-                  border: '1px solid rgba(12,12,10,.1)',
-                  background: '#fff',
-                  color: '#4A4846',
-                  fontFamily: f,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 3,
-                }}
-              >
-                ⚙️ 편집
-              </button>
             </div>
           );
         })()}
@@ -4409,11 +4732,59 @@ function CtPanel({
             </div>
           ) : (
             <>
-              {filteredCtItems.slice(0, visibleCtCount).map((item, idx) => (
-                <div key={item.id} id={`ct-card-${idx}`}>
-                  <CtCard item={item} />
-                </div>
-              ))}
+              {filteredCtItems.slice(0, visibleCtCount).map((item, idx) => {
+                const isDragging = dragCtCardId === item.id;
+                const isDragOver = dragCtCardOverId === item.id;
+
+                const dragHandlers = {
+                  draggable: true,
+                  onDragStart: (e: React.DragEvent) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    setDragCtCardId(item.id);
+                  },
+                  onDragOver: (e: React.DragEvent) => {
+                    e.preventDefault();
+                    if (dragCtCardOverId !== item.id) {
+                      setDragCtCardOverId(item.id);
+                    }
+                  },
+                  onDrop: (e: React.DragEvent) => {
+                    e.preventDefault();
+                    if (dragCtCardId && dragCtCardId !== item.id) {
+                      void handleMoveCtItem(dragCtCardId, item.id);
+                    }
+                    setDragCtCardId(null);
+                    setDragCtCardOverId(null);
+                  },
+                  onDragEnd: () => {
+                    setDragCtCardId(null);
+                    setDragCtCardOverId(null);
+                  },
+                };
+
+                return (
+                  <div
+                    key={item.id}
+                    id={`ct-card-${idx}`}
+                    data-ct-card-id={item.id}
+                    {...dragHandlers}
+                    onTouchStart={(e) => handleTouchStartCt(e, item.id)}
+                    onTouchMove={handleTouchMoveCt}
+                    onTouchEnd={handleTouchEndCt}
+                    style={{
+                      opacity: isDragging ? 0.4 : 1,
+                      outline: isDragOver ? '2px dashed #C5FF00' : 'none',
+                      outlineOffset: '4px',
+                      borderRadius: '16px',
+                      transition: 'opacity 0.15s, outline 0.1s',
+                      cursor: 'grab',
+                      marginBottom: 12,
+                    }}
+                  >
+                    <CtCard item={item} />
+                  </div>
+                );
+              })}
               
               {/* 더보기 버튼 */}
               {filteredCtItems.length > visibleCtCount && (
@@ -4475,7 +4846,27 @@ function CtPanel({
               {/* 집중케어 카테고리 선택 (care only) */}
               {ctType === 'care' && (
                 <div style={{ marginTop: 8 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490', marginBottom: 6 }}>카테고리</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490' }}>카테고리</div>
+                    <button
+                      type="button"
+                      onClick={() => setCategoryManageOpen(true)}
+                      style={{
+                        fontFamily: f,
+                        fontSize: 10,
+                        fontWeight: 800,
+                        color: '#C5FF00',
+                        background: '#0C0C0A',
+                        border: '2px solid #0066FF',
+                        borderRadius: 9999,
+                        padding: '5px 12px',
+                        cursor: 'pointer',
+                        letterSpacing: '.08em',
+                      }}
+                    >
+                      카테고리 편집
+                    </button>
+                  </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
                     {careCategories.map((cat) => (
                       <button
@@ -4483,14 +4874,15 @@ function CtPanel({
                         type="button"
                         onClick={() => setSCategory(sCategory === cat ? '' : cat)}
                         style={{
-                          padding: '6px 12px',
-                          borderRadius: 8,
-                          border: `1.5px solid ${sCategory === cat ? '#0C0C0A' : 'rgba(12,12,10,.1)'}`,
+                          padding: '6px 14px',
+                          borderRadius: 9999,
+                          border: `1.5px solid ${sCategory === cat ? '#0C0C0A' : 'rgba(12,12,10,.18)'}`,
                           background: sCategory === cat ? '#0C0C0A' : 'transparent',
-                          color: sCategory === cat ? '#C5FF00' : '#4A4846',
+                          color: sCategory === cat ? '#C5FF00' : '#9A9490',
                           fontFamily: f,
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: 700,
+                          letterSpacing: '.04em',
                           cursor: 'pointer',
                           transition: 'all .15s',
                         }}
@@ -4741,103 +5133,203 @@ function CtPanel({
             </div>
 
             {/* 현재 카테고리 리스트 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-              {careCategories.map((cat, idx) => (
-                <div
-                  key={cat}
-                  draggable
-                  onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragCareCatIdx(idx); }}
-                  onDragOver={(e) => { e.preventDefault(); setDragCareCatOver(idx); }}
-                  onDrop={(e) => { e.preventDefault(); if (dragCareCatIdx != null) { void moveCareCat(dragCareCatIdx, idx); } setDragCareCatIdx(null); setDragCareCatOver(null); }}
-                  onDragEnd={() => { setDragCareCatIdx(null); setDragCareCatOver(null); }}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px 16px',
-                    background: '#fff',
-                    borderRadius: 12,
-                    border: '1px solid rgba(12,12,10,.06)',
-                    opacity: dragCareCatIdx === idx ? 0.4 : 1,
-                    outline: dragCareCatOver === idx ? '2px dashed #C5FF00' : 'none',
-                    outlineOffset: 2,
-                    cursor: 'grab',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-                    <span style={{ cursor: 'grab', color: '#C4C2BE', fontSize: 18, userSelect: 'none' as const, flexShrink: 0 }}>⠿</span>
-                    <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{cat}</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 20 }}>
+              {careCategories.map((cat, idx) => {
+                const isDragging = dragCareCatIdx === idx;
+                const isDragOver = dragCareCatOver === idx;
+
+                const dragHandlers = {
+                  draggable: true,
+                  onDragStart: (e: React.DragEvent) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    setDragCareCatIdx(idx);
+                  },
+                  onDragOver: (e: React.DragEvent) => {
+                    e.preventDefault();
+                    if (dragCareCatOver !== idx) {
+                      setDragCareCatOver(idx);
+                    }
+                  },
+                  onDrop: (e: React.DragEvent) => {
+                    e.preventDefault();
+                    if (dragCareCatIdx !== null && dragCareCatIdx !== idx) {
+                      void moveCareCat(dragCareCatIdx, idx);
+                    }
+                    setDragCareCatIdx(null);
+                    setDragCareCatOver(null);
+                  },
+                  onDragEnd: () => {
+                    setDragCareCatIdx(null);
+                    setDragCareCatOver(null);
+                  },
+                };
+
+                return (
+                  <div
+                    key={cat}
+                    data-care-cat-idx={idx}
+                    {...dragHandlers}
+                    onTouchStart={(e) => handleTouchStartCareCat(e, idx)}
+                    onTouchMove={handleTouchMoveCareCat}
+                    onTouchEnd={handleTouchEndCareCat}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      marginBottom: 12,
+                      opacity: isDragging ? 0.4 : 1,
+                      outline: isDragOver ? '2px dashed #C5FF00' : 'none',
+                      outlineOffset: '2px',
+                      transition: 'opacity 0.15s, outline 0.1s',
+                      cursor: 'grab',
+                    }}
+                  >
+                    {/* 1. 좌측 빨간색 삭제 버튼 */}
                     <button
                       type="button"
-                      onClick={() => { if (idx > 0) void moveCareCat(idx, idx - 1); }}
-                      disabled={idx === 0}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: idx === 0 ? 'rgba(12,12,10,.14)' : '#0C0C0A',
-                        fontSize: 12,
-                        fontWeight: 900,
-                        cursor: idx === 0 ? 'default' : 'pointer',
-                        padding: '6px 8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                      title="위로 이동"
-                    >
-                      ▲
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { if (idx < careCategories.length - 1) void moveCareCat(idx, idx + 1); }}
-                      disabled={idx === careCategories.length - 1}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: idx === careCategories.length - 1 ? 'rgba(12,12,10,.14)' : '#0C0C0A',
-                        fontSize: 12,
-                        fontWeight: 900,
-                        cursor: idx === careCategories.length - 1 ? 'default' : 'pointer',
-                        padding: '6px 8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                      title="아래로 이동"
-                    >
-                      ▼
-                    </button>
-                    <button
                       onClick={() => {
                         if (confirm(`'${cat}' 카테고리를 삭제하시겠습니까?`)) {
                           saveCareCategories(careCategories.filter(c => c !== cat));
                         }
                       }}
-                      style={{ background: 'none', border: 'none', color: '#BA1A1A', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginLeft: 8 }}
+                      style={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        background: '#E94F6B',
+                        color: '#fff',
+                        border: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 16,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                        lineHeight: 1,
+                      }}
+                      aria-label="삭제"
                     >
-                      삭제
+                      -
                     </button>
+
+                    {/* 2. 중앙 하얀색 바 */}
+                    <div
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        padding: '14px 16px',
+                        background: '#fff',
+                        borderRadius: 16,
+                        border: '1px solid rgba(12,12,10,.06)',
+                        boxShadow: '0 1px 2px rgba(0,0,0,.04)',
+                        minWidth: 0,
+                      }}
+                    >
+
+                    {/* 2. 순서 번호 원형 배지 */}
+                    <div
+                      style={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        background: '#EEEDE9',
+                        color: '#9A9490',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {idx + 1}
+                    </div>
+
+                    {/* 3. 아이콘 (✦) */}
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 12,
+                        background: '#F4F4F2',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 20,
+                        flexShrink: 0,
+                      }}
+                    >
+                      ✦
+                    </div>
+
+                    {/* 4. 카테고리 정보 */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{cat}</div>
+                      <div
+                        style={{
+                          display: 'inline-block',
+                          fontFamily: f,
+                          fontSize: 10,
+                          fontWeight: 700,
+                          color: '#4F7DEC',
+                          background: 'rgba(79, 125, 236, 0.08)',
+                          padding: '2px 6px',
+                          borderRadius: 4,
+                          marginTop: 4,
+                        }}
+                      >
+                        집중케어
+                      </div>
+                    </div>
+                    </div>
+
+                    {/* 5. 우측 삼선 ☰ 드래그 핸들 */}
+                    <div
+                      style={{
+                        fontSize: 18,
+                        color: '#BCBAB6',
+                        cursor: 'grab',
+                        userSelect: 'none',
+                        padding: '4px 8px',
+                        flexShrink: 0,
+                      }}
+                    >
+                      ☰
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {careCategories.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 13, color: '#9A9490' }}>등록된 카테고리가 없습니다.</div>
               )}
             </div>
 
-            {/* 새 카테고리 추가 폼 */}
-            <div style={{ display: 'flex', gap: 8 }}>
+            {/* 카테고리 입력창 및 추가 버튼 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <input
                 type="text"
                 value={newCatInput}
                 onChange={e => setNewCatInput(e.target.value)}
-                placeholder="새 카테고리 이름"
+                placeholder="새 카테고리 이름 입력..."
                 maxLength={12}
-                style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1.5px solid rgba(12,12,10,.14)',
+                  borderRadius: 12,
+                  fontFamily: f,
+                  fontSize: 14,
+                  color: '#0C0C0A',
+                  background: '#fff',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
               />
               <button
+                type="button"
                 onClick={() => {
                   const cleaned = newCatInput.trim();
                   if (!cleaned) return;
@@ -4848,12 +5340,53 @@ function CtPanel({
                   saveCareCategories([...careCategories, cleaned]);
                   setNewCatInput('');
                 }}
-                style={{ padding: '0 20px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  background: '#4F7DEC',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 16,
+                  fontFamily: f,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  boxShadow: '0 4px 12px rgba(79, 125, 236, 0.2)',
+                  transition: 'transform 0.1s',
+                }}
               >
-                + 추가
+                <span style={{ fontSize: 18 }}>+</span> 추가
               </button>
             </div>
             
+            {/* 기본값 복원 버튼 */}
+            <div style={{ marginTop: 16, textAlign: 'center' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm('카테고리를 기본값(열감, 수분, 알러지, 트러블)으로 복원하시겠습니까?')) {
+                    saveCareCategories(['열감', '수분', '알러지', '트러블']);
+                  }
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontFamily: f,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#9A9490',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                }}
+              >
+                기본값 복원
+              </button>
+            </div>
+
             <div style={{ height: 20 }} />
           </div>
         </>

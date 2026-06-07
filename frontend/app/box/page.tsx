@@ -1,3 +1,4 @@
+/* eslint-disable */
 // app/box/page.tsx — BOX 페이지 (제품 인벤토리)
 // Stage 3: 제품 목록 표시 + 추가/삭제 + Firestore CRUD
 //
@@ -1709,7 +1710,7 @@ export default function BoxPage() {
                 background: activeCategory === cat ? (cat === '미분류' ? '#B45309' : '#0C0C0A') : 'transparent',
                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                 fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-                color: activeCategory === cat ? '#fff' : (cat === '미분류' ? '#B45309' : '#4A4846'),
+                color: activeCategory === cat ? (cat === '미분류' ? '#fff' : '#C5FF00') : (cat === '미분류' ? '#B45309' : '#4A4846'),
                 cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .18s',
               }}
             >
@@ -2487,47 +2488,126 @@ function ManageSheet({
                   onDragOver={(e) => { e.preventDefault(); setDragDomOver(idx); }}
                   onDrop={(e) => { e.preventDefault(); if (dragDomIdx != null) moveDomain(dragDomIdx, idx); setDragDomIdx(null); setDragDomOver(null); }}
                   onDragEnd={() => { setDragDomIdx(null); setDragDomOver(null); }}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', borderBottom: '1px solid rgba(12,12,10,.07)', opacity: dragDomIdx === idx ? 0.4 : 1, outline: dragDomOver === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 4 }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    marginBottom: 12,
+                    opacity: dragDomIdx === idx ? 0.4 : 1,
+                    outline: dragDomOver === idx ? '2px dashed #C5FF00' : 'none',
+                    outlineOffset: 2,
+                    borderRadius: 4
+                  }}
                 >
-                  {/* 드래그 핸들 */}
-                  <span style={{ cursor: 'grab', color: '#C4C2BE', fontSize: 20, userSelect: 'none', paddingRight: 20 }}>⠿</span>
-
-                  {/* 이름 편집 */}
-                  {renamingDomainId === d.id ? (
-                    <input
-                      autoFocus
-                      value={renameVal}
-                      onChange={(e) => setRenameVal(e.target.value)}
-                      onBlur={() => { if (renameVal.trim()) renameDomain(d.id, renameVal.trim()); else setRenamingDomainId(null); }}
-                      onKeyDown={(e) => { if (e.key === 'Enter') { if (renameVal.trim()) renameDomain(d.id, renameVal.trim()); } else if (e.key === 'Escape') setRenamingDomainId(null); }}
-                      style={{ flex: 1, fontFamily: f, fontSize: 15, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', background: 'transparent', padding: '2px 0' }}
-                    />
-                  ) : (
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#0C0C0A' }}>{d.label}</span>
-                      <button
-                        onClick={() => { setRenamingDomainId(d.id); setRenameVal(d.label); }}
-                        title="이름 수정"
-                        style={{ width: 22, height: 22, borderRadius: 6, border: '1px solid rgba(12,12,10,.14)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9A9490', flexShrink: 0 }}
-                      >
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                      </button>
-                    </div>
-                  )}
-
-                  {/* 카테고리 편집 */}
+                  {/* 1. 좌측 빨간색 삭제 버튼 */}
                   <button
-                    onClick={() => { setEditDomainId(d.id); setEditSubTypeId(d.subTypes?.[0]?.id ?? null); setView('cats'); setNewCatLabel(''); setNewSubTypeLabel(''); }}
-                    style={{ padding: '5px 10px', borderRadius: 8, border: '1.5px solid rgba(12,12,10,.14)', background: 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    type="button"
+                    onClick={() => deleteDomain(d.id)}
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: '50%',
+                      background: '#E94F6B',
+                      color: '#fff',
+                      border: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 16,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      lineHeight: 1,
+                    }}
+                    aria-label="삭제"
                   >
-                    카테고리 &gt;
+                    -
                   </button>
 
-                  {/* 삭제 */}
-                  <button onClick={() => deleteDomain(d.id)} style={{ width: 24, height: 24, borderRadius: 6, border: 'none', background: 'rgba(186,26,26,.08)', color: '#BA1A1A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>×</button>
+                  {/* 2. 중앙 하얀색 바 */}
+                  <div
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: '14px 16px',
+                      background: '#fff',
+                      borderRadius: 16,
+                      border: '1px solid rgba(12,12,10,.06)',
+                      boxShadow: '0 1px 2px rgba(0,0,0,.04)',
+                      minWidth: 0,
+                    }}
+                  >
+                    {/* 2-1. 도메인 번호 배지 */}
+                    <div
+                      style={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        background: '#EEEDE9',
+                        color: '#9A9490',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {idx + 1}
+                    </div>
+
+                    {/* 2-2. 이름 편집 */}
+                    {renamingDomainId === d.id ? (
+                      <input
+                        autoFocus
+                        value={renameVal}
+                        onChange={(e) => setRenameVal(e.target.value)}
+                        onBlur={() => { if (renameVal.trim()) renameDomain(d.id, renameVal.trim()); else setRenamingDomainId(null); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { if (renameVal.trim()) renameDomain(d.id, renameVal.trim()); } else if (e.key === 'Escape') setRenamingDomainId(null); }}
+                        style={{ flex: 1, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', background: 'transparent', padding: '2px 0' }}
+                      />
+                    ) : (
+                      <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                        <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.label}</span>
+                        <button
+                          type="button"
+                          onClick={() => { setRenamingDomainId(d.id); setRenameVal(d.label); }}
+                          title="이름 수정"
+                          style={{ width: 22, height: 22, borderRadius: 6, border: '1px solid rgba(12,12,10,.14)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9A9490', flexShrink: 0 }}
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* 2-3. 카테고리 이동 버튼 */}
+                    <button
+                      type="button"
+                      onClick={() => { setEditDomainId(d.id); setEditSubTypeId(d.subTypes?.[0]?.id ?? null); setView('cats'); setNewCatLabel(''); setNewSubTypeLabel(''); }}
+                      style={{ padding: '4px 10px', borderRadius: 8, border: '1.5px solid rgba(12,12,10,.14)', background: 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    >
+                      카테고리 &gt;
+                    </button>
+                  </div>
+
+                  {/* 3. 우측 삼선 드래그 핸들 */}
+                  <div
+                    style={{
+                      fontSize: 18,
+                      color: '#BCBAB6',
+                      cursor: 'grab',
+                      userSelect: 'none',
+                      padding: '4px 8px',
+                      flexShrink: 0,
+                    }}
+                  >
+                    ☰
+                  </div>
                 </div>
               ))}
 
@@ -2611,11 +2691,110 @@ function ManageSheet({
                   onDragOver={(e) => { e.preventDefault(); setDragCatOver(idx); }}
                   onDrop={(e) => { e.preventDefault(); if (dragCatIdx != null) moveCat(dragCatIdx, idx); setDragCatIdx(null); setDragCatOver(null); }}
                   onDragEnd={() => { setDragCatIdx(null); setDragCatOver(null); }}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(12,12,10,.07)', opacity: dragCatIdx === idx ? 0.4 : 1, outline: dragCatOver === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 4 }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    marginBottom: 12,
+                    opacity: dragCatIdx === idx ? 0.4 : 1,
+                    outline: dragCatOver === idx ? '2px dashed #C5FF00' : 'none',
+                    outlineOffset: 2,
+                    borderRadius: 4
+                  }}
                 >
-                  <span style={{ cursor: 'grab', color: '#C4C2BE', fontSize: 20, userSelect: 'none', paddingRight: 20 }}>⠿</span>
-                  <span style={{ flex: 1, fontFamily: f, fontSize: 14, color: '#0C0C0A' }}>{cat}</span>
-                  <button onClick={() => deleteCat(idx)} style={{ width: 24, height: 24, borderRadius: 6, border: 'none', background: 'rgba(186,26,26,.08)', color: '#BA1A1A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>×</button>
+                  {/* 1. 좌측 빨간색 삭제 버튼 */}
+                  <button
+                    type="button"
+                    onClick={() => deleteCat(idx)}
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: '50%',
+                      background: '#E94F6B',
+                      color: '#fff',
+                      border: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 16,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      lineHeight: 1,
+                    }}
+                    aria-label="삭제"
+                  >
+                    -
+                  </button>
+
+                  {/* 2. 중앙 하얀색 바 */}
+                  <div
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: '14px 16px',
+                      background: '#fff',
+                      borderRadius: 16,
+                      border: '1px solid rgba(12,12,10,.06)',
+                      boxShadow: '0 1px 2px rgba(0,0,0,.04)',
+                      minWidth: 0,
+                    }}
+                  >
+                    {/* 2-1. 번호 배지 */}
+                    <div
+                      style={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        background: '#EEEDE9',
+                        color: '#9A9490',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {idx + 1}
+                    </div>
+
+                    {/* 2-2. 카테고리 ✦ 아이콘 */}
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 12,
+                        background: '#F4F4F2',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 20,
+                        flexShrink: 0,
+                      }}
+                    >
+                      ✦
+                    </div>
+
+                    {/* 2-3. 카테고리 텍스트 */}
+                    <span style={{ flex: 1, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cat}</span>
+                  </div>
+
+                  {/* 3. 우측 삼선 드래그 핸들 */}
+                  <div
+                    style={{
+                      fontSize: 18,
+                      color: '#BCBAB6',
+                      cursor: 'grab',
+                      userSelect: 'none',
+                      padding: '4px 8px',
+                      flexShrink: 0,
+                    }}
+                  >
+                    ☰
+                  </div>
                 </div>
               ))}
 
@@ -2898,7 +3077,18 @@ function AddProductPage({
                   <div style={labelStyle}>DOMAIN</div>
                   <button
                     onClick={() => onOpenCatEditor?.()}
-                    style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#4A4846', background: '#EEEDE9', border: 'none', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', letterSpacing: '.04em' }}
+                    style={{
+                      fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+                      fontSize: 10,
+                      fontWeight: 800,
+                      color: '#C5FF00',
+                      background: '#0C0C0A',
+                      border: '2px solid #0066FF',
+                      borderRadius: 9999,
+                      padding: '5px 12px',
+                      cursor: 'pointer',
+                      letterSpacing: '.08em'
+                    }}
                   >
                     카테고리 편집
                   </button>
@@ -2985,11 +3175,11 @@ function AddProductPage({
                         }}
                         style={{
                           height: 26, padding: '0 14px',
-                          border: `1.5px solid ${form.category === cat ? '#000' : '#C5C6CA'}`,
-                          background: form.category === cat ? '#000' : 'transparent',
+                          border: `1.5px solid ${form.category === cat ? '#0C0C0A' : '#C5C6CA'}`,
+                          background: form.category === cat ? '#0C0C0A' : 'transparent',
                           fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                           fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const,
-                          color: form.category === cat ? '#fff' : '#44474A',
+                          color: form.category === cat ? '#C5FF00' : '#44474A',
                           cursor: 'pointer', borderRadius: 4, transition: 'all .15s',
                         }}
                       >

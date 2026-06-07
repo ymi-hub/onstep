@@ -86,6 +86,31 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const userId = user?.uid ?? FALLBACK_USER_ID;
 
+  // 서비스 워커 등록 및 알림 권한 자동 요청 — 앱 초기화 시 1회 실행
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // 1. 서비스 워커 등록
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then((reg) => {
+            console.log('ServiceWorker registered with scope:', reg.scope);
+          })
+          .catch((err) => {
+            console.error('ServiceWorker registration failed:', err);
+          });
+      }
+
+      // 2. 접속 시 알림 권한 자동 요청
+      if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        Notification.requestPermission().then((permission) => {
+          console.log('Notification permission status:', permission);
+        }).catch((err) => {
+          console.error('Notification permission request error:', err);
+        });
+      }
+    }
+  }, []);
+
   // Auth — 앱 전체에서 1회만 실행
   useEffect(() => {
     if (!auth) { setAuthLoading(false); return; }
