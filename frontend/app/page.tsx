@@ -1224,13 +1224,12 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   <div style={{
                     fontFamily: f,
                     fontWeight: 700,
-                    fontSize: 10,
+                    fontSize: 14,
                     color: '#9A9490',
-                    textTransform: 'uppercase',
-                    letterSpacing: '.06em',
-                    lineHeight: 1
+                    lineHeight: '1.4',
+                    textAlign: 'center'
                   }}>
-                    {waitMins}분 타이머 (Tap)
+                    {waitMins}분 뒤
                   </div>
                 )}
               </div>
