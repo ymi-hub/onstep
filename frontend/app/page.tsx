@@ -1194,7 +1194,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 fontWeight: 700,
                 fontSize: 18, // 기존 16에서 18px로 상향
                 lineHeight: '1.45',
-                color: '#0C0C0A',
+                color: isTimerCard ? '#9A9490' : '#0C0C0A', // 타이머 카드는 클릭 전 그레이, 일반 카드는 블랙
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 display: '-webkit-box',
@@ -1361,7 +1361,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
         <style>{`
           .care-step-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(12, 12, 10, 0.18) !important;
+            border-color: #0C0C0A !important;
             box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08) !important;
           }
         `}</style>
