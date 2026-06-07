@@ -1005,6 +1005,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
   if (items.length === 0) return null;
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
+  // 타이머 훅 도입
+  const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, dismissAlarm } = useTimer();
+
   // 업그레이드된 칩/카드 렌더러
   function renderChip(item: RoutineItem, idx: number, allItems: RoutineItem[]) {
     if (item.type === 'product') {
@@ -1064,7 +1067,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             <div style={{
               fontFamily: f,
               fontWeight: 700,
-              fontSize: 13,
+              fontSize: 16, // 기존 13에서 16px로 상향
               lineHeight: '1.35',
               color: '#000000',
               overflow: 'hidden',
@@ -1098,10 +1101,14 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
     if (item.type === 'desc') {
       const guideNum = allItems.slice(0, idx + 1).filter(i => i.type === 'desc').length;
       const guideLabel = `GUIDE ${String(guideNum).padStart(2, '0')}`;
+      const waitMins = parseWaitMinutes(item.text) || 10; // "10분 타이머" 파싱 및 기본값 적용
+      const isActiveTimer = timerLabel === item.text && !!timerEndMs;
+      
       return (
         <div
           key={idx}
           className="care-step-card"
+          onClick={() => startTimer(item.text, waitMins)}
           style={{
             flexShrink: 0,
             boxSizing: 'border-box',
@@ -1113,26 +1120,39 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             minWidth: 170,
             height: 260,
             background: 'rgba(12,12,10,0.03)',
-            border: '1.5px solid #0C0C0A',
+            border: isActiveTimer ? '2px solid #C5FF00' : '1.5px solid #0C0C0A', // 활성 시 라임색 테두리
             borderRadius: 14,
-            boxShadow: '0 4px 12px rgba(0,0,0,.02)',
+            boxShadow: isActiveTimer ? '0 0 0 3px rgba(197,255,0,0.4), 0 4px 12px rgba(0,0,0,.02)' : '0 4px 12px rgba(0,0,0,.02)',
             transition: 'all .2s ease-in-out',
+            cursor: 'pointer',
+            position: 'relative',
           }}
         >
-          {/* 상단 타입 뱃지 */}
-          <div style={{
-            alignSelf: 'flex-start',
-            background: '#C5FF00', color: '#000000',
-            fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
-            padding: '3px 8px', borderRadius: 6, lineHeight: 1, marginBottom: 12
-          }}>
-            {guideLabel}
+          {/* 상단 타입 뱃지 & 실시간 타이머 */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 12 }}>
+            <div style={{
+              background: '#C5FF00', color: '#000000',
+              fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
+              padding: '3px 8px', borderRadius: 6, lineHeight: 1
+            }}>
+              {guideLabel}
+            </div>
+            {isActiveTimer && (
+              <div style={{
+                background: '#C5FF00', color: '#000000',
+                fontFamily: f, fontWeight: 800, fontSize: 10,
+                padding: '3px 6px', borderRadius: 6, lineHeight: 1,
+                fontVariantNumeric: 'tabular-nums'
+              }}>
+                ⏱️ {formatTimerRemain(timerRemainMs)}
+              </div>
+            )}
           </div>
           {/* 설명 본문 */}
           <div style={{
             fontFamily: f,
             fontWeight: 700,
-            fontSize: 16,
+            fontSize: 18, // 기존 16에서 18px로 상향
             lineHeight: '1.45',
             color: '#0C0C0A',
             overflow: 'hidden',
@@ -1234,10 +1254,50 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
   }
 
   return (
-    <div>
-      <SectionHeader title="#Intensive Care" />
+    <>
+      {/* ── 알람 배너: 타이머 종료 시 화면 최상단 고정 오버레이 ── */}
+      {alarmVisible && alarmLabel && (
+        <div
+          className="alarm-banner-enter alarm-banner-pulse"
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+            background: '#000000',
+            borderBottom: '3px solid #C5FF00',
+            padding: '18px 20px 22px',
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            boxShadow: '0 6px 32px rgba(0,0,0,.8)',
+          }}
+        >
+          {/* 닫기 버튼 — 우상단 */}
+          <button
+            onClick={dismissAlarm}
+            style={{ position: 'absolute', top: 14, right: 16, background: 'rgba(255,255,255,.12)', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.7)', fontSize: 18, padding: '6px 10px', borderRadius: 8, lineHeight: 1 }}
+          >
+            ✕
+          </button>
+          {/* 텍스트 영역 */}
+          <div style={{ textAlign: 'center', marginBottom: 16 }}>
+            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,.4)', marginBottom: 4 }}>
+              대기 완료
+            </div>
+            <div style={{ fontFamily: f, fontSize: 17, fontWeight: 600, color: '#fff', lineHeight: 1.3 }}>
+              {alarmLabel}
+            </div>
+          </div>
+          {/* 대형 벨 아이콘 — 텍스트 하단 */}
+          <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#C5FF00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </div>
+        </div>
+      )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 26px' }}>
+      <div>
+        <SectionHeader title="#Intensive Care" />
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 26px' }}>
         <style>{`
           .care-step-card:hover {
             transform: translateY(-4px);
@@ -1348,19 +1408,57 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               </div>
             )}
             {/* 메인 루틴 카드 가로 스크롤 */}
-            {item.items.length > 0 && (
-              <div style={{ padding: '20px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
-                <div style={{
-                  fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: '#9CA3AF',
-                  textTransform: 'uppercase', marginBottom: 12
-                }}>
-                  Routine Steps
+            {item.items.length > 0 && (() => {
+              const hasThisTimer = item.items.some(r => r.type === 'desc' && r.text === timerLabel);
+              return (
+                <div style={{ padding: '20px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
+                  <div style={{
+                    fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: '#9CA3AF',
+                    textTransform: 'uppercase', marginBottom: 12
+                  }}>
+                    Routine Steps
+                  </div>
+                  <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'center', paddingTop: 10, paddingBottom: 10 }}>
+                    {item.items.map((r, i) => renderChip(r, i, item.items))}
+                  </div>
+
+                  {/* 대기 타이머 배너 */}
+                  {timerEndMs && timerLabel && hasThisTimer && (
+                    <div style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      marginTop: 14,
+                      padding: '10px 14px',
+                      background: '#0C0C0A',
+                      border: '1.5px solid #C5FF00',
+                      borderRadius: 12,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{
+                          width: 7, height: 7, borderRadius: '50%', background: '#C5FF00',
+                          display: 'inline-block',
+                          boxShadow: '0 0 0 3px rgba(197,255,0,.3)',
+                          flexShrink: 0,
+                        }} />
+                        <span style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.7)' }}>
+                          {timerLabel}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#C5FF00', fontVariantNumeric: 'tabular-nums', letterSpacing: '.06em' }}>
+                          {formatTimerRemain(timerRemainMs)}
+                        </span>
+                        <button
+                          onClick={() => dismissAlarm()}
+                          style={{ background: 'rgba(255,255,255,.08)', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.45)', fontSize: 13, padding: '3px 7px', borderRadius: 6, lineHeight: 1 }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'center', paddingTop: 10, paddingBottom: 10 }}>
-                  {item.items.map((r, i) => renderChip(r, i, item.items))}
-                </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* TIP 루틴 세로 스택형 Rich List */}
             {(item.tipItems?.length ?? 0) > 0 && (
@@ -1448,6 +1546,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
         ))}
       </div>
     </div>
+    </>
   );
 }
 
