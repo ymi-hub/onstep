@@ -204,39 +204,48 @@ function SessionHero({
         )}
       </div>
 
-      {/* DAY 진행 도트 */}
-      <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-        {session ? (
-          // 루틴 있음 — DAY 수만큼 도트 표시
-          // 지나간 날: 라임색 / 오늘: 긴 라임 / 앞으로: 회색
-          Array.from({ length: Math.max(session.morning.days.length, session.evening.days.length) }, (_, i) => i + 1).map((dayNum) => (
-            <span
-              key={dayNum}
-              style={{
-                width: dayNum === todayDayNumber ? 20 : 10,
-                height: 10,
-                borderRadius: 9999,
-                background:
-                  dayNum < todayDayNumber
-                    ? 'rgba(254,160,4,.35)'
-                    : dayNum === todayDayNumber
-                    ? 'rgb(254,160,4)'
-                    : '#D8D6CF',
-                boxShadow:
-                  dayNum === todayDayNumber
-                    ? '0 0 0 3px rgba(254,160,4,.25)'
-                    : 'none',
-                transition: 'all 0.3s',
-                flexShrink: 0,
-              }}
-            />
-          ))
-        ) : (
-          <span style={{ fontSize: 11, fontWeight: 500, color: '#9A9490' }}>
-            루틴을 설정하면 진행 현황이 표시됩니다
-          </span>
-        )}
-      </div>
+      {/* DAY 진행 도트 — 세션 날짜 범위 기반 (startDate ~ endDate) */}
+      {(() => {
+        if (!session) {
+          return (
+            <span style={{ fontSize: 11, fontWeight: 500, color: '#9A9490' }}>
+              루틴을 설정하면 진행 현황이 표시됩니다
+            </span>
+          );
+        }
+        const s = parseISO(session.startDate);
+        const e = parseISO(session.endDate);
+        s.setHours(0, 0, 0, 0);
+        e.setHours(0, 0, 0, 0);
+        const t = new Date(); t.setHours(0, 0, 0, 0);
+        // 세션 전체 일수 (최대 10개 도트)
+        const totalDays = Math.max(1, Math.min(differenceInDays(e, s) + 1, 10));
+        // 오늘이 세션 시작부터 몇 번째 날인지 (1-based, 범위 클램프)
+        const dotPos = Math.max(1, Math.min(differenceInDays(t, s) + 1, totalDays));
+        return (
+          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+            {Array.from({ length: totalDays }, (_, i) => i + 1).map((dayNum) => (
+              <span
+                key={dayNum}
+                style={{
+                  width: dayNum === dotPos ? 20 : 10,
+                  height: 10,
+                  borderRadius: 9999,
+                  background:
+                    dayNum < dotPos
+                      ? 'rgba(254,160,4,.35)'
+                      : dayNum === dotPos
+                      ? 'rgb(254,160,4)'
+                      : '#D8D6CF',
+                  boxShadow: dayNum === dotPos ? '0 0 0 3px rgba(254,160,4,.25)' : 'none',
+                  transition: 'all 0.3s',
+                  flexShrink: 0,
+                }}
+              />
+            ))}
+          </div>
+        );
+      })()}
     </div>
   );
 }
