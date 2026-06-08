@@ -218,13 +218,13 @@ function SessionHero({
                 borderRadius: 9999,
                 background:
                   dayNum < todayDayNumber
-                    ? 'rgba(197,255,0,.35)'
+                    ? 'rgba(254,160,4,.35)'
                     : dayNum === todayDayNumber
-                    ? '#C5FF00'
+                    ? 'rgb(254,160,4)'
                     : '#D8D6CF',
                 boxShadow:
                   dayNum === todayDayNumber
-                    ? '0 0 0 3px rgba(197,255,0,.25)'
+                    ? '0 0 0 3px rgba(254,160,4,.25)'
                     : 'none',
                 transition: 'all 0.3s',
                 flexShrink: 0,
