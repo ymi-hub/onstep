@@ -985,9 +985,9 @@ function OOTDSection({
             {/* 이미지 있을 때: 3:4 portrait hero — 클릭 시 LOG 라이브러리 해당 아이템으로 이동 */}
             {heroLook.imageUrl ? (
               <Link href={`/log?tab=라이브러리&filter=lookbook&id=${heroLook.id}`} style={{ display: 'block', textDecoration: 'none' }}>
-                <div style={{ position: 'relative', width: '100%', aspectRatio: '3/4', overflow: 'hidden' }}>
+                <div style={{ position: 'relative', width: '100%' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={heroLook.imageUrl} alt={heroLook.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={heroLook.imageUrl} alt={heroLook.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '60px 26px 18px', background: 'linear-gradient(to top,rgba(0,0,0,.56) 0%,transparent 55%)', pointerEvents: 'none' }}>
                     <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,.7)', marginBottom: 5 }}>TODAY&apos;S LOOK</div>
                     <div style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#fff', lineHeight: 1.25 }}>{heroLook.name}</div>
@@ -1485,9 +1485,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           >
             {/* 헤더 영역 */}
             {item.imageUrl ? (
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
+              <div style={{ position: 'relative', width: '100%' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '70%', background: 'linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 100%)', pointerEvents: 'none' }} />
                 {/* 배지 & 타이틀 */}
                 <div style={{ position: 'absolute', bottom: 16, left: 20, right: 20, zIndex: 1 }}>
@@ -1744,9 +1744,9 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
               {/* Hero — 이미지 있을 때만 1:1 square (today.html .editorial-hero 참고) */}
               {item.imageUrl ? (
                 <Link href={`/log?tab=라이브러리&filter=makeup&id=${item.id}`} style={{ display: 'block', textDecoration: 'none' }}>
-                  <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1', overflow: 'hidden' }}>
+                  <div style={{ position: 'relative', width: '100%' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.imageUrl} alt={item.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
                     {/* "EDITORIAL CHOICE" 배지 (우상단) */}
                     <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(0,0,0,.55)', backdropFilter: 'blur(6px)', borderRadius: 6, padding: '4px 10px', fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.12em', color: '#fff', textTransform: 'uppercase' as const }}>
                       EDITORIAL CHOICE
