@@ -635,7 +635,6 @@ function FlowCard({
                       color: '#fff',
                       whiteSpace: 'nowrap',
                       fontFamily: f,
-                      opacity: isChecked ? 0.45 : 1,
                     }}
                   >
                     {item.text}
