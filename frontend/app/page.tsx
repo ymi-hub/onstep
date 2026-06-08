@@ -647,10 +647,23 @@ function FlowCard({
                 </div>
               );
               if (item.type === 'plus') return (
-                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(33,150,243,.12)', color: '#1976D2', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, opacity: isChecked ? 0.45 : 1 }}>+</div>
+                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(33,150,243,.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <line x1="5" y1="1" x2="5" y2="9" stroke="#1976D2" strokeWidth="2" strokeLinecap="round"/>
+                      <line x1="1" y1="5" x2="9" y2="5" stroke="#1976D2" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                </div>
               );
               return (
-                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 36, height: 22, borderRadius: 12, background: 'rgba(255,152,0,.2)', color: '#E65100', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, opacity: isChecked ? 0.45 : 1 }}>→</div>
+                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', width: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(249,115,22,.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                      <path d="M1 5h10M7 1l4 4-4 4" stroke="#F97316" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -1392,28 +1405,27 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
       return (
         <div
           key={idx}
-          style={{
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 24,
-          }}
+          style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24 }}
         >
           <div style={{
-            width: 20,
-            height: 20,
+            width: 22,
+            height: 22,
             borderRadius: '50%',
-            background: isPlus ? 'rgba(33,150,243,.08)' : 'rgba(249,115,22,.08)',
-            color: isPlus ? '#1976D2' : '#F97316',
+            background: isPlus ? 'rgba(33,150,243,.12)' : 'rgba(249,115,22,.12)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 12,
-            fontWeight: 800,
-            fontFamily: f,
           }}>
-            {isPlus ? '+' : '→'}
+            {isPlus ? (
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <line x1="5" y1="1" x2="5" y2="9" stroke="#1976D2" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="1" y1="5" x2="9" y2="5" stroke="#1976D2" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            ) : (
+              <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                <path d="M1 5h10M7 1l4 4-4 4" stroke="#F97316" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
           </div>
         </div>
       );
