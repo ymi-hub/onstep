@@ -2047,6 +2047,13 @@ function LogPageInner() {
   const [refTags, setRefTags] = useState<string[]>([]);
   const [refSaving, setRefSaving] = useState(false);
   const [refFilter, setRefFilter] = useState<string>('all');
+  // 수집 편집 시트 상태
+  const [editingRef, setEditingRef] = useState<Reference | null>(null);
+  const [refEditTitle, setRefEditTitle] = useState('');
+  const [refEditTags, setRefEditTags] = useState<string[]>([]);
+  const [refEditImageFile, setRefEditImageFile] = useState<File | null>(null);
+  const [refEditImagePreview, setRefEditImagePreview] = useState('');
+  const [refEditSaving, setRefEditSaving] = useState(false);
 
   // OOTD 편집 시트 상태
   const [editingOotd, setEditingOotd] = useState<OOTDLog | null>(null);
@@ -2404,6 +2411,43 @@ function LogPageInner() {
       console.error('[OnStep] reference 저장 실패:', err);
     } finally {
       setRefSaving(false);
+    }
+  }
+
+  // ── 수집 탭 — 레퍼런스 편집 열기 ──
+  function openRefEdit(ref: Reference) {
+    setEditingRef(ref);
+    setRefEditTitle(ref.title || '');
+    setRefEditTags(ref.tags || []);
+    setRefEditImageFile(null);
+    setRefEditImagePreview(ref.imageUrl || '');
+  }
+
+  // ── 수집 탭 — 레퍼런스 편집 저장 ──
+  async function saveRefEdit() {
+    if (!editingRef || !db || !userId) return;
+    setRefEditSaving(true);
+    try {
+      let imageUrl = editingRef.imageUrl || '';
+      if (refEditImageFile && user) {
+        const { ref: storageRef } = await import('firebase/storage');
+        const { getStorage, uploadBytes, getDownloadURL } = await import('firebase/storage');
+        const storage = getStorage();
+        const path = `users/${userId}/references/${editingRef.id}_${Date.now()}`;
+        const snap = await uploadBytes(storageRef(storage, path), refEditImageFile);
+        imageUrl = await getDownloadURL(snap.ref);
+      }
+      await updateDoc(doc(db, 'users', userId, 'references', editingRef.id), {
+        title: refEditTitle.trim() || editingRef.title,
+        tags: refEditTags,
+        imageUrl,
+        updatedAt: new Date().toISOString(),
+      });
+      setEditingRef(null);
+    } catch (err) {
+      console.error('[OnStep] reference 업데이트 실패:', err);
+    } finally {
+      setRefEditSaving(false);
     }
   }
 
@@ -3156,7 +3200,7 @@ function LogPageInner() {
                             </div>
 
                             {/* 액션 버튼 영역 */}
-                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-end', padding: '8px 12px 8px 0', flexShrink: 0 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-end', padding: '8px 12px 8px 0', flexShrink: 0, gap: 4 }}>
                               {/* 원본 열기 */}
                               <a
                                 href={ref.url}
@@ -3170,6 +3214,16 @@ function LogPageInner() {
                                   <path d="M10 2h4v4M14 2L8 8" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                               </a>
+                              {/* 편집 */}
+                              <button
+                                onClick={() => openRefEdit(ref)}
+                                style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(12,12,10,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+                                aria-label="편집"
+                              >
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                                  <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </button>
                               {/* 삭제 */}
                               <button
                                 onClick={() => deleteReference(ref.id)}
@@ -3369,6 +3423,89 @@ function LogPageInner() {
           </button>
         </>
       )}
+
+      {/* ── 수집 편집 시트 ── */}
+      {editingRef && (() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        return (
+          <>
+            {/* 딤 오버레이 */}
+            <div onClick={() => setEditingRef(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
+            {/* 시트 */}
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', padding: '10px 20px calc(env(safe-area-inset-bottom,0px) + 24px)', scrollbarWidth: 'none' as const }}>
+
+              {/* 핸들 */}
+              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 16px' }} />
+
+              {/* 헤더 */}
+              <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>수집 편집</div>
+
+              {/* 이미지 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>이미지</div>
+                <ImagePicker
+                  preview={refEditImagePreview}
+                  onChange={(file, base64) => { setRefEditImageFile(file); setRefEditImagePreview(base64); }}
+                  onClear={() => { setRefEditImageFile(null); setRefEditImagePreview(''); }}
+                  height={230}
+                  placeholderLabel="이미지 추가"
+                  isOpen={!!editingRef}
+                />
+              </div>
+
+              {/* 제목 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>제목</div>
+                <input
+                  type="text"
+                  value={refEditTitle}
+                  onChange={e => setRefEditTitle(e.target.value)}
+                  placeholder="제목 입력"
+                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                />
+              </div>
+
+              {/* URL (읽기 전용) */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>링크</div>
+                <div style={{ padding: '10px 14px', background: '#F0EEE8', borderRadius: 10, fontFamily: f, fontSize: 12, color: '#9A9490', wordBreak: 'break-all' as const, lineHeight: 1.5 }}>
+                  {editingRef.url}
+                </div>
+              </div>
+
+              {/* 태그 */}
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>태그</div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                  {REF_TAGS.map(tag => {
+                    const active = refEditTags.includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => setRefEditTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
+                        style={{ height: 32, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: active ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: active ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 버튼 */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button type="button" onClick={() => setEditingRef(null)} style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
+                  취소
+                </button>
+                <button type="button" onClick={saveRefEdit} disabled={refEditSaving} style={{ flex: 2, height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: refEditSaving ? .6 : 1 }}>
+                  {refEditSaving ? '저장 중...' : '저장'}
+                </button>
+              </div>
+            </div>
+          </>
+        );
+      })()}
 
       {/* ── OOTD 편집 시트 ── */}
       {editingOotd && (() => {
