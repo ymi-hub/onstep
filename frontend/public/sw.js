@@ -44,6 +44,10 @@ self.addEventListener('message', (event) => {
       timerId = null;
     }
   }
+
+  if (data.type === 'SHOW_NOTIFICATION') {
+    self.registration.showNotification(data.title, data.options);
+  }
 });
 
 // 사용자가 알림 배너를 탭(클릭)했을 때의 동작 정의

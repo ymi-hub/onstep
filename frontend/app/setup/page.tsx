@@ -975,8 +975,30 @@ function EditorView({
     const { item, itemKey, isHighlighted, isDragging, isDragOver, onRemove } = props;
     const delBtn = (
       <button
+        type="button"
         onClick={(e) => { e.stopPropagation(); onRemove(); }}
-        style={{ position: 'absolute', top: -8, right: -8, width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,0,0,.28)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, cursor: 'pointer', zIndex: 1, lineHeight: 1 }}
+        style={{
+          position: 'absolute',
+          top: -8,
+          right: -8,
+          width: 18,
+          height: 18,
+          minWidth: 18,
+          minHeight: 18,
+          borderRadius: '50%',
+          background: 'rgba(0,0,0,.28)',
+          color: '#fff',
+          border: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 10,
+          cursor: 'pointer',
+          zIndex: 1,
+          flexShrink: 0,
+          padding: 0,
+          lineHeight: '18px',
+        }}
         aria-label="제거"
       >×</button>
     );
@@ -3302,15 +3324,10 @@ function HealthView({
                 return (
                   <div
                     key={cat.id}
+                    id={`health-cat-${cat.id}`}
                     data-health-cat-idx={idx}
-                    draggable
-                    onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragCatIdx(idx); }}
                     onDragOver={(e) => { e.preventDefault(); setDragCatOver(idx); }}
                     onDrop={(e) => { e.preventDefault(); if (dragCatIdx !== null) { void moveCat(dragCatIdx, idx); } setDragCatIdx(null); setDragCatOver(null); }}
-                    onDragEnd={() => { setDragCatIdx(null); setDragCatOver(null); }}
-                    onTouchStart={(e) => handleTouchStartCat(e, idx)}
-                    onTouchMove={handleTouchMoveCat}
-                    onTouchEnd={handleTouchEndCat}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -3320,7 +3337,9 @@ function HealthView({
                       outline: isDragOver ? '2px dashed #C5FF00' : 'none',
                       outlineOffset: '2px',
                       transition: 'opacity 0.15s, outline 0.1s',
-                      cursor: 'grab',
+                      cursor: 'default',
+                      userSelect: dragCatIdx !== null ? 'none' : 'auto',
+                      WebkitUserSelect: dragCatIdx !== null ? 'none' : 'auto',
                     }}
                   >
                     {/* 1. 좌측 빨간색 삭제 버튼 */}
@@ -3330,6 +3349,8 @@ function HealthView({
                       style={{
                         width: 22,
                         height: 22,
+                        minWidth: 22,
+                        minHeight: 22,
                         borderRadius: '50%',
                         background: '#E94F6B',
                         color: '#fff',
@@ -3341,7 +3362,8 @@ function HealthView({
                         fontWeight: 800,
                         cursor: 'pointer',
                         flexShrink: 0,
-                        lineHeight: 1,
+                        padding: 0,
+                        lineHeight: '22px',
                       }}
                       aria-label="삭제"
                     >
@@ -3444,6 +3466,24 @@ function HealthView({
 
                     {/* 3. 우측 삼선 ☰ 드래그 핸들 */}
                     <div
+                      className="health-cat-drag-handle"
+                      draggable={true}
+                      onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = 'move';
+                        setDragCatIdx(idx);
+                        const catEl = document.getElementById(`health-cat-${cat.id}`);
+                        if (catEl && e.dataTransfer.setDragImage) {
+                          e.dataTransfer.setDragImage(catEl, catEl.offsetWidth - 20, 20);
+                        }
+                      }}
+                      onDragEnd={() => {
+                        setDragCatIdx(null);
+                        setDragCatOver(null);
+                      }}
+                      onTouchStart={(e) => handleTouchStartCat(e, idx)}
+                      onTouchMove={handleTouchMoveCat}
+                      onTouchEnd={handleTouchEndCat}
+                      onTouchCancel={handleTouchEndCat}
                       style={{
                         fontSize: 18,
                         color: '#BCBAB6',
@@ -3451,6 +3491,7 @@ function HealthView({
                         userSelect: 'none',
                         padding: '4px 8px',
                         flexShrink: 0,
+                        touchAction: 'none',
                       }}
                     >
                       ☰
@@ -4328,7 +4369,7 @@ function CtPanel({
   function openEdit(item: CtItem) {
     setEditItem(item); setSEmoji(item.emoji); setSName(item.name); setSDesc(item.desc);
     setSCategory(item.category ?? '');
-    setSItems(item.items); setSTipItems(item.tipItems); setSExpertTip(item.expertTip ?? '');
+    setSItems(item.items ?? []); setSTipItems(item.tipItems ?? []); setSExpertTip(item.expertTip ?? '');
     setSPeriodStart(item.periodStart ?? ''); setSPeriodEnd(item.periodEnd ?? '');
     setSDates(item.dates ?? []); setSTpo(item.tpo ?? []);
     setSPublished(item.published);
@@ -4448,7 +4489,34 @@ function CtPanel({
     };
 
     const delBtn = (
-      <button onClick={e => { e.stopPropagation(); onRemove(); }} style={{ position: 'absolute', top: -8, right: -8, width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,0,0,.28)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, cursor: 'pointer', zIndex: 1 }}>×</button>
+      <button
+        type="button"
+        onClick={e => { e.stopPropagation(); onRemove(); }}
+        style={{
+          position: 'absolute',
+          top: -8,
+          right: -8,
+          width: 18,
+          height: 18,
+          minWidth: 18,
+          minHeight: 18,
+          borderRadius: '50%',
+          background: 'rgba(0,0,0,.28)',
+          color: '#fff',
+          border: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 10,
+          cursor: 'pointer',
+          zIndex: 1,
+          flexShrink: 0,
+          padding: 0,
+          lineHeight: '18px',
+        }}
+      >
+        ×
+      </button>
     );
     const base: React.CSSProperties = {
       position: 'relative', flexShrink: 0, borderRadius: 10, cursor: 'grab',
@@ -4532,11 +4600,47 @@ function CtPanel({
   }
 
   function CtCard({ item }: { item: CtItem }) {
-    const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
+    const prodItems = (item.items || []).filter((i): i is { type: 'product'; id: string } => i.type === 'product');
     return (
       <div style={{ background: '#fff', border: `1.5px solid ${item.published ? '#0C0C0A' : 'rgba(12,12,10,.07)'}`, borderRadius: 16, overflow: 'hidden', transition: 'border-color .2s' }}>
         <div style={{ padding: '14px 26px 10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            {/* 드래그 핸들 */}
+            <div
+              className="ct-drag-handle"
+              draggable={true}
+              onDragStart={(e) => {
+                e.dataTransfer.effectAllowed = 'move';
+                setDragCtCardId(item.id);
+                const cardEl = document.getElementById(`ct-card-${item.id}`);
+                if (cardEl && e.dataTransfer.setDragImage) {
+                  e.dataTransfer.setDragImage(cardEl, 20, 20);
+                }
+              }}
+              onDragEnd={() => {
+                setDragCtCardId(null);
+                setDragCtCardOverId(null);
+              }}
+              onTouchStart={(e) => handleTouchStartCt(e, item.id)}
+              onTouchMove={handleTouchMoveCt}
+              onTouchEnd={handleTouchEndCt}
+              onTouchCancel={handleTouchEndCt}
+              style={{
+                cursor: 'grab',
+                padding: '4px 6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                userSelect: 'none',
+                touchAction: 'none',
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#BCBAB6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" y1="9" x2="20" y2="9"></line>
+                <line x1="4" y1="15" x2="20" y2="15"></line>
+              </svg>
+            </div>
             {/* 카테고리 뱃지 */}
             {ctType === 'care' && item.category && (
               <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: '#0C0C0A', color: '#C5FF00', flexShrink: 0 }}>
@@ -4737,11 +4841,6 @@ function CtPanel({
                 const isDragOver = dragCtCardOverId === item.id;
 
                 const dragHandlers = {
-                  draggable: true,
-                  onDragStart: (e: React.DragEvent) => {
-                    e.dataTransfer.effectAllowed = 'move';
-                    setDragCtCardId(item.id);
-                  },
                   onDragOver: (e: React.DragEvent) => {
                     e.preventDefault();
                     if (dragCtCardOverId !== item.id) {
@@ -4756,29 +4855,24 @@ function CtPanel({
                     setDragCtCardId(null);
                     setDragCtCardOverId(null);
                   },
-                  onDragEnd: () => {
-                    setDragCtCardId(null);
-                    setDragCtCardOverId(null);
-                  },
                 };
 
                 return (
                   <div
                     key={item.id}
-                    id={`ct-card-${idx}`}
+                    id={`ct-card-${item.id}`}
                     data-ct-card-id={item.id}
                     {...dragHandlers}
-                    onTouchStart={(e) => handleTouchStartCt(e, item.id)}
-                    onTouchMove={handleTouchMoveCt}
-                    onTouchEnd={handleTouchEndCt}
                     style={{
                       opacity: isDragging ? 0.4 : 1,
                       outline: isDragOver ? '2px dashed #C5FF00' : 'none',
                       outlineOffset: '4px',
                       borderRadius: '16px',
                       transition: 'opacity 0.15s, outline 0.1s',
-                      cursor: 'grab',
+                      cursor: 'default',
                       marginBottom: 12,
+                      userSelect: dragCtCardId ? 'none' : 'auto',
+                      WebkitUserSelect: dragCtCardId ? 'none' : 'auto',
                     }}
                   >
                     <CtCard item={item} />
@@ -5139,11 +5233,6 @@ function CtPanel({
                 const isDragOver = dragCareCatOver === idx;
 
                 const dragHandlers = {
-                  draggable: true,
-                  onDragStart: (e: React.DragEvent) => {
-                    e.dataTransfer.effectAllowed = 'move';
-                    setDragCareCatIdx(idx);
-                  },
                   onDragOver: (e: React.DragEvent) => {
                     e.preventDefault();
                     if (dragCareCatOver !== idx) {
@@ -5158,20 +5247,14 @@ function CtPanel({
                     setDragCareCatIdx(null);
                     setDragCareCatOver(null);
                   },
-                  onDragEnd: () => {
-                    setDragCareCatIdx(null);
-                    setDragCareCatOver(null);
-                  },
                 };
 
                 return (
                   <div
                     key={cat}
+                    id={`care-cat-${idx}`}
                     data-care-cat-idx={idx}
                     {...dragHandlers}
-                    onTouchStart={(e) => handleTouchStartCareCat(e, idx)}
-                    onTouchMove={handleTouchMoveCareCat}
-                    onTouchEnd={handleTouchEndCareCat}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -5181,7 +5264,9 @@ function CtPanel({
                       outline: isDragOver ? '2px dashed #C5FF00' : 'none',
                       outlineOffset: '2px',
                       transition: 'opacity 0.15s, outline 0.1s',
-                      cursor: 'grab',
+                      cursor: 'default',
+                      userSelect: dragCareCatIdx !== null ? 'none' : 'auto',
+                      WebkitUserSelect: dragCareCatIdx !== null ? 'none' : 'auto',
                     }}
                   >
                     {/* 1. 좌측 빨간색 삭제 버튼 */}
@@ -5195,6 +5280,8 @@ function CtPanel({
                       style={{
                         width: 22,
                         height: 22,
+                        minWidth: 22,
+                        minHeight: 22,
                         borderRadius: '50%',
                         background: '#E94F6B',
                         color: '#fff',
@@ -5206,7 +5293,8 @@ function CtPanel({
                         fontWeight: 800,
                         cursor: 'pointer',
                         flexShrink: 0,
-                        lineHeight: 1,
+                        padding: 0,
+                        lineHeight: '22px',
                       }}
                       aria-label="삭제"
                     >
@@ -5288,6 +5376,24 @@ function CtPanel({
 
                     {/* 5. 우측 삼선 ☰ 드래그 핸들 */}
                     <div
+                      className="care-cat-drag-handle"
+                      draggable={true}
+                      onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = 'move';
+                        setDragCareCatIdx(idx);
+                        const catEl = document.getElementById(`care-cat-${idx}`);
+                        if (catEl && e.dataTransfer.setDragImage) {
+                          e.dataTransfer.setDragImage(catEl, catEl.offsetWidth - 20, 20);
+                        }
+                      }}
+                      onDragEnd={() => {
+                        setDragCareCatIdx(null);
+                        setDragCareCatOver(null);
+                      }}
+                      onTouchStart={(e) => handleTouchStartCareCat(e, idx)}
+                      onTouchMove={handleTouchMoveCareCat}
+                      onTouchEnd={handleTouchEndCareCat}
+                      onTouchCancel={handleTouchEndCareCat}
                       style={{
                         fontSize: 18,
                         color: '#BCBAB6',
@@ -5295,6 +5401,7 @@ function CtPanel({
                         userSelect: 'none',
                         padding: '4px 8px',
                         flexShrink: 0,
+                        touchAction: 'none',
                       }}
                     >
                       ☰

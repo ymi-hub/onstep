@@ -90,6 +90,12 @@ export function useTimer(): TimerState {{
       }} catch {{}}
       alarmAudioRef.current = null;
     }}
+    // MediaSession 해제
+    if (typeof window !== 'undefined' && 'mediaSession' in navigator) {{
+      try {{
+        navigator.mediaSession.metadata = null;
+      }} catch {{}}
+    }}
   }};
 
   useEffect(() => {{
@@ -99,6 +105,13 @@ export function useTimer(): TimerState {{
     const tick = () => {{
       const remain = Math.max(0, timerEndMs - Date.now());
       setTimerRemainMs(remain);
+
+      // MediaSession 남은 시간 실시간 업데이트
+      if (remain > 0 && typeof window !== 'undefined' && 'mediaSession' in navigator && navigator.mediaSession.metadata) {{
+        try {{
+          navigator.mediaSession.metadata.artist = `남은 시간: ${{formatTimerRemain(remain)}}`;
+        }} catch {{}}
+      }}
 
       if (remain === 0 && !alarmFiredRef.current) {{
         alarmFiredRef.current = true;
@@ -136,7 +149,22 @@ export function useTimer(): TimerState {{
         setAlarmLabel(timerLabel);
         setAlarmVisible(true);
 
-        // 4. Web Notification 발송
+        // MediaSession 완료 표시
+        if (typeof window !== 'undefined' && 'mediaSession' in navigator) {{
+          try {{
+            navigator.mediaSession.metadata = new MediaMetadata({{
+              title: `[대기 완료] ${{timerLabel || '타이머'}}`,
+              artist: '타이머가 완료되었습니다.',
+              album: 'OnStep 타이머',
+              artwork: [
+                {{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }},
+                {{ src: '/icon-512.png', sizes: '512x512', type: 'image/png' }}
+              ]
+            }});
+          }} catch {{}}
+        }}
+
+        // 4. Web Notification 발송 (서비스 워커 SHOW_NOTIFICATION 연동)
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {{
           const title = '대기 완료';
           const options = {{
@@ -149,7 +177,15 @@ export function useTimer(): TimerState {{
           try {{
             if ('serviceWorker' in navigator) {{
               navigator.serviceWorker.ready.then((registration) => {{
-                registration.showNotification(title, options);
+                if (registration.active) {{
+                  registration.active.postMessage({{
+                    type: 'SHOW_NOTIFICATION',
+                    title,
+                    options
+                  }});
+                }} else {{
+                  registration.showNotification(title, options);
+                }}
               }}).catch(() => {{
                 new Notification(title, options);
               }});
@@ -258,6 +294,35 @@ export function useTimer(): TimerState {{
       }}
     }} catch (err) {{
       console.error("Audio unlock trigger error:", err);
+    }}
+
+    // Media Session API 설정 (잠금 화면 연동)
+    if (typeof window !== 'undefined' && 'mediaSession' in navigator) {{
+      try {{
+        navigator.mediaSession.metadata = new MediaMetadata({{
+          title: `[진행중] ${{label}}`,
+          artist: `남은 시간: ${{minutes}}분`,
+          album: 'OnStep 타이머',
+          artwork: [
+            {{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }},
+            {{ src: '/icon-512.png', sizes: '512x512', type: 'image/png' }}
+          ]
+        }});
+
+        // 잠금 화면 재생기 컨트롤에 액션 등록
+        // 사용자가 재생기에서 pause(일시정지) 또는 stop(정지)를 누르면 타이머 종료
+        navigator.mediaSession.setActionHandler('pause', () => {{
+          stopTimer();
+        }});
+        navigator.mediaSession.setActionHandler('stop', () => {{
+          stopTimer();
+        }});
+        navigator.mediaSession.setActionHandler('play', () => {{
+          // iOS 우회용: play 클릭 시 계속해서 재생 상태 유지
+        }});
+      }} catch (e) {{
+        console.warn("MediaSession handler registration failed", e);
+      }}
     }}
   }}
 
