@@ -218,18 +218,22 @@ function SessionHero({
         s.setHours(0, 0, 0, 0);
         e.setHours(0, 0, 0, 0);
         const t = new Date(); t.setHours(0, 0, 0, 0);
-        // 세션 전체 일수 (최대 10개 도트)
-        const totalDays = Math.max(1, Math.min(differenceInDays(e, s) + 1, 10));
+        // 세션 전체 일수 (최대 30일)
+        const totalDays = Math.max(1, Math.min(differenceInDays(e, s) + 1, 30));
         // 오늘이 세션 시작부터 몇 번째 날인지 (1-based, 범위 클램프)
         const dotPos = Math.max(1, Math.min(differenceInDays(t, s) + 1, totalDays));
+        // 도트 수에 따라 크기·간격 자동 조정
+        const dotSize  = totalDays <= 7 ? 10 : totalDays <= 14 ? 8 : 6;
+        const dotGap   = totalDays <= 7 ? 5  : totalDays <= 14 ? 4 : 3;
+        const todayW   = totalDays <= 7 ? 20 : totalDays <= 14 ? 16 : 12;
         return (
-          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: dotGap, alignItems: 'center' }}>
             {Array.from({ length: totalDays }, (_, i) => i + 1).map((dayNum) => (
               <span
                 key={dayNum}
                 style={{
-                  width: dayNum === dotPos ? 20 : 10,
-                  height: 10,
+                  width: dayNum === dotPos ? todayW : dotSize,
+                  height: dotSize,
                   borderRadius: 9999,
                   background:
                     dayNum < dotPos
