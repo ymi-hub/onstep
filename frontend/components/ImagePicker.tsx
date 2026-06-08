@@ -59,10 +59,12 @@ export default function ImagePicker({
       }
       alert('클립보드에 이미지가 없습니다.');
     } catch {
+      // clipboard.read() 미지원(모바일 Safari 등) → 파일 피커로 폴백
       fileRef.current?.click();
     }
   }
 
+  // 시트가 열려 있는 동안 Ctrl+V / Cmd+V 로 이미지 붙여넣기
   useEffect(() => {
     if (!isOpen) return;
     function onPaste(e: ClipboardEvent) {
@@ -87,27 +89,43 @@ export default function ImagePicker({
     ? { width: '100%', aspectRatio }
     : { width: '100%', height: height ?? 220 };
 
-  const overlayBtn: React.CSSProperties = {
-    background: 'rgba(0,0,0,.55)',
-    color: '#fff',
+  // 하단 액션 바 버튼 공통 스타일
+  const actionBtn: React.CSSProperties = {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    padding: '10px 8px',
+    background: 'transparent',
     border: 'none',
-    borderRadius: 6,
-    padding: '5px 10px',
     fontFamily: f,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
+    color: '#44474A',
     cursor: 'pointer',
+    letterSpacing: '.02em',
+    minHeight: 40,
+  };
+
+  // 버튼 사이 세로 구분선
+  const divider: React.CSSProperties = {
+    width: 1,
+    alignSelf: 'stretch',
+    background: 'rgba(12,12,10,.08)',
+    flexShrink: 0,
   };
 
   return (
-    <div>
+    <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(12,12,10,.1)' }}>
+
+      {/* ── 이미지 영역 ── */}
       <div
         onClick={() => fileRef.current?.click()}
         style={{
           ...sizeStyle,
           position: 'relative',
-          background: preview ? 'transparent' : '#F4F4F0',
-          borderRadius: 12,
+          background: preview ? '#F0EFED' : '#F4F4F0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -117,28 +135,21 @@ export default function ImagePicker({
         }}
       >
         {preview ? (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-            <div style={{ position: 'absolute', bottom: 10, right: 10, display: 'flex', gap: 6 }}>
-              <button
-                onClick={(e) => { e.stopPropagation(); void pasteFromClipboard(); }}
-                style={overlayBtn}
-              >📋 붙여넣기</button>
-              <div style={{ ...overlayBtn, pointerEvents: 'none' }}>사진 변경</div>
-            </div>
-            {onClear && (
-              <button
-                onClick={(e) => { e.stopPropagation(); onClear(); }}
-                style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.5)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >✕</button>
-            )}
-          </>
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={preview}
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+          />
         ) : (
           <div style={{ textAlign: 'center', padding: '0 26px' }}>
             <div style={{ fontSize: 28, opacity: 0.2, marginBottom: 8 }}>📷</div>
-            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490' }}>{placeholderLabel}</div>
-            <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>탭하여 갤러리/카메라 선택</div>
+            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490' }}>
+              {placeholderLabel}
+            </div>
+            <div style={{ fontFamily: f, fontSize: 11, color: '#C4C2BE', marginTop: 4 }}>
+              탭하여 갤러리/카메라 선택
+            </div>
           </div>
         )}
         <input
@@ -146,28 +157,51 @@ export default function ImagePicker({
           type="file"
           accept="image/*"
           style={{ display: 'none' }}
-          onChange={(e) => { const file = e.target.files?.[0]; if (file) void applyFile(file); e.target.value = ''; }}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) void applyFile(file);
+            e.target.value = '';
+          }}
         />
       </div>
 
-      {!preview && (
-        <button
-          onClick={pasteFromClipboard}
-          style={{
-            width: '100%',
-            padding: '10px',
-            marginTop: 6,
-            border: '1.5px dashed rgba(12,12,10,.14)',
-            borderRadius: 10,
-            background: 'transparent',
-            fontFamily: f,
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#9A9490',
-            cursor: 'pointer',
-          }}
-        >📋 클립보드에서 붙여넣기</button>
-      )}
+      {/* ── 하단 액션 바 ── */}
+      <div style={{
+        display: 'flex',
+        background: '#F4F4F0',
+        borderTop: '1px solid rgba(12,12,10,.08)',
+      }}>
+
+        {/* 붙여넣기 */}
+        <button type="button" onClick={() => void pasteFromClipboard()} style={actionBtn}>
+          <span style={{ fontSize: 13 }}>📋</span>
+          붙여넣기
+        </button>
+
+        <div style={divider} />
+
+        {/* 사진 변경 / 사진 선택 */}
+        <button type="button" onClick={() => fileRef.current?.click()} style={actionBtn}>
+          <span style={{ fontSize: 13 }}>📷</span>
+          {preview ? '사진 변경' : '사진 선택'}
+        </button>
+
+        {/* 삭제 — onClear 있고 이미지 있을 때만 표시 */}
+        {onClear && preview && (
+          <>
+            <div style={divider} />
+            <button
+              type="button"
+              onClick={onClear}
+              style={{ ...actionBtn, flex: 'none', padding: '10px 16px', color: '#E94F6B' }}
+              aria-label="이미지 삭제"
+            >
+              ✕
+            </button>
+          </>
+        )}
+
+      </div>
     </div>
   );
 }
