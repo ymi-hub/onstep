@@ -2920,9 +2920,9 @@ function LogPageInner() {
                       <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>#OOTD</span>
                     </div>
                     {/* 이미지 */}
-                    <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
+                    <div style={{ width: '100%', aspectRatio: '4/3', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
                       {log.photoUrl
-                        ? <img src={log.photoUrl} alt={log.theme} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                        ? <img src={log.photoUrl} alt={log.theme} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                         : <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>}
                     </div>
                     {/* 제목 (테마) */}
@@ -3319,9 +3319,9 @@ function LogPageInner() {
                               <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
                             </div>
                             {/* overflow: visible — 스탬프가 이미지 아래로 삐져나오게 */}
-                            <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
+                            <div style={{ width: '100%', aspectRatio: '4/3', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
                               {item.imageUrl
-                                ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                                ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                                 : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
                               }
                               {isOnToday && (
