@@ -34,6 +34,8 @@ import { imageFileToBase64 } from '@/lib/imageUtils';
 import type { Product, ProductDomain } from '@/types/product';
 import PageHeader from '@/components/PageHeader';
 import ImagePicker from '@/components/ImagePicker';
+import SortBar from '@/components/SortBar';
+import MoreButton from '@/components/MoreButton';
 
 
 // ─── BOX 설정 타입 ────────────────────────────────────────────────────────────
@@ -911,6 +913,8 @@ export default function BoxPage() {
   const [viewMode, setViewMode] = useState<'magazine' | 'gallery' | 'list'>('magazine');
   // 정렬 모드
   const [sortMode, setSortMode] = useState<'added' | 'name' | 'uses' | 'brand'>('added');
+  // 페이지네이션
+  const [boxVisibleCount, setBoxVisibleCount] = useState(10);
 
   // products / auth → AppContext에서 공유 (탭 전환 시 재로딩 없음)
 
@@ -1868,23 +1872,17 @@ export default function BoxPage() {
             </button>
           </div>
 
-          {/* 정렬 셀렉트 */}
-          <select
+          {/* 정렬 탭 */}
+          <SortBar
             value={sortMode}
-            onChange={(e) => setSortMode(e.target.value as typeof sortMode)}
-            style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase',
-              color: '#4A4846', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 6,
-              background: '#fff', padding: '5px 10px', cursor: 'pointer', outline: 'none',
-              WebkitAppearance: 'none', appearance: 'none',
-            }}
-          >
-            <option value="added">최신 추가순</option>
-            <option value="name">제품명</option>
-            <option value="uses">사용 빈도순</option>
-            <option value="brand">브랜드순</option>
-          </select>
+            onChange={(k) => { setSortMode(k); setBoxVisibleCount(10); }}
+            options={[
+              { key: 'added', label: '최신순' },
+              { key: 'name', label: '이름순' },
+              { key: 'uses', label: '사용빈도' },
+              { key: 'brand', label: '브랜드' },
+            ]}
+          />
         </div>
       )}
 
@@ -1900,41 +1898,74 @@ export default function BoxPage() {
         // 빈 상태 — 제품이 없을 때
         <EmptyState onAdd={() => { setForm((f) => ({ ...f, formDomain: activeTab, formSubType: subType })); setIsAddOpen(true); }} />
       ) : viewMode === 'magazine' ? (
-        // 매거진 뷰 — 히어로(최신) + 3열 소형 카드
+        // 매거진 뷰 — 히어로(최신) + 3열 소형 카드 (전체 표시)
         <MagazineView products={sortedFiltered} onEdit={openEdit} />
       ) : viewMode === 'gallery' ? (
         // 갤러리 그리드 (3열) — design/box.html .gallery-grid
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 1.5, paddingBottom: 100 }}>
-          {sortedFiltered.map((p) => (
-            <ProductCard key={p.id} product={p} onClick={() => openEdit(p)} />
-          ))}
+        <div style={{ paddingBottom: 100 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 1.5 }}>
+            {sortedFiltered.slice(0, boxVisibleCount).map((p) => (
+              <ProductCard key={p.id} product={p} onClick={() => openEdit(p)} />
+            ))}
+          </div>
+          <div style={{ padding: '0 16px' }}>
+            <MoreButton
+              visible={Math.min(boxVisibleCount, sortedFiltered.length)}
+              total={sortedFiltered.length}
+              onMore={() => setBoxVisibleCount(n => n + 10)}
+            />
+          </div>
         </div>
       ) : sortMode === 'brand' ? (
         // 리스트 뷰 + 브랜드순 — 브랜드별 그룹 헤더 포함
         <div style={{ paddingBottom: 100 }}>
-          {brandGroups.map(({ brand, items }) => (
-            <div key={brand}>
-              {/* 브랜드 그룹 헤더 — design/box.html .list-group-hd */}
-              <div
-                style={{
-                  padding: '8px 26px 6px',
-                  fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                  fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase',
-                  color: '#9A9490', background: '#FAFAF8',
-                  borderBottom: '1px solid rgba(12,12,10,.07)',
-                  borderTop: '1px solid rgba(12,12,10,.04)',
-                }}
-              >
-                {brand} · {items.length}개
-              </div>
-              {items.map((p) => <ListRow key={p.id} product={p} onClick={() => openEdit(p)} />)}
-            </div>
-          ))}
+          {(() => {
+            const visibleItems = sortedFiltered.slice(0, boxVisibleCount);
+            const grouped = brandGroups.map(({ brand, items }) => ({
+              brand,
+              items: items.filter(p => visibleItems.some(v => v.id === p.id)),
+            })).filter(g => g.items.length > 0);
+            return (
+              <>
+                {grouped.map(({ brand, items }) => (
+                  <div key={brand}>
+                    <div
+                      style={{
+                        padding: '8px 26px 6px',
+                        fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+                        fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase',
+                        color: '#9A9490', background: '#FAFAF8',
+                        borderBottom: '1px solid rgba(12,12,10,.07)',
+                        borderTop: '1px solid rgba(12,12,10,.04)',
+                      }}
+                    >
+                      {brand} · {items.length}개
+                    </div>
+                    {items.map((p) => <ListRow key={p.id} product={p} onClick={() => openEdit(p)} />)}
+                  </div>
+                ))}
+                <div style={{ padding: '0 16px' }}>
+                  <MoreButton
+                    visible={Math.min(boxVisibleCount, sortedFiltered.length)}
+                    total={sortedFiltered.length}
+                    onMore={() => setBoxVisibleCount(n => n + 10)}
+                  />
+                </div>
+              </>
+            );
+          })()}
         </div>
       ) : (
         // 리스트 뷰 — 단순 목록
         <div style={{ paddingBottom: 100 }}>
-          {sortedFiltered.map((p) => <ListRow key={p.id} product={p} onClick={() => openEdit(p)} />)}
+          {sortedFiltered.slice(0, boxVisibleCount).map((p) => <ListRow key={p.id} product={p} onClick={() => openEdit(p)} />)}
+          <div style={{ padding: '0 16px' }}>
+            <MoreButton
+              visible={Math.min(boxVisibleCount, sortedFiltered.length)}
+              total={sortedFiltered.length}
+              onMore={() => setBoxVisibleCount(n => n + 10)}
+            />
+          </div>
         </div>
       )}
 

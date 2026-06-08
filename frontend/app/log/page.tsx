@@ -54,6 +54,8 @@ import type { CtItem } from '@/types/ctitem';
 import PageHeader from '@/components/PageHeader';
 import CatBadge from '@/components/CatBadge';
 import ImagePicker from '@/components/ImagePicker';
+import MoreButton from '@/components/MoreButton';
+import SortBar from '@/components/SortBar';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -2056,6 +2058,9 @@ function LogPageInner() {
   const [refEditImageFile, setRefEditImageFile] = useState<File | null>(null);
   const [refEditImagePreview, setRefEditImagePreview] = useState('');
   const [refEditSaving, setRefEditSaving] = useState(false);
+  // 수집 정렬 + 페이지네이션
+  const [refSort, setRefSort] = useState<'date_desc' | 'name' | 'tag'>('date_desc');
+  const [refVisibleCount, setRefVisibleCount] = useState(10);
 
   // OOTD 편집 시트 상태
   const [editingOotd, setEditingOotd] = useState<OOTDLog | null>(null);
@@ -3037,20 +3042,92 @@ function LogPageInner() {
             other: '🔗',
           };
 
-          // 필터링된 레퍼런스 목록
+          // 필터링 + 정렬 + 페이지네이션
           const filtered = refFilter === 'all'
             ? references
-            : references.filter(r => r.tags.includes(refFilter));
+            : references.filter(r => (r.tags ?? []).includes(refFilter));
 
-          // 월별 그루핑
-          const grouped = filtered.reduce<Record<string, Reference[]>>((acc, ref) => {
-            const month = ref.createdAt
-              ? format(new Date(ref.createdAt), 'yyyy년 M월', { locale: ko })
-              : '날짜 없음';
-            if (!acc[month]) acc[month] = [];
-            acc[month].push(ref);
-            return acc;
-          }, {});
+          const sortedFiltered = (() => {
+            const list = [...filtered];
+            if (refSort === 'name') return list.sort((a, b) => {
+              const ta = (a.title ?? '').toLowerCase();
+              const tb = (b.title ?? '').toLowerCase();
+              if (!ta && tb) return 1; if (ta && !tb) return -1;
+              return ta.localeCompare(tb, 'ko');
+            });
+            if (refSort === 'tag') return list.sort((a, b) => {
+              const ta = (a.tags ?? [])[0] ?? '';
+              const tb = (b.tags ?? [])[0] ?? '';
+              if (ta !== tb) return ta.localeCompare(tb, 'ko');
+              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            });
+            return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          })();
+
+          const visibleRefs = sortedFiltered.slice(0, refVisibleCount);
+
+          // 카드 렌더러 — 3가지 정렬 모드에서 공통 사용
+          const renderRef = (ref: Reference) => (
+            <div
+              key={ref.id}
+              style={{ display: 'flex', gap: 12, background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.08)', overflow: 'hidden', alignItems: 'stretch' }}
+            >
+              <div style={{ width: 80, flexShrink: 0, background: '#F0EEE8', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                {ref.imageUrl
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img src={ref.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <span style={{ fontSize: 28 }}>{PLATFORM_ICON[ref.platform ?? 'other']}</span>
+                }
+              </div>
+              <div style={{ flex: 1, padding: '10px 0', minWidth: 0 }}>
+                {ref.platform && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
+                    <span style={{ fontSize: 11 }}>{PLATFORM_ICON[ref.platform]}</span>
+                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.04em', textTransform: 'uppercase' as const }}>{ref.platform}</span>
+                  </div>
+                )}
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, marginBottom: 5, paddingRight: 8, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                  {ref.title || ref.url || '제목 없음'}
+                </div>
+                {(ref.tags ?? []).length > 0 && (
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
+                    {(ref.tags ?? []).map(tag => (
+                      <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A7700', background: 'rgba(197,255,0,.2)', padding: '1px 7px', borderRadius: 9999 }}>{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-end', padding: '8px 12px 8px 0', flexShrink: 0, gap: 4 }}>
+                {ref.url && (
+                  <a href={ref.url} target="_blank" rel="noopener noreferrer"
+                    style={{ width: 28, height: 28, borderRadius: 9999, background: '#F0EEE8', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', flexShrink: 0 }}
+                    aria-label="원본 열기"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                      <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M10 2h4v4M14 2L8 8" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </a>
+                )}
+                <button onClick={() => openRefEdit(ref)}
+                  style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(12,12,10,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+                  aria-label="편집"
+                >
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                    <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <button onClick={() => deleteReference(ref.id)}
+                  style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(233,79,107,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+                  aria-label="삭제"
+                >
+                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 3l10 10M13 3L3 13" stroke="#E94F6B" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          );
 
           return (
             <div style={{ paddingTop: 16, paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
@@ -3139,7 +3216,20 @@ function LogPageInner() {
                 </button>
               </div>
 
-              {/* 필터 바 */}
+              {/* 정렬 바 */}
+              <div style={{ padding: '0 26px 8px' }}>
+                <SortBar
+                  value={refSort}
+                  onChange={(k) => { setRefSort(k); setRefVisibleCount(10); }}
+                  options={[
+                    { key: 'date_desc', label: '최신순' },
+                    { key: 'name', label: '이름순' },
+                    { key: 'tag', label: '태그별' },
+                  ]}
+                />
+              </div>
+
+              {/* 태그 필터 바 */}
               <div style={{ display: 'flex', gap: 6, padding: '0 26px 14px', overflowX: 'auto', scrollbarWidth: 'none' as const }}>
                 {(['all', ...REF_TAGS] as string[]).map(tag => {
                   const active = refFilter === tag;
@@ -3147,13 +3237,13 @@ function LogPageInner() {
                   return (
                     <button
                       key={tag}
-                      onClick={() => setRefFilter(tag)}
+                      onClick={() => { setRefFilter(tag); setRefVisibleCount(10); }}
                       style={{
-                        flexShrink: 0, height: 30, padding: '0 14px', borderRadius: 9999,
-                        border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
-                        background: active ? '#0C0C0A' : 'transparent',
-                        fontFamily: f, fontSize: 12, fontWeight: 700,
-                        color: active ? '#fff' : '#9A9490',
+                        flexShrink: 0, height: 28, padding: '0 12px', borderRadius: 9999,
+                        border: `1.5px solid ${active ? 'rgba(74,119,0,.5)' : 'rgba(12,12,10,.14)'}`,
+                        background: active ? 'rgba(197,255,0,.18)' : 'transparent',
+                        fontFamily: f, fontSize: 11, fontWeight: 700,
+                        color: active ? '#3A6000' : '#9A9490',
                         cursor: 'pointer', transition: 'all .15s',
                         whiteSpace: 'nowrap' as const,
                       }}
@@ -3164,106 +3254,71 @@ function LogPageInner() {
                 })}
               </div>
 
-              {/* 레퍼런스 목록 — 월별 그루핑 */}
-              {Object.keys(grouped).length === 0 ? (
+              {/* 레퍼런스 목록 */}
+              {sortedFiltered.length === 0 ? (
                 <div style={{ padding: '48px 26px', textAlign: 'center' }}>
                   <div style={{ fontSize: 32, marginBottom: 12 }}>🔗</div>
                   <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', marginBottom: 6 }}>
-                    {refFilter === 'all' ? '아직 수집한 링크가 없어요' : `${refFilter} 링크가 없어요`}
+                    {refFilter === 'all' ? '아직 수집한 항목이 없어요' : `${refFilter} 항목이 없어요`}
                   </div>
                   <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>
-                    인스타, 유튜브, 블로그 링크를 붙여넣어 저장해보세요
+                    이미지, 링크, 제목 중 하나만 있어도 저장할 수 있어요
                   </div>
                 </div>
               ) : (
                 <div style={{ padding: '0 26px' }}>
-                  {Object.entries(grouped).map(([month, items]) => (
-                    <div key={month} style={{ marginBottom: 24 }}>
-                      {/* 월 헤더 */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#0C0C0A' }}>{month}</span>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
+                  {/* 최신순 — 월별 그루핑 */}
+                  {refSort === 'date_desc' && (() => {
+                    const grouped = visibleRefs.reduce<Record<string, Reference[]>>((acc, ref) => {
+                      const month = ref.createdAt ? format(new Date(ref.createdAt), 'yyyy년 M월', { locale: ko }) : '날짜 없음';
+                      if (!acc[month]) acc[month] = [];
+                      acc[month].push(ref);
+                      return acc;
+                    }, {});
+                    return Object.entries(grouped).map(([month, items]) => (
+                      <div key={month} style={{ marginBottom: 24 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                          <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#0C0C0A' }}>{month}</span>
+                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{items.map(renderRef)}</div>
                       </div>
-
-                      {/* 카드 리스트 */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        {items.map(ref => (
-                          <div
-                            key={ref.id}
-                            style={{
-                              display: 'flex', gap: 12, background: '#fff', borderRadius: 14,
-                              border: '1px solid rgba(12,12,10,.08)', overflow: 'hidden',
-                              alignItems: 'stretch',
-                            }}
-                          >
-                            {/* 썸네일 */}
-                            <div style={{ width: 80, flexShrink: 0, background: '#F0EEE8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              {ref.imageUrl
-                                // eslint-disable-next-line @next/next/no-img-element
-                                ? <img src={ref.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                : <span style={{ fontSize: 28 }}>{PLATFORM_ICON[ref.platform]}</span>
-                              }
-                            </div>
-
-                            {/* 내용 */}
-                            <div style={{ flex: 1, padding: '10px 0', minWidth: 0 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                                <span style={{ fontSize: 11 }}>{PLATFORM_ICON[ref.platform]}</span>
-                                <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.04em', textTransform: 'uppercase' as const }}>{ref.platform}</span>
-                              </div>
-                              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, marginBottom: 5, paddingRight: 8, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
-                                {ref.title || ref.url}
-                              </div>
-                              {ref.tags.length > 0 && (
-                                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
-                                  {ref.tags.map(tag => (
-                                    <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A7700', background: 'rgba(197,255,0,.2)', padding: '1px 7px', borderRadius: 9999 }}>{tag}</span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* 액션 버튼 영역 */}
-                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-end', padding: '8px 12px 8px 0', flexShrink: 0, gap: 4 }}>
-                              {/* 원본 열기 */}
-                              <a
-                                href={ref.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ width: 28, height: 28, borderRadius: 9999, background: '#F0EEE8', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', flexShrink: 0 }}
-                                aria-label="원본 열기"
-                              >
-                                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                                  <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round"/>
-                                  <path d="M10 2h4v4M14 2L8 8" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              </a>
-                              {/* 편집 */}
-                              <button
-                                onClick={() => openRefEdit(ref)}
-                                style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(12,12,10,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
-                                aria-label="편집"
-                              >
-                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                                  <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              </button>
-                              {/* 삭제 */}
-                              <button
-                                onClick={() => deleteReference(ref.id)}
-                                style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(233,79,107,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
-                                aria-label="삭제"
-                              >
-                                <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
-                                  <path d="M3 3l10 10M13 3L3 13" stroke="#E94F6B" strokeWidth="2" strokeLinecap="round"/>
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                        ))}
+                    ));
+                  })()}
+                  {/* 태그별 — 태그 그루핑 */}
+                  {refSort === 'tag' && (() => {
+                    const gByTag = visibleRefs.reduce<Record<string, Reference[]>>((acc, ref) => {
+                      const tag = (ref.tags ?? [])[0] ?? '태그 없음';
+                      if (!acc[tag]) acc[tag] = [];
+                      acc[tag].push(ref);
+                      return acc;
+                    }, {});
+                    const sortedG = Object.entries(gByTag).sort(([a], [b]) => {
+                      if (a === '태그 없음') return 1;
+                      if (b === '태그 없음') return -1;
+                      return a.localeCompare(b, 'ko');
+                    });
+                    return sortedG.map(([tag, items]) => (
+                      <div key={tag} style={{ marginBottom: 24 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#4A7700', background: 'rgba(197,255,0,.18)', padding: '3px 10px', borderRadius: 9999, letterSpacing: '.06em' }}>{tag}</span>
+                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{items.map(renderRef)}</div>
                       </div>
+                    ));
+                  })()}
+                  {/* 이름순 — 플랫 리스트 */}
+                  {refSort === 'name' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+                      {visibleRefs.map(renderRef)}
                     </div>
-                  ))}
+                  )}
+                  <MoreButton
+                    visible={visibleRefs.length}
+                    total={sortedFiltered.length}
+                    onMore={() => setRefVisibleCount(n => n + 10)}
+                  />
                 </div>
               )}
             </div>

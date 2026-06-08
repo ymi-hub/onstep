@@ -54,6 +54,7 @@ import SubPageHeader from '@/components/SubPageHeader';
 import PageHeader from '@/components/PageHeader';
 import { parseRoutineText, parseRoutinePhases, type ParsedResult } from '@/lib/parseRoutine';
 import ImagePicker from '@/components/ImagePicker';
+import MoreButton from '@/components/MoreButton';
 
 // ─── 타입 정의 ───────────────────────────────────────────────────────────────
 
@@ -713,25 +714,11 @@ function SessionsView({
                 </div>
               );
             })}
-            {/* 더보기 버튼 */}
-            {filteredSessions.length > visibleCount && (
-              <button
-                onClick={() => setVisibleCount(n => n + 5)}
-                style={{
-                  width: '100%', padding: '16px 0',
-                  border: 'none', borderTop: '1px solid rgba(12,12,10,.07)',
-                  background: 'none', cursor: 'pointer',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-                }}
-              >
-                <span style={{ fontFamily: font, fontSize: 13, fontWeight: 700, color: '#0C0C0A', letterSpacing: '.06em' }}>
-                  MORE ({visibleCount}/{filteredSessions.length})
-                </span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
-              </button>
-            )}
+            <MoreButton
+              visible={Math.min(visibleCount, filteredSessions.length)}
+              total={filteredSessions.length}
+              onMore={() => setVisibleCount(n => n + 5)}
+            />
           </div>
         )}
         <div style={{ height: 88 }} />
@@ -4880,35 +4867,18 @@ function CtPanel({
                 );
               })}
               
-              {/* 더보기 버튼 */}
-              {filteredCtItems.length > visibleCtCount && (
-                <button
-                  onClick={() => {
-                    const prevCount = visibleCtCount;
-                    setVisibleCtCount(n => n + 10);
-                    setTimeout(() => {
-                      const el = document.getElementById(`ct-card-${prevCount}`);
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }, 100);
-                  }}
-                  style={{
-                    width: '100%', padding: '16px 0',
-                    border: 'none', borderTop: '1px solid rgba(12,12,10,.05)',
-                    background: 'none', cursor: 'pointer',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-                    marginTop: 8
-                  }}
-                >
-                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', letterSpacing: '.06em' }}>
-                    MORE ({visibleCtCount}/{filteredCtItems.length})
-                  </span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9"/>
-                  </svg>
-                </button>
-              )}
+              <MoreButton
+                visible={Math.min(visibleCtCount, filteredCtItems.length)}
+                total={filteredCtItems.length}
+                onMore={() => {
+                  const prevCount = visibleCtCount;
+                  setVisibleCtCount(n => n + 10);
+                  setTimeout(() => {
+                    const el = document.getElementById(`ct-card-${prevCount}`);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 100);
+                }}
+              />
             </>
           )}
         </div>
