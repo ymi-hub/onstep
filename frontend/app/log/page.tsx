@@ -2401,6 +2401,11 @@ function LogPageInner() {
     const trimmedUrl = refUrl.trim();
     if (!trimmedUrl || !db || !userId) return;
     setRefSaving(true);
+    // 입력창에 남아있는 태그 텍스트를 자동으로 추가
+    const pendingTag = refTagInput.trim();
+    const finalTags = pendingTag && !refTags.includes(pendingTag)
+      ? [...refTags, pendingTag]
+      : [...refTags];
     try {
       let displayTitle = refTitle.trim();
       if (!displayTitle) {
@@ -2420,7 +2425,7 @@ function LogPageInner() {
         imageUrl,
         description: '',
         platform: detectPlatform(trimmedUrl),
-        tags: refTags,
+        tags: finalTags,
         createdAt: new Date().toISOString(),
       });
       setRefUrl('');
@@ -3113,14 +3118,14 @@ function LogPageInner() {
                   : <span style={{ fontSize: 28 }}>{PLATFORM_ICON[ref.platform ?? 'other']}</span>
                 }
               </div>
-              <div style={{ flex: 1, padding: '10px 0', minWidth: 0 }}>
+              <div style={{ flex: 1, padding: '10px 0 8px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                 {ref.platform && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
                     <span style={{ fontSize: 11 }}>{PLATFORM_ICON[ref.platform]}</span>
                     <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.04em', textTransform: 'uppercase' as const }}>{ref.platform}</span>
                   </div>
                 )}
-                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, marginBottom: 5, paddingRight: 8, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, marginBottom: 5, paddingRight: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                   {ref.title || ref.url || '제목 없음'}
                 </div>
                 {(ref.tags ?? []).length > 0 && (
@@ -3130,8 +3135,21 @@ function LogPageInner() {
                     ))}
                   </div>
                 )}
+                {/* 라이브러리 버튼 — 콘텐츠 하단 */}
+                <div style={{ marginTop: 'auto', paddingTop: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => { setRefToLib(ref); setRefToLibType('makeup'); }}
+                    style={{ height: 22, padding: '0 8px', borderRadius: 9999, background: 'rgba(197,255,0,.15)', display: 'inline-flex', alignItems: 'center', gap: 3, border: '1px solid rgba(74,119,0,.25)', cursor: 'pointer' }}
+                    aria-label="라이브러리 등록"
+                  >
+                    <span style={{ fontSize: 9, color: '#4A7700' }}>＋</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#3A6000', fontFamily: f }}>라이브러리</span>
+                  </button>
+                </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-end', padding: '8px 12px 8px 0', flexShrink: 0, gap: 4 }}>
+              {/* 아이콘 버튼 3개만 오른쪽에 */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px 10px 8px 0', flexShrink: 0, gap: 6 }}>
                 {ref.url && (
                   <a href={ref.url} target="_blank" rel="noopener noreferrer"
                     style={{ width: 28, height: 28, borderRadius: 9999, background: '#F0EEE8', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', flexShrink: 0 }}
@@ -3143,13 +3161,9 @@ function LogPageInner() {
                     </svg>
                   </a>
                 )}
-                <button onClick={() => { setRefToLib(ref); setRefToLibType('makeup'); }}
-                  style={{ height: 28, padding: '0 8px', borderRadius: 9999, background: 'rgba(197,255,0,.15)', display: 'flex', alignItems: 'center', gap: 3, border: '1px solid rgba(74,119,0,.3)', cursor: 'pointer', flexShrink: 0 }}
-                  aria-label="라이브러리 등록"
-                >
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#3A6000', fontFamily: f }}>라이브러리</span>
-                </button>
-                <button onClick={() => openRefEdit(ref)}
+                <button
+                  type="button"
+                  onClick={() => openRefEdit(ref)}
                   style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(12,12,10,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
                   aria-label="편집"
                 >
@@ -3157,7 +3171,9 @@ function LogPageInner() {
                     <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </button>
-                <button onClick={() => deleteReference(ref.id)}
+                <button
+                  type="button"
+                  onClick={() => deleteReference(ref.id)}
                   style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(233,79,107,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
                   aria-label="삭제"
                 >
