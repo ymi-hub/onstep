@@ -625,12 +625,17 @@ function FlowCard({
                   <div
                     key={idx}
                     style={{
-                      flexShrink: 0, alignSelf: 'center', padding: '5px 10px',
-                      background: '#2185fd',
-                      borderRadius: 16, border: '1px solid rgba(0,0,0,.06)',
-                      fontSize: 12, fontWeight: 400, color: '#fff', whiteSpace: 'nowrap', lineHeight: 1,
+                      flexShrink: 0,
+                      alignSelf: 'center',
+                      padding: '6px 14px',
+                      background: 'rgb(3, 105, 227)',
+                      borderRadius: 9999,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: '#fff',
+                      whiteSpace: 'nowrap',
+                      fontFamily: f,
                       opacity: isChecked ? 0.45 : 1,
-                      fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                     }}
                   >
                     {item.text}
@@ -1343,12 +1348,11 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             style={{
               flexShrink: 0,
               padding: '6px 14px',
-              background: 'rgba(12,12,10,0.03)',
-              border: '1px solid rgba(12,12,10,0.08)',
+              background: 'rgb(3, 105, 227)',
               borderRadius: 9999,
               fontSize: 12,
               fontWeight: 700,
-              color: '#4A4846',
+              color: '#fff',
               fontFamily: f,
               whiteSpace: 'nowrap',
             }}
