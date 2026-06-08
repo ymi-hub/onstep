@@ -55,7 +55,6 @@ import PageHeader from '@/components/PageHeader';
 import CatBadge from '@/components/CatBadge';
 import ImagePicker from '@/components/ImagePicker';
 import MoreButton from '@/components/MoreButton';
-import SortBar from '@/components/SortBar';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -3216,17 +3215,17 @@ function LogPageInner() {
                 </button>
               </div>
 
-              {/* 정렬 바 */}
-              <div style={{ padding: '0 26px 8px' }}>
-                <SortBar
+              {/* 정렬 드롭다운 */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 26px 10px' }}>
+                <select
                   value={refSort}
-                  onChange={(k) => { setRefSort(k); setRefVisibleCount(10); }}
-                  options={[
-                    { key: 'date_desc', label: '최신순' },
-                    { key: 'name', label: '이름순' },
-                    { key: 'tag', label: '태그별' },
-                  ]}
-                />
+                  onChange={e => { setRefSort(e.target.value as typeof refSort); setRefVisibleCount(10); }}
+                  style={{ height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px solid rgba(12,12,10,.14)', background: '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer', outline: 'none', appearance: 'none' as const, WebkitAppearance: 'none' as const, paddingRight: 28, backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239A9490' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+                >
+                  <option value="date_desc">최신순</option>
+                  <option value="name">이름순</option>
+                  <option value="tag">태그별</option>
+                </select>
               </div>
 
               {/* 태그 필터 바 */}
@@ -3328,14 +3327,27 @@ function LogPageInner() {
         {/* ── 아카이브 탭 — 메이크업·룩북 CRUD + Today ON ── */}
         {mainTab === '라이브러리' && (
           <div style={{ paddingTop: 16 }}>
-            {/* 필터 */}
-            <div style={{ display: 'flex', gap: 6, padding: '0 26px', marginBottom: 16 }}>
-              {(['all', 'makeup', 'lookbook'] as const).map(tab => (
-                <button key={tab} onClick={() => setArchiveFilter(tab)}
-                  style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${archiveFilter === tab ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: archiveFilter === tab ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: archiveFilter === tab ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
-                  {tab === 'all' ? 'ALL' : tab === 'makeup' ? '💄 Makeup' : '👗 Lookbook'}
-                </button>
-              ))}
+            {/* 필터 + 등록 버튼 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 26px', marginBottom: 16 }}>
+              <div style={{ display: 'flex', gap: 6, flex: 1 }}>
+                {(['all', 'makeup', 'lookbook'] as const).map(tab => (
+                  <button key={tab} onClick={() => setArchiveFilter(tab)}
+                    style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${archiveFilter === tab ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: archiveFilter === tab ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: archiveFilter === tab ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
+                    {tab === 'all' ? 'ALL' : tab === 'makeup' ? '💄 Makeup' : '👗 Lookbook'}
+                  </button>
+                ))}
+              </div>
+              {/* 등록 버튼 */}
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  onClick={() => { setMakeupAddTrigger(n => n + 1); }}
+                  style={{ height: 30, padding: '0 12px', borderRadius: 9999, border: '1.5px solid #0C0C0A', background: '#0C0C0A', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer', whiteSpace: 'nowrap' as const }}
+                >+ 메이크업</button>
+                <button
+                  onClick={() => { setLookbookAddTrigger(n => n + 1); }}
+                  style={{ height: 30, padding: '0 12px', borderRadius: 9999, border: '1.5px solid #0C0C0A', background: '#0C0C0A', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer', whiteSpace: 'nowrap' as const }}
+                >+ 룩북</button>
+              </div>
             </div>
 
             {/* 아이템 카드 목록 */}
