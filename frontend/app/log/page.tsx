@@ -1153,13 +1153,13 @@ function LogLibraryCard({
           <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
         </div>
 
-        <div style={{ width: '100%', aspectRatio: '4/3', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {item.imageUrl
-            ? // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
-          }
-        </div>
+        {item.imageUrl
+          ? // eslint-disable-next-line @next/next/no-img-element
+            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
+          : <div style={{ width: '100%', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
+            </div>
+        }
 
         {isOnToday && (
           <div style={{ position: 'absolute', bottom: -50, right: -14, transform: 'rotate(-9deg)', zIndex: 4, width: 88, height: 88, borderRadius: '50%', border: '3px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
@@ -2920,11 +2920,13 @@ function LogPageInner() {
                       <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>#OOTD</span>
                     </div>
                     {/* 이미지 */}
-                    <div style={{ width: '100%', aspectRatio: '4/3', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
-                      {log.photoUrl
-                        ? <img src={log.photoUrl} alt={log.theme} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                        : <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>}
-                    </div>
+                    {log.photoUrl
+                      ? // eslint-disable-next-line @next/next/no-img-element
+                        <img src={log.photoUrl} alt={log.theme} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                      : <div style={{ width: '100%', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>
+                        </div>
+                    }
                     {/* 제목 (테마) */}
                     <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: 12, width: '100%', zIndex: 1 }}>
                       {log.theme || '오늘의 룩'}
@@ -3319,10 +3321,13 @@ function LogPageInner() {
                               <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
                             </div>
                             {/* overflow: visible — 스탬프가 이미지 아래로 삐져나오게 */}
-                            <div style={{ width: '100%', aspectRatio: '4/3', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
+                            <div style={{ width: '100%', overflow: 'visible', flexShrink: 0, zIndex: 0, position: 'relative' }}>
                               {item.imageUrl
-                                ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                                : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
+                                ? // eslint-disable-next-line @next/next/no-img-element
+                                  <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                                : <div style={{ aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
+                                  </div>
                               }
                               {isOnToday && (
                                 <div style={{ position: 'absolute', bottom: -50, right: -14, transform: 'rotate(-9deg)', zIndex: 4, width: 88, height: 88, borderRadius: '50%', border: '3px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
