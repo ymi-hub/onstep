@@ -1808,7 +1808,7 @@ function LogCtPanel({
                   preview={sImagePreview}
                   onChange={(file, base64) => { setSImageFile(file); setSImagePreview(base64); }}
                   onClear={() => { setSImageFile(null); setSImagePreview(''); }}
-                  height={430}
+                  height={230}
                   placeholderLabel="이미지 추가"
                 />
               </div>

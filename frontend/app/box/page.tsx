@@ -2997,7 +2997,7 @@ function AddProductPage({
             preview={displayImg}
             onChange={(file, base64) => setForm(f => ({ ...f, imageFile: file, imagePreview: base64 }))}
             onClear={() => setForm(f => ({ ...f, imageFile: null, imagePreview: '', imageUrl: '' }))}
-            aspectRatio="4/3"
+            height={230}
             placeholderLabel="ADD PRODUCT IMAGE"
             isOpen={isOpen}
           />

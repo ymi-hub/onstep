@@ -5039,7 +5039,7 @@ function CtPanel({
                 preview={sImagePreview}
                 onChange={(file, base64) => { setSImageFile(file); setSImagePreview(base64); }}
                 onClear={() => { setSImageFile(null); setSImagePreview(''); }}
-                aspectRatio={ctType === 'care' ? '4/3' : ctType === 'makeup' ? '1/1' : '3/4'}
+                height={230}
                 placeholderLabel={ctType === 'care' ? 'CARE IMAGE' : ctType === 'makeup' ? 'MAKEUP IMAGE' : 'LOOK IMAGE'}
               />
             </div>
