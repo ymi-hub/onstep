@@ -371,8 +371,8 @@ function MagImg({ product, borderRadius, isHero }: { product: Product; borderRad
           NEW ARRIVAL
         </div>
       )}
-      {/* 하단 잔량 바 — skincare + 개 단위 */}
-      {showBar && hasRemaining && (
+      {/* 하단 잔량 바 — skincare + 개 단위 (히어로 제외) */}
+      {!isHero && showBar && hasRemaining && (
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(12,12,10,.08)', zIndex: 1 }}>
           <div style={{ height: '100%', width: `${fillRate * 100}%`, background: '#C5FF00' }} />
         </div>
