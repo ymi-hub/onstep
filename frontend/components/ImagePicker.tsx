@@ -11,6 +11,7 @@ interface ImagePickerProps {
   aspectRatio?: string;
   placeholderLabel?: string;
   isOpen?: boolean;
+  naturalSize?: boolean; // true: 이미지 있을 때 실제 비율로 자동 확장, 빈 상태는 height 유지
 }
 
 export default function ImagePicker({
@@ -21,6 +22,7 @@ export default function ImagePicker({
   aspectRatio,
   placeholderLabel = 'ADD IMAGE',
   isOpen = true,
+  naturalSize = false,
 }: ImagePickerProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
@@ -87,7 +89,9 @@ export default function ImagePicker({
 
   const sizeStyle: React.CSSProperties = aspectRatio
     ? { width: '100%', aspectRatio }
-    : { width: '100%', height: height ?? 220 };
+    : naturalSize && preview
+      ? { width: '100%' }                      // 이미지 있으면 자연 높이
+      : { width: '100%', height: height ?? 220 }; // 빈 상태 또는 naturalSize 미사용
 
   // 하단 액션 바 버튼 공통 스타일
   const actionBtn: React.CSSProperties = {
@@ -139,7 +143,12 @@ export default function ImagePicker({
           <img
             src={preview}
             alt=""
-            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+            style={{
+              width: '100%',
+              height: naturalSize ? 'auto' : '100%',
+              objectFit: naturalSize ? undefined : 'contain',
+              display: 'block',
+            }}
           />
         ) : (
           <div style={{ textAlign: 'center', padding: '0 26px' }}>

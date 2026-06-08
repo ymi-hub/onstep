@@ -1376,6 +1376,7 @@ function AddItemSheet({
               onClear={() => { setImgFile(null); setImgPreview(''); }}
               height={180}
               placeholderLabel="BASELINE 이미지"
+              naturalSize
             />
           </div>
 
