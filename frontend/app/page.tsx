@@ -218,7 +218,7 @@ function SessionHero({
                 borderRadius: 9999,
                 background:
                   dayNum < todayDayNumber
-                    ? '#C5FF00'
+                    ? 'rgba(197,255,0,.35)'
                     : dayNum === todayDayNumber
                     ? '#C5FF00'
                     : '#D8D6CF',
