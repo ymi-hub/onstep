@@ -69,14 +69,6 @@ type Reference = {
   createdAt: string;      // ISO datetime
 };
 
-// OG 미리보기 API 응답 타입
-type OGPreview = {
-  url: string;
-  title: string;
-  imageUrl: string;
-  description: string;
-  platform: 'instagram' | 'youtube' | 'pinterest' | 'other';
-};
 
 // 수집 탭 태그 목록
 const REF_TAGS = ['메이크업', '스킨케어', '코디', '루틴'] as const;
@@ -2051,9 +2043,7 @@ function LogPageInner() {
   // ── 수집 탭 상태 ──
   const [references, setReferences] = useState<Reference[]>([]);
   const [refUrl, setRefUrl] = useState('');
-  const [refPreview, setRefPreview] = useState<OGPreview | null>(null);
-  const [refFetching, setRefFetching] = useState(false);
-  const [refFetchError, setRefFetchError] = useState('');
+  const [refTitle, setRefTitle] = useState('');
   const [refTags, setRefTags] = useState<string[]>([]);
   const [refSaving, setRefSaving] = useState(false);
   const [refFilter, setRefFilter] = useState<string>('all');
@@ -2380,73 +2370,36 @@ function LogPageInner() {
     return () => unsub();
   }, [userId, authLoading, user]);
 
-  // ── 수집 탭 — OG 미리보기 fetch ──
-  // 💡 Static Export 환경이라 서버 API 없이 클라이언트에서 직접 처리.
-  //    allorigins.win CORS 프록시를 경유해 HTML을 받아 OG 태그를 파싱.
-  async function fetchOGPreview(url: string) {
-    if (!url.trim()) return;
-    setRefFetching(true);
-    setRefFetchError('');
-    setRefPreview(null);
-    try {
-      const proxyRes = await fetch(
-        `https://api.allorigins.win/get?url=${encodeURIComponent(url.trim())}`,
-        { signal: AbortSignal.timeout(12000) }
-      );
-      if (!proxyRes.ok) throw new Error('페이지를 가져오지 못했어요');
-      const { contents: html } = await proxyRes.json() as { contents: string };
-
-      // OG 태그 파싱 — property="og:xxx" content="..." 두 순서 모두 처리
-      function getOG(prop: string): string {
-        const patterns = [
-          new RegExp(`<meta[^>]+property=["']og:${prop}["'][^>]+content=["']([^"']+)["']`, 'i'),
-          new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:${prop}["']`, 'i'),
-        ];
-        for (const re of patterns) {
-          const m = html?.match(re);
-          if (m?.[1]) return m[1].trim();
-        }
-        return '';
-      }
-
-      const title = getOG('title') || (() => {
-        const m = html?.match(/<title[^>]*>([^<]+)<\/title>/i);
-        return m?.[1]?.trim() ?? '';
-      })();
-
-      const normalizedUrl = url.trim();
-      const platform: OGPreview['platform'] =
-        normalizedUrl.includes('instagram.com') ? 'instagram'
-        : (normalizedUrl.includes('youtube.com') || normalizedUrl.includes('youtu.be')) ? 'youtube'
-        : normalizedUrl.includes('pinterest.com') ? 'pinterest'
-        : 'other';
-
-      setRefPreview({ url: normalizedUrl, title, imageUrl: getOG('image'), description: getOG('description'), platform });
-    } catch (err) {
-      setRefFetchError(err instanceof Error ? err.message : '미리보기를 가져올 수 없어요');
-    } finally {
-      setRefFetching(false);
-    }
+  // ── 수집 탭 — 플랫폼 자동 감지 ──
+  function detectPlatform(url: string): Reference['platform'] {
+    if (url.includes('instagram.com')) return 'instagram';
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+    if (url.includes('pinterest.com')) return 'pinterest';
+    return 'other';
   }
 
-  // ── 수집 탭 — 레퍼런스 저장 ──
+  // ── 수집 탭 — 레퍼런스 저장 (OG fetch 없이 URL + 제목 직접 저장) ──
   async function saveReference() {
-    if (!refPreview || !db || !userId) return;
+    const trimmedUrl = refUrl.trim();
+    if (!trimmedUrl || !db || !userId) return;
     setRefSaving(true);
     try {
+      let displayTitle = refTitle.trim();
+      if (!displayTitle) {
+        try { displayTitle = new URL(trimmedUrl).hostname; } catch { displayTitle = trimmedUrl; }
+      }
       await addDoc(collection(db, 'users', userId, 'references'), {
-        url: refPreview.url,
-        title: refPreview.title,
-        imageUrl: refPreview.imageUrl,
-        description: refPreview.description,
-        platform: refPreview.platform,
+        url: trimmedUrl,
+        title: displayTitle,
+        imageUrl: '',
+        description: '',
+        platform: detectPlatform(trimmedUrl),
         tags: refTags,
         createdAt: new Date().toISOString(),
       });
       setRefUrl('');
-      setRefPreview(null);
+      setRefTitle('');
       setRefTags([]);
-      setRefFetchError('');
     } catch (err) {
       console.error('[OnStep] reference 저장 실패:', err);
     } finally {
@@ -3046,109 +2999,76 @@ function LogPageInner() {
           return (
             <div style={{ paddingTop: 16, paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
 
-              {/* URL 입력 영역 */}
+              {/* 링크 입력 영역 */}
               <div style={{ margin: '0 26px 16px', background: '#F5F4F2', borderRadius: 16, padding: 16, border: '1px solid rgba(12,12,10,.08)' }}>
                 <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', marginBottom: 10, letterSpacing: '.04em' }}>링크 수집</div>
 
-                {/* URL 입력 + 분석 버튼 */}
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <input
-                    type="url"
-                    value={refUrl}
-                    onChange={e => { setRefUrl(e.target.value); setRefPreview(null); setRefFetchError(''); }}
-                    onKeyDown={e => e.key === 'Enter' && fetchOGPreview(refUrl)}
-                    placeholder="인스타, 유튜브, 블로그 링크 붙여넣기"
-                    style={{
-                      flex: 1, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)',
-                      borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A',
-                      outline: 'none',
-                    }}
-                  />
-                  <button
-                    onClick={() => fetchOGPreview(refUrl)}
-                    disabled={!refUrl.trim() || refFetching}
-                    style={{
-                      flexShrink: 0, height: 44, padding: '0 26px', background: refUrl.trim() ? '#0C0C0A' : '#E5E4E2',
-                      color: refUrl.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 10,
-                      fontFamily: f, fontSize: 13, fontWeight: 700, cursor: refUrl.trim() ? 'pointer' : 'default',
-                      transition: 'all .15s',
-                    }}
-                  >
-                    {refFetching ? '...' : '확인'}
-                  </button>
-                </div>
+                {/* URL 입력 */}
+                <input
+                  type="url"
+                  value={refUrl}
+                  onChange={e => setRefUrl(e.target.value)}
+                  placeholder="인스타, 유튜브, 블로그 링크 붙여넣기"
+                  style={{
+                    width: '100%', boxSizing: 'border-box' as const,
+                    height: 44, padding: '0 14px', marginBottom: 8,
+                    border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10,
+                    background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none',
+                  }}
+                />
 
-                {/* 에러 메시지 */}
-                {refFetchError && (
-                  <div style={{ marginTop: 8, fontFamily: f, fontSize: 12, color: '#E94F6B' }}>{refFetchError}</div>
-                )}
-
-                {/* OG 미리보기 카드 */}
-                {refPreview && (
-                  <div style={{ marginTop: 14, background: '#fff', borderRadius: 12, border: '1px solid rgba(12,12,10,.1)', overflow: 'hidden' }}>
-                    {refPreview.imageUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={refPreview.imageUrl} alt="" style={{ width: '100%', height: 140, objectFit: 'cover', display: 'block' }} />
-                    )}
-                    <div style={{ padding: '10px 12px 12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                        <span style={{ fontSize: 14 }}>{PLATFORM_ICON[refPreview.platform]}</span>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.04em', textTransform: 'uppercase' as const }}>{refPreview.platform}</span>
-                      </div>
-                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, marginBottom: 4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
-                        {refPreview.title || refPreview.url}
-                      </div>
-                      {refPreview.description && (
-                        <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
-                          {refPreview.description}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+                {/* 제목 입력 (선택) */}
+                <input
+                  type="text"
+                  value={refTitle}
+                  onChange={e => setRefTitle(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && refUrl.trim() && saveReference()}
+                  placeholder="제목 입력 (선택 — 비워두면 도메인 표시)"
+                  style={{
+                    width: '100%', boxSizing: 'border-box' as const,
+                    height: 44, padding: '0 14px', marginBottom: 12,
+                    border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10,
+                    background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none',
+                  }}
+                />
 
                 {/* 태그 선택 */}
-                {refPreview && (
-                  <div style={{ marginTop: 12 }}>
-                    <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', marginBottom: 8, letterSpacing: '.04em' }}>태그 (선택)</div>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
-                      {REF_TAGS.map(tag => {
-                        const active = refTags.includes(tag);
-                        return (
-                          <button
-                            key={tag}
-                            onClick={() => setRefTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
-                            style={{
-                              height: 30, padding: '0 12px', borderRadius: 9999,
-                              border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
-                              background: active ? '#0C0C0A' : 'transparent',
-                              fontFamily: f, fontSize: 12, fontWeight: 700,
-                              color: active ? '#fff' : '#9A9490',
-                              cursor: 'pointer', transition: 'all .15s',
-                            }}
-                          >
-                            {tag}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 12 }}>
+                  {REF_TAGS.map(tag => {
+                    const active = refTags.includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        onClick={() => setRefTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
+                        style={{
+                          height: 30, padding: '0 12px', borderRadius: 9999,
+                          border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
+                          background: active ? '#0C0C0A' : 'transparent',
+                          fontFamily: f, fontSize: 12, fontWeight: 700,
+                          color: active ? '#fff' : '#9A9490',
+                          cursor: 'pointer', transition: 'all .15s',
+                        }}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
 
                 {/* 저장 버튼 */}
-                {refPreview && (
-                  <button
-                    onClick={saveReference}
-                    disabled={refSaving}
-                    style={{
-                      width: '100%', height: 46, marginTop: 14, background: '#C5FF00', color: '#0C0C0A',
-                      border: 'none', borderRadius: 10, fontFamily: f, fontSize: 14, fontWeight: 800,
-                      cursor: 'pointer', transition: 'opacity .15s', opacity: refSaving ? 0.6 : 1,
-                    }}
-                  >
-                    {refSaving ? '저장 중...' : '수집에 저장'}
-                  </button>
-                )}
+                <button
+                  onClick={saveReference}
+                  disabled={!refUrl.trim() || refSaving}
+                  style={{
+                    width: '100%', height: 46, background: refUrl.trim() ? '#0C0C0A' : '#E5E4E2',
+                    color: refUrl.trim() ? '#fff' : '#9A9490',
+                    border: 'none', borderRadius: 10, fontFamily: f, fontSize: 14, fontWeight: 800,
+                    cursor: refUrl.trim() ? 'pointer' : 'default',
+                    transition: 'all .15s', opacity: refSaving ? 0.6 : 1,
+                  }}
+                >
+                  {refSaving ? '저장 중...' : '수집에 저장'}
+                </button>
               </div>
 
               {/* 필터 바 */}
