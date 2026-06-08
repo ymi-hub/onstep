@@ -1138,19 +1138,12 @@ function LogLibraryCard({
 
   return (
     <div style={{ marginBottom: 12, border: '1px solid #000000', background: '#FFFFFF' }}>
-      {/* 카드 본체 — border는 outer wrapper에 위임 */}
-      <div style={{
-        boxSizing: 'border-box',
-        display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-        padding: '20px 26px 0px',
-        position: 'relative',
-        width: '100%',
-        isolation: 'isolate',
-        flexShrink: 0,
-      }}>
+
+      {/* ① 이미지 — full bleed (패딩 없음) */}
+      <div style={{ position: 'relative', width: '100%', background: '#F3F3F4', overflow: 'visible' }}>
         {/* 라임 배지 */}
         <div style={{
-          position: 'absolute', right: 7, top: 42,
+          position: 'absolute', right: 7, top: 10,
           width: 113, height: 32,
           background: '#C6F432', border: '1px solid #18181B',
           transform: 'rotate(-3deg)',
@@ -1160,27 +1153,39 @@ function LogLibraryCard({
           <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
         </div>
 
-        {/* 이미지 — overflow: visible for stamp */}
-        <div style={{ width: '100%', background: '#F3F3F4', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative', minHeight: item.imageUrl ? undefined : 300 }}>
-          {item.imageUrl
-            ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
-            : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
-          }
-          {isOnToday && (
-            <div style={{ position: 'absolute', bottom: -50, right: -14, transform: 'rotate(-9deg)', zIndex: 4, width: 88, height: 88, borderRadius: '50%', border: '3px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
-              <div style={{ position: 'absolute', inset: 5, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
-              <img src="/logo.png" alt="today" style={{ width: 34, height: 34, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
-              <div style={{ fontFamily: f, fontSize: 8, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
+        {item.imageUrl
+          ? // eslint-disable-next-line @next/next/no-img-element
+            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
+          : <div style={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
             </div>
-          )}
-        </div>
+        }
 
+        {isOnToday && (
+          <div style={{ position: 'absolute', bottom: -50, right: -14, transform: 'rotate(-9deg)', zIndex: 4, width: 88, height: 88, borderRadius: '50%', border: '3px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
+            <div style={{ position: 'absolute', inset: 5, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="today" style={{ width: 34, height: 34, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
+            <div style={{ fontFamily: f, fontSize: 8, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
+          </div>
+        )}
+      </div>
+
+      {/* ② 텍스트 콘텐츠 */}
+      <div style={{
+        boxSizing: 'border-box',
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+        padding: '12px 26px 0px',
+        width: '100%',
+        isolation: 'isolate',
+        flexShrink: 0,
+      }}>
         {/* 제목 */}
-        <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
+        <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
         {/* daily — 우측 정렬 */}
-        {item.daily && <div style={{ width: '100%', textAlign: 'right', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#BCBAB6', marginTop: 6, zIndex: 1 }}>{item.daily}</div>}
+        {item.daily && <div style={{ width: '100%', textAlign: 'right', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#BCBAB6', marginTop: 6 }}>{item.daily}</div>}
         {/* 서브 */}
-        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || (isMakeup ? 'makeup' : 'lookbook')}</div>
+        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.tpo?.join(' · ') || (isMakeup ? 'makeup' : 'lookbook')}</div>
         {item.sourceUrl?.trim() && (() => {
           let domain = item.sourceUrl;
           try { domain = new URL(item.sourceUrl).hostname; } catch {}
