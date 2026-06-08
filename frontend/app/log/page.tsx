@@ -2054,6 +2054,7 @@ function LogPageInner() {
   const [editingRef, setEditingRef] = useState<Reference | null>(null);
   const [refEditTitle, setRefEditTitle] = useState('');
   const [refEditTags, setRefEditTags] = useState<string[]>([]);
+  const [refEditTagInput, setRefEditTagInput] = useState('');
   const [refEditImageFile, setRefEditImageFile] = useState<File | null>(null);
   const [refEditImagePreview, setRefEditImagePreview] = useState('');
   const [refEditSaving, setRefEditSaving] = useState(false);
@@ -2435,6 +2436,7 @@ function LogPageInner() {
     setEditingRef(ref);
     setRefEditTitle(ref.title || '');
     setRefEditTags(ref.tags || []);
+    setRefEditTagInput('');
     setRefEditImageFile(null);
     setRefEditImagePreview(ref.imageUrl || '');
   }
@@ -3546,6 +3548,39 @@ function LogPageInner() {
               {/* 태그 */}
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>태그</div>
+
+                {/* 선택된 태그 칩 + 직접 입력창 */}
+                <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, padding: '8px 10px', minHeight: 44, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', alignItems: 'center', marginBottom: 8 }}>
+                  {refEditTags.map(tag => (
+                    <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, height: 28, padding: '0 6px 0 10px', borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1.5px solid #4A7700', flexShrink: 0 }}>
+                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000' }}>{tag}</span>
+                      <button
+                        type="button"
+                        onClick={() => setRefEditTags(prev => prev.filter(t => t !== tag))}
+                        style={{ width: 18, height: 18, borderRadius: 9999, background: 'rgba(58,96,0,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}
+                      >
+                        <span style={{ fontSize: 9, color: '#3A6000', lineHeight: 1, fontWeight: 900 }}>✕</span>
+                      </button>
+                    </div>
+                  ))}
+                  <input
+                    type="text"
+                    value={refEditTagInput}
+                    onChange={e => setRefEditTagInput(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && refEditTagInput.trim()) {
+                        e.preventDefault();
+                        const t = refEditTagInput.trim();
+                        if (!refEditTags.includes(t)) setRefEditTags(prev => [...prev, t]);
+                        setRefEditTagInput('');
+                      }
+                    }}
+                    placeholder={refEditTags.length === 0 ? '태그 입력 후 Enter' : '태그 추가...'}
+                    style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A' }}
+                  />
+                </div>
+
+                {/* 빠른 선택 */}
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
                   {REF_TAGS.map(tag => {
                     const active = refEditTags.includes(tag);
@@ -3554,7 +3589,7 @@ function LogPageInner() {
                         key={tag}
                         type="button"
                         onClick={() => setRefEditTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
-                        style={{ height: 32, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${active ? '#4A7700' : 'rgba(12,12,10,.14)'}`, background: active ? 'rgba(197,255,0,.18)' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: active ? '#3A6000' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}
+                        style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${active ? '#4A7700' : 'rgba(12,12,10,.14)'}`, background: active ? 'rgba(197,255,0,.18)' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: active ? '#3A6000' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}
                       >
                         {tag}
                       </button>
