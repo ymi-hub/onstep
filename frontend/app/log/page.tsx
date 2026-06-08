@@ -2046,6 +2046,7 @@ function LogPageInner() {
   const [refUrl, setRefUrl] = useState('');
   const [refTitle, setRefTitle] = useState('');
   const [refTags, setRefTags] = useState<string[]>([]);
+  const [refTagInput, setRefTagInput] = useState('');
   const [refImageFile, setRefImageFile] = useState<File | null>(null);
   const [refImagePreview, setRefImagePreview] = useState('');
   const [refSaving, setRefSaving] = useState(false);
@@ -2425,6 +2426,7 @@ function LogPageInner() {
       setRefUrl('');
       setRefTitle('');
       setRefTags([]);
+      setRefTagInput('');
       setRefImageFile(null);
       setRefImagePreview('');
     } catch (err) {
@@ -3210,27 +3212,44 @@ function LogPageInner() {
                   }}
                 />
 
-                {/* 태그 선택 */}
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 12 }}>
-                  {REF_TAGS.map(tag => {
-                    const active = refTags.includes(tag);
-                    return (
-                      <button
-                        key={tag}
-                        onClick={() => setRefTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
-                        style={{
-                          height: 30, padding: '0 12px', borderRadius: 9999,
-                          border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
-                          background: active ? '#0C0C0A' : 'transparent',
-                          fontFamily: f, fontSize: 12, fontWeight: 700,
-                          color: active ? '#fff' : '#9A9490',
-                          cursor: 'pointer', transition: 'all .15s',
-                        }}
-                      >
-                        {tag}
-                      </button>
-                    );
-                  })}
+                {/* 태그 입력 + 선택된 태그 */}
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, padding: '6px 10px', minHeight: 40, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', alignItems: 'center', marginBottom: 6 }}>
+                    {refTags.map(tag => (
+                      <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 3, height: 26, padding: '0 6px 0 10px', borderRadius: 9999, background: '#0C0C0A', flexShrink: 0 }}>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff' }}>{tag}</span>
+                        <button type="button" onClick={() => setRefTags(prev => prev.filter(t => t !== tag))} style={{ width: 16, height: 16, borderRadius: 9999, background: 'rgba(255,255,255,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}>
+                          <span style={{ fontSize: 9, color: '#fff', fontWeight: 900 }}>✕</span>
+                        </button>
+                      </div>
+                    ))}
+                    <input
+                      type="text"
+                      value={refTagInput}
+                      onChange={e => setRefTagInput(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && refTagInput.trim()) {
+                          e.preventDefault();
+                          const t = refTagInput.trim();
+                          if (!refTags.includes(t)) setRefTags(prev => [...prev, t]);
+                          setRefTagInput('');
+                        }
+                      }}
+                      placeholder={refTags.length === 0 ? '태그 입력 후 Enter' : '태그 추가...'}
+                      style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                    {REF_TAGS.map(tag => {
+                      const active = refTags.includes(tag);
+                      return (
+                        <button key={tag} onClick={() => setRefTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
+                          style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: active ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: active ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* 저장 버튼 */}
