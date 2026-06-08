@@ -1161,9 +1161,9 @@ function LogLibraryCard({
         </div>
 
         {/* 이미지 — overflow: visible for stamp */}
-        <div style={{ width: '100%', height: 487, background: '#F3F3F4', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative' }}>
+        <div style={{ width: '100%', background: '#F3F3F4', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 0, position: 'relative', minHeight: item.imageUrl ? undefined : 300 }}>
           {item.imageUrl
-            ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+            ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
             : <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
           }
           {isOnToday && (
