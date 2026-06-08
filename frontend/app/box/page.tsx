@@ -350,15 +350,19 @@ function MagImg({ product, borderRadius, isHero }: { product: Product; borderRad
   return (
     <div
       style={{
-        width: '100%', aspectRatio: '3/4', borderRadius, background: '#EEEDE9',
+        width: '100%',
+        ...(isHero ? {} : { aspectRatio: '3/4' }),
+        borderRadius, background: '#EEEDE9',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative', overflow: 'hidden',
       }}
     >
       {imgUrl
-        // 히어로는 AdaptiveImg(비율 적응), 3열 소형은 cover로 고정
         ? isHero
-          ? <AdaptiveImg src={imgUrl} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+          // 히어로(NEW ARRIVAL): 자연 비율 (height: auto)
+          // eslint-disable-next-line @next/next/no-img-element
+          ? <img src={imgUrl} alt="" style={{ width: '100%', height: 'auto', display: 'block' }} />
+          // 3열 소형: 3/4 고정 비율 cover
           // eslint-disable-next-line @next/next/no-img-element
           : <img src={imgUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
         : <span style={{ fontSize: isHero ? 48 : 24, opacity: 0.15 }}>✦</span>}
