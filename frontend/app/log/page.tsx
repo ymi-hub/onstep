@@ -2844,16 +2844,16 @@ function LogPageInner() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
                               {todayMotd.length > 0 ? todayMotd.slice(0, 1).map(item => (
                                 <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%' }}>
-                                  <div style={{ width: '100%', aspectRatio: '0.7', overflow: 'hidden', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <div style={{ width: '100%', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {item.imageUrl
                                       // eslint-disable-next-line @next/next/no-img-element
-                                      ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                      ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
                                       : <span style={{ fontSize: 36 }}>{item.emoji || '💄'}</span>}
                                   </div>
                                   <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                                 </div>
                               )) : (
-                                <div style={{ width: '100%', aspectRatio: '0.7', background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ width: '100%', minHeight: 120, background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                   <TodayStampBadge size={68} rotate={-9} label="MOTD" f={f} />
                                 </div>
                               )}
@@ -2862,16 +2862,16 @@ function LogPageInner() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
                               {todayOotd.length > 0 ? todayOotd.slice(0, 1).map(item => (
                                 <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%' }}>
-                                  <div style={{ width: '100%', aspectRatio: '0.7', overflow: 'hidden', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <div style={{ width: '100%', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {item.imageUrl
                                       // eslint-disable-next-line @next/next/no-img-element
-                                      ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                      ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
                                       : <span style={{ fontSize: 36 }}>{item.emoji || '👗'}</span>}
                                   </div>
                                   <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                                 </div>
                               )) : (
-                                <div style={{ width: '100%', aspectRatio: '0.7', background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ width: '100%', minHeight: 120, background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                   <TodayStampBadge size={68} rotate={-9} label="OOTD" f={f} />
                                 </div>
                               )}

@@ -341,12 +341,6 @@ function AdaptiveImg({ src, style }: { src: string; style?: React.CSSProperties 
 // 매거진 이미지 블록 (히어로: 전폭 / 소형: 3:4 비율)
 function MagImg({ product, borderRadius, isHero }: { product: Product; borderRadius: number; isHero?: boolean }) {
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
-  // 잔량 바: beauty skincare + 개 단위 제품 모두 표시
-  const isCountMode = product.itemUnit === '개' || product.itemUnit === 'ea';
-  const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
-  const hasRemaining = product.totalAmount > 0 && product.currentRemaining != null;
-  const { fillRate } = getVirtualRemaining(product);
-  const showBar = (product.domain === 'beauty' && product.subCategory !== 'makeup') || product.itemUnit === '개';
   return (
     <div
       style={{
@@ -369,12 +363,6 @@ function MagImg({ product, borderRadius, isHero }: { product: Product; borderRad
       {isHero && (
         <div style={{ position: 'absolute', top: 14, left: 14, background: '#fff', color: '#0C0C0A', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 9999, boxShadow: '0 2px 8px rgba(0,0,0,.12)', zIndex: 1 }}>
           NEW ARRIVAL
-        </div>
-      )}
-      {/* 하단 잔량 바 — skincare + 개 단위 (히어로 제외) */}
-      {!isHero && showBar && hasRemaining && (
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(12,12,10,.08)', zIndex: 1 }}>
-          <div style={{ height: '100%', width: `${fillRate * 100}%`, background: '#C5FF00' }} />
         </div>
       )}
     </div>
