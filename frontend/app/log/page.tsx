@@ -2455,6 +2455,11 @@ function LogPageInner() {
   async function saveRefEdit() {
     if (!editingRef || !db || !userId) return;
     setRefEditSaving(true);
+    // 입력창에 남아있는 태그 텍스트를 자동으로 추가
+    const pendingEditTag = refEditTagInput.trim();
+    const finalEditTags = pendingEditTag && !refEditTags.includes(pendingEditTag)
+      ? [...refEditTags, pendingEditTag]
+      : [...refEditTags];
     try {
       let imageUrl = editingRef.imageUrl || '';
       if (refEditImageFile && user) {
@@ -2467,7 +2472,7 @@ function LogPageInner() {
       }
       await updateDoc(doc(db, 'users', userId, 'references', editingRef.id), {
         title: refEditTitle.trim() || editingRef.title,
-        tags: refEditTags,
+        tags: finalEditTags,
         imageUrl,
         updatedAt: new Date().toISOString(),
       });
