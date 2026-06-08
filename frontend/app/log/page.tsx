@@ -2045,6 +2045,8 @@ function LogPageInner() {
   const [refUrl, setRefUrl] = useState('');
   const [refTitle, setRefTitle] = useState('');
   const [refTags, setRefTags] = useState<string[]>([]);
+  const [refImageFile, setRefImageFile] = useState<File | null>(null);
+  const [refImagePreview, setRefImagePreview] = useState('');
   const [refSaving, setRefSaving] = useState(false);
   const [refFilter, setRefFilter] = useState<string>('all');
   // 수집 편집 시트 상태
@@ -2395,10 +2397,18 @@ function LogPageInner() {
       if (!displayTitle) {
         try { displayTitle = new URL(trimmedUrl).hostname; } catch { displayTitle = trimmedUrl; }
       }
+      let imageUrl = '';
+      if (refImageFile && user) {
+        const { ref: storageRef, getStorage, uploadBytes, getDownloadURL } = await import('firebase/storage');
+        const storage = getStorage();
+        const path = `users/${userId}/references/${Date.now()}`;
+        const snap = await uploadBytes(storageRef(storage, path), refImageFile);
+        imageUrl = await getDownloadURL(snap.ref);
+      }
       await addDoc(collection(db, 'users', userId, 'references'), {
         url: trimmedUrl,
         title: displayTitle,
-        imageUrl: '',
+        imageUrl,
         description: '',
         platform: detectPlatform(trimmedUrl),
         tags: refTags,
@@ -2407,6 +2417,8 @@ function LogPageInner() {
       setRefUrl('');
       setRefTitle('');
       setRefTags([]);
+      setRefImageFile(null);
+      setRefImagePreview('');
     } catch (err) {
       console.error('[OnStep] reference 저장 실패:', err);
     } finally {
@@ -3047,12 +3059,24 @@ function LogPageInner() {
               <div style={{ margin: '0 26px 16px', background: '#F5F4F2', borderRadius: 16, padding: 16, border: '1px solid rgba(12,12,10,.08)' }}>
                 <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', marginBottom: 10, letterSpacing: '.04em' }}>링크 수집</div>
 
-                {/* URL 입력 */}
+                {/* 이미지 */}
+                <div style={{ marginBottom: 12 }}>
+                  <ImagePicker
+                    preview={refImagePreview}
+                    onChange={(file, base64) => { setRefImageFile(file); setRefImagePreview(base64); }}
+                    onClear={() => { setRefImageFile(null); setRefImagePreview(''); }}
+                    height={160}
+                    placeholderLabel="이미지 추가 (선택)"
+                    isOpen={mainTab === '수집'}
+                  />
+                </div>
+
+                {/* 제목 입력 */}
                 <input
-                  type="url"
-                  value={refUrl}
-                  onChange={e => setRefUrl(e.target.value)}
-                  placeholder="인스타, 유튜브, 블로그 링크 붙여넣기"
+                  type="text"
+                  value={refTitle}
+                  onChange={e => setRefTitle(e.target.value)}
+                  placeholder="제목 입력 (선택 — 비워두면 도메인 표시)"
                   style={{
                     width: '100%', boxSizing: 'border-box' as const,
                     height: 44, padding: '0 14px', marginBottom: 8,
@@ -3061,13 +3085,13 @@ function LogPageInner() {
                   }}
                 />
 
-                {/* 제목 입력 (선택) */}
+                {/* URL 입력 */}
                 <input
-                  type="text"
-                  value={refTitle}
-                  onChange={e => setRefTitle(e.target.value)}
+                  type="url"
+                  value={refUrl}
+                  onChange={e => setRefUrl(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && refUrl.trim() && saveReference()}
-                  placeholder="제목 입력 (선택 — 비워두면 도메인 표시)"
+                  placeholder="링크 붙여넣기 (필수)"
                   style={{
                     width: '100%', boxSizing: 'border-box' as const,
                     height: 44, padding: '0 14px', marginBottom: 12,
