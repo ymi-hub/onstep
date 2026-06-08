@@ -2138,9 +2138,9 @@ function LogPageInner() {
 
   // ── FAB 상태 ──
   const [fabMenuOpen, setFabMenuOpen] = useState(false);
-  const [quickLibType, setQuickLibType] = useState<'makeup' | 'lookbook' | null>(null);
-  const [quickLibSelected, setQuickLibSelected] = useState<string[]>([]);
-  const [quickLibSaving, setQuickLibSaving] = useState(false);
+  const [refToLib, setRefToLib] = useState<Reference | null>(null);
+  const [refToLibType, setRefToLibType] = useState<'makeup' | 'lookbook'>('makeup');
+  const [refToLibSaving, setRefToLibSaving] = useState(false);
   const [makeupAddTrigger, setMakeupAddTrigger] = useState(0);
   const [lookbookAddTrigger, setLookbookAddTrigger] = useState(0);
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -2474,32 +2474,31 @@ function LogPageInner() {
     }
   }
 
-  // ── 라이브러리 빠른 등록 (제품 목록 토글) ──
-  async function saveQuickLib() {
-    if (!quickLibType || !db || !userId) return;
-    setQuickLibSaving(true);
+
+  // ── 수집 → 라이브러리 등록 ──
+  async function saveRefToLibrary() {
+    if (!refToLib || !db || !userId) return;
+    setRefToLibSaving(true);
     try {
-      const colName = quickLibType === 'makeup' ? 'makeupItems' : 'lookItems';
-      const { addDoc, collection: col } = await import('firebase/firestore');
-      await addDoc(col(db, 'users', userId, colName), {
-        ctType: quickLibType,
-        name: format(new Date(), 'M/d') + (quickLibType === 'makeup' ? ' 메이크업' : ' 룩'),
-        emoji: quickLibType === 'makeup' ? '💄' : '👗',
-        imageUrl: '',
+      const colName = refToLibType === 'makeup' ? 'makeupItems' : 'lookItems';
+      await addDoc(collection(db, 'users', userId, colName), {
+        ctType: refToLibType,
+        name: refToLib.title || refToLib.url || '새 아이템',
+        emoji: refToLibType === 'makeup' ? '💄' : '👗',
+        imageUrl: refToLib.imageUrl || '',
         tpo: [],
-        items: quickLibSelected.map(id => ({ type: 'product' as const, id })),
+        items: [],
         published: false,
         dates: [],
-        sourceUrl: '',
+        sourceUrl: refToLib.url || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
-      setQuickLibType(null);
-      setQuickLibSelected([]);
+      setRefToLib(null);
     } catch (err) {
-      console.error('[OnStep] quickLib 저장 실패:', err);
+      console.error('[OnStep] refToLib 저장 실패:', err);
     } finally {
-      setQuickLibSaving(false);
+      setRefToLibSaving(false);
     }
   }
 
@@ -3144,6 +3143,12 @@ function LogPageInner() {
                     </svg>
                   </a>
                 )}
+                <button onClick={() => { setRefToLib(ref); setRefToLibType('makeup'); }}
+                  style={{ height: 28, padding: '0 8px', borderRadius: 9999, background: 'rgba(197,255,0,.15)', display: 'flex', alignItems: 'center', gap: 3, border: '1px solid rgba(74,119,0,.3)', cursor: 'pointer', flexShrink: 0 }}
+                  aria-label="라이브러리 등록"
+                >
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#3A6000', fontFamily: f }}>라이브러리</span>
+                </button>
                 <button onClick={() => openRefEdit(ref)}
                   style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(12,12,10,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
                   aria-label="편집"
@@ -3520,13 +3525,13 @@ function LogPageInner() {
           {fabMenuOpen && (
             <div style={{ position: 'fixed', bottom: 156, right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 39, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
               <button
-                onClick={() => { setQuickLibType('lookbook'); setQuickLibSelected([]); setFabMenuOpen(false); }}
+                onClick={() => { setLookbookAddTrigger(n => n + 1); setFabMenuOpen(false); }}
                 style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 26px 0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.18)', whiteSpace: 'nowrap' as const }}
               >
                 <span style={{ fontSize: 18 }}>👗</span> 룩북 등록
               </button>
               <button
-                onClick={() => { setQuickLibType('makeup'); setQuickLibSelected([]); setFabMenuOpen(false); }}
+                onClick={() => { setMakeupAddTrigger(n => n + 1); setFabMenuOpen(false); }}
                 style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 26px 0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.18)', whiteSpace: 'nowrap' as const }}
               >
                 <span style={{ fontSize: 18 }}>💄</span> 메이크업 등록
@@ -3536,11 +3541,7 @@ function LogPageInner() {
 
           {/* FAB 본체 */}
           <button
-            onClick={() => {
-              if (archiveFilter === 'makeup') { setQuickLibSelected([]); setQuickLibType('makeup'); }
-              else if (archiveFilter === 'lookbook') { setQuickLibSelected([]); setQuickLibType('lookbook'); }
-              else setFabMenuOpen(o => !o);
-            }}
+            onClick={() => setFabMenuOpen(o => !o)}
             style={{
               position: 'fixed', bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)', right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 40,
               width: 52, height: 52, borderRadius: 9999,
@@ -3559,65 +3560,39 @@ function LogPageInner() {
         </>
       )}
 
-      {/* ── 라이브러리 빠른 등록 시트 ── */}
-      {quickLibType && (() => {
+      {/* ── 수집 → 라이브러리 등록 시트 ── */}
+      {refToLib && (() => {
         const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-        const isMakeup = quickLibType === 'makeup';
-        const domainProds = Array.from(products.values()).filter(p =>
-          isMakeup ? (p.domain === 'beauty' && p.subCategory === 'makeup') : (p.domain === 'fashion' || p.domain === 'acc')
-        );
         return (
           <>
-            <div onClick={() => setQuickLibType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
-              {/* 핸들 + 헤더 */}
-              <div style={{ padding: '12px 20px 0', flexShrink: 0 }}>
-                <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 14px' }} />
-                <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 4 }}>
-                  {isMakeup ? '💄 메이크업 등록' : '👗 룩북 등록'}
-                </div>
-                <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginBottom: 14 }}>BOX에서 제품을 선택하세요</div>
+            <div onClick={() => setRefToLib(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 24px)' }}>
+              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 16px' }} />
+              <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 4 }}>라이브러리에 등록</div>
+              <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginBottom: 16 }}>{refToLib.title || refToLib.url}</div>
+
+              {/* 썸네일 */}
+              {refToLib.imageUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={refToLib.imageUrl} alt="" style={{ width: '100%', maxHeight: 160, objectFit: 'cover', borderRadius: 10, marginBottom: 16 }} />
+              )}
+
+              {/* 타입 선택 */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 8 }}>타입 선택</div>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                {(['makeup', 'lookbook'] as const).map(t => (
+                  <button key={t} onClick={() => setRefToLibType(t)}
+                    style={{ flex: 1, height: 44, borderRadius: 10, border: `1.5px solid ${refToLibType === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: refToLibType === t ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 13, fontWeight: 700, color: refToLibType === t ? '#C5FF00' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
+                    {t === 'makeup' ? '💄 메이크업' : '👗 룩북'}
+                  </button>
+                ))}
               </div>
 
-              {/* 제품 목록 */}
-              <div style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'none' as const }}>
-                {domainProds.length === 0 ? (
-                  <div style={{ padding: '40px 26px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>
-                    {isMakeup ? 'BOX에 메이크업 제품이 없어요' : 'BOX에 패션·악세서리 제품이 없어요'}
-                  </div>
-                ) : domainProds.map(p => {
-                  const sel = quickLibSelected.includes(p.id);
-                  const imgSrc = p.imageUrl || p.storageUrl;
-                  return (
-                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 20px', borderBottom: '1px solid rgba(12,12,10,.06)' }}>
-                      <div style={{ width: 40, height: 40, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 18 }}>{isMakeup ? '💄' : '👗'}</span>}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                        {p.brand && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>{p.brand}</div>}
-                      </div>
-                      {/* TODAY ON/OFF 스타일 토글 */}
-                      <button
-                        onClick={() => setQuickLibSelected(prev => sel ? prev.filter(id => id !== p.id) : [...prev, p.id])}
-                        style={{ height: 32, padding: '0 14px', background: sel ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: sel ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const }}
-                      >
-                        {sel ? 'ON ✓' : 'OFF'}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* 저장 버튼 */}
-              <div style={{ padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 16px)', borderTop: '1px solid rgba(12,12,10,.08)', flexShrink: 0 }}>
-                <button
-                  onClick={saveQuickLib}
-                  disabled={quickLibSaving}
-                  style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer', opacity: quickLibSaving ? 0.6 : 1 }}
-                >
-                  {quickLibSaving ? '저장 중...' : `저장 (${quickLibSelected.length}개 선택)`}
+              {/* 버튼 */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={() => setRefToLib(null)} style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>취소</button>
+                <button onClick={saveRefToLibrary} disabled={refToLibSaving} style={{ flex: 2, height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: refToLibSaving ? 0.6 : 1 }}>
+                  {refToLibSaving ? '등록 중...' : '라이브러리 등록'}
                 </button>
               </div>
             </div>
