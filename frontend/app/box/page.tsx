@@ -2997,13 +2997,19 @@ function AddProductPage({
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 0 96px', display: 'flex', flexDirection: 'column' }}>
 
         {/* ── 제품 이미지 ── */}
-        <ImagePicker
-          preview={displayImg}
-          onChange={(file, base64) => setForm(f => ({ ...f, imageFile: file, imagePreview: base64 }))}
-          height={220}
-          placeholderLabel="ADD PRODUCT IMAGE"
-          isOpen={isOpen}
-        />
+        <div style={{ padding: '16px 20px 0' }}>
+          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, display: 'block' }}>
+            PRODUCT IMAGE
+          </span>
+          <ImagePicker
+            preview={displayImg}
+            onChange={(file, base64) => setForm(f => ({ ...f, imageFile: file, imagePreview: base64 }))}
+            onClear={() => setForm(f => ({ ...f, imageFile: null, imagePreview: '', imageUrl: '' }))}
+            aspectRatio="4/3"
+            placeholderLabel="ADD PRODUCT IMAGE"
+            isOpen={isOpen}
+          />
+        </div>
 
         {/* ── 폼 콘텐츠 ── */}
         <div style={{ padding: '24px 26px', display: 'flex', flexDirection: 'column', gap: 32 }}>
