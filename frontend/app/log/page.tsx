@@ -3519,21 +3519,8 @@ function LogPageInner() {
               {/* 헤더 */}
               <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>수집 편집</div>
 
-              {/* 이미지 */}
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>이미지</div>
-                <ImagePicker
-                  preview={refEditImagePreview}
-                  onChange={(file, base64) => { setRefEditImageFile(file); setRefEditImagePreview(base64); }}
-                  onClear={() => { setRefEditImageFile(null); setRefEditImagePreview(''); }}
-                  height={230}
-                  placeholderLabel="이미지 추가"
-                  isOpen={!!editingRef}
-                />
-              </div>
-
               {/* 제목 */}
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 14 }}>
                 <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>제목</div>
                 <input
                   type="text"
@@ -3544,16 +3531,8 @@ function LogPageInner() {
                 />
               </div>
 
-              {/* URL (읽기 전용) */}
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>링크</div>
-                <div style={{ padding: '10px 14px', background: '#F0EEE8', borderRadius: 10, fontFamily: f, fontSize: 12, color: '#9A9490', wordBreak: 'break-all' as const, lineHeight: 1.5 }}>
-                  {editingRef.url}
-                </div>
-              </div>
-
               {/* 태그 */}
-              <div style={{ marginBottom: 24 }}>
+              <div style={{ marginBottom: 16 }}>
                 <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>태그</div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
                   {REF_TAGS.map(tag => {
@@ -3563,7 +3542,7 @@ function LogPageInner() {
                         key={tag}
                         type="button"
                         onClick={() => setRefEditTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
-                        style={{ height: 32, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: active ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: active ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}
+                        style={{ height: 32, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${active ? '#4A7700' : 'rgba(12,12,10,.14)'}`, background: active ? 'rgba(197,255,0,.18)' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: active ? '#3A6000' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}
                       >
                         {tag}
                       </button>
@@ -3571,6 +3550,29 @@ function LogPageInner() {
                   })}
                 </div>
               </div>
+
+              {/* 이미지 */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>이미지</div>
+                <ImagePicker
+                  preview={refEditImagePreview}
+                  onChange={(file, base64) => { setRefEditImageFile(file); setRefEditImagePreview(base64); }}
+                  onClear={() => { setRefEditImageFile(null); setRefEditImagePreview(''); }}
+                  height={180}
+                  placeholderLabel="이미지 추가"
+                  isOpen={!!editingRef}
+                />
+              </div>
+
+              {/* URL (읽기 전용) */}
+              {editingRef.url && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>링크</div>
+                  <div style={{ padding: '10px 14px', background: '#F0EEE8', borderRadius: 10, fontFamily: f, fontSize: 12, color: '#9A9490', wordBreak: 'break-all' as const, lineHeight: 1.5 }}>
+                    {editingRef.url}
+                  </div>
+                </div>
+              )}
 
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 10 }}>
