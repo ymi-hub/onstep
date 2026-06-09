@@ -3760,12 +3760,12 @@ function AddProductPage({
 
                 {/* 펼쳐지는 편집 패널 */}
                 {locPanelOpen && (
-                  <div style={{ marginTop: 8, border: '1.5px solid rgba(12,12,10,.1)', borderRadius: 12, overflow: 'hidden', background: '#FAFAF8' }}>
+                  <div style={{ marginTop: 6, border: '1.5px solid rgba(12,12,10,.1)', borderRadius: 12, background: '#FAFAF8' }}>
 
                     {/* 위치 목록 */}
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', padding: '10px 10px 2px' }}>
                       {locs.length === 0 && (
-                        <div style={{ padding: '14px 14px', fontFamily: f2, fontSize: 12, color: '#BCBAB6', textAlign: 'center' }}>등록된 위치가 없습니다</div>
+                        <div style={{ padding: '10px 0 12px', fontFamily: f2, fontSize: 12, color: '#BCBAB6', textAlign: 'center' }}>등록된 위치가 없습니다</div>
                       )}
                       {locs.map((loc, idx) => (
                         <div
@@ -3775,46 +3775,46 @@ function AddProductPage({
                           onDragOver={e => { e.preventDefault(); setDragLocOverIdx(idx); }}
                           onDrop={e => { e.preventDefault(); if (dragLocIdx != null) moveLoc(dragLocIdx, idx); setDragLocIdx(null); setDragLocOverIdx(null); }}
                           onDragEnd={() => { setDragLocIdx(null); setDragLocOverIdx(null); }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8, opacity: dragLocIdx === idx ? 0.4 : 1, outline: dragLocOverIdx === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 4 }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, opacity: dragLocIdx === idx ? 0.4 : 1, outline: dragLocOverIdx === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 4 }}
                         >
                           {/* 좌측 빨간 삭제 버튼 */}
-                          <button type="button" onClick={() => removeLocation(idx)} style={{ width: 22, height: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, lineHeight: 1 }} aria-label="삭제">-</button>
+                          <button type="button" onClick={() => removeLocation(idx)} style={{ width: 20, height: 20, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, cursor: 'pointer', flexShrink: 0, lineHeight: 1 }} aria-label="삭제">-</button>
 
                           {/* 중앙 흰색 카드 */}
-                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#fff', borderRadius: 16, border: form.boxLocation === loc ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', minWidth: 0 }}>
+                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: '#fff', borderRadius: 12, border: form.boxLocation === loc ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', minWidth: 0 }}>
                             {/* 번호 배지 */}
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#EEEDE9', color: '#9A9490', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>{idx + 1}</div>
+                            <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#EEEDE9', color: '#9A9490', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{idx + 1}</div>
 
                             {editLocIdx === idx ? (
-                              <input autoFocus value={editLocName} onChange={e => setEditLocName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveEditLoc(idx); if (e.key === 'Escape') { setEditLocIdx(null); setEditLocName(''); } }} onBlur={() => saveEditLoc(idx)} style={{ flex: 1, fontFamily: f2, fontSize: 14, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', background: 'transparent', padding: '2px 0' }} />
+                              <input autoFocus value={editLocName} onChange={e => setEditLocName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveEditLoc(idx); if (e.key === 'Escape') { setEditLocIdx(null); setEditLocName(''); } }} onBlur={() => saveEditLoc(idx)} style={{ flex: 1, fontFamily: f2, fontSize: 13, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', background: 'transparent', padding: '2px 0' }} />
                             ) : (
                               <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                                <button type="button" onClick={() => setForm(f => ({ ...f, boxLocation: f.boxLocation === loc ? '' : loc }))} style={{ flex: 1, background: 'none', border: 'none', padding: 0, textAlign: 'left', fontFamily: f2, fontSize: 14, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {form.boxLocation === loc && <svg style={{ marginRight: 6, verticalAlign: 'middle', flexShrink: 0 }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                                <button type="button" onClick={() => setForm(f => ({ ...f, boxLocation: f.boxLocation === loc ? '' : loc }))} style={{ flex: 1, background: 'none', border: 'none', padding: 0, textAlign: 'left', fontFamily: f2, fontSize: 13, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {form.boxLocation === loc && <svg style={{ marginRight: 5, verticalAlign: 'middle', flexShrink: 0 }} width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                                   {loc}
                                 </button>
-                                <button type="button" onClick={() => { setEditLocIdx(idx); setEditLocName(loc); setAddingLoc(false); }} title="이름 수정" style={{ width: 22, height: 22, borderRadius: 6, border: '1px solid rgba(12,12,10,.14)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9A9490', flexShrink: 0 }}>
-                                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                <button type="button" onClick={() => { setEditLocIdx(idx); setEditLocName(loc); setAddingLoc(false); }} title="이름 수정" style={{ width: 20, height: 20, borderRadius: 5, border: '1px solid rgba(12,12,10,.14)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9A9490', flexShrink: 0 }}>
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </button>
                               </div>
                             )}
                           </div>
 
                           {/* 우측 ☰ 드래그 핸들 */}
-                          <div style={{ fontSize: 18, color: '#BCBAB6', cursor: 'grab', userSelect: 'none', padding: '4px 8px', flexShrink: 0 }}>☰</div>
+                          <div style={{ fontSize: 16, color: '#BCBAB6', cursor: 'grab', userSelect: 'none', padding: '4px 6px', flexShrink: 0 }}>☰</div>
                         </div>
                       ))}
                     </div>
 
                     {/* 위치 추가 */}
-                    <div style={{ padding: '10px 12px', borderTop: locs.length > 0 ? '1px solid rgba(12,12,10,.07)' : 'none' }}>
+                    <div style={{ padding: '8px 10px 10px', borderTop: locs.length > 0 ? '1px solid rgba(12,12,10,.07)' : 'none' }}>
                       {!addingLoc ? (
-                        <button type="button" onClick={() => { setAddingLoc(true); setEditLocIdx(null); }} style={{ height: 32, padding: '0 12px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.18)', background: 'transparent', fontFamily: f2, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer', letterSpacing: '.04em' }}>+ 위치 추가</button>
+                        <button type="button" onClick={() => { setAddingLoc(true); setEditLocIdx(null); }} style={{ height: 30, padding: '0 12px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.18)', background: 'transparent', fontFamily: f2, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer', letterSpacing: '.04em' }}>+ 위치 추가</button>
                       ) : (
                         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                          <input autoFocus value={newLocName} onChange={e => setNewLocName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addLocation(); if (e.key === 'Escape') { setAddingLoc(false); setNewLocName(''); } }} placeholder="위치 이름 (예: 욕실 선반)" style={{ flex: 1, height: 34, padding: '0 10px', border: '1.5px solid #0C0C0A', borderRadius: 8, fontFamily: f2, fontSize: 12, outline: 'none', background: '#fff', color: '#0C0C0A' }} />
-                          <button type="button" onClick={addLocation} style={{ height: 34, padding: '0 12px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 8, fontFamily: f2, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>추가</button>
-                          <button type="button" onClick={() => { setAddingLoc(false); setNewLocName(''); }} style={{ height: 34, padding: '0 10px', background: 'transparent', border: '1px solid rgba(12,12,10,.2)', borderRadius: 8, fontFamily: f2, fontSize: 11, cursor: 'pointer', color: '#9A9490' }}>취소</button>
+                          <input autoFocus value={newLocName} onChange={e => setNewLocName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addLocation(); if (e.key === 'Escape') { setAddingLoc(false); setNewLocName(''); } }} placeholder="위치 이름 (예: 욕실 선반)" style={{ flex: 1, height: 32, padding: '0 10px', border: '1.5px solid #0C0C0A', borderRadius: 8, fontFamily: f2, fontSize: 12, outline: 'none', background: '#fff', color: '#0C0C0A' }} />
+                          <button type="button" onClick={addLocation} style={{ height: 32, padding: '0 12px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 8, fontFamily: f2, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>추가</button>
+                          <button type="button" onClick={() => { setAddingLoc(false); setNewLocName(''); }} style={{ height: 32, padding: '0 10px', background: 'transparent', border: '1px solid rgba(12,12,10,.2)', borderRadius: 8, fontFamily: f2, fontSize: 11, cursor: 'pointer', color: '#9A9490' }}>취소</button>
                         </div>
                       )}
                     </div>
