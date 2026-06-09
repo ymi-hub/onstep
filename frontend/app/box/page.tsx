@@ -3228,13 +3228,22 @@ function AddProductPage({
             </div>
             <div style={{ borderTop: '1px solid rgba(12,12,10,.1)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <div style={labelStyle}>PRICE</div>
-                <input
-                  value={form.price}
-                  onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                  placeholder="₩"
-                  style={{ ...underlineInputStyle, fontSize: 15 }}
-                />
+                <div style={labelStyle}>가격</div>
+                <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1.5px solid rgba(12,12,10,.18)', paddingBottom: 6, gap: 2 }}>
+                  <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: form.price ? '#0C0C0A' : '#BCBAB6', flexShrink: 0 }}>₩</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={form.price}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^\d]/g, '');
+                      const formatted = raw ? Number(raw).toLocaleString('ko-KR') : '';
+                      setForm((f) => ({ ...f, price: formatted }));
+                    }}
+                    placeholder="0"
+                    style={{ ...underlineInputStyle, fontSize: 15, borderBottom: 'none', paddingBottom: 0, flex: 1, minWidth: 0 }}
+                  />
+                </div>
               </div>
               <div>
                 <div style={labelStyle}>PURCHASE URL</div>

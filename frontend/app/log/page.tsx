@@ -43,6 +43,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { imageFileToBase64 } from '@/lib/imageUtils';
 import type { RoutineItem } from '@/types/routine';
 import type { CtType } from '@/types/ctitem';
@@ -2464,40 +2465,45 @@ function LogPageInner() {
     const finalTags = pendingTag && !refTags.includes(pendingTag)
       ? [...refTags, pendingTag]
       : [...refTags];
+    // 낙관적 UI — 폼 즉시 초기화 (Firestore 응답 기다리지 않음)
+    const snapshotUrl = trimmedUrl;
+    const snapshotTitle = trimmedTitle;
+    const snapshotTags = finalTags;
+    const snapshotImageFile = refImageFile;
+    const snapshotImagePreview = refImagePreview;
+    setRefUrl('');
+    setRefTitle('');
+    setRefTags([]);
+    setRefTagInput('');
+    setRefImageFile(null);
+    setRefImagePreview('');
+
     try {
-      let displayTitle = trimmedTitle;
-      if (!displayTitle && trimmedUrl) {
-        try { displayTitle = new URL(trimmedUrl).hostname; } catch { displayTitle = trimmedUrl; }
+      let displayTitle = snapshotTitle;
+      if (!displayTitle && snapshotUrl) {
+        try { displayTitle = new URL(snapshotUrl).hostname; } catch { displayTitle = snapshotUrl; }
       }
       let imageUrl = '';
-      if (refImageFile && user) {
-        // 사용자가 직접 선택한 파일 → Firebase Storage에 업로드
-        const { ref: storageRef, getStorage, uploadBytes, getDownloadURL } = await import('firebase/storage');
+      if (snapshotImageFile && user) {
         const storage = getStorage();
         const path = `users/${userId}/references/${Date.now()}`;
-        const snap = await uploadBytes(storageRef(storage, path), refImageFile);
+        const snap = await uploadBytes(storageRef(storage, path), snapshotImageFile);
         imageUrl = await getDownloadURL(snap.ref);
-      } else if (refImagePreview && refImagePreview.startsWith('http')) {
-        // OG fetch로 가져온 외부 이미지 URL → 그대로 저장 (Storage 업로드 불필요)
-        imageUrl = refImagePreview;
+      } else if (snapshotImagePreview && snapshotImagePreview.startsWith('http')) {
+        imageUrl = snapshotImagePreview;
       }
       await addDoc(collection(db, 'users', userId, 'references'), {
-        url: trimmedUrl,
-        title: displayTitle || trimmedTitle,
+        url: snapshotUrl,
+        title: displayTitle || snapshotTitle,
         imageUrl,
         description: '',
-        platform: trimmedUrl ? detectPlatform(trimmedUrl) : '',
-        tags: finalTags,
+        platform: snapshotUrl ? detectPlatform(snapshotUrl) : '',
+        tags: snapshotTags,
         createdAt: new Date().toISOString(),
       });
-      setRefUrl('');
-      setRefTitle('');
-      setRefTags([]);
-      setRefTagInput('');
-      setRefImageFile(null);
-      setRefImagePreview('');
     } catch (err) {
       console.error('[OnStep] reference 저장 실패:', err);
+      alert('저장에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setRefSaving(false);
     }
@@ -2537,8 +2543,6 @@ function LogPageInner() {
     try {
       let imageUrl = editingRef.imageUrl || '';
       if (refEditImageFile && user) {
-        const { ref: storageRef } = await import('firebase/storage');
-        const { getStorage, uploadBytes, getDownloadURL } = await import('firebase/storage');
         const storage = getStorage();
         const path = `users/${userId}/references/${editingRef.id}_${Date.now()}`;
         const snap = await uploadBytes(storageRef(storage, path), refEditImageFile);
