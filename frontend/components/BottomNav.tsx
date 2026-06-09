@@ -81,7 +81,6 @@ export default function BottomNav() {
           <Link
             key={item.id}
             href={item.href}
-            prefetch={true}
             aria-current={isActive ? 'page' : undefined}
             style={{
               flex: 1,
