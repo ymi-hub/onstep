@@ -3307,7 +3307,7 @@ function LogPageInner() {
                       value={refTagInput}
                       onChange={e => setRefTagInput(e.target.value)}
                       onKeyDown={e => {
-                        if (e.key === 'Enter' && refTagInput.trim()) {
+                        if (e.key === 'Enter' && !e.nativeEvent.isComposing && refTagInput.trim()) {
                           e.preventDefault();
                           const t = refTagInput.trim();
                           if (!refTags.includes(t)) setRefTags(prev => [...prev, t]);
@@ -3358,8 +3358,8 @@ function LogPageInner() {
                   <button
                     type="button"
                     onClick={saveReference}
-                    disabled={!refUrl.trim() || refSaving}
-                    style={{ flex: 2, height: 48, background: refUrl.trim() ? '#0C0C0A' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: refUrl.trim() ? '#fff' : '#9A9490', cursor: refUrl.trim() ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
+                    disabled={(!refUrl.trim() && !refTitle.trim()) || refSaving}
+                    style={{ flex: 1, height: 48, background: (refUrl.trim() || refTitle.trim()) ? '#0C0C0A' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: (refUrl.trim() || refTitle.trim()) ? '#fff' : '#9A9490', cursor: (refUrl.trim() || refTitle.trim()) ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
                   >
                     {refSaving ? '저장 중...' : '수집에 저장'}
                   </button>
@@ -3744,7 +3744,7 @@ function LogPageInner() {
                     value={refEditTagInput}
                     onChange={e => setRefEditTagInput(e.target.value)}
                     onKeyDown={e => {
-                      if (e.key === 'Enter' && refEditTagInput.trim()) {
+                      if (e.key === 'Enter' && !e.nativeEvent.isComposing && refEditTagInput.trim()) {
                         e.preventDefault();
                         const t = refEditTagInput.trim();
                         if (!refEditTags.includes(t)) setRefEditTags(prev => [...prev, t]);
