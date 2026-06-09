@@ -3192,6 +3192,23 @@ function LogPageInner() {
             instagram: 'Instagram', youtube: 'YouTube', pinterest: 'Pinterest', other: 'Link',
           };
 
+          // 아이콘 버튼용 툴팁 래퍼
+          const Tip = ({ label, children }: { label: string; children: React.ReactNode }) => {
+            const [show, setShow] = useState(false);
+            return (
+              <div style={{ position: 'relative', flexShrink: 0, display: 'flex' }}
+                onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+                {show && (
+                  <div style={{ position: 'absolute', bottom: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)', background: '#0C0C0A', color: '#fff', fontFamily: f, fontSize: 10, fontWeight: 700, padding: '4px 9px', borderRadius: 6, whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 99, letterSpacing: '.02em' }}>
+                    {label}
+                    <div style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '5px solid #0C0C0A' }} />
+                  </div>
+                )}
+                {children}
+              </div>
+            );
+          };
+
           // 카드 렌더러 — 3가지 정렬 모드에서 공통 사용
           const renderRef = (ref: Reference) => {
             const platform = ref.platform ?? 'other';
@@ -3257,40 +3274,45 @@ function LogPageInner() {
                   </button>
 
                   {/* 링크 공유 버튼 — 링크 있으면 활성, 없으면 비활성 */}
-                  {ref.url ? (
-                    <a href={ref.url} target="_blank" rel="noopener noreferrer" aria-label="링크 열기"
-                      style={{ width: 32, height: 28, borderRadius: 8, background: '#EDFAD0', border: '1px solid rgba(74,119,0,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', flexShrink: 0 }}>
-                      {/* 공유 아이콘 (↑ from box) */}
-                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                        <path d="M8 10V3M5 6l3-3 3 3" stroke="#3A6000" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M3 11v2h10v-2" stroke="#3A6000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </a>
-                  ) : (
-                    <span aria-label="링크 없음"
-                      style={{ width: 32, height: 28, borderRadius: 8, background: 'rgba(12,12,10,.04)', border: '1px solid rgba(12,12,10,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'not-allowed' }}>
-                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.25 }}>
-                        <path d="M8 10V3M5 6l3-3 3 3" stroke="#0C0C0A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M3 11v2h10v-2" stroke="#0C0C0A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </span>
-                  )}
+                  <Tip label={ref.url ? '링크 열기' : '링크 없음'}>
+                    {ref.url ? (
+                      <a href={ref.url} target="_blank" rel="noopener noreferrer" aria-label="링크 열기"
+                        style={{ width: 32, height: 28, borderRadius: 8, background: '#EDFAD0', border: '1px solid rgba(74,119,0,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                          <path d="M8 10V3M5 6l3-3 3 3" stroke="#3A6000" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M3 11v2h10v-2" stroke="#3A6000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </a>
+                    ) : (
+                      <span aria-label="링크 없음"
+                        style={{ width: 32, height: 28, borderRadius: 8, background: 'rgba(12,12,10,.04)', border: '1px solid rgba(12,12,10,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'not-allowed' }}>
+                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.25 }}>
+                          <path d="M8 10V3M5 6l3-3 3 3" stroke="#0C0C0A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M3 11v2h10v-2" stroke="#0C0C0A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </span>
+                    )}
+                  </Tip>
 
                   {/* 편집 */}
-                  <button type="button" onClick={() => openRefEdit(ref)} aria-label="편집"
-                    style={{ width: 32, height: 28, borderRadius: 8, background: '#F5F4F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                      <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
+                  <Tip label="편집">
+                    <button type="button" onClick={() => openRefEdit(ref)} aria-label="편집"
+                      style={{ width: 32, height: 28, borderRadius: 8, background: '#F5F4F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                        <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                  </Tip>
 
                   {/* 삭제 */}
-                  <button type="button" onClick={() => deleteReference(ref.id)} aria-label="삭제"
-                    style={{ width: 32, height: 28, borderRadius: 8, background: 'rgba(233,79,107,.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
-                      <path d="M3 3l10 10M13 3L3 13" stroke="#E94F6B" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
-                  </button>
+                  <Tip label="삭제">
+                    <button type="button" onClick={() => deleteReference(ref.id)} aria-label="삭제"
+                      style={{ width: 32, height: 28, borderRadius: 8, background: 'rgba(233,79,107,.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+                        <path d="M3 3l10 10M13 3L3 13" stroke="#E94F6B" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    </button>
+                  </Tip>
                 </div>
               </div>
             );
