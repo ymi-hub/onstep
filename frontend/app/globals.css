@@ -38,11 +38,12 @@
 
 /* ── 페이지 진입 애니메이션 ── */
 @keyframes pageIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 .page-enter {
-  animation: pageIn 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* transform 없이 opacity만 — transform 쓰면 position:fixed 자식의 containing block이 깨짐 */
+  animation: pageIn 0.2s ease-out;
 }
 @media (prefers-reduced-motion: reduce) {
   .page-enter { animation: none; }
