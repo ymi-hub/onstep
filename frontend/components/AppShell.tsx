@@ -23,7 +23,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
       {/* 페이지 콘텐츠 — 스크롤 컨테이너 */}
       <main style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-        {children}
+        {/* key={pathname}으로 페이지 전환마다 fade-in 재생 */}
+        <div key={pathname} className="page-enter">
+          {children}
+        </div>
       </main>
 
       {/* 하단 네비게이션 */}

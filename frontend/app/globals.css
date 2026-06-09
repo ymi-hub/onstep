@@ -36,6 +36,18 @@
   --radius-full: 9999px;
 }
 
+/* ── 페이지 진입 애니메이션 ── */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageIn 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter { animation: none; }
+}
+
 /* ── 대기 타이머 알람 배너 애니메이션 ── */
 @keyframes alarmSlideDown {
   from { transform: translateY(-110%); opacity: 0; }
