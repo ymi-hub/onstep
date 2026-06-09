@@ -2877,6 +2877,8 @@ function AddProductPage({
   const [locPanelOpen, setLocPanelOpen] = useState(false);
   const [editLocIdx, setEditLocIdx] = useState<number | null>(null);
   const [editLocName, setEditLocName] = useState('');
+  const [dragLocIdx, setDragLocIdx] = useState<number | null>(null);
+  const [dragLocOverIdx, setDragLocOverIdx] = useState<number | null>(null);
 
   // 스킨케어 개수 모드 시 목표 사용 기간에 따른 1회 사용량(dosePerUse) 자동 역산 연동
   useEffect(() => {
@@ -3734,6 +3736,13 @@ function AddProductPage({
               setEditLocIdx(null);
               setEditLocName('');
             }
+            async function moveLoc(from: number, to: number) {
+              if (from === to) return;
+              const next = [...locs];
+              const [moved] = next.splice(from, 1);
+              next.splice(to, 0, moved);
+              await onSaveBoxConfig(buildUpdated(next));
+            }
 
             return (
               <div>
@@ -3761,8 +3770,16 @@ function AddProductPage({
                       {locs.map((loc, idx) => (
                         <div
                           key={idx}
-                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderBottom: idx < locs.length - 1 ? '1px solid rgba(12,12,10,.07)' : 'none', background: form.boxLocation === loc ? '#F0F0EB' : 'transparent' }}
+                          draggable
+                          onDragStart={() => setDragLocIdx(idx)}
+                          onDragOver={e => { e.preventDefault(); setDragLocOverIdx(idx); }}
+                          onDrop={e => { e.preventDefault(); if (dragLocIdx != null) moveLoc(dragLocIdx, idx); setDragLocIdx(null); setDragLocOverIdx(null); }}
+                          onDragEnd={() => { setDragLocIdx(null); setDragLocOverIdx(null); }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderBottom: idx < locs.length - 1 ? '1px solid rgba(12,12,10,.07)' : 'none', background: dragLocOverIdx === idx ? '#EAF5D3' : form.boxLocation === loc ? '#F0F0EB' : 'transparent', opacity: dragLocIdx === idx ? 0.4 : 1, transition: 'background .12s', cursor: 'grab' }}
                         >
+                          {/* 드래그 핸들 */}
+                          <span style={{ color: '#C4C2BE', fontSize: 16, lineHeight: 1, userSelect: 'none', flexShrink: 0 }}>⠿</span>
+
                           {editLocIdx === idx ? (
                             <input
                               autoFocus
