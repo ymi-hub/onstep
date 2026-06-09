@@ -3256,15 +3256,24 @@ function LogPageInner() {
                     <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#3A6000' }}>라이브러리</span>
                   </button>
 
-                  {/* 원본 링크 */}
-                  {ref.url && (
-                    <a href={ref.url} target="_blank" rel="noopener noreferrer" aria-label="원본 열기"
-                      style={{ width: 32, height: 28, borderRadius: 8, background: '#F5F4F2', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', flexShrink: 0 }}>
+                  {/* 링크 공유 버튼 — 링크 있으면 활성, 없으면 비활성 */}
+                  {ref.url ? (
+                    <a href={ref.url} target="_blank" rel="noopener noreferrer" aria-label="링크 열기"
+                      style={{ width: 32, height: 28, borderRadius: 8, background: '#EDFAD0', border: '1px solid rgba(74,119,0,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', flexShrink: 0 }}>
+                      {/* 공유 아이콘 (↑ from box) */}
                       <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                        <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round"/>
-                        <path d="M10 2h4v4M14 2L8 8" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M8 10V3M5 6l3-3 3 3" stroke="#3A6000" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 11v2h10v-2" stroke="#3A6000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </a>
+                  ) : (
+                    <span aria-label="링크 없음"
+                      style={{ width: 32, height: 28, borderRadius: 8, background: 'rgba(12,12,10,.04)', border: '1px solid rgba(12,12,10,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'not-allowed' }}>
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.25 }}>
+                        <path d="M8 10V3M5 6l3-3 3 3" stroke="#0C0C0A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 11v2h10v-2" stroke="#0C0C0A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </span>
                   )}
 
                   {/* 편집 */}
