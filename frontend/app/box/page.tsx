@@ -2074,7 +2074,7 @@ export default function BoxPage() {
           acc: 'ACC',
         };
         const domainColors: Record<string, string> = {
-          beauty: '#C5FF00',
+          beauty: '#B05252',
           fashion: '#0C0C0A',
           health: '#B45309',
           acc: '#9A9490',
