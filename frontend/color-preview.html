@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Domain Color Preview</title>
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F4F4F0; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+  .wrap { display: flex; flex-direction: column; gap: 12px; width: 340px; }
+  h2 { font-size: 13px; font-weight: 800; color: #9A9490; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 4px; }
+  .card { background: #fff; border-radius: 16px; padding: 16px 20px; border: 1px solid rgba(0,0,0,.07); display: flex; align-items: center; gap: 14px; }
+  .swatch { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; }
+  .info { display: flex; flex-direction: column; gap: 3px; }
+  .label-badge { font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .domain { font-size: 14px; font-weight: 700; color: #0C0C0A; }
+  .hex { font-size: 11px; color: #9A9490; font-family: monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>도메인 컬러 현황</h2>
+
+  <div class="card">
+    <div class="swatch" style="background:#B05252;"></div>
+    <div class="info">
+      <span class="domain">Beauty</span>
+      <span class="label-badge" style="color:#B05252;">BEAUTY</span>
+      <span class="hex">#B05252 — 뮤트 레드</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="swatch" style="background:#9A9490;"></div>
+    <div class="info">
+      <span class="domain">Fashion</span>
+      <span class="label-badge" style="color:#9A9490;">FASHION</span>
+      <span class="hex">#9A9490 — 뮤트 그레이</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="swatch" style="background:#B45309;"></div>
+    <div class="info">
+      <span class="domain">약·비타민</span>
+      <span class="label-badge" style="color:#B45309;">HEALTH</span>
+      <span class="hex">#B45309 — 앰버 브라운</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="swatch" style="background:#9A9490;"></div>
+    <div class="info">
+      <span class="domain">ACC</span>
+      <span class="label-badge" style="color:#9A9490;">ACC</span>
+      <span class="hex">#9A9490 — 뮤트 그레이</span>
+    </div>
+  </div>
+
+  <h2 style="margin-top:8px;">대안 레드 옵션</h2>
+
+  <div class="card">
+    <div class="swatch" style="background:#B05252;"></div>
+    <div class="info">
+      <span class="label-badge" style="color:#B05252;">BEAUTY</span>
+      <span class="hex">#B05252 — 현재 적용</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="swatch" style="background:#A0453F;"></div>
+    <div class="info">
+      <span class="label-badge" style="color:#A0453F;">BEAUTY</span>
+      <span class="hex">#A0453F — 딥 레드</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="swatch" style="background:#C0625A;"></div>
+    <div class="info">
+      <span class="label-badge" style="color:#C0625A;">BEAUTY</span>
+      <span class="hex">#C0625A — 로즈 레드</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="swatch" style="background:#B06070;"></div>
+    <div class="info">
+      <span class="label-badge" style="color:#B06070;">BEAUTY</span>
+      <span class="hex">#B06070 — 더스티 로즈</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="swatch" style="background:#9C4A52;"></div>
+    <div class="info">
+      <span class="label-badge" style="color:#9C4A52;">BEAUTY</span>
+      <span class="hex">#9C4A52 — 버건디</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
