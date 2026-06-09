@@ -71,8 +71,8 @@ type Reference = {
 };
 
 
-// 수집 탭 태그 목록
-const REF_TAGS = ['메이크업', '스킨케어', '코디', '루틴'] as const;
+// 수집 탭 빠른선택 태그 기본값 (localStorage에 없을 때 사용)
+const DEFAULT_PRESET_TAGS = ['메이크업', '스킨케어', '코디', '루틴'];
 
 // 오늘의 룩 기록
 type OOTDLog = {
@@ -2052,6 +2052,16 @@ function LogPageInner() {
   const [refSaving, setRefSaving] = useState(false);
   const [refFilter, setRefFilter] = useState<string>('all');
   const [refOgLoading, setRefOgLoading] = useState(false);
+  // 빠른선택 태그 — localStorage에서 불러오고, 편집 가능
+  const [presetTags, setPresetTags] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return DEFAULT_PRESET_TAGS;
+    try {
+      const saved = localStorage.getItem('onstep_ref_preset_tags');
+      return saved ? JSON.parse(saved) : DEFAULT_PRESET_TAGS;
+    } catch { return DEFAULT_PRESET_TAGS; }
+  });
+  const [presetEditMode, setPresetEditMode] = useState(false);
+  const [presetNewTag, setPresetNewTag] = useState('');
   // 수집 편집 시트 상태
   const [editingRef, setEditingRef] = useState<Reference | null>(null);
   const [refEditTitle, setRefEditTitle] = useState('');
@@ -2469,6 +2479,18 @@ function LogPageInner() {
   }
 
   // ── 수집 탭 — 레퍼런스 편집 열기 ──
+  // presetTags가 바뀌면 localStorage에 저장
+  useEffect(() => {
+    try { localStorage.setItem('onstep_ref_preset_tags', JSON.stringify(presetTags)); } catch {}
+  }, [presetTags]);
+
+  function savePresetTag() {
+    const t = presetNewTag.trim();
+    if (!t || presetTags.includes(t)) { setPresetNewTag(''); return; }
+    setPresetTags(prev => [...prev, t]);
+    setPresetNewTag('');
+  }
+
   function openRefEdit(ref: Reference) {
     setEditingRef(ref);
     setRefEditTitle(ref.title || '');
@@ -3320,17 +3342,39 @@ function LogPageInner() {
                     />
                   </div>
 
-                  {/* 빠른 선택 — 편집 시트와 동일한 라임 active 스타일 */}
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
-                    {REF_TAGS.map(tag => {
+                  {/* 빠른 선택 */}
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center' }}>
+                    {presetTags.map(tag => {
                       const active = refTags.includes(tag);
                       return (
-                        <button key={tag} type="button" onClick={() => setRefTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
-                          style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${active ? '#4A7700' : 'rgba(12,12,10,.14)'}`, background: active ? 'rgba(197,255,0,.18)' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: active ? '#3A6000' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
-                          {tag}
-                        </button>
+                        <div key={tag} style={{ position: 'relative', display: 'inline-flex' }}>
+                          <button type="button" onClick={() => { if (!presetEditMode) setRefTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag]); }}
+                            style={{ height: 28, padding: presetEditMode ? '0 28px 0 12px' : '0 12px', borderRadius: 9999, border: `1.5px solid ${active && !presetEditMode ? '#4A7700' : 'rgba(12,12,10,.14)'}`, background: active && !presetEditMode ? 'rgba(197,255,0,.18)' : presetEditMode ? 'rgba(12,12,10,.04)' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: active && !presetEditMode ? '#3A6000' : '#9A9490', cursor: presetEditMode ? 'default' : 'pointer', transition: 'all .15s' }}>
+                            {tag}
+                          </button>
+                          {presetEditMode && (
+                            <button type="button" onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
+                              style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+                              <span style={{ fontSize: 8, color: '#C0392B', fontWeight: 900, lineHeight: 1 }}>✕</span>
+                            </button>
+                          )}
+                        </div>
                       );
                     })}
+                    {presetEditMode && (
+                      <input
+                        type="text"
+                        value={presetNewTag}
+                        onChange={e => setPresetNewTag(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) savePresetTag(); }}
+                        placeholder="태그 추가..."
+                        style={{ height: 28, padding: '0 10px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', minWidth: 80 }}
+                      />
+                    )}
+                    <button type="button" onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
+                      style={{ height: 24, padding: '0 8px', borderRadius: 9999, border: '1px solid rgba(12,12,10,.14)', background: 'transparent', fontFamily: f, fontSize: 10, fontWeight: 700, color: presetEditMode ? '#0C0C0A' : '#BCBAB6', cursor: 'pointer', letterSpacing: '.03em' }}>
+                      {presetEditMode ? '완료' : '편집'}
+                    </button>
                   </div>
                 </div>
 
@@ -3758,20 +3802,38 @@ function LogPageInner() {
                 </div>
 
                 {/* 빠른 선택 */}
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
-                  {REF_TAGS.map(tag => {
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center' }}>
+                  {presetTags.map(tag => {
                     const active = refEditTags.includes(tag);
                     return (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => setRefEditTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
-                        style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${active ? '#4A7700' : 'rgba(12,12,10,.14)'}`, background: active ? 'rgba(197,255,0,.18)' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: active ? '#3A6000' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}
-                      >
-                        {tag}
-                      </button>
+                      <div key={tag} style={{ position: 'relative', display: 'inline-flex' }}>
+                        <button type="button" onClick={() => { if (!presetEditMode) setRefEditTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag]); }}
+                          style={{ height: 28, padding: presetEditMode ? '0 28px 0 12px' : '0 12px', borderRadius: 9999, border: `1.5px solid ${active && !presetEditMode ? '#4A7700' : 'rgba(12,12,10,.14)'}`, background: active && !presetEditMode ? 'rgba(197,255,0,.18)' : presetEditMode ? 'rgba(12,12,10,.04)' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: active && !presetEditMode ? '#3A6000' : '#9A9490', cursor: presetEditMode ? 'default' : 'pointer', transition: 'all .15s' }}>
+                          {tag}
+                        </button>
+                        {presetEditMode && (
+                          <button type="button" onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
+                            style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+                            <span style={{ fontSize: 8, color: '#C0392B', fontWeight: 900, lineHeight: 1 }}>✕</span>
+                          </button>
+                        )}
+                      </div>
                     );
                   })}
+                  {presetEditMode && (
+                    <input
+                      type="text"
+                      value={presetNewTag}
+                      onChange={e => setPresetNewTag(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) savePresetTag(); }}
+                      placeholder="태그 추가..."
+                      style={{ height: 28, padding: '0 10px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', minWidth: 80 }}
+                    />
+                  )}
+                  <button type="button" onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
+                    style={{ height: 24, padding: '0 8px', borderRadius: 9999, border: '1px solid rgba(12,12,10,.14)', background: 'transparent', fontFamily: f, fontSize: 10, fontWeight: 700, color: presetEditMode ? '#0C0C0A' : '#BCBAB6', cursor: 'pointer', letterSpacing: '.03em' }}>
+                    {presetEditMode ? '완료' : '편집'}
+                  </button>
                 </div>
               </div>
 
