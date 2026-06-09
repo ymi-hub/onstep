@@ -3453,14 +3453,14 @@ function LogPageInner() {
                   />
                 </div>
 
-                {/* 버튼 — 편집 시트와 동일한 취소/저장 2열 */}
+                {/* 버튼 */}
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button
                     type="button"
                     onClick={() => { setRefUrl(''); setRefTitle(''); setRefTags([]); setRefTagInput(''); setRefImageFile(null); setRefImagePreview(''); }}
                     style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}
                   >
-                    초기화
+                    취소
                   </button>
                   <button
                     type="button"
