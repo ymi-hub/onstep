@@ -3242,75 +3242,63 @@ function LogPageInner() {
           return (
             <div style={{ paddingTop: 16, paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
 
-              {/* 링크 입력 영역 */}
-              <div style={{ margin: '0 26px 16px', background: '#F5F4F2', borderRadius: 16, padding: 16, border: '1px solid rgba(12,12,10,.08)' }}>
-                <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', marginBottom: 10, letterSpacing: '.04em' }}>링크 수집</div>
+              {/* ── 수집 등록 폼 ── 편집 시트와 동일한 레이아웃·스타일 */}
+              <div style={{ margin: '0 26px 16px', background: '#FAFAF8', borderRadius: 16, padding: '16px 16px 20px', border: '1px solid rgba(12,12,10,.08)' }}>
 
-                {/* 이미지 */}
-                <div style={{ marginBottom: 12 }}>
-                  <ImagePicker
-                    preview={refImagePreview}
-                    onChange={(file, base64) => { setRefImageFile(file); setRefImagePreview(base64); }}
-                    onClear={() => { setRefImageFile(null); setRefImagePreview(''); }}
-                    height={160}
-                    placeholderLabel="이미지 추가 (선택)"
-                    isOpen={mainTab === '수집'}
-                  />
-                </div>
+                {/* 헤더 */}
+                <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>새 수집 추가</div>
 
-                {/* 제목 입력 */}
-                <input
-                  type="text"
-                  value={refTitle}
-                  onChange={e => setRefTitle(e.target.value)}
-                  placeholder="제목 입력 (선택 — 비워두면 도메인 표시)"
-                  style={{
-                    width: '100%', boxSizing: 'border-box' as const,
-                    height: 44, padding: '0 14px', marginBottom: 8,
-                    border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10,
-                    background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none',
-                  }}
-                />
-
-                {/* URL 입력 */}
-                <div style={{ position: 'relative', marginBottom: 12 }}>
+                {/* 제목 */}
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>제목</div>
                   <input
-                    type="url"
-                    value={refUrl}
-                    onChange={e => setRefUrl(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && refUrl.trim() && saveReference()}
-                    onBlur={() => { if (refUrl.trim()) fetchOgMeta(refUrl.trim()); }}
-                    onPaste={e => {
-                      const pasted = e.clipboardData.getData('text');
-                      if (pasted.startsWith('http')) setTimeout(() => fetchOgMeta(pasted.trim()), 50);
-                    }}
-                    placeholder="링크 붙여넣기 (필수)"
-                    style={{
-                      width: '100%', boxSizing: 'border-box' as const,
-                      height: 44, padding: '0 14px',
-                      border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10,
-                      background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none',
-                    }}
+                    type="text"
+                    value={refTitle}
+                    onChange={e => setRefTitle(e.target.value)}
+                    placeholder="제목 입력 (비워두면 도메인 표시)"
+                    style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
                   />
-                  {/* OG 로딩 스피너 */}
-                  {refOgLoading && (
-                    <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
-                        <circle cx="12" cy="12" r="10" stroke="#C5FF00" strokeWidth="2.5" strokeDasharray="30" strokeDashoffset="10"/>
-                      </svg>
-                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490' }}>미리보기 중...</span>
-                    </div>
-                  )}
                 </div>
 
-                {/* 태그 입력 + 선택된 태그 */}
-                <div style={{ marginBottom: 12 }}>
-                  <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, padding: '6px 10px', minHeight: 40, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', alignItems: 'center', marginBottom: 6 }}>
+                {/* 링크 */}
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>링크</div>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="url"
+                      value={refUrl}
+                      onChange={e => setRefUrl(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && refUrl.trim() && saveReference()}
+                      onBlur={() => { if (refUrl.trim()) fetchOgMeta(refUrl.trim()); }}
+                      onPaste={e => {
+                        const pasted = e.clipboardData.getData('text');
+                        if (pasted.startsWith('http')) setTimeout(() => fetchOgMeta(pasted.trim()), 50);
+                      }}
+                      placeholder="링크 붙여넣기 (필수)"
+                      style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                    />
+                    {refOgLoading && (
+                      <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
+                          <circle cx="12" cy="12" r="10" stroke="#C5FF00" strokeWidth="2.5" strokeDasharray="30" strokeDashoffset="10"/>
+                        </svg>
+                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490' }}>미리보기 중...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 태그 */}
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>태그</div>
+
+                  {/* 선택된 태그 칩 + 직접 입력창 — 편집 시트와 동일한 라임 스타일 */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, padding: '8px 10px', minHeight: 44, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', alignItems: 'center', marginBottom: 8 }}>
                     {refTags.map(tag => (
-                      <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 3, height: 26, padding: '0 6px 0 10px', borderRadius: 9999, background: '#0C0C0A', flexShrink: 0 }}>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff' }}>{tag}</span>
-                        <button type="button" onClick={() => setRefTags(prev => prev.filter(t => t !== tag))} style={{ width: 16, height: 16, borderRadius: 9999, background: 'rgba(255,255,255,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}>
-                          <span style={{ fontSize: 9, color: '#fff', fontWeight: 900 }}>✕</span>
+                      <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, height: 28, padding: '0 6px 0 10px', borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1.5px solid #4A7700', flexShrink: 0 }}>
+                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000' }}>{tag}</span>
+                        <button type="button" onClick={() => setRefTags(prev => prev.filter(t => t !== tag))} style={{ width: 18, height: 18, borderRadius: 9999, background: 'rgba(58,96,0,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}>
+                          <span style={{ fontSize: 9, color: '#3A6000', lineHeight: 1, fontWeight: 900 }}>✕</span>
                         </button>
                       </div>
                     ))}
@@ -3330,12 +3318,14 @@ function LogPageInner() {
                       style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A' }}
                     />
                   </div>
+
+                  {/* 빠른 선택 — 편집 시트와 동일한 라임 active 스타일 */}
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
                     {REF_TAGS.map(tag => {
                       const active = refTags.includes(tag);
                       return (
-                        <button key={tag} onClick={() => setRefTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
-                          style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: active ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: active ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
+                        <button key={tag} type="button" onClick={() => setRefTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag])}
+                          style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${active ? '#4A7700' : 'rgba(12,12,10,.14)'}`, background: active ? 'rgba(197,255,0,.18)' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: active ? '#3A6000' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
                           {tag}
                         </button>
                       );
@@ -3343,20 +3333,37 @@ function LogPageInner() {
                   </div>
                 </div>
 
-                {/* 저장 버튼 */}
-                <button
-                  onClick={saveReference}
-                  disabled={!refUrl.trim() || refSaving}
-                  style={{
-                    width: '100%', height: 46, background: refUrl.trim() ? '#0C0C0A' : '#E5E4E2',
-                    color: refUrl.trim() ? '#fff' : '#9A9490',
-                    border: 'none', borderRadius: 10, fontFamily: f, fontSize: 14, fontWeight: 800,
-                    cursor: refUrl.trim() ? 'pointer' : 'default',
-                    transition: 'all .15s', opacity: refSaving ? 0.6 : 1,
-                  }}
-                >
-                  {refSaving ? '저장 중...' : '수집에 저장'}
-                </button>
+                {/* 이미지 */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>이미지</div>
+                  <ImagePicker
+                    preview={refImagePreview}
+                    onChange={(file, base64) => { setRefImageFile(file); setRefImagePreview(base64); }}
+                    onClear={() => { setRefImageFile(null); setRefImagePreview(''); }}
+                    height={180}
+                    placeholderLabel="이미지 추가 (선택)"
+                    isOpen={mainTab === '수집'}
+                  />
+                </div>
+
+                {/* 버튼 — 편집 시트와 동일한 취소/저장 2열 */}
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => { setRefUrl(''); setRefTitle(''); setRefTags([]); setRefTagInput(''); setRefImageFile(null); setRefImagePreview(''); }}
+                    style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}
+                  >
+                    초기화
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveReference}
+                    disabled={!refUrl.trim() || refSaving}
+                    style={{ flex: 2, height: 48, background: refUrl.trim() ? '#0C0C0A' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: refUrl.trim() ? '#fff' : '#9A9490', cursor: refUrl.trim() ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
+                  >
+                    {refSaving ? '저장 중...' : '수집에 저장'}
+                  </button>
+                </div>
               </div>
 
               {/* 정렬 드롭다운 */}
