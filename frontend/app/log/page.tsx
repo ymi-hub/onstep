@@ -3429,8 +3429,8 @@ function LogPageInner() {
                       />
                     )}
                     <button type="button" onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
-                      style={{ height: 24, padding: '0 8px', borderRadius: 9999, border: '1px solid rgba(12,12,10,.14)', background: 'transparent', fontFamily: f, fontSize: 10, fontWeight: 700, color: presetEditMode ? '#0C0C0A' : '#BCBAB6', cursor: 'pointer', letterSpacing: '.03em' }}>
-                      {presetEditMode ? '완료' : '편집'}
+                      style={{ height: 26, padding: '0 11px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
+                      {presetEditMode ? '완료' : '태그 편집'}
                     </button>
                   </div>
                 </div>
@@ -3888,8 +3888,8 @@ function LogPageInner() {
                     />
                   )}
                   <button type="button" onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
-                    style={{ height: 24, padding: '0 8px', borderRadius: 9999, border: '1px solid rgba(12,12,10,.14)', background: 'transparent', fontFamily: f, fontSize: 10, fontWeight: 700, color: presetEditMode ? '#0C0C0A' : '#BCBAB6', cursor: 'pointer', letterSpacing: '.03em' }}>
-                    {presetEditMode ? '완료' : '편집'}
+                    style={{ height: 26, padding: '0 11px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
+                    {presetEditMode ? '완료' : '태그 편집'}
                   </button>
                 </div>
               </div>
