@@ -2074,10 +2074,10 @@ export default function BoxPage() {
           acc: 'ACC',
         };
         const domainColors: Record<string, string> = {
-          beauty: '#B05252',
-          fashion: '#0C0C0A',
-          health: '#B45309',
-          acc: '#9A9490',
+          beauty:  '#e90101',
+          fashion: '#0166e9',
+          health:  '#1eac02',
+          acc:     '#f7189a',
         };
 
         return (
@@ -2168,7 +2168,7 @@ export default function BoxPage() {
                             {item.name}
                           </span>
                           {activeTab === 'all' && !isUnassigned && (
-                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: domainColors[item.domain] === '#0C0C0A' ? '#9A9490' : domainColors[item.domain], letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: domainColors[item.domain], letterSpacing: '.06em', textTransform: 'uppercase' }}>
                               {domainLabels[item.domain]}
                             </span>
                           )}
