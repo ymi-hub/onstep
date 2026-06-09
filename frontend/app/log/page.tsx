@@ -1921,7 +1921,7 @@ function LogCtPanel({
 
 // ─── 빈 상태 ─────────────────────────────────────────────────────────────────
 
-function EmptyState({ isLoading }: { isLoading: boolean }) {
+function EmptyState({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn: boolean }) {
   if (isLoading) {
     return (
       <div
@@ -1938,6 +1938,26 @@ function EmptyState({ isLoading }: { isLoading: boolean }) {
         }}
       >
         기록 불러오는 중...
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div
+        style={{
+          margin: '0 26px',
+          padding: '40px 26px',
+          textAlign: 'center',
+          border: '1.5px dashed rgba(12,12,10,.14)',
+          borderRadius: 20,
+          background: '#F4F4F0',
+          fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+        }}
+      >
+        <div style={{ fontSize: 28, marginBottom: 12 }}>🔐</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#0C0C0A', marginBottom: 6 }}>로그인이 필요해요</div>
+        <div style={{ fontSize: 12, color: '#9A9490' }}>Google 로그인 후 루틴 기록을 확인할 수 있어요</div>
       </div>
     );
   }
@@ -2251,6 +2271,11 @@ function LogPageInner() {
   // ── 데이터 상태 ──
   const [dayLogs, setDayLogs] = useState<Map<string, DayLog>>(new Map());
   const [dataLoading, setDataLoading] = useState(true); // 초기값 true: 첫 렌더에 "미완료" 오표시 방지
+
+  // 비로그인 확정 시 로딩 해제 (authLoading 끝났는데 user 없으면 영원히 스피너 방지)
+  useEffect(() => {
+    if (!authLoading && !user) setDataLoading(false);
+  }, [authLoading, user]);
 
   // 월별 med/health/diet 로그 → 날짜별 완료 여부 (캘린더 이모지 표시용)
   const [medDayMap, setMedDayMap] = useState<Map<string, Set<string>>>(new Map());
@@ -2727,7 +2752,7 @@ function LogPageInner() {
               />
             ) : (
               <>
-                {dayLogs.size === 0 && isSameMonth(currentMonth, new Date()) && <EmptyState isLoading={dataLoading || authLoading} />}
+                {dayLogs.size === 0 && isSameMonth(currentMonth, new Date()) && <EmptyState isLoading={dataLoading || authLoading} isLoggedIn={!!user} />}
 
                 {/* 오늘의 루틴 · 룩 · 메이크업 목록 */}
                 {(() => {
@@ -3297,7 +3322,7 @@ function LogPageInner() {
                         const pasted = e.clipboardData.getData('text');
                         if (pasted.startsWith('http')) setTimeout(() => fetchOgMeta(pasted.trim()), 50);
                       }}
-                      placeholder="링크 붙여넣기 (필수)"
+                      placeholder="링크 입력 (선택)"
                       style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
                     />
                     {refOgLoading && (
