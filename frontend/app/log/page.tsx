@@ -3922,7 +3922,7 @@ function LogPageInner() {
                 <button type="button" onClick={() => setEditingRef(null)} style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
                   취소
                 </button>
-                <button type="button" onClick={saveRefEdit} disabled={refEditSaving} style={{ flex: 2, height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: refEditSaving ? .6 : 1 }}>
+                <button type="button" onClick={saveRefEdit} disabled={refEditSaving} style={{ flex: 1, height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: refEditSaving ? .6 : 1 }}>
                   {refEditSaving ? '저장 중...' : '저장'}
                 </button>
               </div>
