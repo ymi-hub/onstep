@@ -48,3 +48,8 @@ secrets/
 
 # Firestore 백업 파일
 backups/
+
+# Node modules (절대 커밋 금지)
+node_modules/
+frontend/.next/
+frontend/out/
