@@ -2421,7 +2421,8 @@ function LogPageInner() {
   // ── 수집 탭 — 레퍼런스 저장 ──
   async function saveReference() {
     const trimmedUrl = refUrl.trim();
-    if (!trimmedUrl || !db || !userId) return;
+    const trimmedTitle = refTitle.trim();
+    if ((!trimmedUrl && !trimmedTitle) || !db || !userId) return;
     setRefSaving(true);
     // 입력창에 남아있는 태그 텍스트를 자동으로 추가
     const pendingTag = refTagInput.trim();
@@ -2429,8 +2430,8 @@ function LogPageInner() {
       ? [...refTags, pendingTag]
       : [...refTags];
     try {
-      let displayTitle = refTitle.trim();
-      if (!displayTitle) {
+      let displayTitle = trimmedTitle;
+      if (!displayTitle && trimmedUrl) {
         try { displayTitle = new URL(trimmedUrl).hostname; } catch { displayTitle = trimmedUrl; }
       }
       let imageUrl = '';
@@ -2447,10 +2448,10 @@ function LogPageInner() {
       }
       await addDoc(collection(db, 'users', userId, 'references'), {
         url: trimmedUrl,
-        title: displayTitle,
+        title: displayTitle || trimmedTitle,
         imageUrl,
         description: '',
-        platform: detectPlatform(trimmedUrl),
+        platform: trimmedUrl ? detectPlatform(trimmedUrl) : '',
         tags: finalTags,
         createdAt: new Date().toISOString(),
       });
