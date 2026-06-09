@@ -4,94 +4,190 @@
 <meta charset="UTF-8">
 <title>Domain Color Preview</title>
 <style>
-  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F4F4F0; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-  .wrap { display: flex; flex-direction: column; gap: 12px; width: 340px; }
-  h2 { font-size: 13px; font-weight: 800; color: #9A9490; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 4px; }
-  .card { background: #fff; border-radius: 16px; padding: 16px 20px; border: 1px solid rgba(0,0,0,.07); display: flex; align-items: center; gap: 14px; }
-  .swatch { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; }
-  .info { display: flex; flex-direction: column; gap: 3px; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif; background: #F4F4F0; display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; margin: 0; padding: 40px 20px; }
+  .wrap { display: flex; flex-direction: column; gap: 10px; width: 360px; }
+  h2 { font-size: 11px; font-weight: 800; color: #9A9490; letter-spacing: .08em; text-transform: uppercase; margin: 16px 0 4px; }
+  h2:first-child { margin-top: 0; }
+
+  /* 도메인 카드 */
+  .card { background: #fff; border-radius: 14px; padding: 14px 16px; border: 1px solid rgba(0,0,0,.07); display: flex; align-items: center; gap: 14px; }
+  .swatch-wrap { position: relative; width: 40px; height: 40px; flex-shrink: 0; cursor: pointer; }
+  .swatch-wrap input[type=color] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+  .swatch { width: 40px; height: 40px; border-radius: 11px; pointer-events: none; transition: transform .15s; }
+  .swatch-wrap:hover .swatch { transform: scale(1.08); }
+  .edit-hint { position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; background: #0C0C0A; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; pointer-events: none; }
+  .info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .domain-name { font-size: 14px; font-weight: 700; color: #0C0C0A; }
   .label-badge { font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-  .domain { font-size: 14px; font-weight: 700; color: #0C0C0A; }
-  .hex { font-size: 11px; color: #9A9490; font-family: monospace; }
+  .hex-row { display: flex; align-items: center; gap: 6px; }
+  .hex-val { font-size: 11px; color: #9A9490; font-family: monospace; }
+  .copy-btn { font-size: 9px; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,0,0,.12); background: transparent; cursor: pointer; color: #9A9490; font-family: monospace; }
+  .copy-btn:hover { background: #EEEDE9; }
+
+  /* 프리뷰 배지 (실제 UI처럼) */
+  .preview-box { background: #fff; border-radius: 16px; padding: 14px 16px; border: 1px solid rgba(0,0,0,.07); }
+  .preview-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .preview-row:last-child { margin-bottom: 0; }
+  .preview-loc { font-size: 14px; font-weight: 700; color: #0C0C0A; }
+  .preview-badge { font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .preview-count { font-size: 11px; font-weight: 800; color: #0C0C0A; background: #EEEDE9; padding: 2px 8px; border-radius: 9999px; margin-left: auto; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h2>도메인 컬러 현황</h2>
+  <h2>도메인 컬러 — 클릭해서 변경</h2>
 
-  <div class="card">
-    <div class="swatch" style="background:#B05252;"></div>
-    <div class="info">
-      <span class="domain">Beauty</span>
-      <span class="label-badge" style="color:#B05252;">BEAUTY</span>
-      <span class="hex">#B05252 — 뮤트 레드</span>
+  <!-- Beauty -->
+  <div class="card" id="card-beauty">
+    <div class="swatch-wrap">
+      <div class="swatch" id="sw-beauty" style="background:#B05252;"></div>
+      <div class="edit-hint">✎</div>
+      <input type="color" id="cp-beauty" value="#B05252" oninput="updateColor('beauty', this.value)">
     </div>
-  </div>
-
-  <div class="card">
-    <div class="swatch" style="background:#9A9490;"></div>
     <div class="info">
-      <span class="domain">Fashion</span>
-      <span class="label-badge" style="color:#9A9490;">FASHION</span>
-      <span class="hex">#9A9490 — 뮤트 그레이</span>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="swatch" style="background:#B45309;"></div>
-    <div class="info">
-      <span class="domain">약·비타민</span>
-      <span class="label-badge" style="color:#B45309;">HEALTH</span>
-      <span class="hex">#B45309 — 앰버 브라운</span>
+      <span class="domain-name">Beauty</span>
+      <span class="label-badge" id="badge-beauty" style="color:#B05252;">BEAUTY</span>
+      <div class="hex-row">
+        <span class="hex-val" id="hex-beauty">#B05252</span>
+        <button class="copy-btn" onclick="copyHex('beauty')">복사</button>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="swatch" style="background:#9A9490;"></div>
+  <!-- Fashion -->
+  <div class="card" id="card-fashion">
+    <div class="swatch-wrap">
+      <div class="swatch" id="sw-fashion" style="background:#9A9490;"></div>
+      <div class="edit-hint">✎</div>
+      <input type="color" id="cp-fashion" value="#9A9490" oninput="updateColor('fashion', this.value)">
+    </div>
     <div class="info">
-      <span class="domain">ACC</span>
-      <span class="label-badge" style="color:#9A9490;">ACC</span>
-      <span class="hex">#9A9490 — 뮤트 그레이</span>
+      <span class="domain-name">Fashion</span>
+      <span class="label-badge" id="badge-fashion" style="color:#9A9490;">FASHION</span>
+      <div class="hex-row">
+        <span class="hex-val" id="hex-fashion">#9A9490</span>
+        <button class="copy-btn" onclick="copyHex('fashion')">복사</button>
+      </div>
     </div>
   </div>
 
-  <h2 style="margin-top:8px;">대안 레드 옵션</h2>
+  <!-- Health -->
+  <div class="card">
+    <div class="swatch-wrap">
+      <div class="swatch" id="sw-health" style="background:#B45309;"></div>
+      <div class="edit-hint">✎</div>
+      <input type="color" id="cp-health" value="#B45309" oninput="updateColor('health', this.value)">
+    </div>
+    <div class="info">
+      <span class="domain-name">약·비타민</span>
+      <span class="label-badge" id="badge-health" style="color:#B45309;">HEALTH</span>
+      <div class="hex-row">
+        <span class="hex-val" id="hex-health">#B45309</span>
+        <button class="copy-btn" onclick="copyHex('health')">복사</button>
+      </div>
+    </div>
+  </div>
 
+  <!-- ACC -->
   <div class="card">
-    <div class="swatch" style="background:#B05252;"></div>
+    <div class="swatch-wrap">
+      <div class="swatch" id="sw-acc" style="background:#9A9490;"></div>
+      <div class="edit-hint">✎</div>
+      <input type="color" id="cp-acc" value="#9A9490" oninput="updateColor('acc', this.value)">
+    </div>
     <div class="info">
-      <span class="label-badge" style="color:#B05252;">BEAUTY</span>
-      <span class="hex">#B05252 — 현재 적용</span>
+      <span class="domain-name">ACC</span>
+      <span class="label-badge" id="badge-acc" style="color:#9A9490;">ACC</span>
+      <div class="hex-row">
+        <span class="hex-val" id="hex-acc">#9A9490</span>
+        <button class="copy-btn" onclick="copyHex('acc')">복사</button>
+      </div>
     </div>
   </div>
-  <div class="card">
-    <div class="swatch" style="background:#A0453F;"></div>
-    <div class="info">
-      <span class="label-badge" style="color:#A0453F;">BEAUTY</span>
-      <span class="hex">#A0453F — 딥 레드</span>
+
+  <!-- 실제 UI 미리보기 -->
+  <h2>실제 UI 미리보기</h2>
+  <div class="preview-box">
+    <div class="preview-row">
+      <div>
+        <div class="preview-loc">안방 화장대</div>
+        <div class="preview-badge" id="pv-beauty" style="color:#B05252;">BEAUTY</div>
+      </div>
+      <div class="preview-count">3개</div>
+    </div>
+    <div style="height:1px; background:rgba(0,0,0,.06); margin: 8px 0;"></div>
+    <div class="preview-row">
+      <div>
+        <div class="preview-loc">드레스룸 A</div>
+        <div class="preview-badge" id="pv-fashion" style="color:#9A9490;">FASHION</div>
+      </div>
+      <div class="preview-count">5개</div>
+    </div>
+    <div style="height:1px; background:rgba(0,0,0,.06); margin: 8px 0;"></div>
+    <div class="preview-row">
+      <div>
+        <div class="preview-loc">약장</div>
+        <div class="preview-badge" id="pv-health" style="color:#B45309;">HEALTH</div>
+      </div>
+      <div class="preview-count">2개</div>
+    </div>
+    <div style="height:1px; background:rgba(0,0,0,.06); margin: 8px 0;"></div>
+    <div class="preview-row">
+      <div>
+        <div class="preview-loc">액세서리 박스</div>
+        <div class="preview-badge" id="pv-acc" style="color:#9A9490;">ACC</div>
+      </div>
+      <div class="preview-count">8개</div>
     </div>
   </div>
-  <div class="card">
-    <div class="swatch" style="background:#C0625A;"></div>
-    <div class="info">
-      <span class="label-badge" style="color:#C0625A;">BEAUTY</span>
-      <span class="hex">#C0625A — 로즈 레드</span>
-    </div>
-  </div>
-  <div class="card">
-    <div class="swatch" style="background:#B06070;"></div>
-    <div class="info">
-      <span class="label-badge" style="color:#B06070;">BEAUTY</span>
-      <span class="hex">#B06070 — 더스티 로즈</span>
-    </div>
-  </div>
-  <div class="card">
-    <div class="swatch" style="background:#9C4A52;"></div>
-    <div class="info">
-      <span class="label-badge" style="color:#9C4A52;">BEAUTY</span>
-      <span class="hex">#9C4A52 — 버건디</span>
-    </div>
+
+  <!-- 현재 코드 출력 -->
+  <h2>현재 선택된 코드</h2>
+  <div style="background:#0C0C0A; border-radius: 12px; padding: 14px 16px;">
+    <pre id="code-output" style="margin:0; font-size:11px; color:#C5FF00; font-family:monospace; line-height:1.7; white-space:pre-wrap;"></pre>
   </div>
 </div>
+
+<script>
+  const colors = {
+    beauty: '#B05252',
+    fashion: '#9A9490',
+    health: '#B45309',
+    acc: '#9A9490',
+  };
+
+  function updateColor(domain, hex) {
+    colors[domain] = hex;
+    document.getElementById('sw-' + domain).style.background = hex;
+    document.getElementById('badge-' + domain).style.color = hex;
+    document.getElementById('hex-' + domain).textContent = hex;
+    if (document.getElementById('pv-' + domain)) {
+      document.getElementById('pv-' + domain).style.color = hex;
+    }
+    renderCode();
+  }
+
+  function copyHex(domain) {
+    const hex = colors[domain];
+    navigator.clipboard.writeText(hex).then(() => {
+      const btn = event.target;
+      btn.textContent = '✓';
+      setTimeout(() => btn.textContent = '복사', 1000);
+    });
+  }
+
+  function renderCode() {
+    document.getElementById('code-output').textContent =
+`const domainColors = {
+  beauty:  '${colors.beauty}',
+  fashion: '${colors.fashion}',
+  health:  '${colors.health}',
+  acc:     '${colors.acc}',
+};`;
+  }
+
+  renderCode();
+</script>
 </body>
 </html>
