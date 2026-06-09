@@ -19,6 +19,8 @@ const { onRequest } = require('firebase-functions/v2/https');
 const { defineSecret } = require('firebase-functions/params');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
+// Node.js 18+ 내장 fetch 사용 (firebase-functions v6 기본 지원)
+
 // 💡 defineSecret: Firebase Secret Manager에서 안전하게 API 키를 읽어옴
 //    firebase functions:secrets:set GEMINI_API_KEY 명령으로 등록
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
@@ -125,6 +127,86 @@ ${text}
     } catch (err) {
       console.error('[OnStep Function] Gemini 오류:', err);
       res.status(500).json({ error: 'AI 분석 중 오류가 발생했습니다.' });
+    }
+  }
+);
+
+// ── ogFetch — GET ?url=<encoded-url> → { title, image, description } ──────────
+//
+// 💡 왜 필요한가요?
+//    브라우저에서 외부 URL을 직접 fetch하면 CORS 오류가 발생합니다.
+//    이 Cloud Function이 서버에서 외부 사이트 HTML을 읽고 OG 태그를 파싱합니다.
+//
+// 🔧 배포 후 URL 확인:
+//    Firebase Console → Functions → ogFetch → URL 복사
+//    해당 URL을 frontend/.env.local의 NEXT_PUBLIC_OG_API_URL에 설정
+exports.ogFetch = onRequest(
+  { region: 'us-central1', minInstances: 0 },
+  async (req, res) => {
+    // CORS 헤더
+    const origin = req.headers.origin ?? '';
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      res.set('Access-Control-Allow-Origin', origin);
+    }
+    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') { res.status(204).send(''); return; }
+    if (req.method !== 'GET') { res.status(405).json({ error: 'GET only' }); return; }
+
+    const url = req.query.url;
+    if (!url || typeof url !== 'string') {
+      res.status(400).json({ error: 'url 파라미터가 필요합니다' });
+      return;
+    }
+
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+        },
+        signal: AbortSignal.timeout(6000),
+      });
+
+      if (!response.ok) {
+        res.status(502).json({ error: `사이트 응답 오류 (${response.status})` });
+        return;
+      }
+
+      const html = await response.text();
+
+      // OG 태그 파싱 헬퍼
+      function getMeta(prop) {
+        const pats = [
+          new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]+content=["']([^"'<>]+)["']`, 'i'),
+          new RegExp(`<meta[^>]+content=["']([^"'<>]+)["'][^>]+(?:property|name)=["']${prop}["']`, 'i'),
+        ];
+        for (const p of pats) {
+          const m = html.match(p);
+          if (m && m[1]) return m[1].trim();
+        }
+        return '';
+      }
+
+      const title = getMeta('og:title')
+        || getMeta('twitter:title')
+        || ((html.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1] || '');
+
+      const image = getMeta('og:image')
+        || getMeta('twitter:image:src')
+        || getMeta('twitter:image');
+
+      const description = getMeta('og:description') || getMeta('description');
+
+      res.json({
+        title: title.trim().slice(0, 200),
+        image: image.trim(),
+        description: description.trim().slice(0, 500),
+      });
+    } catch (err) {
+      console.error('[OnStep ogFetch]', err);
+      res.status(500).json({ error: 'OG 정보를 가져오지 못했습니다' });
     }
   }
 );

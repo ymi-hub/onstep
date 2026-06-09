@@ -2051,6 +2051,7 @@ function LogPageInner() {
   const [refImagePreview, setRefImagePreview] = useState('');
   const [refSaving, setRefSaving] = useState(false);
   const [refFilter, setRefFilter] = useState<string>('all');
+  const [refOgLoading, setRefOgLoading] = useState(false);
   // 수집 편집 시트 상태
   const [editingRef, setEditingRef] = useState<Reference | null>(null);
   const [refEditTitle, setRefEditTitle] = useState('');
@@ -2396,7 +2397,28 @@ function LogPageInner() {
     return 'other';
   }
 
-  // ── 수집 탭 — 레퍼런스 저장 (OG fetch 없이 URL + 제목 직접 저장) ──
+  // ── 수집 탭 — OG 메타 자동 채우기 ──
+  // URL을 입력하면 ogFetch Firebase Function이 og:title, og:image를 가져와 자동 입력
+  // 💡 env.local에 NEXT_PUBLIC_OG_API_URL 미설정 시 조용히 건너뜀 (수동 입력 모드)
+  async function fetchOgMeta(url: string) {
+    const base = process.env.NEXT_PUBLIC_OG_API_URL;
+    if (!base || !url.trim()) return;
+    setRefOgLoading(true);
+    try {
+      const res = await fetch(`${base}?url=${encodeURIComponent(url)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      // 이미 사용자가 직접 입력한 값이 있으면 덮어쓰지 않음
+      if (data.title && !refTitle.trim()) setRefTitle(data.title);
+      if (data.image && !refImagePreview) setRefImagePreview(data.image);
+    } catch {
+      // 실패해도 무시 — 수동 입력으로 대체
+    } finally {
+      setRefOgLoading(false);
+    }
+  }
+
+  // ── 수집 탭 — 레퍼런스 저장 ──
   async function saveReference() {
     const trimmedUrl = refUrl.trim();
     if (!trimmedUrl || !db || !userId) return;
@@ -2413,11 +2435,15 @@ function LogPageInner() {
       }
       let imageUrl = '';
       if (refImageFile && user) {
+        // 사용자가 직접 선택한 파일 → Firebase Storage에 업로드
         const { ref: storageRef, getStorage, uploadBytes, getDownloadURL } = await import('firebase/storage');
         const storage = getStorage();
         const path = `users/${userId}/references/${Date.now()}`;
         const snap = await uploadBytes(storageRef(storage, path), refImageFile);
         imageUrl = await getDownloadURL(snap.ref);
+      } else if (refImagePreview && refImagePreview.startsWith('http')) {
+        // OG fetch로 가져온 외부 이미지 URL → 그대로 저장 (Storage 업로드 불필요)
+        imageUrl = refImagePreview;
       }
       await addDoc(collection(db, 'users', userId, 'references'), {
         url: trimmedUrl,
@@ -3110,85 +3136,108 @@ function LogPageInner() {
 
           const visibleRefs = sortedFiltered.slice(0, refVisibleCount);
 
+          // 플랫폼별 색상 + 레이블
+          const PLATFORM_COLOR: Record<string, string> = {
+            instagram: '#C13584', youtube: '#FF0000', pinterest: '#E60023', other: '#9A9490',
+          };
+          const PLATFORM_LABEL: Record<string, string> = {
+            instagram: 'Instagram', youtube: 'YouTube', pinterest: 'Pinterest', other: 'Link',
+          };
+
           // 카드 렌더러 — 3가지 정렬 모드에서 공통 사용
-          const renderRef = (ref: Reference) => (
-            <div
-              key={ref.id}
-              style={{ display: 'flex', gap: 12, background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.08)', overflow: 'hidden', alignItems: 'stretch' }}
-            >
-              <div style={{ width: 80, flexShrink: 0, background: '#F0EEE8', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                {ref.imageUrl
-                  // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={ref.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : <span style={{ fontSize: 28 }}>{PLATFORM_ICON[ref.platform ?? 'other']}</span>
-                }
-              </div>
-              <div style={{ flex: 1, padding: '10px 0 8px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-                {ref.platform && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                    <span style={{ fontSize: 11 }}>{PLATFORM_ICON[ref.platform]}</span>
-                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.04em', textTransform: 'uppercase' as const }}>{ref.platform}</span>
+          const renderRef = (ref: Reference) => {
+            const platform = ref.platform ?? 'other';
+            const pColor = PLATFORM_COLOR[platform];
+            return (
+              <div key={ref.id} style={{ background: '#fff', borderRadius: 16, border: '1px solid rgba(12,12,10,.08)', overflow: 'hidden' }}>
+
+                {/* ── 메인 콘텐츠 영역 ── */}
+                <div style={{ display: 'flex', alignItems: 'stretch' }}>
+
+                  {/* 썸네일 — 이미지 있으면 cover, 없으면 플랫폼 이모지 */}
+                  <div style={{ width: 90, flexShrink: 0, background: '#F0EEE8', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', minHeight: 90 }}>
+                    {ref.imageUrl
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={ref.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <span style={{ fontSize: 34 }}>{PLATFORM_ICON[platform]}</span>
+                    }
                   </div>
-                )}
-                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, marginBottom: 5, paddingRight: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
-                  {ref.title || ref.url || '제목 없음'}
+
+                  {/* 텍스트 영역 */}
+                  <div style={{ flex: 1, padding: '11px 12px 10px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
+
+                    {/* 플랫폼 뱃지 */}
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, alignSelf: 'flex-start', height: 18, padding: '0 7px', borderRadius: 9999, background: `${pColor}18` }}>
+                      <span style={{ fontSize: 9 }}>{PLATFORM_ICON[platform]}</span>
+                      <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: pColor, letterSpacing: '.06em', textTransform: 'uppercase' as const }}>
+                        {PLATFORM_LABEL[platform]}
+                      </span>
+                    </div>
+
+                    {/* 제목 */}
+                    <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                      {ref.title || ref.url || '제목 없음'}
+                    </div>
+
+                    {/* 태그 칩 */}
+                    {(ref.tags ?? []).length > 0 && (
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
+                        {(ref.tags ?? []).map(tag => (
+                          <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#4A7700', background: 'rgba(197,255,0,.22)', padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em' }}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {(ref.tags ?? []).length > 0 && (
-                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
-                    {(ref.tags ?? []).map(tag => (
-                      <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A7700', background: 'rgba(197,255,0,.2)', padding: '1px 7px', borderRadius: 9999 }}>{tag}</span>
-                    ))}
-                  </div>
-                )}
-                {/* 라이브러리 버튼 — 콘텐츠 하단 */}
-                <div style={{ marginTop: 'auto', paddingTop: 8 }}>
+
+                {/* ── 구분선 ── */}
+                <div style={{ height: 1, background: 'rgba(12,12,10,.06)', margin: '0 12px' }} />
+
+                {/* ── 액션 바 ── */}
+                <div style={{ display: 'flex', alignItems: 'center', padding: '7px 10px', gap: 6 }}>
+
+                  {/* 라이브러리 등록 버튼 (flex 1 → 나머지 공간 차지) */}
                   <button
                     type="button"
                     onClick={() => { setRefToLib(ref); setRefToLibType('makeup'); }}
-                    style={{ height: 22, padding: '0 8px', borderRadius: 9999, background: 'rgba(197,255,0,.15)', display: 'inline-flex', alignItems: 'center', gap: 3, border: '1px solid rgba(74,119,0,.25)', cursor: 'pointer' }}
-                    aria-label="라이브러리 등록"
+                    style={{ flex: 1, height: 28, borderRadius: 9999, background: 'rgba(197,255,0,.15)', border: '1px solid rgba(74,119,0,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, cursor: 'pointer' }}
                   >
-                    <span style={{ fontSize: 9, color: '#4A7700' }}>＋</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#3A6000', fontFamily: f }}>라이브러리</span>
+                    <span style={{ fontSize: 10, color: '#4A7700' }}>＋</span>
+                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#3A6000' }}>라이브러리</span>
+                  </button>
+
+                  {/* 원본 링크 */}
+                  {ref.url && (
+                    <a href={ref.url} target="_blank" rel="noopener noreferrer" aria-label="원본 열기"
+                      style={{ width: 32, height: 28, borderRadius: 8, background: '#F5F4F2', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', flexShrink: 0 }}>
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                        <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round"/>
+                        <path d="M10 2h4v4M14 2L8 8" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </a>
+                  )}
+
+                  {/* 편집 */}
+                  <button type="button" onClick={() => openRefEdit(ref)} aria-label="편집"
+                    style={{ width: 32, height: 28, borderRadius: 8, background: '#F5F4F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                      <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+
+                  {/* 삭제 */}
+                  <button type="button" onClick={() => deleteReference(ref.id)} aria-label="삭제"
+                    style={{ width: 32, height: 28, borderRadius: 8, background: 'rgba(233,79,107,.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 3l10 10M13 3L3 13" stroke="#E94F6B" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
                   </button>
                 </div>
               </div>
-              {/* 아이콘 버튼 3개만 오른쪽에 */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px 10px 8px 0', flexShrink: 0, gap: 6 }}>
-                {ref.url && (
-                  <a href={ref.url} target="_blank" rel="noopener noreferrer"
-                    style={{ width: 28, height: 28, borderRadius: 9999, background: '#F0EEE8', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', flexShrink: 0 }}
-                    aria-label="원본 열기"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                      <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round"/>
-                      <path d="M10 2h4v4M14 2L8 8" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </a>
-                )}
-                <button
-                  type="button"
-                  onClick={() => openRefEdit(ref)}
-                  style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(12,12,10,.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
-                  aria-label="편집"
-                >
-                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                    <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => deleteReference(ref.id)}
-                  style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(233,79,107,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', flexShrink: 0 }}
-                  aria-label="삭제"
-                >
-                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 3l10 10M13 3L3 13" stroke="#E94F6B" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          );
+            );
+          };
 
           return (
             <div style={{ paddingTop: 16, paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
@@ -3224,19 +3273,35 @@ function LogPageInner() {
                 />
 
                 {/* URL 입력 */}
-                <input
-                  type="url"
-                  value={refUrl}
-                  onChange={e => setRefUrl(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && refUrl.trim() && saveReference()}
-                  placeholder="링크 붙여넣기 (필수)"
-                  style={{
-                    width: '100%', boxSizing: 'border-box' as const,
-                    height: 44, padding: '0 14px', marginBottom: 12,
-                    border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10,
-                    background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none',
-                  }}
-                />
+                <div style={{ position: 'relative', marginBottom: 12 }}>
+                  <input
+                    type="url"
+                    value={refUrl}
+                    onChange={e => setRefUrl(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && refUrl.trim() && saveReference()}
+                    onBlur={() => { if (refUrl.trim()) fetchOgMeta(refUrl.trim()); }}
+                    onPaste={e => {
+                      const pasted = e.clipboardData.getData('text');
+                      if (pasted.startsWith('http')) setTimeout(() => fetchOgMeta(pasted.trim()), 50);
+                    }}
+                    placeholder="링크 붙여넣기 (필수)"
+                    style={{
+                      width: '100%', boxSizing: 'border-box' as const,
+                      height: 44, padding: '0 14px',
+                      border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10,
+                      background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none',
+                    }}
+                  />
+                  {/* OG 로딩 스피너 */}
+                  {refOgLoading && (
+                    <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
+                        <circle cx="12" cy="12" r="10" stroke="#C5FF00" strokeWidth="2.5" strokeDasharray="30" strokeDashoffset="10"/>
+                      </svg>
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490' }}>미리보기 중...</span>
+                    </div>
+                  )}
+                </div>
 
                 {/* 태그 입력 + 선택된 태그 */}
                 <div style={{ marginBottom: 12 }}>
