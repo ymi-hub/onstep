@@ -25,6 +25,12 @@
   --color-green: #1E6B4A;
   --color-amber: #B45309;
 
+  /* ── 도메인 컬러 ── */
+  --color-domain-beauty:  #e90101;
+  --color-domain-fashion: #0166e9;
+  --color-domain-health:  #1eac02;
+  --color-domain-acc:     #f7189a;
+
   /* ── 서체 ── */
   --font-sans: 'Plus Jakarta Sans', 'Space Grotesk', ui-sans-serif, sans-serif;
 

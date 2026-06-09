@@ -34,6 +34,7 @@ import { imageFileToBase64 } from '@/lib/imageUtils';
 import type { Product, ProductDomain } from '@/types/product';
 import PageHeader from '@/components/PageHeader';
 import ImagePicker from '@/components/ImagePicker';
+import { DOMAIN_COLORS, DOMAIN_LABELS } from '@/lib/domainColors';
 import SortBar from '@/components/SortBar';
 import MoreButton from '@/components/MoreButton';
 
@@ -428,9 +429,11 @@ function MagResBar({ product }: { product: Product }) {
 function ProductCard({
   product,
   onClick,
+  domainColor,
 }: {
   product: Product;
   onClick: () => void;
+  domainColor?: string;
 }) {
   const isCountMode = product.itemUnit === '개' || product.itemUnit === 'ea';
   const isSkincare = product.domain === 'beauty' && product.subCategory !== 'makeup';
@@ -466,6 +469,11 @@ function ProductCard({
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'rgba(0,0,0,.12)', zIndex: 1 }}>
           <div style={{ height: '100%', width: `${fillRate * 100}%`, background: '#C5FF00' }} />
         </div>
+      )}
+
+      {/* 도메인 컬러 닷 — 전체 보기에서 도메인 구분 */}
+      {domainColor && (
+        <div style={{ position: 'absolute', top: isSkincare ? 7 : 4, left: 4, width: 7, height: 7, borderRadius: '50%', background: domainColor, zIndex: 2, boxShadow: '0 0 0 1.5px rgba(255,255,255,.6)' }} />
       )}
 
       {/* 제품 플레이스홀더 (이미지 없을 때만) */}
@@ -1362,18 +1370,8 @@ export default function BoxPage() {
       {boxView === 'spending' && (() => {
         const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
 
-        const domainLabels: Record<string, string> = {
-          beauty: 'Beauty',
-          fashion: 'Fashion',
-          health: '약·비타민',
-          acc: 'ACC',
-        };
-        const domainColors: Record<string, string> = {
-          beauty: '#C5FF00',  // Lime
-          fashion: '#0C0C0A', // Black
-          health: '#B45309',  // Amber
-          acc: '#9A9490',     // Silver
-        };
+        const domainLabels = DOMAIN_LABELS;
+        const domainColors = DOMAIN_COLORS;
 
         // 가격 있는 전체 제품 분석 대상
         const priced = products
@@ -1522,7 +1520,7 @@ export default function BoxPage() {
                           </span>
                           {/* 도메인 배지 */}
                           {spendingFilter === 'all' && (
-                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 700, color: domainColors[p.domain] === '#0C0C0A' ? '#9A9490' : domainColors[p.domain], background: domainColors[p.domain] === '#0C0C0A' ? '#EEEDE9' : 'rgba(0,0,0,.04)', padding: '1px 5px', borderRadius: 4 }}>
+                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 700, color: domainColors[p.domain], background: 'rgba(0,0,0,.04)', padding: '1px 5px', borderRadius: 4 }}>
                               {domainLabels[p.domain]}
                             </span>
                           )}
@@ -1905,7 +1903,7 @@ export default function BoxPage() {
         <div style={{ paddingBottom: 100 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 1.5 }}>
             {sortedFiltered.slice(0, boxVisibleCount).map((p) => (
-              <ProductCard key={p.id} product={p} onClick={() => openEdit(p)} />
+              <ProductCard key={p.id} product={p} onClick={() => openEdit(p)} domainColor={activeTab === 'all' ? DOMAIN_COLORS[p.domain] : undefined} />
             ))}
           </div>
           <div style={{ padding: '0 16px' }}>
@@ -2067,18 +2065,8 @@ export default function BoxPage() {
           });
         }
 
-        const domainLabels: Record<string, string> = {
-          beauty: 'Beauty',
-          fashion: 'Fashion',
-          health: '약·비타민',
-          acc: 'ACC',
-        };
-        const domainColors: Record<string, string> = {
-          beauty:  '#e90101',
-          fashion: '#0166e9',
-          health:  '#1eac02',
-          acc:     '#f7189a',
-        };
+        const domainLabels = DOMAIN_LABELS;
+        const domainColors = DOMAIN_COLORS;
 
         return (
           <div style={{ padding: '16px 26px calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
