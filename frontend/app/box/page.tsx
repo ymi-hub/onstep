@@ -2470,14 +2470,14 @@ function ManageSheet({
           <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 14px' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
             {view === 'cats' && (
-              <button onClick={() => { setView('domains'); setEditDomainId(null); setEditSubTypeId(null); }} style={{ width: 28, height: 28, borderRadius: 8, background: '#F0EFEA', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A4846', flexShrink: 0 }}>
+              <button onClick={() => { setView('domains'); setEditDomainId(null); setEditSubTypeId(null); }} style={{ width: 36, height: 36, borderRadius: 10, background: '#F0EFEA', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A4846', flexShrink: 0 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6"/></svg>
               </button>
             )}
             <div style={{ fontFamily: f, fontSize: 17, fontWeight: 800, color: '#0C0C0A' }}>
               {view === 'domains' ? 'BOX 관리' : `${editingDomain?.label ?? ''} 카테고리`}
             </div>
-            <button onClick={onClose} style={{ marginLeft: 'auto', width: 28, height: 28, borderRadius: 8, background: '#F0EFEA', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A4846', flexShrink: 0 }}>
+            <button onClick={onClose} style={{ marginLeft: 'auto', width: 36, height: 36, borderRadius: 10, background: '#F0EFEA', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A4846', flexShrink: 0 }}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
           </div>
@@ -2672,7 +2672,7 @@ function ManageSheet({
                             {st.label}
                           </button>
                         )}
-                        <button onClick={() => deleteSubType(st.id)} style={{ width: 18, height: 18, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,.12)', color: '#4A4846', cursor: 'pointer', fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>×</button>
+                        <button onClick={() => deleteSubType(st.id)} title="삭제" style={{ width: 24, height: 24, minWidth: 24, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,.12)', color: '#4A4846', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 1.5l5 5M6.5 1.5l-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg></button>
                       </div>
                     ))}
                     {/* 서브타입 추가 */}

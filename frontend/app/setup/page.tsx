@@ -1314,7 +1314,7 @@ function EditorView({
                 <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>
                   {picker.slot === 'morning' ? '☀️ 아침' : '🌙 저녁'} {picker.section === 'tip' ? 'TIP ' : ''}제품 선택
                 </div>
-                <button onClick={() => setPicker(null)} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                <button onClick={() => setPicker(null)} style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
               </div>
               <input type="search" value={pickerSearch} onChange={(e) => setPickerSearch(e.target.value)} placeholder="제품명 · 브랜드 검색..." autoFocus style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 4 }} />
               <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginBottom: 8 }}>{pickerSelected.size > 0 ? `${pickerSelected.size}개 선택됨` : 'BOX에서 제품을 선택하세요'}</div>
@@ -1471,7 +1471,7 @@ function AiImportPanel({
               추가 후 수동 입력과 동일하게 편집 · 정렬 · 혼합 가능
             </div>
           </div>
-          <button onClick={onClose} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+          <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
 
         {/* 스크롤 본문 */}
@@ -2065,7 +2065,7 @@ function DietPlanView({
                       <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A' }}>BOX 제품 선택</span>
                       <span style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginLeft: 8 }}>{healthProds.length ? `약·비타민 ${healthProds.length}개` : `전체 ${products.length}개`}</span>
                     </div>
-                    <button onClick={closePicker} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                    <button onClick={closePicker} style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                   </div>
                   <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)}
                     placeholder="제품명 · 브랜드 검색..." autoFocus
@@ -2127,7 +2127,7 @@ function DietPlanView({
                 <div style={{ padding: '16px 26px 12px', borderBottom: '1px solid rgba(12,12,10,.07)', display: 'flex', alignItems: 'center', gap: 10 }}>
                   <button onClick={() => setPickerStep('select')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#4A4846', padding: 0, lineHeight: 1 }}>←</button>
                   <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A', flex: 1 }}>수량 입력</span>
-                  <button onClick={closePicker} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                  <button onClick={closePicker} style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                 </div>
                 {/* 선택된 제품 수량 입력 목록 */}
                 <div style={{ flex: 1, overflowY: 'auto', padding: '12px 26px' }}>
@@ -2810,7 +2810,7 @@ function MedView({
               <span style={{ fontFamily: f, fontSize: 14, color: '#0C0C0A', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
               <button
                 onClick={() => onToggleToday(m.id, true)}
-                style={{ height: 22, padding: '0 8px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const, flexShrink: 0 }}
+                style={{ height: 28, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const, flexShrink: 0 }}
               >
                 Today ON
               </button>
@@ -4894,7 +4894,7 @@ function CtPanel({
               <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
                 <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A' }}>{editItem ? `편집: ${editItem.name}` : m.sheetTitle}</div>
-                <button onClick={closeSheet} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                <button onClick={closeSheet} style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
               </div>
             </div>
 
@@ -5135,7 +5135,7 @@ function CtPanel({
                   <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 16px' }} />
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                     <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>{picker === 'tip' ? 'TIP ' : ''}제품 선택</div>
-                    <button onClick={() => setPicker(null)} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                    <button onClick={() => setPicker(null)} style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                   </div>
                   <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)} placeholder="제품명 · 브랜드 검색..." autoFocus style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 4 }} />
                   <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginBottom: 8 }}>{pickerSelected.size > 0 ? `${pickerSelected.size}개 선택됨` : 'BOX에서 제품을 선택하세요'}</div>

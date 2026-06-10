@@ -1716,10 +1716,10 @@ function LogCtPanel({
         )}
         {/* 편집 버튼 */}
         <div style={{ padding: '0 8px 8px', display: 'flex', gap: 4 }}>
-          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '6px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 9, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
-          <button onClick={() => openEdit(item)} style={{ padding: '6px 8px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 9, fontWeight: 700, cursor: 'pointer' }}>편집</button>
+          <button onClick={() => openEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>편집</button>
         </div>
       </div>
     );
@@ -1773,7 +1773,7 @@ function LogCtPanel({
               <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
                 <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A' }}>{editItem ? `편집: ${editItem.name}` : `새 ${colLabel} 등록`}</div>
-                <button onClick={closeSheet} style={{ width: 28, height: 28, borderRadius: 8, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 12, color: '#4A4846' }}>✕</button>
+                <button onClick={closeSheet} style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
               </div>
             </div>
 
@@ -3383,10 +3383,10 @@ function LogPageInner() {
                   {/* 선택된 태그 칩 + 직접 입력창 */}
                   <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, padding: '8px 10px', minHeight: 44, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', alignItems: 'center', marginBottom: 8 }}>
                     {refTags.map(tag => (
-                      <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, height: 28, padding: '0 6px 0 10px', borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1.5px solid #4A7700', flexShrink: 0 }}>
-                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000' }}>{tag}</span>
-                        <button type="button" onClick={() => setRefTags(prev => prev.filter(t => t !== tag))} style={{ width: 18, height: 18, borderRadius: 9999, background: 'rgba(58,96,0,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}>
-                          <span style={{ fontSize: 9, color: '#3A6000', lineHeight: 1, fontWeight: 900 }}>✕</span>
+                      <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, height: 30, padding: '0 6px 0 10px', borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1.5px solid #4A7700', flexShrink: 0, maxWidth: 200 }}>
+                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, maxWidth: 130 }}>{tag}</span>
+                        <button type="button" title="태그 삭제" onClick={() => setRefTags(prev => prev.filter(t => t !== tag))} style={{ width: 22, height: 22, minWidth: 22, borderRadius: 9999, background: 'rgba(58,96,0,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0, color: '#3A6000' }}>
+                          <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 1.5l6 6M7.5 1.5l-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
                         </button>
                       </div>
                     ))}
@@ -3446,9 +3446,9 @@ function LogPageInner() {
                               {tag}
                             </button>
                             {presetEditMode && (
-                              <button type="button" onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
-                                style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
-                                <span style={{ fontSize: 8, color: '#C0392B', fontWeight: 900, lineHeight: 1 }}>✕</span>
+                              <button type="button" title="태그 삭제" onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
+                                style={{ position: 'absolute', right: 5, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, minWidth: 18, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B' }}>
+                                <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
                               </button>
                             )}
                           </div>
@@ -3850,14 +3850,15 @@ function LogPageInner() {
                 {/* 선택된 태그 칩 + 직접 입력창 */}
                 <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, padding: '8px 10px', minHeight: 44, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', alignItems: 'center', marginBottom: 8 }}>
                   {refEditTags.map(tag => (
-                    <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, height: 28, padding: '0 6px 0 10px', borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1.5px solid #4A7700', flexShrink: 0 }}>
-                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000' }}>{tag}</span>
+                    <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, height: 30, padding: '0 6px 0 10px', borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1.5px solid #4A7700', flexShrink: 0, maxWidth: 200 }}>
+                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, maxWidth: 130 }}>{tag}</span>
                       <button
                         type="button"
+                        title="태그 삭제"
                         onClick={() => setRefEditTags(prev => prev.filter(t => t !== tag))}
-                        style={{ width: 18, height: 18, borderRadius: 9999, background: 'rgba(58,96,0,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}
+                        style={{ width: 22, height: 22, minWidth: 22, borderRadius: 9999, background: 'rgba(58,96,0,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0, color: '#3A6000' }}
                       >
-                        <span style={{ fontSize: 9, color: '#3A6000', lineHeight: 1, fontWeight: 900 }}>✕</span>
+                        <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 1.5l6 6M7.5 1.5l-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
                       </button>
                     </div>
                   ))}
