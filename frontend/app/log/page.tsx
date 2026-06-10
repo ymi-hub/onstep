@@ -71,6 +71,7 @@ type Reference = {
   platform: 'instagram' | 'youtube' | 'pinterest' | 'other';
   tags: string[];         // '메이크업' | '스킨케어' | '코디' | '루틴'
   note?: string;          // 메모 (선택)
+  inLibrary?: boolean;    // 라이브러리 등록 여부
   createdAt: string;      // ISO datetime
 };
 
@@ -2750,6 +2751,8 @@ function LogPageInner() {
           updatedAt: new Date().toISOString(),
         });
       }
+      // 수집 문서에 라이브러리 등록 완료 표시
+      await updateDoc(doc(db, 'users', userId, 'references', refToLib.id), { inLibrary: true });
       setRefToLib(null);
     } catch (err) {
       console.error('[OnStep] refToLib 저장 실패:', err);
@@ -3631,12 +3634,11 @@ function LogPageInner() {
                 {/* ── 액션 바 — 5:5 분리 ── */}
                 <div style={{ display: 'flex', alignItems: 'stretch', padding: '8px 10px 10px', gap: 6 }}>
 
-                  {/* ← 50% 좌측: 라이브러리 등록 */}
+                  {/* ← 50% 좌측: 라이브러리 등록 토글 */}
                   <button
                     type="button"
                     onClick={() => {
                       setRefToLib(ref);
-                      // ref 태그 중 Life TIP 카테고리로 등록된 것이 있으면 lifetip 타입 기본 선택
                       const tipTag = (ref.tags ?? []).find(t => lifetipCategorySet.has(t));
                       if (tipTag) {
                         setRefToLibType('lifetip');
@@ -3648,10 +3650,9 @@ function LogPageInner() {
                         setRefToLibEmoji('');
                       }
                     }}
-                    style={{ flex: 1, height: 42, borderRadius: 12, background: '#0C0C0A', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, cursor: 'pointer' }}
+                    style={{ flex: 1, height: 42, borderRadius: 8, background: ref.inLibrary ? '#0C0C0A' : 'rgba(12,12,10,.06)', border: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: ref.inLibrary ? '#C5FF00' : '#9A9490', cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const }}
                   >
-                    <span style={{ fontSize: 13, color: '#C5FF00', lineHeight: 1 }}>＋</span>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00' }}>라이브러리</span>
+                    {ref.inLibrary ? 'LIB ON' : 'LIB OFF'}
                   </button>
 
                   {/* → 50% 우측: 링크공유 + 편집 + 삭제 (3등분) */}
