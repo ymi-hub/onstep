@@ -3423,12 +3423,18 @@ function LogPageInner() {
                     type="button"
                     onClick={() => {
                       setRefToLib(ref);
-                      const tipTag = (ref.tags ?? []).find(t => lifetipCategorySet.has(t));
-                      if (tipTag) {
+                      const tags = ref.tags ?? [];
+                      if (tags.includes('Life tip')) {
+                        // 수집 카테고리가 "Life tip" → Life TIP 라이브러리
                         setRefToLibType('lifetip');
-                        setRefToLibTipCategory(tipTag);
-                        setRefToLibEmoji(getLifetipEmoji(tipTag));
+                        setRefToLibTipCategory('');
+                        setRefToLibEmoji('');
+                      } else if (tags.includes('Lookbook')) {
+                        setRefToLibType('lookbook');
+                        setRefToLibTipCategory('');
+                        setRefToLibEmoji('');
                       } else {
+                        // Makeup 또는 미분류 → Makeup 라이브러리
                         setRefToLibType('makeup');
                         setRefToLibTipCategory('');
                         setRefToLibEmoji('');
