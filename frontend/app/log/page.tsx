@@ -3304,7 +3304,7 @@ function LogPageInner() {
                     </div>
                     {/* 메모 — 별도 라인으로 표시 */}
                     {log.note ? (
-                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>
                         {log.note}
                       </div>
                     ) : (
@@ -3604,13 +3604,13 @@ function LogPageInner() {
                     </div>
 
                     {/* 제목 */}
-                    <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                    <div style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                       {ref.title || ref.url || '제목 없음'}
                     </div>
 
                     {/* 메모 */}
                     {ref.note && (
-                      <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                      <div style={{ fontFamily: f, fontSize: 11, color: '#1D6DDB', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                         {ref.note}
                       </div>
                     )}
