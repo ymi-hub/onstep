@@ -3786,26 +3786,68 @@ function LogPageInner() {
         {/* ── 라이브러리 탭 — 메이크업·룩북·OOTD·Life TIP CRUD + Today ON ── */}
         {mainTab === '라이브러리' && (
           <div style={{ paddingTop: 16 }}>
-            {/* 필터 바 */}
-            <div style={{ display: 'flex', gap: 6, padding: '0 26px', marginBottom: 16, overflowX: 'auto', scrollbarWidth: 'none' as const }}>
-              {([
-                { key: 'all', label: 'ALL' },
-                { key: 'makeup', label: '💄 Makeup' },
-                { key: 'lookbook', label: '👗 Lookbook' },
-                { key: 'lifetip', label: '📌 Life TIP' },
-                { key: 'ootd', label: '👗 OOTD' },
-              ] as const).map(tab => (
-                <button key={tab.key} onClick={() => { setArchiveFilter(tab.key); setLifetipCategory(null); }}
-                  style={{ flexShrink: 0, height: 30, padding: '0 14px', borderRadius: 9999,
-                    border: `1.5px solid ${archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#60A5FA' : tab.key === 'ootd' ? '#C5FF00' : '#0C0C0A') : 'rgba(12,12,10,.14)'}`,
-                    background: archiveFilter === tab.key ? (tab.key === 'lifetip' ? 'rgba(96,165,250,.14)' : tab.key === 'ootd' ? 'rgba(197,255,0,.14)' : '#0C0C0A') : 'transparent',
-                    fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700,
-                    color: archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#1D6DDB' : tab.key === 'ootd' ? '#3A6000' : '#fff') : '#9A9490',
-                    cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const }}>
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            {/* 미니카드 필터 그리드 */}
+            {(() => {
+              const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+              const TAB_COLOR: Record<string, { active: string; bg: string; text: string }> = {
+                all:      { active: '#0C0C0A', bg: '#0C0C0A',                text: '#C5FF00' },
+                makeup:   { active: '#C5FF00', bg: 'rgba(197,255,0,.14)',   text: '#3A6000' },
+                lookbook: { active: '#FF8C42', bg: 'rgba(255,140,66,.14)',  text: '#B85A00' },
+                lifetip:  { active: '#60A5FA', bg: 'rgba(96,165,250,.14)', text: '#1D6DDB' },
+                ootd:     { active: '#C5FF00', bg: 'rgba(197,255,0,.14)',   text: '#3A6000' },
+              };
+              const miniCards: { key: 'all' | 'makeup' | 'lookbook' | 'lifetip' | 'ootd'; label: string; count: number }[] = [
+                { key: 'all',      label: 'ALL',        count: makeupItems.length + lookItems.length + lifetipItems.length + ootdLogs.length },
+                { key: 'makeup',   label: '💄 메이크업', count: makeupItems.length },
+                { key: 'lookbook', label: '👗 룩북',    count: lookItems.length },
+                { key: 'lifetip',  label: '📌 Life TIP', count: lifetipItems.length },
+                { key: 'ootd',     label: '👗 OOTD',    count: ootdLogs.length },
+              ];
+              const ICON: Record<string, string> = { makeup: '💄', lookbook: '👗', lifetip: '📌', ootd: '👟' };
+              const NAME: Record<string, string> = { makeup: '메이크업', lookbook: '룩북', lifetip: 'Life TIP', ootd: 'OOTD' };
+              const allCard = miniCards[0];
+              const subCards = miniCards.slice(1);
+              const selAll = archiveFilter === 'all';
+              const colAll = TAB_COLOR.all;
+              return (
+                <div style={{ padding: '0 26px', marginBottom: 18 }}>
+                  {/* ALL — 전체 너비 카드 */}
+                  <button type="button" onClick={() => { setArchiveFilter('all'); setLifetipCategory(null); }}
+                    style={{ width: '100%', padding: '12px 18px', marginBottom: 8, borderRadius: 14,
+                      border: `1.5px solid ${selAll ? colAll.active : 'rgba(12,12,10,.1)'}`,
+                      background: selAll ? colAll.bg : '#fff',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      cursor: 'pointer', transition: 'all .15s', boxSizing: 'border-box' as const }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
+                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: selAll ? '#fff' : '#9A9490', letterSpacing: '.08em' }}>ALL</span>
+                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: selAll ? 'rgba(255,255,255,.6)' : '#BCBAB6' }}>전체 라이브러리</span>
+                    </div>
+                    <span style={{ fontFamily: f, fontSize: 32, fontWeight: 900, lineHeight: 1, color: selAll ? colAll.text : '#0C0C0A' }}>{allCard.count}</span>
+                  </button>
+                  {/* 4개 카테고리 — 2×2 그리드 */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    {subCards.map(t => {
+                      const sel = archiveFilter === t.key;
+                      const col = TAB_COLOR[t.key] ?? TAB_COLOR.all;
+                      return (
+                        <button type="button" key={t.key} onClick={() => { setArchiveFilter(t.key); setLifetipCategory(null); }}
+                          style={{ padding: '14px 16px', borderRadius: 14,
+                            border: `1.5px solid ${sel ? col.active : 'rgba(12,12,10,.1)'}`,
+                            background: sel ? col.bg : '#fff',
+                            display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10,
+                            cursor: 'pointer', transition: 'all .15s', textAlign: 'left' as const }}>
+                          <span style={{ fontSize: 22, lineHeight: 1 }}>{ICON[t.key]}</span>
+                          <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? col.text : '#9A9490' }}>{NAME[t.key]}</span>
+                            <span style={{ fontFamily: f, fontSize: 26, fontWeight: 900, lineHeight: 1, color: sel ? col.text : '#0C0C0A' }}>{t.count}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Life TIP 탭 콘텐츠 */}
             {archiveFilter === 'lifetip' && (() => {
