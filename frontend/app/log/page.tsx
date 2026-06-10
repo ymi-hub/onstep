@@ -1322,7 +1322,7 @@ function LifetipLibraryCard({
       <div style={{
         boxSizing: 'border-box',
         display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-        padding: '12px 26px 0px',
+        padding: '12px 10px 0px',
         width: '100%', isolation: 'isolate', flexShrink: 0,
       }}>
         {/* 카테고리 태그 */}
