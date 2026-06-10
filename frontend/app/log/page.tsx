@@ -70,6 +70,7 @@ type Reference = {
   description: string;
   platform: 'instagram' | 'youtube' | 'pinterest' | 'other';
   tags: string[];         // '메이크업' | '스킨케어' | '코디' | '루틴'
+  note?: string;          // 메모 (선택)
   createdAt: string;      // ISO datetime
 };
 
@@ -2188,7 +2189,7 @@ function LogPageInner() {
 
   // ── 탭 상태 ──
   const [mainTab, setMainTab] = useState<'기록' | '라이브러리' | '아카이브' | '수집'>('기록');
-  const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip'>('all');
+  const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip' | 'ootd'>('all');
   const [libFilter, setLibFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip' | 'ootd'>('all');
   const [lifetipCategory, setLifetipCategory] = useState<string | null>(null); // null = 그리드 홈
   const [editingLifetipId, setEditingLifetipId] = useState<string | null>(null); // 인라인 이모지 편집
@@ -2207,6 +2208,7 @@ function LogPageInner() {
   const [references, setReferences] = useState<Reference[]>([]);
   const [refUrl, setRefUrl] = useState('');
   const [refTitle, setRefTitle] = useState('');
+  const [refNote, setRefNote] = useState('');
   const [refTags, setRefTags] = useState<string[]>([]);
   const [refTagInput, setRefTagInput] = useState('');
   const [refTagFocused, setRefTagFocused] = useState(false);
@@ -2229,6 +2231,7 @@ function LogPageInner() {
   const [editingRef, setEditingRef] = useState<Reference | null>(null);
   const [refEditUrl, setRefEditUrl] = useState('');
   const [refEditTitle, setRefEditTitle] = useState('');
+  const [refEditNote, setRefEditNote] = useState('');
   const [refEditTags, setRefEditTags] = useState<string[]>([]);
   const [refEditTagInput, setRefEditTagInput] = useState('');
   const [refEditImageFile, setRefEditImageFile] = useState<File | null>(null);
@@ -2618,11 +2621,13 @@ function LogPageInner() {
     // 낙관적 UI — 폼 즉시 초기화 (Firestore 응답 기다리지 않음)
     const snapshotUrl = trimmedUrl;
     const snapshotTitle = trimmedTitle;
+    const snapshotNote = refNote.trim();
     const snapshotTags = finalTags;
     const snapshotImageFile = refImageFile;
     const snapshotImagePreview = refImagePreview;
     setRefUrl('');
     setRefTitle('');
+    setRefNote('');
     setRefTags([]);
     setRefTagInput('');
     setRefImageFile(null);
@@ -2642,6 +2647,7 @@ function LogPageInner() {
         description: '',
         platform: snapshotUrl ? detectPlatform(snapshotUrl) : '',
         tags: snapshotTags,
+        ...(snapshotNote ? { note: snapshotNote } : {}),
         createdAt: new Date().toISOString(),
       });
     } catch (err) {
@@ -2669,6 +2675,7 @@ function LogPageInner() {
     setEditingRef(ref);
     setRefEditUrl(ref.url || '');
     setRefEditTitle(ref.title || '');
+    setRefEditNote(ref.note || '');
     setRefEditTags(ref.tags || []);
     setRefEditTagInput('');
     setRefEditImageFile(null);
@@ -2690,6 +2697,7 @@ function LogPageInner() {
       await updateDoc(doc(db, 'users', userId, 'references', editingRef.id), {
         url: refEditUrl.trim() || editingRef.url,
         title: refEditTitle.trim() || editingRef.title,
+        note: refEditNote.trim(),
         tags: finalEditTags,
         imageUrl,
         updatedAt: new Date().toISOString(),
@@ -3282,10 +3290,18 @@ function LogPageInner() {
                     <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: 12, width: '100%', zIndex: 1 }}>
                       {log.theme || '오늘의 룩'}
                     </div>
-                    {/* 날짜 + 메모 */}
-                    <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>
-                      {log.date}{log.note ? ` · ${log.note}` : ''}
+                    {/* 날짜 */}
+                    <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#525252', lineHeight: '18px', marginTop: 4, width: '100%', zIndex: 2 }}>
+                      {log.date}
                     </div>
+                    {/* 메모 — 별도 라인으로 표시 */}
+                    {log.note ? (
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>
+                        {log.note}
+                      </div>
+                    ) : (
+                      <div style={{ marginBottom: 12 }} />
+                    )}
                   </div>
                   {/* 제품 영역 */}
                   {pIds.length > 0 && (
@@ -3584,6 +3600,13 @@ function LogPageInner() {
                     <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                       {ref.title || ref.url || '제목 없음'}
                     </div>
+
+                    {/* 메모 */}
+                    {ref.note && (
+                      <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                        {ref.note}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -3826,11 +3849,23 @@ function LogPageInner() {
                   )}
                 </div>
 
+                {/* 메모 */}
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
+                  <textarea
+                    value={refNote}
+                    onChange={e => setRefNote(e.target.value)}
+                    placeholder="메모 입력 (선택)..."
+                    rows={2}
+                    style={{ width: '100%', boxSizing: 'border-box' as const, padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none', resize: 'none', lineHeight: 1.5 }}
+                  />
+                </div>
+
                 {/* 버튼 */}
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button
                     type="button"
-                    onClick={() => { setRefUrl(''); setRefTitle(''); setRefTags([]); setRefTagInput(''); setRefImageFile(null); setRefImagePreview(''); }}
+                    onClick={() => { setRefUrl(''); setRefTitle(''); setRefNote(''); setRefTags([]); setRefTagInput(''); setRefImageFile(null); setRefImagePreview(''); }}
                     style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}
                   >
                     취소
@@ -3979,13 +4014,14 @@ function LogPageInner() {
                 { key: 'makeup', label: '💄 Makeup' },
                 { key: 'lookbook', label: '👗 Lookbook' },
                 { key: 'lifetip', label: '📌 Life TIP' },
+                { key: 'ootd', label: '📷 OOTD' },
               ] as const).map(tab => (
                 <button key={tab.key} onClick={() => { setArchiveFilter(tab.key); setLifetipCategory(null); }}
                   style={{ flexShrink: 0, height: 30, padding: '0 14px', borderRadius: 9999,
-                    border: `1.5px solid ${archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#60A5FA' : '#0C0C0A') : 'rgba(12,12,10,.14)'}`,
-                    background: archiveFilter === tab.key ? (tab.key === 'lifetip' ? 'rgba(96,165,250,.14)' : '#0C0C0A') : 'transparent',
+                    border: `1.5px solid ${archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#60A5FA' : tab.key === 'ootd' ? '#C5FF00' : '#0C0C0A') : 'rgba(12,12,10,.14)'}`,
+                    background: archiveFilter === tab.key ? (tab.key === 'lifetip' ? 'rgba(96,165,250,.14)' : tab.key === 'ootd' ? 'rgba(197,255,0,.14)' : '#0C0C0A') : 'transparent',
                     fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700,
-                    color: archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#1D6DDB' : '#fff') : '#9A9490',
+                    color: archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#1D6DDB' : tab.key === 'ootd' ? '#3A6000' : '#fff') : '#9A9490',
                     cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const }}>
                   {tab.label}
                 </button>
@@ -4061,8 +4097,63 @@ function LogPageInner() {
               );
             })()}
 
+            {/* OOTD 카드 목록 — ootd 필터 또는 ALL에서 표시 */}
+            {(archiveFilter === 'ootd' || archiveFilter === 'all') && (() => {
+              const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+              if (ootdLogs.length === 0) return archiveFilter === 'ootd' ? (
+                <div style={{ padding: '40px 26px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, margin: '0 26px 12px' }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>📷</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>기록된 룩이 없어요</div>
+                  <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>TODAY 화면에서 오늘의 룩을 기록해보세요</div>
+                </div>
+              ) : null;
+              return (
+                <div style={{ padding: archiveFilter === 'all' ? '0 26px' : '0 26px 20px' }}>
+                  {archiveFilter === 'all' && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '4px 0 12px' }}>
+                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490' }}>OOTD</span>
+                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#3A6000' }}>{ootdLogs.length}개</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: archiveFilter === 'all' ? 20 : 20 }}>
+                    {ootdLogs.map(log => (
+                      <div key={log.id} style={{ border: '1px solid #000000', background: '#FFFFFF' }}>
+                        <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 26px 0px', position: 'relative', width: '100%', isolation: 'isolate', flexShrink: 0 }}>
+                          <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#C6F432', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
+                            <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>#OOTD</span>
+                          </div>
+                          {log.photoUrl
+                            // eslint-disable-next-line @next/next/no-img-element
+                            ? <img src={log.photoUrl} alt={log.theme} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                            : <div style={{ width: '100%', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>
+                              </div>
+                          }
+                          {/* 테마 */}
+                          <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: 12, width: '100%', zIndex: 1 }}>
+                            {log.theme || '오늘의 룩'}
+                          </div>
+                          {/* 날짜 */}
+                          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#525252', marginTop: 4, width: '100%', zIndex: 2 }}>
+                            {log.date}
+                          </div>
+                          {/* 메모 — 별도 라인 */}
+                          {log.note ? (
+                            <div style={{ fontFamily: f, fontSize: 13, color: '#000', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>
+                              {log.note}
+                            </div>
+                          ) : <div style={{ marginBottom: 12 }} />}
+                        </div>
+                        <button type="button" onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* 아이템 카드 목록 (메이크업 / 룩북) */}
-            {archiveFilter !== 'lifetip' && (() => {
+            {archiveFilter !== 'lifetip' && archiveFilter !== 'ootd' && (() => {
               const visibleItems = [
                 ...(archiveFilter !== 'lookbook' ? makeupItems : []),
                 ...(archiveFilter !== 'makeup' ? lookItems : []),
@@ -4609,6 +4700,18 @@ function LogPageInner() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* 메모 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
+                <textarea
+                  value={refEditNote}
+                  onChange={e => setRefEditNote(e.target.value)}
+                  placeholder="메모 입력 (선택)..."
+                  rows={2}
+                  style={{ width: '100%', boxSizing: 'border-box' as const, padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none', resize: 'none', lineHeight: 1.5 }}
+                />
               </div>
 
               {/* 버튼 */}
