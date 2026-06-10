@@ -1122,6 +1122,8 @@ function LogLibraryCard({
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   const isMakeup = item.ctType === 'makeup';
   const badge = isMakeup ? '#MAKEUP' : '#LOOKBOOK';
+  const badgeBg = isMakeup ? '#C5FF00' : '#FF8C42';
+  const badgeTextColor = isMakeup ? '#3A6000' : '#7A3000';
   const todayStr = format(new Date(), 'yyyy-MM-dd');
   const isOnToday = item.published && (item.dates ?? []).includes(todayStr);
   const prodItems = item.items.filter((r): r is { type: 'product'; id: string } => r.type === 'product');
@@ -1137,16 +1139,16 @@ function LogLibraryCard({
 
       {/* ① 이미지 — full bleed (패딩 없음) */}
       <div style={{ position: 'relative', width: '100%', background: '#F3F3F4', overflow: 'visible' }}>
-        {/* 라임 배지 */}
+        {/* 카테고리 뱃지 */}
         <div style={{
           position: 'absolute', right: 7, top: 10,
           width: 113, height: 32,
-          background: '#C6F432', border: '1px solid #18181B',
+          background: badgeBg, border: '1px solid #18181B',
           transform: 'rotate(-3deg)',
           display: 'flex', alignItems: 'center', padding: '0 12px',
           zIndex: 3,
         }}>
-          <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
+          <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: badgeTextColor, transform: 'rotate(-3deg)' }}>{badge}</span>
         </div>
 
         {item.imageUrl
@@ -3202,112 +3204,93 @@ function LogPageInner() {
                   : <OotdGrid />
 
               ) : libFilter === 'lifetip' ? (
-                /* ── Life TIP 탭 ── */
+                /* ── Life TIP 탭 — OOTD 카드 스타일 ── */
                 lifetipItems.length === 0 ? (
-                  <div style={{ padding: '40px 20px', textAlign: 'center', background: '#fff', borderRadius: 16, border: '1px solid rgba(12,12,10,.08)', marginBottom: 20 }}>
+                  <div style={{ padding: '40px 20px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, marginBottom: 20 }}>
                     <div style={{ fontSize: 32, marginBottom: 8 }}>📌</div>
                     <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>Life TIP이 없어요</div>
                     <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>수집에서 + 라이브러리 버튼으로 추가하세요</div>
                   </div>
-                ) : lifetipCategory === null ? (
-                  /* 카테고리 그리드 홈 */
-                  <div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-                      {lifetipCategories.map(cat => {
-                        const items = lifetipByCategory[cat];
-                        const emoji = items[0]?.emoji || getLifetipEmoji(cat);
-                        return (
-                          <button key={cat} type="button" onClick={() => setLifetipCategory(cat)}
-                            style={{ background: '#fff', border: '1px solid rgba(12,12,10,.1)', borderRadius: 16, padding: '18px 16px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, cursor: 'pointer', textAlign: 'left', transition: 'all .15s' }}>
-                            <span style={{ fontSize: 28, lineHeight: 1 }}>{emoji}</span>
-                            <div>
-                              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#0C0C0A', marginBottom: 2 }}>{cat}</div>
-                              <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490' }}>{items.length}개</div>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
                 ) : (
-                  /* 카테고리 상세 */
-                  <div>
-                    {/* 뒤로가기 헤더 */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                      <button type="button" onClick={() => setLifetipCategory(null)}
-                        style={{ width: 32, height: 32, borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                          <path d="M10 3L5 8l5 5" stroke="#0C0C0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </button>
-                      <span style={{ fontFamily: f, fontSize: 18, lineHeight: 1 }}>{lifetipByCategory[lifetipCategory]?.[0]?.emoji || getLifetipEmoji(lifetipCategory)}</span>
-                      <span style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>{lifetipCategory}</span>
-                      <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginLeft: 'auto' }}>{lifetipByCategory[lifetipCategory]?.length ?? 0}개</span>
-                    </div>
-
-                    {/* 아이템 목록 */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-                      {(lifetipByCategory[lifetipCategory] ?? []).map(item => (
-                        <div key={item.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.08)', overflow: 'hidden' }}>
-                          <div style={{ display: 'flex', alignItems: 'stretch' }}>
-
-                            {/* 이모지 — 탭하면 편집 가능 */}
-                            <button type="button" onClick={() => setEditingLifetipId(editingLifetipId === item.id ? null : item.id)}
-                              style={{ width: 64, flexShrink: 0, background: '#F5F4F0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>
-                              {item.emoji || getLifetipEmoji(item.tipCategory)}
-                            </button>
-
-                            {/* 텍스트 */}
-                            <div style={{ flex: 1, padding: '12px 14px', minWidth: 0 }}>
-                              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-                                {item.name}
-                              </div>
-                              <div style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>
-                                {item.createdAt?.slice(0, 10)}
-                              </div>
-                            </div>
-
-                            {/* 링크 버튼 */}
-                            {item.sourceUrl && (
-                              <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
-                                style={{ width: 44, flexShrink: 0, background: '#F5F4F0', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', borderLeft: '1px solid rgba(12,12,10,.06)' }}>
-                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                  <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round"/>
-                                  <path d="M10 2h4v4M14 2L8 8" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              </a>
-                            )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+                    {lifetipItems.map(item => (
+                      <div key={item.id} style={{ border: '1px solid #000000', background: '#FFFFFF' }}>
+                        {/* 커버 영역 — 이미지 or 이모지 */}
+                        <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 26px 0px', position: 'relative', width: '100%', isolation: 'isolate', flexShrink: 0 }}>
+                          {/* 카테고리 뱃지 스티커 */}
+                          <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: 'rgba(96,165,250,.25)', border: '1px solid #60A5FA', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
+                            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#1D6DDB', transform: 'rotate(-3deg)', letterSpacing: '.04em' }}>#{item.tipCategory}</span>
                           </div>
-
-                          {/* 이모지 인라인 편집 패널 — 모바일 키보드로 직접 입력 */}
-                          {editingLifetipId === item.id && (
-                            <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)', background: '#FAFAF8', display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', flexShrink: 0 }}>이모지</span>
-                              <input
-                                type="text"
-                                defaultValue={item.emoji}
-                                autoFocus
-                                onBlur={async e => {
-                                  const newEmoji = e.target.value.trim();
-                                  if (newEmoji && newEmoji !== item.emoji && db && userId) {
-                                    await updateDoc(doc(db, 'users', userId, 'lifetipItems', item.id), {
-                                      emoji: newEmoji, updatedAt: new Date().toISOString()
-                                    });
-                                  }
-                                  setEditingLifetipId(null);
-                                }}
-                                onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-                                style={{ flex: 1, height: 36, padding: '0 10px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 8, background: '#fff', fontSize: 20, outline: 'none' }}
-                              />
-                              <button type="button" onClick={() => setEditingLifetipId(null)}
-                                style={{ height: 36, padding: '0 12px', borderRadius: 8, border: '1px solid rgba(12,12,10,.12)', background: 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
-                                취소
-                              </button>
+                          {/* 이모지 또는 이미지 커버 */}
+                          {item.imageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                          ) : (
+                            <div style={{ width: '100%', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(96,165,250,.06)' }}>
+                              <span style={{ fontSize: 100, opacity: 0.6, lineHeight: 1 }}>{item.emoji || getLifetipEmoji(item.tipCategory)}</span>
                             </div>
                           )}
+                          {/* 제목 */}
+                          <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: 12, width: '100%', zIndex: 1 }}>
+                            {item.name}
+                          </div>
+                          {/* 날짜 */}
+                          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#9A9490', lineHeight: '18px', marginTop: 4, marginBottom: item.sourceUrl ? 8 : 16, width: '100%', zIndex: 2 }}>
+                            {item.createdAt?.slice(0, 10)}
+                          </div>
+                          {/* 소스 링크 */}
+                          {item.sourceUrl && (() => {
+                            let domain = item.sourceUrl;
+                            try { domain = new URL(item.sourceUrl).hostname; } catch {}
+                            return (
+                              <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
+                                style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: '8px 12px', border: '1px solid rgba(96,165,250,.3)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#1D6DDB', letterSpacing: '.04em', background: 'rgba(96,165,250,.06)', width: '100%', boxSizing: 'border-box' as const }}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+                                  <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                                  <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                                </svg>
+                                SOURCE
+                                <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 400, color: '#60A5FA' }}>{domain}</span>
+                              </a>
+                            );
+                          })()}
                         </div>
-                      ))}
-                    </div>
+                        {/* 이모지 인라인 편집 패널 */}
+                        {editingLifetipId === item.id && (
+                          <div style={{ padding: '10px 14px', borderTop: '1px solid #000', background: '#FAFAF8', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', flexShrink: 0 }}>이모지</span>
+                            <input type="text" defaultValue={item.emoji} autoFocus
+                              onBlur={async e => {
+                                const newEmoji = e.target.value.trim();
+                                if (newEmoji && newEmoji !== item.emoji && db && userId) {
+                                  await updateDoc(doc(db, 'users', userId, 'lifetipItems', item.id), { emoji: newEmoji, updatedAt: new Date().toISOString() });
+                                }
+                                setEditingLifetipId(null);
+                              }}
+                              onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                              style={{ flex: 1, height: 36, padding: '0 10px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 8, background: '#fff', fontSize: 20, outline: 'none' }}
+                            />
+                            <button type="button" onClick={() => setEditingLifetipId(null)}
+                              style={{ height: 36, padding: '0 12px', borderRadius: 8, border: '1px solid rgba(12,12,10,.12)', background: 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
+                              취소
+                            </button>
+                          </div>
+                        )}
+                        {/* 푸터 버튼 */}
+                        <div style={{ display: 'flex', borderTop: '1px solid #000000' }}>
+                          <button type="button"
+                            onClick={() => setEditingLifetipId(editingLifetipId === item.id ? null : item.id)}
+                            style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#1D6DDB', border: 'none', borderRight: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>
+                            {editingLifetipId === item.id ? '완료' : '이모지 편집'}
+                          </button>
+                          <button type="button"
+                            onClick={async () => { if (confirm('삭제할까요?') && db && userId) { await deleteDoc(doc(db, 'users', userId, 'lifetipItems', item.id)); } }}
+                            style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#9A9490', border: 'none', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>
+                            삭제
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )
 
@@ -4027,14 +4010,16 @@ function LogPageInner() {
                     {sortedItems.map(item => {
                       const isMakeup = item.ctType === 'makeup';
                       const badge = isMakeup ? '#MAKEUP' : '#LOOKBOOK';
+                      const badgeBg2 = isMakeup ? '#C5FF00' : '#FF8C42';
+                      const badgeText2 = isMakeup ? '#3A6000' : '#7A3000';
                       const isOnToday = item.published && (item.dates ?? []).includes(todayStr);
                       const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
                       return (
                         <div key={item.id} id={`lib-item-${item.id}`} style={{ border: '1px solid #000000', background: '#FFFFFF' }}>
                           {/* 이미지 + 텍스트 영역 */}
                           <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 26px 0px', position: 'relative', width: '100%', isolation: 'isolate', flexShrink: 0 }}>
-                            <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#C6F432', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
-                              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>{badge}</span>
+                            <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: badgeBg2, border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
+                              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: badgeText2, transform: 'rotate(-3deg)' }}>{badge}</span>
                             </div>
                             {/* overflow: visible — 스탬프가 이미지 아래로 삐져나오게 */}
                             <div style={{ width: '100%', overflow: 'visible', flexShrink: 0, zIndex: 0, position: 'relative' }}>
