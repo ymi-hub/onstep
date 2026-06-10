@@ -3847,7 +3847,7 @@ function LogPageInner() {
                 (a, b) => lifetipByCategory2[b].length - lifetipByCategory2[a].length
               );
               return (
-                <div style={{ padding: '0 26px 20px' }}>
+                <div style={{ padding: '12px 10px 0px' }}>
                   {lifetipItems.length === 0 ? (
                     <div style={{ padding: '40px 20px', textAlign: 'center', background: '#fff', borderRadius: 16, border: '1px solid rgba(12,12,10,.08)' }}>
                       <div style={{ fontSize: 32, marginBottom: 8 }}>📌</div>
