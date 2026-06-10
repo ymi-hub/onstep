@@ -1628,6 +1628,7 @@ function LogCtPanel({
     ? 'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)'
     : 'linear-gradient(135deg,#fff0f5 0%,#ffc0d0 100%)';
   const BADGE = filter === 'makeup' ? '#MAKEUP' : '#LOOKBOOK';
+  const BADGE_COLOR = filter === 'makeup' ? '#C5FF00' : '#FF8C42';
 
   function HubStyleCard({ item, featured }: { item: CtItem; featured?: boolean }) {
     const today = format(new Date(), 'yyyy-MM-dd');
@@ -1652,7 +1653,7 @@ function LogCtPanel({
           )}
         </div>
         <div style={{ padding: '12px 12px 4px' }}>
-          <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 6, textTransform: 'uppercase' as const }}>{BADGE}</div>
+          <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: BADGE_COLOR, color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 6, textTransform: 'uppercase' as const }}>{BADGE}</div>
           <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, letterSpacing: '-.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
           {sub && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{sub}</div>}
         </div>
@@ -1743,7 +1744,7 @@ function LogCtPanel({
                 <span style={{ fontSize: 40, opacity: 0.3 }}>{icon}</span>
               </div>
               <div style={{ padding: '10px 12px 0' }}>
-                <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#E4E2DC', color: '#9A9490', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>{BADGE}</div>
+                <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: `${BADGE_COLOR}40`, color: '#9A9490', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>{BADGE}</div>
                 <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#C4C2BE', lineHeight: 1.2, marginBottom: 3 }}>아이템 없음</div>
                 <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, color: '#C4C2BE', paddingBottom: 10 }}>위 버튼으로 추가</div>
               </div>
@@ -3135,7 +3136,7 @@ function LogPageInner() {
                   <button key={t.key} onClick={() => setLibFilter(t.key)}
                     style={{ flex: 1, height: 28, padding: '0 6px', borderRadius: 9999, border: `1.5px solid ${libFilter === t.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: libFilter === t.key ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: libFilter === t.key ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, whiteSpace: 'nowrap' as const }}>
                     {t.label}
-                    {t.count > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: libFilter === t.key ? '#C5FF00' : '#EEEDE9', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t.count}</span>}
+                    {t.count > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: libFilter === t.key ? (t.key === 'makeup' ? '#C5FF00' : t.key === 'lookbook' ? '#FF8C42' : t.key === 'lifetip' ? '#60A5FA' : '#C5FF00') : '#EEEDE9', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t.count}</span>}
                   </button>
                 ))}
               </div>
