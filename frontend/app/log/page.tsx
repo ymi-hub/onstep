@@ -3306,6 +3306,9 @@ function LogPageInner() {
             other: '🔗',
           };
 
+          // Life TIP에 등록된 카테고리 집합 — 태그 색상 구분에 사용
+          const lifetipCategorySet = new Set(lifetipItems.map(i => i.tipCategory));
+
           // 필터링 + 정렬 + 페이지네이션
           const filtered = refFilter === 'all'
             ? references
@@ -3421,7 +3424,20 @@ function LogPageInner() {
                   {/* ← 50% 좌측: 라이브러리 등록 */}
                   <button
                     type="button"
-                    onClick={() => { setRefToLib(ref); setRefToLibType('makeup'); }}
+                    onClick={() => {
+                      setRefToLib(ref);
+                      // ref 태그 중 Life TIP 카테고리로 등록된 것이 있으면 lifetip 타입 기본 선택
+                      const tipTag = (ref.tags ?? []).find(t => lifetipCategorySet.has(t));
+                      if (tipTag) {
+                        setRefToLibType('lifetip');
+                        setRefToLibTipCategory(tipTag);
+                        setRefToLibEmoji(getLifetipEmoji(tipTag));
+                      } else {
+                        setRefToLibType('makeup');
+                        setRefToLibTipCategory('');
+                        setRefToLibEmoji('');
+                      }
+                    }}
                     style={{ flex: 1, height: 42, borderRadius: 12, background: '#0C0C0A', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, cursor: 'pointer' }}
                   >
                     <span style={{ fontSize: 13, color: '#C5FF00', lineHeight: 1 }}>＋</span>
@@ -3676,16 +3692,22 @@ function LogPageInner() {
                 {(['all', ...Array.from(new Set(references.flatMap(r => r.tags ?? []))).sort()] as string[]).map(tag => {
                   const active = refFilter === tag;
                   const label = tag === 'all' ? `ALL (${references.length})` : tag;
+                  // Life TIP 카테고리 태그는 블루 컬러로 구분
+                  const isTip = tag !== 'all' && lifetipCategorySet.has(tag);
                   return (
                     <button
                       key={tag}
                       onClick={() => { setRefFilter(tag); setRefVisibleCount(10); }}
                       style={{
                         flexShrink: 0, height: 28, padding: '0 12px', borderRadius: 9999,
-                        border: `1.5px solid ${active ? 'rgba(74,119,0,.5)' : 'rgba(12,12,10,.14)'}`,
-                        background: active ? 'rgba(197,255,0,.18)' : 'transparent',
+                        border: active
+                          ? `1.5px solid ${isTip ? 'rgba(96,165,250,.5)' : 'rgba(74,119,0,.5)'}`
+                          : '1.5px solid rgba(12,12,10,.14)',
+                        background: active
+                          ? (isTip ? 'rgba(96,165,250,.18)' : 'rgba(197,255,0,.18)')
+                          : 'transparent',
                         fontFamily: f, fontSize: 11, fontWeight: 700,
-                        color: active ? '#3A6000' : '#9A9490',
+                        color: active ? (isTip ? '#1D6DDB' : '#3A6000') : '#9A9490',
                         cursor: 'pointer', transition: 'all .15s',
                         whiteSpace: 'nowrap' as const,
                       }}
@@ -3740,15 +3762,23 @@ function LogPageInner() {
                       if (b === '태그 없음') return -1;
                       return a.localeCompare(b, 'ko');
                     });
-                    return sortedG.map(([tag, items]) => (
-                      <div key={tag} style={{ marginBottom: 24 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#4A7700', background: 'rgba(197,255,0,.18)', padding: '3px 10px', borderRadius: 9999, letterSpacing: '.06em' }}>{tag}</span>
-                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
+                    return sortedG.map(([tag, items]) => {
+                      const isTipSection = lifetipCategorySet.has(tag);
+                      return (
+                        <div key={tag} style={{ marginBottom: 24 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                            <span style={{
+                              fontFamily: f, fontSize: 11, fontWeight: 800,
+                              color: isTipSection ? '#1D6DDB' : '#4A7700',
+                              background: isTipSection ? 'rgba(96,165,250,.18)' : 'rgba(197,255,0,.18)',
+                              padding: '3px 10px', borderRadius: 9999, letterSpacing: '.06em',
+                            }}>{tag}</span>
+                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{items.map(renderRef)}</div>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{items.map(renderRef)}</div>
-                      </div>
-                    ));
+                      );
+                    });
                   })()}
                   {/* 이름순 — 플랫 리스트 */}
                   {refSort === 'name' && (
