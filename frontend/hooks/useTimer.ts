@@ -50,10 +50,41 @@ export interface TimerState {
   dismissAlarm: () => void;
 }
 
+const TIMER_STORAGE_KEY = 'onstep_timer_v1';
+
+function saveTimerToStorage(label: string, endMs: number, durationMs: number) {
+  try {
+    localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify({ label, endMs, durationMs }));
+  } catch {}
+}
+
+function clearTimerFromStorage() {
+  try { localStorage.removeItem(TIMER_STORAGE_KEY); } catch {}
+}
+
 export function useTimer(): TimerState {
-  const [timerLabel, setTimerLabel] = useState<string | null>(null);
-  const [timerEndMs, setTimerEndMs] = useState<number | null>(null);
-  const [timerDurationMs, setTimerDurationMs] = useState<number>(0);
+  // localStorage에서 타이머 상태 복원 (초기값)
+  const [timerLabel, setTimerLabel] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const saved = JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY) ?? 'null');
+      return saved?.endMs > Date.now() ? saved.label : null;
+    } catch { return null; }
+  });
+  const [timerEndMs, setTimerEndMs] = useState<number | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const saved = JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY) ?? 'null');
+      return saved?.endMs > Date.now() ? saved.endMs : null;
+    } catch { return null; }
+  });
+  const [timerDurationMs, setTimerDurationMs] = useState<number>(() => {
+    if (typeof window === 'undefined') return 0;
+    try {
+      const saved = JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY) ?? 'null');
+      return saved?.endMs > Date.now() ? (saved.durationMs ?? 0) : 0;
+    } catch { return 0; }
+  });
   const [timerRemainMs, setTimerRemainMs] = useState<number>(0);
   const [alarmVisible, setAlarmVisible] = useState(false);
   const [alarmLabel, setAlarmLabel] = useState<string | null>(null);
@@ -117,6 +148,7 @@ export function useTimer(): TimerState {
       if (remain === 0 && !alarmFiredRef.current) {
         alarmFiredRef.current = true;
         setTimerEndMs(null);
+        clearTimerFromStorage();
 
         // 1. 무음 오디오 정지
         if (silentAudioRef.current) {
@@ -228,6 +260,7 @@ export function useTimer(): TimerState {
     const endMs = Date.now() + durationMs;
     setTimerDurationMs(durationMs);
     setTimerEndMs(endMs);
+    saveTimerToStorage(label, endMs, durationMs);
 
     // 알림 권한 요청 (만약 아직 수락하지 않았다면)
     if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -335,6 +368,7 @@ export function useTimer(): TimerState {
     setTimerRemainMs(0);
     setTimerDurationMs(0);
     setAlarmVisible(false);
+    clearTimerFromStorage();
     stopBackgroundAudio();
 
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {

@@ -37,6 +37,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  type Firestore,
 } from 'firebase/firestore';
 import {
   onAuthStateChanged,
@@ -72,6 +73,8 @@ type Reference = {
   tags: string[];         // '메이크업' | '스킨케어' | '코디' | '루틴'
   note?: string;          // 메모 (선택)
   inLibrary?: boolean;    // 라이브러리 등록 여부
+  libraryItemId?: string;               // 등록된 라이브러리 문서 ID
+  libraryItemType?: 'makeup' | 'lookbook' | 'lifetip'; // 등록된 컬렉션 타입
   createdAt: string;      // ISO datetime
 };
 
@@ -2406,6 +2409,50 @@ function LogPageInner() {
     await deleteDoc(doc(db, 'users', userId, filter === 'makeup' ? 'makeupItems' : 'lookItems', id));
   }
 
+  // ── 수동 완료 토글 공통 헬퍼: 날짜 + 슬롯에 맞는 제품 목록 로그 저장 ──
+  async function saveManualLogs(_db: Firestore, timeSlot: 'morning' | 'evening', dateStr: string) {
+    const logsRef = collection(_db, 'users', userId, 'usageLogs');
+    const loggedAt = new Date(dateStr + (timeSlot === 'morning' ? 'T09:00:00' : 'T21:00:00')).toISOString();
+
+    // 해당 날짜에 활성 세션 찾기 (startDate ≤ dateStr ≤ endDate)
+    const session = sessions.find(s => s.startDate <= dateStr && s.endDate >= dateStr);
+
+    if (!session) {
+      // 세션 없으면 완료 마커만 저장
+      await addDoc(logsRef, { timeSlot, dateStr, loggedAt, type: 'manual' });
+      return;
+    }
+
+    // DAY 인덱스 계산
+    const slot = timeSlot === 'morning' ? session.morning : session.evening;
+    const dayCount = slot?.days?.length || 1;
+    const diff = Math.max(0, Math.floor(
+      (new Date(dateStr).getTime() - new Date(session.startDate).getTime()) / 86400000
+    ));
+    const dayIdx = diff % dayCount;
+    const day = slot?.days?.[dayIdx] ?? slot?.days?.[0];
+
+    const productItems = (day?.items ?? []).filter(
+      (i): i is { type: 'product'; id: string } => i.type === 'product'
+    );
+
+    if (productItems.length === 0) {
+      // 제품 없는 슬롯: 완료 마커만 저장
+      await addDoc(logsRef, { routineId: session.id, timeSlot, dateStr, loggedAt, type: 'manual' });
+    } else {
+      // 각 제품별로 로그 저장
+      await Promise.all(productItems.map(item => addDoc(logsRef, {
+        routineId: session.id,
+        productId: item.id,
+        amount: 0,
+        type: 'manual',
+        timeSlot,
+        dateStr,
+        loggedAt,
+      })));
+    }
+  }
+
   // ── 아침/저녁 수동 완료 토글 — 날짜 지정 버전 ──
   async function handleToggleMorningForDate(dateStr: string) {
     const _db = db;
@@ -2415,11 +2462,7 @@ function LogPageInner() {
       const entries = dayLog.entries.filter(e => e.timeSlot === 'morning');
       await Promise.all(entries.map(e => deleteDoc(doc(_db, 'users', userId, 'usageLogs', e.id))));
     } else {
-      await addDoc(collection(_db, 'users', userId, 'usageLogs'), {
-        timeSlot: 'morning', dateStr,
-        loggedAt: new Date(dateStr + 'T09:00:00').toISOString(),
-        type: 'manual',
-      });
+      await saveManualLogs(_db, 'morning', dateStr);
     }
   }
   async function handleToggleEveningForDate(dateStr: string) {
@@ -2430,11 +2473,7 @@ function LogPageInner() {
       const entries = dayLog.entries.filter(e => e.timeSlot === 'evening');
       await Promise.all(entries.map(e => deleteDoc(doc(_db, 'users', userId, 'usageLogs', e.id))));
     } else {
-      await addDoc(collection(_db, 'users', userId, 'usageLogs'), {
-        timeSlot: 'evening', dateStr,
-        loggedAt: new Date(dateStr + 'T21:00:00').toISOString(),
-        type: 'manual',
-      });
+      await saveManualLogs(_db, 'evening', dateStr);
     }
   }
   // 오늘 날짜용 래퍼 (MonthCalendar 기존 props 호환)
@@ -2768,10 +2807,11 @@ function LogPageInner() {
     if (!refToLib || !db || !userId) return;
     setRefToLibSaving(true);
     try {
+      let libraryItemId = '';
       if (refToLibType === 'lifetip') {
         const category = refToLibTipCategory.trim() || refToLibCatName || 'Life tip';
         const emoji = refToLibEmoji.trim() || getLifetipEmoji(category);
-        await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
+        const newRef = await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
           name: refToLib.title || refToLib.url || '새 아이템',
           emoji,
           imageUrl: refToLib.imageUrl || '',
@@ -2781,9 +2821,10 @@ function LogPageInner() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         } satisfies Omit<LifetipItem, 'id'>);
+        libraryItemId = newRef.id;
       } else {
         const colName = refToLibType === 'makeup' ? 'makeupItems' : 'lookItems';
-        await addDoc(collection(db, 'users', userId, colName), {
+        const newRef = await addDoc(collection(db, 'users', userId, colName), {
           ctType: refToLibType,
           name: refToLib.title || refToLib.url || '새 아이템',
           emoji: refToLibType === 'makeup' ? '💄' : '👗',
@@ -2796,16 +2837,43 @@ function LogPageInner() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         });
+        libraryItemId = newRef.id;
       }
-      // 수집 문서에 라이브러리 등록 완료 표시
-      // 선택한 카테고리로 수집 항목의 tags도 동기화
+      // 수집 문서에 라이브러리 등록 완료 표시 + 라이브러리 아이템 ID 추적
       const updatedRefTags = [refToLibCatName, ...(refToLib.tags ?? []).filter(t => !categoryTags.includes(t))];
-      await updateDoc(doc(db, 'users', userId, 'references', refToLib.id), { inLibrary: true, tags: updatedRefTags });
+      await updateDoc(doc(db, 'users', userId, 'references', refToLib.id), {
+        inLibrary: true,
+        libraryItemId,
+        libraryItemType: refToLibType,
+        tags: updatedRefTags,
+      });
       setRefToLib(null);
     } catch (err) {
       console.error('[OnStep] refToLib 저장 실패:', err);
     } finally {
       setRefToLibSaving(false);
+    }
+  }
+
+  // ── 라이브러리 해지 (LIB OFF) ──
+  async function removeFromLibrary(ref: Reference) {
+    if (!db || !userId) return;
+    try {
+      // 연결된 라이브러리 아이템 삭제
+      if (ref.libraryItemId && ref.libraryItemType) {
+        const colName = ref.libraryItemType === 'makeup' ? 'makeupItems'
+                       : ref.libraryItemType === 'lookbook' ? 'lookItems'
+                       : 'lifetipItems';
+        await deleteDoc(doc(db, 'users', userId, colName, ref.libraryItemId));
+      }
+      // 수집 문서에서 라이브러리 등록 해제
+      await updateDoc(doc(db, 'users', userId, 'references', ref.id), {
+        inLibrary: false,
+        libraryItemId: null,
+        libraryItemType: null,
+      });
+    } catch (err) {
+      console.error('[OnStep] 라이브러리 해지 실패:', err);
     }
   }
 
@@ -3445,24 +3513,29 @@ function LogPageInner() {
                 {/* ── 액션 바 — 5:5 분리 ── */}
                 <div style={{ display: 'flex', alignItems: 'stretch', padding: '8px 10px 10px', gap: 6 }}>
 
-                  {/* ← 50% 좌측: 라이브러리 등록 토글 */}
+                  {/* ← 50% 좌측: 라이브러리 등록/해지 토글 */}
                   <button
                     type="button"
                     onClick={() => {
-                      setRefToLib(ref);
-                      setLibCatEditOpen(false);
-                      const tags = ref.tags ?? [];
-                      // 수집의 현재 카테고리 태그 → 라이브러리 타입 결정
-                      const firstCat = categoryTags.find(c => tags.includes(c)) ?? categoryTags[0] ?? 'Life tip';
-                      setRefToLibCatName(firstCat);
-                      const libType = firstCat === 'Lookbook' ? 'lookbook' : firstCat === 'Makeup' ? 'makeup' : 'lifetip';
-                      setRefToLibType(libType);
-                      setRefToLibTipCategory(libType === 'lifetip' && firstCat !== 'Life tip' ? firstCat : '');
-                      setRefToLibEmoji('');
+                      if (ref.inLibrary) {
+                        // LIB OFF — 라이브러리 해지
+                        removeFromLibrary(ref);
+                      } else {
+                        // LIB ON — 등록 시트 열기
+                        setRefToLib(ref);
+                        setLibCatEditOpen(false);
+                        const tags = ref.tags ?? [];
+                        const firstCat = categoryTags.find(c => tags.includes(c)) ?? categoryTags[0] ?? 'Life tip';
+                        setRefToLibCatName(firstCat);
+                        const libType = firstCat === 'Lookbook' ? 'lookbook' : firstCat === 'Makeup' ? 'makeup' : 'lifetip';
+                        setRefToLibType(libType);
+                        setRefToLibTipCategory(libType === 'lifetip' && firstCat !== 'Life tip' ? firstCat : '');
+                        setRefToLibEmoji('');
+                      }
                     }}
-                    style={{ flex: 1, height: 42, borderRadius: 8, background: ref.inLibrary ? '#0C0C0A' : 'rgba(12,12,10,.06)', border: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: ref.inLibrary ? '#C5FF00' : '#9A9490', cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const }}
+                    style={{ flex: 1, height: 42, borderRadius: 8, background: ref.inLibrary ? '#0C0C0A' : 'rgba(12,12,10,.06)', border: `1px solid ${ref.inLibrary ? 'transparent' : 'rgba(12,12,10,.1)'}`, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: ref.inLibrary ? '#C5FF00' : '#9A9490', cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const }}
                   >
-                    {ref.inLibrary ? 'LIB ON' : 'LIB OFF'}
+                    {ref.inLibrary ? 'LIB ON ✓' : 'LIB ON'}
                   </button>
 
                   {/* → 50% 우측: 링크공유 + 편집 + 삭제 (3등분) */}
