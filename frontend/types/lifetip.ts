@@ -7,6 +7,7 @@ export type LifetipItem = {
   tipCategory: string;
   published: boolean;
   productIds?: string[];   // BOX에서 연결한 제품 ID 목록
+  memo?: string;           // 메모
   createdAt: string;
   updatedAt: string;
 };

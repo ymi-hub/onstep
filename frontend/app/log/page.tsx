@@ -1266,12 +1266,10 @@ function LifetipLibraryCard({
   item,
   products,
   onEdit,
-  onDelete,
 }: {
   item: import('@/types/lifetip').LifetipItem;
   products: Map<string, Product>;
   onEdit: () => void;
-  onDelete: () => void;
 }) {
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   const pIds = item.productIds ?? [];
@@ -1376,8 +1374,7 @@ function LifetipLibraryCard({
 
       {/* ⑤ 편집 바 — marginTop: auto로 항상 카드 하단 고정 */}
       <div style={{ display: 'flex', borderTop: '1px solid #000000', marginTop: 'auto', flexShrink: 0 }}>
-        <button onClick={onEdit} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRight: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
-        <button onClick={onDelete} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#9A9490', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>삭제</button>
+        <button onClick={onEdit} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
       </div>
     </div>
   );
@@ -2189,7 +2186,7 @@ function LogPageInner() {
 
   // ── 탭 상태 ──
   const [mainTab, setMainTab] = useState<'기록' | '라이브러리' | '아카이브' | '수집'>('기록');
-  const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip' | 'ootd'>('all');
+  const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip'>('all');
   const [libFilter, setLibFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip' | 'ootd'>('all');
   const [lifetipCategory, setLifetipCategory] = useState<string | null>(null); // null = 그리드 홈
   const [editingLifetipId, setEditingLifetipId] = useState<string | null>(null); // 인라인 이모지 편집
@@ -2202,7 +2199,10 @@ function LogPageInner() {
   const [lifetipEditProductIds, setLifetipEditProductIds] = useState<string[]>([]);
   const [lifetipEditImageFile, setLifetipEditImageFile] = useState<File | null>(null);
   const [lifetipEditImagePreview, setLifetipEditImagePreview] = useState('');
+  const [lifetipEditMemo, setLifetipEditMemo] = useState('');
   const [lifetipEditSaving, setLifetipEditSaving] = useState(false);
+  const [lifetipPickerOpen, setLifetipPickerOpen] = useState(false);
+  const [lifetipPickerSearch, setLifetipPickerSearch] = useState('');
 
   // ── 수집 탭 상태 ──
   const [references, setReferences] = useState<Reference[]>([]);
@@ -2763,6 +2763,8 @@ function LogPageInner() {
     setLifetipEditProductIds(item.productIds ?? []);
     setLifetipEditImageFile(null);
     setLifetipEditImagePreview(item.imageUrl ?? '');
+    setLifetipEditMemo(item.memo || '');
+    setLifetipPickerSearch('');
   }
 
   async function saveLifetipEdit() {
@@ -2779,6 +2781,7 @@ function LogPageInner() {
         tipCategory: lifetipEditCategory.trim() || editingLifetip.tipCategory,
         sourceUrl: lifetipEditUrl.trim(),
         productIds: lifetipEditProductIds,
+        memo: lifetipEditMemo.trim(),
         imageUrl,
         updatedAt: new Date().toISOString(),
       });
@@ -3417,7 +3420,6 @@ function LogPageInner() {
                         item={item}
                         products={products}
                         onEdit={() => openLifetipEdit(item)}
-                        onDelete={async () => { if (confirm('삭제할까요?') && db && userId) await deleteDoc(doc(db, 'users', userId, 'lifetipItems', item.id)); }}
                       />
                     ))}
                   </div>
@@ -4014,14 +4016,13 @@ function LogPageInner() {
                 { key: 'makeup', label: '💄 Makeup' },
                 { key: 'lookbook', label: '👗 Lookbook' },
                 { key: 'lifetip', label: '📌 Life TIP' },
-                { key: 'ootd', label: '📷 OOTD' },
               ] as const).map(tab => (
                 <button key={tab.key} onClick={() => { setArchiveFilter(tab.key); setLifetipCategory(null); }}
                   style={{ flexShrink: 0, height: 30, padding: '0 14px', borderRadius: 9999,
-                    border: `1.5px solid ${archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#60A5FA' : tab.key === 'ootd' ? '#C5FF00' : '#0C0C0A') : 'rgba(12,12,10,.14)'}`,
-                    background: archiveFilter === tab.key ? (tab.key === 'lifetip' ? 'rgba(96,165,250,.14)' : tab.key === 'ootd' ? 'rgba(197,255,0,.14)' : '#0C0C0A') : 'transparent',
+                    border: `1.5px solid ${archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#60A5FA' : '#0C0C0A') : 'rgba(12,12,10,.14)'}`,
+                    background: archiveFilter === tab.key ? (tab.key === 'lifetip' ? 'rgba(96,165,250,.14)' : '#0C0C0A') : 'transparent',
                     fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700,
-                    color: archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#1D6DDB' : tab.key === 'ootd' ? '#3A6000' : '#fff') : '#9A9490',
+                    color: archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#1D6DDB' : '#fff') : '#9A9490',
                     cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const }}>
                   {tab.label}
                 </button>
@@ -4087,7 +4088,6 @@ function LogPageInner() {
                             item={item}
                             products={products}
                             onEdit={() => openLifetipEdit(item)}
-                            onDelete={async () => { if (confirm('삭제할까요?') && db && userId) await deleteDoc(doc(db, 'users', userId, 'lifetipItems', item.id)); }}
                           />
                         ))}
                       </div>
@@ -4097,63 +4097,8 @@ function LogPageInner() {
               );
             })()}
 
-            {/* OOTD 카드 목록 — ootd 필터 또는 ALL에서 표시 */}
-            {(archiveFilter === 'ootd' || archiveFilter === 'all') && (() => {
-              const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-              if (ootdLogs.length === 0) return archiveFilter === 'ootd' ? (
-                <div style={{ padding: '40px 26px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, margin: '0 26px 12px' }}>
-                  <div style={{ fontSize: 28, marginBottom: 8 }}>📷</div>
-                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>기록된 룩이 없어요</div>
-                  <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>TODAY 화면에서 오늘의 룩을 기록해보세요</div>
-                </div>
-              ) : null;
-              return (
-                <div style={{ padding: archiveFilter === 'all' ? '0 26px' : '0 26px 20px' }}>
-                  {archiveFilter === 'all' && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '4px 0 12px' }}>
-                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490' }}>OOTD</span>
-                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#3A6000' }}>{ootdLogs.length}개</span>
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: archiveFilter === 'all' ? 20 : 20 }}>
-                    {ootdLogs.map(log => (
-                      <div key={log.id} style={{ border: '1px solid #000000', background: '#FFFFFF' }}>
-                        <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 26px 0px', position: 'relative', width: '100%', isolation: 'isolate', flexShrink: 0 }}>
-                          <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#C6F432', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
-                            <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>#OOTD</span>
-                          </div>
-                          {log.photoUrl
-                            // eslint-disable-next-line @next/next/no-img-element
-                            ? <img src={log.photoUrl} alt={log.theme} style={{ width: '100%', height: 'auto', display: 'block' }} />
-                            : <div style={{ width: '100%', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>
-                              </div>
-                          }
-                          {/* 테마 */}
-                          <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: 12, width: '100%', zIndex: 1 }}>
-                            {log.theme || '오늘의 룩'}
-                          </div>
-                          {/* 날짜 */}
-                          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#525252', marginTop: 4, width: '100%', zIndex: 2 }}>
-                            {log.date}
-                          </div>
-                          {/* 메모 — 별도 라인 */}
-                          {log.note ? (
-                            <div style={{ fontFamily: f, fontSize: 13, color: '#000', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>
-                              {log.note}
-                            </div>
-                          ) : <div style={{ marginBottom: 12 }} />}
-                        </div>
-                        <button type="button" onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
-
             {/* 아이템 카드 목록 (메이크업 / 룩북) */}
-            {archiveFilter !== 'lifetip' && archiveFilter !== 'ootd' && (() => {
+            {archiveFilter !== 'lifetip' && (() => {
               const visibleItems = [
                 ...(archiveFilter !== 'lookbook' ? makeupItems : []),
                 ...(archiveFilter !== 'makeup' ? lookItems : []),
@@ -4381,50 +4326,26 @@ function LogPageInner() {
                   />
                 </div>
 
-                {/* BOX 제품 연결 — 아이템 매핑 레이블 + 태그 + BOX 버튼 */}
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>관련 BOX 제품</div>
+                {/* 메모 */}
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>메모</div>
+                <textarea value={lifetipEditMemo} onChange={e => setLifetipEditMemo(e.target.value)} placeholder="메모…"
+                  style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#0C0C0A', resize: 'none', height: 72, outline: 'none', boxSizing: 'border-box' as const, marginBottom: 16 }} />
+
+                {/* BOX 제품 연결 — OOTD 편집 시트와 동일한 버튼 + 피커 방식 */}
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>BOX 제품 연결</div>
+                <button type="button" onClick={() => setLifetipPickerOpen(true)}
+                  style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
+                  {lifetipEditProductIds.length > 0 ? `${lifetipEditProductIds.length}개 선택됨 · 변경` : '+ BOX에서 불러오기'}
+                </button>
                 {lifetipEditProductIds.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
-                    {lifetipEditProductIds.map((pid, idx) => {
-                      const p = allProducts.find(p => p.id === pid);
-                      return (
-                        <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>
-                          {p?.name ?? pid}
-                          <button type="button" onClick={() => setLifetipEditProductIds(prev => prev.filter((_, i) => i !== idx))}
-                            style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 12, padding: 0, lineHeight: 1 }}>×</button>
-                        </span>
-                      );
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 16 }}>
+                    {lifetipEditProductIds.map(pid => {
+                      const p = allProducts.find(q => q.id === pid);
+                      return <span key={pid} style={{ fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>{p?.name ?? pid}</span>;
                     })}
                   </div>
                 )}
-                {/* BOX 제품 인라인 피커 */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 220, overflowY: 'auto', marginBottom: 16, border: allProducts.length > 0 ? '1px solid rgba(12,12,10,.1)' : 'none', borderRadius: 12 }}>
-                  {allProducts.length === 0 ? (
-                    <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6', padding: '12px 14px' }}>BOX에 등록된 제품이 없어요</div>
-                  ) : allProducts.map(p => {
-                    const selected = lifetipEditProductIds.includes(p.id);
-                    const imgSrc = p.imageUrl ?? (p as (Product & { storageUrl?: string })).storageUrl;
-                    return (
-                      <button key={p.id} type="button"
-                        onClick={() => setLifetipEditProductIds(prev => selected ? prev.filter(id => id !== p.id) : [...prev, p.id])}
-                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
-                          border: 'none', borderBottom: '1px solid rgba(12,12,10,.06)',
-                          background: selected ? 'rgba(197,255,0,.06)' : '#fff',
-                          cursor: 'pointer', textAlign: 'left', transition: 'background .15s' }}>
-                        <div style={{ width: 36, height: 42, background: '#F5F4F0', borderRadius: 6, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16, opacity: 0.3 }}>🧴</span>}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                          {p.brand && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 1 }}>{p.brand}</div>}
-                        </div>
-                        <div style={{ width: 20, height: 20, borderRadius: 9999, border: `2px solid ${selected ? '#0C0C0A' : 'rgba(12,12,10,.2)'}`, background: selected ? '#C5FF00' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {selected && <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#0C0C0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                {lifetipEditProductIds.length === 0 && <div style={{ marginBottom: 16 }} />}
 
                 {/* 버튼 — Makeup/Lookbook과 동일한 취소/저장/삭제 구조 */}
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -4439,6 +4360,53 @@ function LogPageInner() {
                   style={{ width: '100%', padding: 14, background: 'none', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#BA1A1A', cursor: 'pointer', fontWeight: 700, marginTop: 8 }}>삭제</button>
               </div>
             </div>
+
+            {/* BOX 제품 피커 바텀시트 */}
+            {lifetipPickerOpen && (() => {
+              const filtered = allProducts.filter(p =>
+                lifetipPickerSearch.trim() ? p.name.toLowerCase().includes(lifetipPickerSearch.toLowerCase()) : true
+              );
+              return (
+                <>
+                  <div onClick={() => setLifetipPickerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 320 }} />
+                  <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: '12px 26px 8px', flexShrink: 0 }}>
+                      <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
+                      <input type="search" value={lifetipPickerSearch} onChange={e => setLifetipPickerSearch(e.target.value)} placeholder="제품 검색..." autoFocus
+                        style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
+                    </div>
+                    <div style={{ flex: 1, overflowY: 'auto' }}>
+                      {filtered.length === 0 && (
+                        <div style={{ padding: '24px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>제품이 없어요</div>
+                      )}
+                      {filtered.map(p => {
+                        const sel = lifetipEditProductIds.includes(p.id);
+                        const imgSrc = p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl;
+                        return (
+                          <div key={p.id} onClick={() => setLifetipEditProductIds(ids => sel ? ids.filter(id => id !== p.id) : [...ids, p.id])}
+                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 26px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                              {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>🧴</span>}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                              {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                            </div>
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div style={{ padding: '12px 26px', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
+                      <button type="button" onClick={() => setLifetipPickerOpen(false)}
+                        style={{ width: '100%', height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
+                        완료 ({lifetipEditProductIds.length}개)
+                      </button>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </>
         );
       })()}

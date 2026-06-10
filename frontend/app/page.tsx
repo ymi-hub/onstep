@@ -1889,6 +1889,53 @@ function OOTDRecordSheet({
   const [tagEditOpen, setTagEditOpen] = useState(false);
   const [newTagInput, setNewTagInput] = useState('');
 
+  // 드래그 앤 드롭 상태
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
+  // 터치 드래그용 ref
+  const touchDragIdxRef = useRef<number | null>(null);
+  const touchStartYRef = useRef(0);
+
+  function moveTag(from: number, to: number) {
+    const next = [...tags];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    onTagsChange(next);
+  }
+
+  // 터치 드래그 핸들러
+  function handleTouchStart(e: React.TouchEvent, idx: number) {
+    touchDragIdxRef.current = idx;
+    touchStartYRef.current = e.touches[0].clientY;
+    setDragIdx(idx);
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    if (touchDragIdxRef.current === null) return;
+    e.preventDefault();
+    const y = e.touches[0].clientY;
+    const items = document.querySelectorAll('[data-ootd-tag-idx]');
+    let overIdx: number | null = null;
+    items.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      const idxAttr = el.getAttribute('data-ootd-tag-idx');
+      if (idxAttr !== null && y >= rect.top && y <= rect.bottom) {
+        overIdx = parseInt(idxAttr, 10);
+      }
+    });
+    if (overIdx !== null) setDragOverIdx(overIdx);
+  }
+
+  function handleTouchEnd() {
+    if (touchDragIdxRef.current !== null && dragOverIdx !== null && touchDragIdxRef.current !== dragOverIdx) {
+      moveTag(touchDragIdxRef.current, dragOverIdx);
+    }
+    touchDragIdxRef.current = null;
+    setDragIdx(null);
+    setDragOverIdx(null);
+  }
+
   return (
     <>
       {/* 백드롭 */}
@@ -1920,13 +1967,13 @@ function OOTDRecordSheet({
             태그 편집
           </button>
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
           {tags.map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => onThemeChange(theme === t ? '' : t)}
-              style={{ padding: '8px 20px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#0A0A0A' : 'rgba(12,12,10,.14)'}`, background: theme === t ? '#0A0A0A' : 'transparent', color: theme === t ? '#C5FF00' : '#0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .15s' }}
+              style={{ padding: '5px 14px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#0A0A0A' : 'rgba(12,12,10,.14)'}`, background: theme === t ? '#0A0A0A' : 'transparent', color: theme === t ? '#C5FF00' : '#0C0C0A', fontFamily: f, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all .15s' }}
             >
               {t}
             </button>
@@ -2004,24 +2051,59 @@ function OOTDRecordSheet({
               <button onClick={() => setTagEditOpen(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9A9490' }}>✕</button>
             </div>
 
-            {/* 현재 태그 목록 */}
+            {/* 현재 태그 목록 (드래그 앤 드롭) */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-              {tags.map((tag, idx) => (
-                <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  {/* 삭제 버튼 */}
-                  <button
-                    type="button"
-                    onClick={() => onTagsChange(tags.filter((_, i) => i !== idx))}
-                    style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}
+              {tags.map((tag, idx) => {
+                const isDragging = dragIdx === idx;
+                const isDragOver = dragOverIdx === idx;
+                return (
+                  <div
+                    key={tag}
+                    data-ootd-tag-idx={idx}
+                    onDragOver={e => { e.preventDefault(); if (dragOverIdx !== idx) setDragOverIdx(idx); }}
+                    onDrop={e => {
+                      e.preventDefault();
+                      if (dragIdx !== null && dragIdx !== idx) moveTag(dragIdx, idx);
+                      setDragIdx(null); setDragOverIdx(null);
+                    }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      opacity: isDragging ? 0.4 : 1,
+                      outline: isDragOver ? '2px dashed #C5FF00' : 'none',
+                      outlineOffset: 2,
+                      borderRadius: 14,
+                      transition: 'opacity .15s, outline .1s',
+                      userSelect: dragIdx !== null ? 'none' : 'auto',
+                    }}
                   >
-                    -
-                  </button>
-                  {/* 태그 라벨 */}
-                  <div style={{ flex: 1, padding: '12px 16px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A' }}>
-                    {tag}
+                    {/* 삭제 버튼 */}
+                    <button
+                      type="button"
+                      onClick={() => onTagsChange(tags.filter((_, i) => i !== idx))}
+                      style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}
+                    >
+                      -
+                    </button>
+                    {/* 태그 라벨 */}
+                    <div style={{ flex: 1, padding: '12px 16px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A' }}>
+                      {tag}
+                    </div>
+                    {/* 드래그 핸들 */}
+                    <div
+                      draggable
+                      onDragStart={e => { e.dataTransfer.effectAllowed = 'move'; setDragIdx(idx); }}
+                      onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+                      onTouchStart={e => handleTouchStart(e, idx)}
+                      onTouchMove={handleTouchMove}
+                      onTouchEnd={handleTouchEnd}
+                      onTouchCancel={handleTouchEnd}
+                      style={{ fontSize: 18, color: '#BCBAB6', cursor: 'grab', padding: '4px 6px', flexShrink: 0, touchAction: 'none', userSelect: 'none' }}
+                    >
+                      ☰
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {tags.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: '#9A9490', fontFamily: f }}>등록된 태그가 없습니다.</div>
               )}
