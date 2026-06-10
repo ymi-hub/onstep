@@ -6,6 +6,7 @@ export type LifetipItem = {
   sourceUrl?: string;
   tipCategory: string;
   published: boolean;
+  productIds?: string[];   // BOX에서 연결한 제품 ID 목록
   createdAt: string;
   updatedAt: string;
 };

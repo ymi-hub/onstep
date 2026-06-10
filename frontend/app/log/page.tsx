@@ -2067,7 +2067,15 @@ function LogPageInner() {
   const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip'>('all');
   const [libFilter, setLibFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip' | 'ootd'>('all');
   const [lifetipCategory, setLifetipCategory] = useState<string | null>(null); // null = 그리드 홈
-  const [editingLifetipId, setEditingLifetipId] = useState<string | null>(null); // 이모지 편집 중인 아이템
+  const [editingLifetipId, setEditingLifetipId] = useState<string | null>(null); // 인라인 이모지 편집
+  // Life TIP 편집 시트
+  const [editingLifetip, setEditingLifetip] = useState<import('@/types/lifetip').LifetipItem | null>(null);
+  const [lifetipEditName, setLifetipEditName] = useState('');
+  const [lifetipEditEmoji, setLifetipEditEmoji] = useState('');
+  const [lifetipEditCategory, setLifetipEditCategory] = useState('');
+  const [lifetipEditUrl, setLifetipEditUrl] = useState('');
+  const [lifetipEditProductIds, setLifetipEditProductIds] = useState<string[]>([]);
+  const [lifetipEditSaving, setLifetipEditSaving] = useState(false);
 
   // ── 수집 탭 상태 ──
   const [references, setReferences] = useState<Reference[]>([]);
@@ -2608,6 +2616,36 @@ function LogPageInner() {
       console.error('[OnStep] refToLib 저장 실패:', err);
     } finally {
       setRefToLibSaving(false);
+    }
+  }
+
+  // ── Life TIP 편집 시트 ──
+  function openLifetipEdit(item: import('@/types/lifetip').LifetipItem) {
+    setEditingLifetip(item);
+    setLifetipEditName(item.name);
+    setLifetipEditEmoji(item.emoji || getLifetipEmoji(item.tipCategory));
+    setLifetipEditCategory(item.tipCategory || '');
+    setLifetipEditUrl(item.sourceUrl || '');
+    setLifetipEditProductIds(item.productIds ?? []);
+  }
+
+  async function saveLifetipEdit() {
+    if (!editingLifetip || !db || !userId) return;
+    setLifetipEditSaving(true);
+    try {
+      await updateDoc(doc(db, 'users', userId, 'lifetipItems', editingLifetip.id), {
+        name: lifetipEditName.trim() || editingLifetip.name,
+        emoji: lifetipEditEmoji.trim() || editingLifetip.emoji,
+        tipCategory: lifetipEditCategory.trim() || editingLifetip.tipCategory,
+        sourceUrl: lifetipEditUrl.trim(),
+        productIds: lifetipEditProductIds,
+        updatedAt: new Date().toISOString(),
+      });
+      setEditingLifetip(null);
+    } catch (err) {
+      console.error('[OnStep] Life TIP 편집 저장 실패:', err);
+    } finally {
+      setLifetipEditSaving(false);
     }
   }
 
@@ -3255,33 +3293,28 @@ function LogPageInner() {
                             );
                           })()}
                         </div>
-                        {/* 이모지 인라인 편집 패널 */}
-                        {editingLifetipId === item.id && (
-                          <div style={{ padding: '10px 14px', borderTop: '1px solid #000', background: '#FAFAF8', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', flexShrink: 0 }}>이모지</span>
-                            <input type="text" defaultValue={item.emoji} autoFocus
-                              onBlur={async e => {
-                                const newEmoji = e.target.value.trim();
-                                if (newEmoji && newEmoji !== item.emoji && db && userId) {
-                                  await updateDoc(doc(db, 'users', userId, 'lifetipItems', item.id), { emoji: newEmoji, updatedAt: new Date().toISOString() });
-                                }
-                                setEditingLifetipId(null);
-                              }}
-                              onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-                              style={{ flex: 1, height: 36, padding: '0 10px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 8, background: '#fff', fontSize: 20, outline: 'none' }}
-                            />
-                            <button type="button" onClick={() => setEditingLifetipId(null)}
-                              style={{ height: 36, padding: '0 12px', borderRadius: 8, border: '1px solid rgba(12,12,10,.12)', background: 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
-                              취소
-                            </button>
+                        {/* 연결된 BOX 제품 */}
+                        {(item.productIds ?? []).length > 0 && (
+                          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', borderTop: '1px solid #000000', scrollbarWidth: 'none' as const, boxSizing: 'border-box' as const }}>
+                            {(item.productIds ?? []).map((pid, idx) => {
+                              const p = products.get(pid);
+                              const imgSrc = p?.imageUrl ?? (p as (Product & { storageUrl?: string }) | undefined)?.storageUrl;
+                              return (
+                                <div key={idx} style={{ flexShrink: 0, width: 80, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                  <div style={{ width: 80, height: 100, background: '#F3F3F4', border: '1px solid #000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 20, opacity: 0.3 }}>🧴</span>}
+                                  </div>
+                                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
                         {/* 푸터 버튼 */}
                         <div style={{ display: 'flex', borderTop: '1px solid #000000' }}>
-                          <button type="button"
-                            onClick={() => setEditingLifetipId(editingLifetipId === item.id ? null : item.id)}
+                          <button type="button" onClick={() => openLifetipEdit(item)}
                             style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#1D6DDB', border: 'none', borderRight: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>
-                            {editingLifetipId === item.id ? '완료' : '이모지 편집'}
+                            편집
                           </button>
                           <button type="button"
                             onClick={async () => { if (confirm('삭제할까요?') && db && userId) { await deleteDoc(doc(db, 'users', userId, 'lifetipItems', item.id)); } }}
@@ -3955,26 +3988,28 @@ function LogPageInner() {
                                 </a>
                               )}
                             </div>
-                            {editingLifetipId === item.id && (
-                              <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)', background: '#FAFAF8', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', flexShrink: 0 }}>이모지</span>
-                                <input type="text" defaultValue={item.emoji} autoFocus
-                                  onBlur={async e => {
-                                    const newEmoji = e.target.value.trim();
-                                    if (newEmoji && newEmoji !== item.emoji && db && userId) {
-                                      await updateDoc(doc(db, 'users', userId, 'lifetipItems', item.id), { emoji: newEmoji, updatedAt: new Date().toISOString() });
-                                    }
-                                    setEditingLifetipId(null);
-                                  }}
-                                  onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-                                  style={{ flex: 1, height: 36, padding: '0 10px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 8, background: '#fff', fontSize: 20, outline: 'none' }}
-                                />
-                                <button type="button" onClick={() => setEditingLifetipId(null)}
-                                  style={{ height: 36, padding: '0 12px', borderRadius: 8, border: '1px solid rgba(12,12,10,.12)', background: 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
-                                  취소
-                                </button>
+                            {/* 연결된 BOX 제품 */}
+                            {(item.productIds ?? []).length > 0 && (
+                              <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '10px 14px 4px', scrollbarWidth: 'none' as const }}>
+                                {(item.productIds ?? []).map((pid, idx) => {
+                                  const p = products.get(pid);
+                                  const imgSrc = p?.imageUrl ?? (p as (Product & { storageUrl?: string }) | undefined)?.storageUrl;
+                                  return (
+                                    <div key={idx} style={{ flexShrink: 0, width: 64, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                      <div style={{ width: 64, height: 80, background: '#F5F4F0', border: '1px solid rgba(12,12,10,.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}>
+                                        {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16, opacity: 0.3 }}>🧴</span>}
+                                      </div>
+                                      <span style={{ fontFamily: f, fontSize: 9, fontWeight: 600, color: '#9A9490', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             )}
+                            {/* 편집 버튼 */}
+                            <button type="button" onClick={() => openLifetipEdit(item)}
+                              style={{ width: '100%', padding: '10px 0', background: '#F5F4F0', color: '#1D6DDB', border: 'none', borderTop: '1px solid rgba(12,12,10,.08)', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>
+                              편집
+                            </button>
                           </div>
                         ))}
                       </div>
@@ -4150,6 +4185,106 @@ function LogPageInner() {
           </button>
         </>
       )}
+
+      {/* ── Life TIP 편집 시트 ── */}
+      {editingLifetip && (() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        const allProducts = Array.from(products.values());
+        return (
+          <>
+            {/* 딤 배경 */}
+            <div onClick={() => setEditingLifetip(null)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 50 }} />
+            {/* 시트 */}
+            <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 51, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '90dvh', overflowY: 'auto', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+              {/* 핸들 */}
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '14px 0 4px' }}>
+                <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.18)' }} />
+              </div>
+              {/* 헤더 */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px 16px' }}>
+                <span style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>Life TIP 편집</span>
+                <button type="button" onClick={() => setEditingLifetip(null)}
+                  style={{ width: 32, height: 32, borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#9A9490' }}>✕</button>
+              </div>
+
+              <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+                {/* 이름 */}
+                <div>
+                  <label style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', display: 'block', marginBottom: 6 }}>이름</label>
+                  <input type="text" value={lifetipEditName} onChange={e => setLifetipEditName(e.target.value)}
+                    style={{ width: '100%', height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, background: '#fff', fontFamily: f, fontSize: 14, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }} />
+                </div>
+
+                {/* 이모지 + 카테고리 */}
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <div style={{ width: 80, flexShrink: 0 }}>
+                    <label style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', display: 'block', marginBottom: 6 }}>이모지</label>
+                    <input type="text" value={lifetipEditEmoji} onChange={e => setLifetipEditEmoji(e.target.value)}
+                      style={{ width: '100%', height: 44, padding: '0 8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, background: '#fff', fontSize: 22, textAlign: 'center', outline: 'none', boxSizing: 'border-box' as const }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', display: 'block', marginBottom: 6 }}>카테고리</label>
+                    <input type="text" value={lifetipEditCategory} onChange={e => { setLifetipEditCategory(e.target.value); if (!lifetipEditEmoji || lifetipEditEmoji === getLifetipEmoji(editingLifetip.tipCategory)) setLifetipEditEmoji(getLifetipEmoji(e.target.value.trim())); }}
+                      style={{ width: '100%', height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, background: '#fff', fontFamily: f, fontSize: 14, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }} />
+                  </div>
+                </div>
+
+                {/* 링크 */}
+                <div>
+                  <label style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', display: 'block', marginBottom: 6 }}>링크</label>
+                  <input type="url" value={lifetipEditUrl} onChange={e => setLifetipEditUrl(e.target.value)} placeholder="https://"
+                    style={{ width: '100%', height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }} />
+                </div>
+
+                {/* BOX 제품 연결 */}
+                <div>
+                  <label style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', display: 'block', marginBottom: 8 }}>관련 BOX 제품</label>
+                  {allProducts.length === 0 ? (
+                    <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6', padding: '12px 0' }}>BOX에 등록된 제품이 없어요</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 240, overflowY: 'auto' }}>
+                      {allProducts.map(p => {
+                        const selected = lifetipEditProductIds.includes(p.id);
+                        const imgSrc = p.imageUrl ?? (p as (Product & { storageUrl?: string })).storageUrl;
+                        return (
+                          <button key={p.id} type="button"
+                            onClick={() => setLifetipEditProductIds(prev => selected ? prev.filter(id => id !== p.id) : [...prev, p.id])}
+                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 12,
+                              border: `1.5px solid ${selected ? '#60A5FA' : 'rgba(12,12,10,.1)'}`,
+                              background: selected ? 'rgba(96,165,250,.08)' : '#fff',
+                              cursor: 'pointer', textAlign: 'left', transition: 'all .15s' }}>
+                            {/* 썸네일 */}
+                            <div style={{ width: 44, height: 52, background: '#F5F4F0', border: '1px solid rgba(12,12,10,.08)', borderRadius: 8, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 18, opacity: 0.3 }}>🧴</span>}
+                            </div>
+                            {/* 정보 */}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                              {p.brand && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                            </div>
+                            {/* 체크 */}
+                            <div style={{ width: 22, height: 22, borderRadius: 9999, border: `2px solid ${selected ? '#60A5FA' : 'rgba(12,12,10,.2)'}`, background: selected ? '#60A5FA' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {selected && <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* 저장 버튼 */}
+                <button type="button" onClick={saveLifetipEdit} disabled={lifetipEditSaving}
+                  style={{ width: '100%', height: 50, borderRadius: 14, background: lifetipEditSaving ? 'rgba(12,12,10,.3)' : '#0C0C0A', border: 'none', fontFamily: f, fontSize: 14, fontWeight: 800, color: '#C5FF00', cursor: lifetipEditSaving ? 'default' : 'pointer', letterSpacing: '.06em', marginTop: 4 }}>
+                  {lifetipEditSaving ? '저장 중...' : '저장'}
+                </button>
+              </div>
+            </div>
+          </>
+        );
+      })()}
 
       {/* ── 수집 → 라이브러리 등록 시트 ── */}
       {refToLib && (() => {
