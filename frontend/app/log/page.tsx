@@ -36,6 +36,7 @@ import {
   updateDoc,
   addDoc,
   deleteDoc,
+  getDocs,
   doc,
   type Firestore,
 } from 'firebase/firestore';
@@ -2858,16 +2859,27 @@ function LogPageInner() {
   // ── 라이브러리 해지 (LIB OFF) ──
   async function removeFromLibrary(ref: Reference) {
     if (!db || !userId) return;
+    const _db = db;
     try {
-      // 연결된 라이브러리 아이템 삭제
       if (ref.libraryItemId && ref.libraryItemType) {
+        // ① 신규 방식: libraryItemId로 직접 삭제
         const colName = ref.libraryItemType === 'makeup' ? 'makeupItems'
                        : ref.libraryItemType === 'lookbook' ? 'lookItems'
                        : 'lifetipItems';
-        await deleteDoc(doc(db, 'users', userId, colName, ref.libraryItemId));
+        await deleteDoc(doc(_db, 'users', userId, colName, ref.libraryItemId));
+      } else if (ref.url) {
+        // ② 구버전 호환: sourceUrl이 일치하는 라이브러리 아이템 전체 삭제
+        const colNames = ['makeupItems', 'lookItems', 'lifetipItems'] as const;
+        await Promise.all(colNames.map(async (colName) => {
+          const snap = await getDocs(query(
+            collection(_db, 'users', userId, colName),
+            where('sourceUrl', '==', ref.url)
+          ));
+          await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+        }));
       }
       // 수집 문서에서 라이브러리 등록 해제
-      await updateDoc(doc(db, 'users', userId, 'references', ref.id), {
+      await updateDoc(doc(_db, 'users', userId, 'references', ref.id), {
         inLibrary: false,
         libraryItemId: null,
         libraryItemType: null,
