@@ -3269,7 +3269,7 @@ export default function TodayPage() {
         <OOTDSection
           ootdLog={ootdLog}
           onRecord={handleOpenOOTDSheet}
-          onViewLog={() => router.push('/log?tab=아카이브&filter=ootd')}
+          onViewLog={() => router.push('/log?tab=라이브러리/log?tab=아카이브&filter=ootdfilter=ootd')}
           user={user}
           activeLookItems={activeLookItems}
           products={products}
