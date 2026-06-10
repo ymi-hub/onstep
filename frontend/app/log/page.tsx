@@ -2224,8 +2224,6 @@ function LogPageInner() {
   const [refTitle, setRefTitle] = useState('');
   const [refNote, setRefNote] = useState('');
   const [refTags, setRefTags] = useState<string[]>([]);
-  const [refTagInput, setRefTagInput] = useState('');
-  const [refTagFocused, setRefTagFocused] = useState(false);
   const [refImageFile, setRefImageFile] = useState<File | null>(null);
   const [refImagePreview, setRefImagePreview] = useState('');
   const [refSaving, setRefSaving] = useState(false);
@@ -2620,26 +2618,20 @@ function LogPageInner() {
   async function saveReference() {
     const trimmedUrl = refUrl.trim();
     const trimmedTitle = refTitle.trim();
-    const hasContent = trimmedUrl || trimmedTitle || refTags.length > 0 || refTagInput.trim() || refImagePreview;
+    const hasContent = trimmedUrl || trimmedTitle || refTags.length > 0 || refImagePreview;
     if (!hasContent || !db || !userId) return;
     setRefSaving(true);
-    // 입력창에 남아있는 태그 텍스트를 자동으로 추가
-    const pendingTag = refTagInput.trim();
-    const finalTags = pendingTag && !refTags.includes(pendingTag)
-      ? [...refTags, pendingTag]
-      : [...refTags];
     // 낙관적 UI — 폼 즉시 초기화 (Firestore 응답 기다리지 않음)
     const snapshotUrl = trimmedUrl;
     const snapshotTitle = trimmedTitle;
     const snapshotNote = refNote.trim();
-    const snapshotTags = finalTags;
+    const snapshotTags = [...refTags];
     const snapshotImageFile = refImageFile;
     const snapshotImagePreview = refImagePreview;
     setRefUrl('');
     setRefTitle('');
     setRefNote('');
     setRefTags([]);
-    setRefTagInput('');
     setRefImageFile(null);
     setRefImagePreview('');
 
@@ -3545,76 +3537,47 @@ function LogPageInner() {
                     })}
                   </div>
 
-                  {/* 커스텀 태그 칩 + 입력 */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, padding: '8px 10px', minHeight: 40, border: `1.5px solid ${refTagFocused ? 'rgba(12,12,10,.32)' : 'rgba(12,12,10,.10)'}`, borderRadius: 10, background: '#fff', alignItems: 'center', transition: 'border-color .15s' }}>
-                    {refTags.filter(t => !(LIB_CATEGORY_TAGS as readonly string[]).includes(t)).map(tag => (
-                      <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, height: 28, padding: '0 6px 0 10px', borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1.5px solid #4A7700', flexShrink: 0, maxWidth: 200 }}>
-                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, maxWidth: 130 }}>{tag}</span>
-                        <button type="button" title="태그 삭제" onClick={() => setRefTags(prev => prev.filter(t => t !== tag))} style={{ width: 20, height: 20, minWidth: 20, borderRadius: 9999, background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0, color: 'rgba(58,96,0,.65)' }}>
-                          <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 1.5l6 6M7.5 1.5l-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-                        </button>
-                      </div>
-                    ))}
-                    <input type="text" value={refTagInput}
-                      onChange={e => setRefTagInput(e.target.value)}
-                      onFocus={() => setRefTagFocused(true)}
-                      onBlur={() => { setTimeout(() => setRefTagFocused(false), 200); }}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && !e.nativeEvent.isComposing && refTagInput.trim()) {
-                          e.preventDefault();
-                          const t = refTagInput.trim();
-                          if (!refTags.includes(t)) setRefTags(prev => [...prev, t]);
-                          setRefTagInput('');
-                        }
-                      }}
-                      placeholder="추가 태그 입력 후 Enter"
-                      style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A' }}
-                    />
-                  </div>
-
-                  {/* 추가 프리셋 — 포커스·편집 모드 시 노출 */}
-                  {(refTagFocused || presetEditMode) && (
-                    <div style={{ marginTop: 8, padding: '10px 12px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.08)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>추가 태그</span>
-                        <button type="button" onMouseDown={e => e.preventDefault()}
-                          onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
-                          style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
-                          {presetEditMode ? '완료' : '편집'}
-                        </button>
-                      </div>
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center' }}>
-                        {presetTags.filter(t => !(LIB_CATEGORY_TAGS as readonly string[]).includes(t)).map(tag => {
-                          const selected = refTags.includes(tag);
-                          return (
-                            <div key={tag} style={{ position: 'relative', display: 'inline-flex' }}>
-                              <button type="button" onMouseDown={e => e.preventDefault()}
-                                onClick={() => { if (!presetEditMode) setRefTags(prev => selected ? prev.filter(t => t !== tag) : [...prev, tag]); }}
-                                style={{ height: 28, padding: presetEditMode ? '0 26px 0 12px' : '0 12px', borderRadius: 9999, border: `1.5px solid ${selected && !presetEditMode ? 'rgba(74,119,0,.3)' : 'rgba(12,12,10,.12)'}`, background: selected && !presetEditMode ? 'rgba(197,255,0,.10)' : presetEditMode ? 'rgba(12,12,10,.04)' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: selected && !presetEditMode ? 'rgba(58,96,0,.45)' : '#9A9490', cursor: presetEditMode ? 'default' : 'pointer', transition: 'all .15s' }}>
-                                {tag}
-                              </button>
-                              {presetEditMode && (
-                                <button type="button" title="삭제" onMouseDown={e => e.preventDefault()}
-                                  onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
-                                  style={{ position: 'absolute', right: 5, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, minWidth: 18, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B' }}>
-                                  <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })}
-                        {presetEditMode && (
-                          <input type="text" value={presetNewTag}
-                            onChange={e => setPresetNewTag(e.target.value)}
-                            onMouseDown={e => e.preventDefault()}
-                            onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) savePresetTag(); }}
-                            placeholder="태그 추가..."
-                            style={{ height: 28, padding: '0 10px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', minWidth: 80 }}
-                          />
-                        )}
-                      </div>
+                  {/* 추가 태그 바 — 항상 노출, 편집 기능 */}
+                  <div style={{ padding: '8px 10px 10px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.08)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>추가 태그</span>
+                      <button type="button" onMouseDown={e => e.preventDefault()}
+                        onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
+                        style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
+                        {presetEditMode ? '완료' : '편집'}
+                      </button>
                     </div>
-                  )}
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center' }}>
+                      {presetTags.filter(t => !(LIB_CATEGORY_TAGS as readonly string[]).includes(t)).map(tag => {
+                        const selected = refTags.includes(tag);
+                        return (
+                          <div key={tag} style={{ position: 'relative', display: 'inline-flex' }}>
+                            <button type="button" onMouseDown={e => e.preventDefault()}
+                              onClick={() => { if (!presetEditMode) setRefTags(prev => selected ? prev.filter(t => t !== tag) : [...prev, tag]); }}
+                              style={{ height: 30, padding: presetEditMode ? '0 26px 0 12px' : '0 12px', borderRadius: 9999, border: `1.5px solid ${selected && !presetEditMode ? '#4A7700' : 'rgba(12,12,10,.12)'}`, background: selected && !presetEditMode ? 'rgba(197,255,0,.18)' : presetEditMode ? 'rgba(12,12,10,.04)' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: selected && !presetEditMode ? '#3A6000' : '#9A9490', cursor: presetEditMode ? 'default' : 'pointer', transition: 'all .15s' }}>
+                              {tag}
+                            </button>
+                            {presetEditMode && (
+                              <button type="button" title="삭제" onMouseDown={e => e.preventDefault()}
+                                onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
+                                style={{ position: 'absolute', right: 5, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, minWidth: 18, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B' }}>
+                                <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {presetEditMode && (
+                        <input type="text" value={presetNewTag}
+                          onChange={e => setPresetNewTag(e.target.value)}
+                          onMouseDown={e => e.preventDefault()}
+                          onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) savePresetTag(); }}
+                          placeholder="태그 추가..."
+                          style={{ height: 30, padding: '0 10px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', minWidth: 80 }}
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* 메모 */}
@@ -3633,7 +3596,7 @@ function LogPageInner() {
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button
                     type="button"
-                    onClick={() => { setRefUrl(''); setRefTitle(''); setRefNote(''); setRefTags([]); setRefTagInput(''); setRefImageFile(null); setRefImagePreview(''); }}
+                    onClick={() => { setRefUrl(''); setRefTitle(''); setRefNote(''); setRefTags([]); setRefImageFile(null); setRefImagePreview(''); }}
                     style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}
                   >
                     취소
@@ -3641,8 +3604,8 @@ function LogPageInner() {
                   <button
                     type="button"
                     onClick={saveReference}
-                    disabled={(!refUrl.trim() && !refTitle.trim() && refTags.length === 0 && !refTagInput.trim() && !refImagePreview) || refSaving}
-                    style={{ flex: 1, height: 48, background: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refTagInput.trim() || refImagePreview) ? '#0C0C0A' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refTagInput.trim() || refImagePreview) ? '#fff' : '#9A9490', cursor: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refTagInput.trim() || refImagePreview) ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
+                    disabled={(!refUrl.trim() && !refTitle.trim() && refTags.length === 0 && !refImagePreview) || refSaving}
+                    style={{ flex: 1, height: 48, background: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refImagePreview) ? '#0C0C0A' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refImagePreview) ? '#fff' : '#9A9490', cursor: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refImagePreview) ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
                   >
                     {refSaving ? '저장 중...' : '수집'}
                   </button>
