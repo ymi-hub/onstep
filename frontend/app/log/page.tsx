@@ -2486,25 +2486,8 @@ function LogPageInner() {
       if (!displayTitle && snapshotUrl) {
         try { displayTitle = new URL(snapshotUrl).hostname; } catch { displayTitle = snapshotUrl; }
       }
-      let imageUrl = '';
-      if (snapshotImageFile) {
-        if (user) {
-          try {
-            const storage = getStorage();
-            const path = `users/${userId}/references/${Date.now()}`;
-            const snap = await uploadBytes(storageRef(storage, path), snapshotImageFile);
-            imageUrl = await getDownloadURL(snap.ref);
-          } catch {
-            // Storage 업로드 실패 시 base64 미리보기로 대체
-            imageUrl = snapshotImagePreview;
-          }
-        } else {
-          // 로그인 전 상태: 압축된 base64 이미지를 직접 저장
-          imageUrl = snapshotImagePreview;
-        }
-      } else if (snapshotImagePreview) {
-        imageUrl = snapshotImagePreview;
-      }
+      // 이미지는 400px 압축 base64라 Firestore에 직접 저장 (Storage 업로드 불필요)
+      const imageUrl = snapshotImagePreview || '';
       await addDoc(collection(db, 'users', userId, 'references'), {
         url: snapshotUrl,
         title: displayTitle || snapshotTitle,
@@ -2554,13 +2537,8 @@ function LogPageInner() {
       ? [...refEditTags, pendingEditTag]
       : [...refEditTags];
     try {
-      let imageUrl = editingRef.imageUrl || '';
-      if (refEditImageFile && user) {
-        const storage = getStorage();
-        const path = `users/${userId}/references/${editingRef.id}_${Date.now()}`;
-        const snap = await uploadBytes(storageRef(storage, path), refEditImageFile);
-        imageUrl = await getDownloadURL(snap.ref);
-      }
+      // 이미지는 400px 압축 base64라 Firestore에 직접 저장
+      const imageUrl = refEditImagePreview || editingRef.imageUrl || '';
       await updateDoc(doc(db, 'users', userId, 'references', editingRef.id), {
         title: refEditTitle.trim() || editingRef.title,
         tags: finalEditTags,
