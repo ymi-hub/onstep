@@ -3644,8 +3644,8 @@ function LogPageInner() {
                   <button
                     type="button"
                     onClick={saveReference}
-                    disabled={(!refUrl.trim() && !refTitle.trim() && refTags.length === 0 && !refImagePreview) || refSaving}
-                    style={{ flex: 1, height: 48, background: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refImagePreview) ? '#0C0C0A' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refImagePreview) ? '#fff' : '#9A9490', cursor: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refImagePreview) ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
+                    disabled={(!refUrl.trim() && !refTitle.trim() && !refImagePreview) || refSaving}
+                    style={{ flex: 1, height: 48, background: (refUrl.trim() || refTitle.trim() || refImagePreview) ? '#0C0C0A' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: (refUrl.trim() || refTitle.trim() || refImagePreview) ? '#fff' : '#9A9490', cursor: (refUrl.trim() || refTitle.trim() || refImagePreview) ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
                   >
                     {refSaving ? '저장 중...' : '수집'}
                   </button>
