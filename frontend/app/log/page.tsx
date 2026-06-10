@@ -1342,7 +1342,7 @@ function LifetipLibraryCard({
           </div>
         )}
         {/* 제목 */}
-        <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '22px', width: '100%', marginBottom: item.memo ? 8 : 12, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
+        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#000', lineHeight: '18px', width: '100%', marginBottom: item.memo ? 6 : 10, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
         {item.memo ? (
           <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: item.tags?.length ? 8 : 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
             {item.memo}
@@ -3954,6 +3954,9 @@ function LogPageInner() {
               const lifetipCategories2 = Object.keys(lifetipByCategory2).sort(
                 (a, b) => lifetipByCategory2[b].length - lifetipByCategory2[a].length
               );
+              const filteredTips = lifetipCategory
+                ? (lifetipByCategory2[lifetipCategory] ?? [])
+                : lifetipItems;
               return (
                 <div style={{ padding: '12px 10px 0px' }}>
                   {lifetipItems.length === 0 ? (
@@ -3962,38 +3965,31 @@ function LogPageInner() {
                       <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>Life TIP이 없어요</div>
                       <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>수집에서 + 라이브러리 버튼으로 추가하세요</div>
                     </div>
-                  ) : lifetipCategory === null ? (
-                    /* 카테고리 태그바 — 1행 3개 */
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                      {lifetipCategories2.map(cat => {
-                        const items = lifetipByCategory2[cat];
-                        const emoji = items[0]?.emoji || getLifetipEmoji(cat);
-                        return (
-                          <button key={cat} type="button" onClick={() => setLifetipCategory(cat)}
-                            style={{ background: '#fff', border: '1px solid rgba(12,12,10,.1)', borderRadius: 20, padding: '7px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, cursor: 'pointer', transition: 'all .15s', minWidth: 0 }}>
-                            <span style={{ fontSize: 14, lineHeight: 1, flexShrink: 0 }}>{emoji}</span>
-                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{cat}</span>
-                            <span style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', flexShrink: 0 }}>{items.length}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
                   ) : (
-                    /* 카테고리 상세 — Makeup/Lookbook과 동일한 카드 디자인, 2열 그리드 */
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                        <button type="button" title="뒤로" onClick={() => setLifetipCategory(null)}
-                          style={{ width: 32, height: 32, borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                            <path d="M10 3L5 8l5 5" stroke="#0C0C0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
+                    <>
+                      {/* 카테고리 필터 칩 — 가로 스크롤 */}
+                      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' as const }}>
+                        <button type="button" onClick={() => setLifetipCategory(null)}
+                          style={{ flexShrink: 0, background: lifetipCategory === null ? '#0C0C0A' : '#fff', border: `1px solid ${lifetipCategory === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: lifetipCategory === null ? '#fff' : '#0C0C0A', cursor: 'pointer', transition: 'all .15s' }}>
+                          전체 {lifetipItems.length}
                         </button>
-                        <span style={{ fontFamily: f, fontSize: 18, lineHeight: 1 }}>{lifetipByCategory2[lifetipCategory]?.[0]?.emoji || getLifetipEmoji(lifetipCategory)}</span>
-                        <span style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>{lifetipCategory}</span>
-                        <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginLeft: 'auto' }}>{lifetipByCategory2[lifetipCategory]?.length ?? 0}개</span>
+                        {lifetipCategories2.map(cat => {
+                          const items = lifetipByCategory2[cat];
+                          const emoji = items[0]?.emoji || getLifetipEmoji(cat);
+                          const sel = lifetipCategory === cat;
+                          return (
+                            <button key={cat} type="button" onClick={() => setLifetipCategory(cat)}
+                              style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', transition: 'all .15s' }}>
+                              <span style={{ fontSize: 12, lineHeight: 1 }}>{emoji}</span>
+                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A', whiteSpace: 'nowrap' as const }}>{cat}</span>
+                              <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{items.length}</span>
+                            </button>
+                          );
+                        })}
                       </div>
+                      {/* 카드 2열 그리드 */}
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                        {(lifetipByCategory2[lifetipCategory] ?? []).map(item => (
+                        {filteredTips.map(item => (
                           <LifetipLibraryCard
                             key={item.id}
                             item={item}
@@ -4003,7 +3999,7 @@ function LogPageInner() {
                           />
                         ))}
                       </div>
-                    </div>
+                    </>
                   )}
                 </div>
               );
