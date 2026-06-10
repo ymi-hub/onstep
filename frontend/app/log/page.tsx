@@ -3247,12 +3247,12 @@ function LogPageInner() {
                       {(ref.tags ?? []).length > 0 && (
                         <div style={{ display: 'flex', gap: 3, overflow: 'hidden', flexShrink: 1 }}>
                           {(ref.tags ?? []).slice(0, 2).map(tag => (
-                            <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#4A7700', background: 'rgba(197,255,0,.22)', padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 70 }}>
+                            <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 70 }}>
                               {tag}
                             </span>
                           ))}
                           {(ref.tags ?? []).length > 2 && (
-                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#8AAA40', background: 'rgba(197,255,0,.10)', padding: '2px 6px', borderRadius: 9999, flexShrink: 0 }}>
+                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 6px', borderRadius: 9999, flexShrink: 0 }}>
                               +{(ref.tags ?? []).length - 2}
                             </span>
                           )}
