@@ -1312,9 +1312,16 @@ function LifetipLibraryCard({
         {/* 제목 */}
         <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
         {/* 카테고리 서브타이틀 */}
-        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: item.memo ? 8 : 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
           {item.tipCategory || 'Life TIP'}
         </div>
+        {item.memo ? (
+          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+            {item.memo}
+          </div>
+        ) : (
+          <div style={{ marginBottom: 12 }} />
+        )}
         {item.sourceUrl?.trim() && (() => {
           let domain = item.sourceUrl!;
           try { domain = new URL(item.sourceUrl!).hostname; } catch {}
