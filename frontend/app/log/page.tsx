@@ -4378,27 +4378,35 @@ function LogPageInner() {
                 <img src={refToLib.imageUrl} alt="" style={{ width: '100%', maxHeight: 120, objectFit: 'cover', borderRadius: 10, marginBottom: 16 }} />
               )}
 
-              {/* 타입 선택 */}
+              {/* 카테고리 선택 — 미니카드 */}
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 8 }}>카테고리</div>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}>
                 {([
-                  { key: 'makeup',  label: '💄 MOTD' },
-                  { key: 'lookbook', label: '👗 OOTD' },
-                  { key: 'lifetip', label: '📌 Life TIP' },
-                ] as const).map(t => (
-                  <button key={t.key}
-                    onClick={() => {
-                      setRefToLibType(t.key);
-                      if (t.key === 'lifetip') {
-                        const firstTag = refTags[0] ?? '';
-                        setRefToLibTipCategory(firstTag);
-                        setRefToLibEmoji(getLifetipEmoji(firstTag));
-                      }
-                    }}
-                    style={{ flex: 1, height: 44, borderRadius: 10, border: `1.5px solid ${refToLibType === t.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: refToLibType === t.key ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: refToLibType === t.key ? '#C5FF00' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
-                    {t.label}
-                  </button>
-                ))}
+                  { key: 'makeup',   icon: '💄', label: '메이크업', color: { active: '#C5FF00', bg: 'rgba(197,255,0,.14)', text: '#3A6000' } },
+                  { key: 'lookbook', icon: '👗', label: '룩북',    color: { active: '#FF8C42', bg: 'rgba(255,140,66,.14)', text: '#B85A00' } },
+                  { key: 'lifetip',  icon: '📌', label: 'Life TIP', color: { active: '#60A5FA', bg: 'rgba(96,165,250,.14)', text: '#1D6DDB' } },
+                ] as const).map(t => {
+                  const sel = refToLibType === t.key;
+                  return (
+                    <button key={t.key} type="button"
+                      onClick={() => {
+                        setRefToLibType(t.key);
+                        if (t.key === 'lifetip') {
+                          const firstTag = refTags[0] ?? '';
+                          setRefToLibTipCategory(firstTag);
+                          setRefToLibEmoji(getLifetipEmoji(firstTag));
+                        }
+                      }}
+                      style={{ padding: '12px 10px', borderRadius: 12,
+                        border: `1.5px solid ${sel ? t.color.active : 'rgba(12,12,10,.1)'}`,
+                        background: sel ? t.color.bg : '#fff',
+                        display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8,
+                        cursor: 'pointer', transition: 'all .15s', textAlign: 'left' as const }}>
+                      <span style={{ fontSize: 20, lineHeight: 1 }}>{t.icon}</span>
+                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? t.color.text : '#9A9490', lineHeight: 1.2 }}>{t.label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Life TIP 전용 — 카테고리 + 이모지 */}
