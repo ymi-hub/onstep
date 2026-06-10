@@ -3565,7 +3565,7 @@ function LogPageInner() {
                       const sel = refTags.includes(cat);
                       return (
                         <button key={cat} type="button"
-                          onClick={() => setRefTags(prev => sel ? prev.filter(t => t !== cat) : [...prev, cat])}
+                          onClick={() => setRefTags(prev => sel ? prev.filter(t => t !== cat) : [...prev.filter(t => !categoryTags.includes(t)), cat])}
                           style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(12,12,10,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, cursor: 'pointer', transition: 'all .15s' }}>
                           <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? color.selText : '#9A9490' }}>{cat}</span>
                         </button>
@@ -4515,7 +4515,7 @@ function LogPageInner() {
                     const sel = refEditTags.includes(cat);
                     return (
                       <button key={cat} type="button"
-                        onClick={() => setRefEditTags(prev => sel ? prev.filter(t => t !== cat) : [...prev, cat])}
+                        onClick={() => setRefEditTags(prev => sel ? prev.filter(t => t !== cat) : [...prev.filter(t => !categoryTags.includes(t)), cat])}
                         style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(12,12,10,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all .15s' }}>
                         <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? color.selText : '#9A9490' }}>{cat}</span>
                       </button>
