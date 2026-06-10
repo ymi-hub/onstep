@@ -77,8 +77,18 @@ type Reference = {
 
 
 // 수집 탭 빠른선택 태그 기본값 (localStorage에 없을 때 사용)
-const DEFAULT_PRESET_TAGS = ['Life tip', 'Makeup', 'Lookbook'];
+const DEFAULT_PRESET_TAGS: string[] = [];
+const DEFAULT_CATEGORY_TAGS = ['Life tip', 'Makeup', 'Lookbook'];
 const LIB_CATEGORY_TAGS = ['Life tip', 'Makeup', 'Lookbook'] as const;
+// 카테고리 버튼 색상 팔레트 (순서대로 순환 사용)
+const CAT_COLORS = [
+  { selBg: 'rgba(96,165,250,.14)',  selBorder: '#60A5FA', selText: '#1D6DDB' },
+  { selBg: 'rgba(197,255,0,.14)',   selBorder: '#4A7700', selText: '#3A6000' },
+  { selBg: 'rgba(255,140,66,.14)',  selBorder: '#FF8C42', selText: '#B85A00' },
+  { selBg: 'rgba(167,139,250,.14)', selBorder: '#7C3AED', selText: '#5B21B6' },
+  { selBg: 'rgba(251,191,36,.14)',  selBorder: '#D97706', selText: '#92400E' },
+  { selBg: 'rgba(236,72,153,.14)',  selBorder: '#DB2777', selText: '#9D174D' },
+];
 
 // 오늘의 룩 기록
 type OOTDLog = {
@@ -2239,7 +2249,18 @@ function LogPageInner() {
   });
   const [presetEditMode, setPresetEditMode] = useState(false);
   const [presetNewTag, setPresetNewTag] = useState('');
-  const [tagBarOpen, setTagBarOpen] = useState(false);
+  // 카테고리 편집 패널 상태
+  const [catEditOpen, setCatEditOpen] = useState(false);
+  const [catNewTag, setCatNewTag] = useState('');
+  const [dragCatIdx, setDragCatIdx] = useState<number | null>(null);
+  const [dragCatOverIdx, setDragCatOverIdx] = useState<number | null>(null);
+  const [categoryTags, setCategoryTags] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return DEFAULT_CATEGORY_TAGS;
+    try {
+      const saved = localStorage.getItem('onstep_category_tags');
+      return saved ? JSON.parse(saved) : DEFAULT_CATEGORY_TAGS;
+    } catch { return DEFAULT_CATEGORY_TAGS; }
+  });
   // 수집 편집 시트 상태
   const [editingRef, setEditingRef] = useState<Reference | null>(null);
   const [refEditUrl, setRefEditUrl] = useState('');
@@ -2666,6 +2687,11 @@ function LogPageInner() {
   useEffect(() => {
     try { localStorage.setItem('onstep_ref_preset_tags', JSON.stringify(presetTags)); } catch {}
   }, [presetTags]);
+
+  // categoryTags가 바뀌면 localStorage에 저장
+  useEffect(() => {
+    try { localStorage.setItem('onstep_category_tags', JSON.stringify(categoryTags)); } catch {}
+  }, [categoryTags]);
 
   function savePresetTag() {
     const t = presetNewTag.trim();
@@ -3515,78 +3541,78 @@ function LogPageInner() {
                   />
                 </div>
 
-                {/* 카테고리 + 태그 */}
+                {/* 카테고리 + 편집 */}
                 <div style={{ marginBottom: 14 }}>
                   <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>카테고리</div>
 
-                  {/* 라이브러리 카테고리 3종 — 항상 노출 */}
-                  <div style={{ display: 'flex', gap: 7, marginBottom: 8 }}>
-                    {([
-                      { key: 'Life tip', icon: '📌', selBg: 'rgba(96,165,250,.14)',  selBorder: '#60A5FA', selText: '#1D6DDB' },
-                      { key: 'Makeup',   icon: '💄', selBg: 'rgba(197,255,0,.14)',   selBorder: '#4A7700', selText: '#3A6000' },
-                      { key: 'Lookbook', icon: '👗', selBg: 'rgba(255,140,66,.14)',  selBorder: '#FF8C42', selText: '#B85A00' },
-                    ] as const).map(cat => {
-                      const sel = refTags.includes(cat.key);
+                  {/* 라이브러리 카테고리 — 동적, 항상 노출 */}
+                  <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                    {categoryTags.map((cat, i) => {
+                      const color = CAT_COLORS[i % CAT_COLORS.length];
+                      const sel = refTags.includes(cat);
                       return (
-                        <button key={cat.key} type="button"
-                          onClick={() => setRefTags(prev => sel ? prev.filter(t => t !== cat.key) : [...prev, cat.key])}
-                          style={{ flex: 1, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? cat.selBorder : 'rgba(12,12,10,.12)'}`, background: sel ? cat.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, cursor: 'pointer', transition: 'all .15s' }}>
-                          <span style={{ fontSize: 13 }}>{cat.icon}</span>
-                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? cat.selText : '#9A9490' }}>{cat.key}</span>
+                        <button key={cat} type="button"
+                          onClick={() => setRefTags(prev => sel ? prev.filter(t => t !== cat) : [...prev, cat])}
+                          style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(12,12,10,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, cursor: 'pointer', transition: 'all .15s' }}>
+                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? color.selText : '#9A9490' }}>{cat}</span>
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* 태그 버튼 — 클릭 시 태그 바 토글 */}
+                  {/* 카테고리 편집 버튼 — 클릭 시 편집 패널 토글 */}
                   <button type="button"
-                    onClick={() => { setTagBarOpen(v => !v); if (tagBarOpen) { setPresetEditMode(false); setPresetNewTag(''); } }}
-                    style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${tagBarOpen ? 'rgba(12,12,10,.25)' : 'rgba(12,12,10,.12)'}`, background: tagBarOpen ? 'rgba(12,12,10,.06)' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: tagBarOpen ? '#0C0C0A' : '#9A9490', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, transition: 'all .15s' }}>
+                    onClick={() => { setCatEditOpen(v => !v); if (catEditOpen) setCatNewTag(''); }}
+                    style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${catEditOpen ? 'rgba(12,12,10,.25)' : 'rgba(12,12,10,.12)'}`, background: catEditOpen ? 'rgba(12,12,10,.06)' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: catEditOpen ? '#0C0C0A' : '#9A9490', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, transition: 'all .15s' }}>
                     <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-                    태그
+                    카테고리 편집
                   </button>
 
-                  {/* 태그 바 — tagBarOpen 시 노출 */}
-                  {tagBarOpen && (
+                  {/* 카테고리 편집 패널 — catEditOpen 시 노출 */}
+                  {catEditOpen && (
                     <div style={{ marginTop: 8, padding: '10px 12px 12px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>태그 목록</span>
-                        <button type="button" onMouseDown={e => e.preventDefault()}
-                          onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
-                          style={{ height: 22, padding: '0 9px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
-                          {presetEditMode ? '완료' : '편집'}
-                        </button>
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
+                        {categoryTags.map((cat, i) => (
+                          <div key={cat}
+                            draggable
+                            onDragStart={() => setDragCatIdx(i)}
+                            onDragOver={e => { e.preventDefault(); setDragCatOverIdx(i); }}
+                            onDrop={() => {
+                              if (dragCatIdx === null || dragCatIdx === i) return;
+                              setCategoryTags(prev => {
+                                const arr = [...prev];
+                                const [item] = arr.splice(dragCatIdx, 1);
+                                arr.splice(i, 0, item);
+                                return arr;
+                              });
+                              setDragCatIdx(null); setDragCatOverIdx(null);
+                            }}
+                            onDragEnd={() => { setDragCatIdx(null); setDragCatOverIdx(null); }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: dragCatOverIdx === i ? 'rgba(12,12,10,.07)' : 'rgba(12,12,10,.03)', border: `1px solid ${dragCatOverIdx === i ? 'rgba(12,12,10,.2)' : 'rgba(12,12,10,.08)'}`, cursor: 'grab', transition: 'all .1s' }}>
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, color: '#BCBAB6' }}><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
+                            <span style={{ width: 8, height: 8, borderRadius: 9999, background: CAT_COLORS[i % CAT_COLORS.length].selBorder, display: 'inline-block', flexShrink: 0 }} />
+                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>{cat}</span>
+                            <button type="button" title="삭제"
+                              onClick={() => { setCategoryTags(prev => prev.filter(t => t !== cat)); setRefTags(prev => prev.filter(t => t !== cat)); }}
+                              style={{ width: 20, height: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B', flexShrink: 0 }}>
+                              <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center' }}>
-                        {presetTags.filter(t => !(LIB_CATEGORY_TAGS as readonly string[]).includes(t)).map(tag => {
-                          const selected = refTags.includes(tag);
-                          return (
-                            <div key={tag} style={{ position: 'relative', display: 'inline-flex' }}>
-                              <button type="button" onMouseDown={e => e.preventDefault()}
-                                onClick={() => { if (!presetEditMode) setRefTags(prev => selected ? prev.filter(t => t !== tag) : [...prev, tag]); }}
-                                style={{ height: 28, padding: presetEditMode ? '0 26px 0 12px' : '0 12px', borderRadius: 9999, border: `1.5px solid ${selected && !presetEditMode ? '#4A7700' : 'rgba(12,12,10,.12)'}`, background: selected && !presetEditMode ? 'rgba(197,255,0,.18)' : presetEditMode ? 'rgba(12,12,10,.04)' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: selected && !presetEditMode ? '#3A6000' : '#9A9490', cursor: presetEditMode ? 'default' : 'pointer', transition: 'all .15s' }}>
-                                {tag}
-                              </button>
-                              {presetEditMode && (
-                                <button type="button" title="삭제" onMouseDown={e => e.preventDefault()}
-                                  onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
-                                  style={{ position: 'absolute', right: 5, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, minWidth: 18, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B' }}>
-                                  <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })}
-                        {presetEditMode && (
-                          <input type="text" value={presetNewTag}
-                            onChange={e => setPresetNewTag(e.target.value)}
-                            onMouseDown={e => e.preventDefault()}
-                            onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) savePresetTag(); }}
-                            placeholder="태그 추가..."
-                            style={{ height: 28, padding: '0 10px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', minWidth: 80 }}
-                          />
-                        )}
-                      </div>
+                      <input type="text" value={catNewTag}
+                        onChange={e => setCatNewTag(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                            const t = catNewTag.trim();
+                            if (t && !categoryTags.includes(t)) setCategoryTags(prev => [...prev, t]);
+                            setCatNewTag('');
+                          }
+                        }}
+                        placeholder="+ 카테고리 추가 (Enter)"
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                      />
                     </div>
                   )}
                 </div>
