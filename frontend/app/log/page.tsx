@@ -2086,6 +2086,7 @@ function LogPageInner() {
   const [presetNewTag, setPresetNewTag] = useState('');
   // 수집 편집 시트 상태
   const [editingRef, setEditingRef] = useState<Reference | null>(null);
+  const [refEditUrl, setRefEditUrl] = useState('');
   const [refEditTitle, setRefEditTitle] = useState('');
   const [refEditTags, setRefEditTags] = useState<string[]>([]);
   const [refEditTagInput, setRefEditTagInput] = useState('');
@@ -2522,6 +2523,7 @@ function LogPageInner() {
 
   function openRefEdit(ref: Reference) {
     setEditingRef(ref);
+    setRefEditUrl(ref.url || '');
     setRefEditTitle(ref.title || '');
     setRefEditTags(ref.tags || []);
     setRefEditTagInput('');
@@ -2542,6 +2544,7 @@ function LogPageInner() {
       // 이미지는 400px 압축 base64라 Firestore에 직접 저장
       const imageUrl = refEditImagePreview || editingRef.imageUrl || '';
       await updateDoc(doc(db, 'users', userId, 'references', editingRef.id), {
+        url: refEditUrl.trim() || editingRef.url,
         title: refEditTitle.trim() || editingRef.title,
         tags: finalEditTags,
         imageUrl,
@@ -3851,6 +3854,18 @@ function LogPageInner() {
 
               {/* 헤더 */}
               <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>수집 편집</div>
+
+              {/* 링크 */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>링크</div>
+                <input
+                  type="url"
+                  value={refEditUrl}
+                  onChange={e => setRefEditUrl(e.target.value)}
+                  placeholder="https://..."
+                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                />
+              </div>
 
               {/* 제목 */}
               <div style={{ marginBottom: 14 }}>
