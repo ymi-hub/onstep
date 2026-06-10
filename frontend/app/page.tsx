@@ -977,6 +977,7 @@ function OOTDSection({
   onViewLog,
   user,
   activeLookItems,
+  activeMakeupItems,
   products,
 }: {
   ootdLog: OOTDLog | null;
@@ -984,14 +985,16 @@ function OOTDSection({
   onViewLog: () => void;
   user: User | null;
   activeLookItems: CtItem[];
+  activeMakeupItems: CtItem[];
   products: Map<string, Product>;
 }) {
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
-  // 오늘 노출할 첫 번째 룩 (복수 등록됐을 때는 첫 번째만 hero로)
-  const heroLook = activeLookItems[0] ?? null;
-  const heroProdIds = heroLook
-    ? heroLook.items.filter((r): r is { type: 'product'; id: string } => r.type === 'product').map(r => r.id)
-    : [];
+  // 메이크업 + 룩북 통합 목록 (메이크업 먼저)
+  const allLibItems: Array<CtItem & { ctType: 'makeup' | 'lookbook' }> = [
+    ...activeMakeupItems.map(i => ({ ...i, ctType: 'makeup' as const })),
+    ...activeLookItems.map(i => ({ ...i, ctType: 'lookbook' as const })),
+  ];
+  const hasAny = allLibItems.length > 0;
 
   return (
     <div>
@@ -999,76 +1002,89 @@ function OOTDSection({
 
       <div style={{ padding: '0 26px' }}>
 
-        {/* 룩북 미등록 빈 상태 안내 — 로그인된 상태에서만 표시 (비로그인 시 아래 카드로 대체) */}
-        {!heroLook && user && (
+        {/* 빈 상태 안내 — 등록된 아이템이 없을 때만 */}
+        {!hasAny && user && (
           <div style={{ padding: '20px 26px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 12 }}>
             <span style={{ fontSize: 28 }}>👗</span>
             <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 룩을 등록해보세요</div>
-            <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>Setup에서 Today ON으로 설정하면 여기에 표시됩니다</div>
-            <Link href="/log?tab=라이브러리&filter=lookbook" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
+            <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>라이브러리에서 Today ON으로 설정하면 여기에 표시됩니다</div>
+            <Link href="/log?tab=라이브러리" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
           </div>
         )}
 
-        {/* ── MOTD와 동일한 흰 카드 — 제목 + 제품 ── */}
-        {heroLook && (
-          <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', marginBottom: 12 }}>
-
-            {/* 이미지 있을 때: 3:4 portrait hero — 클릭 시 LOG 라이브러리 해당 아이템으로 이동 */}
-            {heroLook.imageUrl ? (
-              <Link href={`/log?tab=라이브러리&filter=lookbook&id=${heroLook.id}`} style={{ display: 'block', textDecoration: 'none' }}>
-                <div style={{ position: 'relative', width: '100%' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={heroLook.imageUrl} alt={heroLook.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '60px 26px 18px', background: 'linear-gradient(to top,rgba(0,0,0,.56) 0%,transparent 55%)', pointerEvents: 'none' }}>
-                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,.7)', marginBottom: 5 }}>TODAY&apos;S LOOK</div>
-                    <div style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#fff', lineHeight: 1.25 }}>{heroLook.name}</div>
-                    {heroLook.desc && <div style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{heroLook.desc}</div>}
-                  </div>
-                </div>
-              </Link>
-            ) : (
-              /* 이미지 없을 때: 텍스트 제목 */
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 26px 0' }}>
-                <span style={{ fontSize: 22, flexShrink: 0 }}>{heroLook.emoji || '👗'}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{heroLook.name}</div>
-                  {heroLook.desc && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{heroLook.desc}</div>}
-                </div>
-              </div>
-            )}
-
-            {/* 제품 가로 스크롤 — 항상 동일 구분선·여백으로 첫 제품 위치 고정 */}
-            {heroProdIds.length > 0 && (
-              <div className="hide-scrollbar" style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 8, padding: '12px 0', scrollSnapType: 'x mandatory' as const, scrollPaddingLeft: 16, borderTop: '1px solid rgba(12,12,10,.08)' }}>
-                <div style={{ flexShrink: 0, width: 16 }} />
-                {heroProdIds.map(pid => {
-                  const p = products.get(pid);
-                  const imgUrl = p?.imageUrl || p?.storageUrl;
-                  return (
-                    <div key={pid} style={{ flexShrink: 0, width: 120, scrollSnapAlign: 'start' as const }}>
-                      <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 4, border: '1px solid #E4E4E7', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                        {imgUrl
-                          // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                          : <span style={{ fontSize: 32, opacity: 0.3 }}>👗</span>
-                        }
+        {/* 메이크업 + 룩북 카드 목록 — 각각 #MAKEUP / #LOOKBOOK 뱃지 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: hasAny ? 12 : 0 }}>
+          {allLibItems.map(item => {
+            const isMakeup = item.ctType === 'makeup';
+            const badgeLabel = isMakeup ? '#MAKEUP' : '#LOOKBOOK';
+            const badgeBg = isMakeup ? '#C5FF00' : '#FF8C42';
+            const badgeText = isMakeup ? '#3A6000' : '#7A3000';
+            const filter = isMakeup ? 'makeup' : 'lookbook';
+            const prodIds = item.items
+              .filter((r): r is { type: 'product'; id: string } => r.type === 'product')
+              .map(r => r.id);
+            return (
+              <div key={item.id} style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
+                {/* 이미지 영역 — 뱃지 오버레이 포함 */}
+                {item.imageUrl ? (
+                  <Link href={`/log?tab=라이브러리&filter=${filter}&id=${item.id}`} style={{ display: 'block', textDecoration: 'none' }}>
+                    <div style={{ position: 'relative', width: '100%' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                      {/* 뱃지 — 라이브러리 카드와 동일한 회전 스티커 */}
+                      <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: badgeBg, border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
+                        <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: badgeText, transform: 'rotate(-3deg)' }}>{badgeLabel}</span>
+                      </div>
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '60px 26px 18px', background: 'linear-gradient(to top,rgba(0,0,0,.56) 0%,transparent 55%)', pointerEvents: 'none' }}>
+                        <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,.7)', marginBottom: 5 }}>TODAY&apos;S {isMakeup ? 'MAKEUP' : 'LOOK'}</div>
+                        <div style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#fff', lineHeight: 1.25 }}>{item.name}</div>
+                        {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{item.desc}</div>}
                       </div>
                     </div>
-                  );
-                })}
-                <div style={{ flexShrink: 0, width: 16 }} />
+                  </Link>
+                ) : (
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '14px 26px 0' }}>
+                    <span style={{ fontSize: 22, flexShrink: 0 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{item.name}</div>
+                      {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{item.desc}</div>}
+                    </div>
+                    {/* 텍스트 전용 카드에도 뱃지 표시 */}
+                    <div style={{ flexShrink: 0, background: badgeBg, border: '1px solid #18181B', borderRadius: 4, padding: '3px 8px' }}>
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: badgeText }}>{badgeLabel}</span>
+                    </div>
+                  </div>
+                )}
+                {/* 제품 가로 스크롤 */}
+                {prodIds.length > 0 && (
+                  <div className="hide-scrollbar" style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' as const, gap: 8, padding: '12px 0', scrollSnapType: 'x mandatory' as const, scrollPaddingLeft: 16, borderTop: '1px solid rgba(12,12,10,.08)' }}>
+                    <div style={{ flexShrink: 0, width: 16 }} />
+                    {prodIds.map(pid => {
+                      const p = products.get(pid);
+                      const imgUrl = p?.imageUrl || p?.storageUrl;
+                      return (
+                        <div key={pid} style={{ flexShrink: 0, width: 120, scrollSnapAlign: 'start' as const }}>
+                          <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 4, border: '1px solid #E4E4E7', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                            {imgUrl
+                              // eslint-disable-next-line @next/next/no-img-element
+                              ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                              : <span style={{ fontSize: 32, opacity: 0.3 }}>{isMakeup ? '💄' : '👗'}</span>
+                            }
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div style={{ flexShrink: 0, width: 16 }} />
+                  </div>
+                )}
+                <SourceLink url={item.sourceUrl} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 26px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
+                  <Link href={`/log?tab=라이브러리&filter=${filter}`} style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
+                </div>
               </div>
-            )}
-
-            {/* 참고 링크 — 카드 하단 */}
-            <SourceLink url={heroLook.sourceUrl} />
-
-            {/* 카드 하단: List → LOG 라이브러리 */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 26px 12px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-              <Link href="/log?tab=라이브러리" style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
-            </div>
-          </div>
-        )}
+            );
+          })}
+        </div>
 
         {/* ── RECORD LOOK / Logged 카드 ── */}
         {!user ? null : ootdLog ? (
@@ -1856,7 +1872,7 @@ function LifetipSection({ items }: { items: LifetipItem[] }) {
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   return (
     <div>
-      <SectionHeader title="#Life TIP" />
+      <SectionHeader title="#Life tip" />
       {items.length === 0 && (
         <div style={{ margin: '0 26px', padding: '20px 26px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>📌</span>
@@ -3259,19 +3275,17 @@ export default function TodayPage() {
         {/* 집중케어 섹션 — 오늘 기간에 해당하는 published 아이템 */}
         <CareSection items={activeCareItems} products={products} />
 
-        {/* 메이크업 섹션 — 오늘 날짜에 해당하는 published 아이템 */}
-        <MakeupSection items={activeMakeupItems} products={products} />
-
-        {/* Life TIP 섹션 */}
+        {/* Life tip 섹션 */}
         <LifetipSection items={activeLifetipItems} />
 
-        {/* OOTD 섹션 */}
+        {/* OOTD 섹션 — 메이크업 + 룩북 + OOTD 기록 */}
         <OOTDSection
           ootdLog={ootdLog}
           onRecord={handleOpenOOTDSheet}
-          onViewLog={() => router.push('/log?tab=라이브러리/log?tab=아카이브&filter=ootdfilter=ootd')}
+          onViewLog={() => router.push('/log?tab=라이브러리&filter=ootd')}
           user={user}
           activeLookItems={activeLookItems}
+          activeMakeupItems={activeMakeupItems}
           products={products}
         />
 
