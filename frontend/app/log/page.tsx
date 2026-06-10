@@ -1258,7 +1258,9 @@ function LogLibraryCard({
   );
 }
 
-// ─── Life TIP 라이브러리 카드 — Makeup/Lookbook과 동일한 카드 디자인 ─────────
+// ─── Life TIP 라이브러리 카드 — LogLibraryCard와 동일한 구조 ─────────────────
+// 이미지 영역은 고정 높이(160px)로 이미지 크기와 무관하게 타이틀·편집바 위치 고정
+// 카드는 flex column + height 100% → 2열 그리드에서 편집바가 항상 하단 고정
 function LifetipLibraryCard({
   item,
   products,
@@ -1272,92 +1274,109 @@ function LifetipLibraryCard({
 }) {
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   const pIds = item.productIds ?? [];
+  const createdDate = item.createdAt?.slice(0, 10) ?? '';
 
   return (
-    // 2열 그리드용 — marginBottom은 그리드 gap으로 처리하므로 제거
-    <div style={{ border: '1px solid #000000', background: '#FFFFFF', overflow: 'hidden' }}>
+    // height: '100%' + flex col → CSS Grid 행 높이에 맞게 늘어나면서 편집바가 하단 고정
+    <div style={{ border: '1px solid #000000', background: '#FFFFFF', display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-      {/* ① 이미지 영역 — overflow: hidden 필수 (큰 이모지/이미지가 셀 밖으로 나가지 않도록) */}
-      <div style={{ position: 'relative', width: '100%', background: '#EEF6FF', overflow: 'hidden' }}>
-        {/* 카테고리 뱃지 스티커 — 2열 카드에 맞게 사이즈 축소 */}
+      {/* ① 이미지 영역 — 고정 높이, overflow hidden (이미지 크기·비율 무관) */}
+      <div style={{ position: 'relative', width: '100%', height: 160, background: '#EEF6FF', overflow: 'hidden', flexShrink: 0 }}>
+        {/* 카테고리 뱃지 스티커 — LogLibraryCard와 동일한 위치/크기 */}
         <div style={{
-          position: 'absolute', right: 5, top: 8,
-          width: 80, height: 24,
+          position: 'absolute', right: 7, top: 10,
+          width: 113, height: 32,
           background: 'rgba(96,165,250,.3)', border: '1px solid #60A5FA',
           transform: 'rotate(-3deg)',
-          display: 'flex', alignItems: 'center', padding: '0 8px',
+          display: 'flex', alignItems: 'center', padding: '0 12px',
           zIndex: 3,
         }}>
-          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#1D6DDB', transform: 'rotate(-3deg)', letterSpacing: '.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>#{item.tipCategory}</span>
+          <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#1D6DDB', transform: 'rotate(-3deg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>#LIFETIP</span>
         </div>
 
         {item.imageUrl
           ? // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
-          : <div style={{ width: '100%', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {/* 이모지 크기를 2열 셀(~165px)에 맞게 축소 */}
-              <span style={{ fontSize: 90, opacity: 0.45, lineHeight: 1 }}>{item.emoji || '📌'}</span>
+            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 80, opacity: 0.45, lineHeight: 1 }}>{item.emoji || '📌'}</span>
             </div>
         }
       </div>
 
-      {/* ② 텍스트 — 좁은 카드에 맞게 내부 패딩 축소 */}
+      {/* ② 텍스트 콘텐츠 — LogLibraryCard와 동일한 패딩·폰트 */}
       <div style={{
         boxSizing: 'border-box',
         display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-        padding: '10px 12px 0px',
+        padding: '12px 26px 0px',
         width: '100%', isolation: 'isolate', flexShrink: 0,
       }}>
-        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#000', lineHeight: '18px', width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
-        <div style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: '#9A9490', lineHeight: '16px', marginTop: 3, marginBottom: 8, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-          {item.tipCategory}
+        {/* 제목 */}
+        <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
+        {/* 카테고리 서브타이틀 */}
+        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+          {item.tipCategory || 'Life TIP'}
         </div>
         {item.sourceUrl?.trim() && (() => {
           let domain = item.sourceUrl!;
           try { domain = new URL(item.sourceUrl!).hostname; } catch {}
           return (
             <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
-              style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 10, padding: '6px 8px', border: '1px solid rgba(12,12,10,.15)', borderRadius: 6, textDecoration: 'none', fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A4846', letterSpacing: '.03em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, padding: '8px 12px', border: '1px solid rgba(12,12,10,.15)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
                 <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
                 <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
               </svg>
+              SOURCE
               <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 400, color: '#9A9490' }}>{domain}</span>
             </a>
           );
         })()}
-        {!item.sourceUrl?.trim() && <div style={{ height: 10 }} />}
+        {!item.sourceUrl?.trim() && <div style={{ height: 20 }} />}
       </div>
 
-      {/* ③ 연결 BOX 제품 — 2열용 작은 썸네일 */}
+      {/* ③ 연결 BOX 제품 — LogLibraryCard와 동일한 120×160 썸네일 */}
       {pIds.length > 0 && (
-        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '8px 6px 6px', width: '100%', scrollbarWidth: 'none' as const, borderTop: '1px solid #000000', boxSizing: 'border-box' as const }}>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', width: '100%', scrollbarWidth: 'none' as const, borderTop: '1px solid #000000', boxSizing: 'border-box' as const }}>
           {pIds.map((pid, idx) => {
             const p = products.get(pid);
             const imgSrc = p?.imageUrl || (p as (Product & { storageUrl?: string }) | undefined)?.storageUrl;
             return (
-              <div key={idx} style={{ flexShrink: 0, width: 60, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                <div style={{ width: 60, height: 80, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16, opacity: 0.2 }}>🧴</span>}
+              <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <div style={{ width: 120, height: 160, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
                 </div>
-                <span style={{ fontFamily: f, fontSize: 9, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
               </div>
             );
           })}
         </div>
       )}
 
-      {/* ④ 등록일 */}
-      <div style={{ padding: '8px 12px 8px' }}>
-        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#9A9490' }}>
-          {item.createdAt?.slice(0, 10)}
-        </span>
+      {/* ④ 등록 정보 — LogLibraryCard 통계 영역과 동일한 패딩·구조 */}
+      <div style={{ padding: '14px 26px 8px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+            <span style={{ fontFamily: f, fontSize: 28, fontWeight: 800, color: '#1D6DDB', lineHeight: 1 }}>{item.emoji || '📌'}</span>
+          </div>
+          {createdDate && (
+            <>
+              <div style={{ width: 1, height: 16, background: 'rgba(12,12,10,.12)' }} />
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#9A9490' }}>등록 {createdDate}</span>
+            </>
+          )}
+        </div>
+        {/* 카테고리 태그 */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#1D6DDB', background: 'rgba(96,165,250,.12)', padding: '3px 10px', borderRadius: 9999 }}>
+            {item.tipCategory}
+          </span>
+        </div>
       </div>
 
-      {/* ⑤ 푸터 버튼 */}
-      <div style={{ display: 'flex', borderTop: '1px solid #000000' }}>
-        <button onClick={onEdit} style={{ flex: 1, padding: '10px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRight: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', cursor: 'pointer' }}>편집</button>
-        <button onClick={onDelete} style={{ flex: 1, padding: '10px 0', background: '#F3F3F1', color: '#9A9490', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', cursor: 'pointer' }}>삭제</button>
+      {/* ⑤ 편집 바 — marginTop: auto로 항상 카드 하단 고정 */}
+      <div style={{ display: 'flex', borderTop: '1px solid #000000', marginTop: 'auto', flexShrink: 0 }}>
+        <button onClick={onEdit} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRight: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
+        <button onClick={onDelete} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#9A9490', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>삭제</button>
       </div>
     </div>
   );
