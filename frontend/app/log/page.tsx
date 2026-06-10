@@ -2062,7 +2062,7 @@ function LogPageInner() {
 
   // ── 탭 상태 ──
   const [mainTab, setMainTab] = useState<'기록' | '라이브러리' | '아카이브' | '수집'>('기록');
-  const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook'>('all');
+  const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip'>('all');
   const [libFilter, setLibFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip' | 'ootd'>('all');
   const [lifetipCategory, setLifetipCategory] = useState<string | null>(null); // null = 그리드 홈
   const [editingLifetipId, setEditingLifetipId] = useState<string | null>(null); // 이모지 편집 중인 아이템
@@ -2166,10 +2166,10 @@ function LogPageInner() {
   const searchParams = useSearchParams();
   useEffect(() => {
     const tab = searchParams.get('tab') as '라이브러리' | '아카이브' | '수집' | null;
-    const filter = searchParams.get('filter') as 'all' | 'makeup' | 'lookbook' | 'ootd' | null;
+    const filter = searchParams.get('filter') as 'all' | 'makeup' | 'lookbook' | 'ootd' | 'lifetip' | null;
     const id = searchParams.get('id');
     if (tab === '라이브러리' || tab === '아카이브' || tab === '수집') setMainTab(tab);
-    if (filter === 'all' || filter === 'makeup' || filter === 'lookbook') setArchiveFilter(filter);
+    if (filter === 'all' || filter === 'makeup' || filter === 'lookbook' || filter === 'lifetip') setArchiveFilter(filter);
     if (filter === 'ootd') setLibFilter('ootd');
     if (id) {
       setTimeout(() => {
@@ -3877,17 +3877,132 @@ function LogPageInner() {
         {mainTab === '라이브러리' && (
           <div style={{ paddingTop: 16 }}>
             {/* 필터 바 */}
-            <div style={{ display: 'flex', gap: 6, padding: '0 26px', marginBottom: 16 }}>
-              {(['all', 'makeup', 'lookbook'] as const).map(tab => (
-                <button key={tab} onClick={() => setArchiveFilter(tab)}
-                  style={{ height: 30, padding: '0 14px', borderRadius: 9999, border: `1.5px solid ${archiveFilter === tab ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: archiveFilter === tab ? '#0C0C0A' : 'transparent', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, color: archiveFilter === tab ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const }}>
-                  {tab === 'all' ? 'ALL' : tab === 'makeup' ? '💄 Makeup' : '👗 Lookbook'}
+            <div style={{ display: 'flex', gap: 6, padding: '0 26px', marginBottom: 16, overflowX: 'auto', scrollbarWidth: 'none' as const }}>
+              {([
+                { key: 'all', label: 'ALL' },
+                { key: 'makeup', label: '💄 Makeup' },
+                { key: 'lookbook', label: '👗 Lookbook' },
+                { key: 'lifetip', label: '📌 Life TIP' },
+              ] as const).map(tab => (
+                <button key={tab.key} onClick={() => { setArchiveFilter(tab.key); setLifetipCategory(null); }}
+                  style={{ flexShrink: 0, height: 30, padding: '0 14px', borderRadius: 9999,
+                    border: `1.5px solid ${archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#60A5FA' : '#0C0C0A') : 'rgba(12,12,10,.14)'}`,
+                    background: archiveFilter === tab.key ? (tab.key === 'lifetip' ? 'rgba(96,165,250,.14)' : '#0C0C0A') : 'transparent',
+                    fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700,
+                    color: archiveFilter === tab.key ? (tab.key === 'lifetip' ? '#1D6DDB' : '#fff') : '#9A9490',
+                    cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const }}>
+                  {tab.label}
                 </button>
               ))}
             </div>
 
-            {/* 아이템 카드 목록 */}
-            {(() => {
+            {/* Life TIP 탭 콘텐츠 */}
+            {archiveFilter === 'lifetip' && (() => {
+              const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+              const lifetipByCategory2: Record<string, typeof lifetipItems[0][]> = {};
+              for (const item of lifetipItems) {
+                const cat = item.tipCategory || '기타';
+                if (!lifetipByCategory2[cat]) lifetipByCategory2[cat] = [];
+                lifetipByCategory2[cat].push(item);
+              }
+              const lifetipCategories2 = Object.keys(lifetipByCategory2).sort(
+                (a, b) => lifetipByCategory2[b].length - lifetipByCategory2[a].length
+              );
+              return (
+                <div style={{ padding: '0 26px 20px' }}>
+                  {lifetipItems.length === 0 ? (
+                    <div style={{ padding: '40px 20px', textAlign: 'center', background: '#fff', borderRadius: 16, border: '1px solid rgba(12,12,10,.08)' }}>
+                      <div style={{ fontSize: 32, marginBottom: 8 }}>📌</div>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>Life TIP이 없어요</div>
+                      <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>수집에서 + 라이브러리 버튼으로 추가하세요</div>
+                    </div>
+                  ) : lifetipCategory === null ? (
+                    /* 카테고리 그리드 홈 */
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                      {lifetipCategories2.map(cat => {
+                        const items = lifetipByCategory2[cat];
+                        const emoji = items[0]?.emoji || getLifetipEmoji(cat);
+                        return (
+                          <button key={cat} type="button" onClick={() => setLifetipCategory(cat)}
+                            style={{ background: '#fff', border: '1px solid rgba(12,12,10,.1)', borderRadius: 16, padding: '18px 16px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, cursor: 'pointer', textAlign: 'left', transition: 'all .15s' }}>
+                            <span style={{ fontSize: 28, lineHeight: 1 }}>{emoji}</span>
+                            <div>
+                              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#0C0C0A', marginBottom: 2 }}>{cat}</div>
+                              <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490' }}>{items.length}개</div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    /* 카테고리 상세 */
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                        <button type="button" title="뒤로" onClick={() => setLifetipCategory(null)}
+                          style={{ width: 32, height: 32, borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M10 3L5 8l5 5" stroke="#0C0C0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                        <span style={{ fontFamily: f, fontSize: 18, lineHeight: 1 }}>{lifetipByCategory2[lifetipCategory]?.[0]?.emoji || getLifetipEmoji(lifetipCategory)}</span>
+                        <span style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>{lifetipCategory}</span>
+                        <span style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginLeft: 'auto' }}>{lifetipByCategory2[lifetipCategory]?.length ?? 0}개</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {(lifetipByCategory2[lifetipCategory] ?? []).map(item => (
+                          <div key={item.id} style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.08)', overflow: 'hidden' }}>
+                            <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                              <button type="button" onClick={() => setEditingLifetipId(editingLifetipId === item.id ? null : item.id)}
+                                style={{ width: 64, flexShrink: 0, background: '#F5F4F0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>
+                                {item.emoji || getLifetipEmoji(item.tipCategory)}
+                              </button>
+                              <div style={{ flex: 1, padding: '12px 14px', minWidth: 0 }}>
+                                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                                  {item.name}
+                                </div>
+                                <div style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6' }}>{item.createdAt?.slice(0, 10)}</div>
+                              </div>
+                              {item.sourceUrl && (
+                                <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
+                                  style={{ width: 44, flexShrink: 0, background: '#F5F4F0', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', borderLeft: '1px solid rgba(12,12,10,.06)' }}>
+                                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                    <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round"/>
+                                    <path d="M10 2h4v4M14 2L8 8" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                </a>
+                              )}
+                            </div>
+                            {editingLifetipId === item.id && (
+                              <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)', background: '#FAFAF8', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', flexShrink: 0 }}>이모지</span>
+                                <input type="text" defaultValue={item.emoji} autoFocus
+                                  onBlur={async e => {
+                                    const newEmoji = e.target.value.trim();
+                                    if (newEmoji && newEmoji !== item.emoji && db && userId) {
+                                      await updateDoc(doc(db, 'users', userId, 'lifetipItems', item.id), { emoji: newEmoji, updatedAt: new Date().toISOString() });
+                                    }
+                                    setEditingLifetipId(null);
+                                  }}
+                                  onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                                  style={{ flex: 1, height: 36, padding: '0 10px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 8, background: '#fff', fontSize: 20, outline: 'none' }}
+                                />
+                                <button type="button" onClick={() => setEditingLifetipId(null)}
+                                  style={{ height: 36, padding: '0 12px', borderRadius: 8, border: '1px solid rgba(12,12,10,.12)', background: 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
+                                  취소
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* 아이템 카드 목록 (메이크업 / 룩북) */}
+            {archiveFilter !== 'lifetip' && (() => {
               const visibleItems = [
                 ...(archiveFilter !== 'lookbook' ? makeupItems : []),
                 ...(archiveFilter !== 'makeup' ? lookItems : []),
