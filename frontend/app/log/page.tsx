@@ -1311,9 +1311,11 @@ function LifetipLibraryCard({
       }}>
         {/* 카테고리 태그 */}
         {item.tipCategory && (
-          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#1D6DDB', background: 'rgba(96,165,250,.15)', border: '1px solid rgba(96,165,250,.4)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const, marginBottom: 6 }}>
-            {item.tipCategory}
-          </span>
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
+            <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#1D6DDB', background: 'rgba(96,165,250,.15)', border: '1px solid rgba(96,165,250,.4)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>
+              {item.tipCategory}
+            </span>
+          </div>
         )}
         {/* 제목 */}
         <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '22px', width: '100%', marginBottom: item.memo ? 8 : 12, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
