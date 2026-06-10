@@ -3128,17 +3128,67 @@ function LogPageInner() {
             </div>
           );
 
+          // 카테고리별 색상 설정
+          const TAB_COLOR: Record<string, { active: string; bg: string; text: string }> = {
+            all:      { active: '#0C0C0A', bg: '#0C0C0A',           text: '#C5FF00' },
+            makeup:   { active: '#C5FF00', bg: 'rgba(197,255,0,.14)', text: '#3A6000' },
+            lookbook: { active: '#FF8C42', bg: 'rgba(255,140,66,.14)', text: '#B85A00' },
+            lifetip:  { active: '#60A5FA', bg: 'rgba(96,165,250,.14)', text: '#1D6DDB' },
+            ootd:     { active: '#C5FF00', bg: 'rgba(197,255,0,.14)', text: '#3A6000' },
+          };
+
           return (
             <div style={{ padding: '16px 26px 0' }}>
-              {/* 필터 탭 */}
-              <div style={{ display: 'flex', gap: 4, marginBottom: 14 }}>
-                {tabs.map(t => (
-                  <button key={t.key} onClick={() => setLibFilter(t.key)}
-                    style={{ flex: 1, height: 28, padding: '0 6px', borderRadius: 9999, border: `1.5px solid ${libFilter === t.key ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: libFilter === t.key ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: libFilter === t.key ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, whiteSpace: 'nowrap' as const }}>
-                    {t.label}
-                    {t.count > 0 && <span style={{ width: 16, height: 16, borderRadius: 9999, background: libFilter === t.key ? (t.key === 'makeup' ? '#C5FF00' : t.key === 'lookbook' ? '#FF8C42' : t.key === 'lifetip' ? '#60A5FA' : '#C5FF00') : '#EEEDE9', color: '#0C0C0A', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t.count}</span>}
-                  </button>
-                ))}
+              {/* ── 카테고리 카드 그리드 ── */}
+              <div style={{ marginBottom: 18 }}>
+
+                {/* ALL — 전체 너비 카드 */}
+                {(() => {
+                  const t = tabs[0]; // all
+                  const sel = libFilter === t.key;
+                  const col = TAB_COLOR[t.key];
+                  return (
+                    <button type="button" key={t.key} onClick={() => setLibFilter(t.key)}
+                      style={{ width: '100%', padding: '12px 18px', marginBottom: 8, borderRadius: 14,
+                        border: `1.5px solid ${sel ? col.active : 'rgba(12,12,10,.1)'}`,
+                        background: sel ? col.bg : '#fff',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        cursor: 'pointer', transition: 'all .15s', boxSizing: 'border-box' as const }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#9A9490', letterSpacing: '.08em' }}>ALL</span>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: sel ? 'rgba(255,255,255,.6)' : '#BCBAB6' }}>전체 아카이브</span>
+                      </div>
+                      <span style={{ fontFamily: f, fontSize: 32, fontWeight: 900, lineHeight: 1,
+                        color: sel ? col.text : '#0C0C0A' }}>{t.count}</span>
+                    </button>
+                  );
+                })()}
+
+                {/* 4개 카테고리 — 2×2 그리드 */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {tabs.slice(1).map(t => {
+                    const sel = libFilter === t.key;
+                    const col = TAB_COLOR[t.key] ?? TAB_COLOR.all;
+                    const ICON: Record<string, string> = { makeup: '💄', lookbook: '👗', lifetip: '📌', ootd: '👟' };
+                    const NAME: Record<string, string> = { makeup: '메이크업', lookbook: '룩북', lifetip: 'Life TIP', ootd: '오늘의룩' };
+                    return (
+                      <button type="button" key={t.key} onClick={() => setLibFilter(t.key)}
+                        style={{ padding: '14px 16px', borderRadius: 14,
+                          border: `1.5px solid ${sel ? col.active : 'rgba(12,12,10,.1)'}`,
+                          background: sel ? col.bg : '#fff',
+                          display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10,
+                          cursor: 'pointer', transition: 'all .15s', textAlign: 'left' }}>
+                        <span style={{ fontSize: 22, lineHeight: 1 }}>{ICON[t.key]}</span>
+                        <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700,
+                            color: sel ? col.text : '#9A9490' }}>{NAME[t.key]}</span>
+                          <span style={{ fontFamily: f, fontSize: 26, fontWeight: 900, lineHeight: 1,
+                            color: sel ? col.text : '#0C0C0A' }}>{t.count}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* 콘텐츠 */}
@@ -3273,6 +3323,32 @@ function LogPageInner() {
                   {ctItems.map(item => (
                     <LogLibraryCard key={item.id} item={item} products={products} onEdit={() => triggerCollectionEdit(item)} />
                   ))}
+                  {/* ALL일 때 Life TIP 카테고리 미니 카드 */}
+                  {libFilter === 'all' && lifetipItems.length > 0 && (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '20px 0 12px' }}>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490' }}>LIFE TIP</span>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#1D6DDB' }}>{lifetipItems.length}개</span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
+                        {lifetipCategories.map(cat => {
+                          const items = lifetipByCategory[cat];
+                          const emoji = items[0]?.emoji || getLifetipEmoji(cat);
+                          return (
+                            <button key={cat} type="button"
+                              onClick={() => { setLibFilter('lifetip'); setLifetipCategory(cat); }}
+                              style={{ background: 'rgba(96,165,250,.08)', border: '1.5px solid rgba(96,165,250,.3)', borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', textAlign: 'left' }}>
+                              <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{emoji}</span>
+                              <div style={{ minWidth: 0 }}>
+                                <div style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#1D6DDB', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{cat}</div>
+                                <div style={{ fontFamily: f, fontSize: 11, color: '#60A5FA' }}>{items.length}개</div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
                   {/* ALL일 때 OOTD 그리드도 함께 표시 */}
                   {libFilter === 'all' && ootdLogs.length > 0 && (
                     <>
@@ -3283,7 +3359,7 @@ function LogPageInner() {
                       <OotdGrid />
                     </>
                   )}
-                  {libFilter === 'all' && ctItems.length === 0 && ootdLogs.length === 0 && (
+                  {libFilter === 'all' && ctItems.length === 0 && ootdLogs.length === 0 && lifetipItems.length === 0 && (
                     <div style={{ padding: '32px 20px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, marginBottom: 20 }}>
                       <div style={{ fontSize: 28, marginBottom: 8 }}>📂</div>
                       <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>아카이브가 비어있어요</div>
