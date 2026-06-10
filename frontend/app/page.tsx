@@ -68,7 +68,7 @@ type OOTDLog = {
   createdAt: string;
 };
 
-const OOTD_THEMES = ['캐주얼', '오피스룩', '스트릿', '미니멀', '빈티지', '스포티', '포멀', '로맨틱'];
+const DEFAULT_OOTD_TAGS = ['캐주얼', '오피스룩', '스트릿', '미니멀', '빈티지', '스포티', '포멀', '로맨틱'];
 
 // ─── 상수 ─────────────────────────────────────────────────────────────────────
 
@@ -1865,6 +1865,8 @@ function OOTDRecordSheet({
   onSave,
   onDelete,
   saving,
+  tags,
+  onTagsChange,
 }: {
   open: boolean;
   onClose: () => void;
@@ -1878,7 +1880,15 @@ function OOTDRecordSheet({
   onSave: () => void;
   onDelete: () => void;
   saving: boolean;
+  tags: string[];
+  onTagsChange: (tags: string[]) => void;
 }) {
+  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+
+  // 태그 편집 시트 상태
+  const [tagEditOpen, setTagEditOpen] = useState(false);
+  const [newTagInput, setNewTagInput] = useState('');
+
   return (
     <>
       {/* 백드롭 */}
@@ -1895,48 +1905,60 @@ function OOTDRecordSheet({
         <div style={{ width: 32, height: 4, background: '#E5E7EB', borderRadius: 9999, margin: '0 auto 20px' }} />
 
         {/* 제목 */}
-        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 800, color: '#0C1014', marginBottom: 16 }}>
+        <div style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C1014', marginBottom: 16 }}>
           오늘의 룩 기록
         </div>
 
-        {/* 테마 선택 */}
-        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', marginBottom: 8 }}>룩 테마</div>
+        {/* 태그 선택 */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>태그</div>
+          <button
+            type="button"
+            onClick={() => setTagEditOpen(true)}
+            style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', border: '2px solid #0066FF', borderRadius: 9999, padding: '5px 12px', cursor: 'pointer', letterSpacing: '.08em' }}
+          >
+            태그 편집
+          </button>
+        </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-          {OOTD_THEMES.map((t) => (
+          {tags.map((t) => (
             <button
               key={t}
               type="button"
-              onClick={() => onThemeChange(t)}
-              style={{ padding: '8px 26px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#0A0A0A' : 'rgba(12,12,10,.14)'}`, background: theme === t ? '#0A0A0A' : 'transparent', color: theme === t ? '#C5FF00' : '#0C0C0A', fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              onClick={() => onThemeChange(theme === t ? '' : t)}
+              style={{ padding: '8px 20px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#0A0A0A' : 'rgba(12,12,10,.14)'}`, background: theme === t ? '#0A0A0A' : 'transparent', color: theme === t ? '#C5FF00' : '#0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .15s' }}
             >
               {t}
             </button>
           ))}
+          {tags.length === 0 && (
+            <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6' }}>태그 없음 — 편집에서 추가해주세요</div>
+          )}
         </div>
 
-        {/* 사진 */}
-        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', marginBottom: 8 }}>
-          사진 <span style={{ fontWeight: 400 }}>선택</span>
+        {/* 이미지 */}
+        <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', marginBottom: 8 }}>
+          이미지
         </div>
         <div style={{ marginBottom: 12 }}>
           <ImagePicker
             preview={photoPreview}
             onChange={onPhotoApply}
-            height={420}
+            height={260}
             placeholderLabel="OOTD 이미지"
             isOpen={open}
           />
         </div>
 
         {/* 메모 */}
-        <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490', marginBottom: 8 }}>
+        <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', marginBottom: 8 }}>
           메모 <span style={{ fontWeight: 400 }}>선택</span>
         </div>
         <textarea
           value={note}
           onChange={(e) => onNoteChange(e.target.value)}
           placeholder="오늘의 룩 메모…"
-          style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 14, color: '#0C1014', resize: 'none', height: 64, outline: 'none', boxSizing: 'border-box', marginBottom: 16 }}
+          style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#0C1014', resize: 'none', height: 64, outline: 'none', boxSizing: 'border-box', marginBottom: 16 }}
         />
 
         {/* 삭제 버튼 (수정 모드) */}
@@ -1944,7 +1966,7 @@ function OOTDRecordSheet({
           <button
             type="button"
             onClick={onDelete}
-            style={{ width: '100%', height: 44, background: 'none', border: '1.5px solid #fee2e2', color: '#ef4444', borderRadius: 12, fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 10 }}
+            style={{ width: '100%', height: 44, background: 'none', border: '1.5px solid #fee2e2', color: '#ef4444', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 10 }}
           >
             기록 삭제
           </button>
@@ -1955,7 +1977,7 @@ function OOTDRecordSheet({
           <button
             type="button"
             onClick={onClose}
-            style={{ flex: 1, height: 52, background: '#F4F4F0', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
+            style={{ flex: 1, height: 52, background: '#F4F4F0', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
           >
             취소
           </button>
@@ -1963,12 +1985,83 @@ function OOTDRecordSheet({
             type="button"
             onClick={onSave}
             disabled={saving}
-            style={{ flex: 1, height: 52, background: '#0A0A0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
+            style={{ flex: 1, height: 52, background: '#0A0A0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
           >
             {saving ? '저장 중...' : '저장'}
           </button>
         </div>
       </div>
+
+      {/* 태그 편집 서브 시트 */}
+      {tagEditOpen && (
+        <>
+          <div onClick={() => setTagEditOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 102 }} />
+          <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, zIndex: 103, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 24px)', maxHeight: '75%', overflowY: 'auto', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+            <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#0C0C0A' }}>태그 관리</span>
+              <button onClick={() => setTagEditOpen(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9A9490' }}>✕</button>
+            </div>
+
+            {/* 현재 태그 목록 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+              {tags.map((tag, idx) => (
+                <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {/* 삭제 버튼 */}
+                  <button
+                    type="button"
+                    onClick={() => onTagsChange(tags.filter((_, i) => i !== idx))}
+                    style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}
+                  >
+                    -
+                  </button>
+                  {/* 태그 라벨 */}
+                  <div style={{ flex: 1, padding: '12px 16px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A' }}>
+                    {tag}
+                  </div>
+                </div>
+              ))}
+              {tags.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: '#9A9490', fontFamily: f }}>등록된 태그가 없습니다.</div>
+              )}
+            </div>
+
+            {/* 새 태그 입력 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <input
+                type="text"
+                value={newTagInput}
+                onChange={e => setNewTagInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    const cleaned = newTagInput.trim();
+                    if (!cleaned || tags.includes(cleaned)) return;
+                    onTagsChange([...tags, cleaned]);
+                    setNewTagInput('');
+                  }
+                }}
+                placeholder="새 태그 입력... (Enter 또는 추가 버튼)"
+                maxLength={12}
+                style={{ width: '100%', padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const cleaned = newTagInput.trim();
+                  if (!cleaned) return;
+                  if (tags.includes(cleaned)) { alert('이미 존재하는 태그입니다.'); return; }
+                  onTagsChange([...tags, cleaned]);
+                  setNewTagInput('');
+                }}
+                style={{ width: '100%', padding: '14px', background: '#4F7DEC', color: '#fff', border: 'none', borderRadius: 16, fontFamily: f, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 12px rgba(79,125,236,.2)' }}
+              >
+                + 태그 추가
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
@@ -2095,6 +2188,20 @@ export default function TodayPage() {
   const [ootdPhotoFile, setOotdPhotoFile] = useState<File | null>(null);
   const [ootdPhotoPreview, setOotdPhotoPreview] = useState('');
   const [ootdSaving, setOotdSaving] = useState(false);
+
+  // ── OOTD 태그 목록 (localStorage에 저장, 없으면 기본값) ──
+  const [ootdTags, setOotdTags] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return DEFAULT_OOTD_TAGS;
+    try {
+      const saved = localStorage.getItem('onstep_ootd_tags');
+      return saved ? JSON.parse(saved) : DEFAULT_OOTD_TAGS;
+    } catch { return DEFAULT_OOTD_TAGS; }
+  });
+
+  function saveOotdTags(tags: string[]) {
+    setOotdTags(tags);
+    localStorage.setItem('onstep_ootd_tags', JSON.stringify(tags));
+  }
 
   // ── CT 섹션 (공유 컨텍스트에서) ──
   const careItems = ctxCareItems;
@@ -3032,6 +3139,8 @@ export default function TodayPage() {
         onSave={handleSaveOOTD}
         onDelete={handleDeleteOOTD}
         saving={ootdSaving}
+        tags={ootdTags}
+        onTagsChange={saveOotdTags}
       />
     </div>
   );
