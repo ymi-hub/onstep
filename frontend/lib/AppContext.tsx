@@ -23,6 +23,7 @@ import type { MedRoutine } from '@/types/medication';
 import type { HealthRoutine } from '@/types/healthroutine';
 import type { HealthCategory } from '@/types/healthcategory';
 import type { DietProgram } from '@/types/dietplan';
+import { useTimer, type TimerState } from '@/hooks/useTimer';
 
 import { FALLBACK_USER_ID } from './constants';
 
@@ -43,7 +44,14 @@ interface AppContextValue {
   healthRoutines: HealthRoutine[];
   healthCategories: HealthCategory[];
   dietPrograms: DietProgram[];
+  timer: TimerState;
 }
+
+const noopTimer: TimerState = {
+  timerLabel: null, timerEndMs: null, timerRemainMs: 0,
+  alarmVisible: false, alarmLabel: null,
+  startTimer: () => {}, stopTimer: () => {}, dismissAlarm: () => {},
+};
 
 const AppContext = createContext<AppContextValue>({
   user: null,
@@ -60,6 +68,7 @@ const AppContext = createContext<AppContextValue>({
   healthRoutines: [],
   healthCategories: [],
   dietPrograms: [],
+  timer: noopTimer,
 });
 
 export function useAppContext() {
@@ -71,6 +80,7 @@ export function useAppContext() {
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const timer = useTimer();
 
   const [dataReady, setDataReady] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
@@ -189,7 +199,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [userId, authLoading]);
 
   return (
-    <AppContext.Provider value={{ user, userId, authLoading, dataReady, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories, dietPrograms }}>
+    <AppContext.Provider value={{ user, userId, authLoading, dataReady, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories, dietPrograms, timer }}>
       {children}
     </AppContext.Provider>
   );

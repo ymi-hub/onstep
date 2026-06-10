@@ -53,6 +53,7 @@ export interface TimerState {
 export function useTimer(): TimerState {
   const [timerLabel, setTimerLabel] = useState<string | null>(null);
   const [timerEndMs, setTimerEndMs] = useState<number | null>(null);
+  const [timerDurationMs, setTimerDurationMs] = useState<number>(0);
   const [timerRemainMs, setTimerRemainMs] = useState<number>(0);
   const [alarmVisible, setAlarmVisible] = useState(false);
   const [alarmLabel, setAlarmLabel] = useState<string | null>(null);
@@ -100,6 +101,16 @@ export function useTimer(): TimerState {
       if (remain > 0 && typeof window !== 'undefined' && 'mediaSession' in navigator && navigator.mediaSession.metadata) {
         try {
           navigator.mediaSession.metadata.artist = `남은 시간: ${formatTimerRemain(remain)}`;
+          // setPositionState: 전체 타이머 시간 대비 경과 시간을 잠금화면 프로그레스바에 반영
+          if (timerDurationMs > 0 && 'setPositionState' in navigator.mediaSession) {
+            const totalSec = Math.ceil(timerDurationMs / 1000);
+            const elapsedSec = Math.max(0, totalSec - Math.ceil(remain / 1000));
+            (navigator.mediaSession as MediaSession & { setPositionState?: (s: object) => void }).setPositionState?.({
+              duration: totalSec,
+              playbackRate: 1,
+              position: elapsedSec,
+            });
+          }
         } catch {}
       }
 
@@ -203,7 +214,7 @@ export function useTimer(): TimerState {
     tick();
     const id = setInterval(tick, 500);
     return () => clearInterval(id);
-  }, [timerEndMs, timerLabel]);
+  }, [timerEndMs, timerLabel, timerDurationMs]);
 
   useEffect(() => () => {
     if (alarmDismissRef.current) clearTimeout(alarmDismissRef.current);
@@ -213,7 +224,9 @@ export function useTimer(): TimerState {
   function startTimer(label: string, minutes: number) {
     setAlarmVisible(false);
     setTimerLabel(label);
-    const endMs = Date.now() + minutes * 60_000;
+    const durationMs = minutes * 60_000;
+    const endMs = Date.now() + durationMs;
+    setTimerDurationMs(durationMs);
     setTimerEndMs(endMs);
 
     // 알림 권한 요청 (만약 아직 수락하지 않았다면)
@@ -320,6 +333,7 @@ export function useTimer(): TimerState {
     setTimerEndMs(null);
     setTimerLabel(null);
     setTimerRemainMs(0);
+    setTimerDurationMs(0);
     setAlarmVisible(false);
     stopBackgroundAudio();
 

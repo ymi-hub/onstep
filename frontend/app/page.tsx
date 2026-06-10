@@ -40,7 +40,7 @@ import { useAppContext } from '@/lib/AppContext';
 import { FALLBACK_USER_ID, FONT } from '@/lib/constants';
 import { toDateStr, getTodayDateStr, getEveningDateStr, calcNextDueDate, getDaysUntilDue, dueBadgeLabel, dueBadgeColor } from '@/lib/dateUtils';
 import { migrateRawSlot, migrateSession } from '@/lib/migration';
-import { useTimer, formatTimerRemain, playAlarmChime } from '@/hooks/useTimer';
+import { formatTimerRemain, playAlarmChime } from '@/hooks/useTimer';
 import CatBadge from '@/components/CatBadge';
 import ImagePicker from '@/components/ImagePicker';
 import WeatherWidget from '@/components/WeatherWidget';
@@ -311,8 +311,8 @@ function FlowCard({
   const isChecked = tab === 'morning' ? checked.morning : checked.evening;
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
-  // 대기 타이머 — useTimer 훅으로 통합
-  const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, stopTimer, dismissAlarm } = useTimer();
+  // 대기 타이머 — AppContext 전역 상태 사용 (페이지 이탈해도 유지)
+  const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, stopTimer, dismissAlarm } = useAppContext().timer;
 
   return (
     <>
@@ -1140,8 +1140,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
   if (items.length === 0) return null;
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
-  // 타이머 훅 도입
-  const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, stopTimer, dismissAlarm } = useTimer();
+  // 대기 타이머 — AppContext 전역 상태 사용 (페이지 이탈해도 유지)
+  const { timerLabel, timerEndMs, timerRemainMs, alarmVisible, alarmLabel, startTimer, stopTimer, dismissAlarm } = useAppContext().timer;
 
   // 업그레이드된 칩/카드 렌더러
   function renderChip(item: RoutineItem, idx: number, allItems: RoutineItem[]) {
