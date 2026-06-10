@@ -3256,60 +3256,58 @@ function LogPageInner() {
                 {/* ── 구분선 ── */}
                 <div style={{ height: 1, background: 'rgba(12,12,10,.06)', margin: '0 12px' }} />
 
-                {/* ── 액션 바 ── */}
-                <div style={{ display: 'flex', alignItems: 'center', padding: '7px 10px', gap: 6 }}>
+                {/* ── 액션 바 — 5:5 분리 ── */}
+                <div style={{ display: 'flex', alignItems: 'stretch', padding: '8px 10px 10px', gap: 6 }}>
 
-                  {/* 라이브러리 등록 버튼 (flex 1 → 나머지 공간 차지) */}
+                  {/* ← 50% 좌측: 라이브러리 등록 */}
                   <button
                     type="button"
                     onClick={() => { setRefToLib(ref); setRefToLibType('makeup'); }}
-                    style={{ flex: 1, height: 28, borderRadius: 9999, background: 'rgba(197,255,0,.15)', border: '1px solid rgba(74,119,0,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, cursor: 'pointer' }}
+                    style={{ flex: 1, height: 42, borderRadius: 12, background: 'rgba(197,255,0,.15)', border: '1px solid rgba(74,119,0,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, cursor: 'pointer' }}
                   >
-                    <span style={{ fontSize: 10, color: '#4A7700' }}>＋</span>
-                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#3A6000' }}>라이브러리</span>
+                    <span style={{ fontSize: 13, color: '#4A7700', lineHeight: 1 }}>＋</span>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#3A6000' }}>라이브러리</span>
                   </button>
 
-                  {/* 링크 공유 버튼 — 링크 있으면 활성, 없으면 비활성 */}
-                  <Tip label={ref.url ? '링크 열기' : '링크 없음'}>
+                  {/* → 50% 우측: 링크공유 + 편집 + 삭제 (3등분) */}
+                  <div style={{ flex: 1, display: 'flex', gap: 5 }}>
+
+                    {/* 링크 공유 */}
                     {ref.url ? (
                       <a href={ref.url} target="_blank" rel="noopener noreferrer" aria-label="링크 열기"
-                        style={{ width: 32, height: 28, borderRadius: 8, background: '#EDFAD0', border: '1px solid rgba(74,119,0,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
-                        {/* 외부 링크 아이콘: 박스 + 우상단 화살표(↗) */}
-                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                        style={{ flex: 1, height: 42, borderRadius: 10, background: '#EDFAD0', border: '1px solid rgba(74,119,0,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                           <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#3A6000" strokeWidth="1.5" strokeLinecap="round"/>
                           <path d="M10 2h4v4M14 2L8 8" stroke="#3A6000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </a>
                     ) : (
                       <span aria-label="링크 없음"
-                        style={{ width: 32, height: 28, borderRadius: 8, background: 'rgba(12,12,10,.04)', border: '1px solid rgba(12,12,10,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'not-allowed' }}>
-                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.22 }}>
+                        style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(12,12,10,.04)', border: '1px solid rgba(12,12,10,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.2 }}>
                           <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#0C0C0A" strokeWidth="1.5" strokeLinecap="round"/>
                           <path d="M10 2h4v4M14 2L8 8" stroke="#0C0C0A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </span>
                     )}
-                  </Tip>
 
-                  {/* 편집 */}
-                  <Tip label="편집">
+                    {/* 편집 */}
                     <button type="button" onClick={() => openRefEdit(ref)} aria-label="편집"
-                      style={{ width: 32, height: 28, borderRadius: 8, background: '#F5F4F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                      style={{ flex: 1, height: 42, borderRadius: 10, background: '#F5F4F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                         <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </button>
-                  </Tip>
 
-                  {/* 삭제 */}
-                  <Tip label="삭제">
+                    {/* 삭제 */}
                     <button type="button" onClick={() => deleteReference(ref.id)} aria-label="삭제"
-                      style={{ width: 32, height: 28, borderRadius: 8, background: 'rgba(233,79,107,.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+                      style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(233,79,107,.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
                         <path d="M3 3l10 10M13 3L3 13" stroke="#E94F6B" strokeWidth="2" strokeLinecap="round"/>
                       </svg>
                     </button>
-                  </Tip>
+
+                  </div>
                 </div>
               </div>
             );
