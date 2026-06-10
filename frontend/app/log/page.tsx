@@ -2461,7 +2461,8 @@ function LogPageInner() {
   async function saveReference() {
     const trimmedUrl = refUrl.trim();
     const trimmedTitle = refTitle.trim();
-    if ((!trimmedUrl && !trimmedTitle) || !db || !userId) return;
+    const hasContent = trimmedUrl || trimmedTitle || refTags.length > 0 || refTagInput.trim() || refImagePreview;
+    if (!hasContent || !db || !userId) return;
     setRefSaving(true);
     // 입력창에 남아있는 태그 텍스트를 자동으로 추가
     const pendingTag = refTagInput.trim();
@@ -3385,7 +3386,7 @@ function LogPageInner() {
                     {refTags.map(tag => (
                       <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, height: 30, padding: '0 6px 0 10px', borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1.5px solid #4A7700', flexShrink: 0, maxWidth: 200 }}>
                         <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, maxWidth: 130 }}>{tag}</span>
-                        <button type="button" title="태그 삭제" onClick={() => setRefTags(prev => prev.filter(t => t !== tag))} style={{ width: 22, height: 22, minWidth: 22, borderRadius: 9999, background: 'rgba(58,96,0,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0, color: '#3A6000' }}>
+                        <button type="button" title="태그 삭제" onClick={() => setRefTags(prev => prev.filter(t => t !== tag))} style={{ width: 22, height: 22, minWidth: 22, borderRadius: 9999, background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0, color: 'rgba(58,96,0,.65)' }}>
                           <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 1.5l6 6M7.5 1.5l-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
                         </button>
                       </div>
@@ -3480,8 +3481,8 @@ function LogPageInner() {
                   <button
                     type="button"
                     onClick={saveReference}
-                    disabled={(!refUrl.trim() && !refTitle.trim()) || refSaving}
-                    style={{ flex: 1, height: 48, background: (refUrl.trim() || refTitle.trim()) ? '#0C0C0A' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: (refUrl.trim() || refTitle.trim()) ? '#fff' : '#9A9490', cursor: (refUrl.trim() || refTitle.trim()) ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
+                    disabled={(!refUrl.trim() && !refTitle.trim() && refTags.length === 0 && !refTagInput.trim() && !refImagePreview) || refSaving}
+                    style={{ flex: 1, height: 48, background: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refTagInput.trim() || refImagePreview) ? '#0C0C0A' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refTagInput.trim() || refImagePreview) ? '#fff' : '#9A9490', cursor: (refUrl.trim() || refTitle.trim() || refTags.length > 0 || refTagInput.trim() || refImagePreview) ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
                   >
                     {refSaving ? '저장 중...' : '수집'}
                   </button>
@@ -3856,7 +3857,7 @@ function LogPageInner() {
                         type="button"
                         title="태그 삭제"
                         onClick={() => setRefEditTags(prev => prev.filter(t => t !== tag))}
-                        style={{ width: 22, height: 22, minWidth: 22, borderRadius: 9999, background: 'rgba(58,96,0,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0, color: '#3A6000' }}
+                        style={{ width: 22, height: 22, minWidth: 22, borderRadius: 9999, background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0, color: 'rgba(58,96,0,.65)' }}
                       >
                         <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 1.5l6 6M7.5 1.5l-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
                       </button>
