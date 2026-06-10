@@ -3535,7 +3535,7 @@ function LogPageInner() {
                     }}
                     style={{ flex: 1, height: 42, borderRadius: 8, background: ref.inLibrary ? '#0C0C0A' : 'rgba(12,12,10,.06)', border: `1px solid ${ref.inLibrary ? 'transparent' : 'rgba(12,12,10,.1)'}`, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: ref.inLibrary ? '#C5FF00' : '#9A9490', cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const }}
                   >
-                    {ref.inLibrary ? 'LIB ON ✓' : 'LIB ON'}
+                    {ref.inLibrary ? 'LIB ON ✓' : 'LIB OFF'}
                   </button>
 
                   {/* → 50% 우측: 링크공유 + 편집 + 삭제 (3등분) */}
