@@ -2273,7 +2273,7 @@ function LogPageInner() {
   const [refEditSaving, setRefEditSaving] = useState(false);
   const [refEditTagFocused, setRefEditTagFocused] = useState(false);
   // 수집 정렬 + 페이지네이션
-  const [refSort, setRefSort] = useState<'date_desc' | 'name' | 'tag'>('date_desc');
+  const [refSort, setRefSort] = useState<'date_desc' | 'category'>('date_desc');
   const [refVisibleCount, setRefVisibleCount] = useState(10);
 
   // OOTD 편집 시트 상태
@@ -3296,22 +3296,24 @@ function LogPageInner() {
           const lifetipCategorySet = new Set(lifetipItems.map(i => i.tipCategory));
 
           // 필터링 + 정렬 + 페이지네이션
-          const filtered = refFilter === 'all'
+          // 삭제된 카테고리가 refFilter에 남아있으면 'all'로 폴백
+          const activeFilter = (refFilter === 'all' || categoryTags.includes(refFilter)) ? refFilter : 'all';
+          const filtered = activeFilter === 'all'
             ? references
-            : references.filter(r => (r.tags ?? []).includes(refFilter));
+            : references.filter(r => (r.tags ?? []).includes(activeFilter));
 
           const sortedFiltered = (() => {
             const list = [...filtered];
-            if (refSort === 'name') return list.sort((a, b) => {
-              const ta = (a.title ?? '').toLowerCase();
-              const tb = (b.title ?? '').toLowerCase();
-              if (!ta && tb) return 1; if (ta && !tb) return -1;
-              return ta.localeCompare(tb, 'ko');
-            });
-            if (refSort === 'tag') return list.sort((a, b) => {
-              const ta = (a.tags ?? [])[0] ?? '';
-              const tb = (b.tags ?? [])[0] ?? '';
-              if (ta !== tb) return ta.localeCompare(tb, 'ko');
+            if (refSort === 'category') return list.sort((a, b) => {
+              const getOrder = (r: Reference) => {
+                const tags = r.tags ?? [];
+                for (let i = 0; i < categoryTags.length; i++) {
+                  if (tags.includes(categoryTags[i])) return i;
+                }
+                return categoryTags.length;
+              };
+              const oa = getOrder(a), ob = getOrder(b);
+              if (oa !== ob) return oa - ob;
               return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             });
             return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -3649,45 +3651,39 @@ function LogPageInner() {
                 </div>
               </div>
 
-              {/* 정렬 드롭다운 */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 26px 10px' }}>
-                <select
-                  value={refSort}
-                  onChange={e => { setRefSort(e.target.value as typeof refSort); setRefVisibleCount(10); }}
-                  style={{ height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px solid rgba(12,12,10,.14)', background: '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer', outline: 'none', appearance: 'none' as const, WebkitAppearance: 'none' as const, paddingRight: 28, backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239A9490' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
-                >
-                  <option value="date_desc">최신순</option>
-                  <option value="name">이름순</option>
-                  <option value="tag">태그별</option>
-                </select>
+              {/* 정렬 버튼 */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4, padding: '0 26px 10px' }}>
+                {(['date_desc', 'category'] as const).map(s => (
+                  <button key={s} type="button"
+                    onClick={() => { setRefSort(s); setRefVisibleCount(10); }}
+                    style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${refSort === s ? 'rgba(12,12,10,.3)' : 'rgba(12,12,10,.14)'}`, background: refSort === s ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: refSort === s ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
+                    {s === 'date_desc' ? '최신순' : '카테고리순'}
+                  </button>
+                ))}
               </div>
 
-              {/* 태그 필터 바 */}
+              {/* 카테고리 필터 바 — categoryTags 기반 실시간 반영 */}
               <div style={{ display: 'flex', gap: 6, padding: '0 26px 14px', overflowX: 'auto', scrollbarWidth: 'none' as const }}>
-                {(['all', ...Array.from(new Set(references.flatMap(r => r.tags ?? []))).sort()] as string[]).map(tag => {
-                  const active = refFilter === tag;
-                  const label = tag === 'all' ? `ALL (${references.length})` : tag;
-                  // Life TIP 카테고리 태그는 블루 컬러로 구분
-                  const isTip = tag !== 'all' && lifetipCategorySet.has(tag);
+                {(['all', ...categoryTags]).map((tag, i) => {
+                  const active = activeFilter === tag;
+                  const count = tag === 'all' ? references.length : references.filter(r => (r.tags ?? []).includes(tag)).length;
+                  const color = tag !== 'all' ? CAT_COLORS[(i - 1) % CAT_COLORS.length] : null;
                   return (
-                    <button
-                      key={tag}
+                    <button key={tag}
                       onClick={() => { setRefFilter(tag); setRefVisibleCount(10); }}
                       style={{
                         flexShrink: 0, height: 28, padding: '0 12px', borderRadius: 9999,
                         border: active
-                          ? `1.5px solid ${isTip ? 'rgba(96,165,250,.5)' : 'rgba(74,119,0,.5)'}`
+                          ? `1.5px solid ${tag === 'all' ? 'rgba(12,12,10,.4)' : color!.selBorder}`
                           : '1.5px solid rgba(12,12,10,.14)',
                         background: active
-                          ? (isTip ? 'rgba(96,165,250,.18)' : 'rgba(197,255,0,.18)')
+                          ? (tag === 'all' ? '#0C0C0A' : color!.selBg)
                           : 'transparent',
                         fontFamily: f, fontSize: 11, fontWeight: 700,
-                        color: active ? (isTip ? '#1D6DDB' : '#3A6000') : '#9A9490',
-                        cursor: 'pointer', transition: 'all .15s',
-                        whiteSpace: 'nowrap' as const,
-                      }}
-                    >
-                      {label}
+                        color: active ? (tag === 'all' ? '#fff' : color!.selText) : '#9A9490',
+                        cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const,
+                      }}>
+                      {tag === 'all' ? `ALL (${count})` : `${tag} (${count})`}
                     </button>
                   );
                 })}
@@ -3698,7 +3694,7 @@ function LogPageInner() {
                 <div style={{ padding: '48px 26px', textAlign: 'center' }}>
                   <div style={{ fontSize: 32, marginBottom: 12 }}>🔗</div>
                   <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', marginBottom: 6 }}>
-                    {refFilter === 'all' ? '아직 수집한 항목이 없어요' : `${refFilter} 항목이 없어요`}
+                    {activeFilter === 'all' ? '아직 수집한 항목이 없어요' : `${activeFilter} 항목이 없어요`}
                   </div>
                   <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>
                     이미지, 링크, 제목 중 하나만 있어도 저장할 수 있어요
@@ -3724,30 +3720,30 @@ function LogPageInner() {
                       </div>
                     ));
                   })()}
-                  {/* 태그별 — 태그 그루핑 */}
-                  {refSort === 'tag' && (() => {
-                    const gByTag = visibleRefs.reduce<Record<string, Reference[]>>((acc, ref) => {
-                      const tag = (ref.tags ?? [])[0] ?? '태그 없음';
-                      if (!acc[tag]) acc[tag] = [];
-                      acc[tag].push(ref);
-                      return acc;
-                    }, {});
-                    const sortedG = Object.entries(gByTag).sort(([a], [b]) => {
-                      if (a === '태그 없음') return 1;
-                      if (b === '태그 없음') return -1;
-                      return a.localeCompare(b, 'ko');
-                    });
-                    return sortedG.map(([tag, items]) => {
-                      const isTipSection = lifetipCategorySet.has(tag);
+                  {/* 카테고리순 — categoryTags 순서로 그루핑 */}
+                  {refSort === 'category' && (() => {
+                    const groups = [
+                      ...categoryTags.map((cat, i) => ({
+                        label: cat, colorIdx: i,
+                        items: visibleRefs.filter(r => (r.tags ?? []).includes(cat)),
+                      })),
+                      {
+                        label: '미분류', colorIdx: -1,
+                        items: visibleRefs.filter(r => !(r.tags ?? []).some(t => categoryTags.includes(t))),
+                      },
+                    ].filter(g => g.items.length > 0);
+                    return groups.map(({ label, colorIdx, items }) => {
+                      const color = colorIdx >= 0 ? CAT_COLORS[colorIdx % CAT_COLORS.length] : null;
                       return (
-                        <div key={tag} style={{ marginBottom: 24 }}>
+                        <div key={label} style={{ marginBottom: 24 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                             <span style={{
                               fontFamily: f, fontSize: 11, fontWeight: 800,
-                              color: isTipSection ? '#1D6DDB' : '#4A7700',
-                              background: isTipSection ? 'rgba(96,165,250,.18)' : 'rgba(197,255,0,.18)',
-                              padding: '3px 10px', borderRadius: 9999, letterSpacing: '.06em',
-                            }}>{tag}</span>
+                              color: color ? color.selText : '#9A9490',
+                              background: color ? color.selBg : 'rgba(12,12,10,.06)',
+                              border: `1px solid ${color ? color.selBorder : 'rgba(12,12,10,.12)'}`,
+                              padding: '3px 10px', borderRadius: 9999,
+                            }}>{label}</span>
                             <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{items.map(renderRef)}</div>
@@ -3755,12 +3751,6 @@ function LogPageInner() {
                       );
                     });
                   })()}
-                  {/* 이름순 — 플랫 리스트 */}
-                  {refSort === 'name' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
-                      {visibleRefs.map(renderRef)}
-                    </div>
-                  )}
                   <MoreButton
                     visible={visibleRefs.length}
                     total={sortedFiltered.length}
