@@ -1318,7 +1318,7 @@ function LifetipLibraryCard({
         {/* 제목 */}
         <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '22px', width: '100%', marginBottom: item.memo ? 8 : 12, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
         {item.memo ? (
-          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
             {item.memo}
           </div>
         ) : (
