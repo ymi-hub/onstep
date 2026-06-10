@@ -1345,8 +1345,8 @@ function LifetipLibraryCard({
         {/* 태그바 */}
         {(item.tags ?? []).length > 0 && (
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 12 }}>
-            {(item.tags ?? []).map((tag, i) => (
-              <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 9999, background: `${CAT_COLORS[i % CAT_COLORS.length].selBg}`, border: `1px solid ${CAT_COLORS[i % CAT_COLORS.length].selBorder}`, color: CAT_COLORS[i % CAT_COLORS.length].selText }}>#{tag}</span>
+            {(item.tags ?? []).map(tag => (
+              <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>#{tag}</span>
             ))}
           </div>
         )}
@@ -2765,7 +2765,7 @@ function LogPageInner() {
     setRefToLibSaving(true);
     try {
       if (refToLibType === 'lifetip') {
-        const category = refToLibTipCategory.trim() || '기타';
+        const category = refToLibTipCategory.trim() || refToLibCatName || 'Life tip';
         const emoji = refToLibEmoji.trim() || getLifetipEmoji(category);
         await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
           name: refToLib.title || refToLib.url || '새 아이템',
