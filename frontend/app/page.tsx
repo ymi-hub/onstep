@@ -1884,9 +1884,23 @@ function LifetipSection({ items }: { items: LifetipItem[] }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 26px' }}>
         {items.map((item) => (
           <div key={item.id} style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
-            {item.imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block', maxHeight: 180, objectFit: 'cover' }} />
+            {/* 이미지 + 뱃지 오버레이 */}
+            {item.imageUrl ? (
+              <div style={{ position: 'relative', width: '100%' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block', maxHeight: 180, objectFit: 'cover' }} />
+                {/* #Life tip 회전 스티커 뱃지 */}
+                <div style={{ position: 'absolute', right: 7, top: 42, width: 93, height: 28, background: 'rgba(96,165,250,.9)', border: '1px solid #1D6DDB', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 10px', zIndex: 3 }}>
+                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#fff', transform: 'rotate(-3deg)' }}>#Life tip</span>
+                </div>
+              </div>
+            ) : (
+              /* 이미지 없을 때 — 카드 헤더에 인라인 뱃지 */
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px 0' }}>
+                <div style={{ background: 'rgba(96,165,250,.15)', border: '1px solid rgba(96,165,250,.5)', borderRadius: 6, padding: '3px 10px' }}>
+                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#1D6DDB' }}>#Life tip</span>
+                </div>
+              </div>
             )}
             <div style={{ padding: '14px 16px 16px' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
