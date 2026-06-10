@@ -1309,11 +1309,14 @@ function LifetipLibraryCard({
         padding: '12px 26px 0px',
         width: '100%', isolation: 'isolate', flexShrink: 0,
       }}>
-        {/* 제목 */}
-        <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
-        {/* 카테고리 서브타이틀 */}
-        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: item.memo ? 8 : 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-          {item.tipCategory || 'Life TIP'}
+        {/* 제목 + 카테고리 태그 */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, width: '100%', marginBottom: item.memo ? 8 : 12 }}>
+          <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '22px', flex: 1, minWidth: 0, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
+          {item.tipCategory && (
+            <span style={{ flexShrink: 0, fontFamily: f, fontSize: 10, fontWeight: 700, color: '#1D6DDB', background: 'rgba(96,165,250,.15)', border: '1px solid rgba(96,165,250,.4)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const, marginTop: 2 }}>
+              {item.tipCategory}
+            </span>
+          )}
         </div>
         {item.memo ? (
           <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
