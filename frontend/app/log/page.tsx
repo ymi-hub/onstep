@@ -547,6 +547,7 @@ function DayDetail({
   const uniqueByProduct = (entries: LogEntry[]) => {
     const seen = new Set<string>();
     return entries.filter((e) => {
+      if (!e.productId) return false; // null / undefined (수동 체크, 제품 미매핑 완료) 제외
       if (seen.has(e.productId)) return false;
       seen.add(e.productId);
       return true;
@@ -640,14 +641,17 @@ function DayDetail({
         ) : (
           entries.map((entry) => {
             const product = products.get(entry.productId);
+            const isDeleted = !product;
             return (
               <div key={entry.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 9999, background: '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>🧴</div>
+                <div style={{ width: 28, height: 28, borderRadius: 9999, background: isDeleted ? 'rgba(12,12,10,.06)' : '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>
+                  {isDeleted ? '🗑' : '🧴'}
+                </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                    {product?.name ?? '알 수 없는 제품'}
+                  <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: isDeleted ? '#BCBAB6' : '#0C0C0A', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textDecoration: isDeleted ? 'line-through' : 'none' }}>
+                    {product?.name ?? '삭제된 제품'}
                   </div>
-                  {entry.amount != null && entry.amount > 0 && (
+                  {!isDeleted && entry.amount != null && entry.amount > 0 && (
                     <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>
                       {entry.amount}{product?.itemUnit ? ` ${product.itemUnit}` : ''} 사용
                     </div>
