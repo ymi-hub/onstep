@@ -3247,12 +3247,12 @@ function LogPageInner() {
                       {(ref.tags ?? []).length > 0 && (
                         <div style={{ display: 'flex', gap: 3, overflow: 'hidden', flexShrink: 1 }}>
                           {(ref.tags ?? []).slice(0, 2).map(tag => (
-                            <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 70 }}>
+                            <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#4A7700', background: 'rgba(197,255,0,.22)', padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 70 }}>
                               {tag}
                             </span>
                           ))}
                           {(ref.tags ?? []).length > 2 && (
-                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 6px', borderRadius: 9999, flexShrink: 0 }}>
+                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#8AAA40', background: 'rgba(197,255,0,.10)', padding: '2px 6px', borderRadius: 9999, flexShrink: 0 }}>
                               +{(ref.tags ?? []).length - 2}
                             </span>
                           )}
@@ -3277,10 +3277,10 @@ function LogPageInner() {
                   <button
                     type="button"
                     onClick={() => { setRefToLib(ref); setRefToLibType('makeup'); }}
-                    style={{ flex: 1, height: 42, borderRadius: 12, background: 'rgba(197,255,0,.15)', border: '1px solid rgba(74,119,0,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, cursor: 'pointer' }}
+                    style={{ flex: 1, height: 42, borderRadius: 12, background: '#0C0C0A', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, cursor: 'pointer' }}
                   >
-                    <span style={{ fontSize: 13, color: '#4A7700', lineHeight: 1 }}>＋</span>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#3A6000' }}>라이브러리</span>
+                    <span style={{ fontSize: 13, color: '#C5FF00', lineHeight: 1 }}>＋</span>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00' }}>라이브러리</span>
                   </button>
 
                   {/* → 50% 우측: 링크공유 + 편집 + 삭제 (3등분) */}
