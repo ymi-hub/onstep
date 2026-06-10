@@ -2239,6 +2239,7 @@ function LogPageInner() {
   });
   const [presetEditMode, setPresetEditMode] = useState(false);
   const [presetNewTag, setPresetNewTag] = useState('');
+  const [tagBarOpen, setTagBarOpen] = useState(false);
   // 수집 편집 시트 상태
   const [editingRef, setEditingRef] = useState<Reference | null>(null);
   const [refEditUrl, setRefEditUrl] = useState('');
@@ -3514,9 +3515,9 @@ function LogPageInner() {
                   />
                 </div>
 
-                {/* 태그 */}
+                {/* 카테고리 + 태그 */}
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>태그</div>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>카테고리</div>
 
                   {/* 라이브러리 카테고리 3종 — 항상 노출 */}
                   <div style={{ display: 'flex', gap: 7, marginBottom: 8 }}>
@@ -3537,47 +3538,57 @@ function LogPageInner() {
                     })}
                   </div>
 
-                  {/* 태그 편집 바 — 항상 노출 */}
-                  <div style={{ padding: '8px 10px 10px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.08)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>태그 편집</span>
-                      <button type="button" onMouseDown={e => e.preventDefault()}
-                        onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
-                        style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
-                        {presetEditMode ? '완료' : '편집'}
-                      </button>
-                    </div>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center' }}>
-                      {presetTags.filter(t => !(LIB_CATEGORY_TAGS as readonly string[]).includes(t)).map(tag => {
-                        const selected = refTags.includes(tag);
-                        return (
-                          <div key={tag} style={{ position: 'relative', display: 'inline-flex' }}>
-                            <button type="button" onMouseDown={e => e.preventDefault()}
-                              onClick={() => { if (!presetEditMode) setRefTags(prev => selected ? prev.filter(t => t !== tag) : [...prev, tag]); }}
-                              style={{ height: 30, padding: presetEditMode ? '0 26px 0 12px' : '0 12px', borderRadius: 9999, border: `1.5px solid ${selected && !presetEditMode ? '#4A7700' : 'rgba(12,12,10,.12)'}`, background: selected && !presetEditMode ? 'rgba(197,255,0,.18)' : presetEditMode ? 'rgba(12,12,10,.04)' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: selected && !presetEditMode ? '#3A6000' : '#9A9490', cursor: presetEditMode ? 'default' : 'pointer', transition: 'all .15s' }}>
-                              {tag}
-                            </button>
-                            {presetEditMode && (
-                              <button type="button" title="삭제" onMouseDown={e => e.preventDefault()}
-                                onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
-                                style={{ position: 'absolute', right: 5, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, minWidth: 18, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B' }}>
-                                <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                  {/* 태그 버튼 — 클릭 시 태그 바 토글 */}
+                  <button type="button"
+                    onClick={() => { setTagBarOpen(v => !v); if (tagBarOpen) { setPresetEditMode(false); setPresetNewTag(''); } }}
+                    style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${tagBarOpen ? 'rgba(12,12,10,.25)' : 'rgba(12,12,10,.12)'}`, background: tagBarOpen ? 'rgba(12,12,10,.06)' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: tagBarOpen ? '#0C0C0A' : '#9A9490', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, transition: 'all .15s' }}>
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+                    태그
+                  </button>
+
+                  {/* 태그 바 — tagBarOpen 시 노출 */}
+                  {tagBarOpen && (
+                    <div style={{ marginTop: 8, padding: '10px 12px 12px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>태그 목록</span>
+                        <button type="button" onMouseDown={e => e.preventDefault()}
+                          onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
+                          style={{ height: 22, padding: '0 9px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
+                          {presetEditMode ? '완료' : '편집'}
+                        </button>
+                      </div>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center' }}>
+                        {presetTags.filter(t => !(LIB_CATEGORY_TAGS as readonly string[]).includes(t)).map(tag => {
+                          const selected = refTags.includes(tag);
+                          return (
+                            <div key={tag} style={{ position: 'relative', display: 'inline-flex' }}>
+                              <button type="button" onMouseDown={e => e.preventDefault()}
+                                onClick={() => { if (!presetEditMode) setRefTags(prev => selected ? prev.filter(t => t !== tag) : [...prev, tag]); }}
+                                style={{ height: 28, padding: presetEditMode ? '0 26px 0 12px' : '0 12px', borderRadius: 9999, border: `1.5px solid ${selected && !presetEditMode ? '#4A7700' : 'rgba(12,12,10,.12)'}`, background: selected && !presetEditMode ? 'rgba(197,255,0,.18)' : presetEditMode ? 'rgba(12,12,10,.04)' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: selected && !presetEditMode ? '#3A6000' : '#9A9490', cursor: presetEditMode ? 'default' : 'pointer', transition: 'all .15s' }}>
+                                {tag}
                               </button>
-                            )}
-                          </div>
-                        );
-                      })}
-                      {presetEditMode && (
-                        <input type="text" value={presetNewTag}
-                          onChange={e => setPresetNewTag(e.target.value)}
-                          onMouseDown={e => e.preventDefault()}
-                          onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) savePresetTag(); }}
-                          placeholder="태그 추가..."
-                          style={{ height: 30, padding: '0 10px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', minWidth: 80 }}
-                        />
-                      )}
+                              {presetEditMode && (
+                                <button type="button" title="삭제" onMouseDown={e => e.preventDefault()}
+                                  onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
+                                  style={{ position: 'absolute', right: 5, top: '50%', transform: 'translateY(-50%)', width: 18, height: 18, minWidth: 18, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B' }}>
+                                  <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                        {presetEditMode && (
+                          <input type="text" value={presetNewTag}
+                            onChange={e => setPresetNewTag(e.target.value)}
+                            onMouseDown={e => e.preventDefault()}
+                            onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) savePresetTag(); }}
+                            placeholder="태그 추가..."
+                            style={{ height: 28, padding: '0 10px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', minWidth: 80 }}
+                          />
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* 메모 */}
