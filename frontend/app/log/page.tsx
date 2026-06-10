@@ -3294,8 +3294,16 @@ function LogPageInner() {
                           <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>
                         </div>
                     }
-                    {/* 제목 (테마) */}
-                    <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: 12, width: '100%', zIndex: 1 }}>
+                    {/* 테마 태그 — 오른쪽 상단 */}
+                    {log.theme && (
+                      <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 12, marginBottom: 4, zIndex: 1 }}>
+                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#3A6000', background: 'rgba(197,255,0,.25)', border: '1px solid rgba(197,255,0,.6)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>
+                          {log.theme}
+                        </span>
+                      </div>
+                    )}
+                    {/* 제목 */}
+                    <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: log.theme ? 0 : 12, width: '100%', zIndex: 1 }}>
                       {log.theme || '오늘의 룩'}
                     </div>
                     {/* 날짜 */}
