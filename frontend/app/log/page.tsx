@@ -2226,6 +2226,11 @@ function LogPageInner() {
   const [lifetipEditImageFile, setLifetipEditImageFile] = useState<File | null>(null);
   const [lifetipEditImagePreview, setLifetipEditImagePreview] = useState('');
   const [lifetipEditMemo, setLifetipEditMemo] = useState('');
+  const [lifetipEditTags, setLifetipEditTags] = useState<string[]>([]);
+  const [lifetipTagEditOpen, setLifetipTagEditOpen] = useState(false);
+  const [lifetipTagNewTag, setLifetipTagNewTag] = useState('');
+  const [dragLifetipTagIdx, setDragLifetipTagIdx] = useState<number | null>(null);
+  const [dragLifetipTagOverIdx, setDragLifetipTagOverIdx] = useState<number | null>(null);
   const [lifetipEditSaving, setLifetipEditSaving] = useState(false);
   const [lifetipPickerOpen, setLifetipPickerOpen] = useState(false);
   const [lifetipPickerSearch, setLifetipPickerSearch] = useState('');
@@ -2817,6 +2822,9 @@ function LogPageInner() {
     setLifetipEditImageFile(null);
     setLifetipEditImagePreview(item.imageUrl ?? '');
     setLifetipEditMemo(item.memo || '');
+    setLifetipEditTags(item.tags ?? []);
+    setLifetipTagEditOpen(false);
+    setLifetipTagNewTag('');
     setLifetipPickerSearch('');
   }
 
@@ -2835,6 +2843,7 @@ function LogPageInner() {
         sourceUrl: lifetipEditUrl.trim(),
         productIds: lifetipEditProductIds,
         memo: lifetipEditMemo.trim(),
+        tags: lifetipEditTags,
         imageUrl,
         updatedAt: new Date().toISOString(),
       });
@@ -4264,6 +4273,80 @@ function LogPageInner() {
                 <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>메모</div>
                 <textarea value={lifetipEditMemo} onChange={e => setLifetipEditMemo(e.target.value)} placeholder="메모…"
                   style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#0C0C0A', resize: 'none', height: 72, outline: 'none', boxSizing: 'border-box' as const, marginBottom: 16 }} />
+
+                {/* 태그 */}
+                <div style={{ marginBottom: 16 }}>
+                  {/* 레이블 행 */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490' }}>태그</div>
+                    <button type="button"
+                      onClick={() => { setLifetipTagEditOpen(v => !v); if (lifetipTagEditOpen) setLifetipTagNewTag(''); }}
+                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                      <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                      태그 편집
+                    </button>
+                  </div>
+
+                  {/* 현재 태그 pills */}
+                  {lifetipEditTags.length > 0 && (
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                      {lifetipEditTags.map((tag, i) => (
+                        <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: `${CAT_COLORS[i % CAT_COLORS.length].selBg}`, border: `1px solid ${CAT_COLORS[i % CAT_COLORS.length].selBorder}`, color: CAT_COLORS[i % CAT_COLORS.length].selText }}>#{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                  {lifetipEditTags.length === 0 && !lifetipTagEditOpen && (
+                    <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6', marginBottom: 4 }}>태그를 추가해보세요</div>
+                  )}
+
+                  {/* 편집 패널 — 드래그앤드롭 */}
+                  {lifetipTagEditOpen && (
+                    <div style={{ marginTop: 8, padding: '10px 12px 12px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
+                        {lifetipEditTags.map((tag, i) => (
+                          <div key={tag}
+                            draggable
+                            onDragStart={() => setDragLifetipTagIdx(i)}
+                            onDragOver={e => { e.preventDefault(); setDragLifetipTagOverIdx(i); }}
+                            onDrop={() => {
+                              if (dragLifetipTagIdx === null || dragLifetipTagIdx === i) return;
+                              setLifetipEditTags(prev => {
+                                const arr = [...prev];
+                                const [moved] = arr.splice(dragLifetipTagIdx, 1);
+                                arr.splice(i, 0, moved);
+                                return arr;
+                              });
+                              setDragLifetipTagIdx(null); setDragLifetipTagOverIdx(null);
+                            }}
+                            onDragEnd={() => { setDragLifetipTagIdx(null); setDragLifetipTagOverIdx(null); }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: dragLifetipTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'rgba(12,12,10,.03)', border: `1px solid ${dragLifetipTagOverIdx === i ? 'rgba(12,12,10,.2)' : 'rgba(12,12,10,.08)'}`, cursor: 'grab', transition: 'all .1s' }}>
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, color: '#BCBAB6' }}><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
+                            <span style={{ width: 8, height: 8, borderRadius: 9999, background: CAT_COLORS[i % CAT_COLORS.length].selBorder, display: 'inline-block', flexShrink: 0 }} />
+                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>#{tag}</span>
+                            <button type="button" title="삭제"
+                              onClick={() => setLifetipEditTags(prev => prev.filter(t => t !== tag))}
+                              style={{ width: 20, height: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B', flexShrink: 0 }}>
+                              <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <input type="text" value={lifetipTagNewTag}
+                        onChange={e => setLifetipTagNewTag(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                            const t = lifetipTagNewTag.trim();
+                            if (t && !lifetipEditTags.includes(t)) setLifetipEditTags(prev => [...prev, t]);
+                            setLifetipTagNewTag('');
+                          }
+                        }}
+                        placeholder="+ 태그 추가 (Enter)"
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                      />
+                    </div>
+                  )}
+                </div>
 
                 {/* BOX 제품 연결 — OOTD 편집 시트와 동일한 버튼 + 피커 방식 */}
                 <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>BOX 제품 연결</div>
