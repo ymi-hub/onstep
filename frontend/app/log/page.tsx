@@ -3227,29 +3227,38 @@ function LogPageInner() {
                   {/* 텍스트 영역 */}
                   <div style={{ flex: 1, padding: '11px 12px 10px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
 
-                    {/* 플랫폼 뱃지 */}
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, alignSelf: 'flex-start', height: 18, padding: '0 7px', borderRadius: 9999, background: `${pColor}18` }}>
-                      <span style={{ fontSize: 9 }}>{PLATFORM_ICON[platform]}</span>
-                      <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: pColor, letterSpacing: '.06em', textTransform: 'uppercase' as const }}>
-                        {PLATFORM_LABEL[platform]}
-                      </span>
+                    {/* 상단 행: 플랫폼 뱃지(좌) + 태그(우) */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+
+                      {/* 플랫폼 뱃지 */}
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, flexShrink: 0, height: 18, padding: '0 7px', borderRadius: 9999, background: `${pColor}18` }}>
+                        <span style={{ fontSize: 9 }}>{PLATFORM_ICON[platform]}</span>
+                        <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: pColor, letterSpacing: '.06em', textTransform: 'uppercase' as const }}>
+                          {PLATFORM_LABEL[platform]}
+                        </span>
+                      </div>
+
+                      {/* 태그 칩 — 우측 상단, 최대 2개 표시 */}
+                      {(ref.tags ?? []).length > 0 && (
+                        <div style={{ display: 'flex', gap: 3, overflow: 'hidden', flexShrink: 1 }}>
+                          {(ref.tags ?? []).slice(0, 2).map(tag => (
+                            <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#4A7700', background: 'rgba(197,255,0,.22)', padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 70 }}>
+                              {tag}
+                            </span>
+                          ))}
+                          {(ref.tags ?? []).length > 2 && (
+                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#8AAA40', background: 'rgba(197,255,0,.10)', padding: '2px 6px', borderRadius: 9999, flexShrink: 0 }}>
+                              +{(ref.tags ?? []).length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* 제목 */}
                     <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                       {ref.title || ref.url || '제목 없음'}
                     </div>
-
-                    {/* 태그 칩 */}
-                    {(ref.tags ?? []).length > 0 && (
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
-                        {(ref.tags ?? []).map(tag => (
-                          <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#4A7700', background: 'rgba(197,255,0,.22)', padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em' }}>
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </div>
 
