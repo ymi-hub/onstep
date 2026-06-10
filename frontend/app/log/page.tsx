@@ -2352,9 +2352,11 @@ function LogPageInner() {
   const [fabMenuOpen, setFabMenuOpen] = useState(false);
   const [refToLib, setRefToLib] = useState<Reference | null>(null);
   const [refToLibType, setRefToLibType] = useState<'makeup' | 'lookbook' | 'lifetip'>('makeup');
+  const [refToLibCatName, setRefToLibCatName] = useState<string>('Life tip');
   const [refToLibTipCategory, setRefToLibTipCategory] = useState('');
   const [refToLibEmoji, setRefToLibEmoji] = useState('');
   const [refToLibSaving, setRefToLibSaving] = useState(false);
+  const [libCatEditOpen, setLibCatEditOpen] = useState(false);
   const [makeupAddTrigger, setMakeupAddTrigger] = useState(0);
   const [lookbookAddTrigger, setLookbookAddTrigger] = useState(0);
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -2777,7 +2779,9 @@ function LogPageInner() {
         });
       }
       // 수집 문서에 라이브러리 등록 완료 표시
-      await updateDoc(doc(db, 'users', userId, 'references', refToLib.id), { inLibrary: true });
+      // 선택한 카테고리로 수집 항목의 tags도 동기화
+      const updatedRefTags = [refToLibCatName, ...(refToLib.tags ?? []).filter(t => !categoryTags.includes(t))];
+      await updateDoc(doc(db, 'users', userId, 'references', refToLib.id), { inLibrary: true, tags: updatedRefTags });
       setRefToLib(null);
     } catch (err) {
       console.error('[OnStep] refToLib 저장 실패:', err);
@@ -3423,22 +3427,15 @@ function LogPageInner() {
                     type="button"
                     onClick={() => {
                       setRefToLib(ref);
+                      setLibCatEditOpen(false);
                       const tags = ref.tags ?? [];
-                      if (tags.includes('Life tip')) {
-                        // 수집 카테고리가 "Life tip" → Life TIP 라이브러리
-                        setRefToLibType('lifetip');
-                        setRefToLibTipCategory('');
-                        setRefToLibEmoji('');
-                      } else if (tags.includes('Lookbook')) {
-                        setRefToLibType('lookbook');
-                        setRefToLibTipCategory('');
-                        setRefToLibEmoji('');
-                      } else {
-                        // Makeup 또는 미분류 → Makeup 라이브러리
-                        setRefToLibType('makeup');
-                        setRefToLibTipCategory('');
-                        setRefToLibEmoji('');
-                      }
+                      // 수집의 현재 카테고리 태그 → 라이브러리 타입 결정
+                      const firstCat = categoryTags.find(c => tags.includes(c)) ?? categoryTags[0] ?? 'Life tip';
+                      setRefToLibCatName(firstCat);
+                      const libType = firstCat === 'Lookbook' ? 'lookbook' : firstCat === 'Makeup' ? 'makeup' : 'lifetip';
+                      setRefToLibType(libType);
+                      setRefToLibTipCategory(libType === 'lifetip' && firstCat !== 'Life tip' ? firstCat : '');
+                      setRefToLibEmoji('');
                     }}
                     style={{ flex: 1, height: 42, borderRadius: 8, background: ref.inLibrary ? '#0C0C0A' : 'rgba(12,12,10,.06)', border: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: ref.inLibrary ? '#C5FF00' : '#9A9490', cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const }}
                   >
@@ -4364,93 +4361,101 @@ function LogPageInner() {
                 <img src={refToLib.imageUrl} alt="" style={{ width: '100%', maxHeight: 120, objectFit: 'cover', borderRadius: 10, marginBottom: 16 }} />
               )}
 
-              {/* 카테고리 선택 — 미니카드 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 8 }}>카테고리</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}>
-                {([
-                  { key: 'makeup',   icon: '💄', label: '메이크업', color: { active: '#C5FF00', bg: 'rgba(197,255,0,.14)', text: '#3A6000' } },
-                  { key: 'lookbook', icon: '👗', label: '룩북',    color: { active: '#FF8C42', bg: 'rgba(255,140,66,.14)', text: '#B85A00' } },
-                  { key: 'lifetip',  icon: '📌', label: 'Life TIP', color: { active: '#60A5FA', bg: 'rgba(96,165,250,.14)', text: '#1D6DDB' } },
-                ] as const).map(t => {
-                  const sel = refToLibType === t.key;
+              {/* 카테고리 선택 — categoryTags 기반 pill + 편집 */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490' }}>카테고리</div>
+                <button type="button"
+                  onClick={() => setLibCatEditOpen(v => !v)}
+                  style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                  <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                  카테고리 편집
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                {categoryTags.map((cat, i) => {
+                  const libType: 'makeup' | 'lookbook' | 'lifetip' = cat === 'Lookbook' ? 'lookbook' : cat === 'Makeup' ? 'makeup' : 'lifetip';
+                  const sel = refToLibCatName === cat;
+                  const color = CAT_COLORS[i % CAT_COLORS.length];
                   return (
-                    <button key={t.key} type="button"
+                    <button key={cat} type="button"
                       onClick={() => {
-                        setRefToLibType(t.key);
-                        if (t.key === 'lifetip') {
-                          const firstTag = refTags[0] ?? '';
-                          setRefToLibTipCategory(firstTag);
-                          setRefToLibEmoji(getLifetipEmoji(firstTag));
-                        }
+                        setRefToLibCatName(cat);
+                        setRefToLibType(libType);
+                        setRefToLibTipCategory(libType === 'lifetip' && cat !== 'Life tip' ? cat : '');
+                        setRefToLibEmoji('');
                       }}
-                      style={{ padding: '12px 10px', borderRadius: 12,
-                        border: `1.5px solid ${sel ? t.color.active : 'rgba(12,12,10,.1)'}`,
-                        background: sel ? t.color.bg : '#fff',
-                        display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8,
-                        cursor: 'pointer', transition: 'all .15s', textAlign: 'left' as const }}>
-                      <span style={{ fontSize: 20, lineHeight: 1 }}>{t.icon}</span>
-                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? t.color.text : '#9A9490', lineHeight: 1.2 }}>{t.label}</span>
+                      style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(12,12,10,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all .15s' }}>
+                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? color.selText : '#9A9490' }}>{cat}</span>
                     </button>
                   );
                 })}
               </div>
 
-              {/* Life TIP 전용 — 카테고리 + 이모지 */}
-              {refToLibType === 'lifetip' && (
-                <div style={{ background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.08)', borderRadius: 12, padding: '14px 14px 10px', marginBottom: 16 }}>
-
-                  {/* 수집 태그로 빠른 선택 */}
-                  {refTags.length > 0 && (
-                    <div style={{ marginBottom: 12 }}>
-                      <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 6 }}>수집 태그로 선택</div>
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
-                        {refTags.map(tag => (
-                          <button key={tag} type="button"
-                            onClick={() => { setRefToLibTipCategory(tag); setRefToLibEmoji(getLifetipEmoji(tag)); }}
-                            style={{ height: 30, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${refToLibTipCategory === tag ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: refToLibTipCategory === tag ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: refToLibTipCategory === tag ? '#C5FF00' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
-                            {tag}
-                          </button>
-                        ))}
+              {/* 카테고리 편집 패널 */}
+              {libCatEditOpen && (
+                <div style={{ marginBottom: 12, padding: '10px 12px 12px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
+                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
+                    {categoryTags.map((cat, i) => (
+                      <div key={cat}
+                        draggable
+                        onDragStart={() => setDragCatIdx(i)}
+                        onDragOver={e => { e.preventDefault(); setDragCatOverIdx(i); }}
+                        onDrop={() => {
+                          if (dragCatIdx === null || dragCatIdx === i) return;
+                          setCategoryTags(prev => {
+                            const arr = [...prev];
+                            const [item] = arr.splice(dragCatIdx, 1);
+                            arr.splice(i, 0, item);
+                            return arr;
+                          });
+                          setDragCatIdx(null); setDragCatOverIdx(null);
+                        }}
+                        onDragEnd={() => { setDragCatIdx(null); setDragCatOverIdx(null); }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: dragCatOverIdx === i ? 'rgba(12,12,10,.07)' : 'rgba(12,12,10,.03)', border: `1px solid ${dragCatOverIdx === i ? 'rgba(12,12,10,.2)' : 'rgba(12,12,10,.08)'}`, cursor: 'grab', transition: 'all .1s' }}>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, color: '#BCBAB6' }}><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
+                        <span style={{ width: 8, height: 8, borderRadius: 9999, background: CAT_COLORS[i % CAT_COLORS.length].selBorder, display: 'inline-block', flexShrink: 0 }} />
+                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>{cat}</span>
+                        <button type="button" title="삭제"
+                          onClick={() => { setCategoryTags(prev => prev.filter(t => t !== cat)); if (refToLibCatName === cat) { const next = categoryTags.filter(t => t !== cat)[0] ?? ''; setRefToLibCatName(next); } }}
+                          style={{ width: 20, height: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B', flexShrink: 0 }}>
+                          <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                        </button>
                       </div>
-                    </div>
-                  )}
-
-                  {/* 카테고리 직접 입력 */}
-                  <div style={{ marginBottom: 10 }}>
-                    <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 6 }}>카테고리</div>
-                    <input type="text" value={refToLibTipCategory}
-                      onChange={e => { setRefToLibTipCategory(e.target.value); if (!refToLibEmoji) setRefToLibEmoji(getLifetipEmoji(e.target.value.trim())); }}
-                      placeholder="예: 주식, 생활, 푸드..."
-                      style={{ width: '100%', boxSizing: 'border-box' as const, height: 40, padding: '0 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
-                    />
+                    ))}
                   </div>
+                  <input type="text" value={catNewTag}
+                    onChange={e => setCatNewTag(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                        const t = catNewTag.trim();
+                        if (t && !categoryTags.includes(t)) setCategoryTags(prev => [...prev, t]);
+                        setCatNewTag('');
+                      }
+                    }}
+                    placeholder="+ 카테고리 추가 (Enter)"
+                    style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                  />
+                </div>
+              )}
 
-                  {/* 이모지 — 모바일 키보드로 직접 입력 가능 */}
-                  <div>
-                    <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 6 }}>이모지</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
-                        {refToLibEmoji || getLifetipEmoji(refToLibTipCategory)}
-                      </div>
-                      <input type="text" value={refToLibEmoji}
-                        onChange={e => setRefToLibEmoji(e.target.value)}
-                        placeholder="이모지 입력"
-                        style={{ flex: 1, height: 40, padding: '0 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 20, color: '#0C0C0A', outline: 'none' }}
-                      />
-                      <button type="button" onClick={() => setRefToLibEmoji(getLifetipEmoji(refToLibTipCategory))}
-                        style={{ height: 40, padding: '0 12px', borderRadius: 10, border: '1.5px solid rgba(12,12,10,.12)', background: 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                        초기화
-                      </button>
-                    </div>
-                  </div>
+              {/* Life TIP 전용 — 분류 직접 입력 (선택) */}
+              {refToLibType === 'lifetip' && refToLibCatName === 'Life tip' && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 6 }}>분류 (선택)</div>
+                  <input type="text" value={refToLibTipCategory}
+                    onChange={e => setRefToLibTipCategory(e.target.value)}
+                    placeholder="예: 스킨케어, 헤어, 푸드..."
+                    style={{ width: '100%', boxSizing: 'border-box' as const, height: 40, padding: '0 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                  />
                 </div>
               )}
 
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 10 }}>
                 <button onClick={() => setRefToLib(null)} style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>취소</button>
-                <button onClick={saveRefToLibrary} disabled={refToLibSaving || (refToLibType === 'lifetip' && !refToLibTipCategory.trim())}
-                  style={{ flex: 2, height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: (refToLibSaving || (refToLibType === 'lifetip' && !refToLibTipCategory.trim())) ? 0.4 : 1 }}>
+                <button onClick={saveRefToLibrary} disabled={refToLibSaving || !refToLibCatName}
+                  style={{ flex: 2, height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: (refToLibSaving || !refToLibCatName) ? 0.4 : 1 }}>
                   {refToLibSaving ? '등록 중...' : '라이브러리 등록'}
                 </button>
               </div>
