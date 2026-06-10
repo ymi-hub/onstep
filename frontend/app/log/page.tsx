@@ -1196,7 +1196,7 @@ function LogLibraryCard({
         {/* daily — 우측 정렬 */}
         {item.daily && <div style={{ width: '100%', textAlign: 'right', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#BCBAB6', marginTop: 6 }}>{item.daily}</div>}
         {/* 서브 */}
-        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.tpo?.join(' · ') || (isMakeup ? 'makeup' : 'lookbook')}</div>
+        <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.tpo?.join(' · ') || ''}</div>
         {item.sourceUrl?.trim() && (() => {
           let domain = item.sourceUrl;
           try { domain = new URL(item.sourceUrl).hostname; } catch {}
@@ -1664,7 +1664,7 @@ function LogCtPanel({
   const [sItems, setSItems] = useState<RoutineItem[]>([]);
   const [sTipItems, setSTipItems] = useState<RoutineItem[]>([]);
   const [sDates, setSDates] = useState<string[]>([]);
-  const [sTpo, setSTpo] = useState<string[]>([]);
+  const [sTpoText, setSTpoText] = useState('');
   const [sPublished, setSPublished] = useState(false);
   const [saving, setSaving] = useState(false);
   const [sImageFile, setSImageFile] = useState<File | null>(null);
@@ -1690,7 +1690,7 @@ function LogCtPanel({
 
   function openNew() {
     setEditItem(null); setSEmoji(icon); setSName(''); setSDesc(''); setSDaily('');
-    setSItems([]); setSTipItems([]); setSDates([]); setSTpo([]);
+    setSItems([]); setSTipItems([]); setSDates([]); setSTpoText('');
     setSPublished(false); setSImageFile(null); setSImagePreview(''); setSSourceUrl('');
     setSheetOpen(true);
   }
@@ -1712,7 +1712,7 @@ function LogCtPanel({
   function openEdit(item: CtItem) {
     setEditItem(item); setSEmoji(item.emoji); setSName(item.name); setSDesc(item.desc); setSDaily(item.daily ?? '');
     setSItems(item.items); setSTipItems(item.tipItems); setSDates(item.dates ?? []);
-    setSTpo(item.tpo ?? []); setSPublished(item.published);
+    setSTpoText((item.tpo ?? []).join(' · ')); setSPublished(item.published);
     setSImageFile(null); setSImagePreview(item.imageUrl ?? ''); setSSourceUrl(item.sourceUrl ?? '');
     setSheetOpen(true);
   }
@@ -1734,7 +1734,7 @@ function LogCtPanel({
       ...(sSourceUrl.trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
       ...(sImagePreview ? { imageUrl: sImagePreview } : {}),
       ...(sDaily.trim() ? { daily: sDaily.trim() } : {}),
-      ...(filter === 'lookbook' ? { tpo: sTpo } : {}),
+      ...(filter === 'lookbook' ? { tpo: sTpoText.trim() ? [sTpoText.trim()] : [] } : {}),
     };
     try {
       if (editItem) {
@@ -1977,9 +1977,11 @@ function LogCtPanel({
               {filter === 'lookbook' && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>T.P.O</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {TPO_OPTIONS.map(tp => <button key={tp} onClick={() => setSTpo(p => p.includes(tp) ? p.filter(x => x !== tp) : [...p, tp])} style={{ padding: '7px 14px', borderRadius: 9999, border: `1.5px solid ${sTpo.includes(tp) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: sTpo.includes(tp) ? '#0C0C0A' : 'transparent', color: sTpo.includes(tp) ? '#fff' : '#4A4846', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all .15s' }}>{tp}</button>)}
-                  </div>
+                  <textarea value={sTpoText} onChange={e => setSTpoText(e.target.value)}
+                    placeholder="메모 입력 (선택)..."
+                    rows={2}
+                    style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#1D6DDB', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }}
+                  />
                 </div>
               )}
 
@@ -4020,7 +4022,7 @@ function LogPageInner() {
                               )}
                             </div>
                             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
-                            <div style={{ fontFamily: f, fontSize: 16, fontWeight: 400, color: '#000', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || (isMakeup ? 'makeup' : 'lookbook')}</div>
+                            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || ''}</div>
                             {item.sourceUrl?.trim() && (() => {
                               let domain = item.sourceUrl!;
                               try { domain = new URL(item.sourceUrl!).hostname; } catch {}
