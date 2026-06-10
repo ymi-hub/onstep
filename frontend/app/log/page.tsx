@@ -2094,6 +2094,19 @@ function LogPageInner() {
   // 수집 정렬 + 페이지네이션
   const [refSort, setRefSort] = useState<'date_desc' | 'name' | 'tag'>('date_desc');
   const [refVisibleCount, setRefVisibleCount] = useState(10);
+  // 수집 폼 섹션 순서 (드래그앤드롭으로 변경 가능)
+  const DEFAULT_FORM_ORDER = ['제목', '링크', '이미지', '태그', '빠른선택'];
+  const [formSectionOrder, setFormSectionOrder] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return ['제목', '링크', '이미지', '태그', '빠른선택'];
+    try {
+      const saved = localStorage.getItem('onstep_ref_form_order');
+      const parsed = JSON.parse(saved || 'null');
+      if (Array.isArray(parsed) && parsed.length === 5) return parsed;
+      return ['제목', '링크', '이미지', '태그', '빠른선택'];
+    } catch { return ['제목', '링크', '이미지', '태그', '빠른선택']; }
+  });
+  const [dragFormIdx, setDragFormIdx] = useState<number | null>(null);
+  const [dragFormOverIdx, setDragFormOverIdx] = useState<number | null>(null);
 
   // OOTD 편집 시트 상태
   const [editingOotd, setEditingOotd] = useState<OOTDLog | null>(null);
@@ -2514,6 +2527,10 @@ function LogPageInner() {
   useEffect(() => {
     try { localStorage.setItem('onstep_ref_preset_tags', JSON.stringify(presetTags)); } catch {}
   }, [presetTags]);
+  // formSectionOrder가 바뀌면 localStorage에 저장
+  useEffect(() => {
+    try { localStorage.setItem('onstep_ref_form_order', JSON.stringify(formSectionOrder)); } catch {}
+  }, [formSectionOrder]);
 
   function savePresetTag() {
     const t = presetNewTag.trim();
@@ -3332,130 +3349,155 @@ function LogPageInner() {
                 {/* 헤더 */}
                 <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>새 수집 추가</div>
 
-                {/* 제목 */}
-                <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>제목</div>
-                  <input
-                    type="text"
-                    value={refTitle}
-                    onChange={e => setRefTitle(e.target.value)}
-                    placeholder="제목 입력 (비워두면 도메인 표시)"
-                    style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
-                  />
-                </div>
-
-                {/* 링크 */}
-                <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>링크</div>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type="url"
-                      value={refUrl}
-                      onChange={e => setRefUrl(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && refUrl.trim() && saveReference()}
-                      onBlur={() => { if (refUrl.trim()) fetchOgMeta(refUrl.trim()); }}
-                      onPaste={e => {
-                        const pasted = e.clipboardData.getData('text');
-                        if (pasted.startsWith('http')) setTimeout(() => fetchOgMeta(pasted.trim()), 50);
+                {/* 드래그앤드롭으로 순서 변경 가능한 폼 섹션들 */}
+                {formSectionOrder.map((sectionKey, idx) => {
+                  const sectionLabels: Record<string, string> = { '제목': '제목', '링크': '링크', '태그': '태그', '이미지': '이미지', '빠른선택': '빠른 선택' };
+                  return (
+                    <div
+                      key={sectionKey}
+                      draggable
+                      onDragStart={e => { e.dataTransfer.effectAllowed = 'move'; setDragFormIdx(idx); }}
+                      onDragOver={e => { e.preventDefault(); setDragFormOverIdx(idx); }}
+                      onDrop={e => {
+                        e.preventDefault();
+                        if (dragFormIdx === null || dragFormIdx === idx) { setDragFormIdx(null); setDragFormOverIdx(null); return; }
+                        setFormSectionOrder(prev => {
+                          const next = [...prev];
+                          const [moved] = next.splice(dragFormIdx, 1);
+                          next.splice(idx, 0, moved);
+                          return next;
+                        });
+                        setDragFormIdx(null);
+                        setDragFormOverIdx(null);
                       }}
-                      placeholder="링크 입력 (선택)"
-                      style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
-                    />
-                    {refOgLoading && (
-                      <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none' }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
-                          <circle cx="12" cy="12" r="10" stroke="#C5FF00" strokeWidth="2.5" strokeDasharray="30" strokeDashoffset="10"/>
-                        </svg>
-                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490' }}>미리보기 중...</span>
+                      onDragEnd={() => { setDragFormIdx(null); setDragFormOverIdx(null); }}
+                      style={{ marginBottom: 14, outline: dragFormOverIdx === idx ? '2px dashed #C5FF00' : '2px solid transparent', opacity: dragFormIdx === idx ? 0.4 : 1, borderRadius: 10, transition: 'opacity .15s' }}
+                    >
+                      {/* 섹션 라벨 행 */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
+                          {sectionLabels[sectionKey] ?? sectionKey}
+                        </span>
+                        <span style={{ fontSize: 14, color: '#BCBAB6', cursor: 'grab', userSelect: 'none' as const, padding: '0 2px', lineHeight: 1 }}>☰</span>
                       </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* 태그 */}
-                <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>태그</div>
-
-                  {/* 선택된 태그 칩 + 직접 입력창 — 편집 시트와 동일한 라임 스타일 */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, padding: '8px 10px', minHeight: 44, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', alignItems: 'center', marginBottom: 8 }}>
-                    {refTags.map(tag => (
-                      <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, height: 28, padding: '0 6px 0 10px', borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1.5px solid #4A7700', flexShrink: 0 }}>
-                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000' }}>{tag}</span>
-                        <button type="button" onClick={() => setRefTags(prev => prev.filter(t => t !== tag))} style={{ width: 18, height: 18, borderRadius: 9999, background: 'rgba(58,96,0,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}>
-                          <span style={{ fontSize: 9, color: '#3A6000', lineHeight: 1, fontWeight: 900 }}>✕</span>
-                        </button>
-                      </div>
-                    ))}
-                    <input
-                      type="text"
-                      value={refTagInput}
-                      onChange={e => setRefTagInput(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && !e.nativeEvent.isComposing && refTagInput.trim()) {
-                          e.preventDefault();
-                          const t = refTagInput.trim();
-                          if (!refTags.includes(t)) setRefTags(prev => [...prev, t]);
-                          setRefTagInput('');
-                        }
-                      }}
-                      placeholder={refTags.length === 0 ? '태그 입력 후 Enter' : '태그 추가...'}
-                      style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A' }}
-                    />
-                  </div>
-
-                  {/* 빠른 선택 — 헤더(라벨+버튼)와 태그 행 분리 */}
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.04em' }}>빠른 선택</span>
-                      <button type="button" onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
-                        style={{ height: 26, padding: '0 11px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
-                        {presetEditMode ? '완료' : '태그 편집'}
-                      </button>
-                    </div>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center' }}>
-                      {presetTags.map(tag => {
-                        const active = refTags.includes(tag);
-                        return (
-                          <div key={tag} style={{ position: 'relative', display: 'inline-flex' }}>
-                            <button type="button" onClick={() => { if (!presetEditMode) setRefTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag]); }}
-                              style={{ height: 28, padding: presetEditMode ? '0 28px 0 12px' : '0 12px', borderRadius: 9999, border: `1.5px solid ${active && !presetEditMode ? '#4A7700' : 'rgba(12,12,10,.14)'}`, background: active && !presetEditMode ? 'rgba(197,255,0,.18)' : presetEditMode ? 'rgba(12,12,10,.04)' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: active && !presetEditMode ? '#3A6000' : '#9A9490', cursor: presetEditMode ? 'default' : 'pointer', transition: 'all .15s' }}>
-                              {tag}
-                            </button>
-                            {presetEditMode && (
-                              <button type="button" onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
-                                style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
-                                <span style={{ fontSize: 8, color: '#C0392B', fontWeight: 900, lineHeight: 1 }}>✕</span>
-                              </button>
-                            )}
-                          </div>
-                        );
-                      })}
-                      {presetEditMode && (
+                      {sectionKey === '제목' && (
                         <input
                           type="text"
-                          value={presetNewTag}
-                          onChange={e => setPresetNewTag(e.target.value)}
-                          onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) savePresetTag(); }}
-                          placeholder="태그 추가..."
-                          style={{ height: 28, padding: '0 10px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', minWidth: 80 }}
+                          value={refTitle}
+                          onChange={e => setRefTitle(e.target.value)}
+                          placeholder="제목 입력 (비워두면 도메인 표시)"
+                          style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                        />
+                      )}
+
+                      {sectionKey === '링크' && (
+                        <div style={{ position: 'relative' }}>
+                          <input
+                            type="url"
+                            value={refUrl}
+                            onChange={e => setRefUrl(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && refUrl.trim() && saveReference()}
+                            onBlur={() => { if (refUrl.trim()) fetchOgMeta(refUrl.trim()); }}
+                            onPaste={e => {
+                              const pasted = e.clipboardData.getData('text');
+                              if (pasted.startsWith('http')) setTimeout(() => fetchOgMeta(pasted.trim()), 50);
+                            }}
+                            placeholder="링크 입력 (선택)"
+                            style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                          />
+                          {refOgLoading && (
+                            <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none' }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
+                                <circle cx="12" cy="12" r="10" stroke="#C5FF00" strokeWidth="2.5" strokeDasharray="30" strokeDashoffset="10"/>
+                              </svg>
+                              <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490' }}>미리보기 중...</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {sectionKey === '태그' && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, padding: '8px 10px', minHeight: 44, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', alignItems: 'center' }}>
+                          {refTags.map(tag => (
+                            <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, height: 28, padding: '0 6px 0 10px', borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1.5px solid #4A7700', flexShrink: 0 }}>
+                              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000' }}>{tag}</span>
+                              <button type="button" onClick={() => setRefTags(prev => prev.filter(t => t !== tag))} style={{ width: 18, height: 18, borderRadius: 9999, background: 'rgba(58,96,0,.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0 }}>
+                                <span style={{ fontSize: 9, color: '#3A6000', lineHeight: 1, fontWeight: 900 }}>✕</span>
+                              </button>
+                            </div>
+                          ))}
+                          <input
+                            type="text"
+                            value={refTagInput}
+                            onChange={e => setRefTagInput(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.nativeEvent.isComposing && refTagInput.trim()) {
+                                e.preventDefault();
+                                const t = refTagInput.trim();
+                                if (!refTags.includes(t)) setRefTags(prev => [...prev, t]);
+                                setRefTagInput('');
+                              }
+                            }}
+                            placeholder={refTags.length === 0 ? '태그 입력 후 Enter' : '태그 추가...'}
+                            style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A' }}
+                          />
+                        </div>
+                      )}
+
+                      {sectionKey === '빠른선택' && (
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 6 }}>
+                            <button type="button" onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
+                              style={{ height: 26, padding: '0 11px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
+                              {presetEditMode ? '완료' : '태그 편집'}
+                            </button>
+                          </div>
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center' }}>
+                            {presetTags.map(tag => {
+                              const active = refTags.includes(tag);
+                              return (
+                                <div key={tag} style={{ position: 'relative', display: 'inline-flex' }}>
+                                  <button type="button" onClick={() => { if (!presetEditMode) setRefTags(prev => active ? prev.filter(t => t !== tag) : [...prev, tag]); }}
+                                    style={{ height: 28, padding: presetEditMode ? '0 28px 0 12px' : '0 12px', borderRadius: 9999, border: `1.5px solid ${active && !presetEditMode ? '#4A7700' : 'rgba(12,12,10,.14)'}`, background: active && !presetEditMode ? 'rgba(197,255,0,.18)' : presetEditMode ? 'rgba(12,12,10,.04)' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: active && !presetEditMode ? '#3A6000' : '#9A9490', cursor: presetEditMode ? 'default' : 'pointer', transition: 'all .15s' }}>
+                                    {tag}
+                                  </button>
+                                  {presetEditMode && (
+                                    <button type="button" onClick={() => setPresetTags(prev => prev.filter(t => t !== tag))}
+                                      style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, borderRadius: 9999, background: 'rgba(220,50,50,.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+                                      <span style={{ fontSize: 8, color: '#C0392B', fontWeight: 900, lineHeight: 1 }}>✕</span>
+                                    </button>
+                                  )}
+                                </div>
+                              );
+                            })}
+                            {presetEditMode && (
+                              <input
+                                type="text"
+                                value={presetNewTag}
+                                onChange={e => setPresetNewTag(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) savePresetTag(); }}
+                                placeholder="태그 추가..."
+                                style={{ height: 28, padding: '0 10px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', minWidth: 80 }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {sectionKey === '이미지' && (
+                        <ImagePicker
+                          preview={refImagePreview}
+                          onChange={(file, base64) => { setRefImageFile(file); setRefImagePreview(base64); }}
+                          onClear={() => { setRefImageFile(null); setRefImagePreview(''); }}
+                          height={180}
+                          placeholderLabel="이미지 추가 (선택)"
+                          isOpen={mainTab === '수집'}
                         />
                       )}
                     </div>
-                  </div>
-                </div>
-
-                {/* 이미지 */}
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>이미지</div>
-                  <ImagePicker
-                    preview={refImagePreview}
-                    onChange={(file, base64) => { setRefImageFile(file); setRefImagePreview(base64); }}
-                    onClear={() => { setRefImageFile(null); setRefImagePreview(''); }}
-                    height={180}
-                    placeholderLabel="이미지 추가 (선택)"
-                    isOpen={mainTab === '수집'}
-                  />
-                </div>
+                  );
+                })}
 
                 {/* 버튼 */}
                 <div style={{ display: 'flex', gap: 10 }}>
