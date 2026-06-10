@@ -1336,11 +1336,19 @@ function LifetipLibraryCard({
         {/* 제목 */}
         <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '22px', width: '100%', marginBottom: item.memo ? 8 : 12, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
         {item.memo ? (
-          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: item.tags?.length ? 8 : 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
             {item.memo}
           </div>
         ) : (
-          <div style={{ marginBottom: 12 }} />
+          <div style={{ marginBottom: item.tags?.length ? 8 : 12 }} />
+        )}
+        {/* 태그바 */}
+        {(item.tags ?? []).length > 0 && (
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 12 }}>
+            {(item.tags ?? []).map((tag, i) => (
+              <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 9999, background: `${CAT_COLORS[i % CAT_COLORS.length].selBg}`, border: `1px solid ${CAT_COLORS[i % CAT_COLORS.length].selBorder}`, color: CAT_COLORS[i % CAT_COLORS.length].selText }}>#{tag}</span>
+            ))}
+          </div>
         )}
         {item.sourceUrl?.trim() && (() => {
           let domain = item.sourceUrl!;
