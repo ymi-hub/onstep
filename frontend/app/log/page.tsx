@@ -1267,14 +1267,18 @@ function LifetipLibraryCard({
   item,
   products,
   onEdit,
+  onToggleToday,
 }: {
   item: import('@/types/lifetip').LifetipItem;
   products: Map<string, Product>;
   onEdit: () => void;
+  onToggleToday: () => void;
 }) {
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   const pIds = item.productIds ?? [];
   const createdDate = item.createdAt?.slice(0, 10) ?? '';
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const isOnToday = item.published && (item.dates ?? []).includes(todayStr);
 
   return (
     // height: '100%' + flex col → CSS Grid 행 높이에 맞게 늘어나면서 편집바가 하단 고정
@@ -1380,6 +1384,10 @@ function LifetipLibraryCard({
 
       {/* ⑤ 편집 바 — marginTop: auto로 항상 카드 하단 고정 */}
       <div style={{ display: 'flex', borderTop: '1px solid #000000', marginTop: 'auto', flexShrink: 0 }}>
+        <button onClick={onToggleToday}
+          style={{ flex: 1, padding: '12px 0', background: isOnToday ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: isOnToday ? '#C5FF00' : '#9A9490', border: 'none', borderRight: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const }}>
+          {isOnToday ? 'Today ON' : 'Today OFF'}
+        </button>
         <button onClick={onEdit} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
       </div>
     </div>
@@ -2761,6 +2769,20 @@ function LogPageInner() {
     }
   }
 
+  // ── Life TIP Today ON/OFF 토글 ──
+  async function toggleLifetipToday(item: import('@/types/lifetip').LifetipItem) {
+    if (!db || !userId) return;
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const dates = item.dates ?? [];
+    const isOn = item.published && dates.includes(todayStr);
+    const newDates = isOn ? dates.filter(d => d !== todayStr) : [...new Set([...dates, todayStr])].sort();
+    await updateDoc(doc(db, 'users', userId, 'lifetipItems', item.id), {
+      published: newDates.length > 0,
+      dates: newDates,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
   // ── Life TIP 편집 시트 ──
   function openLifetipEdit(item: import('@/types/lifetip').LifetipItem) {
     setEditingLifetip(item);
@@ -3436,6 +3458,7 @@ function LogPageInner() {
                         item={item}
                         products={products}
                         onEdit={() => openLifetipEdit(item)}
+                        onToggleToday={() => toggleLifetipToday(item)}
                       />
                     ))}
                   </div>
@@ -4102,6 +4125,7 @@ function LogPageInner() {
                             item={item}
                             products={products}
                             onEdit={() => openLifetipEdit(item)}
+                            onToggleToday={() => toggleLifetipToday(item)}
                           />
                         ))}
                       </div>
@@ -4447,8 +4471,8 @@ function LogPageInner() {
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 8 }}>카테고리</div>
               <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
                 {([
-                  { key: 'makeup',  label: '💄 메이크업' },
-                  { key: 'lookbook', label: '👗 룩북' },
+                  { key: 'makeup',  label: '💄 MOTD' },
+                  { key: 'lookbook', label: '👗 OOTD' },
                   { key: 'lifetip', label: '📌 Life TIP' },
                 ] as const).map(t => (
                   <button key={t.key}

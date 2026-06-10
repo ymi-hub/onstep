@@ -8,6 +8,7 @@ export type LifetipItem = {
   published: boolean;
   productIds?: string[];   // BOX에서 연결한 제품 ID 목록
   memo?: string;           // 메모
+  dates?: string[];        // Today ON 날짜 목록 (YYYY-MM-DD)
   createdAt: string;
   updatedAt: string;
 };

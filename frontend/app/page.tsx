@@ -48,6 +48,7 @@ import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
 import type { Habit } from '@/types/habit';
 import type { CtItem } from '@/types/ctitem';
+import type { LifetipItem } from '@/types/lifetip';
 import { EXPERT_TIP_HIGHLIGHT } from '@/components/ExpertTipField';
 import PageHeader from '@/components/PageHeader';
 import SectionHeader from '@/components/SectionHeader';
@@ -1850,6 +1851,66 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
   );
 }
 
+// ─── Life TIP 섹션 (#Life TIP) ──────────────────────────────────────────────
+function LifetipSection({ items }: { items: LifetipItem[] }) {
+  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+  return (
+    <div>
+      <SectionHeader title="#Life TIP" />
+      {items.length === 0 && (
+        <div style={{ margin: '0 26px', padding: '20px 26px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 28 }}>📌</span>
+          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 Life TIP이 없어요</div>
+          <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>라이브러리에서 Today ON으로 설정하면 여기에 표시됩니다</div>
+          <Link href="/log?tab=라이브러리&filter=lifetip" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
+        </div>
+      )}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 26px' }}>
+        {items.map((item) => (
+          <div key={item.id} style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
+            {item.imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block', maxHeight: 180, objectFit: 'cover' }} />
+            )}
+            <div style={{ padding: '14px 16px 16px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 18 }}>{item.emoji || '📌'}</span>
+                  <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.3 }}>{item.name}</div>
+                </div>
+                {item.tipCategory && (
+                  <span style={{ flexShrink: 0, fontFamily: f, fontSize: 10, fontWeight: 700, color: '#1D6DDB', background: 'rgba(96,165,250,.15)', border: '1px solid rgba(96,165,250,.4)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const, marginTop: 2 }}>
+                    {item.tipCategory}
+                  </span>
+                )}
+              </div>
+              {item.memo && (
+                <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: 1.5, marginBottom: item.sourceUrl ? 10 : 0 }}>
+                  {item.memo}
+                </div>
+              )}
+              {item.sourceUrl?.trim() && (() => {
+                let domain = item.sourceUrl!;
+                try { domain = new URL(item.sourceUrl!).hostname; } catch {}
+                return (
+                  <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 8, padding: '6px 10px', border: '1px solid rgba(12,12,10,.12)', borderRadius: 6, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', background: 'rgba(0,0,0,.02)' }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+                      <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                      <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                    </svg>
+                    SOURCE · {domain}
+                  </a>
+                );
+              })()}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── OOTD 기록 바텀 시트 ──────────────────────────────────────────────────────
 
 function OOTDRecordSheet({
@@ -2162,7 +2223,7 @@ export default function TodayPage() {
   }, [router]);
 
   // ── 공유 컨텍스트 (auth + 공유 구독 — layout에서 1회 실행, 탭 전환 시 즉시) ──
-  const { user, userId: ctxUserId, authLoading, dataReady, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems, medRoutines, healthRoutines, dietPrograms } = useAppContext();
+  const { user, userId: ctxUserId, authLoading, dataReady, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems, lifetipItems: ctxLifetipItems, medRoutines, healthRoutines, dietPrograms } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 데이터 상태 ──
@@ -2315,6 +2376,12 @@ export default function TodayPage() {
       return item.dates.includes(todayStr0);
     }
     return true;
+  });
+  // Life TIP: Today ON된 아이템 (dates[]에 오늘 날짜 포함)
+  const lifetipItems = ctxLifetipItems ?? [];
+  const activeLifetipItems = lifetipItems.filter((item) => {
+    if (!item.published) return false;
+    return (item.dates ?? []).includes(todayStr0);
   });
   // 오늘 DAY의 아침/저녁 슬롯 (0-based index)
   const todayDayIdx = todayDayNumber - 1;
@@ -3194,6 +3261,9 @@ export default function TodayPage() {
 
         {/* 메이크업 섹션 — 오늘 날짜에 해당하는 published 아이템 */}
         <MakeupSection items={activeMakeupItems} products={products} />
+
+        {/* Life TIP 섹션 */}
+        <LifetipSection items={activeLifetipItems} />
 
         {/* OOTD 섹션 */}
         <OOTDSection
