@@ -3545,7 +3545,16 @@ function LogPageInner() {
 
                 {/* 카테고리 + 편집 */}
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>카테고리</div>
+                  {/* 레이블 행 */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490' }}>카테고리</div>
+                    <button type="button"
+                      onClick={() => { setCatEditOpen(v => !v); if (catEditOpen) setCatNewTag(''); }}
+                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                      <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                      카테고리 편집
+                    </button>
+                  </div>
 
                   {/* 라이브러리 카테고리 — 동적, 항상 노출 */}
                   <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' as const, marginBottom: 8 }}>
@@ -3561,14 +3570,6 @@ function LogPageInner() {
                       );
                     })}
                   </div>
-
-                  {/* 카테고리 편집 버튼 — 클릭 시 편집 패널 토글 */}
-                  <button type="button"
-                    onClick={() => { setCatEditOpen(v => !v); if (catEditOpen) setCatNewTag(''); }}
-                    style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${catEditOpen ? 'rgba(12,12,10,.25)' : 'rgba(12,12,10,.12)'}`, background: catEditOpen ? 'rgba(12,12,10,.06)' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: catEditOpen ? '#0C0C0A' : '#9A9490', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, transition: 'all .15s' }}>
-                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-                    카테고리 편집
-                  </button>
 
                   {/* 카테고리 편집 패널 — catEditOpen 시 노출 */}
                   {catEditOpen && (
