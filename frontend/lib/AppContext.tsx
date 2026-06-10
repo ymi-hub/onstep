@@ -19,6 +19,7 @@ import type { Product } from '@/types/product';
 import type { Session } from '@/types/routine';
 import type { Habit } from '@/types/habit';
 import type { CtItem } from '@/types/ctitem';
+import type { LifetipItem } from '@/types/lifetip';
 import type { MedRoutine } from '@/types/medication';
 import type { HealthRoutine } from '@/types/healthroutine';
 import type { HealthCategory } from '@/types/healthcategory';
@@ -40,6 +41,7 @@ interface AppContextValue {
   careItems: CtItem[];
   makeupItems: CtItem[];
   lookItems: CtItem[];
+  lifetipItems: LifetipItem[];
   medRoutines: MedRoutine[];
   healthRoutines: HealthRoutine[];
   healthCategories: HealthCategory[];
@@ -64,6 +66,7 @@ const AppContext = createContext<AppContextValue>({
   careItems: [],
   makeupItems: [],
   lookItems: [],
+  lifetipItems: [],
   medRoutines: [],
   healthRoutines: [],
   healthCategories: [],
@@ -89,6 +92,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [careItems, setCareItems] = useState<CtItem[]>([]);
   const [makeupItems, setMakeupItems] = useState<CtItem[]>([]);
   const [lookItems, setLookItems] = useState<CtItem[]>([]);
+  const [lifetipItems, setLifetipItems] = useState<LifetipItem[]>([]);
   const [medRoutines, setMedRoutines] = useState<MedRoutine[]>([]);
   const [healthRoutines, setHealthRoutines] = useState<HealthRoutine[]>([]);
   const [healthCategories, setHealthCategories] = useState<HealthCategory[]>([]);
@@ -130,7 +134,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (!u) {
         setDataReady(false);
         setProducts([]); setSessions([]); setHabits([]);
-        setCareItems([]); setMakeupItems([]); setLookItems([]);
+        setCareItems([]); setMakeupItems([]); setLookItems([]); setLifetipItems([]);
         setMedRoutines([]); setHealthRoutines([]); setHealthCategories([]); setDietPrograms([]);
       }
     });
@@ -174,6 +178,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         () => {}
       ),
       onSnapshot(
+        query(collection(_db, 'users', userId, 'lifetipItems'), orderBy('createdAt', 'desc')),
+        (s) => setLifetipItems(s.docs.map((d) => ({ id: d.id, ...d.data() } as LifetipItem))),
+        () => {}
+      ),
+      onSnapshot(
         query(collection(_db, 'users', userId, 'medRoutines'), orderBy('createdAt', 'asc')),
         (s) => setMedRoutines(s.docs.map((d) => ({ id: d.id, ...d.data() } as MedRoutine))),
         () => {}
@@ -199,7 +208,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [userId, authLoading]);
 
   return (
-    <AppContext.Provider value={{ user, userId, authLoading, dataReady, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories, dietPrograms, timer }}>
+    <AppContext.Provider value={{ user, userId, authLoading, dataReady, products, sessions, habits, careItems, makeupItems, lookItems, lifetipItems, medRoutines, healthRoutines, healthCategories, dietPrograms, timer }}>
       {children}
     </AppContext.Provider>
   );
