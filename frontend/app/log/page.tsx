@@ -3537,10 +3537,10 @@ function LogPageInner() {
                     })}
                   </div>
 
-                  {/* 추가 태그 바 — 항상 노출, 편집 기능 */}
+                  {/* 태그 편집 바 — 항상 노출 */}
                   <div style={{ padding: '8px 10px 10px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.08)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>추가 태그</span>
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>태그 편집</span>
                       <button type="button" onMouseDown={e => e.preventDefault()}
                         onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
                         style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
@@ -4523,7 +4523,7 @@ function LogPageInner() {
                         setRefEditTagInput('');
                       }
                     }}
-                    placeholder="추가 태그 입력 후 Enter"
+                    placeholder="태그 편집 입력 후 Enter"
                     style={{ flex: 1, minWidth: 80, border: 'none', outline: 'none', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A' }}
                   />
                 </div>
@@ -4531,7 +4531,7 @@ function LogPageInner() {
                 {/* 추가 프리셋 — 항상 노출 */}
                 <div style={{ marginTop: 8, padding: '10px 12px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.08)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>추가 태그</span>
+                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>태그 편집</span>
                     <button type="button" onMouseDown={e => e.preventDefault()}
                       onClick={() => { setPresetEditMode(v => !v); setPresetNewTag(''); }}
                       style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: presetEditMode ? 'rgba(12,12,10,.08)' : '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: presetEditMode ? '#9A9490' : '#C5FF00', cursor: 'pointer', letterSpacing: '.04em', flexShrink: 0 }}>
