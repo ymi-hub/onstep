@@ -2640,14 +2640,16 @@ function LogPageInner() {
   async function saveReference() {
     const trimmedUrl = refUrl.trim();
     const trimmedTitle = refTitle.trim();
-    const hasContent = trimmedUrl || trimmedTitle || refTags.length > 0 || refImagePreview;
+    const hasContent = trimmedUrl || trimmedTitle || refImagePreview;
     if (!hasContent || !db || !userId) return;
     setRefSaving(true);
     // 낙관적 UI — 폼 즉시 초기화 (Firestore 응답 기다리지 않음)
     const snapshotUrl = trimmedUrl;
     const snapshotTitle = trimmedTitle;
     const snapshotNote = refNote.trim();
-    const snapshotTags = [...refTags];
+    // 카테고리 미선택 시 첫 번째 카테고리(Life tip)로 자동 설정
+    const hasCategorySelected = refTags.some(t => categoryTags.includes(t));
+    const snapshotTags = hasCategorySelected ? [...refTags] : [categoryTags[0] ?? 'Life tip', ...refTags];
     const snapshotImageFile = refImageFile;
     const snapshotImagePreview = refImagePreview;
     setRefUrl('');
