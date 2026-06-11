@@ -67,6 +67,7 @@ type OOTDLog = {
   theme?: string;   // 구 필드 — 하위 호환 읽기용
   note: string;
   photoUrl: string;
+  tags?: string[];
   createdAt: string;
 };
 
@@ -1959,6 +1960,16 @@ function OOTDRecordSheet({
   saving,
   tags,
   onTagsChange,
+  recordTags,
+  onRecordTagsChange,
+  recordTagEditOpen,
+  onRecordTagEditOpenChange,
+  recordTagNewTag,
+  onRecordTagNewTagChange,
+  dragRecTagIdx,
+  onDragRecTagIdx,
+  dragRecTagOverIdx,
+  onDragRecTagOverIdx,
 }: {
   open: boolean;
   onClose: () => void;
@@ -1974,6 +1985,16 @@ function OOTDRecordSheet({
   saving: boolean;
   tags: string[];
   onTagsChange: (tags: string[]) => void;
+  recordTags: string[];
+  onRecordTagsChange: (v: string[]) => void;
+  recordTagEditOpen: boolean;
+  onRecordTagEditOpenChange: (v: boolean) => void;
+  recordTagNewTag: string;
+  onRecordTagNewTagChange: (v: string) => void;
+  dragRecTagIdx: number | null;
+  onDragRecTagIdx: (v: number | null) => void;
+  dragRecTagOverIdx: number | null;
+  onDragRecTagOverIdx: (v: number | null) => void;
 }) {
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
@@ -2099,6 +2120,75 @@ function OOTDRecordSheet({
           placeholder="오늘의 룩 메모…"
           style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#0C1014', resize: 'none', height: 64, outline: 'none', boxSizing: 'border-box', marginBottom: 16 }}
         />
+
+        {/* #태그 */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>#태그 <span style={{ fontWeight: 400 }}>선택</span></div>
+          <button type="button" onClick={() => onRecordTagEditOpenChange(!recordTagEditOpen)}
+            style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer', padding: '2px 0' }}>
+            {recordTagEditOpen ? '닫기' : '편집'}
+          </button>
+        </div>
+        {/* 등록된 태그 pills */}
+        {recordTags.length > 0 && (
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 8 }}>
+            {recordTags.map(tag => (
+              <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                #{tag.replace(/^#/, '')}
+              </span>
+            ))}
+          </div>
+        )}
+        {/* 태그 편집 패널 */}
+        {recordTagEditOpen && (
+          <div style={{ background: '#F4F4F0', borderRadius: 12, padding: '12px', marginBottom: 10 }}>
+            {recordTags.map((tag, idx) => (
+              <div key={idx}
+                draggable
+                onDragStart={() => onDragRecTagIdx(idx)}
+                onDragOver={e => { e.preventDefault(); onDragRecTagOverIdx(idx); }}
+                onDrop={() => {
+                  if (dragRecTagIdx === null || dragRecTagIdx === idx) return;
+                  const arr = [...recordTags];
+                  const [moved] = arr.splice(dragRecTagIdx, 1);
+                  arr.splice(idx, 0, moved);
+                  onRecordTagsChange(arr);
+                  onDragRecTagIdx(null); onDragRecTagOverIdx(null);
+                }}
+                onDragEnd={() => { onDragRecTagIdx(null); onDragRecTagOverIdx(null); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: idx < recordTags.length - 1 ? '1px solid rgba(12,12,10,.08)' : 'none', opacity: dragRecTagOverIdx === idx ? 0.5 : 1, cursor: 'grab' }}>
+                <span style={{ fontSize: 12, color: '#BCBAB6' }}>☰</span>
+                <span style={{ flex: 1, fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>#{tag.replace(/^#/, '')}</span>
+                <button type="button" onClick={() => onRecordTagsChange(recordTags.filter((_, i) => i !== idx))}
+                  style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', padding: '0 4px' }}>×</button>
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: 6, marginTop: recordTags.length > 0 ? 10 : 0 }}>
+              <input
+                value={recordTagNewTag}
+                onChange={e => onRecordTagNewTagChange(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && recordTagNewTag.trim()) {
+                    const clean = recordTagNewTag.trim().replace(/^#/, '');
+                    if (!recordTags.includes(clean)) onRecordTagsChange([...recordTags, clean]);
+                    onRecordTagNewTagChange('');
+                    e.preventDefault();
+                  }
+                }}
+                placeholder="#태그 입력 후 Enter"
+                style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, padding: '7px 10px', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none', background: '#fff' }}
+              />
+              <button type="button"
+                onClick={() => {
+                  const clean = recordTagNewTag.trim().replace(/^#/, '');
+                  if (clean && !recordTags.includes(clean)) onRecordTagsChange([...recordTags, clean]);
+                  onRecordTagNewTagChange('');
+                }}
+                style={{ padding: '7px 14px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00', cursor: 'pointer' }}>추가</button>
+            </div>
+          </div>
+        )}
+        {!recordTagEditOpen && recordTags.length === 0 && <div style={{ marginBottom: 8 }} />}
 
         {/* 삭제 버튼 (수정 모드) */}
         {ootdLog && (
@@ -2362,6 +2452,11 @@ export default function TodayPage() {
   const [ootdPhotoFile, setOotdPhotoFile] = useState<File | null>(null);
   const [ootdPhotoPreview, setOotdPhotoPreview] = useState('');
   const [ootdSaving, setOotdSaving] = useState(false);
+  const [ootdRecordTags, setOotdRecordTags] = useState<string[]>([]);
+  const [ootdRecordTagEditOpen, setOotdRecordTagEditOpen] = useState(false);
+  const [ootdRecordTagNewTag, setOotdRecordTagNewTag] = useState('');
+  const [dragOotdRecTagIdx, setDragOotdRecTagIdx] = useState<number | null>(null);
+  const [dragOotdRecTagOverIdx, setDragOotdRecTagOverIdx] = useState<number | null>(null);
 
   // ── OOTD 태그 목록 (localStorage에 저장, 없으면 기본값) ──
   const [ootdTags, setOotdTags] = useState<string[]>(() => {
@@ -2869,12 +2964,16 @@ export default function TodayPage() {
       setOotdNote(ootdLog.note);
       setOotdPhotoPreview(ootdLog.photoUrl);
       setOotdPhotoFile(null);
+      setOotdRecordTags(ootdLog.tags ?? []);
     } else {
       setOotdTheme('');
       setOotdNote('');
       setOotdPhotoPreview('');
       setOotdPhotoFile(null);
+      setOotdRecordTags([]);
     }
+    setOotdRecordTagEditOpen(false);
+    setOotdRecordTagNewTag('');
     setOotdSheetOpen(true);
   };
 
@@ -2899,6 +2998,7 @@ export default function TodayPage() {
           theme: ootdTheme,
           note: ootdNote,
           photoUrl,
+          tags: ootdRecordTags,
           updatedAt: new Date().toISOString(),
         });
       } else {
@@ -2907,6 +3007,7 @@ export default function TodayPage() {
           theme: ootdTheme,
           note: ootdNote,
           photoUrl,
+          tags: ootdRecordTags,
           createdAt: new Date().toISOString(),
         });
       }
@@ -3322,6 +3423,16 @@ export default function TodayPage() {
         saving={ootdSaving}
         tags={ootdTags}
         onTagsChange={saveOotdTags}
+        recordTags={ootdRecordTags}
+        onRecordTagsChange={setOotdRecordTags}
+        recordTagEditOpen={ootdRecordTagEditOpen}
+        onRecordTagEditOpenChange={setOotdRecordTagEditOpen}
+        recordTagNewTag={ootdRecordTagNewTag}
+        onRecordTagNewTagChange={setOotdRecordTagNewTag}
+        dragRecTagIdx={dragOotdRecTagIdx}
+        onDragRecTagIdx={setDragOotdRecTagIdx}
+        dragRecTagOverIdx={dragOotdRecTagOverIdx}
+        onDragRecTagOverIdx={setDragOotdRecTagOverIdx}
       />
     </div>
   );

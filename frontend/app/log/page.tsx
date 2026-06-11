@@ -120,6 +120,7 @@ type OOTDLog = {
   note: string;
   photoUrl: string;
   productIds?: string[];
+  tags?: string[];
   createdAt: string;
 };
 
@@ -2390,6 +2391,11 @@ function LogPageInner() {
   const [ootdEditPhotoFile, setOotdEditPhotoFile] = useState<File | null>(null);
   const [ootdEditPreview, setOotdEditPreview] = useState('');
   const [ootdEditProductIds, setOotdEditProductIds] = useState<string[]>([]);
+  const [ootdEditTags, setOotdEditTags] = useState<string[]>([]);
+  const [ootdEditTagEditOpen, setOotdEditTagEditOpen] = useState(false);
+  const [ootdEditTagNewTag, setOotdEditTagNewTag] = useState('');
+  const [dragOotdTagIdx, setDragOotdTagIdx] = useState<number | null>(null);
+  const [dragOotdTagOverIdx, setDragOotdTagOverIdx] = useState<number | null>(null);
   const [ootdEditSaving, setOotdEditSaving] = useState(false);
   const [ootdPickerOpen, setOotdPickerOpen] = useState(false);
   const [ootdPickerSearch, setOotdPickerSearch] = useState('');
@@ -2401,6 +2407,9 @@ function LogPageInner() {
     setOotdEditPhotoFile(null);
     setOotdEditPreview(log.photoUrl || '');
     setOotdEditProductIds(log.productIds ?? []);
+    setOotdEditTags(log.tags ?? []);
+    setOotdEditTagEditOpen(false);
+    setOotdEditTagNewTag('');
     setOotdPickerSearch('');
   }
 
@@ -2414,6 +2423,7 @@ function LogPageInner() {
         note: ootdEditNote,
         photoUrl,
         productIds: ootdEditProductIds,
+        tags: ootdEditTags,
         updatedAt: new Date().toISOString(),
       });
       setEditingOotd(null);
@@ -4242,8 +4252,9 @@ function LogPageInner() {
                               {log.note && (
                                 <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{log.note}</div>
                               )}
+                              <TagChips tags={log.tags ?? []} style={{ marginTop: 8 }} />
                               {/* 날짜 — 오른쪽 하단 */}
-                              <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
+                              <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: (log.tags ?? []).length ? 8 : 8, marginBottom: 12 }}>
                                 <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
                               </div>
                             </div>
@@ -4413,6 +4424,7 @@ function LogPageInner() {
                                 {log.note && (
                                   <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{log.note}</div>
                                 )}
+                                <TagChips tags={log.tags ?? []} style={{ marginTop: 8 }} />
                                 {/* 날짜 — 오른쪽 하단 */}
                                 <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
                                   <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
@@ -5331,6 +5343,77 @@ function LogPageInner() {
                   </button>
                 ))}
               </div>
+
+              {/* 태그 */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em' }}>#태그</div>
+                <button type="button" onClick={() => setOotdEditTagEditOpen(v => !v)}
+                  style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer', padding: '2px 0' }}>
+                  {ootdEditTagEditOpen ? '닫기' : '편집'}
+                </button>
+              </div>
+              {/* 등록된 태그 pills */}
+              {ootdEditTags.length > 0 && (
+                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                  {ootdEditTags.map(tag => (
+                    <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                      #{tag.replace(/^#/, '')}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {/* 태그 편집 패널 */}
+              {ootdEditTagEditOpen && (
+                <div style={{ background: '#F4F4F0', borderRadius: 12, padding: '12px', marginBottom: 10 }}>
+                  {/* 드래그 정렬 + 삭제 */}
+                  {ootdEditTags.map((tag, idx) => (
+                    <div key={idx}
+                      draggable
+                      onDragStart={() => setDragOotdTagIdx(idx)}
+                      onDragOver={e => { e.preventDefault(); setDragOotdTagOverIdx(idx); }}
+                      onDrop={() => {
+                        if (dragOotdTagIdx === null || dragOotdTagIdx === idx) return;
+                        const arr = [...ootdEditTags];
+                        const [moved] = arr.splice(dragOotdTagIdx, 1);
+                        arr.splice(idx, 0, moved);
+                        setOotdEditTags(arr);
+                        setDragOotdTagIdx(null); setDragOotdTagOverIdx(null);
+                      }}
+                      onDragEnd={() => { setDragOotdTagIdx(null); setDragOotdTagOverIdx(null); }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: idx < ootdEditTags.length - 1 ? '1px solid rgba(12,12,10,.08)' : 'none', opacity: dragOotdTagOverIdx === idx ? 0.5 : 1, cursor: 'grab' }}>
+                      <span style={{ fontSize: 12, color: '#BCBAB6' }}>☰</span>
+                      <span style={{ flex: 1, fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>#{tag.replace(/^#/, '')}</span>
+                      <button type="button" onClick={() => setOotdEditTags(ootdEditTags.filter((_, i) => i !== idx))}
+                        style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', padding: '0 4px' }}>×</button>
+                    </div>
+                  ))}
+                  {/* 새 태그 입력 */}
+                  <div style={{ display: 'flex', gap: 6, marginTop: ootdEditTags.length > 0 ? 10 : 0 }}>
+                    <input
+                      value={ootdEditTagNewTag}
+                      onChange={e => setOotdEditTagNewTag(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && ootdEditTagNewTag.trim()) {
+                          const clean = ootdEditTagNewTag.trim().replace(/^#/, '');
+                          if (!ootdEditTags.includes(clean)) setOotdEditTags([...ootdEditTags, clean]);
+                          setOotdEditTagNewTag('');
+                          e.preventDefault();
+                        }
+                      }}
+                      placeholder="#태그 입력 후 Enter"
+                      style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, padding: '7px 10px', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none', background: '#fff' }}
+                    />
+                    <button type="button"
+                      onClick={() => {
+                        const clean = ootdEditTagNewTag.trim().replace(/^#/, '');
+                        if (clean && !ootdEditTags.includes(clean)) setOotdEditTags([...ootdEditTags, clean]);
+                        setOotdEditTagNewTag('');
+                      }}
+                      style={{ padding: '7px 14px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00', cursor: 'pointer' }}>추가</button>
+                  </div>
+                </div>
+              )}
+              {!ootdEditTagEditOpen && ootdEditTags.length === 0 && <div style={{ marginBottom: 8 }} />}
 
               {/* 메모 */}
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>메모</div>
