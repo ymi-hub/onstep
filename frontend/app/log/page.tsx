@@ -2014,10 +2014,16 @@ function LogCtPanel({
                 />
               </div>
 
-              {/* 아이템 매핑 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, marginTop: 8 }}>아이템 매핑</div>
-              {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, marginBottom: 8 }}>
+              {/* BOX 제품 연결 */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8, marginTop: 8 }}>BOX 제품 연결</div>
+              <button type="button" onClick={() => { setPicker('main'); setPickerSearch(''); setPickerSelected(new Set(sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map(i => i.id))); }}
+                style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
+                {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length > 0
+                  ? `${sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length}개 선택됨 · 변경`
+                  : '+ BOX에서 불러오기'}
+              </button>
+              {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length > 0 ? (
+                <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, marginBottom: 16 }}>
                   {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map((it, idx) => (
                     <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>
                       {productName(it.id)}
@@ -2025,9 +2031,7 @@ function LogCtPanel({
                     </span>
                   ))}
                 </div>
-              )}
-              <button type="button" onClick={() => { setPicker('main'); setPickerSearch(''); setPickerSelected(new Set(sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map(i => i.id))); }}
-                style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0, marginBottom: 16 }}>BOX</button>
+              ) : <div style={{ marginBottom: 16 }} />}
 
               {/* 예정 날짜 */}
               <div style={{ marginBottom: 16 }}>
@@ -4790,17 +4794,19 @@ function LogPageInner() {
                 </div>
 
                 {/* BOX 제품 연결 */}
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>BOX 제품 연결</div>
-                {lifetipEditProductIds.length > 0 && (
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>BOX 제품 연결</div>
+                <button type="button" onClick={() => setLifetipPickerOpen(true)}
+                  style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
+                  {lifetipEditProductIds.length > 0 ? `${lifetipEditProductIds.length}개 선택됨 · 변경` : '+ BOX에서 불러오기'}
+                </button>
+                {lifetipEditProductIds.length > 0 ? (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 16 }}>
                     {lifetipEditProductIds.map(pid => {
                       const p = allProducts.find(q => q.id === pid);
                       return <span key={pid} style={{ fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>{p?.name ?? pid}</span>;
                     })}
                   </div>
-                )}
-                <button type="button" onClick={() => setLifetipPickerOpen(true)}
-                  style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0, marginBottom: 16 }}>BOX</button>
+                ) : <div style={{ marginBottom: 16 }} />}
 
                 {/* 예정 날짜 */}
                 <div style={{ marginBottom: 16 }}>
