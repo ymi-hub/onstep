@@ -2394,8 +2394,14 @@ function LogPageInner() {
   const [libCatEditOpen, setLibCatEditOpen] = useState(false);
   // 캐시 미리보기 시트 — cachedLibrary가 있는 수집 아이템 재등록 시
   const [refCachePreview, setRefCachePreview] = useState<Reference | null>(null);
-  // 등록 시트에서 사용할 캐시 데이터 (수정 후 등록 시 pre-fill)
+  // 등록 시트에서 사용할 캐시 데이터 (수정 후 등록 시 tags/memo/productIds 재활용)
   const [refToLibCacheData, setRefToLibCacheData] = useState<CachedLibrary | null>(null);
+  // 등록 시트 편집 필드 (처음 등록 / 수정 후 등록 공통)
+  const [refToLibEditName, setRefToLibEditName] = useState('');
+  const [refToLibEditUrl, setRefToLibEditUrl] = useState('');
+  const [refToLibEditMemo, setRefToLibEditMemo] = useState('');
+  const [refToLibEditImageFile, setRefToLibEditImageFile] = useState<File | null>(null);
+  const [refToLibEditImagePreview, setRefToLibEditImagePreview] = useState('');
   const [makeupAddTrigger, setMakeupAddTrigger] = useState(0);
   const [lookbookAddTrigger, setLookbookAddTrigger] = useState(0);
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -2824,19 +2830,26 @@ function LogPageInner() {
     if (!refToLib || !db || !userId) return;
     setRefToLibSaving(true);
     try {
+      // 새 이미지 파일이 선택된 경우 base64 변환, 아니면 입력된 URL 사용
+      const finalImageUrl = refToLibEditImageFile
+        ? await imageFileToBase64(refToLibEditImageFile)
+        : refToLibEditImagePreview;
+      const finalName = refToLibEditName.trim() || refToLib.title || refToLib.url || '새 아이템';
+      const finalUrl = refToLibEditUrl.trim() || refToLib.url || '';
+      const finalMemo = refToLibEditMemo.trim();
+
       let libraryItemId = '';
       if (refToLibType === 'lifetip') {
         const category = refToLibTipCategory.trim() || refToLibCatName || 'Life tip';
         const emoji = refToLibEmoji.trim() || getLifetipEmoji(category);
-        // 수정 후 등록 시 캐시의 tags/memo/productIds 재활용, 없으면 기본값
         const newRef = await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
-          name: refToLib.title || refToLib.url || '새 아이템',
+          name: finalName,
           emoji,
-          imageUrl: refToLibCacheData?.imageUrl || refToLib.imageUrl || '',
-          sourceUrl: refToLib.url || '',
+          imageUrl: finalImageUrl,
+          sourceUrl: finalUrl,
           tipCategory: category,
           tags: refToLibCacheData?.tags ?? [],
-          memo: refToLibCacheData?.memo ?? '',
+          memo: finalMemo || refToLibCacheData?.memo || '',
           productIds: refToLibCacheData?.productIds ?? [],
           published: false,
           dates: [],
@@ -2848,29 +2861,37 @@ function LogPageInner() {
         const colName = refToLibType === 'makeup' ? 'makeupItems' : 'lookItems';
         const newRef = await addDoc(collection(db, 'users', userId, colName), {
           ctType: refToLibType,
-          name: refToLib.title || refToLib.url || '새 아이템',
+          name: finalName,
           emoji: refToLibType === 'makeup' ? '💄' : '👗',
-          imageUrl: refToLib.imageUrl || '',
+          imageUrl: finalImageUrl,
           tpo: [],
           items: [],
           published: false,
           dates: [],
-          sourceUrl: refToLib.url || '',
+          sourceUrl: finalUrl,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         });
         libraryItemId = newRef.id;
       }
-      // 수집 문서에 라이브러리 등록 완료 표시 + 라이브러리 아이템 ID 추적
+      // 수집 문서 업데이트: 라이브러리 등록 완료 + 편집된 기본 정보도 반영
       const updatedRefTags = [refToLibCatName, ...(refToLib.tags ?? []).filter(t => !categoryTags.includes(t))];
       await updateDoc(doc(db, 'users', userId, 'references', refToLib.id), {
         inLibrary: true,
         libraryItemId,
         libraryItemType: refToLibType,
         tags: updatedRefTags,
+        title: finalName,
+        url: finalUrl,
+        imageUrl: finalImageUrl,
       });
       setRefToLib(null);
       setRefToLibCacheData(null);
+      setRefToLibEditName('');
+      setRefToLibEditUrl('');
+      setRefToLibEditMemo('');
+      setRefToLibEditImageFile(null);
+      setRefToLibEditImagePreview('');
     } catch (err) {
       console.error('[OnStep] refToLib 저장 실패:', err);
     } finally {
@@ -3586,6 +3607,11 @@ function LogPageInner() {
                         setRefToLib(ref);
                         setRefToLibCacheData(null);
                         setLibCatEditOpen(false);
+                        setRefToLibEditName(ref.title || '');
+                        setRefToLibEditUrl(ref.url || '');
+                        setRefToLibEditMemo('');
+                        setRefToLibEditImageFile(null);
+                        setRefToLibEditImagePreview(ref.imageUrl || '');
                         const tags = ref.tags ?? [];
                         const firstCat = categoryTags.find(c => tags.includes(c)) ?? categoryTags[0] ?? 'Life tip';
                         setRefToLibCatName(firstCat);
@@ -4594,8 +4620,13 @@ function LogPageInner() {
           setRefToLib(ref);
           setLibCatEditOpen(false);
           if (useCache) {
-            // 캐시값으로 pre-fill
+            // 캐시값으로 pre-fill — 모든 편집 필드 복원
             setRefToLibCacheData(cache);
+            setRefToLibEditName(cache.name || ref.title || '');
+            setRefToLibEditUrl(cache.sourceUrl || ref.url || '');
+            setRefToLibEditMemo(cache.memo || '');
+            setRefToLibEditImageFile(null);
+            setRefToLibEditImagePreview(cache.imageUrl || ref.imageUrl || '');
             const cat = (cache.tipCategory || categoryTags.find(c => (ref.tags ?? []).includes(c))) ?? categoryTags[0] ?? 'Life tip';
             const libType: 'makeup' | 'lookbook' | 'lifetip' = cat === 'Lookbook' ? 'lookbook' : cat === 'Makeup' ? 'makeup' : 'lifetip';
             setRefToLibCatName(cat);
@@ -4603,8 +4634,13 @@ function LogPageInner() {
             setRefToLibTipCategory(libType === 'lifetip' ? cache.tipCategory : '');
             setRefToLibEmoji(cache.emoji);
           } else {
-            // 처음부터 — 기본값
+            // 처음부터 — 기본값 (수집 기본 정보만)
             setRefToLibCacheData(null);
+            setRefToLibEditName(ref.title || '');
+            setRefToLibEditUrl(ref.url || '');
+            setRefToLibEditMemo('');
+            setRefToLibEditImageFile(null);
+            setRefToLibEditImagePreview(ref.imageUrl || '');
             const tags = ref.tags ?? [];
             const firstCat = categoryTags.find(c => tags.includes(c)) ?? categoryTags[0] ?? 'Life tip';
             setRefToLibCatName(firstCat);
@@ -4756,14 +4792,45 @@ function LogPageInner() {
             <div onClick={() => setRefToLib(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
             <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflowY: 'auto', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 24px)', scrollbarWidth: 'none' as const }}>
               <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 16px' }} />
-              <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 4 }}>라이브러리에 등록</div>
-              <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginBottom: 16 }}>{refToLib.title || refToLib.url}</div>
-
-              {/* 썸네일 */}
-              {refToLib.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={refToLib.imageUrl} alt="" style={{ width: '100%', maxHeight: 120, objectFit: 'cover', borderRadius: 10, marginBottom: 16 }} />
+              <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: refToLibCacheData ? 4 : 16 }}>라이브러리에 등록</div>
+              {refToLibCacheData && (
+                <div style={{ fontFamily: f, fontSize: 11, color: '#1D6DDB', background: 'rgba(29,109,219,.08)', border: '1px solid rgba(29,109,219,.18)', borderRadius: 8, padding: '5px 10px', marginBottom: 16, display: 'inline-block' }}>
+                  이전 자료 불러옴 — 수정 후 등록
+                </div>
               )}
+
+              {/* 제목 */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>제목</div>
+                <input type="text" value={refToLibEditName}
+                  onChange={e => setRefToLibEditName(e.target.value)}
+                  placeholder="제목 입력"
+                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                />
+              </div>
+
+              {/* 링크 */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>링크</div>
+                <input type="url" value={refToLibEditUrl}
+                  onChange={e => setRefToLibEditUrl(e.target.value)}
+                  placeholder="https://"
+                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                />
+              </div>
+
+              {/* 이미지 */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>이미지</div>
+                <ImagePicker
+                  preview={refToLibEditImagePreview}
+                  onChange={(file, base64) => { setRefToLibEditImageFile(file); setRefToLibEditImagePreview(base64); }}
+                  onClear={() => { setRefToLibEditImageFile(null); setRefToLibEditImagePreview(''); }}
+                  height={160}
+                  placeholderLabel="이미지 추가 (선택)"
+                  isOpen={!!refToLib}
+                />
+              </div>
 
               {/* 카테고리 선택 — categoryTags 기반 pill + 편집 */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -4854,6 +4921,17 @@ function LogPageInner() {
                   />
                 </div>
               )}
+
+              {/* 메모 */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>메모 (선택)</div>
+                <textarea value={refToLibEditMemo}
+                  onChange={e => setRefToLibEditMemo(e.target.value)}
+                  placeholder="메모를 입력하세요"
+                  rows={3}
+                  style={{ width: '100%', boxSizing: 'border-box' as const, padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none', resize: 'none' as const, lineHeight: 1.5 }}
+                />
+              </div>
 
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 10 }}>
