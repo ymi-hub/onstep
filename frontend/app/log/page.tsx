@@ -1144,7 +1144,6 @@ function fmtDate(s: string) {
   return `${m}월 ${d}일`;
 }
 
-const TPO_OPTIONS = ['데일리', '오피스', '데이트', '파티', '캐주얼', '포멀', '스포티', '여행'];
 
 function LogLibraryCard({
   item, products, onEdit,
@@ -1217,7 +1216,7 @@ function LogLibraryCard({
         {/* daily — 우측 정렬 */}
         {item.daily && <div style={{ width: '100%', textAlign: 'right', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#BCBAB6', marginTop: 6 }}>{item.daily}</div>}
         {/* 서브 */}
-        <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.tpo?.join(' · ') || ''}</div>
+        {item.desc && <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.desc}</div>}
         {item.sourceUrl?.trim() && (() => {
           let domain = item.sourceUrl;
           try { domain = new URL(item.sourceUrl).hostname; } catch {}
@@ -1469,7 +1468,6 @@ function AddItemSheet({
   const [emoji, setEmoji] = useState(ctType === 'makeup' ? '💄' : '👗');
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
-  const [tpo, setTpo] = useState<string[]>([]);
   const [imgFile, setImgFile] = useState<File | null>(null);
   const [imgPreview, setImgPreview] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -1513,7 +1511,6 @@ function AddItemSheet({
         name: name.trim(), desc: desc.trim(),
         items, tipItems: [], expertTip: '',
         ...(imgPreview ? { imageUrl: imgPreview } : {}),
-        ...(ctType === 'lookbook' && tpo.length > 0 ? { tpo } : {}),
         published: false, dates: [],
         createdAt: now, updatedAt: now,
       });
@@ -1558,18 +1555,6 @@ function AddItemSheet({
 
           {/* 설명 */}
           <textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="간단한 설명 (선택)" rows={2} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, marginBottom: 16, lineHeight: 1.5 }} />
-
-          {/* TPO (룩북만) */}
-          {ctType === 'lookbook' && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 8 }}>T.P.O</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {TPO_OPTIONS.map(tp => (
-                  <button key={tp} onClick={() => setTpo(p => p.includes(tp) ? p.filter(x => x !== tp) : [...p, tp])} style={{ padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${tpo.includes(tp) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: tpo.includes(tp) ? '#0C0C0A' : 'transparent', color: tpo.includes(tp) ? '#fff' : '#4A4846', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{tp}</button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* BOX 제품 연결 */}
           <div style={{ marginBottom: 20 }}>
@@ -1689,7 +1674,6 @@ function LogCtPanel({
   const [sItems, setSItems] = useState<RoutineItem[]>([]);
   const [sTipItems, setSTipItems] = useState<RoutineItem[]>([]);
   const [sDates, setSDates] = useState<string[]>([]);
-  const [sTpoText, setSTpoText] = useState('');
   const [sPublished, setSPublished] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -1707,8 +1691,6 @@ function LogCtPanel({
   const [pickerSearch, setPickerSearch] = useState('');
   const [pickerSelected, setPickerSelected] = useState<Set<string>>(new Set());
 
-  const TPO_OPTIONS = ['데일리', '오피스', '데이트', '파티', '스포티', '캐주얼', '포멀', '여행'];
-
   const domainProducts = filter === 'fashion'
     ? products.filter(p => p.domain === 'fashion' || p.domain === 'acc')
     : products.filter(p => p.domain === filter);
@@ -1721,7 +1703,7 @@ function LogCtPanel({
 
   function openNew() {
     setEditItem(null); setSEmoji(icon); setSName(''); setSDesc(''); setSDaily('');
-    setSItems([]); setSTipItems([]); setSDates([]); setSTpoText('');
+    setSItems([]); setSTipItems([]); setSDates([]);
     setSPublished(false); setSImageFile(null); setSImagePreview(''); setSSourceUrl('');
     setSTags([]); setSTagInput(''); setSTagEditOpen(false);
     setSheetOpen(true);
@@ -1744,7 +1726,7 @@ function LogCtPanel({
   function openEdit(item: CtItem) {
     setEditItem(item); setSEmoji(item.emoji); setSName(item.name ?? ''); setSDesc(item.desc ?? ''); setSDaily(item.daily ?? '');
     setSItems(item.items ?? []); setSTipItems(item.tipItems ?? []); setSDates(item.dates ?? []);
-    setSTpoText((item.tpo ?? []).join(' · ')); setSPublished(item.published);
+    setSPublished(item.published);
     setSImageFile(null); setSImagePreview(item.imageUrl ?? ''); setSSourceUrl(item.sourceUrl ?? '');
     setSTags(item.tags ?? []); setSTagInput(''); setSTagEditOpen(false);
     setSheetOpen(true);
@@ -1782,7 +1764,6 @@ function LogCtPanel({
         ...(sImagePreview ? { imageUrl: sImagePreview } : {}),
         domain: filter,
         ...((sDaily ?? '').trim() ? { daily: sDaily.trim() } : {}),
-        ...(filter === 'fashion' ? { tpo: (sTpoText ?? '').trim() ? [sTpoText.trim()] : [] } : {}),
       };
       if (editItem) {
         await onUpdate(editItem.id, { ...data, updatedAt: now });
@@ -1850,7 +1831,7 @@ function LogCtPanel({
     const today = format(new Date(), 'yyyy-MM-dd');
     const isOnToday = item.published && (item.dates ?? []).includes(today);
     const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
-    const sub = item.tpo?.length ? item.tpo.slice(0, 2).join(' · ') : item.desc ? item.desc.slice(0, 28) : '';
+    const sub = item.desc ? item.desc.slice(0, 28) : '';
 
     // featured: 히어로 340px / square: 130px
     const heroH = featured ? 340 : 130;
@@ -2047,18 +2028,6 @@ function LogCtPanel({
               )}
               <button type="button" onClick={() => { setPicker('main'); setPickerSearch(''); setPickerSelected(new Set(sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map(i => i.id))); }}
                 style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0, marginBottom: 16 }}>BOX</button>
-
-              {/* T.P.O (패션 도메인만) */}
-              {filter === 'fashion' && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>T.P.O</div>
-                  <textarea value={sTpoText} onChange={e => setSTpoText(e.target.value)}
-                    placeholder="메모 입력 (선택)..."
-                    rows={2}
-                    style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#1D6DDB', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }}
-                  />
-                </div>
-              )}
 
               {/* 예정 날짜 */}
               <div style={{ marginBottom: 16 }}>
@@ -3020,7 +2989,6 @@ function LogPageInner() {
           name: finalName,
           emoji: refToLibType === 'makeup' ? '💄' : '👗',
           imageUrl: finalImageUrl,
-          tpo: [],
           items: [],
           published: false,
           dates: [],
@@ -4454,14 +4422,10 @@ function LogPageInner() {
                               )}
                             </div>
                             {/* 제목 — Life TIP과 동일: 14px/700 */}
-                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', marginBottom: item.desc?.trim() ? 0 : (item.tpo?.length ? 0 : 6), overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', marginBottom: item.desc?.trim() ? 0 : 6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
                             {/* 메모(desc) — 블루컬러 */}
                             {item.desc?.trim() ? (
-                              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: item.tpo?.length ? 0 : 8, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.desc}</div>
-                            ) : null}
-                            {/* TPO (패션 도메인) */}
-                            {item.tpo?.length ? (
-                              <div style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: '#9A9490', lineHeight: '18px', marginTop: 4, marginBottom: 6, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo.join(' · ')}</div>
+                              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 8, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.desc}</div>
                             ) : null}
                             {/* 태그 — Life TIP과 동일: pill 스타일 */}
                             {(item.tags ?? []).length > 0 ? (
