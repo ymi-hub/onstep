@@ -1315,9 +1315,9 @@ function LifetipLibraryCard({
     // height: '100%' + flex col → CSS Grid 행 높이에 맞게 늘어나면서 편집바가 하단 고정
     <div style={{ border: '1px solid #000000', background: '#FFFFFF', display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-      {/* ① 이미지 영역 — 고정 높이, overflow hidden (이미지 크기·비율 무관) */}
-      <div style={{ position: 'relative', width: '100%', height: 160, background: '#EEF6FF', overflow: 'hidden', flexShrink: 0 }}>
-        {/* 카테고리 뱃지 스티커 — LogLibraryCard와 동일한 위치/크기 */}
+      {/* ① 이미지 영역 — 이미지 비율 그대로, 세로 이미지도 잘림 없이 전체 노출 */}
+      <div style={{ position: 'relative', width: '100%', background: '#EEF6FF', flexShrink: 0 }}>
+        {/* 카테고리 뱃지 스티커 */}
         <div style={{
           position: 'absolute', right: 7, top: 10,
           width: 113, height: 32,
@@ -1331,8 +1331,8 @@ function LifetipLibraryCard({
 
         {item.imageUrl
           ? // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
+          : <div style={{ width: '100%', height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: 80, opacity: 0.45, lineHeight: 1 }}>{item.emoji || '📌'}</span>
             </div>
         }
