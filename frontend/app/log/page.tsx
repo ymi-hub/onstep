@@ -4161,17 +4161,17 @@ function LogPageInner() {
                 ? (lifetipByCategory2[lifetipCategory] ?? [])
                 : lifetipItems;
               return (
-                <div style={{ padding: '12px 10px 0px' }}>
+                <div>
                   {lifetipItems.length === 0 ? (
-                    <div style={{ padding: '40px 20px', textAlign: 'center', background: '#fff', borderRadius: 16, border: '1px solid rgba(12,12,10,.08)' }}>
+                    <div style={{ margin: '0 16px', padding: '40px 20px', textAlign: 'center', background: '#fff', borderRadius: 16, border: '1px solid rgba(12,12,10,.08)' }}>
                       <div style={{ fontSize: 32, marginBottom: 8 }}>📌</div>
                       <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>Life TIP이 없어요</div>
                       <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>수집에서 + 라이브러리 버튼으로 추가하세요</div>
                     </div>
                   ) : (
                     <>
-                      {/* 카테고리 필터 칩 — 가로 스크롤 */}
-                      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' as const }}>
+                      {/* 카테고리 필터 칩 — 메이크업/룩북 태그칩과 동일한 10px 좌우 패딩 */}
+                      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '0 10px 10px', scrollbarWidth: 'none' as const }}>
                         <button type="button" onClick={() => setLifetipCategory(null)}
                           style={{ flexShrink: 0, background: lifetipCategory === null ? '#0C0C0A' : '#fff', border: `1px solid ${lifetipCategory === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: lifetipCategory === null ? '#fff' : '#0C0C0A', cursor: 'pointer', transition: 'all .15s' }}>
                           전체 {lifetipItems.length}
@@ -4190,8 +4190,8 @@ function LogPageInner() {
                           );
                         })}
                       </div>
-                      {/* 카드 1열 */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {/* 카드 — 메이크업/룩북과 동일한 16px 좌우 패딩, gap 12 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 16px 20px' }}>
                         {filteredTips.map(item => (
                           <LifetipLibraryCard
                             key={item.id}
@@ -4247,23 +4247,8 @@ function LogPageInner() {
                                 <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
                               </div>
                             </div>
-                            {pIds.length > 0 && (
-                              <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', borderTop: '1px solid #000000', scrollbarWidth: 'none' as const }}>
-                                {pIds.map((pid, idx) => {
-                                  const p = products.get(pid);
-                                  const imgSrc = p?.imageUrl ?? (p as (Product & { storageUrl?: string }) | undefined)?.storageUrl;
-                                  return (
-                                    <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                                      <div style={{ width: 120, height: 160, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
-                                      </div>
-                                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                            <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
+                            <ProductThumbnailStrip productIds={pIds} products={products} />
+                            <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
                           </div>
                         );
                       })}
@@ -4433,23 +4418,8 @@ function LogPageInner() {
                                   <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
                                 </div>
                               </div>
-                              {pIds.length > 0 && (
-                                <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', borderTop: '1px solid #000000', scrollbarWidth: 'none' as const }}>
-                                  {pIds.map((pid, idx) => {
-                                    const p = products.get(pid);
-                                    const imgSrc = p?.imageUrl ?? (p as (Product & { storageUrl?: string }) | undefined)?.storageUrl;
-                                    return (
-                                      <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                                        <div style={{ width: 120, height: 160, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                          {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
-                                        </div>
-                                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                              <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
+                              <ProductThumbnailStrip productIds={pIds} products={products} />
+                              <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
                             </div>
                           );
                         })}
@@ -4458,12 +4428,12 @@ function LogPageInner() {
                   )}
                   {/* ALL 뷰일 때 Life TIP도 함께 표시 */}
                   {archiveFilter === 'all' && lifetipItems.length > 0 && (
-                    <div style={{ padding: '0 10px 20px' }}>
+                    <div style={{ padding: '0 16px 20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '20px 6px 12px' }}>
                         <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490' }}>LIFE TIP</span>
                         <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{lifetipItems.length}개</span>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         {lifetipItems.map(item => (
                           <LifetipLibraryCard
                             key={item.id}
