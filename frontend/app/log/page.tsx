@@ -3550,13 +3550,29 @@ function LogPageInner() {
                   {/* 텍스트 영역 */}
                   <div style={{ flex: 1, padding: '11px 12px 10px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
 
-                    {/* 상단 행: 플랫폼 뱃지 */}
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, flexShrink: 0, height: 18, padding: '0 7px', borderRadius: 9999, background: `${pColor}18` }}>
-                      <span style={{ fontSize: 9 }}>{PLATFORM_ICON[platform]}</span>
-                      <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: pColor, letterSpacing: '.06em', textTransform: 'uppercase' as const }}>
-                        {PLATFORM_LABEL[platform]}
-                      </span>
-                    </div>
+                    {/* 상단 행: 플랫폼 뱃지(좌) + 카테고리 칩(우) — 블랙 배경 라임 폰트 */}
+                    {(() => {
+                      const catChips = (ref.tags ?? []).filter(t => categoryTags.includes(t));
+                      return (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, flexShrink: 0, height: 18, padding: '0 7px', borderRadius: 9999, background: `${pColor}18` }}>
+                            <span style={{ fontSize: 9 }}>{PLATFORM_ICON[platform]}</span>
+                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: pColor, letterSpacing: '.06em', textTransform: 'uppercase' as const }}>
+                              {PLATFORM_LABEL[platform]}
+                            </span>
+                          </div>
+                          {catChips.length > 0 && (
+                            <div style={{ display: 'flex', gap: 3, overflow: 'hidden', flexShrink: 1 }}>
+                              {catChips.slice(0, 2).map(tag => (
+                                <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 70 }}>
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {/* 제목 */}
                     <div style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
@@ -3570,16 +3586,19 @@ function LogPageInner() {
                       </div>
                     )}
 
-                    {/* 태그 — 메모 하단 */}
-                    {(ref.tags ?? []).length > 0 && (
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
-                        {(ref.tags ?? []).map(tag => (
-                          <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#555250', background: 'rgba(12,12,10,.07)', padding: '2px 8px', borderRadius: 9999, letterSpacing: '.02em' }}>
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    {/* 태그 — 메모 하단, "#" 접두사 + 연한 회색 배경 */}
+                    {(() => {
+                      const userTags = (ref.tags ?? []).filter(t => !categoryTags.includes(t));
+                      return userTags.length > 0 ? (
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
+                          {userTags.map(tag => (
+                            <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#555250', background: 'rgba(12,12,10,.07)', padding: '2px 8px', borderRadius: 9999, letterSpacing: '.02em' }}>
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
 
@@ -4829,9 +4848,15 @@ function LogPageInner() {
                 />
               </div>
 
+              {/* ── 구분선 ── */}
+              <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+
               {/* 카테고리 선택 — categoryTags 기반 pill + 편집 */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490' }}>카테고리</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 2, background: '#0C0C0A', display: 'inline-block' }} />
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#0C0C0A' }}>카테고리</div>
+                </div>
                 <button type="button"
                   onClick={() => setLibCatEditOpen(v => !v)}
                   style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
@@ -4907,16 +4932,22 @@ function LogPageInner() {
                 </div>
               )}
 
-              {/* Life TIP 전용 — 태그 직접 입력 (선택) */}
+              {/* Life TIP 전용 — 태그 입력 */}
               {refToLibType === 'lifetip' && refToLibCatName === 'Life tip' && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 6 }}>태그 (선택)</div>
-                  <input type="text" value={refToLibTipCategory}
-                    onChange={e => setRefToLibTipCategory(e.target.value)}
-                    placeholder="예: 스킨케어, 헤어, 푸드..."
-                    style={{ width: '100%', boxSizing: 'border-box' as const, height: 40, padding: '0 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
-                  />
-                </div>
+                <>
+                  <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250', letterSpacing: '.04em' }}>#</span>
+                      <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#555250' }}>태그 (선택)</div>
+                    </div>
+                    <input type="text" value={refToLibTipCategory}
+                      onChange={e => setRefToLibTipCategory(e.target.value)}
+                      placeholder="예: 스킨케어, 헤어, 푸드..."
+                      style={{ width: '100%', boxSizing: 'border-box' as const, height: 40, padding: '0 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: 'rgba(12,12,10,.03)', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                    />
+                  </div>
+                </>
               )}
 
               {/* 메모 */}
