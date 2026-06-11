@@ -2627,7 +2627,7 @@ function ManageSheet({
                 <input
                   value={newDomainLabel}
                   onChange={(e) => setNewDomainLabel(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') addDomain(); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) addDomain(); }}
                   placeholder="새 도메인 이름..."
                   style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, padding: '9px 12px', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }}
                 />
@@ -2677,7 +2677,7 @@ function ManageSheet({
                     ))}
                     {/* 서브타입 추가 */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <input value={newSubTypeLabel} onChange={(e) => setNewSubTypeLabel(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') addSubType(); }} placeholder="서브타입..." style={{ width: 80, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9999, padding: '5px 10px', fontFamily: f, fontSize: 11, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+                      <input value={newSubTypeLabel} onChange={(e) => setNewSubTypeLabel(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) addSubType(); }} placeholder="서브타입..." style={{ width: 80, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9999, padding: '5px 10px', fontFamily: f, fontSize: 11, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
                       <button onClick={addSubType} style={{ padding: '5px 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>+</button>
                     </div>
                   </div>
@@ -2814,7 +2814,7 @@ function ManageSheet({
                 <input
                   value={newCatLabel}
                   onChange={(e) => setNewCatLabel(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') addCat(); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) addCat(); }}
                   placeholder="카테고리 이름..."
                   style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, padding: '9px 12px', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }}
                 />

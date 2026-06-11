@@ -2394,7 +2394,8 @@ function LogPageInner() {
   // ── 탭 상태 ──
   const [mainTab, setMainTab] = useState<'기록' | '라이브러리' | '수집'>('기록');
   const [archiveFilter, setArchiveFilter] = useState<string>('all');
-  const [lifetipCategory, setLifetipCategory] = useState<string | null>(null); // null = 그리드 홈
+  const [lifetipCategory, setLifetipCategory] = useState<string | null>(null); // null = 전체
+  const [domainTagFilter, setDomainTagFilter] = useState<string | null>(null); // 도메인 탭 태그 필터
   const [editingLifetipId, setEditingLifetipId] = useState<string | null>(null); // 인라인 이모지 편집
   // Life TIP 편집 시트
   const [editingLifetip, setEditingLifetip] = useState<import('@/types/lifetip').LifetipItem | null>(null);
@@ -4195,7 +4196,7 @@ function LogPageInner() {
               return (
                 <div style={{ padding: '0 16px', marginBottom: 18 }}>
                   {/* ALL — 전체 너비 카드 */}
-                  <button type="button" onClick={() => { setArchiveFilter('all'); setLifetipCategory(null); }}
+                  <button type="button" onClick={() => { setArchiveFilter('all'); setLifetipCategory(null); setDomainTagFilter(null); }}
                     style={{ width: '100%', padding: '12px 18px', marginBottom: 8, borderRadius: 14,
                       border: `1.5px solid ${selAll ? colAll.active : 'rgba(12,12,10,.1)'}`,
                       background: selAll ? colAll.bg : '#fff',
@@ -4213,7 +4214,7 @@ function LogPageInner() {
                       const sel = archiveFilter === t.key;
                       const col = TAB_COLOR[t.key] ?? TAB_COLOR.beauty;
                       return (
-                        <button type="button" key={t.key} onClick={() => { setArchiveFilter(t.key); setLifetipCategory(null); }}
+                        <button type="button" key={t.key} onClick={() => { setArchiveFilter(t.key); setLifetipCategory(null); setDomainTagFilter(null); }}
                           style={{ padding: '14px 16px', borderRadius: 14,
                             border: `1.5px solid ${sel ? col.active : 'rgba(12,12,10,.1)'}`,
                             background: sel ? col.bg : '#fff',
@@ -4361,12 +4362,25 @@ function LogPageInner() {
 
             {/* 아이템 카드 목록 (도메인 탭 / ALL) */}
             {archiveFilter !== 'lifetip' && archiveFilter !== 'ootd' && (() => {
-              // 도메인 필터: 'all'이면 전체, 특정 도메인이면 해당 도메인만
-              const visibleItems = archiveFilter === 'all'
-                ? allLibItems
-                : allLibItems.filter(i => (i.domain ?? 'beauty') === archiveFilter);
               const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
               const todayStr = format(new Date(), 'yyyy-MM-dd');
+
+              // 도메인 필터: 'all'이면 전체, 특정 도메인이면 해당 도메인만
+              const domainFiltered = archiveFilter === 'all'
+                ? allLibItems
+                : allLibItems.filter(i => (i.domain ?? 'beauty') === archiveFilter);
+
+              // 도메인 탭일 때 해당 아이템들의 모든 태그 수집 (태그 칩 생성용)
+              const isDomainTab = archiveFilter !== 'all';
+              const allTagsInDomain = isDomainTab
+                ? [...new Set(domainFiltered.flatMap(i => i.tags ?? []))]
+                : [];
+
+              // 태그 필터 적용
+              const visibleItems = domainTagFilter
+                ? domainFiltered.filter(i => (i.tags ?? []).includes(domainTagFilter))
+                : domainFiltered;
+
               const sortedItems = [...visibleItems].sort((a, b) => {
                 const aOn = a.published && (a.dates ?? []).includes(todayStr) ? 1 : 0;
                 const bOn = b.published && (b.dates ?? []).includes(todayStr) ? 1 : 0;
@@ -4381,6 +4395,26 @@ function LogPageInner() {
               );
               return (
                 <div style={{ marginTop: 8 }}>
+                  {/* 도메인 탭 선택 시 태그 필터 칩 (Life TIP 카테고리 칩과 동일 스타일) */}
+                  {isDomainTab && allTagsInDomain.length > 0 && (
+                    <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '0 10px 10px', scrollbarWidth: 'none' as const }}>
+                      <button type="button" onClick={() => setDomainTagFilter(null)}
+                        style={{ flexShrink: 0, background: domainTagFilter === null ? '#0C0C0A' : '#fff', border: `1px solid ${domainTagFilter === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: domainTagFilter === null ? '#fff' : '#0C0C0A', cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const }}>
+                        전체 {domainFiltered.length}
+                      </button>
+                      {allTagsInDomain.map(tag => {
+                        const count = domainFiltered.filter(i => (i.tags ?? []).includes(tag)).length;
+                        const sel = domainTagFilter === tag;
+                        return (
+                          <button key={tag} type="button" onClick={() => setDomainTagFilter(sel ? null : tag)}
+                            style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', transition: 'all .15s' }}>
+                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A', whiteSpace: 'nowrap' as const }}>{tag}</span>
+                            <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{count}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 16px 20px' }}>
                     {sortedItems.map(item => {
                       // 도메인 기반 배지 색상
@@ -4417,28 +4451,24 @@ function LogPageInner() {
                                 </div>
                               )}
                             </div>
-                            <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
-                            {item.desc?.trim() && (
-                              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#6A6866', lineHeight: 1.5, marginTop: 6, width: '100%', zIndex: 2 }}>{item.desc}</div>
-                            )}
-                            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || ''}</div>
-                            {/* 카테고리 + 태그 */}
-                            {(() => {
-                              const catChips = (item.tags ?? []).filter(t => categoryTags.includes(t));
-                              const userTags = (item.tags ?? []).filter(t => !categoryTags.includes(t));
-                              const hasAny = catChips.length > 0 || userTags.length > 0;
-                              if (!hasAny) return <div style={{ marginBottom: 12 }} />;
-                              return (
-                                <div style={{ marginTop: 8, marginBottom: 12, display: 'flex', flexWrap: 'wrap' as const, gap: 6, zIndex: 2 }}>
-                                  {catChips.map(c => (
-                                    <span key={c} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', background: '#0C0C0A', border: '1px solid #0C0C0A', borderRadius: 4, padding: '2px 8px', letterSpacing: '.04em' }}>{c}</span>
-                                  ))}
-                                  {userTags.map(t => (
-                                    <span key={t} style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#4A4846', background: '#EBEBEB', borderRadius: 4, padding: '2px 8px' }}>#{t.replace(/^#/, '')}</span>
-                                  ))}
-                                </div>
-                              );
-                            })()}
+                            {/* 제목 — Life TIP과 동일: 14px/700 */}
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', marginBottom: item.desc?.trim() ? 0 : (item.tpo?.length ? 0 : 6), overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
+                            {/* 메모(desc) — 블루컬러 */}
+                            {item.desc?.trim() ? (
+                              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: item.tpo?.length ? 0 : 8, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.desc}</div>
+                            ) : null}
+                            {/* TPO (패션 도메인) */}
+                            {item.tpo?.length ? (
+                              <div style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: '#9A9490', lineHeight: '18px', marginTop: 4, marginBottom: 6, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo.join(' · ')}</div>
+                            ) : null}
+                            {/* 태그 — Life TIP과 동일: pill 스타일 */}
+                            {(item.tags ?? []).length > 0 ? (
+                              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginTop: 6, marginBottom: 12, zIndex: 2 }}>
+                                {(item.tags ?? []).map(tag => (
+                                  <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>#{tag.replace(/^#/, '')}</span>
+                                ))}
+                              </div>
+                            ) : <div style={{ marginBottom: 12 }} />}
                             {item.sourceUrl?.trim() && (() => {
                               let domain = item.sourceUrl!;
                               try { domain = new URL(item.sourceUrl!).hostname; } catch {}
