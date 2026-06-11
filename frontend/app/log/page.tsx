@@ -1354,11 +1354,10 @@ function LifetipLibraryCard({
         ) : (
           <div style={{ marginBottom: item.tags?.length ? 8 : 12 }} />
         )}
-        {/* 태그바 — black bg + blue font */}
         {(item.tags ?? []).length > 0 && (
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 12 }}>
             {(item.tags ?? []).map(tag => (
-              <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 9999, background: '#0C0C0A', color: '#60A5FA' }}>#{tag}</span>
+              <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>#{tag}</span>
             ))}
           </div>
         )}
@@ -4735,8 +4734,8 @@ function LogPageInner() {
                   {/* 현재 태그 pills */}
                   {lifetipEditTags.length > 0 && (
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 8 }}>
-                      {lifetipEditTags.map((tag, i) => (
-                        <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: `${CAT_COLORS[i % CAT_COLORS.length].selBg}`, border: `1px solid ${CAT_COLORS[i % CAT_COLORS.length].selBorder}`, color: CAT_COLORS[i % CAT_COLORS.length].selText }}>#{tag}</span>
+                      {lifetipEditTags.map((tag) => (
+                        <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#555250' }}>#{tag}</span>
                       ))}
                     </div>
                   )}
