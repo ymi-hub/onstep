@@ -1355,11 +1355,11 @@ function LifetipLibraryCard({
         ) : (
           <div style={{ marginBottom: item.tags?.length ? 8 : 12 }} />
         )}
-        {/* 태그바 */}
+        {/* 태그바 — black bg + blue font */}
         {(item.tags ?? []).length > 0 && (
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 12 }}>
             {(item.tags ?? []).map(tag => (
-              <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>#{tag}</span>
+              <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 9999, background: '#0C0C0A', color: '#60A5FA' }}>#{tag}</span>
             ))}
           </div>
         )}
@@ -1477,7 +1477,7 @@ function AddItemSheet({
   const [selectedProds, setSelectedProds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const domainProducts = ctType === 'makeup'
-    ? Array.from(products.values()).filter(p => p.domain === 'beauty' && p.subCategory === 'makeup')
+    ? Array.from(products.values()).filter(p => p.domain === 'beauty')
     : Array.from(products.values()).filter(p => p.domain === 'fashion' || p.domain === 'acc');
 
   const filteredProds = pickerSearch.trim()
@@ -1489,9 +1489,8 @@ function AddItemSheet({
     if (!db || !prodName.trim()) return;
     const now = new Date().toISOString();
     const domain = ctType === 'makeup' ? 'beauty' : 'fashion';
-    const subCategory = ctType === 'makeup' ? 'makeup' : undefined;
     const ref = await addDoc(collection(db, 'users', userId, 'products'), {
-      name: prodName.trim(), brand: '', domain, ...(subCategory ? { subCategory } : {}),
+      name: prodName.trim(), brand: '', domain,
       packageCount: 1, unitPerPackage: 0, itemUnit: '', totalAmount: 0,
       dosePerUse: 0, usesPerDay: 1, frequencyType: 'daily', currentRemaining: 0,
       createdAt: now, updatedAt: now,
@@ -1637,7 +1636,7 @@ function AddItemSheet({
               )}
               {!pickerSearch.trim() && filteredProds.length === 0 && (
                 <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6 }}>
-                  {ctType === 'makeup' ? 'BOX에 메이크업 제품이 없어요' : 'BOX에 패션·악세서리 제품이 없어요'}<br />
+                  BOX에 {ctType === 'makeup' ? '메이크업' : '패션·악세서리'} 제품이 없어요<br />
                   이름을 검색하면 바로 등록할 수 있어요
                 </div>
               )}
@@ -2034,22 +2033,28 @@ function LogCtPanel({
                 />
               </div>
 
-              {/* 아이템 매핑 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, marginTop: 8 }}>아이템 매핑</div>
+              {/* BOX 제품 연결 — Life TIP과 동일한 full-width dashed 버튼 */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490', marginBottom: 8, marginTop: 8 }}>BOX 제품 연결</div>
+              <button type="button" onClick={() => { setPicker('main'); setPickerSearch(''); setPickerSelected(new Set(sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map(i => i.id))); }}
+                style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
+                {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length > 0
+                  ? `${sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length}개 선택됨 · 변경`
+                  : '+ BOX에서 불러오기'}
+              </button>
               {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, marginBottom: 16 }}>
                   {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map((it, idx) => (
                     <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>
                       {productName(it.id)}
-                      <button onClick={() => setSItems(p => p.filter((_, i) => i !== idx))} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 12, padding: 0, lineHeight: 1 }}>×</button>
+                      <button type="button" onClick={() => setSItems(p => p.filter((_, i) => i !== idx))} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 12, padding: 0, lineHeight: 1 }}>×</button>
                     </span>
                   ))}
                 </div>
               )}
-              <button onClick={() => { setPicker('main'); setPickerSearch(''); setPickerSelected(new Set()); }} style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0, marginBottom: 16 }}>BOX</button>
+              {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length === 0 && <div style={{ marginBottom: 8 }} />}
 
-              {/* T.P.O (룩북만) */}
-              {filter === 'lookbook' && (
+              {/* T.P.O (패션 도메인만) */}
+              {filter === 'fashion' && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>T.P.O</div>
                   <textarea value={sTpoText} onChange={e => setSTpoText(e.target.value)}
@@ -2418,6 +2423,7 @@ function LogPageInner() {
   const [lifetipEditSaving, setLifetipEditSaving] = useState(false);
   const [lifetipPickerOpen, setLifetipPickerOpen] = useState(false);
   const [lifetipPickerSearch, setLifetipPickerSearch] = useState('');
+  const [lifetipPickerDomain, setLifetipPickerDomain] = useState<string | null>(null);
 
   // ── 수집 탭 상태 ──
   const [references, setReferences] = useState<Reference[]>([]);
@@ -3161,6 +3167,7 @@ function LogPageInner() {
     setLifetipTagEditOpen(false);
     setLifetipTagNewTag('');
     setLifetipPickerSearch('');
+    setLifetipPickerDomain(null);
   }
 
   async function saveLifetipEdit() {
@@ -4891,15 +4898,47 @@ function LogPageInner() {
 
             {/* BOX 제품 피커 바텀시트 */}
             {lifetipPickerOpen && (() => {
-              const filtered = allProducts.filter(p =>
-                lifetipPickerSearch.trim() ? p.name.toLowerCase().includes(lifetipPickerSearch.toLowerCase()) : true
-              );
+              // 실제 존재하는 도메인 목록 (BOX 제품 기준)
+              const allDomains = [...new Set(allProducts.map(p => p.domain).filter(Boolean))] as string[];
+              const PICKER_DOMAIN_ORDER = ['beauty', 'fashion', 'acc', 'interior'];
+              const sortedPickerDomains = [
+                ...PICKER_DOMAIN_ORDER.filter(d => allDomains.includes(d)),
+                ...allDomains.filter(d => !PICKER_DOMAIN_ORDER.includes(d)),
+              ];
+              // 도메인 필터 → 검색 적용
+              const domainFiltered = lifetipPickerDomain
+                ? allProducts.filter(p => p.domain === lifetipPickerDomain)
+                : allProducts;
+              const filtered = lifetipPickerSearch.trim()
+                ? domainFiltered.filter(p => p.name.toLowerCase().includes(lifetipPickerSearch.toLowerCase()))
+                : domainFiltered;
               return (
                 <>
                   <div onClick={() => setLifetipPickerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 320 }} />
                   <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
                       <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
+                      {/* 도메인 선택 탭 — 가로 스크롤 */}
+                      {sortedPickerDomains.length > 1 && (
+                        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' as const }}>
+                          <button type="button" onClick={() => setLifetipPickerDomain(null)}
+                            style={{ flexShrink: 0, background: lifetipPickerDomain === null ? '#0C0C0A' : '#fff', border: `1px solid ${lifetipPickerDomain === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: lifetipPickerDomain === null ? '#fff' : '#0C0C0A', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                            전체 {allProducts.length}
+                          </button>
+                          {sortedPickerDomains.map(d => {
+                            const cnt = allProducts.filter(p => p.domain === d).length;
+                            const sel = lifetipPickerDomain === d;
+                            return (
+                              <button key={d} type="button" onClick={() => setLifetipPickerDomain(d)}
+                                style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                                <span style={{ fontSize: 12 }}>{DOMAIN_EMOJIS[d] ?? '📦'}</span>
+                                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A' }}>{DOMAIN_LABELS[d] ?? d}</span>
+                                <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{cnt}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                       <input type="search" value={lifetipPickerSearch} onChange={e => setLifetipPickerSearch(e.target.value)} placeholder="제품 검색..." autoFocus
                         style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
                     </div>
@@ -4914,11 +4953,13 @@ function LogPageInner() {
                           <div key={p.id} onClick={() => setLifetipEditProductIds(ids => sel ? ids.filter(id => id !== p.id) : [...ids, p.id])}
                             style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                              {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>🧴</span>}
+                              {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{DOMAIN_EMOJIS[p.domain ?? ''] ?? '🧴'}</span>}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                              {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                              <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
+                                {DOMAIN_LABELS[p.domain ?? ''] ?? p.domain ?? ''}{p.brand ? ` · ${p.brand}` : ''}
+                              </div>
                             </div>
                             <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                           </div>
