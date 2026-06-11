@@ -1698,6 +1698,7 @@ function LogCtPanel({
   const [sTpoText, setSTpoText] = useState('');
   const [sPublished, setSPublished] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [sImageFile, setSImageFile] = useState<File | null>(null);
   const [sImagePreview, setSImagePreview] = useState('');
   const [sSourceUrl, setSSourceUrl] = useState('');
@@ -1755,11 +1756,12 @@ function LogCtPanel({
     setSheetOpen(true);
   }
 
-  function closeSheet() { setSheetOpen(false); setPicker(null); }
+  function closeSheet() { setSheetOpen(false); setPicker(null); setSaveError(''); }
 
   async function handleSave() {
     if (!sName.trim()) return;
     setSaving(true);
+    setSaveError('');
     try {
       const now = new Date().toISOString();
       const data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -1783,8 +1785,9 @@ function LogCtPanel({
       }
       closeSheet();
     } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
       console.error('[LogCtPanel] 저장 실패:', err);
-      alert('저장에 실패했습니다. 로그인 상태를 확인해주세요.');
+      setSaveError(msg || '저장에 실패했습니다. 다시 시도해주세요.');
     } finally { setSaving(false); }
   }
 
@@ -2121,6 +2124,13 @@ function LogCtPanel({
                 </div>
                 <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{sPublished ? 'Today에 표시 ON' : 'Today에 표시 OFF'}</span>
               </div>
+
+              {/* 저장 에러 배너 */}
+              {saveError && (
+                <div style={{ padding: '10px 14px', background: '#FFF0F0', border: '1.5px solid rgba(186,26,26,.25)', borderRadius: 10, marginBottom: 8, fontFamily: f, fontSize: 12, color: '#BA1A1A', lineHeight: 1.5, wordBreak: 'break-all' as const }}>
+                  ⚠ 저장 실패: {saveError}
+                </div>
+              )}
 
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 8 }}>
