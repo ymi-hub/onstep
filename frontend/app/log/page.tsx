@@ -2875,7 +2875,13 @@ function LogPageInner() {
         libraryItemId = newRef.id;
       }
       // 수집 문서 업데이트: 라이브러리 등록 완료 + 편집된 기본 정보도 반영
-      const updatedRefTags = [refToLibCatName, ...(refToLib.tags ?? []).filter(t => !categoryTags.includes(t))];
+      // tipTag(태그 필드값)를 reference.tags에 포함 → 카드 메모 하단에 노출
+      const tipTag = refToLibTipCategory.trim();
+      const updatedRefTags = [
+        refToLibCatName,
+        ...(tipTag ? [tipTag] : []),
+        ...(refToLib.tags ?? []).filter(t => !categoryTags.includes(t) && t !== tipTag),
+      ];
       await updateDoc(doc(db, 'users', userId, 'references', refToLib.id), {
         inLibrary: true,
         libraryItemId,
@@ -3544,32 +3550,12 @@ function LogPageInner() {
                   {/* 텍스트 영역 */}
                   <div style={{ flex: 1, padding: '11px 12px 10px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
 
-                    {/* 상단 행: 플랫폼 뱃지(좌) + 태그(우) */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
-
-                      {/* 플랫폼 뱃지 */}
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, flexShrink: 0, height: 18, padding: '0 7px', borderRadius: 9999, background: `${pColor}18` }}>
-                        <span style={{ fontSize: 9 }}>{PLATFORM_ICON[platform]}</span>
-                        <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: pColor, letterSpacing: '.06em', textTransform: 'uppercase' as const }}>
-                          {PLATFORM_LABEL[platform]}
-                        </span>
-                      </div>
-
-                      {/* 태그 칩 — 우측 상단, 최대 2개 표시 */}
-                      {(ref.tags ?? []).length > 0 && (
-                        <div style={{ display: 'flex', gap: 3, overflow: 'hidden', flexShrink: 1 }}>
-                          {(ref.tags ?? []).slice(0, 2).map(tag => (
-                            <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 70 }}>
-                              {tag}
-                            </span>
-                          ))}
-                          {(ref.tags ?? []).length > 2 && (
-                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 6px', borderRadius: 9999, flexShrink: 0 }}>
-                              +{(ref.tags ?? []).length - 2}
-                            </span>
-                          )}
-                        </div>
-                      )}
+                    {/* 상단 행: 플랫폼 뱃지 */}
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, flexShrink: 0, height: 18, padding: '0 7px', borderRadius: 9999, background: `${pColor}18` }}>
+                      <span style={{ fontSize: 9 }}>{PLATFORM_ICON[platform]}</span>
+                      <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: pColor, letterSpacing: '.06em', textTransform: 'uppercase' as const }}>
+                        {PLATFORM_LABEL[platform]}
+                      </span>
                     </div>
 
                     {/* 제목 */}
@@ -3581,6 +3567,17 @@ function LogPageInner() {
                     {ref.note && (
                       <div style={{ fontFamily: f, fontSize: 11, color: '#1D6DDB', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                         {ref.note}
+                      </div>
+                    )}
+
+                    {/* 태그 — 메모 하단 */}
+                    {(ref.tags ?? []).length > 0 && (
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
+                        {(ref.tags ?? []).map(tag => (
+                          <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#555250', background: 'rgba(12,12,10,.07)', padding: '2px 8px', borderRadius: 9999, letterSpacing: '.02em' }}>
+                            {tag}
+                          </span>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -4910,10 +4907,10 @@ function LogPageInner() {
                 </div>
               )}
 
-              {/* Life TIP 전용 — 분류 직접 입력 (선택) */}
+              {/* Life TIP 전용 — 태그 직접 입력 (선택) */}
               {refToLibType === 'lifetip' && refToLibCatName === 'Life tip' && (
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 6 }}>분류 (선택)</div>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 6 }}>태그 (선택)</div>
                   <input type="text" value={refToLibTipCategory}
                     onChange={e => setRefToLibTipCategory(e.target.value)}
                     placeholder="예: 스킨케어, 헤어, 푸드..."
