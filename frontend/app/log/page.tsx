@@ -4560,6 +4560,26 @@ function LogPageInner() {
                       </div>
                     </div>
                   )}
+                  {/* ALL 뷰일 때 Life TIP도 함께 표시 */}
+                  {archiveFilter === 'all' && lifetipItems.length > 0 && (
+                    <div style={{ padding: '0 10px 20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '20px 6px 12px' }}>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490' }}>LIFE TIP</span>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{lifetipItems.length}개</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {lifetipItems.map(item => (
+                          <LifetipLibraryCard
+                            key={item.id}
+                            item={item}
+                            products={products}
+                            onEdit={() => openLifetipEdit(item)}
+                            onToggleToday={() => toggleLifetipToday(item)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {/* ALL이고 아무것도 없는 경우 */}
                   {archiveFilter === 'all' && sortedItems.length === 0 && ootdLogs.length === 0 && lifetipItems.length === 0 && (
                     <div style={{ padding: '40px 16px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, margin: '0 16px' }}>
