@@ -1749,7 +1749,7 @@ function LogCtPanel({
 
   function openEdit(item: CtItem) {
     setEditItem(item); setSEmoji(item.emoji); setSName(item.name ?? ''); setSDesc(item.desc ?? ''); setSDaily(item.daily ?? '');
-    setSItems(item.items); setSTipItems(item.tipItems); setSDates(item.dates ?? []);
+    setSItems(item.items ?? []); setSTipItems(item.tipItems ?? []); setSDates(item.dates ?? []);
     setSTpoText((item.tpo ?? []).join(' · ')); setSPublished(item.published);
     setSImageFile(null); setSImagePreview(item.imageUrl ?? ''); setSSourceUrl(item.sourceUrl ?? '');
     setSTags(item.tags ?? []); setSTagInput(''); setSTagEditOpen(false);
@@ -1781,7 +1781,7 @@ function LogCtPanel({
         ctType,
         emoji: sEmoji || icon,
         name: sName.trim(), desc: (sDesc ?? '').trim(),
-        items: stripUndefined(sItems), tipItems: stripUndefined(sTipItems), expertTip: '',
+        items: stripUndefined(sItems ?? []), tipItems: stripUndefined(sTipItems ?? []), expertTip: '',
         published: sPublished, dates: sDates,
         tags: sTags,
         ...((sSourceUrl ?? '').trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
