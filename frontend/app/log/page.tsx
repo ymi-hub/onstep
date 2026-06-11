@@ -2418,12 +2418,18 @@ function LogPageInner() {
     setOotdEditSaving(true);
     try {
       const photoUrl = ootdEditPreview; // ImagePicker가 base64로 세팅, 변경 없으면 기존 URL 유지
+      // 입력창에 타이핑 중인 태그도 자동으로 포함
+      const finalTags = [...ootdEditTags];
+      if (ootdEditTagNewTag.trim()) {
+        const c = ootdEditTagNewTag.trim().replace(/^#/, '');
+        if (c && !finalTags.includes(c)) finalTags.push(c);
+      }
       await updateDoc(doc(db, 'users', userId, 'ootdLogs', editingOotd.id), {
         category: ootdEditCategory,
         note: ootdEditNote,
         photoUrl,
         productIds: ootdEditProductIds,
-        tags: ootdEditTags,
+        tags: finalTags,
         updatedAt: new Date().toISOString(),
       });
       setEditingOotd(null);

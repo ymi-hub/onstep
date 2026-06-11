@@ -326,45 +326,6 @@ function FlowCard({
           box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08) !important;
         }
       `}</style>
-    {/* ── 알람 배너: 타이머 종료 시 화면 최상단 고정 오버레이 ── */}
-    {alarmVisible && alarmLabel && (
-      <div
-        className="alarm-banner-enter alarm-banner-pulse"
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
-          background: '#000000',
-          borderBottom: '3px solid #C5FF00',
-          padding: '18px 20px 22px',
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          boxShadow: '0 6px 32px rgba(0,0,0,.8)',
-        }}
-      >
-        {/* 닫기 버튼 — 우상단 */}
-        <button
-          onClick={dismissAlarm}
-          style={{ position: 'absolute', top: 14, right: 16, background: 'rgba(255,255,255,.12)', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.7)', fontSize: 18, padding: '6px 10px', borderRadius: 8, lineHeight: 1 }}
-        >
-          ✕
-        </button>
-        {/* 텍스트 영역 */}
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>
-          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,.4)', marginBottom: 4 }}>
-            대기 완료
-          </div>
-          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 17, fontWeight: 600, color: '#fff', lineHeight: 1.3 }}>
-            {alarmLabel}
-          </div>
-        </div>
-        {/* 대형 벨 아이콘 — 텍스트 하단 */}
-        <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#C5FF00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
-        </div>
-      </div>
-    )}
-
     <div
       style={{
         margin: '0 16px',
@@ -1090,7 +1051,7 @@ function OOTDSection({
 
         {/* ── RECORD LOOK / Logged 카드 ── */}
         {!user ? null : ootdLog ? (
-          <div onClick={onViewLog} style={{ border: '1.5px solid #4caf78', borderRadius: 9999, minHeight: 52, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
+          <div onClick={onViewLog} style={{ border: '1.5px solid #4caf78', borderRadius: 20, minHeight: 52, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
             <div style={{ width: 36, height: 36, borderRadius: 9999, background: '#E8E6E0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
               {ootdLog.photoUrl
                 // eslint-disable-next-line @next/next/no-img-element
@@ -1101,6 +1062,15 @@ function OOTDSection({
               <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {ootdLog.category || ootdLog.theme || '오늘의 룩'}{ootdLog.note ? ` · ${ootdLog.note}` : ''}
               </div>
+              {(ootdLog.tags ?? []).length > 0 && (
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
+                  {(ootdLog.tags ?? []).map(tag => (
+                    <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                      #{tag.replace(/^#/, '')}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4caf78', marginTop: 3 }}>✓ 기록 완료</div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1468,45 +1438,6 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
 
   return (
     <>
-      {/* ── 알람 배너: 타이머 종료 시 화면 최상단 고정 오버레이 ── */}
-      {alarmVisible && alarmLabel && (
-        <div
-          className="alarm-banner-enter alarm-banner-pulse"
-          style={{
-            position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
-            background: '#000000',
-            borderBottom: '3px solid #C5FF00',
-            padding: '18px 20px 22px',
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            boxShadow: '0 6px 32px rgba(0,0,0,.8)',
-          }}
-        >
-          {/* 닫기 버튼 — 우상단 */}
-          <button
-            onClick={dismissAlarm}
-            style={{ position: 'absolute', top: 14, right: 16, background: 'rgba(255,255,255,.12)', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.7)', fontSize: 18, padding: '6px 10px', borderRadius: 8, lineHeight: 1 }}
-          >
-            ✕
-          </button>
-          {/* 텍스트 영역 */}
-          <div style={{ textAlign: 'center', marginBottom: 16 }}>
-            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,.4)', marginBottom: 4 }}>
-              대기 완료
-            </div>
-            <div style={{ fontFamily: f, fontSize: 17, fontWeight: 600, color: '#fff', lineHeight: 1.3 }}>
-              {alarmLabel}
-            </div>
-          </div>
-          {/* 대형 벨 아이콘 — 텍스트 하단 */}
-          <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#C5FF00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-          </div>
-        </div>
-      )}
-
       <div>
         <SectionHeader title="#Intensive Care" />
 
@@ -2989,8 +2920,13 @@ export default function TodayPage() {
     if (!_db || !user) { alert('로그인이 필요합니다.'); return; }
     setOotdSaving(true);
     try {
-      // ImagePicker가 이미 base64로 변환한 preview 사용
       const photoUrl = ootdPhotoPreview || (ootdLog?.photoUrl ?? '');
+      // 입력창에 타이핑 중인 태그도 자동으로 포함
+      const finalTags = [...ootdRecordTags];
+      if (ootdRecordTagNewTag.trim()) {
+        const c = ootdRecordTagNewTag.trim().replace(/^#/, '');
+        if (c && !finalTags.includes(c)) finalTags.push(c);
+      }
 
       const todayStr = getTodayDateStr();
       if (ootdLog) {
@@ -2998,7 +2934,7 @@ export default function TodayPage() {
           theme: ootdTheme,
           note: ootdNote,
           photoUrl,
-          tags: ootdRecordTags,
+          tags: finalTags,
           updatedAt: new Date().toISOString(),
         });
       } else {
@@ -3007,7 +2943,7 @@ export default function TodayPage() {
           theme: ootdTheme,
           note: ootdNote,
           photoUrl,
-          tags: ootdRecordTags,
+          tags: finalTags,
           createdAt: new Date().toISOString(),
         });
       }

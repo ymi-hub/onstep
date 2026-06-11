@@ -7,10 +7,114 @@
 import { usePathname } from 'next/navigation';
 import TopNav from './TopNav';
 import BottomNav from './BottomNav';
+import { useAppContext } from '@/lib/AppContext';
 import type { ReactNode } from 'react';
 
 // 네비게이션을 숨길 경로
 const NAV_HIDDEN = ['/onboarding'];
+
+const F = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+
+// ── 글로벌 알람 배너 ────────────────────────────────────────────────────────────
+// 어느 페이지에 있든 타이머 종료 시 화면 최상단에 오버레이
+function GlobalAlarmBanner() {
+  const { alarmVisible, alarmLabel, timerRemainMs, dismissAlarm } = useAppContext().timer;
+  if (!alarmVisible || !alarmLabel) return null;
+
+  return (
+    <div
+      className="alarm-banner-enter"
+      style={{
+        position: 'fixed', top: 0,
+        left: 'max(0px, calc(50vw - 215px))',
+        right: 'max(0px, calc(50vw - 215px))',
+        zIndex: 9999,
+        background: '#0C0C0A',
+        borderBottom: '2.5px solid #C5FF00',
+        boxShadow: '0 8px 40px rgba(0,0,0,.9)',
+      }}
+    >
+      {/* 상단 컨텍스트 바 */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 16px 0',
+      }}>
+        {/* OnStep 로고 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="OnStep" style={{ width: 20, height: 20, objectFit: 'contain', filter: 'brightness(10)' }} />
+          <span style={{ fontFamily: F, fontSize: 10, fontWeight: 800, letterSpacing: '.16em', color: 'rgba(255,255,255,.45)', textTransform: 'uppercase' }}>
+            ONSTEP TIMER
+          </span>
+        </div>
+        {/* 닫기 */}
+        <button
+          type="button"
+          onClick={dismissAlarm}
+          style={{ background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.15)', borderRadius: 6, color: 'rgba(255,255,255,.6)', fontSize: 13, fontWeight: 700, padding: '3px 10px', cursor: 'pointer', fontFamily: F, lineHeight: 1.4 }}
+        >
+          닫기
+        </button>
+      </div>
+
+      {/* 메인 내용 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 16px 14px' }}>
+        {/* 타이머 완료 아이콘 — 시계 + C5FF00 링 */}
+        <div style={{
+          position: 'relative', flexShrink: 0,
+          width: 56, height: 56,
+        }}>
+          {/* 외부 링 */}
+          <svg width="56" height="56" viewBox="0 0 56 56" style={{ position: 'absolute', top: 0, left: 0 }}>
+            <circle cx="28" cy="28" r="25" fill="none" stroke="#C5FF00" strokeWidth="3" strokeDasharray="157" strokeDashoffset="0" strokeLinecap="round" />
+          </svg>
+          {/* 내부 원 배경 */}
+          <div style={{
+            position: 'absolute', top: 4, left: 4, width: 48, height: 48,
+            borderRadius: '50%', background: '#1A1A0F',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {/* 시계 SVG */}
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C5FF00" strokeWidth="2" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+        </div>
+
+        {/* 텍스트 */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: F, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#C5FF00', marginBottom: 3 }}>
+            ✓ 대기 완료
+          </div>
+          <div style={{ fontFamily: F, fontSize: 17, fontWeight: 700, color: '#fff', lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {alarmLabel}
+          </div>
+          <div style={{ fontFamily: F, fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,.4)', marginTop: 2 }}>
+            탭하여 닫기
+          </div>
+        </div>
+
+        {/* 벨 아이콘 — 오른쪽 */}
+        <div
+          className="alarm-banner-pulse"
+          style={{
+            width: 44, height: 44, borderRadius: '50%',
+            background: '#C5FF00',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, cursor: 'pointer',
+          }}
+          onClick={dismissAlarm}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -18,6 +122,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <>
+      {/* 글로벌 알람 배너 — 어느 페이지든 타이머 종료 시 표시 */}
+      <GlobalAlarmBanner />
+
       {/* 상단 네비게이션 */}
       {!hideNav && <TopNav />}
 
