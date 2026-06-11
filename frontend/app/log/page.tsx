@@ -1409,12 +1409,13 @@ function LifetipLibraryCard({
         </div>
       </div>
 
-      {/* ⑤ Today 토글 바 — 편집은 수집 화면에서 처리 */}
+      {/* ⑤ 편집 바 — marginTop: auto로 항상 카드 하단 고정 */}
       <div style={{ display: 'flex', borderTop: '1px solid #000000', marginTop: 'auto', flexShrink: 0 }}>
         <button onClick={onToggleToday}
-          style={{ flex: 1, padding: '12px 0', background: isOnToday ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: isOnToday ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const }}>
-          {isOnToday ? 'Today ON ✓' : 'Today OFF'}
+          style={{ flex: 1, padding: '12px 0', background: isOnToday ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: isOnToday ? '#C5FF00' : '#9A9490', border: 'none', borderRight: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const }}>
+          {isOnToday ? 'Today ON' : 'Today OFF'}
         </button>
+        <button onClick={onEdit} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
       </div>
     </div>
   );
@@ -2771,15 +2772,6 @@ function LogPageInner() {
     setRefEditTagInput('');
     setRefEditImageFile(null);
     setRefEditImagePreview(ref.imageUrl || '');
-    // inLibrary lifetip이면 연결된 라이브러리 아이템의 태그를 로드
-    if (ref.inLibrary && ref.libraryItemType === 'lifetip' && ref.libraryItemId) {
-      const linked = lifetipItems.find(i => i.id === ref.libraryItemId);
-      setLifetipEditTags(linked?.tags ?? []);
-    } else {
-      setLifetipEditTags([]);
-    }
-    setLifetipTagEditOpen(false);
-    setLifetipTagNewTag('');
   }
 
   // ── 수집 탭 — 레퍼런스 편집 저장 ──
@@ -2792,31 +2784,16 @@ function LogPageInner() {
       ? [...refEditTags, pendingEditTag]
       : [...refEditTags];
     try {
+      // 이미지는 400px 압축 base64라 Firestore에 직접 저장
       const imageUrl = refEditImagePreview || editingRef.imageUrl || '';
-      const newTitle = refEditTitle.trim() || editingRef.title;
-      const newUrl = refEditUrl.trim() || editingRef.url;
       await updateDoc(doc(db, 'users', userId, 'references', editingRef.id), {
-        url: newUrl,
-        title: newTitle,
+        url: refEditUrl.trim() || editingRef.url,
+        title: refEditTitle.trim() || editingRef.title,
         note: refEditNote.trim(),
         tags: finalEditTags,
         imageUrl,
         updatedAt: new Date().toISOString(),
       });
-      // inLibrary lifetip이면 라이브러리 아이템도 동기화
-      if (editingRef.inLibrary && editingRef.libraryItemId && editingRef.libraryItemType === 'lifetip') {
-        const pendingLifetipTag = lifetipTagNewTag.trim();
-        const finalLifetipTags = pendingLifetipTag && !lifetipEditTags.includes(pendingLifetipTag)
-          ? [...lifetipEditTags, pendingLifetipTag]
-          : [...lifetipEditTags];
-        await updateDoc(doc(db, 'users', userId, 'lifetipItems', editingRef.libraryItemId), {
-          name: newTitle,
-          imageUrl,
-          sourceUrl: newUrl,
-          tags: finalLifetipTags,
-          updatedAt: new Date().toISOString(),
-        });
-      }
       setEditingRef(null);
     } catch (err) {
       console.error('[OnStep] reference 업데이트 실패:', err);
@@ -2835,15 +2812,12 @@ function LogPageInner() {
       if (refToLibType === 'lifetip') {
         const category = refToLibTipCategory.trim() || refToLibCatName || 'Life tip';
         const emoji = refToLibEmoji.trim() || getLifetipEmoji(category);
-        // 수집의 비-카테고리 태그를 라이브러리 아이템 초기 태그로 전달
-        const initialTags = (refToLib.tags ?? []).filter(t => !categoryTags.includes(t));
         const newRef = await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
           name: refToLib.title || refToLib.url || '새 아이템',
           emoji,
           imageUrl: refToLib.imageUrl || '',
           sourceUrl: refToLib.url || '',
           tipCategory: category,
-          tags: initialTags,
           published: false,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -4751,78 +4725,6 @@ function LogPageInner() {
                 />
               </div>
 
-              {/* 라이브러리 태그 편집 — inLibrary lifetip일 때만 표시 */}
-              {editingRef.inLibrary && editingRef.libraryItemType === 'lifetip' && (
-                <div style={{ marginBottom: 16, padding: '14px', borderRadius: 12, background: 'rgba(96,165,250,.06)', border: '1px solid rgba(96,165,250,.2)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#1D6DDB' }}>📌 라이브러리 태그</div>
-                    <button type="button"
-                      onClick={() => { setLifetipTagEditOpen(v => !v); if (lifetipTagEditOpen) setLifetipTagNewTag(''); }}
-                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#1D6DDB', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
-                      <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                      태그 편집
-                    </button>
-                  </div>
-                  {/* 현재 태그 pills */}
-                  {lifetipEditTags.length > 0 && (
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: lifetipTagEditOpen ? 8 : 0 }}>
-                      {lifetipEditTags.map((tag, i) => (
-                        <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: `${CAT_COLORS[i % CAT_COLORS.length].selBg}`, border: `1px solid ${CAT_COLORS[i % CAT_COLORS.length].selBorder}`, color: CAT_COLORS[i % CAT_COLORS.length].selText }}>#{tag}</span>
-                      ))}
-                    </div>
-                  )}
-                  {lifetipEditTags.length === 0 && !lifetipTagEditOpen && (
-                    <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6' }}>태그를 추가해보세요</div>
-                  )}
-                  {/* 편집 패널 */}
-                  {lifetipTagEditOpen && (
-                    <div style={{ marginTop: 8, padding: '10px 12px 12px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
-                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
-                      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
-                        {lifetipEditTags.map((tag, i) => (
-                          <div key={tag}
-                            draggable
-                            onDragStart={() => setDragLifetipTagIdx(i)}
-                            onDragOver={e => { e.preventDefault(); setDragLifetipTagOverIdx(i); }}
-                            onDrop={() => {
-                              if (dragLifetipTagIdx === null || dragLifetipTagIdx === i) return;
-                              setLifetipEditTags(prev => {
-                                const arr = [...prev];
-                                const [moved] = arr.splice(dragLifetipTagIdx, 1);
-                                arr.splice(i, 0, moved);
-                                return arr;
-                              });
-                              setDragLifetipTagIdx(null); setDragLifetipTagOverIdx(null);
-                            }}
-                            onDragEnd={() => { setDragLifetipTagIdx(null); setDragLifetipTagOverIdx(null); }}
-                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: dragLifetipTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'rgba(12,12,10,.03)', border: `1px solid ${dragLifetipTagOverIdx === i ? 'rgba(12,12,10,.2)' : 'rgba(12,12,10,.08)'}`, cursor: 'grab', transition: 'all .1s' }}>
-                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, color: '#BCBAB6' }}><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
-                            <span style={{ width: 8, height: 8, borderRadius: 9999, background: CAT_COLORS[i % CAT_COLORS.length].selBorder, display: 'inline-block', flexShrink: 0 }} />
-                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>#{tag}</span>
-                            <button type="button" title="태그 삭제" onClick={() => setLifetipEditTags(prev => prev.filter(t => t !== tag))}
-                              style={{ width: 20, height: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B', flexShrink: 0 }}>
-                              <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <input type="text" value={lifetipTagNewTag}
-                        onChange={e => setLifetipTagNewTag(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                            const t = lifetipTagNewTag.trim();
-                            if (t && !lifetipEditTags.includes(t)) setLifetipEditTags(prev => [...prev, t]);
-                            setLifetipTagNewTag('');
-                          }
-                        }}
-                        placeholder="+ 태그 추가 (Enter)"
-                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 10 }}>
                 <button type="button" onClick={() => setEditingRef(null)} style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
@@ -4832,18 +4734,6 @@ function LogPageInner() {
                   {refEditSaving ? '저장 중...' : '저장'}
                 </button>
               </div>
-
-              {/* 라이브러리 해지 — inLibrary일 때만 표시 */}
-              {editingRef.inLibrary && (
-                <button type="button"
-                  onClick={async () => {
-                    setEditingRef(null);
-                    await removeFromLibrary(editingRef);
-                  }}
-                  style={{ width: '100%', marginTop: 10, padding: '12px 0', background: 'none', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', letterSpacing: '.04em' }}>
-                  라이브러리 해지 (LIB OFF)
-                </button>
-              )}
             </div>
           </>
         );
