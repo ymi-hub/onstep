@@ -64,6 +64,17 @@ import MoreButton from '@/components/MoreButton';
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
 // 수집 탭 — 레퍼런스 링크
+type CachedLibrary = {
+  name: string;
+  emoji: string;
+  tipCategory: string;
+  sourceUrl: string;
+  imageUrl: string;
+  tags: string[];
+  memo: string;
+  productIds: string[];
+};
+
 type Reference = {
   id: string;
   url: string;
@@ -76,6 +87,7 @@ type Reference = {
   inLibrary?: boolean;    // 라이브러리 등록 여부
   libraryItemId?: string;               // 등록된 라이브러리 문서 ID
   libraryItemType?: 'makeup' | 'lookbook' | 'lifetip'; // 등록된 컬렉션 타입
+  cachedLibrary?: CachedLibrary;        // 마지막 라이브러리 편집 내용 캐시
   createdAt: string;      // ISO datetime
 };
 
@@ -2380,6 +2392,10 @@ function LogPageInner() {
   const [refToLibEmoji, setRefToLibEmoji] = useState('');
   const [refToLibSaving, setRefToLibSaving] = useState(false);
   const [libCatEditOpen, setLibCatEditOpen] = useState(false);
+  // 캐시 미리보기 시트 — cachedLibrary가 있는 수집 아이템 재등록 시
+  const [refCachePreview, setRefCachePreview] = useState<Reference | null>(null);
+  // 등록 시트에서 사용할 캐시 데이터 (수정 후 등록 시 pre-fill)
+  const [refToLibCacheData, setRefToLibCacheData] = useState<CachedLibrary | null>(null);
   const [makeupAddTrigger, setMakeupAddTrigger] = useState(0);
   const [lookbookAddTrigger, setLookbookAddTrigger] = useState(0);
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -2812,13 +2828,18 @@ function LogPageInner() {
       if (refToLibType === 'lifetip') {
         const category = refToLibTipCategory.trim() || refToLibCatName || 'Life tip';
         const emoji = refToLibEmoji.trim() || getLifetipEmoji(category);
+        // 수정 후 등록 시 캐시의 tags/memo/productIds 재활용, 없으면 기본값
         const newRef = await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
           name: refToLib.title || refToLib.url || '새 아이템',
           emoji,
-          imageUrl: refToLib.imageUrl || '',
+          imageUrl: refToLibCacheData?.imageUrl || refToLib.imageUrl || '',
           sourceUrl: refToLib.url || '',
           tipCategory: category,
+          tags: refToLibCacheData?.tags ?? [],
+          memo: refToLibCacheData?.memo ?? '',
+          productIds: refToLibCacheData?.productIds ?? [],
           published: false,
+          dates: [],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         } satisfies Omit<LifetipItem, 'id'>);
@@ -2849,6 +2870,7 @@ function LogPageInner() {
         tags: updatedRefTags,
       });
       setRefToLib(null);
+      setRefToLibCacheData(null);
     } catch (err) {
       console.error('[OnStep] refToLib 저장 실패:', err);
     } finally {
@@ -2861,6 +2883,24 @@ function LogPageInner() {
     if (!db || !userId) return;
     const _db = db;
     try {
+      // Life TIP이면 해지 전에 현재 데이터를 cachedLibrary로 저장
+      let cachedLibrary: CachedLibrary | undefined;
+      if (ref.libraryItemId && ref.libraryItemType === 'lifetip') {
+        const item = lifetipItems.find(i => i.id === ref.libraryItemId);
+        if (item) {
+          cachedLibrary = {
+            name: item.name,
+            emoji: item.emoji,
+            tipCategory: item.tipCategory,
+            sourceUrl: item.sourceUrl || '',
+            imageUrl: item.imageUrl || '',
+            tags: item.tags ?? [],
+            memo: item.memo || '',
+            productIds: item.productIds ?? [],
+          };
+        }
+      }
+
       if (ref.libraryItemId && ref.libraryItemType) {
         // ① 신규 방식: libraryItemId로 직접 삭제
         const colName = ref.libraryItemType === 'makeup' ? 'makeupItems'
@@ -2878,11 +2918,17 @@ function LogPageInner() {
           await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
         }));
       }
-      // 수집 문서에서 라이브러리 등록 해제
+
+      // 수집 문서 업데이트 — 해제 + 캐시 저장 + 제목/이미지를 라이브러리 편집값으로 갱신
       await updateDoc(doc(_db, 'users', userId, 'references', ref.id), {
         inLibrary: false,
         libraryItemId: null,
         libraryItemType: null,
+        ...(cachedLibrary && {
+          title: cachedLibrary.name || ref.title,
+          imageUrl: cachedLibrary.imageUrl || ref.imageUrl,
+          cachedLibrary,
+        }),
       });
     } catch (err) {
       console.error('[OnStep] 라이브러리 해지 실패:', err);
@@ -3522,19 +3568,23 @@ function LogPageInner() {
                 {/* ── 구분선 ── */}
                 <div style={{ height: 1, background: 'rgba(12,12,10,.06)', margin: '0 12px' }} />
 
-                {/* ── 액션 바 — 5:5 분리 ── */}
+                {/* ── 액션 바 ── */}
                 <div style={{ display: 'flex', alignItems: 'stretch', padding: '8px 10px 10px', gap: 6 }}>
 
-                  {/* ← 50% 좌측: 라이브러리 등록/해지 토글 */}
+                  {/* ← 좌측: 라이브러리 등록/해지 토글 */}
                   <button
                     type="button"
                     onClick={() => {
                       if (ref.inLibrary) {
-                        // LIB OFF — 라이브러리 해지
+                        // LIB ON → 해지
                         removeFromLibrary(ref);
+                      } else if (ref.cachedLibrary) {
+                        // 이전 자료 있음 → 미리보기 시트
+                        setRefCachePreview(ref);
                       } else {
-                        // LIB ON — 등록 시트 열기
+                        // 처음 등록 → 일반 등록 시트
                         setRefToLib(ref);
+                        setRefToLibCacheData(null);
                         setLibCatEditOpen(false);
                         const tags = ref.tags ?? [];
                         const firstCat = categoryTags.find(c => tags.includes(c)) ?? categoryTags[0] ?? 'Life tip';
@@ -3545,12 +3595,19 @@ function LogPageInner() {
                         setRefToLibEmoji('');
                       }
                     }}
-                    style={{ flex: 1, height: 42, borderRadius: 8, background: ref.inLibrary ? '#0C0C0A' : 'rgba(12,12,10,.06)', border: `1px solid ${ref.inLibrary ? 'transparent' : 'rgba(12,12,10,.1)'}`, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: ref.inLibrary ? '#C5FF00' : '#9A9490', cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const }}
+                    style={{
+                      flex: 1, height: 42, borderRadius: 8,
+                      background: ref.inLibrary ? '#0C0C0A' : ref.cachedLibrary ? 'rgba(29,109,219,.1)' : 'rgba(12,12,10,.06)',
+                      border: `1px solid ${ref.inLibrary ? 'transparent' : ref.cachedLibrary ? 'rgba(29,109,219,.3)' : 'rgba(12,12,10,.1)'}`,
+                      fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em',
+                      color: ref.inLibrary ? '#C5FF00' : ref.cachedLibrary ? '#1D6DDB' : '#9A9490',
+                      cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const,
+                    }}
                   >
-                    {ref.inLibrary ? 'LIB ON ✓' : 'LIB OFF'}
+                    {ref.inLibrary ? 'LIB ON ✓' : ref.cachedLibrary ? '📦 RE-ADD' : 'LIB OFF'}
                   </button>
 
-                  {/* → 50% 우측: 링크공유 + 편집 + 삭제 (3등분) */}
+                  {/* → 우측: 링크공유 + (편집 — LIB ON 중엔 숨김) + 삭제 */}
                   <div style={{ flex: 1, display: 'flex', gap: 5 }}>
 
                     {/* 링크 공유 */}
@@ -3572,13 +3629,15 @@ function LogPageInner() {
                       </span>
                     )}
 
-                    {/* 편집 */}
-                    <button type="button" onClick={() => openRefEdit(ref)} aria-label="편집"
-                      style={{ flex: 1, height: 42, borderRadius: 10, background: '#F5F4F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                        <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
+                    {/* 편집 — LIB ON 중엔 숨김 (라이브러리에서 편집) */}
+                    {!ref.inLibrary && (
+                      <button type="button" onClick={() => openRefEdit(ref)} aria-label="편집"
+                        style={{ flex: 1, height: 42, borderRadius: 10, background: '#F5F4F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                          <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    )}
 
                     {/* 삭제 */}
                     <button type="button" onClick={() => deleteReference(ref.id)} aria-label="삭제"
@@ -4517,6 +4576,173 @@ function LogPageInner() {
                 </>
               );
             })()}
+          </>
+        );
+      })()}
+
+      {/* ── 캐시 미리보기 시트 — 이전 라이브러리 자료 재등록 ── */}
+      {refCachePreview && (() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        const cache = refCachePreview.cachedLibrary!;
+        const linkedProducts = (cache.productIds ?? [])
+          .map(pid => products.get(pid))
+          .filter(Boolean) as import('@/types/product').Product[];
+
+        function openRegistrationSheet(useCache: boolean) {
+          const ref = refCachePreview!;
+          setRefCachePreview(null);
+          setRefToLib(ref);
+          setLibCatEditOpen(false);
+          if (useCache) {
+            // 캐시값으로 pre-fill
+            setRefToLibCacheData(cache);
+            const cat = cache.tipCategory || categoryTags.find(c => (ref.tags ?? []).includes(c)) ?? categoryTags[0] ?? 'Life tip';
+            const libType: 'makeup' | 'lookbook' | 'lifetip' = cat === 'Lookbook' ? 'lookbook' : cat === 'Makeup' ? 'makeup' : 'lifetip';
+            setRefToLibCatName(cat);
+            setRefToLibType(libType);
+            setRefToLibTipCategory(libType === 'lifetip' ? cache.tipCategory : '');
+            setRefToLibEmoji(cache.emoji);
+          } else {
+            // 처음부터 — 기본값
+            setRefToLibCacheData(null);
+            const tags = ref.tags ?? [];
+            const firstCat = categoryTags.find(c => tags.includes(c)) ?? categoryTags[0] ?? 'Life tip';
+            setRefToLibCatName(firstCat);
+            const libType: 'makeup' | 'lookbook' | 'lifetip' = firstCat === 'Lookbook' ? 'lookbook' : firstCat === 'Makeup' ? 'makeup' : 'lifetip';
+            setRefToLibType(libType);
+            setRefToLibTipCategory(libType === 'lifetip' && firstCat !== 'Life tip' ? firstCat : '');
+            setRefToLibEmoji('');
+          }
+        }
+
+        return (
+          <>
+            <div onClick={() => setRefCachePreview(null)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '88vh', overflowY: 'auto', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 28px)', scrollbarWidth: 'none' as const }}>
+
+              {/* 핸들 */}
+              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 20px' }} />
+
+              {/* 헤더 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                <span style={{ fontSize: 18 }}>📦</span>
+                <div style={{ fontFamily: f, fontSize: 17, fontWeight: 800, color: '#0C0C0A' }}>이전 라이브러리 자료</div>
+              </div>
+              <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginBottom: 20 }}>
+                마지막으로 편집한 내용을 확인 후 등록 방식을 선택하세요
+              </div>
+
+              {/* 미리보기 카드 */}
+              <div style={{ border: '1px solid rgba(12,12,10,.1)', borderRadius: 14, overflow: 'hidden', marginBottom: 24, background: '#fff' }}>
+
+                {/* 이미지 */}
+                {cache.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={cache.imageUrl} alt="" style={{ width: '100%', maxHeight: 140, objectFit: 'cover', display: 'block' }} />
+                )}
+
+                <div style={{ padding: '14px 16px 16px' }}>
+                  {/* 카테고리 + 이모지 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                    <span style={{ fontSize: 20 }}>{cache.emoji || '📌'}</span>
+                    {cache.tipCategory && (
+                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#1D6DDB', background: 'rgba(29,109,219,.1)', border: '1px solid rgba(29,109,219,.25)', padding: '3px 9px', borderRadius: 9999 }}>
+                        {cache.tipCategory}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 이름 */}
+                  <div style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#0C0C0A', marginBottom: cache.memo ? 6 : 10 }}>
+                    {cache.name}
+                  </div>
+
+                  {/* 메모 */}
+                  {cache.memo && (
+                    <div style={{ fontFamily: f, fontSize: 12, color: '#6A6866', lineHeight: 1.5, marginBottom: 10 }}>
+                      {cache.memo}
+                    </div>
+                  )}
+
+                  {/* 태그 */}
+                  {cache.tags.length > 0 && (
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 10 }}>
+                      {cache.tags.map(tag => (
+                        <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 연결 제품 */}
+                  {linkedProducts.length > 0 && (
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+                        <rect x="2" y="2" width="5" height="5" rx="1" stroke="#9A9490" strokeWidth="1.5"/>
+                        <rect x="9" y="2" width="5" height="5" rx="1" stroke="#9A9490" strokeWidth="1.5"/>
+                        <rect x="2" y="9" width="5" height="5" rx="1" stroke="#9A9490" strokeWidth="1.5"/>
+                        <rect x="9" y="9" width="5" height="5" rx="1" stroke="#9A9490" strokeWidth="1.5"/>
+                      </svg>
+                      <span style={{ fontFamily: f, fontSize: 11, color: '#9A9490', fontWeight: 600 }}>
+                        BOX {linkedProducts.map(p => p.name).join(', ')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 3가지 액션 버튼 */}
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+
+                {/* ① 이대로 등록 */}
+                <button type="button"
+                  onClick={async () => {
+                    if (!db || !userId || !refCachePreview) return;
+                    const ref = refCachePreview;
+                    setRefCachePreview(null);
+                    // cachedLibrary 값으로 lifetipItem 즉시 생성
+                    const newItem = await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
+                      name: cache.name,
+                      emoji: cache.emoji,
+                      tipCategory: cache.tipCategory,
+                      sourceUrl: cache.sourceUrl,
+                      imageUrl: cache.imageUrl,
+                      tags: cache.tags,
+                      memo: cache.memo,
+                      productIds: cache.productIds,
+                      published: false,
+                      dates: [],
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                    } satisfies Omit<import('@/types/lifetip').LifetipItem, 'id'>);
+                    await updateDoc(doc(db, 'users', userId, 'references', ref.id), {
+                      inLibrary: true,
+                      libraryItemId: newItem.id,
+                      libraryItemType: 'lifetip',
+                    });
+                  }}
+                  style={{ width: '100%', height: 52, background: '#0C0C0A', border: 'none', borderRadius: 14, fontFamily: f, fontSize: 14, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', letterSpacing: '.02em' }}>
+                  이대로 등록
+                </button>
+
+                {/* ② 수정 후 등록 */}
+                <button type="button"
+                  onClick={() => openRegistrationSheet(true)}
+                  style={{ width: '100%', height: 52, background: '#fff', border: '1.5px solid rgba(12,12,10,.15)', borderRadius: 14, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer' }}>
+                  수정 후 등록
+                </button>
+
+                {/* ③ 처음부터 등록 */}
+                <button type="button"
+                  onClick={() => openRegistrationSheet(false)}
+                  style={{ width: '100%', height: 44, background: 'none', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+                  처음부터 등록
+                </button>
+
+              </div>
+            </div>
           </>
         );
       })()}
