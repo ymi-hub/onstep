@@ -2248,7 +2248,8 @@ function LogPageInner() {
   const [editingLifetip, setEditingLifetip] = useState<import('@/types/lifetip').LifetipItem | null>(null);
   const [lifetipEditName, setLifetipEditName] = useState('');
   const [lifetipEditEmoji, setLifetipEditEmoji] = useState('');
-  const [lifetipEditCategory, setLifetipEditCategory] = useState('');
+  const [lifetipEditCategory, setLifetipEditCategory] = useState(''); // 내부 필터링용 tipCategory
+  const [lifetipEditCategoryLabel, setLifetipEditCategoryLabel] = useState(''); // UI 표시용 카테고리 (Life tip / Makeup / Lookbook)
   const [lifetipEditUrl, setLifetipEditUrl] = useState('');
   const [lifetipEditProductIds, setLifetipEditProductIds] = useState<string[]>([]);
   const [lifetipEditImageFile, setLifetipEditImageFile] = useState<File | null>(null);
@@ -2982,12 +2983,25 @@ function LogPageInner() {
     setLifetipEditName(item.name);
     setLifetipEditEmoji(item.emoji || getLifetipEmoji(item.tipCategory));
     setLifetipEditCategory(item.tipCategory || '');
+
+    // 카테고리 레이블: 연결된 수집 reference에서 Life tip / Makeup / Lookbook 조회
+    const linkedRef = references.find(r => r.libraryItemId === item.id);
+    const catLabel = linkedRef
+      ? (linkedRef.tags ?? []).find(t => categoryTags.includes(t)) ?? 'Life tip'
+      : 'Life tip';
+    setLifetipEditCategoryLabel(catLabel);
+
     setLifetipEditUrl(item.sourceUrl || '');
     setLifetipEditProductIds(item.productIds ?? []);
     setLifetipEditImageFile(null);
     setLifetipEditImagePreview(item.imageUrl ?? '');
     setLifetipEditMemo(item.memo || '');
-    setLifetipEditTags(item.tags ?? []);
+    // tipCategory(등록 시 태그) + tags 를 하나의 편집 리스트로 합침
+    const mergedTags = [...new Set([
+      ...(item.tipCategory ? [item.tipCategory] : []),
+      ...(item.tags ?? []),
+    ])];
+    setLifetipEditTags(mergedTags);
     setLifetipTagEditOpen(false);
     setLifetipTagNewTag('');
     setLifetipPickerSearch('');
@@ -3000,11 +3014,12 @@ function LogPageInner() {
       const imageUrl = lifetipEditImageFile
         ? await imageFileToBase64(lifetipEditImageFile)
         : lifetipEditImagePreview;
-      // tipCategory는 등록 시 설정된 값 그대로 유지
+      // tipCategory: 태그 리스트 첫 번째 값 (라이브러리 내부 필터링용)
+      const newTipCategory = lifetipEditTags[0] || editingLifetip.tipCategory;
       await updateDoc(doc(db, 'users', userId, 'lifetipItems', editingLifetip.id), {
         name: lifetipEditName.trim() || editingLifetip.name,
         emoji: lifetipEditEmoji.trim() || editingLifetip.emoji,
-        tipCategory: editingLifetip.tipCategory,
+        tipCategory: newTipCategory,
         sourceUrl: lifetipEditUrl.trim(),
         productIds: lifetipEditProductIds,
         memo: lifetipEditMemo.trim(),
@@ -3012,10 +3027,9 @@ function LogPageInner() {
         imageUrl,
         updatedAt: new Date().toISOString(),
       });
-      // 수집 문서 실시간 동기화 — 태그를 라이브러리 편집값으로 갱신
+      // 수집 문서 실시간 동기화 — 카테고리 태그 유지, 나머지를 lifetipEditTags로 교체
       const linkedRef = references.find(r => r.libraryItemId === editingLifetip.id);
       if (linkedRef) {
-        // 카테고리 태그(Life tip / Makeup 등)는 유지, 나머지를 lifetipEditTags로 교체
         const catTags = (linkedRef.tags ?? []).filter(t => categoryTags.includes(t));
         await updateDoc(doc(db, 'users', userId, 'references', linkedRef.id), {
           tags: [...catTags, ...lifetipEditTags],
@@ -4474,7 +4488,7 @@ function LogPageInner() {
                 {/* 구분선 */}
                 <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
 
-                {/* 카테고리 — 등록 시 설정된 값, 읽기 전용 배지 */}
+                {/* 카테고리 — Life tip / Makeup / Lookbook, 읽기 전용 배지 */}
                 <div style={{ marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                     <span style={{ width: 8, height: 8, borderRadius: 2, background: '#0C0C0A', display: 'inline-block' }} />
@@ -4482,7 +4496,7 @@ function LogPageInner() {
                   </div>
                   <div style={{ display: 'inline-flex', alignItems: 'center' }}>
                     <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
-                      {editingLifetip.tipCategory || 'Life tip'}
+                      {lifetipEditCategoryLabel || 'Life tip'}
                     </span>
                   </div>
                 </div>
