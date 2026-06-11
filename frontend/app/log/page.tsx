@@ -4747,7 +4747,7 @@ function LogPageInner() {
                     <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#0C0C0A' }}>카테고리</div>
                   </div>
                   <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#60A5FA', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
                       {lifetipEditCategoryLabel || 'Life tip'}
                     </span>
                   </div>
