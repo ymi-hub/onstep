@@ -49,6 +49,7 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'fire
 import { imageFileToBase64 } from '@/lib/imageUtils';
 import type { RoutineItem } from '@/types/routine';
 import type { CtType } from '@/types/ctitem';
+import { DOMAIN_LABELS } from '@/types/ctitem';
 import type { LifetipItem } from '@/types/lifetip';
 import { getLifetipEmoji } from '@/types/lifetip';
 import { useAppContext } from '@/lib/AppContext';
@@ -1651,6 +1652,9 @@ function AddItemSheet({
   );
 }
 
+// 도메인 이모지 매핑 — LogCtPanel과 메인 컴포넌트 모두에서 사용
+const DOMAIN_EMOJIS: Record<string, string> = { beauty: '💄', fashion: '👗', acc: '👜', interior: '🛋' };
+
 // ─── LOG CtPanel (setup의 Makeup/Lookbook과 동일한 구조) ──────────────────────
 
 function LogCtPanel({
@@ -1658,7 +1662,7 @@ function LogCtPanel({
   hideAddButton, addTrigger, editTrigger, hiddenMode,
   onAfterSave,
 }: {
-  filter: 'makeup' | 'lookbook';
+  filter: string;  // BOX 도메인 (예: 'beauty', 'fashion', 'interior')
   items: CtItem[];
   products: Product[];
   userId: string;
@@ -1669,13 +1673,12 @@ function LogCtPanel({
   addTrigger?: number;
   editTrigger?: { id: string; ts: number };
   hiddenMode?: boolean;
-  // 저장 후 수집 문서 태그 동기화 콜백
   onAfterSave?: (itemId: string, tags: string[]) => void;
 }) {
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-  const ctType: CtType = filter;
-  const colLabel = filter === 'makeup' ? '메이크업' : '룩북';
-  const icon = filter === 'makeup' ? '💄' : '👗';
+  const ctType: CtType = filter === 'fashion' ? 'lookbook' : 'makeup';
+  const colLabel = DOMAIN_LABELS[filter] ?? filter;
+  const icon = DOMAIN_EMOJIS[filter] ?? '📦';
 
   // 시트 상태
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -1707,9 +1710,9 @@ function LogCtPanel({
 
   const TPO_OPTIONS = ['데일리', '오피스', '데이트', '파티', '스포티', '캐주얼', '포멀', '여행'];
 
-  const domainProducts = filter === 'makeup'
-    ? products.filter(p => p.domain === 'beauty' && p.subCategory === 'makeup')
-    : products.filter(p => p.domain === 'fashion' || p.domain === 'acc');
+  const domainProducts = filter === 'fashion'
+    ? products.filter(p => p.domain === 'fashion' || p.domain === 'acc')
+    : products.filter(p => p.domain === filter);
 
   const filteredPicker = pickerSearch.trim()
     ? domainProducts.filter(p => p.name.toLowerCase().includes(pickerSearch.toLowerCase()) || (p.brand ?? '').toLowerCase().includes(pickerSearch.toLowerCase()))
@@ -1778,8 +1781,9 @@ function LogCtPanel({
         tags: sTags,
         ...((sSourceUrl ?? '').trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
         ...(sImagePreview ? { imageUrl: sImagePreview } : {}),
+        domain: filter,
         ...((sDaily ?? '').trim() ? { daily: sDaily.trim() } : {}),
-        ...(filter === 'lookbook' ? { tpo: (sTpoText ?? '').trim() ? [sTpoText.trim()] : [] } : {}),
+        ...(filter === 'fashion' ? { tpo: (sTpoText ?? '').trim() ? [sTpoText.trim()] : [] } : {}),
       };
       if (editItem) {
         await onUpdate(editItem.id, { ...data, updatedAt: now });
@@ -1820,11 +1824,28 @@ function LogCtPanel({
   }
 
   // HubCard 스타일 카드 — setup HubView와 동일한 구조
-  const BG = filter === 'makeup'
-    ? 'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)'
-    : 'linear-gradient(135deg,#fff0f5 0%,#ffc0d0 100%)';
-  const BADGE = filter === 'makeup' ? '#MAKEUP' : '#LOOKBOOK';
-  const BADGE_COLOR = filter === 'makeup' ? '#C5FF00' : '#FF8C42';
+  // 도메인별 배경/배지 색상 매핑
+  const DOMAIN_BG: Record<string, string> = {
+    beauty:   'linear-gradient(135deg,#f5f0ff 0%,#d0b0ff 100%)',
+    fashion:  'linear-gradient(135deg,#fff0f5 0%,#ffc0d0 100%)',
+    acc:      'linear-gradient(135deg,#fff8e6 0%,#ffd580 100%)',
+    interior: 'linear-gradient(135deg,#e8f5e9 0%,#a5d6a7 100%)',
+  };
+  const DOMAIN_BADGE: Record<string, string> = {
+    beauty:   '#MAKEUP',
+    fashion:  '#LOOKBOOK',
+    acc:      '#ACCESSORY',
+    interior: '#INTERIOR',
+  };
+  const DOMAIN_BADGE_COLOR: Record<string, string> = {
+    beauty:   '#C5FF00',
+    fashion:  '#FF8C42',
+    acc:      '#FFD700',
+    interior: '#69DB7C',
+  };
+  const BG = DOMAIN_BG[filter] ?? 'linear-gradient(135deg,#f0f0f0 0%,#d0d0d0 100%)';
+  const BADGE = DOMAIN_BADGE[filter] ?? `#${(DOMAIN_LABELS[filter] ?? filter).toUpperCase()}`;
+  const BADGE_COLOR = DOMAIN_BADGE_COLOR[filter] ?? '#C5FF00';
 
   function HubStyleCard({ item, featured }: { item: CtItem; featured?: boolean }) {
     const today = format(new Date(), 'yyyy-MM-dd');
@@ -1839,7 +1860,7 @@ function LogCtPanel({
     if (featured) return (
       <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
         <div style={{ width: '100%', height: 340, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, overflow: 'visible', position: 'relative' }}>
-          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
+          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : item.emoji || (DOMAIN_EMOJIS[filter] ?? '📦')}
           {isOnToday && (
             <div style={{ position: 'absolute', bottom: -46, right: -18, transform: 'rotate(-9deg)', zIndex: 4, width: 72, height: 72, borderRadius: '50%', border: '2.5px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
               <div style={{ position: 'absolute', inset: 4, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
@@ -1883,7 +1904,7 @@ function LogCtPanel({
       <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
         {/* 이미지 — 이름 오버레이 포함 */}
         <div style={{ width: '100%', height: 180, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, overflow: 'visible', position: 'relative' }}>
-          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : item.emoji || (filter === 'makeup' ? '💄' : '👗')}
+          {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : item.emoji || (DOMAIN_EMOJIS[filter] ?? '📦')}
           {/* 하단 그라데이션 + 이름 오버레이 */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px 8px 8px', background: 'linear-gradient(to top, rgba(0,0,0,.6) 0%, transparent 100%)' }}>
             <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
@@ -2057,8 +2078,8 @@ function LogCtPanel({
                   <span style={{ width: 8, height: 8, borderRadius: 2, background: '#0C0C0A', display: 'inline-block' }} />
                   <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#0C0C0A' }}>카테고리</span>
                 </div>
-                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
-                  {filter === 'makeup' ? 'Makeup' : 'Lookbook'}
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: BADGE_COLOR, background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
+                  {DOMAIN_LABELS[filter] ?? filter}
                 </span>
               </div>
 
@@ -2179,7 +2200,7 @@ function LogCtPanel({
                       <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                         <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{filter === 'makeup' ? '💄' : '👗'}</span>}
+                          {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{DOMAIN_EMOJIS[filter] ?? '📦'}</span>}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
@@ -2193,8 +2214,8 @@ function LogCtPanel({
                     <div onClick={async () => {
                       if (!db) return;
                       const now = new Date().toISOString();
-                      const domain = filter === 'makeup' ? 'beauty' : 'fashion';
-                      const ref = await addDoc(collection(db, 'users', userId, 'products'), { name: pickerSearch.trim(), brand: '', domain, ...(filter === 'makeup' ? { subCategory: 'makeup' } : {}), packageCount: 1, unitPerPackage: 0, itemUnit: '', totalAmount: 0, dosePerUse: 0, usesPerDay: 1, frequencyType: 'daily', currentRemaining: 0, createdAt: now, updatedAt: now });
+                      const domain = filter; // 현재 탭 도메인 그대로 사용
+                      const ref = await addDoc(collection(db, 'users', userId, 'products'), { name: pickerSearch.trim(), brand: '', domain, packageCount: 1, unitPerPackage: 0, itemUnit: '', totalAmount: 0, dosePerUse: 0, usesPerDay: 1, frequencyType: 'daily', currentRemaining: 0, createdAt: now, updatedAt: now });
                       setPickerSelected(prev => { const n = new Set(prev); n.add(ref.id); return n; });
                       setPickerSearch('');
                     }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
@@ -2304,8 +2325,22 @@ function EmptyState({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn:
 
 function LogPageInner() {
   // ── 공유 컨텍스트 ──
-  const { user, userId, authLoading, products: ctxProducts, sessions, makeupItems, lookItems, lifetipItems, careItems, habits, dietPrograms, healthRoutines, medRoutines } = useAppContext();
+  const { user, userId, authLoading, products: ctxProducts, sessions, makeupItems, lookItems, libraryItems, lifetipItems, careItems, habits, dietPrograms, healthRoutines, medRoutines } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
+
+  // ── allLibItems: libraryItems(신규) + makeupItems/lookItems(구 — 마이그레이션 전 호환) 중복 제거 ──
+  const libItemIds = new Set(libraryItems.map(i => i.id));
+  const allLibItems: CtItem[] = [
+    ...libraryItems,
+    ...makeupItems.filter(i => !libItemIds.has(i.id)).map(i => ({ ...i, domain: i.domain ?? 'beauty' })),
+    ...lookItems.filter(i => !libItemIds.has(i.id)).map(i => ({ ...i, domain: i.domain ?? 'fashion' })),
+  ];
+  // 아이템 ID → 실제 컬렉션명 매핑 (CRUD 시 올바른 컬렉션 사용)
+  const itemCollectionMap = new Map<string, string>([
+    ...libraryItems.map(i => [i.id, 'libraryItems'] as [string, string]),
+    ...makeupItems.filter(i => !libItemIds.has(i.id)).map(i => [i.id, 'makeupItems'] as [string, string]),
+    ...lookItems.filter(i => !libItemIds.has(i.id)).map(i => [i.id, 'lookItems'] as [string, string]),
+  ]);
 
   // ── 캘린더 상태 ──
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -2358,7 +2393,7 @@ function LogPageInner() {
 
   // ── 탭 상태 ──
   const [mainTab, setMainTab] = useState<'기록' | '라이브러리' | '수집'>('기록');
-  const [archiveFilter, setArchiveFilter] = useState<'all' | 'makeup' | 'lookbook' | 'lifetip' | 'ootd'>('all');
+  const [archiveFilter, setArchiveFilter] = useState<string>('all');
   const [lifetipCategory, setLifetipCategory] = useState<string | null>(null); // null = 그리드 홈
   const [editingLifetipId, setEditingLifetipId] = useState<string | null>(null); // 인라인 이모지 편집
   // Life TIP 편집 시트
@@ -2491,10 +2526,10 @@ function LogPageInner() {
   const searchParams = useSearchParams();
   useEffect(() => {
     const tab = searchParams.get('tab') as '라이브러리' | '수집' | null;
-    const filter = searchParams.get('filter') as 'all' | 'makeup' | 'lookbook' | 'ootd' | 'lifetip' | null;
+    const filter = searchParams.get('filter');
     const id = searchParams.get('id');
     if (tab === '라이브러리' || tab === '수집') setMainTab(tab);
-    if (filter === 'all' || filter === 'makeup' || filter === 'lookbook' || filter === 'lifetip' || filter === 'ootd') setArchiveFilter(filter);
+    if (filter) setArchiveFilter(filter);
     if (id) {
       setTimeout(() => {
         const el = document.getElementById(`lib-item-${id}`);
@@ -2522,34 +2557,33 @@ function LogPageInner() {
   const [refToLibEditMemo, setRefToLibEditMemo] = useState('');
   const [refToLibEditImageFile, setRefToLibEditImageFile] = useState<File | null>(null);
   const [refToLibEditImagePreview, setRefToLibEditImagePreview] = useState('');
-  const [makeupAddTrigger, setMakeupAddTrigger] = useState(0);
-  const [lookbookAddTrigger, setLookbookAddTrigger] = useState(0);
+  // 도메인별 add/edit 트리거 (동적 패널 지원)
+  const [domainAddTrigger, setDomainAddTrigger] = useState<Record<string, number>>({});
+  const [domainEditTrigger, setDomainEditTrigger] = useState<Record<string, { id: string; ts: number } | undefined>>({});
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [addSheetOpen, setAddSheetOpen] = useState(false);
-  const [makeupEditTrigger, setMakeupEditTrigger] = useState<{ id: string; ts: number } | undefined>();
-  const [lookbookEditTrigger, setLookbookEditTrigger] = useState<{ id: string; ts: number } | undefined>();
 
   function triggerCollectionEdit(item: CtItem) {
-    const trigger = { id: item.id, ts: Date.now() };
-    if (item.ctType === 'makeup') setMakeupEditTrigger(trigger);
-    else setLookbookEditTrigger(trigger);
+    const domain = item.domain ?? (item.ctType === 'makeup' ? 'beauty' : 'fashion');
+    setDomainEditTrigger(prev => ({ ...prev, [domain]: { id: item.id, ts: Date.now() } }));
   }
 
-  // CtPanel CRUD — makeupItems / lookItems 공유 (SETUP과 동일 컬렉션)
-  async function handleCtAdd(filter: 'makeup' | 'lookbook', data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  // CtPanel CRUD — 신규 아이템은 libraryItems에 저장, 기존 아이템은 원래 컬렉션 유지
+  async function handleCtAdd(_domain: string, data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
     if (!db) return '';
-    const colName = filter === 'makeup' ? 'makeupItems' : 'lookItems';
     const now = new Date().toISOString();
-    const ref = await addDoc(collection(db, 'users', userId, colName), { ...data, createdAt: now, updatedAt: now });
+    const ref = await addDoc(collection(db, 'users', userId, 'libraryItems'), { ...data, createdAt: now, updatedAt: now });
     return ref.id;
   }
-  async function handleCtUpdate(filter: 'makeup' | 'lookbook', id: string, data: Partial<Omit<CtItem, 'id'>>) {
+  async function handleCtUpdate(_domain: string, id: string, data: Partial<Omit<CtItem, 'id'>>) {
     if (!db) return;
-    await updateDoc(doc(db, 'users', userId, filter === 'makeup' ? 'makeupItems' : 'lookItems', id), data);
+    const colName = itemCollectionMap.get(id) ?? 'libraryItems';
+    await updateDoc(doc(db, 'users', userId, colName, id), data);
   }
-  async function handleCtDelete(filter: 'makeup' | 'lookbook', id: string) {
+  async function handleCtDelete(_domain: string, id: string) {
     if (!db) return;
-    await deleteDoc(doc(db, 'users', userId, filter === 'makeup' ? 'makeupItems' : 'lookItems', id));
+    const colName = itemCollectionMap.get(id) ?? 'libraryItems';
+    await deleteDoc(doc(db, 'users', userId, colName, id));
   }
 
   // ── 수동 완료 토글 공통 헬퍼: 날짜 + 슬롯에 맞는 제품 목록 로그 저장 ──
@@ -4131,22 +4165,31 @@ function LogPageInner() {
               const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
               const TAB_COLOR: Record<string, { active: string; bg: string; text: string }> = {
                 all:      { active: '#0C0C0A', bg: '#0C0C0A',                text: '#C5FF00' },
-                makeup:   { active: '#C5FF00', bg: 'rgba(197,255,0,.14)',   text: '#3A6000' },
-                lookbook: { active: '#FF8C42', bg: 'rgba(255,140,66,.14)',  text: '#B85A00' },
+                beauty:   { active: '#C5FF00', bg: 'rgba(197,255,0,.14)',   text: '#3A6000' },
+                fashion:  { active: '#FF8C42', bg: 'rgba(255,140,66,.14)',  text: '#B85A00' },
+                acc:      { active: '#FFD700', bg: 'rgba(255,215,0,.14)',   text: '#7A5A00' },
+                interior: { active: '#69DB7C', bg: 'rgba(105,219,124,.14)', text: '#1E6B30' },
                 lifetip:  { active: '#60A5FA', bg: 'rgba(96,165,250,.14)', text: '#1D6DDB' },
                 ootd:     { active: '#C5FF00', bg: 'rgba(197,255,0,.14)',   text: '#3A6000' },
               };
-              const miniCards: { key: 'all' | 'makeup' | 'lookbook' | 'lifetip' | 'ootd'; label: string; count: number }[] = [
-                { key: 'all',      label: 'ALL',        count: makeupItems.length + lookItems.length + lifetipItems.length + ootdLogs.length },
-                { key: 'makeup',   label: '💄 메이크업', count: makeupItems.length },
-                { key: 'lookbook', label: '👗 룩북',    count: lookItems.length },
+              // allLibItems에서 실제 존재하는 도메인 목록 (순서: beauty → fashion → acc → interior → 기타)
+              const DOMAIN_ORDER = ['beauty', 'fashion', 'acc', 'interior'];
+              const existingDomains = [...new Set(allLibItems.map(i => i.domain ?? 'beauty'))];
+              const sortedDomains = [
+                ...DOMAIN_ORDER.filter(d => existingDomains.includes(d)),
+                ...existingDomains.filter(d => !DOMAIN_ORDER.includes(d)),
+              ];
+              const domainSubCards = sortedDomains.map(d => ({
+                key: d,
+                label: `${DOMAIN_EMOJIS[d] ?? '📦'} ${DOMAIN_LABELS[d] ?? d}`,
+                count: allLibItems.filter(i => (i.domain ?? 'beauty') === d).length,
+              }));
+              const subCards = [
+                ...domainSubCards,
                 { key: 'lifetip',  label: '📌 Life TIP', count: lifetipItems.length },
                 { key: 'ootd',     label: '👗 OOTD',    count: ootdLogs.length },
               ];
-              const ICON: Record<string, string> = { makeup: '💄', lookbook: '👗', lifetip: '📌', ootd: '👟' };
-              const NAME: Record<string, string> = { makeup: '메이크업', lookbook: '룩북', lifetip: 'Life TIP', ootd: 'OOTD' };
-              const allCard = miniCards[0];
-              const subCards = miniCards.slice(1);
+              const totalCount = allLibItems.length + lifetipItems.length + ootdLogs.length;
               const selAll = archiveFilter === 'all';
               const colAll = TAB_COLOR.all;
               return (
@@ -4162,13 +4205,13 @@ function LogPageInner() {
                       <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: selAll ? '#fff' : '#9A9490', letterSpacing: '.08em' }}>ALL</span>
                       <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: selAll ? 'rgba(255,255,255,.6)' : '#BCBAB6' }}>전체 라이브러리</span>
                     </div>
-                    <span style={{ fontFamily: f, fontSize: 32, fontWeight: 900, lineHeight: 1, color: selAll ? colAll.text : '#0C0C0A' }}>{allCard.count}</span>
+                    <span style={{ fontFamily: f, fontSize: 32, fontWeight: 900, lineHeight: 1, color: selAll ? colAll.text : '#0C0C0A' }}>{totalCount}</span>
                   </button>
-                  {/* 4개 카테고리 — 2×2 그리드 */}
+                  {/* 도메인 카드 — 2×N 그리드 (동적 생성) */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     {subCards.map(t => {
                       const sel = archiveFilter === t.key;
-                      const col = TAB_COLOR[t.key] ?? TAB_COLOR.all;
+                      const col = TAB_COLOR[t.key] ?? TAB_COLOR.beauty;
                       return (
                         <button type="button" key={t.key} onClick={() => { setArchiveFilter(t.key); setLifetipCategory(null); }}
                           style={{ padding: '14px 16px', borderRadius: 14,
@@ -4176,9 +4219,9 @@ function LogPageInner() {
                             background: sel ? col.bg : '#fff',
                             display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10,
                             cursor: 'pointer', transition: 'all .15s', textAlign: 'left' as const }}>
-                          <span style={{ fontSize: 22, lineHeight: 1 }}>{ICON[t.key]}</span>
+                          <span style={{ fontSize: 22, lineHeight: 1 }}>{t.label.split(' ')[0]}</span>
                           <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? col.text : '#9A9490' }}>{NAME[t.key]}</span>
+                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? col.text : '#9A9490' }}>{t.label.split(' ').slice(1).join(' ')}</span>
                             <span style={{ fontFamily: f, fontSize: 26, fontWeight: 900, lineHeight: 1, color: sel ? col.text : '#0C0C0A' }}>{t.count}</span>
                           </div>
                         </button>
@@ -4316,12 +4359,12 @@ function LogPageInner() {
               );
             })()}
 
-            {/* 아이템 카드 목록 (메이크업 / 룩북 / ALL) */}
+            {/* 아이템 카드 목록 (도메인 탭 / ALL) */}
             {archiveFilter !== 'lifetip' && archiveFilter !== 'ootd' && (() => {
-              const visibleItems = [
-                ...(archiveFilter !== 'lookbook' ? makeupItems : []),
-                ...(archiveFilter !== 'makeup' ? lookItems : []),
-              ];
+              // 도메인 필터: 'all'이면 전체, 특정 도메인이면 해당 도메인만
+              const visibleItems = archiveFilter === 'all'
+                ? allLibItems
+                : allLibItems.filter(i => (i.domain ?? 'beauty') === archiveFilter);
               const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
               const todayStr = format(new Date(), 'yyyy-MM-dd');
               const sortedItems = [...visibleItems].sort((a, b) => {
@@ -4333,17 +4376,21 @@ function LogPageInner() {
                 <div style={{ padding: '40px 16px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, margin: '0 16px' }}>
                   <div style={{ fontSize: 28, marginBottom: 8 }}>📁</div>
                   <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>라이브러리가 비어있어요</div>
-                  <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>+ 버튼으로 새 룩·메이크업을 추가해보세요</div>
+                  <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>+ 버튼으로 추가해보세요</div>
                 </div>
               );
               return (
                 <div style={{ marginTop: 8 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 16px 20px' }}>
                     {sortedItems.map(item => {
-                      const isMakeup = item.ctType === 'makeup';
-                      const badge = isMakeup ? '#MAKEUP' : '#LOOKBOOK';
-                      const badgeBg2 = isMakeup ? '#C5FF00' : '#FF8C42';
-                      const badgeText2 = isMakeup ? '#3A6000' : '#7A3000';
+                      // 도메인 기반 배지 색상
+                      const itemDomain = item.domain ?? (item.ctType === 'makeup' ? 'beauty' : 'fashion');
+                      const CARD_BADGE_BG: Record<string, string> = { beauty: '#C5FF00', fashion: '#FF8C42', acc: '#FFD700', interior: '#69DB7C' };
+                      const CARD_BADGE_TEXT: Record<string, string> = { beauty: '#3A6000', fashion: '#7A3000', acc: '#7A5A00', interior: '#1E6B30' };
+                      const CARD_BADGE_LABELS: Record<string, string> = { beauty: '#MAKEUP', fashion: '#LOOKBOOK', acc: '#ACCESSORY', interior: '#INTERIOR' };
+                      const badge = CARD_BADGE_LABELS[itemDomain] ?? `#${(DOMAIN_LABELS[itemDomain] ?? itemDomain).toUpperCase()}`;
+                      const badgeBg2 = CARD_BADGE_BG[itemDomain] ?? '#C5FF00';
+                      const badgeText2 = CARD_BADGE_TEXT[itemDomain] ?? '#3A6000';
                       const isOnToday = item.published && (item.dates ?? []).includes(todayStr);
                       const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
                       return (
@@ -4359,7 +4406,7 @@ function LogPageInner() {
                                 ? // eslint-disable-next-line @next/next/no-img-element
                                   <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
                                 : <div style={{ aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
+                                    <span style={{ fontSize: 220, opacity: 0.5, lineHeight: 1 }}>{item.emoji || (DOMAIN_EMOJIS[itemDomain] ?? '📦')}</span>
                                   </div>
                               }
                               {isOnToday && (
@@ -4510,29 +4557,30 @@ function LogPageInner() {
 
       </div>
 
-      {/* LogCtPanel — 탭에 무관하게 항상 마운트 (hiddenMode: 편집 시트만 사용) */}
-      <LogCtPanel key="makeup" filter="makeup" items={makeupItems} products={Array.from(products.values())} userId={userId}
-        onAdd={(data) => handleCtAdd('makeup', data)} onUpdate={(id, data) => handleCtUpdate('makeup', id, data)} onDelete={(id) => handleCtDelete('makeup', id)}
-        hideAddButton addTrigger={makeupAddTrigger} editTrigger={makeupEditTrigger} hiddenMode
-        onAfterSave={(itemId, tags) => {
-          if (!db || !userId) return;
-          const linkedRef = references.find(r => r.libraryItemId === itemId);
-          if (!linkedRef) return;
-          const catTags = (linkedRef.tags ?? []).filter(t => categoryTags.includes(t));
-          updateDoc(doc(db, 'users', userId, 'references', linkedRef.id), { tags: [...catTags, ...tags] });
-        }}
-      />
-      <LogCtPanel key="lookbook" filter="lookbook" items={lookItems} products={Array.from(products.values())} userId={userId}
-        onAdd={(data) => handleCtAdd('lookbook', data)} onUpdate={(id, data) => handleCtUpdate('lookbook', id, data)} onDelete={(id) => handleCtDelete('lookbook', id)}
-        hideAddButton addTrigger={lookbookAddTrigger} editTrigger={lookbookEditTrigger} hiddenMode
-        onAfterSave={(itemId, tags) => {
-          if (!db || !userId) return;
-          const linkedRef = references.find(r => r.libraryItemId === itemId);
-          if (!linkedRef) return;
-          const catTags = (linkedRef.tags ?? []).filter(t => categoryTags.includes(t));
-          updateDoc(doc(db, 'users', userId, 'references', linkedRef.id), { tags: [...catTags, ...tags] });
-        }}
-      />
+      {/* LogCtPanel — 도메인별 동적 패널 (hiddenMode: 편집 시트만 사용) */}
+      {['beauty', 'fashion', 'acc', 'interior'].map(domain => {
+        const domainItems = allLibItems.filter(i => (i.domain ?? 'beauty') === domain);
+        return (
+          <LogCtPanel key={domain} filter={domain}
+            items={domainItems}
+            products={Array.from(products.values())} userId={userId}
+            onAdd={(data) => handleCtAdd(domain, data)}
+            onUpdate={(id, data) => handleCtUpdate(domain, id, data)}
+            onDelete={(id) => handleCtDelete(domain, id)}
+            hideAddButton
+            addTrigger={domainAddTrigger[domain] ?? 0}
+            editTrigger={domainEditTrigger[domain]}
+            hiddenMode
+            onAfterSave={(itemId, tags) => {
+              if (!db || !userId) return;
+              const linkedRef = references.find(r => r.libraryItemId === itemId);
+              if (!linkedRef) return;
+              const catTags = (linkedRef.tags ?? []).filter(t => categoryTags.includes(t));
+              updateDoc(doc(db, 'users', userId, 'references', linkedRef.id), { tags: [...catTags, ...tags] });
+            }}
+          />
+        );
+      })}
 
       {/* FAB — 라이브러리 탭에서만 노출 */}
       {mainTab === '라이브러리' && (
@@ -4542,23 +4590,33 @@ function LogPageInner() {
             <div onClick={() => setFabMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 38 }} />
           )}
 
-          {/* 타입 선택 메뉴 — FAB 위에 떠오름 */}
-          {fabMenuOpen && (
-            <div style={{ position: 'fixed', bottom: 156, right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 39, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
-              <button
-                onClick={() => { setLookbookAddTrigger(n => n + 1); setFabMenuOpen(false); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 16px 0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.18)', whiteSpace: 'nowrap' as const }}
-              >
-                <span style={{ fontSize: 18 }}>👗</span> 룩북 등록
-              </button>
-              <button
-                onClick={() => { setMakeupAddTrigger(n => n + 1); setFabMenuOpen(false); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 16px 0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.18)', whiteSpace: 'nowrap' as const }}
-              >
-                <span style={{ fontSize: 18 }}>💄</span> 메이크업 등록
-              </button>
-            </div>
-          )}
+          {/* 타입 선택 메뉴 — FAB 위에 떠오름 (BOX 도메인 기반 동적 생성) */}
+          {fabMenuOpen && (() => {
+            // BOX 제품에서 실제 존재하는 도메인 수집
+            const FAB_DOMAIN_ORDER = ['beauty', 'fashion', 'acc', 'interior'];
+            const boxDomains = [...new Set(ctxProducts.map(p => p.domain).filter(Boolean))] as string[];
+            const fabDomains = [
+              ...FAB_DOMAIN_ORDER.filter(d => boxDomains.includes(d)),
+              ...boxDomains.filter(d => !FAB_DOMAIN_ORDER.includes(d)),
+              // 도메인 없어도 beauty/fashion은 항상 표시
+              ...(['beauty', 'fashion'].filter(d => !boxDomains.includes(d))),
+            ];
+            return (
+              <div style={{ position: 'fixed', bottom: 156, right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 39, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
+                {fabDomains.map(domain => (
+                  <button key={domain} type="button"
+                    onClick={() => {
+                      setDomainAddTrigger(prev => ({ ...prev, [domain]: (prev[domain] ?? 0) + 1 }));
+                      setFabMenuOpen(false);
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 16px 0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.18)', whiteSpace: 'nowrap' as const }}
+                  >
+                    <span style={{ fontSize: 18 }}>{DOMAIN_EMOJIS[domain] ?? '📦'}</span> {DOMAIN_LABELS[domain] ?? domain} 등록
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
 
           {/* FAB 본체 */}
           <button

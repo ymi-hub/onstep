@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import {
-  collection, getDocs, query, orderBy, writeBatch, doc,
+  collection, getDocs, query, orderBy, writeBatch, doc, setDoc, updateDoc,
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
@@ -39,8 +39,9 @@ const COLLECTIONS = [
   { key: 'healthCategories', label: '건강 카테고리',      icon: '🏷' },
   { key: 'dietPrograms',   label: '다이어트 플랜',        icon: '📋' },
   { key: 'careItems',      label: '집중케어',             icon: '🧴' },
-  { key: 'makeupItems',    label: '메이크업북',           icon: '💄' },
-  { key: 'lookItems',      label: '룩북',                icon: '👗' },
+  { key: 'libraryItems',   label: '라이브러리 (통합)',     icon: '📚' },
+  { key: 'makeupItems',    label: '메이크업북 (구)',       icon: '💄' },
+  { key: 'lookItems',      label: '룩북 (구)',            icon: '👗' },
   { key: 'ootdLogs',       label: 'OOTD 기록',           icon: '📸' },
   { key: 'usageLogs',      label: '사용 로그',            icon: '📊' },
   { key: 'habitLogs',      label: '습관 로그',            icon: '✅' },
@@ -58,8 +59,9 @@ function docLabel(key: string, d: Record<string, unknown>): { label: string; sub
     case 'healthCategories':return { label: `${d.icon ?? ''} ${d.name ?? '?'}`, sub: `order: ${d.order}` };
     case 'dietPrograms':    return { label: (d.name as string) || '?', sub: (d.startDate as string) || '', date: (d.createdAt as string)?.slice(0, 10) };
     case 'careItems':       return { label: (d.name as string) || '?', date: (d.createdAt as string)?.slice(0, 10) };
-    case 'makeupItems':     return { label: (d.name as string) || '?', date: (d.createdAt as string)?.slice(0, 10) };
-    case 'lookItems':       return { label: (d.name as string) || '?', date: (d.createdAt as string)?.slice(0, 10) };
+    case 'libraryItems':    return { label: (d.name as string) || '?', sub: `domain: ${d.domain ?? '?'}`, date: (d.createdAt as string)?.slice(0, 10) };
+    case 'makeupItems':     return { label: (d.name as string) || '?', sub: '(구) beauty', date: (d.createdAt as string)?.slice(0, 10) };
+    case 'lookItems':       return { label: (d.name as string) || '?', sub: '(구) fashion', date: (d.createdAt as string)?.slice(0, 10) };
     case 'ootdLogs':        return { label: (d.date as string) || '?', sub: `${d.theme ?? ''} ${d.note ? '· ' + (d.note as string).slice(0, 20) : ''}` };
     case 'usageLogs':       return { label: (d.dateStr as string) || '?', sub: `${d.timeSlot ?? ''} · productId: ${(d.productId as string)?.slice(0, 8)}` };
     case 'habitLogs':       return { label: (d.dateStr as string) || '?', sub: `habitId: ${(d.habitId as string)?.slice(0, 8)}` };
@@ -76,6 +78,8 @@ export default function CleanupPage() {
   const [colls, setColls] = useState<CollView[]>([]);
   const [deleting, setDeleting] = useState(false);
   const [logLines, setLogLines] = useState<string[]>([]);
+  const [migrating, setMigrating] = useState(false);
+  const [fixing, setFixing] = useState(false);
 
   useEffect(() => {
     if (!auth) { setStatus('Firebase 미설정'); setLoading(false); return; }
@@ -169,6 +173,82 @@ export default function CleanupPage() {
     setDeleting(false);
   }
 
+  // undefined 재귀 제거 (Firestore 저장 전 정리)
+  function stripUndefined(val: unknown): unknown {
+    if (Array.isArray(val)) return val.map(stripUndefined);
+    if (val !== null && typeof val === 'object') {
+      return Object.fromEntries(
+        Object.entries(val as Record<string, unknown>)
+          .filter(([, v]) => v !== undefined)
+          .map(([k, v]) => [k, stripUndefined(v)])
+      );
+    }
+    return val;
+  }
+
+  // makeupItems/lookItems → undefined 필드 in-place 정리
+  async function fixUndefinedFields() {
+    if (!userId || !db) return;
+    setFixing(true);
+    const lines: string[] = ['=== undefined 필드 정리 시작 ==='];
+    const _db = db;
+    let fixed = 0;
+    for (const coll of ['makeupItems', 'lookItems']) {
+      const snap = await getDocs(collection(_db, 'users', userId, coll));
+      for (const d of snap.docs) {
+        const raw = d.data();
+        const cleaned = stripUndefined(raw) as Record<string, unknown>;
+        // items/tipItems만 업데이트 (undefined가 있는 배열 필드)
+        const patch: Record<string, unknown> = {};
+        if (raw.items !== undefined) patch.items = cleaned.items ?? [];
+        if (raw.tipItems !== undefined) patch.tipItems = cleaned.tipItems ?? [];
+        if (Object.keys(patch).length > 0) {
+          await updateDoc(doc(_db, 'users', userId, coll, d.id), patch);
+          lines.push(`✓ [${coll}] ${(raw.name as string) || d.id} — 정리 완료`);
+          fixed++;
+        }
+      }
+    }
+    lines.push(`\n총 ${fixed}개 문서 정리 완료`);
+    setLogLines(lines);
+    setFixing(false);
+    await loadAll(userId);
+  }
+
+  // makeupItems(domain:beauty) + lookItems(domain:fashion) → libraryItems 마이그레이션
+  async function migrateToLibraryItems() {
+    if (!userId || !db) return;
+    if (!confirm('makeupItems/lookItems를 libraryItems로 마이그레이션합니다.\n기존 문서는 삭제되지 않습니다. 계속할까요?')) return;
+    setMigrating(true);
+    const lines: string[] = ['=== libraryItems 마이그레이션 시작 ==='];
+    const _db = db;
+    let count = 0;
+    const migrations = [
+      { src: 'makeupItems', domain: 'beauty' },
+      { src: 'lookItems',   domain: 'fashion' },
+    ];
+    for (const { src, domain } of migrations) {
+      const snap = await getDocs(collection(_db, 'users', userId, src));
+      for (const d of snap.docs) {
+        const raw = stripUndefined(d.data()) as Record<string, unknown>;
+        const data = {
+          ...raw,
+          domain,
+          items:    (raw.items    as unknown[] | undefined) ?? [],
+          tipItems: (raw.tipItems as unknown[] | undefined) ?? [],
+        };
+        await setDoc(doc(_db, 'users', userId, 'libraryItems', d.id), data);
+        lines.push(`✓ [${src} → libraryItems] ${(raw.name as string) || d.id} (domain: ${domain})`);
+        count++;
+      }
+    }
+    lines.push(`\n총 ${count}개 마이그레이션 완료`);
+    lines.push('⚠ 구 컬렉션(makeupItems/lookItems)은 수동으로 삭제하세요.');
+    setLogLines(lines);
+    setMigrating(false);
+    await loadAll(userId);
+  }
+
   if (loading) return (
     <div style={{ padding: 40, fontFamily: f, color: '#9A9490', textAlign: 'center' }}>{status}</div>
   );
@@ -176,8 +256,27 @@ export default function CleanupPage() {
   return (
     <div style={{ padding: '20px 26px 120px', fontFamily: f }}>
       <div style={{ fontSize: 22, fontWeight: 800, color: '#0C0C0A', marginBottom: 4 }}>데이터 정리</div>
-      <div style={{ fontSize: 12, color: '#9A9490', marginBottom: 20 }}>
+      <div style={{ fontSize: 12, color: '#9A9490', marginBottom: 16 }}>
         컬렉션을 펼쳐 항목을 선택하고 삭제하세요.
+      </div>
+
+      {/* 데이터 유지보수 도구 */}
+      <div style={{ marginBottom: 20, padding: 16, background: '#F4F4F0', borderRadius: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginBottom: 2 }}>🔧 데이터 유지보수</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+          <button type="button" onClick={fixUndefinedFields} disabled={fixing || migrating}
+            style={{ padding: '9px 16px', background: fixing ? '#EBEBEB' : '#0C0C0A', color: fixing ? '#9A9490' : '#C5FF00', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, cursor: fixing ? 'default' : 'pointer' }}>
+            {fixing ? '정리 중...' : '① undefined 필드 정리'}
+          </button>
+          <button type="button" onClick={migrateToLibraryItems} disabled={migrating || fixing}
+            style={{ padding: '9px 16px', background: migrating ? '#EBEBEB' : '#1D6DDB', color: migrating ? '#9A9490' : '#fff', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, cursor: migrating ? 'default' : 'pointer' }}>
+            {migrating ? '마이그레이션 중...' : '② libraryItems 마이그레이션'}
+          </button>
+        </div>
+        <div style={{ fontSize: 11, color: '#9A9490', lineHeight: 1.6 }}>
+          ① 먼저 실행 → makeupItems/lookItems의 undefined 필드 제거<br />
+          ② 이후 실행 → libraryItems 통합 컬렉션으로 복사 (기존 데이터 유지)
+        </div>
       </div>
 
       {colls.map(c => (

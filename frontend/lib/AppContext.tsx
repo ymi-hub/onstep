@@ -39,8 +39,9 @@ interface AppContextValue {
   sessions: Session[];
   habits: Habit[];
   careItems: CtItem[];
-  makeupItems: CtItem[];
-  lookItems: CtItem[];
+  makeupItems: CtItem[];   // 하위 호환 유지 (migration 전까지)
+  lookItems: CtItem[];     // 하위 호환 유지 (migration 전까지)
+  libraryItems: CtItem[];  // 통합 컬렉션 (makeupItems + lookItems + 신규 도메인)
   lifetipItems: LifetipItem[];
   medRoutines: MedRoutine[];
   healthRoutines: HealthRoutine[];
@@ -66,6 +67,7 @@ const AppContext = createContext<AppContextValue>({
   careItems: [],
   makeupItems: [],
   lookItems: [],
+  libraryItems: [],
   lifetipItems: [],
   medRoutines: [],
   healthRoutines: [],
@@ -92,6 +94,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [careItems, setCareItems] = useState<CtItem[]>([]);
   const [makeupItems, setMakeupItems] = useState<CtItem[]>([]);
   const [lookItems, setLookItems] = useState<CtItem[]>([]);
+  const [libraryItems, setLibraryItems] = useState<CtItem[]>([]);
   const [lifetipItems, setLifetipItems] = useState<LifetipItem[]>([]);
   const [medRoutines, setMedRoutines] = useState<MedRoutine[]>([]);
   const [healthRoutines, setHealthRoutines] = useState<HealthRoutine[]>([]);
@@ -134,7 +137,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (!u) {
         setDataReady(false);
         setProducts([]); setSessions([]); setHabits([]);
-        setCareItems([]); setMakeupItems([]); setLookItems([]); setLifetipItems([]);
+        setCareItems([]); setMakeupItems([]); setLookItems([]); setLibraryItems([]); setLifetipItems([]);
         setMedRoutines([]); setHealthRoutines([]); setHealthCategories([]); setDietPrograms([]);
       }
     });
@@ -178,6 +181,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         () => {}
       ),
       onSnapshot(
+        collection(_db, 'users', userId, 'libraryItems'),
+        (s) => setLibraryItems(s.docs.map((d) => ({ id: d.id, ...d.data() } as CtItem))),
+        () => {}
+      ),
+      onSnapshot(
         query(collection(_db, 'users', userId, 'lifetipItems'), orderBy('createdAt', 'desc')),
         (s) => setLifetipItems(s.docs.map((d) => ({ id: d.id, ...d.data() } as LifetipItem))),
         () => {}
@@ -208,7 +216,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [userId, authLoading]);
 
   return (
-    <AppContext.Provider value={{ user, userId, authLoading, dataReady, products, sessions, habits, careItems, makeupItems, lookItems, lifetipItems, medRoutines, healthRoutines, healthCategories, dietPrograms, timer }}>
+    <AppContext.Provider value={{ user, userId, authLoading, dataReady, products, sessions, habits, careItems, makeupItems, lookItems, libraryItems, lifetipItems, medRoutines, healthRoutines, healthCategories, dietPrograms, timer }}>
       {children}
     </AppContext.Provider>
   );
