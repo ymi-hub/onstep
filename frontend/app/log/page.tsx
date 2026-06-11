@@ -4596,7 +4596,7 @@ function LogPageInner() {
           if (useCache) {
             // 캐시값으로 pre-fill
             setRefToLibCacheData(cache);
-            const cat = cache.tipCategory || categoryTags.find(c => (ref.tags ?? []).includes(c)) ?? categoryTags[0] ?? 'Life tip';
+            const cat = (cache.tipCategory || categoryTags.find(c => (ref.tags ?? []).includes(c))) ?? categoryTags[0] ?? 'Life tip';
             const libType: 'makeup' | 'lookbook' | 'lifetip' = cat === 'Lookbook' ? 'lookbook' : cat === 'Makeup' ? 'makeup' : 'lifetip';
             setRefToLibCatName(cat);
             setRefToLibType(libType);
