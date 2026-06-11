@@ -63,7 +63,8 @@ type CheckState = { morning: boolean; evening: boolean; };
 type OOTDLog = {
   id: string;
   date: string;
-  theme: string;
+  category: string;
+  theme?: string;   // 구 필드 — 하위 호환 읽기용
   note: string;
   photoUrl: string;
   createdAt: string;
@@ -1097,7 +1098,7 @@ function OOTDSection({
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {ootdLog.theme || '오늘의 룩'}{ootdLog.note ? ` · ${ootdLog.note}` : ''}
+                {ootdLog.category || ootdLog.theme || '오늘의 룩'}{ootdLog.note ? ` · ${ootdLog.note}` : ''}
               </div>
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4caf78', marginTop: 3 }}>✓ 기록 완료</div>
             </div>
@@ -2047,15 +2048,15 @@ function OOTDRecordSheet({
           오늘의 룩 기록
         </div>
 
-        {/* 태그 선택 */}
+        {/* 카테고리 선택 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>태그</div>
+          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>카테고리</div>
           <button
             type="button"
             onClick={() => setTagEditOpen(true)}
             style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', border: '2px solid #0066FF', borderRadius: 9999, padding: '5px 12px', cursor: 'pointer', letterSpacing: '.08em' }}
           >
-            태그 편집
+            카테고리 편집
           </button>
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
@@ -2070,7 +2071,7 @@ function OOTDRecordSheet({
             </button>
           ))}
           {tags.length === 0 && (
-            <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6' }}>태그 없음 — 편집에서 추가해주세요</div>
+            <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6' }}>카테고리 없음 — 편집에서 추가해주세요</div>
           )}
         </div>
 
@@ -2130,7 +2131,7 @@ function OOTDRecordSheet({
         </div>
       </div>
 
-      {/* 태그 편집 서브 시트 */}
+      {/* 카테고리 편집 서브 시트 */}
       {tagEditOpen && (
         <>
           <div onClick={() => setTagEditOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 102 }} />
@@ -2138,7 +2139,7 @@ function OOTDRecordSheet({
             <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#0C0C0A' }}>태그 관리</span>
+              <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#0C0C0A' }}>카테고리 관리</span>
               <button onClick={() => setTagEditOpen(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9A9490' }}>✕</button>
             </div>
 
@@ -2196,7 +2197,7 @@ function OOTDRecordSheet({
                 );
               })}
               {tags.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: '#9A9490', fontFamily: f }}>등록된 태그가 없습니다.</div>
+                <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: '#9A9490', fontFamily: f }}>등록된 카테고리가 없습니다.</div>
               )}
             </div>
 
@@ -2214,7 +2215,7 @@ function OOTDRecordSheet({
                     setNewTagInput('');
                   }
                 }}
-                placeholder="새 태그 입력... (Enter 또는 추가 버튼)"
+                placeholder="새 카테고리 입력... (Enter 또는 추가 버튼)"
                 maxLength={12}
                 style={{ width: '100%', padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' }}
               />
@@ -2229,7 +2230,7 @@ function OOTDRecordSheet({
                 }}
                 style={{ width: '100%', padding: '14px', background: '#4F7DEC', color: '#fff', border: 'none', borderRadius: 16, fontFamily: f, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 12px rgba(79,125,236,.2)' }}
               >
-                + 태그 추가
+                + 카테고리 추가
               </button>
             </div>
           </div>
