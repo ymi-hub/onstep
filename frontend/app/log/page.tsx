@@ -1972,13 +1972,10 @@ function LogCtPanel({
 
             {/* 이모지 + 이름 */}
             <div style={{ padding: '16px 20px 0' }}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
                 <input value={sEmoji} onChange={e => setSEmoji(e.target.value)} placeholder={icon} maxLength={2} style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
                 <input value={sName} onChange={e => setSName(e.target.value)} placeholder="이름 *" style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
               </div>
-              {/* Daily 입력 */}
-              <input value={sDaily} onChange={e => setSDaily(e.target.value)} placeholder="Daily (예: daily / weekly)" style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 8 }} />
-              <textarea value={sDesc} onChange={e => setSDesc(e.target.value)} placeholder="간단한 설명 (선택)" rows={2} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5, marginBottom: 8 }} />
 
               {/* 참고 링크 */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginBottom: 8 }}>
@@ -2357,6 +2354,8 @@ function LogPageInner() {
   const [lifetipTagNewTag, setLifetipTagNewTag] = useState('');
   const [dragLifetipTagIdx, setDragLifetipTagIdx] = useState<number | null>(null);
   const [dragLifetipTagOverIdx, setDragLifetipTagOverIdx] = useState<number | null>(null);
+  const [lifetipEditPublished, setLifetipEditPublished] = useState(false);
+  const [lifetipEditDates, setLifetipEditDates] = useState<string[]>([]);
   const [lifetipEditSaving, setLifetipEditSaving] = useState(false);
   const [lifetipPickerOpen, setLifetipPickerOpen] = useState(false);
   const [lifetipPickerSearch, setLifetipPickerSearch] = useState('');
@@ -3099,6 +3098,8 @@ function LogPageInner() {
       ...(item.tags ?? []),
     ])];
     setLifetipEditTags(mergedTags);
+    setLifetipEditPublished(item.published);
+    setLifetipEditDates(item.dates ?? []);
     setLifetipTagEditOpen(false);
     setLifetipTagNewTag('');
     setLifetipPickerSearch('');
@@ -3121,6 +3122,8 @@ function LogPageInner() {
         productIds: lifetipEditProductIds,
         memo: lifetipEditMemo.trim(),
         tags: lifetipEditTags,
+        published: lifetipEditPublished,
+        dates: lifetipEditDates,
         imageUrl,
         updatedAt: new Date().toISOString(),
       });
@@ -4703,7 +4706,43 @@ function LogPageInner() {
                     })}
                   </div>
                 )}
-                {lifetipEditProductIds.length === 0 && <div style={{ marginBottom: 16 }} />}
+                {lifetipEditProductIds.length === 0 && <div style={{ marginBottom: 8 }} />}
+
+                {/* 예정 날짜 */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>예정 날짜</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, alignItems: 'center' }}>
+                    {lifetipEditDates.map(d => (
+                      <span key={d} onClick={() => {
+                        const next = lifetipEditDates.filter(x => x !== d);
+                        setLifetipEditDates(next);
+                        if (next.length === 0) setLifetipEditPublished(false);
+                      }} style={{ fontFamily: f, fontSize: 12, fontWeight: 700, padding: '5px 10px', borderRadius: 9999, background: '#0C0C0A', color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                        {d} <span style={{ opacity: .6, fontSize: 10 }}>✕</span>
+                      </span>
+                    ))}
+                    <input type="date" title="날짜 추가" onChange={e => {
+                      if (e.target.value && !lifetipEditDates.includes(e.target.value)) {
+                        setLifetipEditDates(p => [...p, e.target.value].sort());
+                        e.target.value = '';
+                      }
+                    }} style={{ padding: '5px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9999, fontFamily: f, fontSize: 12, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+                  </div>
+                </div>
+
+                {/* Today 토글 */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginBottom: 20 }}
+                  onClick={() => {
+                    const next = !lifetipEditPublished;
+                    setLifetipEditPublished(next);
+                    const today = format(new Date(), 'yyyy-MM-dd');
+                    if (next) setLifetipEditDates(p => p.includes(today) ? p : [...p, today].sort());
+                  }}>
+                  <div style={{ width: 44, height: 26, borderRadius: 13, background: lifetipEditPublished ? '#0C0C0A' : '#D8D6CF', transition: 'background .2s', position: 'relative', flexShrink: 0 }}>
+                    <div style={{ position: 'absolute', top: 3, left: lifetipEditPublished ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.3)' }} />
+                  </div>
+                  <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{lifetipEditPublished ? 'Today에 표시 ON' : 'Today에 표시 OFF'}</span>
+                </div>
 
                 {/* 버튼 — Makeup/Lookbook과 동일한 취소/저장/삭제 구조 */}
                 <div style={{ display: 'flex', gap: 8 }}>
