@@ -4348,7 +4348,24 @@ function LogPageInner() {
                               )}
                             </div>
                             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
-                            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || ''}</div>
+                            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || ''}</div>
+                            {/* 카테고리 + 태그 */}
+                            {(() => {
+                              const catChips = (item.tags ?? []).filter(t => categoryTags.includes(t));
+                              const userTags = (item.tags ?? []).filter(t => !categoryTags.includes(t));
+                              const hasAny = catChips.length > 0 || userTags.length > 0;
+                              if (!hasAny) return <div style={{ marginBottom: 12 }} />;
+                              return (
+                                <div style={{ marginTop: 8, marginBottom: 12, display: 'flex', flexWrap: 'wrap' as const, gap: 6, zIndex: 2 }}>
+                                  {catChips.map(c => (
+                                    <span key={c} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', background: '#0C0C0A', border: '1px solid #0C0C0A', borderRadius: 4, padding: '2px 8px', letterSpacing: '.04em' }}>{c}</span>
+                                  ))}
+                                  {userTags.map(t => (
+                                    <span key={t} style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#4A4846', background: '#EBEBEB', borderRadius: 4, padding: '2px 8px' }}>#{t.replace(/^#/, '')}</span>
+                                  ))}
+                                </div>
+                              );
+                            })()}
                             {item.sourceUrl?.trim() && (() => {
                               let domain = item.sourceUrl!;
                               try { domain = new URL(item.sourceUrl!).hostname; } catch {}
