@@ -1320,14 +1320,14 @@ function LifetipLibraryCard({
       <div style={{ position: 'relative', width: '100%', background: '#EEF6FF', flexShrink: 0 }}>
         {/* 카테고리 뱃지 스티커 */}
         <div style={{
-          position: 'absolute', right: 7, top: 10,
+          position: 'absolute', right: 7, top: 42,
           width: 113, height: 32,
-          background: 'rgba(96,165,250,.3)', border: '1px solid #60A5FA',
+          background: '#93C5FD', border: '1px solid #18181B',
           transform: 'rotate(-3deg)',
           display: 'flex', alignItems: 'center', padding: '0 12px',
           zIndex: 3,
         }}>
-          <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#1D6DDB', transform: 'rotate(-3deg)' }}>#LIFETIP</span>
+          <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#1E3A8A', transform: 'rotate(-3deg)' }}>#LIFETIP</span>
         </div>
 
         {item.imageUrl
