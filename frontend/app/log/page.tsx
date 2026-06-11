@@ -1747,7 +1747,7 @@ function LogCtPanel({
   }, [editTrigger]);
 
   function openEdit(item: CtItem) {
-    setEditItem(item); setSEmoji(item.emoji); setSName(item.name); setSDesc(item.desc); setSDaily(item.daily ?? '');
+    setEditItem(item); setSEmoji(item.emoji); setSName(item.name ?? ''); setSDesc(item.desc ?? ''); setSDaily(item.daily ?? '');
     setSItems(item.items); setSTipItems(item.tipItems); setSDates(item.dates ?? []);
     setSTpoText((item.tpo ?? []).join(' · ')); setSPublished(item.published);
     setSImageFile(null); setSImagePreview(item.imageUrl ?? ''); setSSourceUrl(item.sourceUrl ?? '');
@@ -1760,22 +1760,20 @@ function LogCtPanel({
   async function handleSave() {
     if (!sName.trim()) return;
     setSaving(true);
-    const now = new Date().toISOString();
-    const colName = filter === 'makeup' ? 'makeupItems' : 'lookItems';
-    // Base64 이미지 포함해서 저장 (Firebase Storage 불필요)
-    const data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'> = {
-      ctType,
-      emoji: sEmoji || icon,
-      name: sName.trim(), desc: sDesc.trim(),
-      items: sItems, tipItems: sTipItems, expertTip: '',
-      published: sPublished, dates: sDates,
-      tags: sTags,
-      ...(sSourceUrl.trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
-      ...(sImagePreview ? { imageUrl: sImagePreview } : {}),
-      ...(sDaily.trim() ? { daily: sDaily.trim() } : {}),
-      ...(filter === 'lookbook' ? { tpo: sTpoText.trim() ? [sTpoText.trim()] : [] } : {}),
-    };
     try {
+      const now = new Date().toISOString();
+      const data: Omit<CtItem, 'id' | 'createdAt' | 'updatedAt'> = {
+        ctType,
+        emoji: sEmoji || icon,
+        name: sName.trim(), desc: (sDesc ?? '').trim(),
+        items: sItems, tipItems: sTipItems, expertTip: '',
+        published: sPublished, dates: sDates,
+        tags: sTags,
+        ...((sSourceUrl ?? '').trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
+        ...(sImagePreview ? { imageUrl: sImagePreview } : {}),
+        ...((sDaily ?? '').trim() ? { daily: sDaily.trim() } : {}),
+        ...(filter === 'lookbook' ? { tpo: (sTpoText ?? '').trim() ? [sTpoText.trim()] : [] } : {}),
+      };
       if (editItem) {
         await onUpdate(editItem.id, { ...data, updatedAt: now });
         onAfterSave?.(editItem.id, sTags);
