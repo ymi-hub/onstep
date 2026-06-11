@@ -1664,6 +1664,7 @@ function AddItemSheet({
 function LogCtPanel({
   filter, items, products, userId, onAdd, onUpdate, onDelete,
   hideAddButton, addTrigger, editTrigger, hiddenMode,
+  onAfterSave,
 }: {
   filter: 'makeup' | 'lookbook';
   items: CtItem[];
@@ -1676,6 +1677,8 @@ function LogCtPanel({
   addTrigger?: number;
   editTrigger?: { id: string; ts: number };
   hiddenMode?: boolean;
+  // 저장 후 수집 문서 태그 동기화 콜백
+  onAfterSave?: (itemId: string, tags: string[]) => void;
 }) {
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
   const ctType: CtType = filter;
@@ -1698,6 +1701,11 @@ function LogCtPanel({
   const [sImageFile, setSImageFile] = useState<File | null>(null);
   const [sImagePreview, setSImagePreview] = useState('');
   const [sSourceUrl, setSSourceUrl] = useState('');
+  const [sTags, setSTags] = useState<string[]>([]);
+  const [sTagInput, setSTagInput] = useState('');
+  const [sTagEditOpen, setSTagEditOpen] = useState(false);
+  const [dragTagIdx, setDragTagIdx] = useState<number | null>(null);
+  const [dragTagOverIdx, setDragTagOverIdx] = useState<number | null>(null);
 
   // picker
   const [picker, setPicker] = useState<'main' | 'tip' | null>(null);
@@ -1720,6 +1728,7 @@ function LogCtPanel({
     setEditItem(null); setSEmoji(icon); setSName(''); setSDesc(''); setSDaily('');
     setSItems([]); setSTipItems([]); setSDates([]); setSTpoText('');
     setSPublished(false); setSImageFile(null); setSImagePreview(''); setSSourceUrl('');
+    setSTags([]); setSTagInput(''); setSTagEditOpen(false);
     setSheetOpen(true);
   }
 
@@ -1742,6 +1751,7 @@ function LogCtPanel({
     setSItems(item.items); setSTipItems(item.tipItems); setSDates(item.dates ?? []);
     setSTpoText((item.tpo ?? []).join(' · ')); setSPublished(item.published);
     setSImageFile(null); setSImagePreview(item.imageUrl ?? ''); setSSourceUrl(item.sourceUrl ?? '');
+    setSTags(item.tags ?? []); setSTagInput(''); setSTagEditOpen(false);
     setSheetOpen(true);
   }
 
@@ -1759,6 +1769,7 @@ function LogCtPanel({
       name: sName.trim(), desc: sDesc.trim(),
       items: sItems, tipItems: sTipItems, expertTip: '',
       published: sPublished, dates: sDates,
+      tags: sTags,
       ...(sSourceUrl.trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
       ...(sImagePreview ? { imageUrl: sImagePreview } : {}),
       ...(sDaily.trim() ? { daily: sDaily.trim() } : {}),
@@ -1767,8 +1778,10 @@ function LogCtPanel({
     try {
       if (editItem) {
         await onUpdate(editItem.id, { ...data, updatedAt: now });
+        onAfterSave?.(editItem.id, sTags);
       } else {
-        await onAdd(data);
+        const newId = await onAdd(data);
+        onAfterSave?.(newId, sTags);
       }
       closeSheet();
     } catch (err) {
@@ -2020,6 +2033,90 @@ function LogCtPanel({
                   {sDates.map(d => <span key={d} onClick={() => setSDates(p => p.filter(x => x !== d))} style={{ fontFamily: f, fontSize: 12, fontWeight: 700, padding: '5px 10px', borderRadius: 9999, background: '#0C0C0A', color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>{fmtDate(d)} <span style={{ opacity: .6, fontSize: 10 }}>✕</span></span>)}
                   <input type="date" onChange={e => { if (e.target.value && !sDates.includes(e.target.value)) { setSDates(p => [...p, e.target.value].sort()); e.target.value = ''; } }} style={{ padding: '5px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9999, fontFamily: f, fontSize: 12, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
                 </div>
+              </div>
+
+              {/* 구분선 */}
+              <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+
+              {/* 카테고리 — 읽기 전용 배지 */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 2, background: '#0C0C0A', display: 'inline-block' }} />
+                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#0C0C0A' }}>카테고리</span>
+                </div>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
+                  {filter === 'makeup' ? 'Makeup' : 'Lookbook'}
+                </span>
+              </div>
+
+              {/* 태그 */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250' }}>#</span>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</span>
+                  </div>
+                  <button type="button"
+                    onClick={() => { setSTagEditOpen(v => !v); if (sTagEditOpen) setSTagInput(''); }}
+                    style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                    <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                    태그 편집
+                  </button>
+                </div>
+                {sTags.length > 0 && (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                    {sTags.map((tag, i) => (
+                      <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#555250' }}>#{tag}</span>
+                    ))}
+                  </div>
+                )}
+                {sTags.length === 0 && !sTagEditOpen && (
+                  <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6', marginBottom: 4 }}>태그를 추가해보세요</div>
+                )}
+                {sTagEditOpen && (
+                  <div style={{ marginTop: 8, padding: '10px 12px 12px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
+                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
+                      {sTags.map((tag, i) => (
+                        <div key={tag}
+                          draggable
+                          onDragStart={() => setDragTagIdx(i)}
+                          onDragOver={e => { e.preventDefault(); setDragTagOverIdx(i); }}
+                          onDrop={() => {
+                            if (dragTagIdx === null || dragTagIdx === i) return;
+                            setSTags(prev => {
+                              const arr = [...prev];
+                              const [moved] = arr.splice(dragTagIdx, 1);
+                              arr.splice(i, 0, moved);
+                              return arr;
+                            });
+                            setDragTagIdx(null); setDragTagOverIdx(null);
+                          }}
+                          onDragEnd={() => { setDragTagIdx(null); setDragTagOverIdx(null); }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: dragTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'rgba(12,12,10,.03)', border: `1px solid ${dragTagOverIdx === i ? 'rgba(12,12,10,.2)' : 'rgba(12,12,10,.08)'}`, cursor: 'grab', transition: 'all .1s' }}>
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, color: '#BCBAB6' }}><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
+                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>#{tag}</span>
+                          <button type="button" onClick={() => setSTags(prev => prev.filter(t => t !== tag))}
+                            style={{ width: 20, height: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B', flexShrink: 0 }}>
+                            <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <input type="text" value={sTagInput}
+                      onChange={e => setSTagInput(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                          const t = sTagInput.trim();
+                          if (t && !sTags.includes(t)) setSTags(prev => [...prev, t]);
+                          setSTagInput('');
+                        }
+                      }}
+                      placeholder="+ 태그 추가 (Enter)"
+                      style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Today 토글 */}
@@ -4371,10 +4468,24 @@ function LogPageInner() {
       <LogCtPanel key="makeup" filter="makeup" items={makeupItems} products={Array.from(products.values())} userId={userId}
         onAdd={(data) => handleCtAdd('makeup', data)} onUpdate={(id, data) => handleCtUpdate('makeup', id, data)} onDelete={(id) => handleCtDelete('makeup', id)}
         hideAddButton addTrigger={makeupAddTrigger} editTrigger={makeupEditTrigger} hiddenMode
+        onAfterSave={(itemId, tags) => {
+          if (!db || !userId) return;
+          const linkedRef = references.find(r => r.libraryItemId === itemId);
+          if (!linkedRef) return;
+          const catTags = (linkedRef.tags ?? []).filter(t => categoryTags.includes(t));
+          updateDoc(doc(db, 'users', userId, 'references', linkedRef.id), { tags: [...catTags, ...tags] });
+        }}
       />
       <LogCtPanel key="lookbook" filter="lookbook" items={lookItems} products={Array.from(products.values())} userId={userId}
         onAdd={(data) => handleCtAdd('lookbook', data)} onUpdate={(id, data) => handleCtUpdate('lookbook', id, data)} onDelete={(id) => handleCtDelete('lookbook', id)}
         hideAddButton addTrigger={lookbookAddTrigger} editTrigger={lookbookEditTrigger} hiddenMode
+        onAfterSave={(itemId, tags) => {
+          if (!db || !userId) return;
+          const linkedRef = references.find(r => r.libraryItemId === itemId);
+          if (!linkedRef) return;
+          const catTags = (linkedRef.tags ?? []).filter(t => categoryTags.includes(t));
+          updateDoc(doc(db, 'users', userId, 'references', linkedRef.id), { tags: [...catTags, ...tags] });
+        }}
       />
 
       {/* FAB — 라이브러리 탭에서만 노출 */}

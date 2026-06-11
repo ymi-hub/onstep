@@ -19,6 +19,7 @@ export type CtItem = {
   periodEnd?: string;
   dates?: string[];
   tpo?: string[];
+  tags?: string[];
   published: boolean;
   order?: number;
   createdAt: string;
