@@ -1313,74 +1313,41 @@ function LifetipLibraryCard({
   const isOnToday = item.published && (item.dates ?? []).includes(todayStr);
 
   return (
-    // height: '100%' + flex col → CSS Grid 행 높이에 맞게 늘어나면서 편집바가 하단 고정
-    <div style={{ border: '1px solid #000000', background: '#FFFFFF', display: 'flex', flexDirection: 'column', height: '100%' }}>
-
-      {/* ① 이미지 영역 — 이미지 비율 그대로, 세로 이미지도 잘림 없이 전체 노출 */}
-      <div style={{ position: 'relative', width: '100%', background: '#EEF6FF', flexShrink: 0 }}>
-        {/* 카테고리 뱃지 스티커 */}
-        <div style={{
-          position: 'absolute', right: 7, top: 42,
-          width: 113, height: 32,
-          background: '#93C5FD', border: '1px solid #18181B',
-          transform: 'rotate(-3deg)',
-          display: 'flex', alignItems: 'center', padding: '0 12px',
-          zIndex: 3,
-        }}>
+    <div style={{ border: '1px solid #000000', background: '#FFFFFF' }}>
+      {/* 이미지 + 텍스트 영역 — 메이크업/룩북 카드와 동일한 구조 */}
+      <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 16px 0px', position: 'relative', width: '100%', isolation: 'isolate', flexShrink: 0 }}>
+        {/* 뱃지 스티커 */}
+        <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#93C5FD', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
           <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#1E3A8A', transform: 'rotate(-3deg)' }}>#LIFETIP</span>
         </div>
-
-        {item.imageUrl
-          ? // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
-          : <div style={{ width: '100%', height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 80, opacity: 0.45, lineHeight: 1 }}>{item.emoji || '📌'}</span>
-            </div>
-        }
-      </div>
-
-      {/* ② 텍스트 콘텐츠 — LogLibraryCard와 동일한 패딩·폰트 */}
-      <div style={{
-        boxSizing: 'border-box',
-        display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-        padding: '12px 10px 0px',
-        width: '100%', isolation: 'isolate', flexShrink: 0,
-      }}>
-        {/* 제목 */}
-        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#000', lineHeight: '18px', width: '100%', marginBottom: item.memo ? 6 : 10, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
-        {item.memo ? (
-          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: item.tags?.length ? 8 : 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-            {item.memo}
-          </div>
-        ) : (
-          <div style={{ marginBottom: item.tags?.length ? 8 : 12 }} />
-        )}
+        {/* 이미지 */}
+        <div style={{ width: '100%', overflow: 'visible', flexShrink: 0, zIndex: 0, position: 'relative' }}>
+          {item.imageUrl
+            ? // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
+            : <div style={{ width: '100%', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 80, opacity: 0.3, lineHeight: 1 }}>{item.emoji || '📌'}</span>
+              </div>
+          }
+        </div>
+        {/* 태그 */}
         {(item.tags ?? []).length > 0 && (
-          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginTop: 12, marginBottom: 0 }}>
             {(item.tags ?? []).map(tag => (
               <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>#{tag}</span>
             ))}
           </div>
         )}
-        {item.sourceUrl?.trim() && (() => {
-          let domain = item.sourceUrl!;
-          try { domain = new URL(item.sourceUrl!).hostname; } catch {}
-          return (
-            <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
-              style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, padding: '8px 12px', border: '1px solid rgba(12,12,10,.15)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
-                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
-                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
-              </svg>
-              SOURCE
-              <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 400, color: '#9A9490' }}>{domain}</span>
-            </a>
-          );
-        })()}
-        {!item.sourceUrl?.trim() && <div style={{ height: 20 }} />}
+        {/* 제목 */}
+        <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: 12, width: '100%' }}>{item.name}</div>
+        {/* 날짜 */}
+        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#525252', lineHeight: '18px', marginTop: 4 }}>{createdDate}</div>
+        {/* 메모 */}
+        {item.memo ? (
+          <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{item.memo}</div>
+        ) : <div style={{ marginBottom: 12 }} />}
       </div>
-
-      {/* ③ 연결 BOX 제품 — LogLibraryCard와 동일한 120×160 썸네일 */}
+      {/* BOX 제품 썸네일 */}
       {pIds.length > 0 && (
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', width: '100%', scrollbarWidth: 'none' as const, borderTop: '1px solid #000000', boxSizing: 'border-box' as const }}>
           {pIds.map((pid, idx) => {
@@ -1397,29 +1364,13 @@ function LifetipLibraryCard({
           })}
         </div>
       )}
-
-      {/* ④ 등록 정보 — LogLibraryCard 통계 영역과 동일한 패딩·구조 */}
-      <div style={{ padding: '14px 16px 8px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <span style={{ fontFamily: f, fontSize: 28, fontWeight: 800, color: '#1D6DDB', lineHeight: 1 }}>{item.emoji || '📌'}</span>
-          </div>
-          {createdDate && (
-            <>
-              <div style={{ width: 1, height: 16, background: 'rgba(12,12,10,.12)' }} />
-              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#9A9490' }}>등록 {createdDate}</span>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* ⑤ 편집 바 — marginTop: auto로 항상 카드 하단 고정 */}
-      <div style={{ display: 'flex', borderTop: '1px solid #000000', marginTop: 'auto', flexShrink: 0 }}>
+      {/* 버튼 바 */}
+      <div style={{ display: 'flex', borderTop: '1px solid #000000' }}>
         <button onClick={onToggleToday}
-          style={{ flex: 1, padding: '12px 0', background: isOnToday ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: isOnToday ? '#C5FF00' : '#9A9490', border: 'none', borderRight: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const }}>
+          style={{ flex: 1, padding: '12px 0', background: isOnToday ? '#0C0C0A' : '#F3F3F1', color: isOnToday ? '#C5FF00' : '#0C0C0A', border: 'none', borderRight: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
           {isOnToday ? 'Today ON' : 'Today OFF'}
         </button>
-        <button onClick={onEdit} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
+        <button onClick={onEdit} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
       </div>
     </div>
   );
