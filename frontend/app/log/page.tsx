@@ -111,7 +111,8 @@ const CAT_COLORS = [
 type OOTDLog = {
   id: string;
   date: string;      // "YYYY-MM-DD"
-  theme: string;
+  category: string;
+  theme?: string;    // 구 필드 — 하위 호환 읽기용
   note: string;
   photoUrl: string;
   productIds?: string[];
@@ -1689,14 +1690,12 @@ function LogCtPanel({
   const [picker, setPicker] = useState<'main' | 'tip' | null>(null);
   const [pickerSearch, setPickerSearch] = useState('');
   const [pickerSelected, setPickerSelected] = useState<Set<string>>(new Set());
+  const [pickerDomain, setPickerDomain] = useState<string | null>(filter);
 
-  const domainProducts = filter === 'fashion'
-    ? products.filter(p => p.domain === 'fashion' || p.domain === 'acc')
-    : products.filter(p => p.domain === filter);
-
+  const pickerDomainFiltered = pickerDomain ? products.filter(p => p.domain === pickerDomain) : products;
   const filteredPicker = pickerSearch.trim()
-    ? domainProducts.filter(p => p.name.toLowerCase().includes(pickerSearch.toLowerCase()) || (p.brand ?? '').toLowerCase().includes(pickerSearch.toLowerCase()))
-    : domainProducts;
+    ? pickerDomainFiltered.filter(p => p.name.toLowerCase().includes(pickerSearch.toLowerCase()) || (p.brand ?? '').toLowerCase().includes(pickerSearch.toLowerCase()))
+    : pickerDomainFiltered;
 
   function productName(id: string) { return products.find(p => p.id === id)?.name ?? '?'; }
 
@@ -2015,7 +2014,7 @@ function LogCtPanel({
 
               {/* BOX 제품 연결 */}
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8, marginTop: 8 }}>BOX 제품 연결</div>
-              <button type="button" onClick={() => { setPicker('main'); setPickerSearch(''); setPickerSelected(new Set(sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map(i => i.id))); }}
+              <button type="button" onClick={() => { setPicker('main'); setPickerSearch(''); setPickerDomain(filter); setPickerSelected(new Set(sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map(i => i.id))); }}
                 style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
                 {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length > 0
                   ? `${sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length}개 선택됨 · 변경`
@@ -2160,7 +2159,32 @@ function LogCtPanel({
               <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 230, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
                   <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
-                  <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 10 }}>제품 선택</div>
+                  {/* 도메인 탭 */}
+                  {(() => {
+                    const allDomains = [...new Set(products.map(p => p.domain).filter(Boolean))] as string[];
+                    const ORDER = ['beauty', 'fashion', 'acc', 'interior'];
+                    const sorted = [...ORDER.filter(d => allDomains.includes(d)), ...allDomains.filter(d => !ORDER.includes(d))];
+                    return sorted.length > 1 ? (
+                      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' as const }}>
+                        <button type="button" onClick={() => setPickerDomain(null)}
+                          style={{ flexShrink: 0, background: pickerDomain === null ? '#0C0C0A' : '#fff', border: `1px solid ${pickerDomain === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: pickerDomain === null ? '#fff' : '#0C0C0A', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                          전체 {products.length}
+                        </button>
+                        {sorted.map(d => {
+                          const cnt = products.filter(p => p.domain === d).length;
+                          const sel = pickerDomain === d;
+                          return (
+                            <button key={d} type="button" onClick={() => setPickerDomain(d)}
+                              style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                              <span style={{ fontSize: 12 }}>{DOMAIN_EMOJIS[d] ?? '📦'}</span>
+                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A' }}>{DOMAIN_LABELS[d] ?? d}</span>
+                              <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{cnt}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : null;
+                  })()}
                   <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)} placeholder="제품명 · 브랜드 검색..." autoFocus style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 4 }} />
                   <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginBottom: 8 }}>{pickerSelected.size > 0 ? `${pickerSelected.size}개 선택됨` : 'BOX에서 제품을 선택하세요'}</div>
                 </div>
@@ -2442,7 +2466,7 @@ function LogPageInner() {
 
   // OOTD 편집 시트 상태
   const [editingOotd, setEditingOotd] = useState<OOTDLog | null>(null);
-  const [ootdEditTheme, setOotdEditTheme] = useState('');
+  const [ootdEditCategory, setOotdEditCategory] = useState('');
   const [ootdEditNote, setOotdEditNote] = useState('');
   const [ootdEditPhotoFile, setOotdEditPhotoFile] = useState<File | null>(null);
   const [ootdEditPreview, setOotdEditPreview] = useState('');
@@ -2450,11 +2474,10 @@ function LogPageInner() {
   const [ootdEditSaving, setOotdEditSaving] = useState(false);
   const [ootdPickerOpen, setOotdPickerOpen] = useState(false);
   const [ootdPickerSearch, setOotdPickerSearch] = useState('');
-  const ootdFileRef = useRef<HTMLInputElement>(null);
-
+  const [ootdPickerDomain, setOotdPickerDomain] = useState<string | null>(null);
   function openOotdEdit(log: OOTDLog) {
     setEditingOotd(log);
-    setOotdEditTheme(log.theme || '');
+    setOotdEditCategory(log.category || log.theme || '');
     setOotdEditNote(log.note || '');
     setOotdEditPhotoFile(null);
     setOotdEditPreview(log.photoUrl || '');
@@ -2466,12 +2489,9 @@ function LogPageInner() {
     if (!editingOotd || !db || !user) return;
     setOotdEditSaving(true);
     try {
-      let photoUrl = editingOotd.photoUrl ?? '';
-      if (ootdEditPhotoFile) {
-        photoUrl = await imageFileToBase64(ootdEditPhotoFile);
-      }
+      const photoUrl = ootdEditPreview; // ImagePicker가 base64로 세팅, 변경 없으면 기존 URL 유지
       await updateDoc(doc(db, 'users', userId, 'ootdLogs', editingOotd.id), {
-        theme: ootdEditTheme,
+        category: ootdEditCategory,
         note: ootdEditNote,
         photoUrl,
         productIds: ootdEditProductIds,
@@ -4291,17 +4311,17 @@ function LogPageInner() {
                                 <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>#OOTD</span>
                               </div>
                               {log.photoUrl
-                                ? <img src={log.photoUrl} alt={log.theme} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                                ? <img src={log.photoUrl} alt={log.category || log.theme} style={{ width: '100%', height: 'auto', display: 'block' }} />
                                 : <div style={{ width: '100%', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>
                                   </div>
                               }
-                              {log.theme && (
+                              {(log.category || log.theme) && (
                                 <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 12, marginBottom: 4 }}>
-                                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#3A6000', background: 'rgba(197,255,0,.25)', border: '1px solid rgba(197,255,0,.6)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{log.theme}</span>
+                                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#3A6000', background: 'rgba(197,255,0,.25)', border: '1px solid rgba(197,255,0,.6)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{log.category || log.theme}</span>
                                 </div>
                               )}
-                              <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: log.theme ? 0 : 12, width: '100%' }}>{log.theme || '오늘의 룩'}</div>
+                              <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: (log.category || log.theme) ? 0 : 12, width: '100%' }}>{log.category || log.theme || '오늘의 룩'}</div>
                               <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#525252', lineHeight: '18px', marginTop: 4 }}>{log.date}</div>
                               {log.note ? (
                                 <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{log.note}</div>
@@ -4501,7 +4521,7 @@ function LogPageInner() {
                                   <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>#OOTD</span>
                                 </div>
                                 {log.photoUrl
-                                  ? <img src={log.photoUrl} alt={log.theme} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                                  ? <img src={log.photoUrl} alt={log.category || log.theme} style={{ width: '100%', height: 'auto', display: 'block' }} />
                                   : <div style={{ width: '100%', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                       <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>
                                     </div>
@@ -5404,27 +5424,23 @@ function LogPageInner() {
               <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 16 }}>오늘의 룩 편집</div>
 
               {/* 사진 */}
-              <input ref={ootdFileRef} type="file" accept="image/*" style={{ display: 'none' }}
-                onChange={async e => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  setOotdEditPhotoFile(file);
-                  setOotdEditPreview(URL.createObjectURL(file));
-                }} />
-              <div onClick={() => ootdFileRef.current?.click()}
-                style={{ width: '100%', height: 220, borderRadius: 12, overflow: 'hidden', background: '#F4F4F0', cursor: 'pointer', position: 'relative', marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {displayImg
-                  ? <img src={displayImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                  : <span style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>📷 사진 추가</span>}
-                {displayImg && <div style={{ position: 'absolute', bottom: 8, right: 8, background: 'rgba(0,0,0,.5)', color: '#fff', borderRadius: 6, padding: '4px 8px', fontFamily: f, fontSize: 11, fontWeight: 700 }}>사진 변경</div>}
+              <div style={{ marginBottom: 14 }}>
+                <ImagePicker
+                  preview={displayImg}
+                  onChange={(file, base64) => { setOotdEditPhotoFile(file); setOotdEditPreview(base64); }}
+                  onClear={() => { setOotdEditPhotoFile(null); setOotdEditPreview(''); }}
+                  height={220}
+                  placeholderLabel="사진 추가"
+                  isOpen={!!editingOotd}
+                />
               </div>
 
-              {/* 테마 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>테마</div>
+              {/* 카테고리 */}
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>카테고리 편집</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 14 }}>
                 {THEMES.map(t => (
-                  <button key={t} type="button" onClick={() => setOotdEditTheme(ootdEditTheme === t ? '' : t)}
-                    style={{ padding: '6px 14px', borderRadius: 9999, border: `1.5px solid ${ootdEditTheme === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: ootdEditTheme === t ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: ootdEditTheme === t ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
+                  <button key={t} type="button" onClick={() => setOotdEditCategory(ootdEditCategory === t ? '' : t)}
+                    style={{ padding: '6px 14px', borderRadius: 9999, border: `1.5px solid ${ootdEditCategory === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: ootdEditCategory === t ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: ootdEditCategory === t ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
                     {t}
                   </button>
                 ))}
@@ -5463,17 +5479,40 @@ function LogPageInner() {
 
             {/* BOX 제품 피커 바텀시트 */}
             {ootdPickerOpen && (() => {
-              // OOTD = 룩북과 동일: fashion + acc 도메인
-              const ootdDomainProducts = ctxProducts.filter(p => p.domain === 'fashion' || p.domain === 'acc');
-              const filtered = ootdDomainProducts.filter(p =>
-                ootdPickerSearch.trim() ? p.name.toLowerCase().includes(ootdPickerSearch.toLowerCase()) : true
-              );
+              const allProds = ctxProducts;
+              const allDomains = [...new Set(allProds.map(p => p.domain).filter(Boolean))] as string[];
+              const ORDER = ['beauty', 'fashion', 'acc', 'interior'];
+              const sortedDomains = [...ORDER.filter(d => allDomains.includes(d)), ...allDomains.filter(d => !ORDER.includes(d))];
+              const domainFiltered = ootdPickerDomain ? allProds.filter(p => p.domain === ootdPickerDomain) : allProds;
+              const filtered = ootdPickerSearch.trim()
+                ? domainFiltered.filter(p => p.name.toLowerCase().includes(ootdPickerSearch.toLowerCase()))
+                : domainFiltered;
               return (
                 <>
                   <div onClick={() => setOotdPickerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 320 }} />
                   <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
                       <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
+                      {sortedDomains.length > 1 && (
+                        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' as const }}>
+                          <button type="button" onClick={() => setOotdPickerDomain(null)}
+                            style={{ flexShrink: 0, background: ootdPickerDomain === null ? '#0C0C0A' : '#fff', border: `1px solid ${ootdPickerDomain === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: ootdPickerDomain === null ? '#fff' : '#0C0C0A', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                            전체 {allProds.length}
+                          </button>
+                          {sortedDomains.map(d => {
+                            const cnt = allProds.filter(p => p.domain === d).length;
+                            const sel = ootdPickerDomain === d;
+                            return (
+                              <button key={d} type="button" onClick={() => setOotdPickerDomain(d)}
+                                style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                                <span style={{ fontSize: 12 }}>{DOMAIN_EMOJIS[d] ?? '📦'}</span>
+                                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A' }}>{DOMAIN_LABELS[d] ?? d}</span>
+                                <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{cnt}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                       <input type="search" value={ootdPickerSearch} onChange={e => setOotdPickerSearch(e.target.value)} placeholder="제품 검색..." autoFocus
                         style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
                     </div>
@@ -5485,7 +5524,7 @@ function LogPageInner() {
                           <div key={p.id} onClick={() => setOotdEditProductIds(ids => sel ? ids.filter(id => id !== p.id) : [...ids, p.id])}
                             style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                              {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>👗</span>}
+                              {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{DOMAIN_EMOJIS[p.domain ?? ''] ?? '📦'}</span>}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
@@ -5495,13 +5534,8 @@ function LogPageInner() {
                           </div>
                         );
                       })}
-                      {!ootdPickerSearch.trim() && ootdDomainProducts.length === 0 && (
-                        <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6 }}>
-                          BOX에 Fashion · Acc 제품이 없어요<br />이름을 검색하면 바로 등록할 수 있어요
-                        </div>
-                      )}
-                      {ootdPickerSearch.trim() && filtered.length === 0 && (
-                        <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>검색 결과가 없습니다</div>
+                      {filtered.length === 0 && (
+                        <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>제품이 없어요</div>
                       )}
                     </div>
                     <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 20px)', borderTop: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
