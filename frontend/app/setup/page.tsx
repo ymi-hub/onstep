@@ -354,7 +354,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
         />
       </div>
       {/* 시작 가이드 배너 */}
-      <div style={{ margin: '16px 26px 0', padding: '14px 26px', background: '#0C0C0A', borderRadius: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ margin: '16px 16px 0', padding: '14px 16px', background: '#0C0C0A', borderRadius: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#C5FF00', marginBottom: 3 }}>HOW TO START</div>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: 'rgba(255,255,255,.7)', lineHeight: 1.5 }}>
@@ -371,7 +371,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
         </div>
       </div>
 
-      <div style={{ padding: '16px 26px 8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
+      <div style={{ padding: '16px 16px 8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{cards.left.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 64 }}>
           {cards.right.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}
@@ -588,7 +588,7 @@ function SessionsView({
       <SubPageHeader title="스킨케어 루틴" onClose={onBack} />
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* 헤더 */}
-        <div style={{ padding: '20px 26px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+        <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
           <div style={{ fontFamily: font, fontSize: 11, fontWeight: 700, letterSpacing: '.18em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>CARE ROUTINES</div>
           <div style={{ fontFamily: font, fontSize: 28, fontWeight: 800, color: '#0C0C0A', lineHeight: 1 }}>
             {loading ? '...' : sessions.length > 0 ? `${sessions.length} SESSIONS` : 'NO SESSIONS'}
@@ -599,11 +599,11 @@ function SessionsView({
         <SearchBar value={search} onChange={setSearch} placeholder="회차 번호 · 태그 검색..." />
 
         {loading ? (
-          <div style={{ padding: '48px 26px', textAlign: 'center', color: '#9A9490', fontFamily: font, fontSize: 13 }}>로딩 중...</div>
+          <div style={{ padding: '48px 16px', textAlign: 'center', color: '#9A9490', fontFamily: font, fontSize: 13 }}>로딩 중...</div>
         ) : (
           <div>
             {filteredSessions.length === 0 && search.trim() ? (
-              <div style={{ padding: '36px 26px', textAlign: 'center', fontFamily: font, fontSize: 13, color: '#9A9490' }}>
+              <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: font, fontSize: 13, color: '#9A9490' }}>
                 &ldquo;{search}&rdquo; 검색 결과 없음
               </div>
             ) : null}
@@ -650,7 +650,7 @@ function SessionsView({
                     onClick={() => toggle(s.id)}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 12,
-                      padding: '12px 26px',
+                      padding: '12px 16px',
                       borderBottom: isExpanded ? 'none' : '1px solid rgba(12,12,10,.07)',
                       cursor: 'pointer',
                       background: isNow ? '#C5FF00' : 'transparent',
@@ -697,7 +697,7 @@ function SessionsView({
 
                   {/* 드롭다운 상세 — 아침/저녁 구성 + 편집 진입 */}
                   {isExpanded && (
-                    <div style={{ padding: '14px 26px 16px', background: '#F4F4F0', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                    <div style={{ padding: '14px 16px 16px', background: '#F4F4F0', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
                       <SlotSection icon="☀️" label="아침 스킨케어" slot={s.morning} />
                       <SlotSection icon="🌙" label="저녁 스킨케어" slot={s.evening} />
                       {morningCount === 0 && eveningCount === 0 && (
@@ -1216,7 +1216,7 @@ function EditorView({
       {/* 본문 스크롤 */}
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 24 }}>
         {/* 세션 정보 */}
-        <div style={{ padding: '20px 26px 0' }}>
+        <div style={{ padding: '20px 16px 0' }}>
           <div style={labelStyle}>세션 정보</div>
           <div style={{ background: '#F4F4F0', borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {/* 회차 + 태그 — 1행 2열 */}
@@ -1269,21 +1269,21 @@ function EditorView({
 
 
         {/* 슬롯 섹션 */}
-        <div style={{ padding: '0 26px 16px' }}>
+        <div style={{ padding: '0 16px 16px' }}>
           {SlotSection({ slotKey: 'morning', icon: '☀️', label: '아침 스킨케어' })}
           {SlotSection({ slotKey: 'evening', icon: '🌙', label: '저녁 스킨케어' })}
         </div>
 
         {/* 세션 삭제 */}
         {draft.id && (
-          <div style={{ padding: '16px 26px 0' }}>
+          <div style={{ padding: '16px 16px 0' }}>
             <button onClick={onDelete} style={{ width: '100%', padding: 14, background: 'none', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#BA1A1A', cursor: 'pointer', fontWeight: 700 }}>이 세션 삭제</button>
           </div>
         )}
       </div>
 
       {/* 하단 고정 저장 버튼 */}
-      <div style={{ flexShrink: 0, padding: '10px 26px 16px', background: 'rgba(250,250,248,.97)', borderTop: '1px solid rgba(12,12,10,.07)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+      <div style={{ flexShrink: 0, padding: '10px 16px 16px', background: 'rgba(250,250,248,.97)', borderTop: '1px solid rgba(12,12,10,.07)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
         <button onClick={onSave} disabled={saving} style={{ width: '100%', height: 52, background: saving ? '#D8D6CF' : '#0C0C0A', color: saving ? '#9A9490' : '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'default' : 'pointer', letterSpacing: '.04em' }}>
           {saving ? '저장중...' : '저장'}
         </button>
@@ -1308,7 +1308,7 @@ function EditorView({
         <>
           <div onClick={() => setPicker(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 300 }} />
           <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 310, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
-            <div style={{ padding: '12px 26px 0', flexShrink: 0 }}>
+            <div style={{ padding: '12px 16px 0', flexShrink: 0 }}>
               <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 16px' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>
@@ -1321,13 +1321,13 @@ function EditorView({
             </div>
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {domainProducts.length === 0 && !pickerSearch.trim() ? (
-                <div style={{ padding: '40px 26px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>BOX에 뷰티 제품이 없습니다.<br />BOX 탭에서 먼저 제품을 추가해주세요.</div>
+                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>BOX에 뷰티 제품이 없습니다.<br />BOX 탭에서 먼저 제품을 추가해주세요.</div>
               ) : (
                 <>
                   {filteredProducts.map((p) => {
                     const isSel = pickerSelected.has(p.id);
                     return (
-                      <div key={p.id} onClick={() => setPickerSelected((prev) => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 26px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                      <div key={p.id} onClick={() => setPickerSelected((prev) => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                         <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>✦</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
@@ -1339,7 +1339,7 @@ function EditorView({
                   })}
                   {/* 검색어 있고 결과 없으면 → 이름으로 등록 후 추가 */}
                   {pickerSearch.trim() && filteredProducts.length === 0 && (
-                    <div onClick={() => registerAndAdd(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 26px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                    <div onClick={() => registerAndAdd(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
@@ -1350,7 +1350,7 @@ function EditorView({
                 </>
               )}
             </div>
-            <div style={{ padding: '12px 26px calc(env(safe-area-inset-bottom, 0px) + 32px)', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
+            <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 32px)', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
               <button onClick={confirmPicker} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료{pickerSelected.size > 0 ? ` (${pickerSelected.size}개)` : ''}</button>
             </div>
           </div>
@@ -1461,7 +1461,7 @@ function AiImportPanel({
         <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '10px auto 0', flexShrink: 0 }} />
 
         {/* 헤더 */}
-        <div style={{ padding: '12px 26px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
+        <div style={{ padding: '12px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
           <div>
             <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A' }}>
               ✨ {panelLabel}
@@ -1478,7 +1478,7 @@ function AiImportPanel({
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {panelPhase === 'input' || panelPhase === 'parsing' ? (
             // ── 입력 단계 ──
-            <div style={{ padding: '16px 26px 32px' }}>
+            <div style={{ padding: '16px 16px 32px' }}>
               {!hasGroqKey && (
                 <div style={{ marginBottom: 12, padding: '10px 14px', background: '#FFFAE0', border: '1px solid rgba(200,160,0,.2)', borderRadius: 10, fontFamily: f, fontSize: 12, color: '#7A6000' }}>
                   ⚙️ <strong>AI 분석 준비 중</strong> — .env.local에 <code>NEXT_PUBLIC_GROQ_API_KEY</code>를 추가하면 사용할 수 있어요.
@@ -1516,7 +1516,7 @@ function AiImportPanel({
             </div>
           ) : (
             // ── 결과 단계 ──
-            <div style={{ padding: '16px 26px 32px' }}>
+            <div style={{ padding: '16px 16px 32px' }}>
               {/* 결과 헤더 카드 */}
               <div style={{ background: 'linear-gradient(135deg,#f0ffe0,#e8ffc0)', border: '1px solid rgba(197,255,0,.3)', borderRadius: 12, padding: '12px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
@@ -2044,7 +2044,7 @@ function DietPlanView({
 
           {/* 저장/삭제 */}
           <div style={{ display: 'flex', gap: 8, paddingBottom: 24 }}>
-            {!isNew && editProgram?.id && <button onClick={() => handleDelete(editProgram.id)} style={{ padding: '12px 26px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
+            {!isNew && editProgram?.id && <button onClick={() => handleDelete(editProgram.id)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
             <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
               {saving ? '저장 중…' : '저장'}
             </button>
@@ -2059,7 +2059,7 @@ function DietPlanView({
             {pickerStep === 'select' ? (
               <>
                 {/* 헤더 — 선택 단계 */}
-                <div style={{ padding: '16px 26px 10px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                <div style={{ padding: '16px 16px 10px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                     <div>
                       <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A' }}>BOX 제품 선택</span>
@@ -2077,7 +2077,7 @@ function DietPlanView({
                   {/* 검색어 있고 결과 없으면 → 이름으로 등록 후 추가 */}
                   {pickerSearch.trim() && filteredPickerProds.length === 0 && (
                     <div onClick={() => registerAndAddDiet(pickerSearch)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 26px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 등록 후 추가</div>
@@ -2086,7 +2086,7 @@ function DietPlanView({
                     </div>
                   )}
                   {filteredPickerProds.length === 0 && !pickerSearch.trim() ? (
-                    <div style={{ padding: '40px 26px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>
+                    <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>
                       <div style={{ fontSize: 28, marginBottom: 6 }}>💊</div>
                       BOX 약·비타민 도메인에 제품이 없습니다.<br />BOX에서 제품을 먼저 추가해주세요.
                     </div>
@@ -2096,7 +2096,7 @@ function DietPlanView({
                       const imgSrc = p.imageUrl || p.storageUrl;
                       return (
                         <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })}
-                          style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 26px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                          style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                           <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, overflow: 'hidden' }}>
                             {imgSrc
                               // eslint-disable-next-line @next/next/no-img-element
@@ -2114,7 +2114,7 @@ function DietPlanView({
                   )}
                 </div>
                 {/* 다음 버튼 */}
-                <div style={{ padding: '12px 26px calc(env(safe-area-inset-bottom,0px) + 16px)', borderTop: '1px solid rgba(12,12,10,.07)' }}>
+                <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)', borderTop: '1px solid rgba(12,12,10,.07)' }}>
                   <button onClick={goToQtyStep} disabled={pickerSelected.size === 0}
                     style={{ width: '100%', height: 52, background: pickerSelected.size === 0 ? '#E4E2DC' : '#0C0C0A', color: pickerSelected.size === 0 ? '#9A9490' : '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: pickerSelected.size === 0 ? 'default' : 'pointer' }}>
                     수량 입력 → {pickerSelected.size > 0 ? `(${pickerSelected.size}개)` : ''}
@@ -2124,13 +2124,13 @@ function DietPlanView({
             ) : (
               <>
                 {/* 헤더 — 수량 입력 단계 */}
-                <div style={{ padding: '16px 26px 12px', borderBottom: '1px solid rgba(12,12,10,.07)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(12,12,10,.07)', display: 'flex', alignItems: 'center', gap: 10 }}>
                   <button onClick={() => setPickerStep('select')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#4A4846', padding: 0, lineHeight: 1 }}>←</button>
                   <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A', flex: 1 }}>수량 입력</span>
                   <button onClick={closePicker} style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                 </div>
                 {/* 선택된 제품 수량 입력 목록 */}
-                <div style={{ flex: 1, overflowY: 'auto', padding: '12px 26px' }}>
+                <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
                   {Array.from(pickerSelected).map(id => {
                     const p = products.find(pr => pr.id === id);
                     if (!p) return null;
@@ -2149,7 +2149,7 @@ function DietPlanView({
                   })}
                 </div>
                 {/* 추가 완료 버튼 */}
-                <div style={{ padding: '12px 26px calc(env(safe-area-inset-bottom,0px) + 16px)', borderTop: '1px solid rgba(12,12,10,.07)' }}>
+                <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)', borderTop: '1px solid rgba(12,12,10,.07)' }}>
                   <button onClick={confirmPickerWithQty}
                     style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
                     추가 완료
@@ -2169,7 +2169,7 @@ function DietPlanView({
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
       <SubPageHeader title="📋 리셋 플랜" onClose={onBack} />
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 26px 80px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 80px' }}>
         {programs.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>📋</div>
@@ -2194,7 +2194,7 @@ function DietPlanView({
                   catch (err) { console.error(err); alert('불러오기 실패'); }
                   finally { setPresetLoading(false); }
                 }}
-                style={{ padding: '9px 26px', background: presetLoading ? '#9B7FD4' : '#7C3AED', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#fff', cursor: presetLoading ? 'default' : 'pointer', flexShrink: 0 }}>
+                style={{ padding: '9px 16px', background: presetLoading ? '#9B7FD4' : '#7C3AED', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#fff', cursor: presetLoading ? 'default' : 'pointer', flexShrink: 0 }}>
                 {presetLoading ? '생성 중…' : '불러오기'}
               </button>
             </div>
@@ -2675,7 +2675,7 @@ function MedView({
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* Hero */}
-        <div style={{ padding: '28px 26px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
+        <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
           <div style={{ position: 'absolute', top: 18, right: 18, fontSize: 36, opacity: .06, transform: 'rotate(10deg)', lineHeight: 1 }}>💊</div>
           <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.18em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 10 }}>DAILY DOSE</div>
           <div style={{ fontFamily: f, fontSize: 48, fontWeight: 900, color: '#0C0C0A', lineHeight: .95, letterSpacing: '-.02em', textTransform: 'uppercase' as const }}>MEDS</div>
@@ -2683,7 +2683,7 @@ function MedView({
         </div>
 
         {/* Add Form */}
-        <div style={{ padding: '20px 26px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+        <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
           <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>NEW MEDICATION</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -2737,7 +2737,7 @@ function MedView({
                 if (gMeds.length === 0) return null;
                 return (
                   <div key={g.key}>
-                    <div style={{ padding: '8px 26px 4px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
+                    <div style={{ padding: '8px 16px 4px', background: '#F8F8F6', borderTop: '1px solid rgba(12,12,10,.05)' }}>
                       <span style={{ fontFamily: "'Courier New',monospace", fontSize: 10, color: g.col, letterSpacing: '.04em' }}>·+ +°.{g.label}°·++·° *</span>
                     </div>
                     {gMeds.map(m => <MedRow key={m.id} m={m} onEdit={() => openEdit(m)} />)}
@@ -2747,19 +2747,19 @@ function MedView({
             </>
           );
           return (
-            <div style={{ padding: '20px 26px 0' }}>
+            <div style={{ padding: '20px 16px 0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>전체</span>
                 <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{items.length}개</span>
               </div>
               <SearchBar value={medSearch} onChange={setMedSearch} placeholder="약 이름 검색..." />
               {items.length === 0 ? (
-                <div style={{ padding: '36px 26px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
+                <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
                   아직 등록된 약이 없습니다.<br />위에서 새 약을 추가해주세요.
                 </div>
               ) : medSearch.trim() ? (
                 filteredMeds.length === 0 ? (
-                  <div style={{ padding: '36px 26px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
+                  <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
                     &ldquo;{medSearch}&rdquo; 검색 결과 없음
                   </div>
                 ) : (
@@ -2768,7 +2768,7 @@ function MedView({
                   </div>
                 )
               ) : listMeds.length === 0 ? (
-                <div style={{ padding: '20px 26px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
+                <div style={{ padding: '20px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
                   모두 Today에 표시 중입니다.
                 </div>
               ) : (
@@ -2818,10 +2818,10 @@ function MedView({
           );
 
           return (
-            <div style={{ padding: '24px 26px 0' }}>
+            <div style={{ padding: '24px 16px 0' }}>
               <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
                 {/* 카드 헤더 */}
-                <div style={{ padding: '14px 26px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
                       <span style={{ fontSize: 15 }}>💊</span>
@@ -3289,7 +3289,7 @@ function HealthView({
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* Hero */}
-        <div style={{ padding: '28px 26px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
+        <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
           <button
             onClick={() => setShowCatSection(p => !p)}
             style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 4, background: '#0C0C0A', border: '2px solid #0066FF', borderRadius: 9999, padding: '6px 12px', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: '#C5FF00', cursor: 'pointer', textTransform: 'uppercase' as const }}
@@ -3509,7 +3509,7 @@ function HealthView({
         </div>
 
         {/* 빠른 추가 폼 */}
-        <div style={{ padding: '20px 26px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+        <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
           <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>NEW ROUTINE</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -3549,19 +3549,19 @@ function HealthView({
         </div>
 
         {/* 루틴 목록 */}
-        <div style={{ padding: '20px 26px 0' }}>
+        <div style={{ padding: '20px 16px 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>전체</span>
             <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{items.length}개</span>
           </div>
           <SearchBar value={healthSearch} onChange={setHealthSearch} placeholder="루틴 이름 검색..." />
           {items.length === 0 ? (
-            <div style={{ padding: '36px 26px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
+            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
               아직 등록된 루틴이 없습니다.<br />위에서 새 루틴을 추가해주세요.
             </div>
           ) : healthSearch.trim() ? (
             filteredHealth.length === 0 ? (
-              <div style={{ padding: '36px 26px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
+              <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
                 &ldquo;{healthSearch}&rdquo; 검색 결과 없음
               </div>
             ) : (
@@ -3570,7 +3570,7 @@ function HealthView({
               </div>
             )
           ) : listItems.length === 0 ? (
-            <div style={{ padding: '20px 26px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
+            <div style={{ padding: '20px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
               모두 Today에 표시 중입니다.
             </div>
           ) : grouped.length > 0 ? (
@@ -3595,7 +3595,7 @@ function HealthView({
 
         {/* DAILY HEALTH — showInToday=true 루틴 미리보기 */}
         {items.some(i => i.showInToday) && (
-          <div style={{ padding: '24px 26px 0' }}>
+          <div style={{ padding: '24px 16px 0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>DAILY HEALTH</span>
               <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>TODAY</span>
@@ -3734,7 +3734,7 @@ function HealthView({
               ))}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              {catEditId && <button onClick={() => deleteCat(catEditId)} style={{ padding: '12px 26px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
+              {catEditId && <button onClick={() => deleteCat(catEditId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
               <button onClick={saveCat} disabled={catSaving} style={{ flex: 1, padding: 14, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: catSaving ? .6 : 1 }}>
                 {catSaving ? '저장 중…' : '저장'}
               </button>
@@ -3908,7 +3908,7 @@ function TrackerView({
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* Hero */}
-        <div style={{ padding: '28px 26px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
+        <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
           <div style={{ position: 'absolute', top: 18, right: 18, fontSize: 36, opacity: .06, transform: 'rotate(10deg)', lineHeight: 1 }}>⏰</div>
           <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.18em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 10 }}>DAILY TRACKING</div>
           <div style={{ fontFamily: f, fontSize: 48, fontWeight: 900, color: '#0C0C0A', lineHeight: .95, letterSpacing: '-.02em', textTransform: 'uppercase' as const }}>HABITS</div>
@@ -3916,7 +3916,7 @@ function TrackerView({
         </div>
 
         {/* Add Form */}
-        <div style={{ padding: '20px 26px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+        <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
           <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 12 }}>NEW HABIT</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -3934,19 +3934,19 @@ function TrackerView({
         </div>
 
         {/* All habits pool */}
-        <div style={{ padding: '20px 26px 0' }}>
+        <div style={{ padding: '20px 16px 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>전체</span>
             <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{habits.length}개</span>
           </div>
           <SearchBar value={habitSearch} onChange={setHabitSearch} placeholder="습관 이름 검색..." />
           {habits.length === 0 ? (
-            <div style={{ padding: '36px 26px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
+            <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', lineHeight: 1.6, border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 16, background: '#EEEDE9', marginTop: 8 }}>
               아직 등록된 습관이 없습니다.<br />위에서 새 습관을 추가해주세요.
             </div>
           ) : habitSearch.trim() ? (
             filteredHabits.length === 0 ? (
-              <div style={{ padding: '36px 26px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
+              <div style={{ padding: '36px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 8 }}>
                 &ldquo;{habitSearch}&rdquo; 검색 결과 없음
               </div>
             ) : (
@@ -3955,7 +3955,7 @@ function TrackerView({
               </div>
             )
           ) : listHabits.length === 0 ? (
-            <div style={{ padding: '20px 26px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
+            <div style={{ padding: '20px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 8 }}>
               모두 Today에 표시 중입니다.
             </div>
           ) : (
@@ -3967,7 +3967,7 @@ function TrackerView({
 
         {/* DAILY HABITS — showInToday=true 습관 미리보기 */}
         {habits.some(h => h.showInToday) && (
-          <div style={{ padding: '24px 26px 0' }}>
+          <div style={{ padding: '24px 16px 0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
                 DAILY HABITS
@@ -4590,7 +4590,7 @@ function CtPanel({
     const prodItems = (item.items || []).filter((i): i is { type: 'product'; id: string } => i.type === 'product');
     return (
       <div style={{ background: '#fff', border: `1.5px solid ${item.published ? '#0C0C0A' : 'rgba(12,12,10,.07)'}`, borderRadius: 16, overflow: 'hidden', transition: 'border-color .2s' }}>
-        <div style={{ padding: '14px 26px 10px' }}>
+        <div style={{ padding: '14px 16px 10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             {/* 드래그 핸들 */}
             <div
@@ -4712,7 +4712,7 @@ function CtPanel({
             </div>
           )}
         </div>
-        <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 26px 12px', display: 'flex', gap: 8 }}>
+        <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 16px 12px', display: 'flex', gap: 8 }}>
           <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: 10, background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.08)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
@@ -5131,7 +5131,7 @@ function CtPanel({
             <>
               <div onClick={() => setPicker(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 141 }} />
               <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 142, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
-                <div style={{ padding: '12px 26px 0', flexShrink: 0 }}>
+                <div style={{ padding: '12px 16px 0', flexShrink: 0 }}>
                   <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 16px' }} />
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                     <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>{picker === 'tip' ? 'TIP ' : ''}제품 선택</div>
@@ -5142,7 +5142,7 @@ function CtPanel({
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto' }}>
                   {domainProducts.length === 0 && !pickerSearch.trim() ? (
-                    <div style={{ padding: '40px 26px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>
+                    <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9A9490', fontFamily: f, fontSize: 13, lineHeight: 1.6 }}>
                       BOX에 {ctType === 'lookbook' ? '패션·악세서리' : ctType === 'makeup' ? '메이크업' : '뷰티'} 제품이 없습니다.<br />
                       아래에서 이름으로 바로 등록할 수 있습니다.
                     </div>
@@ -5151,7 +5151,7 @@ function CtPanel({
                       {filteredProducts.map(p => {
                         const isSel = pickerSelected.has(p.id);
                         return (
-                          <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 26px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                          <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>✦</div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
@@ -5163,7 +5163,7 @@ function CtPanel({
                       })}
                       {/* 검색어 있고 결과 없으면 → 이름으로 등록 후 추가 */}
                       {pickerSearch.trim() && filteredProducts.length === 0 && (
-                        <div onClick={() => registerAndAdd(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 26px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                        <div onClick={() => registerAndAdd(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
                           <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
@@ -5174,7 +5174,7 @@ function CtPanel({
                     </>
                   )}
                 </div>
-                <div style={{ padding: '12px 26px calc(env(safe-area-inset-bottom, 0px) + 32px)', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
+                <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 32px)', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
                   <button onClick={confirmPicker} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료{pickerSelected.size > 0 ? ` (${pickerSelected.size}개)` : ''}</button>
                 </div>
               </div>

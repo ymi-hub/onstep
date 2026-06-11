@@ -266,7 +266,7 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
       {/* ── 히어로 카드 (design/box.html .mag-hero-card) ── */}
       <div
         onClick={() => onEdit(hero)}
-        style={{ padding: '16px 26px 0', cursor: 'pointer' }}
+        style={{ padding: '16px 16px 0', cursor: 'pointer' }}
       >
         <MagImg product={hero} borderRadius={20} isHero />
         <div style={{ padding: '12px 0 4px' }}>
@@ -289,7 +289,7 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
 
       {/* ── 3열 소형 카드 (design/box.html .mag-3col) ── */}
       {rest.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, padding: '12px 26px 0' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, padding: '12px 16px 0' }}>
           {rest.map((p) => (
             <div key={p.id} onClick={() => onEdit(p)} style={{ cursor: 'pointer' }}>
               <MagImg product={p} borderRadius={12} />
@@ -542,7 +542,7 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
     <div
       onClick={onClick}
       style={{
-        display: 'flex', alignItems: 'center', gap: 12, padding: '10px 26px',
+        display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px',
         borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer',
         background: '#fff', transition: 'background .12s',
       }}
@@ -632,7 +632,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       <button
         onClick={onAdd}
         style={{
-          padding: '10px 26px', background: '#0C0C0A', color: '#fff',
+          padding: '10px 16px', background: '#0C0C0A', color: '#fff',
           border: 'none', borderRadius: 9999, cursor: 'pointer',
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
           fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
@@ -1328,7 +1328,7 @@ export default function BoxPage() {
     <div style={{ background: '#FAFAF8', minHeight: '100%', position: 'relative' }}>
       {/* 비로그인 안내 */}
       {!authLoading && !user && (
-        <div style={{ background: '#FEF3C7', color: '#92400E', padding: '8px 26px', fontSize: 13, borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ background: '#FEF3C7', color: '#92400E', padding: '8px 16px', fontSize: 13, borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 8 }}>
           <span>Google 로그인 후 제품을 관리할 수 있습니다.</span>
         </div>
       )}
@@ -1416,7 +1416,7 @@ export default function BoxPage() {
         // 가격 정보가 아예 없는 경우
         if (priced.length === 0) {
           return (
-            <div style={{ padding: '60px 26px', textAlign: 'center' }}>
+            <div style={{ padding: '60px 16px', textAlign: 'center' }}>
               <div style={{ fontSize: 36, marginBottom: 12 }}>💰</div>
               <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', marginBottom: 6 }}>가격 정보가 없어요</div>
               <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>제품 편집에서 가격을 입력하면 분석이 시작됩니다</div>
@@ -1434,7 +1434,7 @@ export default function BoxPage() {
         const filteredMonthlyTotal = filteredPriced.reduce((sum, p) => sum + p.cpd * 30, 0);
 
         return (
-          <div style={{ padding: '16px 26px calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
+          <div style={{ padding: '16px 16px calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
             
             {/* 전체/도메인 요약 카드 */}
             <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
@@ -1627,7 +1627,7 @@ export default function BoxPage() {
           position: 'sticky', top: 55, zIndex: 7,
           background: 'rgba(255,255,255,.95)', backdropFilter: 'blur(14px)',
           WebkitBackdropFilter: 'blur(14px)',
-          padding: '8px 26px', borderBottom: '1px solid rgba(12,12,10,.07)',
+          padding: '8px 16px', borderBottom: '1px solid rgba(12,12,10,.07)',
         }}
       >
         <div style={{ position: 'relative' }}>
@@ -1688,7 +1688,7 @@ export default function BoxPage() {
       {activeTab !== 'all' && cats.length > 0 && (
         <div
           style={{
-            display: 'flex', gap: 6, padding: '10px 26px 8px',
+            display: 'flex', gap: 6, padding: '10px 16px 8px',
             overflowX: 'auto', scrollbarWidth: 'none',
             borderBottom: '1px solid rgba(12,12,10,.07)',
           }}
@@ -1743,7 +1743,7 @@ export default function BoxPage() {
 
         const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
         return (
-          <div style={{ padding: '10px 26px 2px' }}>
+          <div style={{ padding: '10px 16px 2px' }}>
             {/* 헤더 */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1813,7 +1813,7 @@ export default function BoxPage() {
         <div
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '8px 26px 6px',
+            padding: '8px 16px 6px',
             borderBottom: '1px solid rgba(12,12,10,.07)',
             background: 'rgba(255,255,255,.95)',
           }}
@@ -1929,7 +1929,7 @@ export default function BoxPage() {
                   <div key={brand}>
                     <div
                       style={{
-                        padding: '8px 26px 6px',
+                        padding: '8px 16px 6px',
                         fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                         fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase',
                         color: '#9A9490', background: '#FAFAF8',
@@ -1989,7 +1989,7 @@ export default function BoxPage() {
 
       {/* 이전 데이터 가져오기 버튼 (로그인 상태이고 products가 비었을 때) */}
       {user && !loading && products.length === 0 && !isAddOpen && (
-        <div style={{ padding: '0 26px 16px', textAlign: 'center' }}>
+        <div style={{ padding: '0 16px 16px', textAlign: 'center' }}>
           <button
             onClick={handleManualMigrate}
             disabled={migrating}
@@ -2007,7 +2007,7 @@ export default function BoxPage() {
 
       {/* 하단 — 카테고리 편집 (항상 표시) */}
       {!isAddOpen && (
-        <div style={{ padding: '20px 26px 120px', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ padding: '20px 16px 120px', display: 'flex', justifyContent: 'center' }}>
           <button
             onClick={() => setManageOpen(true)}
             style={{
@@ -2069,7 +2069,7 @@ export default function BoxPage() {
         const domainColors = DOMAIN_COLORS;
 
         return (
-          <div style={{ padding: '16px 26px calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
+          <div style={{ padding: '16px 16px calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
             {/* 보관장소 추가 바 (전체 보기 아닐 때만 표시) */}
             {activeTab !== 'all' && (
               <div style={{ marginBottom: 20, background: '#fff', borderRadius: 14, padding: 16, border: '1px solid rgba(12,12,10,.07)' }}>
@@ -2258,7 +2258,7 @@ export default function BoxPage() {
             background: migrationToast.ok ? '#0C0C0A' : '#991B1B',
             color: '#fff',
             borderRadius: 12,
-            padding: '12px 26px',
+            padding: '12px 16px',
             fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
             fontSize: 13, fontWeight: 600,
             boxShadow: '0 4px 24px rgba(0,0,0,.18)',
@@ -2466,7 +2466,7 @@ function ManageSheet({
       <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
 
         {/* 핸들 + 헤더 */}
-        <div style={{ padding: '12px 26px 0', flexShrink: 0 }}>
+        <div style={{ padding: '12px 16px 0', flexShrink: 0 }}>
           <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 14px' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
             {view === 'cats' && (
@@ -2484,7 +2484,7 @@ function ManageSheet({
         </div>
 
         {/* 스크롤 영역 */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 26px calc(env(safe-area-inset-bottom, 0px) + 40px)' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px calc(env(safe-area-inset-bottom, 0px) + 40px)' }}>
 
           {/* ── VIEW: 도메인 목록 ── */}
           {view === 'domains' && (
@@ -2631,7 +2631,7 @@ function ManageSheet({
                   placeholder="새 도메인 이름..."
                   style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, padding: '9px 12px', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }}
                 />
-                <button onClick={addDomain} style={{ padding: '9px 26px', borderRadius: 10, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
+                <button onClick={addDomain} style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
           )}
@@ -2818,7 +2818,7 @@ function ManageSheet({
                   placeholder="카테고리 이름..."
                   style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, padding: '9px 12px', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }}
                 />
-                <button onClick={addCat} style={{ padding: '9px 26px', borderRadius: 10, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
+                <button onClick={addCat} style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
           )}
@@ -2987,7 +2987,7 @@ function AddProductPage({
           backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
           borderBottom: '1px solid rgba(12,12,10,.07)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 26px', flexShrink: 0,
+          padding: '0 16px', flexShrink: 0,
         }}
       >
         <button
@@ -3023,7 +3023,7 @@ function AddProductPage({
         </div>
 
         {/* ── 폼 콘텐츠 ── */}
-        <div style={{ padding: '24px 26px', display: 'flex', flexDirection: 'column', gap: 32 }}>
+        <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 32 }}>
 
           {/* ── Purchase history 섹션 ── */}
           <div>
@@ -3148,7 +3148,7 @@ function AddProductPage({
                         key={st.id}
                         onClick={() => setForm((f) => ({ ...f, formSubType: st.id, category: '' }))}
                         style={{
-                          padding: '7px 26px 7px 0',
+                          padding: '7px 16px 7px 0',
                           marginRight: 4,
                           background: 'none', border: 'none',
                           borderBottom: subType === st.id ? '2.5px solid #C5FF00' : '2.5px solid transparent',
@@ -4053,7 +4053,7 @@ function LocationEditSheet({
       <div
         style={{
           width: '100%', maxWidth: 440, background: '#fff',
-          borderRadius: '24px 24px 0 0', padding: '20px 26px calc(env(safe-area-inset-bottom,0px) + 24px)',
+          borderRadius: '24px 24px 0 0', padding: '20px 16px calc(env(safe-area-inset-bottom,0px) + 24px)',
           display: 'flex', flexDirection: 'column', gap: 20,
           boxShadow: '0 -8px 32px rgba(0,0,0,.12)',
         }}
