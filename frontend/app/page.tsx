@@ -2865,7 +2865,7 @@ export default function TodayPage() {
   // ── OOTD 시트 열기 (수정 시 기존 값 미리 채움) ──
   const handleOpenOOTDSheet = () => {
     if (ootdLog) {
-      setOotdTheme(ootdLog.theme);
+      setOotdTheme(ootdLog.category || ootdLog.theme || '');
       setOotdNote(ootdLog.note);
       setOotdPhotoPreview(ootdLog.photoUrl);
       setOotdPhotoFile(null);
