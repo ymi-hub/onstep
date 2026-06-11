@@ -4111,8 +4111,8 @@ function LogPageInner() {
                           );
                         })}
                       </div>
-                      {/* 카드 2열 그리드 */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      {/* 카드 1열 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {filteredTips.map(item => (
                           <LifetipLibraryCard
                             key={item.id}
