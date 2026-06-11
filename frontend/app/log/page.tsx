@@ -1758,6 +1758,19 @@ function LogCtPanel({
 
   function closeSheet() { setSheetOpen(false); setPicker(null); setSaveError(''); }
 
+  // Firestore는 undefined 값을 거부하므로 객체/배열에서 제거
+  function stripUndefined<T>(val: T): T {
+    if (Array.isArray(val)) return val.map(stripUndefined) as unknown as T;
+    if (val !== null && typeof val === 'object') {
+      return Object.fromEntries(
+        Object.entries(val as Record<string, unknown>)
+          .filter(([, v]) => v !== undefined)
+          .map(([k, v]) => [k, stripUndefined(v)])
+      ) as T;
+    }
+    return val;
+  }
+
   async function handleSave() {
     if (!sName.trim()) return;
     setSaving(true);
@@ -1768,7 +1781,7 @@ function LogCtPanel({
         ctType,
         emoji: sEmoji || icon,
         name: sName.trim(), desc: (sDesc ?? '').trim(),
-        items: sItems, tipItems: sTipItems, expertTip: '',
+        items: stripUndefined(sItems), tipItems: stripUndefined(sTipItems), expertTip: '',
         published: sPublished, dates: sDates,
         tags: sTags,
         ...((sSourceUrl ?? '').trim() ? { sourceUrl: sSourceUrl.trim() } : {}),
