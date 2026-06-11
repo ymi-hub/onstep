@@ -2997,14 +2997,14 @@ function LogPageInner() {
     if (!editingLifetip || !db || !userId) return;
     setLifetipEditSaving(true);
     try {
-      // 새 이미지 파일이 있으면 base64로 변환, 없으면 기존 imageUrl 유지
       const imageUrl = lifetipEditImageFile
         ? await imageFileToBase64(lifetipEditImageFile)
         : lifetipEditImagePreview;
+      // tipCategory는 등록 시 설정된 값 그대로 유지
       await updateDoc(doc(db, 'users', userId, 'lifetipItems', editingLifetip.id), {
         name: lifetipEditName.trim() || editingLifetip.name,
         emoji: lifetipEditEmoji.trim() || editingLifetip.emoji,
-        tipCategory: lifetipEditCategory.trim() || editingLifetip.tipCategory,
+        tipCategory: editingLifetip.tipCategory,
         sourceUrl: lifetipEditUrl.trim(),
         productIds: lifetipEditProductIds,
         memo: lifetipEditMemo.trim(),
@@ -3012,6 +3012,15 @@ function LogPageInner() {
         imageUrl,
         updatedAt: new Date().toISOString(),
       });
+      // 수집 문서 실시간 동기화 — 태그를 라이브러리 편집값으로 갱신
+      const linkedRef = references.find(r => r.libraryItemId === editingLifetip.id);
+      if (linkedRef) {
+        // 카테고리 태그(Life tip / Makeup 등)는 유지, 나머지를 lifetipEditTags로 교체
+        const catTags = (linkedRef.tags ?? []).filter(t => categoryTags.includes(t));
+        await updateDoc(doc(db, 'users', userId, 'references', linkedRef.id), {
+          tags: [...catTags, ...lifetipEditTags],
+        });
+      }
       setEditingLifetip(null);
     } catch (err) {
       console.error('[OnStep] Life TIP 편집 저장 실패:', err);
@@ -4425,8 +4434,8 @@ function LogPageInner() {
 
               <div style={{ padding: '16px 20px 0' }}>
 
-                {/* 이모지 + 이름 — Makeup/Lookbook과 동일한 레이아웃 */}
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                {/* 이모지 + 이름 */}
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
                   <input type="text" value={lifetipEditEmoji} onChange={e => setLifetipEditEmoji(e.target.value)}
                     placeholder="📌" maxLength={2}
                     style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
@@ -4434,12 +4443,6 @@ function LogPageInner() {
                     placeholder="이름 *"
                     style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
                 </div>
-
-                {/* 카테고리 */}
-                <input type="text" value={lifetipEditCategory}
-                  onChange={e => { setLifetipEditCategory(e.target.value); if (!lifetipEditEmoji || lifetipEditEmoji === getLifetipEmoji(editingLifetip.tipCategory)) setLifetipEditEmoji(getLifetipEmoji(e.target.value.trim())); }}
-                  placeholder="카테고리 (예: 투자, 뷰티, 맛집)"
-                  style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 8 }} />
 
                 {/* 참고 링크 — Makeup/Lookbook과 동일한 스타일 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginBottom: 8 }}>
@@ -4468,11 +4471,30 @@ function LogPageInner() {
                 <textarea value={lifetipEditMemo} onChange={e => setLifetipEditMemo(e.target.value)} placeholder="메모…"
                   style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#0C0C0A', resize: 'none', height: 72, outline: 'none', boxSizing: 'border-box' as const, marginBottom: 16 }} />
 
+                {/* 구분선 */}
+                <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+
+                {/* 카테고리 — 등록 시 설정된 값, 읽기 전용 배지 */}
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: 2, background: '#0C0C0A', display: 'inline-block' }} />
+                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#0C0C0A' }}>카테고리</div>
+                  </div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
+                      {editingLifetip.tipCategory || 'Life tip'}
+                    </span>
+                  </div>
+                </div>
+
                 {/* 태그 */}
                 <div style={{ marginBottom: 16 }}>
                   {/* 레이블 행 */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9A9490' }}>태그</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250', letterSpacing: '.04em' }}>#</span>
+                      <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</div>
+                    </div>
                     <button type="button"
                       onClick={() => { setLifetipTagEditOpen(v => !v); if (lifetipTagEditOpen) setLifetipTagNewTag(''); }}
                       style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
