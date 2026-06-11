@@ -1345,14 +1345,6 @@ function LifetipLibraryCard({
         padding: '12px 10px 0px',
         width: '100%', isolation: 'isolate', flexShrink: 0,
       }}>
-        {/* 카테고리 태그 */}
-        {item.tipCategory && (
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
-            <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#1D6DDB', background: 'rgba(96,165,250,.15)', border: '1px solid rgba(96,165,250,.4)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>
-              {item.tipCategory}
-            </span>
-          </div>
-        )}
         {/* 제목 */}
         <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#000', lineHeight: '18px', width: '100%', marginBottom: item.memo ? 6 : 10, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
         {item.memo ? (
