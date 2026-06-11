@@ -2003,6 +2003,16 @@ function LogCtPanel({
                 />
               </div>
 
+              {/* 메모 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
+                <textarea value={sDesc} onChange={e => setSDesc(e.target.value)}
+                  placeholder="메모 입력 (선택)..."
+                  rows={3}
+                  style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }}
+                />
+              </div>
+
               {/* 아이템 매핑 */}
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, marginTop: 8 }}>아이템 매핑</div>
               {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length > 0 && (
@@ -4361,6 +4371,9 @@ function LogPageInner() {
                               )}
                             </div>
                             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
+                            {item.desc?.trim() && (
+                              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#6A6866', lineHeight: 1.5, marginTop: 6, width: '100%', zIndex: 2 }}>{item.desc}</div>
+                            )}
                             <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.tpo?.join(' · ') || ''}</div>
                             {/* 카테고리 + 태그 */}
                             {(() => {
