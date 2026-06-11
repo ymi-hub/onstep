@@ -53,7 +53,7 @@ import { DOMAIN_LABELS } from '@/types/ctitem';
 import type { LifetipItem } from '@/types/lifetip';
 import { getLifetipEmoji } from '@/types/lifetip';
 import { useAppContext } from '@/lib/AppContext';
-import { FALLBACK_USER_ID } from '@/lib/constants';
+import { FALLBACK_USER_ID, FONT } from '@/lib/constants';
 import { toDateStr } from '@/lib/dateUtils';
 import type { Product } from '@/types/product';
 import type { CtItem } from '@/types/ctitem';
@@ -61,6 +61,10 @@ import PageHeader from '@/components/PageHeader';
 import CatBadge from '@/components/CatBadge';
 import ImagePicker from '@/components/ImagePicker';
 import MoreButton from '@/components/MoreButton';
+import RotatedBadge, { BADGE_CONFIG } from '@/components/RotatedBadge';
+import TagChips from '@/components/TagChips';
+import ProductThumbnailStrip from '@/components/ProductThumbnailStrip';
+import CardButtonBar from '@/components/CardButtonBar';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -1306,7 +1310,7 @@ function LifetipLibraryCard({
   onEdit: () => void;
   onToggleToday: () => void;
 }) {
-  const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+  const f = FONT;
   const pIds = item.productIds ?? [];
   const createdDate = item.createdAt?.slice(0, 10) ?? '';
   const todayStr = format(new Date(), 'yyyy-MM-dd');
@@ -1314,13 +1318,8 @@ function LifetipLibraryCard({
 
   return (
     <div style={{ border: '1px solid #000000', background: '#FFFFFF' }}>
-      {/* 이미지 + 텍스트 영역 — 메이크업/룩북 카드와 동일한 구조 */}
       <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 16px 0px', position: 'relative', width: '100%', isolation: 'isolate', flexShrink: 0 }}>
-        {/* 뱃지 스티커 */}
-        <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#93C5FD', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
-          <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#1E3A8A', transform: 'rotate(-3deg)' }}>#LIFETIP</span>
-        </div>
-        {/* 이미지 */}
+        <RotatedBadge badgeKey="lifetip" />
         <div style={{ width: '100%', overflow: 'visible', flexShrink: 0, zIndex: 0, position: 'relative' }}>
           {item.imageUrl
             ? // eslint-disable-next-line @next/next/no-img-element
@@ -1330,48 +1329,17 @@ function LifetipLibraryCard({
               </div>
           }
         </div>
-        {/* 태그 */}
-        {(item.tags ?? []).length > 0 && (
-          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginTop: 12, marginBottom: 0 }}>
-            {(item.tags ?? []).map(tag => (
-              <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>#{tag}</span>
-            ))}
-          </div>
-        )}
-        {/* 제목 */}
+        <TagChips tags={item.tags ?? []} style={{ marginTop: 12 }} />
         <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: 12, width: '100%' }}>{item.name}</div>
-        {/* 날짜 */}
-        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#525252', lineHeight: '18px', marginTop: 4 }}>{createdDate}</div>
-        {/* 메모 */}
-        {item.memo ? (
-          <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{item.memo}</div>
-        ) : <div style={{ marginBottom: 12 }} />}
-      </div>
-      {/* BOX 제품 썸네일 */}
-      {pIds.length > 0 && (
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', width: '100%', scrollbarWidth: 'none' as const, borderTop: '1px solid #000000', boxSizing: 'border-box' as const }}>
-          {pIds.map((pid, idx) => {
-            const p = products.get(pid);
-            const imgSrc = p?.imageUrl || (p as (Product & { storageUrl?: string }) | undefined)?.storageUrl;
-            return (
-              <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <div style={{ width: 120, height: 160, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
-                </div>
-                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
-              </div>
-            );
-          })}
+        {item.memo && (
+          <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{item.memo}</div>
+        )}
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
+          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{createdDate}</span>
         </div>
-      )}
-      {/* 버튼 바 */}
-      <div style={{ display: 'flex', borderTop: '1px solid #000000' }}>
-        <button onClick={onToggleToday}
-          style={{ flex: 1, padding: '12px 0', background: isOnToday ? '#0C0C0A' : '#F3F3F1', color: isOnToday ? '#C5FF00' : '#0C0C0A', border: 'none', borderRight: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
-          {isOnToday ? 'Today ON' : 'Today OFF'}
-        </button>
-        <button onClick={onEdit} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
       </div>
+      <ProductThumbnailStrip productIds={pIds} products={products} />
+      <CardButtonBar isOnToday={!!isOnToday} onToggleToday={onToggleToday} onEdit={onEdit} />
     </div>
   );
 }
@@ -4258,9 +4226,7 @@ function LogPageInner() {
                         return (
                           <div key={log.id} style={{ border: '1px solid #000000', background: '#FFFFFF' }}>
                             <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 16px 0px', position: 'relative', width: '100%', isolation: 'isolate' }}>
-                              <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: '#C6F432', border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
-                                <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#525252', transform: 'rotate(-3deg)' }}>#OOTD</span>
-                              </div>
+                              <RotatedBadge badgeKey="ootd" />
                               {log.photoUrl
                                 ? <img src={log.photoUrl} alt={log.category || log.theme} style={{ width: '100%', height: 'auto', display: 'block' }} />
                                 : <div style={{ width: '100%', aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -4273,10 +4239,13 @@ function LogPageInner() {
                                 </div>
                               )}
                               <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: (log.category || log.theme) ? 0 : 12, width: '100%' }}>{log.category || log.theme || '오늘의 룩'}</div>
-                              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#525252', lineHeight: '18px', marginTop: 4 }}>{log.date}</div>
-                              {log.note ? (
-                                <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{log.note}</div>
-                              ) : <div style={{ marginBottom: 12 }} />}
+                              {log.note && (
+                                <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{log.note}</div>
+                              )}
+                              {/* 날짜 — 오른쪽 하단 */}
+                              <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
+                                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
+                              </div>
                             </div>
                             {pIds.length > 0 && (
                               <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', borderTop: '1px solid #000000', scrollbarWidth: 'none' as const }}>
@@ -4375,9 +4344,7 @@ function LogPageInner() {
                         <div key={item.id} id={`lib-item-${item.id}`} style={{ border: '1px solid #000000', background: '#FFFFFF' }}>
                           {/* 이미지 + 텍스트 영역 */}
                           <div style={{ boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px 16px 0px', position: 'relative', width: '100%', isolation: 'isolate', flexShrink: 0 }}>
-                            <div style={{ position: 'absolute', right: 7, top: 42, width: 113, height: 32, background: badgeBg2, border: '1px solid #18181B', transform: 'rotate(-3deg)', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 3 }}>
-                              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: badgeText2, transform: 'rotate(-3deg)' }}>{badge}</span>
-                            </div>
+                            <RotatedBadge badgeKey={itemDomain as import('@/components/RotatedBadge').BadgeKey} />
                             {/* overflow: visible — 스탬프가 이미지 아래로 삐져나오게 */}
                             <div style={{ width: '100%', overflow: 'visible', flexShrink: 0, zIndex: 0, position: 'relative' }}>
                               {item.imageUrl
@@ -4401,20 +4368,14 @@ function LogPageInner() {
                             {item.desc?.trim() ? (
                               <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 8, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.desc}</div>
                             ) : null}
-                            {/* 태그 — Life TIP과 동일: pill 스타일 */}
-                            {(item.tags ?? []).length > 0 ? (
-                              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginTop: 6, marginBottom: 12, zIndex: 2 }}>
-                                {(item.tags ?? []).map(tag => (
-                                  <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>#{tag.replace(/^#/, '')}</span>
-                                ))}
-                              </div>
-                            ) : <div style={{ marginBottom: 12 }} />}
+                            <TagChips tags={item.tags ?? []} style={{ marginTop: 6, marginBottom: 12, zIndex: 2 }} />
+                            {!(item.tags ?? []).length && <div style={{ marginBottom: 12 }} />}
                             {item.sourceUrl?.trim() && (() => {
                               let domain = item.sourceUrl!;
                               try { domain = new URL(item.sourceUrl!).hostname; } catch {}
                               return (
                                 <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
-                                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, padding: '8px 12px', border: '1px solid rgba(12,12,10,.15)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}
+                                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '8px 12px', border: '1px solid rgba(12,12,10,.15)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}
                                 >
                                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
                                     <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
@@ -4425,32 +4386,13 @@ function LogPageInner() {
                                 </a>
                               );
                             })()}
-                            {!item.sourceUrl?.trim() && <div style={{ height: 20 }} />}
-                          </div>
-                          {/* 현황 — 제품 스크롤 (있을 때만, borderTop 구분선) */}
-                          {prodItems.length > 0 && (
-                            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', width: '100%', scrollbarWidth: 'none' as const, borderTop: '1px solid #000000', boxSizing: 'border-box' as const }}>
-                              {prodItems.map((it, idx) => {
-                                const p = products.get(it.id);
-                                const imgSrc = p?.imageUrl || p?.storageUrl;
-                                return (
-                                  <div key={idx} style={{ flexShrink: 0, width: 120, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                                    <div style={{ width: 120, height: 160, borderRadius: 0, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                      {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
-                                    </div>
-                                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
-                                  </div>
-                                );
-                              })}
+                            {/* 날짜 — 오른쪽 하단 */}
+                            <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{item.createdAt?.slice(0, 10) ?? ''}</span>
                             </div>
-                          )}
-                          {/* 버튼 영역 — borderTop 구분선 */}
-                          <div style={{ display: 'flex', borderTop: '1px solid #000000' }}>
-                            <button onClick={() => handleToggleToday(item)} disabled={!!togglingId} style={{ flex: 1, padding: '12px 0', background: isOnToday ? '#0C0C0A' : '#F3F3F1', color: isOnToday ? '#C5FF00' : '#0C0C0A', border: 'none', borderRight: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: togglingId ? 'default' : 'pointer', opacity: togglingId === item.id ? 0.6 : 1, transition: 'all .15s' }}>
-                              {togglingId === item.id ? '...' : isOnToday ? 'Today ON' : 'Today OFF'}
-                            </button>
-                            <button onClick={() => triggerCollectionEdit(item)} style={{ flex: 1, padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
                           </div>
+                          <ProductThumbnailStrip productIds={prodItems.map(it => it.id)} products={products} />
+                          <CardButtonBar isOnToday={!!isOnToday} onToggleToday={() => handleToggleToday(item)} onEdit={() => triggerCollectionEdit(item)} disabled={togglingId === item.id} />
                         </div>
                       );
                     })}
@@ -4477,16 +4419,19 @@ function LogPageInner() {
                                       <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>
                                     </div>
                                 }
-                                {log.theme && (
+                                {(log.category || log.theme) && (
                                   <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 12, marginBottom: 4 }}>
-                                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#3A6000', background: 'rgba(197,255,0,.25)', border: '1px solid rgba(197,255,0,.6)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{log.theme}</span>
+                                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#3A6000', background: 'rgba(197,255,0,.25)', border: '1px solid rgba(197,255,0,.6)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{log.category || log.theme}</span>
                                   </div>
                                 )}
-                                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: log.theme ? 0 : 12, width: '100%' }}>{log.theme || '오늘의 룩'}</div>
-                                <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#525252', lineHeight: '18px', marginTop: 4 }}>{log.date}</div>
-                                {log.note ? (
-                                  <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{log.note}</div>
-                                ) : <div style={{ marginBottom: 12 }} />}
+                                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: (log.category || log.theme) ? 0 : 12, width: '100%' }}>{log.category || log.theme || '오늘의 룩'}</div>
+                                {log.note && (
+                                  <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{log.note}</div>
+                                )}
+                                {/* 날짜 — 오른쪽 하단 */}
+                                <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
+                                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
+                                </div>
                               </div>
                               {pIds.length > 0 && (
                                 <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 8px 8px', borderTop: '1px solid #000000', scrollbarWidth: 'none' as const }}>
