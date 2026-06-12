@@ -5293,43 +5293,38 @@ function LogPageInner() {
               <>
                 <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
                   <div style={{ marginBottom: 16 }}>
-                    {/* 헤더: "#태그 (선택)" + 태그 편집 버튼 */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250', letterSpacing: '.04em' }}>#</span>
-                        <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#555250' }}>태그 (선택)</div>
-                      </div>
+                    {/* 헤더: "# 태그 (선택)" + 태그 편집 버튼 */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}># 태그 <span style={{ fontWeight: 400 }}>(선택)</span></div>
                       <button type="button" onClick={() => setRefToLibTagEditOpen(o => !o)}
-                        style={{ height: 26, padding: '0 10px', borderRadius: 6, border: '1px solid rgba(12,12,10,.18)', background: '#0C0C0A', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
+                        style={{ background: '#0C0C0A', border: 'none', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
                         태그 편집
                       </button>
                     </div>
 
                     {/* 태그 없는 상태: 입력 필드 */}
-                    {refToLibTagArr.length === 0 && (
+                    {!refToLibTagEditOpen && refToLibTagArr.length === 0 && (
                       <input type="text" value={refToLibTagInput}
                         onChange={e => setRefToLibTagInput(e.target.value)}
                         onKeyDown={e => {
                           if ((e.key === 'Enter' || e.key === ',') && refToLibTagInput.trim()) {
                             e.preventDefault();
                             const val = refToLibTagInput.trim().replace(/^#/, '');
-                            if (val && !refToLibTagArr.includes(val)) {
-                              setRefToLibTagArr(prev => [...prev, val]);
-                            }
+                            if (val && !refToLibTagArr.includes(val)) setRefToLibTagArr(prev => [...prev, val]);
                             setRefToLibTagInput('');
                           }
                         }}
-                        placeholder="예: 스킨케어, 헤어, 푸드... (Enter로 추가)"
-                        style={{ width: '100%', boxSizing: 'border-box' as const, height: 40, padding: '0 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: 'rgba(12,12,10,.03)', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                        placeholder="+ 태그 추가 (Enter)"
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 6 }}
                       />
                     )}
 
-                    {/* 태그 있는 상태: 필 표시 */}
-                    {refToLibTagArr.length > 0 && !refToLibTagEditOpen && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6 }}>
+                    {/* 태그 있는 상태: pills */}
+                    {!refToLibTagEditOpen && refToLibTagArr.length > 0 && (
+                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
                         {refToLibTagArr.map(tag => (
-                          <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', height: 26, padding: '0 10px', borderRadius: 13, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', fontFamily: f, fontSize: 12, fontWeight: 600, color: '#555250' }}>
-                            #{tag}
+                          <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                            #{tag.replace(/^#/, '')}
                           </span>
                         ))}
                       </div>
@@ -5337,8 +5332,8 @@ function LogPageInner() {
 
                     {/* 태그 편집 패널 (드래그·추가·삭제) */}
                     {refToLibTagEditOpen && (
-                      <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
-                        <span style={{ display: 'block', fontFamily: f, fontSize: 10, fontWeight: 600, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>드래그로 순서 변경</span>
+                      <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)', marginBottom: 10 }}>
+                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
                         <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                           {refToLibTagArr.map((tag, idx) => (
                             <div key={idx} draggable
@@ -5354,16 +5349,16 @@ function LogPageInner() {
                                 setDragRefToLibTagOverIdx(null);
                               }}
                               onDragEnd={() => { setDragRefToLibTagIdx(null); setDragRefToLibTagOverIdx(null); }}
-                              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragRefToLibTagOverIdx === idx ? 'rgba(12,12,10,.07)' : 'transparent', cursor: 'grab' }}>
+                              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragRefToLibTagOverIdx === idx ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                               <button type="button"
                                 onClick={() => setRefToLibTagArr(prev => prev.filter((_, i) => i !== idx))}
-                                style={{ width: 22, height: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: f, fontSize: 16, fontWeight: 700, flexShrink: 0, lineHeight: 1 }}>
+                                style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                                 -
                               </button>
-                              <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                                #{tag}
+                              <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                                #{tag.replace(/^#/, '')}
                               </div>
-                              <div style={{ fontSize: 18, color: '#BCBAB6', userSelect: 'none' as const }}>☰</div>
+                              <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>☰</div>
                             </div>
                           ))}
                         </div>
@@ -5373,14 +5368,12 @@ function LogPageInner() {
                             if ((e.key === 'Enter' || e.key === ',') && refToLibTagInput.trim()) {
                               e.preventDefault();
                               const val = refToLibTagInput.trim().replace(/^#/, '');
-                              if (val && !refToLibTagArr.includes(val)) {
-                                setRefToLibTagArr(prev => [...prev, val]);
-                              }
+                              if (val && !refToLibTagArr.includes(val)) setRefToLibTagArr(prev => [...prev, val]);
                               setRefToLibTagInput('');
                             }
                           }}
                           placeholder="+ 태그 추가 (Enter)"
-                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
                         />
                       </div>
                     )}
