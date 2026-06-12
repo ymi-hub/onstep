@@ -2181,19 +2181,6 @@ function OOTDRecordSheet({
                       userSelect: dragIdx !== null ? 'none' : 'auto',
                     }}
                   >
-                    {/* 삭제 버튼 */}
-                    <button
-                      type="button"
-                      title="삭제"
-                      onClick={() => onTagsChange(tags.filter((_, i) => i !== idx))}
-                      style={{ width: 20, height: 20, minWidth: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', color: '#C0392B', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}
-                    >
-                      <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
-                    </button>
-                    {/* 태그 라벨 */}
-                    <div style={{ flex: 1, padding: '12px 16px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A' }}>
-                      {tag}
-                    </div>
                     {/* 드래그 핸들 */}
                     <div
                       draggable
@@ -2207,6 +2194,19 @@ function OOTDRecordSheet({
                     >
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
                     </div>
+                    {/* 태그 라벨 */}
+                    <div style={{ flex: 1, padding: '12px 16px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A' }}>
+                      {tag}
+                    </div>
+                    {/* 삭제 버튼 */}
+                    <button
+                      type="button"
+                      title="삭제"
+                      onClick={() => onTagsChange(tags.filter((_, i) => i !== idx))}
+                      style={{ width: 20, height: 20, minWidth: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', color: '#C0392B', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0 }}
+                    >
+                      <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                    </button>
                   </div>
                 );
               })}
