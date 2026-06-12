@@ -2520,6 +2520,22 @@ function LogPageInner() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [addSheetOpen, setAddSheetOpen] = useState(false);
 
+  // ── 새 Life TIP 직접 등록 시트 ──
+  const [newLifetipOpen, setNewLifetipOpen] = useState(false);
+  const [newLifetipName, setNewLifetipName] = useState('');
+  const [newLifetipEmoji, setNewLifetipEmoji] = useState('');
+  const [newLifetipSourceUrl, setNewLifetipSourceUrl] = useState('');
+  const [newLifetipImageFile, setNewLifetipImageFile] = useState<File | null>(null);
+  const [newLifetipImagePreview, setNewLifetipImagePreview] = useState('');
+  const [newLifetipMemo, setNewLifetipMemo] = useState('');
+  const [newLifetipTags, setNewLifetipTags] = useState<string[]>([]);
+  const [newLifetipTagEditOpen, setNewLifetipTagEditOpen] = useState(false);
+  const [newLifetipTagInput, setNewLifetipTagInput] = useState('');
+  const [newLifetipPublished, setNewLifetipPublished] = useState(false);
+  const [newLifetipSaving, setNewLifetipSaving] = useState(false);
+  const [dragNewLifetipTagIdx, setDragNewLifetipTagIdx] = useState<number | null>(null);
+  const [dragNewLifetipTagOverIdx, setDragNewLifetipTagOverIdx] = useState<number | null>(null);
+
   function triggerCollectionEdit(item: CtItem) {
     const domain = item.domain ?? (item.ctType === 'makeup' ? 'beauty' : 'fashion');
     setDomainEditTrigger(prev => ({ ...prev, [domain]: { id: item.id, ts: Date.now() } }));
@@ -3187,6 +3203,43 @@ function LogPageInner() {
       setEditingLifetip(null);
     } catch (err) {
       console.error('[OnStep] Life TIP 삭제 실패:', err);
+    }
+  }
+
+  // ── 새 Life TIP 직접 등록 저장 ──
+  async function saveNewLifetip() {
+    if (!newLifetipName.trim() || !db || !userId) return;
+    setNewLifetipSaving(true);
+    try {
+      const imageUrl = newLifetipImageFile
+        ? await imageFileToBase64(newLifetipImageFile)
+        : newLifetipImagePreview;
+      const tipCategory = newLifetipTags[0]?.trim() || 'Life tip';
+      const todayFmt = format(new Date(), 'yyyy-MM-dd');
+      await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
+        name: newLifetipName.trim(),
+        emoji: newLifetipEmoji.trim() || '📌',
+        tipCategory,
+        sourceUrl: newLifetipSourceUrl.trim(),
+        imageUrl: imageUrl || '',
+        tags: newLifetipTags,
+        memo: newLifetipMemo.trim(),
+        productIds: [],
+        published: newLifetipPublished,
+        dates: newLifetipPublished ? [todayFmt] : [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      } satisfies Omit<import('@/types/lifetip').LifetipItem, 'id'>);
+      showToast('Life TIP 등록 완료');
+      setNewLifetipOpen(false);
+      setNewLifetipName(''); setNewLifetipEmoji(''); setNewLifetipSourceUrl('');
+      setNewLifetipImageFile(null); setNewLifetipImagePreview('');
+      setNewLifetipMemo(''); setNewLifetipTags([]); setNewLifetipTagInput('');
+      setNewLifetipTagEditOpen(false); setNewLifetipPublished(false);
+    } catch (err) {
+      console.error('[OnStep] Life TIP 등록 실패:', err);
+    } finally {
+      setNewLifetipSaving(false);
     }
   }
 
@@ -4583,17 +4636,26 @@ function LogPageInner() {
             ];
             return (
               <div style={{ position: 'fixed', bottom: 156, right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 39, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
-                {fabDomains.map(domain => (
-                  <button key={domain} type="button"
-                    onClick={() => {
-                      setDomainAddTrigger(prev => ({ ...prev, [domain]: (prev[domain] ?? 0) + 1 }));
-                      setFabMenuOpen(false);
-                    }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 16px 0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.18)', whiteSpace: 'nowrap' as const }}
-                  >
-                    <span style={{ fontSize: 18 }}>{DOMAIN_EMOJIS[domain] ?? '📦'}</span> {DOMAIN_LABELS[domain] ?? domain} 등록
-                  </button>
-                ))}
+                {fabDomains.map(domain => {
+                  const isHealthDomain = domain === 'health';
+                  const label = isHealthDomain ? 'Life TIP 등록' : `${DOMAIN_LABELS[domain] ?? domain} 등록`;
+                  const icon = isHealthDomain ? '📌' : (DOMAIN_EMOJIS[domain] ?? '📦');
+                  return (
+                    <button key={domain} type="button"
+                      onClick={() => {
+                        if (isHealthDomain) {
+                          setNewLifetipOpen(true);
+                        } else {
+                          setDomainAddTrigger(prev => ({ ...prev, [domain]: (prev[domain] ?? 0) + 1 }));
+                        }
+                        setFabMenuOpen(false);
+                      }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 16px 0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.18)', whiteSpace: 'nowrap' as const }}
+                    >
+                      <span style={{ fontSize: 18 }}>{icon}</span> {label}
+                    </button>
+                  );
+                })}
               </div>
             );
           })()}
@@ -5805,6 +5867,179 @@ function LogPageInner() {
           </>
         );
       })()}
+
+      {/* ── 새 Life TIP 직접 등록 시트 ── */}
+      {newLifetipOpen && (() => {
+        const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+        const allProducts = Array.from(products.values());
+        return (
+          <>
+            <div onClick={() => setNewLifetipOpen(false)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
+
+              {/* Sticky 헤더 */}
+              <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
+                  <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A' }}>새 Life TIP 등록</div>
+                  <button type="button" onClick={() => setNewLifetipOpen(false)}
+                    style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                </div>
+              </div>
+
+              <div style={{ padding: '16px 20px 0' }}>
+
+                {/* 이모지 + 이름 */}
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
+                  <input value={newLifetipEmoji} onChange={e => setNewLifetipEmoji(e.target.value)} placeholder="📌" maxLength={2}
+                    style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+                  <input value={newLifetipName} onChange={e => setNewLifetipName(e.target.value)} placeholder="이름 *"
+                    style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+                </div>
+
+                {/* 참고 링크 */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginBottom: 8 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+                    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                  </svg>
+                  <input type="url" value={newLifetipSourceUrl} onChange={e => setNewLifetipSourceUrl(e.target.value)}
+                    placeholder="참고 링크 (Instagram, YouTube...)"
+                    style={{ flex: 1, border: 'none', outline: 'none', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: 'transparent' }} />
+                  {newLifetipSourceUrl && <button type="button" onClick={() => setNewLifetipSourceUrl('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#BCBAB6', fontSize: 14, padding: 0 }}>✕</button>}
+                </div>
+
+                {/* 이미지 */}
+                <div style={{ marginBottom: 16 }}>
+                  <ImagePicker
+                    preview={newLifetipImagePreview}
+                    onChange={(file, base64) => { setNewLifetipImageFile(file); setNewLifetipImagePreview(base64); }}
+                    height={200}
+                    placeholderLabel="사진 선택"
+                  />
+                </div>
+
+                {/* 메모 */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
+                  <textarea value={newLifetipMemo} onChange={e => setNewLifetipMemo(e.target.value)}
+                    placeholder="메모 입력 (선택)..." rows={3}
+                    style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }} />
+                </div>
+
+                {/* 구분선 */}
+                <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+
+                {/* 태그 (카테고리 역할 — 첫 번째 태그가 tipCategory) */}
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>#</span>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>태그</span>
+                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: '#BCBAB6' }}>(선택)</span>
+                    </div>
+                    <button type="button"
+                      onClick={() => { setNewLifetipTagEditOpen(v => !v); if (newLifetipTagEditOpen) setNewLifetipTagInput(''); }}
+                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                      <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                      태그 편집
+                    </button>
+                  </div>
+                  {!newLifetipTagEditOpen && (
+                    newLifetipTags.length === 0
+                      ? <input type="text" value={newLifetipTagInput}
+                          onChange={e => setNewLifetipTagInput(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                              const t = newLifetipTagInput.trim();
+                              if (t && !newLifetipTags.includes(t)) setNewLifetipTags(prev => [...prev, t]);
+                              setNewLifetipTagInput('');
+                            }
+                          }}
+                          placeholder="+ 태그 추가 (Enter)"
+                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, margin: '10px 0 20px 0' }}
+                        />
+                      : <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                          {newLifetipTags.map(tag => (
+                            <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#6A6866' }}>#{tag}</span>
+                          ))}
+                        </div>
+                  )}
+                  {newLifetipTagEditOpen && (
+                    <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
+                        {newLifetipTags.map((tag, i) => (
+                          <div key={tag}
+                            draggable
+                            onDragStart={() => setDragNewLifetipTagIdx(i)}
+                            onDragOver={e => { e.preventDefault(); setDragNewLifetipTagOverIdx(i); }}
+                            onDrop={() => {
+                              if (dragNewLifetipTagIdx === null || dragNewLifetipTagIdx === i) return;
+                              setNewLifetipTags(prev => {
+                                const arr = [...prev];
+                                const [moved] = arr.splice(dragNewLifetipTagIdx, 1);
+                                arr.splice(i, 0, moved);
+                                return arr;
+                              });
+                              setDragNewLifetipTagIdx(null); setDragNewLifetipTagOverIdx(null);
+                            }}
+                            onDragEnd={() => { setDragNewLifetipTagIdx(null); setDragNewLifetipTagOverIdx(null); }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragNewLifetipTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
+                            <button type="button" onClick={() => setNewLifetipTags(prev => prev.filter(t => t !== tag))}
+                              style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                              -
+                            </button>
+                            <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                              #{tag}
+                            </div>
+                            <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>☰</div>
+                          </div>
+                        ))}
+                      </div>
+                      <input type="text" value={newLifetipTagInput}
+                        onChange={e => setNewLifetipTagInput(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                            const t = newLifetipTagInput.trim();
+                            if (t && !newLifetipTags.includes(t)) setNewLifetipTags(prev => [...prev, t]);
+                            setNewLifetipTagInput('');
+                          }
+                        }}
+                        placeholder="+ 태그 추가 (Enter)"
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Today 토글 */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginBottom: 20 }}
+                  onClick={() => setNewLifetipPublished(v => !v)}>
+                  <div style={{ width: 44, height: 26, borderRadius: 13, background: newLifetipPublished ? '#0C0C0A' : '#D8D6CF', transition: 'background .2s', position: 'relative', flexShrink: 0 }}>
+                    <div style={{ position: 'absolute', top: 3, left: newLifetipPublished ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.3)' }} />
+                  </div>
+                  <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{newLifetipPublished ? 'Today에 표시 ON' : 'Today에 표시 OFF'}</span>
+                </div>
+
+                {/* 버튼 */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button type="button" onClick={() => setNewLifetipOpen(false)}
+                    style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                    취소
+                  </button>
+                  <button type="button" onClick={saveNewLifetip} disabled={!newLifetipName.trim() || newLifetipSaving}
+                    style={{ flex: 2, height: 52, background: newLifetipName.trim() ? '#0C0C0A' : '#E4E2DC', color: newLifetipName.trim() ? '#C5FF00' : '#BCBAB6', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 800, cursor: newLifetipName.trim() ? 'pointer' : 'default', letterSpacing: '.02em' }}>
+                    {newLifetipSaving ? '등록 중...' : '등록'}
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </>
+        );
+      })()}
+
     </div>
   );
 }
