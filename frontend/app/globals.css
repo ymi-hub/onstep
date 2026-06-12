@@ -42,6 +42,22 @@
   --radius-full: 9999px;
 }
 
+/* ── 저장 완료 토스트 애니메이션 ── */
+@keyframes toastIn {
+  from { transform: translateY(20px) translateX(-50%); opacity: 0; }
+  to   { transform: translateY(0)    translateX(-50%); opacity: 1; }
+}
+@keyframes toastOut {
+  from { transform: translateY(0)    translateX(-50%); opacity: 1; }
+  to   { transform: translateY(20px) translateX(-50%); opacity: 0; }
+}
+.toast-enter {
+  animation: toastIn 0.28s cubic-bezier(.22,1,.36,1) forwards;
+}
+.toast-exit {
+  animation: toastOut 0.25s ease-in forwards;
+}
+
 /* ── 대기 타이머 알람 배너 애니메이션 ── */
 @keyframes alarmSlideDown {
   from { transform: translateY(-110%); opacity: 0; }

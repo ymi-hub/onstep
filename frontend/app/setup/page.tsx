@@ -1672,6 +1672,7 @@ function DietPlanView({
   const WARNING_COLOR = '#EF4444';
 
   // 목록 / 편집 모드
+  const { showToast } = useAppContext();
   const [editProgram, setEditProgram] = useState<DietProgram | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -1846,6 +1847,7 @@ function DietPlanView({
       const data = { name: pName.trim(), icon: pIcon, startDate: pStartDate, patterns: pPatterns, active: true, showInToday: editProgram?.showInToday ?? false };
       if (isNew) await onAdd(data);
       else if (editProgram?.id) await onUpdate(editProgram.id, data);
+      showToast('플랜 저장 완료');
       setEditProgram(null);
     } catch (err) { console.error(err); alert('저장 실패'); }
     finally { setSaving(false); }
@@ -2511,6 +2513,7 @@ function MedView({
   onToggleToday: (id: string, current: boolean) => void;
 }) {
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+  const { showToast } = useAppContext();
   const ALL_TIMES: MedTime[] = ['morning', 'lunch', 'evening', 'bedtime'];
 
   // 인라인 추가 폼 상태
@@ -2607,6 +2610,7 @@ function MedView({
         ...(eRepeat === 'scheduled' ? { weekdays: eWeekdays } : {}),
         updatedAt: new Date().toISOString(),
       });
+      showToast('저장 완료');
       setEditItem(null);
     } catch (err) { console.error(err); alert('저장 실패'); }
     finally { setSaving(false); }
@@ -5502,7 +5506,7 @@ const VALID_VIEWS: View[] = ['hub', 'sessions', 'editor', 'tracker', 'care', 'ma
 
 export default function SetupPage() {
   // ── 공유 컨텍스트 ──
-  const { user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories, dietPrograms } = useAppContext();
+  const { user, userId, authLoading, products, sessions, habits, careItems, makeupItems, lookItems, medRoutines, healthRoutines, healthCategories, dietPrograms, showToast } = useAppContext();
 
   const [view, setView] = useState<View>('hub');
   const [loadingSessions, setLoadingSessions] = useState(authLoading);
@@ -5606,7 +5610,8 @@ export default function SetupPage() {
       } else {
         await addDoc(collection(db, 'users', userId, 'routines'), { ...data, createdAt: now });
       }
-      setSessionsKey(k => k + 1); // 드롭다운 닫힌 상태로 초기화
+      showToast('루틴 저장 완료');
+      setSessionsKey(k => k + 1);
       goView('sessions');
       setDraft(null);
     } catch (err) {

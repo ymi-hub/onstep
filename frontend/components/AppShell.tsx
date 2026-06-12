@@ -4,6 +4,7 @@
 // TopNav(상단) + main(콘텐츠) + BottomNav(하단)을 하나로 관리
 // /onboarding에서는 두 네비게이션 모두 숨김
 
+import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import TopNav from './TopNav';
 import BottomNav from './BottomNav';
@@ -14,6 +15,70 @@ import type { ReactNode } from 'react';
 const NAV_HIDDEN = ['/onboarding'];
 
 const F = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+
+// ── 저장 완료 토스트 ────────────────────────────────────────────────────────────
+function GlobalToast() {
+  const { toastMsg } = useAppContext();
+  const [visible, setVisible] = useState(false);
+  const [exiting, setExiting] = useState(false);
+  const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (toastMsg) {
+      setExiting(false);
+      setVisible(true);
+      // 2.3초 뒤 exit 애니메이션 시작 (AppContext가 2.8초에 null로 변경)
+      exitTimer.current = setTimeout(() => setExiting(true), 2300);
+    } else {
+      setVisible(false);
+      setExiting(false);
+    }
+    return () => { if (exitTimer.current) clearTimeout(exitTimer.current); };
+  }, [toastMsg]);
+
+  if (!visible || !toastMsg) return null;
+
+  return (
+    <div
+      className={exiting ? 'toast-exit' : 'toast-enter'}
+      style={{
+        position: 'fixed',
+        bottom: 80,          // 하단 BottomNav 위
+        left: '50%',         // translateX(-50%)는 CSS 애니메이션에서 처리
+        zIndex: 9998,
+        background: '#0C0C0A',
+        borderRadius: 14,
+        padding: '12px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        boxShadow: '0 8px 32px rgba(0,0,0,.28)',
+        pointerEvents: 'none',
+        minWidth: 160,
+        maxWidth: 300,
+      }}
+    >
+      {/* 체크 아이콘 */}
+      <div style={{
+        width: 24, height: 24, borderRadius: '50%',
+        background: '#C5FF00',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
+      }}>
+        <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+          <polyline points="2,6 5,9 10,3" stroke="#0C0C0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+      {/* 메시지 */}
+      <span style={{
+        fontFamily: F, fontSize: 13, fontWeight: 700,
+        color: '#fff', letterSpacing: '.01em',
+      }}>
+        {toastMsg}
+      </span>
+    </div>
+  );
+}
 
 // ── 글로벌 알람 배너 ────────────────────────────────────────────────────────────
 // 어느 페이지에 있든 타이머 종료 시 화면 최상단에 오버레이
@@ -124,6 +189,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
     <>
       {/* 글로벌 알람 배너 — 어느 페이지든 타이머 종료 시 표시 */}
       <GlobalAlarmBanner />
+      {/* 저장 완료 토스트 */}
+      <GlobalToast />
 
       {/* 상단 네비게이션 */}
       {!hideNav && <TopNav />}

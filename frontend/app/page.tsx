@@ -2275,7 +2275,7 @@ export default function TodayPage() {
   }, [router]);
 
   // ── 공유 컨텍스트 (auth + 공유 구독 — layout에서 1회 실행, 탭 전환 시 즉시) ──
-  const { user, userId: ctxUserId, authLoading, dataReady, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems, lifetipItems: ctxLifetipItems, medRoutines, healthRoutines, dietPrograms } = useAppContext();
+  const { user, userId: ctxUserId, authLoading, dataReady, products: ctxProducts, sessions, habits: ctxHabits, careItems: ctxCareItems, makeupItems: ctxMakeupItems, lookItems: ctxLookItems, lifetipItems: ctxLifetipItems, medRoutines, healthRoutines, dietPrograms, showToast } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── 데이터 상태 ──
@@ -2947,6 +2947,7 @@ export default function TodayPage() {
           createdAt: new Date().toISOString(),
         });
       }
+      showToast('오늘의 룩 저장 완료');
       setOotdSheetOpen(false);
     } catch (err) {
       console.error('[OnStep] OOTD 저장 실패:', err);

@@ -877,7 +877,7 @@ function resizeImage(file: File, maxPx = 800, quality = 0.82): Promise<File> {
 // ─── 메인 BOX 페이지 ─────────────────────────────────────────────────────────
 export default function BoxPage() {
   // ── 공유 컨텍스트 ──
-  const { user, userId, authLoading, products } = useAppContext();
+  const { user, userId, authLoading, products, showToast } = useAppContext();
   const loading = authLoading;
 
   // 필터 상태
@@ -1185,6 +1185,7 @@ export default function BoxPage() {
 
       // 이미지는 Base64로 commonFields.imageUrl에 포함됐으므로 별도 업로드 불필요
 
+      showToast(editingProduct ? '제품 수정 완료' : '제품 등록 완료');
       setForm(INITIAL_FORM);
       setEditingProduct(null);
       setIsAddOpen(false);
@@ -3929,6 +3930,7 @@ function LocationEditSheet({
   userId,
 }: LocationEditSheetProps) {
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+  const { showToast } = useAppContext();
   const [nameVal, setNameVal] = useState('');
   const [photoVal, setPhotoVal] = useState('');
   const [saving, setSaving] = useState(false);
@@ -3995,6 +3997,7 @@ function LocationEditSheet({
         onConfigChange(updatedConfig);
       }
 
+      showToast('보관장소 저장 완료');
       onClose();
     } catch (err) {
       console.error('보관장소 수정 실패:', err);

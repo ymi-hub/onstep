@@ -1385,6 +1385,7 @@ function AddItemSheet({
   onSaved: () => void;
 }) {
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
+  const { showToast } = useAppContext();
   const [emoji, setEmoji] = useState(ctType === 'makeup' ? '💄' : '👗');
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
@@ -1435,6 +1436,7 @@ function AddItemSheet({
         createdAt: now, updatedAt: now,
       });
 
+      showToast('등록 완료');
       onSaved();
     } catch (err) {
       console.error('[OnStep] 저장 실패:', err);
@@ -1595,6 +1597,7 @@ function LogCtPanel({
   const [sTipItems, setSTipItems] = useState<RoutineItem[]>([]);
   const [sDates, setSDates] = useState<string[]>([]);
   const [sPublished, setSPublished] = useState(false);
+  const { showToast } = useAppContext();
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [sImageFile, setSImageFile] = useState<File | null>(null);
@@ -1690,6 +1693,7 @@ function LogCtPanel({
         const newId = await onAdd(data);
         onAfterSave?.(newId, sTags);
       }
+      showToast(editItem ? '수정 완료' : '등록 완료');
       closeSheet();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -2241,7 +2245,7 @@ function EmptyState({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn:
 
 function LogPageInner() {
   // ── 공유 컨텍스트 ──
-  const { user, userId, authLoading, products: ctxProducts, sessions, makeupItems, lookItems, libraryItems, lifetipItems, careItems, habits, dietPrograms, healthRoutines, medRoutines } = useAppContext();
+  const { user, userId, authLoading, products: ctxProducts, sessions, makeupItems, lookItems, libraryItems, lifetipItems, careItems, habits, dietPrograms, healthRoutines, medRoutines, showToast } = useAppContext();
   const products = new Map(ctxProducts.map((p) => [p.id, p]));
 
   // ── allLibItems: libraryItems(신규) + makeupItems/lookItems(구 — 마이그레이션 전 호환) 중복 제거 ──
@@ -2432,6 +2436,7 @@ function LogPageInner() {
         tags: finalTags,
         updatedAt: new Date().toISOString(),
       });
+      showToast('오늘의 룩 수정 완료');
       setEditingOotd(null);
     } catch (err) {
       console.error('[OnStep] OOTD 수정 실패:', err);
@@ -3121,6 +3126,7 @@ function LogPageInner() {
           tags: [...catTags, ...lifetipEditTags],
         });
       }
+      showToast('라이프 팁 수정 완료');
       setEditingLifetip(null);
     } catch (err) {
       console.error('[OnStep] Life TIP 편집 저장 실패:', err);

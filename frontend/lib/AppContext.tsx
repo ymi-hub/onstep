@@ -3,7 +3,7 @@
 // AppContext — Auth + 공유 데이터 구독을 layout 레벨에서 한 번만 실행
 // 탭 전환 시 auth 재확인·데이터 재로딩 없이 즉시 표시
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useCallback, useState } from 'react';
 import {
   onAuthStateChanged,
   type User,
@@ -48,6 +48,8 @@ interface AppContextValue {
   healthCategories: HealthCategory[];
   dietPrograms: DietProgram[];
   timer: TimerState;
+  toastMsg: string | null;
+  showToast: (msg: string) => void;
 }
 
 const noopTimer: TimerState = {
@@ -74,6 +76,8 @@ const AppContext = createContext<AppContextValue>({
   healthCategories: [],
   dietPrograms: [],
   timer: noopTimer,
+  toastMsg: null,
+  showToast: () => {},
 });
 
 export function useAppContext() {
@@ -100,6 +104,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [healthRoutines, setHealthRoutines] = useState<HealthRoutine[]>([]);
   const [healthCategories, setHealthCategories] = useState<HealthCategory[]>([]);
   const [dietPrograms, setDietPrograms] = useState<DietProgram[]>([]);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = useCallback((msg: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToastMsg(msg);
+    toastTimer.current = setTimeout(() => setToastMsg(null), 2800);
+  }, []);
 
   const userId = user?.uid ?? FALLBACK_USER_ID;
 
@@ -216,7 +227,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [userId, authLoading]);
 
   return (
-    <AppContext.Provider value={{ user, userId, authLoading, dataReady, products, sessions, habits, careItems, makeupItems, lookItems, libraryItems, lifetipItems, medRoutines, healthRoutines, healthCategories, dietPrograms, timer }}>
+    <AppContext.Provider value={{ user, userId, authLoading, dataReady, products, sessions, habits, careItems, makeupItems, lookItems, libraryItems, lifetipItems, medRoutines, healthRoutines, healthCategories, dietPrograms, timer, toastMsg, showToast }}>
       {children}
     </AppContext.Provider>
   );
