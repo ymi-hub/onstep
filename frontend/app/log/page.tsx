@@ -2494,7 +2494,11 @@ function LogPageInner() {
   const [refToLib, setRefToLib] = useState<Reference | null>(null);
   const [refToLibType, setRefToLibType] = useState<'makeup' | 'lookbook' | 'lifetip'>('makeup');
   const [refToLibCatName, setRefToLibCatName] = useState<string>('Life tip');
-  const [refToLibTipCategory, setRefToLibTipCategory] = useState('');
+  const [refToLibTagArr, setRefToLibTagArr] = useState<string[]>([]);
+  const [refToLibTagEditOpen, setRefToLibTagEditOpen] = useState(false);
+  const [refToLibTagInput, setRefToLibTagInput] = useState('');
+  const [dragRefToLibTagIdx, setDragRefToLibTagIdx] = useState<number | null>(null);
+  const [dragRefToLibTagOverIdx, setDragRefToLibTagOverIdx] = useState<number | null>(null);
   const [refToLibEmoji, setRefToLibEmoji] = useState('');
   const [refToLibSaving, setRefToLibSaving] = useState(false);
   const [libCatEditOpen, setLibCatEditOpen] = useState(false);
@@ -2946,7 +2950,7 @@ function LogPageInner() {
 
       let libraryItemId = '';
       if (refToLibType === 'lifetip') {
-        const category = refToLibTipCategory.trim() || refToLibCatName || 'Life tip';
+        const category = refToLibTagArr[0]?.trim() || refToLibCatName || 'Life tip';
         const emoji = refToLibEmoji.trim() || getLifetipEmoji(category);
         const newRef = await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
           name: finalName,
@@ -2981,11 +2985,10 @@ function LogPageInner() {
       }
       // 수집 문서 업데이트: 라이브러리 등록 완료 + 편집된 기본 정보도 반영
       // tipTag(태그 필드값)를 reference.tags에 포함 → 카드 메모 하단에 노출
-      const tipTag = refToLibTipCategory.trim();
       const updatedRefTags = [
         refToLibCatName,
-        ...(tipTag ? [tipTag] : []),
-        ...(refToLib.tags ?? []).filter(t => !categoryTags.includes(t) && t !== tipTag),
+        ...refToLibTagArr,
+        ...(refToLib.tags ?? []).filter(t => !categoryTags.includes(t) && !refToLibTagArr.includes(t)),
       ];
       await updateDoc(doc(db, 'users', userId, 'references', refToLib.id), {
         inLibrary: true,
@@ -3770,7 +3773,9 @@ function LogPageInner() {
                         setRefToLibCatName(firstCat);
                         const libType = firstCat === 'Lookbook' ? 'lookbook' : firstCat === 'Makeup' ? 'makeup' : 'lifetip';
                         setRefToLibType(libType);
-                        setRefToLibTipCategory(libType === 'lifetip' && firstCat !== 'Life tip' ? firstCat : '');
+                        setRefToLibTagArr([]);
+                        setRefToLibTagEditOpen(false);
+                        setRefToLibTagInput('');
                         setRefToLibEmoji('');
                       }
                     }}
@@ -4930,7 +4935,9 @@ function LogPageInner() {
             const libType: 'makeup' | 'lookbook' | 'lifetip' = cat === 'Lookbook' ? 'lookbook' : cat === 'Makeup' ? 'makeup' : 'lifetip';
             setRefToLibCatName(cat);
             setRefToLibType(libType);
-            setRefToLibTipCategory(libType === 'lifetip' ? cache.tipCategory : '');
+            setRefToLibTagArr(libType === 'lifetip' && cache.tipCategory && cache.tipCategory !== cat ? [cache.tipCategory] : []);
+            setRefToLibTagEditOpen(false);
+            setRefToLibTagInput('');
             setRefToLibEmoji(cache.emoji);
           } else {
             // 처음부터 — 기본값 (수집 기본 정보만)
@@ -4945,7 +4952,9 @@ function LogPageInner() {
             setRefToLibCatName(firstCat);
             const libType: 'makeup' | 'lookbook' | 'lifetip' = firstCat === 'Lookbook' ? 'lookbook' : firstCat === 'Makeup' ? 'makeup' : 'lifetip';
             setRefToLibType(libType);
-            setRefToLibTipCategory(libType === 'lifetip' && firstCat !== 'Life tip' ? firstCat : '');
+            setRefToLibTagArr([]);
+            setRefToLibTagEditOpen(false);
+            setRefToLibTagInput('');
             setRefToLibEmoji('');
           }
         }
@@ -5157,7 +5166,9 @@ function LogPageInner() {
                       onClick={() => {
                         setRefToLibCatName(cat);
                         setRefToLibType(libType);
-                        setRefToLibTipCategory(libType === 'lifetip' && cat !== 'Life tip' ? cat : '');
+                        setRefToLibTagArr([]);
+                        setRefToLibTagEditOpen(false);
+                        setRefToLibTagInput('');
                         setRefToLibEmoji('');
                       }}
                       style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(12,12,10,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all .15s' }}>
@@ -5223,15 +5234,99 @@ function LogPageInner() {
                 <>
                   <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
                   <div style={{ marginBottom: 16 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250', letterSpacing: '.04em' }}>#</span>
-                      <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#555250' }}>태그 (선택)</div>
+                    {/* 헤더: "#태그 (선택)" + 태그 편집 버튼 */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250', letterSpacing: '.04em' }}>#</span>
+                        <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#555250' }}>태그 (선택)</div>
+                      </div>
+                      {refToLibTagArr.length > 0 && (
+                        <button type="button" onClick={() => setRefToLibTagEditOpen(o => !o)}
+                          style={{ height: 26, padding: '0 10px', borderRadius: 6, border: '1px solid rgba(12,12,10,.18)', background: '#0C0C0A', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
+                          태그 편집
+                        </button>
+                      )}
                     </div>
-                    <input type="text" value={refToLibTipCategory}
-                      onChange={e => setRefToLibTipCategory(e.target.value)}
-                      placeholder="예: 스킨케어, 헤어, 푸드..."
-                      style={{ width: '100%', boxSizing: 'border-box' as const, height: 40, padding: '0 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: 'rgba(12,12,10,.03)', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
-                    />
+
+                    {/* 태그 없는 상태: 입력 필드 */}
+                    {refToLibTagArr.length === 0 && (
+                      <input type="text" value={refToLibTagInput}
+                        onChange={e => setRefToLibTagInput(e.target.value)}
+                        onKeyDown={e => {
+                          if ((e.key === 'Enter' || e.key === ',') && refToLibTagInput.trim()) {
+                            e.preventDefault();
+                            const val = refToLibTagInput.trim().replace(/^#/, '');
+                            if (val && !refToLibTagArr.includes(val)) {
+                              setRefToLibTagArr(prev => [...prev, val]);
+                            }
+                            setRefToLibTagInput('');
+                          }
+                        }}
+                        placeholder="예: 스킨케어, 헤어, 푸드... (Enter로 추가)"
+                        style={{ width: '100%', boxSizing: 'border-box' as const, height: 40, padding: '0 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: 'rgba(12,12,10,.03)', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                      />
+                    )}
+
+                    {/* 태그 있는 상태: 필 표시 */}
+                    {refToLibTagArr.length > 0 && !refToLibTagEditOpen && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6 }}>
+                        {refToLibTagArr.map(tag => (
+                          <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', height: 26, padding: '0 10px', borderRadius: 13, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', fontFamily: f, fontSize: 12, fontWeight: 600, color: '#555250' }}>
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* 태그 편집 패널 (드래그·추가·삭제) */}
+                    {refToLibTagEditOpen && (
+                      <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
+                        <span style={{ display: 'block', fontFamily: f, fontSize: 10, fontWeight: 600, color: '#9A9490', letterSpacing: '.06em', marginBottom: 8 }}>드래그로 순서 변경</span>
+                        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
+                          {refToLibTagArr.map((tag, idx) => (
+                            <div key={idx} draggable
+                              onDragStart={() => setDragRefToLibTagIdx(idx)}
+                              onDragOver={e => { e.preventDefault(); setDragRefToLibTagOverIdx(idx); }}
+                              onDrop={() => {
+                                if (dragRefToLibTagIdx === null || dragRefToLibTagIdx === idx) return;
+                                const arr = [...refToLibTagArr];
+                                const [moved] = arr.splice(dragRefToLibTagIdx, 1);
+                                arr.splice(idx, 0, moved);
+                                setRefToLibTagArr(arr);
+                                setDragRefToLibTagIdx(null);
+                                setDragRefToLibTagOverIdx(null);
+                              }}
+                              onDragEnd={() => { setDragRefToLibTagIdx(null); setDragRefToLibTagOverIdx(null); }}
+                              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragRefToLibTagOverIdx === idx ? 'rgba(12,12,10,.07)' : 'transparent', cursor: 'grab' }}>
+                              <button type="button"
+                                onClick={() => setRefToLibTagArr(prev => prev.filter((_, i) => i !== idx))}
+                                style={{ width: 22, height: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: f, fontSize: 16, fontWeight: 700, flexShrink: 0, lineHeight: 1 }}>
+                                -
+                              </button>
+                              <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                                #{tag}
+                              </div>
+                              <div style={{ fontSize: 18, color: '#BCBAB6', userSelect: 'none' as const }}>☰</div>
+                            </div>
+                          ))}
+                        </div>
+                        <input type="text" value={refToLibTagInput}
+                          onChange={e => setRefToLibTagInput(e.target.value)}
+                          onKeyDown={e => {
+                            if ((e.key === 'Enter' || e.key === ',') && refToLibTagInput.trim()) {
+                              e.preventDefault();
+                              const val = refToLibTagInput.trim().replace(/^#/, '');
+                              if (val && !refToLibTagArr.includes(val)) {
+                                setRefToLibTagArr(prev => [...prev, val]);
+                              }
+                              setRefToLibTagInput('');
+                            }
+                          }}
+                          placeholder="+ 태그 추가 (Enter)"
+                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </>
               )}
