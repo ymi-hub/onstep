@@ -3626,7 +3626,7 @@ function LogPageInner() {
                         <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
                           <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', gap: 10 }}>
                             <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A' }}>💄 MOTD</span>
-                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A', marginLeft: 'auto' }}>👗 OOTD</span>
+                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A', marginLeft: 'auto' }}>✨ OOTD</span>
                           </div>
                           <div style={{ padding: '10px 14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                             {/* MOTD — 컬럼 전체 너비 채움 */}
@@ -4226,7 +4226,7 @@ function LogPageInner() {
               const subCards = [
                 ...domainSubCards,
                 { key: 'lifetip',  label: '📌 Life TIP', count: lifetipItems.length },
-                { key: 'ootd',     label: '👗 OOTD',    count: ootdLogs.length },
+                { key: 'ootd',     label: '✨ OOTD',    count: ootdLogs.length },
               ];
               const totalCount = allLibItems.length + lifetipItems.length + ootdLogs.length;
               const selAll = archiveFilter === 'all';
