@@ -3781,14 +3781,14 @@ function LogPageInner() {
                     }}
                     style={{
                       flex: 1, height: 42, borderRadius: 8,
-                      background: ref.inLibrary ? '#0C0C0A' : ref.cachedLibrary ? 'rgba(29,109,219,.1)' : 'rgba(12,12,10,.06)',
-                      border: `1px solid ${ref.inLibrary ? 'transparent' : ref.cachedLibrary ? 'rgba(29,109,219,.3)' : 'rgba(12,12,10,.1)'}`,
-                      fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em',
-                      color: ref.inLibrary ? '#C5FF00' : ref.cachedLibrary ? '#1D6DDB' : '#9A9490',
-                      cursor: 'pointer', transition: 'all .15s', textTransform: 'uppercase' as const,
+                      background: ref.inLibrary ? '#0C0C0A' : 'rgba(12,12,10,.06)',
+                      border: `1px solid ${ref.inLibrary ? 'transparent' : 'rgba(12,12,10,.1)'}`,
+                      fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em',
+                      color: ref.inLibrary ? '#C5FF00' : '#9A9490',
+                      cursor: 'pointer', transition: 'all .15s',
                     }}
                   >
-                    {ref.inLibrary ? 'LIB ON ✓' : ref.cachedLibrary ? '📦 RE-ADD' : 'LIB OFF'}
+                    {ref.inLibrary ? '라이브러리 ON ✓' : ref.cachedLibrary ? '📦 다시 등록' : '라이브러리 OFF'}
                   </button>
 
                   {/* → 우측: 링크공유 + (편집 — LIB ON 중엔 숨김) + 삭제 */}
@@ -3797,10 +3797,10 @@ function LogPageInner() {
                     {/* 링크 공유 */}
                     {ref.url ? (
                       <a href={ref.url} target="_blank" rel="noopener noreferrer" aria-label="링크 열기"
-                        style={{ flex: 1, height: 42, borderRadius: 10, background: '#EDFAD0', border: '1px solid rgba(74,119,0,.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                        style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
                         <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                          <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#3A6000" strokeWidth="1.5" strokeLinecap="round"/>
-                          <path d="M10 2h4v4M14 2L8 8" stroke="#3A6000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round"/>
+                          <path d="M10 2h4v4M14 2L8 8" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </a>
                     ) : (
@@ -3815,9 +3815,9 @@ function LogPageInner() {
 
                     {/* 편집 */}
                     <button type="button" onClick={() => openRefEdit(ref)} aria-label="편집"
-                      style={{ flex: 1, height: 42, borderRadius: 10, background: '#F5F4F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                        <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#44474A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </button>
 
@@ -4680,12 +4680,13 @@ function LogPageInner() {
                       <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250', letterSpacing: '.04em' }}>#</span>
                       <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</div>
                     </div>
-                    <button type="button"
-                      onClick={() => { setLifetipTagEditOpen(v => !v); if (lifetipTagEditOpen) setLifetipTagNewTag(''); }}
-                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
-                      <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                      태그 편집
-                    </button>
+                    {lifetipEditTags.length > 0 && (
+                      <button type="button"
+                        onClick={() => { setLifetipTagEditOpen(v => !v); if (lifetipTagEditOpen) setLifetipTagNewTag(''); }}
+                        style={{ height: 26, padding: '0 10px', borderRadius: 6, border: '1px solid rgba(12,12,10,.18)', background: '#0C0C0A', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
+                        태그 편집
+                      </button>
+                    )}
                   </div>
 
                   {/* 패널 닫힘: 태그 없으면 입력창, 있으면 pills */}
