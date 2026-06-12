@@ -2974,9 +2974,12 @@ function LogPageInner() {
         const newRef = await addDoc(collection(db, 'users', userId, colName), {
           ctType: refToLibType,
           name: finalName,
-          emoji: refToLibType === 'makeup' ? '💄' : '👗',
+          emoji: refToLibEmoji.trim() || (refToLibType === 'makeup' ? '💄' : '👗'),
+          desc: '',
           imageUrl: finalImageUrl,
+          tags: refToLibTagArr,
           items: [],
+          tipItems: [],
           published: false,
           dates: [],
           sourceUrl: finalUrl,
@@ -4965,7 +4968,11 @@ function LogPageInner() {
             }
             setRefToLibCatName(cat);
             setRefToLibType(libType);
-            setRefToLibTagArr(libType === 'lifetip' && cache.tipCategory && cache.tipCategory !== cat ? [cache.tipCategory] : []);
+            setRefToLibTagArr(
+              libType === 'lifetip'
+                ? (cache.tipCategory && cache.tipCategory !== cat ? [cache.tipCategory] : [])
+                : (cache.tags ?? [])
+            );
             setRefToLibTagEditOpen(false);
             setRefToLibTagInput('');
             setRefToLibEmoji(cache.emoji);
@@ -5284,10 +5291,9 @@ function LogPageInner() {
                 </div>
               )}
 
-              {/* Life TIP 전용 — 태그 입력 */}
-              {refToLibType === 'lifetip' && refToLibCatName === 'Life tip' && (
-                <>
-                  <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+              {/* 태그 입력 — 전체 타입 공통 */}
+              <>
+                <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
                   <div style={{ marginBottom: 16 }}>
                     {/* 헤더: "#태그 (선택)" + 태그 편집 버튼 */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -5383,8 +5389,7 @@ function LogPageInner() {
                       </div>
                     )}
                   </div>
-                </>
-              )}
+              </>
 
               {/* 메모 */}
               <div style={{ marginBottom: 20 }}>
