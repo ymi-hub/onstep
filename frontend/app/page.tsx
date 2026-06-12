@@ -2061,7 +2061,7 @@ function OOTDRecordSheet({
           </button>
         </div>
         {/* 등록된 태그 pills */}
-        {recordTags.length > 0 ? (
+        {recordTags.length > 0 && (
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 8 }}>
             {recordTags.map(tag => (
               <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
@@ -2069,8 +2069,6 @@ function OOTDRecordSheet({
               </span>
             ))}
           </div>
-        ) : (
-          <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6', marginBottom: 4 }}>태그를 추가해보세요</div>
         )}
         {/* 태그 편집 패널 */}
         {recordTagEditOpen && (
@@ -2096,32 +2094,22 @@ function OOTDRecordSheet({
                   style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', padding: '0 4px' }}>×</button>
               </div>
             ))}
-            <div style={{ display: 'flex', gap: 6, marginTop: recordTags.length > 0 ? 10 : 0 }}>
-              <input
-                value={recordTagNewTag}
-                onChange={e => onRecordTagNewTagChange(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && recordTagNewTag.trim()) {
-                    const clean = recordTagNewTag.trim().replace(/^#/, '');
-                    if (!recordTags.includes(clean)) onRecordTagsChange([...recordTags, clean]);
-                    onRecordTagNewTagChange('');
-                    e.preventDefault();
-                  }
-                }}
-                placeholder="#태그 입력 후 Enter"
-                style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, padding: '7px 10px', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none', background: '#fff' }}
-              />
-              <button type="button"
-                onClick={() => {
-                  const clean = recordTagNewTag.trim().replace(/^#/, '');
-                  if (clean && !recordTags.includes(clean)) onRecordTagsChange([...recordTags, clean]);
-                  onRecordTagNewTagChange('');
-                }}
-                style={{ padding: '7px 14px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00', cursor: 'pointer' }}>추가</button>
-            </div>
           </div>
         )}
-        {!recordTagEditOpen && recordTags.length === 0 && <div style={{ marginBottom: 8 }} />}
+        <input
+          value={recordTagNewTag}
+          onChange={e => onRecordTagNewTagChange(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && !e.nativeEvent.isComposing && recordTagNewTag.trim()) {
+              const clean = recordTagNewTag.trim().replace(/^#/, '');
+              if (!recordTags.includes(clean)) onRecordTagsChange([...recordTags, clean]);
+              onRecordTagNewTagChange('');
+              e.preventDefault();
+            }
+          }}
+          placeholder="태그를 추가해보세요"
+          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 8 }}
+        />
 
         {/* 취소 / 저장 버튼 */}
         <div style={{ display: 'flex', gap: 8 }}>
