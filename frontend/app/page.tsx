@@ -2094,22 +2094,22 @@ function OOTDRecordSheet({
                   style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', padding: '0 4px' }}>×</button>
               </div>
             ))}
+            <input
+              value={recordTagNewTag}
+              onChange={e => onRecordTagNewTagChange(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.nativeEvent.isComposing && recordTagNewTag.trim()) {
+                  const clean = recordTagNewTag.trim().replace(/^#/, '');
+                  if (!recordTags.includes(clean)) onRecordTagsChange([...recordTags, clean]);
+                  onRecordTagNewTagChange('');
+                  e.preventDefault();
+                }
+              }}
+              placeholder="+ 태그 추가 (Enter)"
+              style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginTop: 8 }}
+            />
           </div>
         )}
-        <input
-          value={recordTagNewTag}
-          onChange={e => onRecordTagNewTagChange(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'Enter' && !e.nativeEvent.isComposing && recordTagNewTag.trim()) {
-              const clean = recordTagNewTag.trim().replace(/^#/, '');
-              if (!recordTags.includes(clean)) onRecordTagsChange([...recordTags, clean]);
-              onRecordTagNewTagChange('');
-              e.preventDefault();
-            }
-          }}
-          placeholder="태그 입력 후 Enter"
-          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 8 }}
-        />
 
         {/* 취소 / 저장 버튼 */}
         <div style={{ display: 'flex', gap: 8 }}>

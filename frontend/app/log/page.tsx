@@ -2000,7 +2000,7 @@ function LogCtPanel({
                 {sTagEditOpen && (
                   <div style={{ marginTop: 8, padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
                     <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
-                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                       {sTags.map((tag, i) => (
                         <div key={tag}
                           draggable
@@ -2027,20 +2027,20 @@ function LogCtPanel({
                         </div>
                       ))}
                     </div>
+                    <input type="text" value={sTagInput}
+                      onChange={e => setSTagInput(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                          const t = sTagInput.trim();
+                          if (t && !sTags.includes(t)) setSTags(prev => [...prev, t]);
+                          setSTagInput('');
+                        }
+                      }}
+                      placeholder="+ 태그 추가 (Enter)"
+                      style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                    />
                   </div>
                 )}
-                <input type="text" value={sTagInput}
-                  onChange={e => setSTagInput(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                      const t = sTagInput.trim();
-                      if (t && !sTags.includes(t)) setSTags(prev => [...prev, t]);
-                      setSTagInput('');
-                    }
-                  }}
-                  placeholder="태그 입력 후 Enter"
-                  style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginTop: 6 }}
-                />
               </div>
 
               {/* Today 토글 */}
@@ -4667,7 +4667,7 @@ function LogPageInner() {
                   {lifetipTagEditOpen && (
                     <div style={{ marginTop: 8, padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
                       <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
-                      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                         {lifetipEditTags.map((tag, i) => (
                           <div key={tag}
                             draggable
@@ -4696,20 +4696,20 @@ function LogPageInner() {
                           </div>
                         ))}
                       </div>
+                      <input type="text" value={lifetipTagNewTag}
+                        onChange={e => setLifetipTagNewTag(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                            const t = lifetipTagNewTag.trim();
+                            if (t && !lifetipEditTags.includes(t)) setLifetipEditTags(prev => [...prev, t]);
+                            setLifetipTagNewTag('');
+                          }
+                        }}
+                        placeholder="+ 태그 추가 (Enter)"
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                      />
                     </div>
                   )}
-                  <input type="text" value={lifetipTagNewTag}
-                    onChange={e => setLifetipTagNewTag(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                        const t = lifetipTagNewTag.trim();
-                        if (t && !lifetipEditTags.includes(t)) setLifetipEditTags(prev => [...prev, t]);
-                        setLifetipTagNewTag('');
-                      }
-                    }}
-                    placeholder="태그 입력 후 Enter"
-                    style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginTop: 6 }}
-                  />
                 </div>
 
                 {/* BOX 제품 연결 */}
@@ -5388,22 +5388,22 @@ function LogPageInner() {
                         style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', padding: '0 4px' }}>×</button>
                     </div>
                   ))}
+                  <input
+                    value={ootdEditTagNewTag}
+                    onChange={e => setOotdEditTagNewTag(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.nativeEvent.isComposing && ootdEditTagNewTag.trim()) {
+                        const clean = ootdEditTagNewTag.trim().replace(/^#/, '');
+                        if (!ootdEditTags.includes(clean)) setOotdEditTags([...ootdEditTags, clean]);
+                        setOotdEditTagNewTag('');
+                        e.preventDefault();
+                      }
+                    }}
+                    placeholder="+ 태그 추가 (Enter)"
+                    style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginTop: 8 }}
+                  />
                 </div>
               )}
-              <input
-                value={ootdEditTagNewTag}
-                onChange={e => setOotdEditTagNewTag(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.nativeEvent.isComposing && ootdEditTagNewTag.trim()) {
-                    const clean = ootdEditTagNewTag.trim().replace(/^#/, '');
-                    if (!ootdEditTags.includes(clean)) setOotdEditTags([...ootdEditTags, clean]);
-                    setOotdEditTagNewTag('');
-                    e.preventDefault();
-                  }
-                }}
-                placeholder="태그 입력 후 Enter"
-                style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 8 }}
-              />
 
               {/* 메모 */}
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>메모</div>
