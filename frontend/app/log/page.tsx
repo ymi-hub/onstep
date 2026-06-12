@@ -2032,13 +2032,17 @@ function LogCtPanel({
                             setDragTagIdx(null); setDragTagOverIdx(null);
                           }}
                           onDragEnd={() => { setDragTagIdx(null); setDragTagOverIdx(null); }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: dragTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'rgba(12,12,10,.03)', border: `1px solid ${dragTagOverIdx === i ? 'rgba(12,12,10,.2)' : 'rgba(12,12,10,.08)'}`, cursor: 'grab', transition: 'all .1s' }}>
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                           <button type="button" onClick={() => setSTags(prev => prev.filter(t => t !== tag))}
-                            style={{ width: 20, height: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B', flexShrink: 0 }}>
-                            <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                            style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                            -
                           </button>
-                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>#{tag}</span>
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, color: '#BCBAB6', cursor: 'grab' }}><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
+                          <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                            #{tag}
+                          </div>
+                          <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
+                            ☰
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -4717,15 +4721,18 @@ function LogPageInner() {
                               setDragLifetipTagIdx(null); setDragLifetipTagOverIdx(null);
                             }}
                             onDragEnd={() => { setDragLifetipTagIdx(null); setDragLifetipTagOverIdx(null); }}
-                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: dragLifetipTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'rgba(12,12,10,.03)', border: `1px solid ${dragLifetipTagOverIdx === i ? 'rgba(12,12,10,.2)' : 'rgba(12,12,10,.08)'}`, cursor: 'grab', transition: 'all .1s' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragLifetipTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                             <button type="button" title="삭제"
                               onClick={() => setLifetipEditTags(prev => prev.filter(t => t !== tag))}
-                              style={{ width: 20, height: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B', flexShrink: 0 }}>
-                              <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                              style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                              -
                             </button>
-                            <span style={{ width: 8, height: 8, borderRadius: 9999, background: CAT_COLORS[i % CAT_COLORS.length].selBorder, display: 'inline-block', flexShrink: 0 }} />
-                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>#{tag}</span>
-                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, color: '#BCBAB6', cursor: 'grab' }}><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
+                            <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                              #{tag}
+                            </div>
+                            <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
+                              ☰
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -5375,14 +5382,18 @@ function LogPageInner() {
                             setDragRefEditTagIdx(null); setDragRefEditTagOverIdx(null);
                           }}
                           onDragEnd={() => { setDragRefEditTagIdx(null); setDragRefEditTagOverIdx(null); }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: dragRefEditTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'rgba(12,12,10,.03)', border: `1px solid ${dragRefEditTagOverIdx === i ? 'rgba(12,12,10,.2)' : 'rgba(12,12,10,.08)'}`, transition: 'all .1s' }}>
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragRefEditTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                           <button type="button" title="삭제"
                             onClick={() => setRefEditTags(prev => prev.filter(t => t !== tag))}
-                            style={{ width: 20, height: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B', flexShrink: 0 }}>
-                            <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                            style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                            -
                           </button>
-                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', flex: 1 }}>#{tag}</span>
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, color: '#BCBAB6', cursor: 'grab' }}><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
+                          <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                            #{tag}
+                          </div>
+                          <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
+                            ☰
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -5496,8 +5507,9 @@ function LogPageInner() {
               )}
               {/* 태그 편집 패널 */}
               {ootdEditTagEditOpen && (
-                <div style={{ background: '#F4F4F0', borderRadius: 12, padding: '12px 12px 8px', marginBottom: 6 }}>
-                  {/* 드래그 정렬 + 삭제 */}
+                <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)', marginBottom: 6 }}>
+                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                   {ootdEditTags.map((tag, idx) => (
                     <div key={idx}
                       draggable
@@ -5512,15 +5524,20 @@ function LogPageInner() {
                         setDragOotdTagIdx(null); setDragOotdTagOverIdx(null);
                       }}
                       onDragEnd={() => { setDragOotdTagIdx(null); setDragOotdTagOverIdx(null); }}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: idx < ootdEditTags.length - 1 ? '1px solid rgba(12,12,10,.08)' : 'none', opacity: dragOotdTagOverIdx === idx ? 0.5 : 1, cursor: 'grab' }}>
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragOotdTagOverIdx === idx ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                       <button type="button" onClick={() => setOotdEditTags(ootdEditTags.filter((_, i) => i !== idx))}
-                        style={{ width: 20, height: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B', flexShrink: 0 }}>
-                        <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                        style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                        -
                       </button>
-                      <span style={{ flex: 1, fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>#{tag.replace(/^#/, '')}</span>
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, color: '#BCBAB6', cursor: 'grab' }}><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
+                      <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                        #{tag.replace(/^#/, '')}
+                      </div>
+                      <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
+                        ☰
+                      </div>
                     </div>
                   ))}
+                  </div>
                   <input
                     value={ootdEditTagNewTag}
                     onChange={e => setOotdEditTagNewTag(e.target.value)}
@@ -5533,7 +5550,7 @@ function LogPageInner() {
                       }
                     }}
                     placeholder="+ 태그 추가 (Enter)"
-                    style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginTop: 8 }}
+                    style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
                   />
                 </div>
               )}
