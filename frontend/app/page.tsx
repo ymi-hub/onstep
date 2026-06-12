@@ -2035,7 +2035,7 @@ function OOTDRecordSheet({
           <ImagePicker
             preview={photoPreview}
             onChange={onPhotoApply}
-            height={260}
+            height={200}
             placeholderLabel="사진 선택"
             isOpen={open}
           />
