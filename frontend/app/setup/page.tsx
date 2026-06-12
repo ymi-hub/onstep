@@ -5014,7 +5014,6 @@ function CtPanel({
               <ImagePicker
                 preview={sImagePreview}
                 onChange={(file, base64) => { setSImageFile(file); setSImagePreview(base64); }}
-                onClear={() => { setSImageFile(null); setSImagePreview(''); }}
                 height={200}
                 placeholderLabel="사진 선택"
               />

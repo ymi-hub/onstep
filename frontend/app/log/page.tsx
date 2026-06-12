@@ -1462,7 +1462,6 @@ function AddItemSheet({
             <ImagePicker
               preview={imgPreview}
               onChange={(file, base64) => { setImgFile(file); setImgPreview(base64); }}
-              onClear={() => { setImgFile(null); setImgPreview(''); }}
               height={200}
               placeholderLabel="사진 선택"
               naturalSize
@@ -1920,7 +1919,6 @@ function LogCtPanel({
                 <ImagePicker
                   preview={sImagePreview}
                   onChange={(file, base64) => { setSImageFile(file); setSImagePreview(base64); }}
-                  onClear={() => { setSImageFile(null); setSImagePreview(''); }}
                   height={200}
                   placeholderLabel="사진 선택"
                 />
@@ -4618,7 +4616,6 @@ function LogPageInner() {
                   <ImagePicker
                     preview={lifetipEditImagePreview}
                     onChange={(file, base64) => { setLifetipEditImageFile(file); setLifetipEditImagePreview(base64); }}
-                    onClear={() => { setLifetipEditImageFile(null); setLifetipEditImagePreview(''); }}
                     height={200}
                     placeholderLabel="사진 선택"
                   />
@@ -5338,7 +5335,6 @@ function LogPageInner() {
                 <ImagePicker
                   preview={displayImg}
                   onChange={(file, base64) => { setOotdEditPhotoFile(file); setOotdEditPreview(base64); }}
-                  onClear={() => { setOotdEditPhotoFile(null); setOotdEditPreview(''); }}
                   height={200}
                   placeholderLabel="사진 선택"
                   isOpen={!!editingOotd}

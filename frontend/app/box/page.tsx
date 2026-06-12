@@ -3016,7 +3016,6 @@ function AddProductPage({
           <ImagePicker
             preview={displayImg}
             onChange={(file, base64) => setForm(f => ({ ...f, imageFile: file, imagePreview: base64 }))}
-            onClear={() => setForm(f => ({ ...f, imageFile: null, imagePreview: '', imageUrl: '' }))}
             height={200}
             placeholderLabel="사진 선택"
             isOpen={isOpen}
