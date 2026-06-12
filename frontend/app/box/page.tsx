@@ -3816,7 +3816,7 @@ function AddProductPage({
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={onClose}
-              style={{ flex: 1, height: 52, background: '#fff', color: '#0C1014', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, cursor: 'pointer' }}
+              style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
             >
               취소
             </button>
@@ -3835,7 +3835,7 @@ function AddProductPage({
               style={{
                 flex: 1, height: 52,
                 background: '#0C0C0A',
-                color: '#fff', border: 'none', borderRadius: 12,
+                color: '#C5FF00', border: 'none', borderRadius: 12,
                 fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                 fontSize: 15, fontWeight: 700, cursor: 'pointer',
                 opacity: saving ? 0.5 : 1,
@@ -3849,7 +3849,7 @@ function AddProductPage({
           {isEditing && onDelete && (
             <button
               onClick={onDelete}
-              style={{ width: '100%', height: 48, background: 'rgba(186,26,26,.06)', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer' }}
+              style={{ width: '100%', height: 44, background: 'rgba(186,26,26,.06)', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', marginTop: 8 }}
             >
               이 제품 삭제
             </button>
@@ -4099,14 +4099,14 @@ function LocationEditSheet({
         <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
           <button
             onClick={onClose}
-            style={{ flex: 1, height: 48, background: '#fff', color: '#4A4846', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+            style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
           >
             취소
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            style={{ flex: 1, height: 48, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.5 : 1 }}
+            style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.5 : 1 }}
           >
             {saving ? '저장 중...' : '저장'}
           </button>
@@ -4116,7 +4116,7 @@ function LocationEditSheet({
         <button
           onClick={handleDelete}
           disabled={deleting}
-          style={{ width: '100%', height: 44, background: 'transparent', border: '1.5px solid #EF4444', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#EF4444', cursor: 'pointer', opacity: deleting ? 0.5 : 1 }}
+          style={{ width: '100%', height: 44, background: 'rgba(186,26,26,.06)', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', opacity: deleting ? 0.5 : 1, marginTop: 8 }}
         >
           {deleting ? '삭제 중...' : '보관장소 삭제'}
         </button>

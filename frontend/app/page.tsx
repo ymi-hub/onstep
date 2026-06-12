@@ -2121,23 +2121,12 @@ function OOTDRecordSheet({
         )}
         {!recordTagEditOpen && recordTags.length === 0 && <div style={{ marginBottom: 8 }} />}
 
-        {/* 삭제 버튼 (수정 모드) */}
-        {ootdLog && (
-          <button
-            type="button"
-            onClick={onDelete}
-            style={{ width: '100%', height: 44, background: 'none', border: '1.5px solid #fee2e2', color: '#ef4444', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 10 }}
-          >
-            기록 삭제
-          </button>
-        )}
-
         {/* 취소 / 저장 버튼 */}
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             type="button"
             onClick={onClose}
-            style={{ flex: 1, height: 52, background: '#F4F4F0', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
+            style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
           >
             취소
           </button>
@@ -2145,11 +2134,22 @@ function OOTDRecordSheet({
             type="button"
             onClick={onSave}
             disabled={saving}
-            style={{ flex: 1, height: 52, background: '#0A0A0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
+            style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
           >
             {saving ? '저장 중...' : '저장'}
           </button>
         </div>
+
+        {/* 삭제 버튼 (수정 모드) */}
+        {ootdLog && (
+          <button
+            type="button"
+            onClick={onDelete}
+            style={{ width: '100%', height: 44, background: 'rgba(186,26,26,.06)', border: '1.5px solid rgba(186,26,26,.2)', color: '#BA1A1A', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', marginTop: 8 }}
+          >
+            기록 삭제
+          </button>
+        )}
       </div>
 
       {/* 카테고리 편집 서브 시트 */}

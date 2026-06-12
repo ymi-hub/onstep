@@ -1494,8 +1494,8 @@ function AddItemSheet({
 
           {/* 버튼 */}
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={onClose} style={{ flex: 1, height: 52, background: '#EEEDE9', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
-            <button onClick={handleSave} disabled={saving || !name.trim()} style={{ flex: 1, height: 52, background: name.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: name.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: name.trim() ? 'pointer' : 'default' }}>
+            <button onClick={onClose} style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
+            <button onClick={handleSave} disabled={saving || !name.trim()} style={{ flex: 1, height: 52, background: name.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: name.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: name.trim() ? 'pointer' : 'default' }}>
               {saving ? '저장 중...' : '저장'}
             </button>
           </div>
@@ -2061,13 +2061,13 @@ function LogCtPanel({
 
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={closeSheet} style={{ flex: 1, height: 52, background: '#EEEDE9', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
-                <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 1, height: 52, background: sName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: sName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default' }}>
+                <button onClick={closeSheet} style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
+                <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 1, height: 52, background: sName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: sName.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default' }}>
                   {saving ? '저장 중...' : editItem ? '수정' : '저장'}
                 </button>
               </div>
               {editItem && (
-                <button onClick={handleDelete} style={{ width: '100%', padding: 14, background: 'none', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#BA1A1A', cursor: 'pointer', fontWeight: 700, marginTop: 8 }}>삭제</button>
+                <button onClick={handleDelete} style={{ width: '100%', height: 44, background: 'rgba(186,26,26,.06)', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#BA1A1A', cursor: 'pointer', fontWeight: 700, marginTop: 8 }}>삭제</button>
               )}
             </div>
           </div>
@@ -4770,14 +4770,14 @@ function LogPageInner() {
                 {/* 버튼 — Makeup/Lookbook과 동일한 취소/저장/삭제 구조 */}
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button type="button" onClick={() => setEditingLifetip(null)}
-                    style={{ flex: 1, height: 52, background: '#EEEDE9', color: '#0C0C0A', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
+                    style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
                   <button type="button" onClick={saveLifetipEdit} disabled={lifetipEditSaving || !lifetipEditName.trim()}
-                    style={{ flex: 1, height: 52, background: lifetipEditName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: lifetipEditName.trim() ? '#fff' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: lifetipEditName.trim() ? 'pointer' : 'default' }}>
+                    style={{ flex: 1, height: 52, background: lifetipEditName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: lifetipEditName.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: lifetipEditName.trim() ? 'pointer' : 'default' }}>
                     {lifetipEditSaving ? '저장 중...' : '수정'}
                   </button>
                 </div>
                 <button type="button" onClick={deleteLifetipEdit}
-                  style={{ width: '100%', padding: 14, background: 'none', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#BA1A1A', cursor: 'pointer', fontWeight: 700, marginTop: 8 }}>삭제</button>
+                  style={{ width: '100%', height: 44, background: 'rgba(186,26,26,.06)', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#BA1A1A', cursor: 'pointer', fontWeight: 700, marginTop: 8 }}>삭제</button>
               </div>
             </div>
 
@@ -5443,13 +5443,13 @@ function LogPageInner() {
               {ootdEditProductIds.length === 0 && <div style={{ marginBottom: 16 }} />}
 
               {/* 버튼 */}
-              <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                <button type="button" onClick={() => setEditingOotd(null)} style={{ flex: 1, padding: 14, background: '#F4F4F0', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-                <button type="button" onClick={saveOotdEdit} disabled={ootdEditSaving} style={{ flex: 1, padding: 14, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: ootdEditSaving ? .6 : 1 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button type="button" onClick={() => setEditingOotd(null)} style={{ flex: 1, height: 52, background: '#F0EFEA', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
+                <button type="button" onClick={saveOotdEdit} disabled={ootdEditSaving} style={{ flex: 1, height: 52, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', opacity: ootdEditSaving ? .6 : 1 }}>
                   {ootdEditSaving ? '저장 중…' : '저장'}
                 </button>
               </div>
-              <button type="button" onClick={deleteOotdEdit} style={{ width: '100%', padding: 14, background: 'none', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer' }}>삭제</button>
+              <button type="button" onClick={deleteOotdEdit} style={{ width: '100%', height: 44, background: 'rgba(186,26,26,.06)', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', marginTop: 8 }}>삭제</button>
             </div>
 
             {/* BOX 제품 피커 바텀시트 */}

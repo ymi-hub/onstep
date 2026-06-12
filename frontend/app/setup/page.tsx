@@ -1966,8 +1966,8 @@ function DietPlanView({
                     <button onClick={addItemTag} style={{ padding: '7px 10px', background: '#F4F4F0', border: '1px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', cursor: 'pointer', flexShrink: 0 }}>추가</button>
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={cancelEditSlot} style={{ flex: 1, padding: '9px', background: '#F4F4F0', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-                    <button onClick={addSlot} style={{ flex: 1, padding: '9px', background: '#2A4A1A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer' }}>수정</button>
+                    <button onClick={cancelEditSlot} style={{ flex: 1, padding: '9px', background: '#F0EFEA', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
+                    <button onClick={addSlot} style={{ flex: 1, padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer' }}>수정</button>
                   </div>
                 </div>
               ) : (
@@ -2043,11 +2043,13 @@ function DietPlanView({
           )}
 
           {/* 저장/삭제 */}
-          <div style={{ display: 'flex', gap: 8, paddingBottom: 24 }}>
-            {!isNew && editProgram?.id && <button onClick={() => handleDelete(editProgram.id)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
-            <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
+          <div style={{ paddingBottom: 24 }}>
+            <button onClick={handleSave} disabled={saving} style={{ width: '100%', height: 52, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
               {saving ? '저장 중…' : '저장'}
             </button>
+            {!isNew && editProgram?.id && (
+              <button onClick={() => handleDelete(editProgram.id)} style={{ width: '100%', height: 44, background: 'rgba(186,26,26,.06)', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', marginTop: 8 }}>삭제</button>
+            )}
           </div>
         </div>
       {/* 제품 피커 — 2단계: 선택 → 수량 입력 */}
@@ -2891,10 +2893,10 @@ function MedView({
               <input value={eNote} onChange={e => setENote(e.target.value)} placeholder="주의사항 (선택)" style={{ padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
-              <button onClick={() => setEditItem(null)} style={{ flex: 1, padding: 14, background: '#F4F4F0', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-              <button onClick={handleSaveEdit} disabled={saving} style={{ flex: 1, padding: 14, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em', opacity: saving ? .6 : 1 }}>{saving ? '저장 중…' : '저장'}</button>
+              <button onClick={() => setEditItem(null)} style={{ flex: 1, height: 52, background: '#F0EFEA', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
+              <button onClick={handleSaveEdit} disabled={saving} style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em', opacity: saving ? .6 : 1 }}>{saving ? '저장 중…' : '저장'}</button>
             </div>
-            <button onClick={handleDelete} style={{ marginTop: 10, width: '100%', padding: 14, background: 'none', color: '#BA1A1A', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>삭제</button>
+            <button onClick={handleDelete} style={{ marginTop: 8, width: '100%', height: 44, background: 'rgba(186,26,26,.06)', color: '#BA1A1A', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>삭제</button>
           </div>
         </>
       )}
@@ -4035,10 +4037,10 @@ function TrackerView({
               <RepeatFormFieldsShared f={f} rt={eRepeat} setRt={setERepeat} wd={eWeekdays} toggleWDFn={toggleEWD} date_={eDate} setDate_={setEDate} time_={eTime} setTime_={setETime} alarm_={eAlarm} setAlarm_={setEAlarm} />
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
-              <button onClick={() => setEditHabit(null)} style={{ flex: 1, padding: 14, background: '#F4F4F0', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-              <button onClick={handleSaveEdit} style={{ flex: 1, padding: 14, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em' }}>저장</button>
+              <button onClick={() => setEditHabit(null)} style={{ flex: 1, height: 52, background: '#F0EFEA', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
+              <button onClick={handleSaveEdit} style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em' }}>저장</button>
             </div>
-            <button onClick={handleDeleteHabit} style={{ marginTop: 10, width: '100%', padding: 14, background: 'none', color: '#BA1A1A', border: '1.5px solid rgba(186,26,26,.3)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>삭제</button>
+            <button onClick={handleDeleteHabit} style={{ marginTop: 8, width: '100%', height: 44, background: 'rgba(186,26,26,.06)', color: '#BA1A1A', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>삭제</button>
           </div>
         </>
       )}
