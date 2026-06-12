@@ -707,7 +707,7 @@ function SessionsView({
                         onClick={(e) => { e.stopPropagation(); onEdit(s); }}
                         style={{ width: '100%', marginTop: 12, padding: '12px', border: 'none', borderRadius: 12, background: '#0C0C0A', color: '#fff', fontFamily: font, fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, cursor: 'pointer' }}
                       >
-                        편집
+                        루틴 편집
                       </button>
                     </div>
                   )}
@@ -3292,7 +3292,7 @@ function HealthView({
         <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
           <button
             onClick={() => setShowCatSection(p => !p)}
-            style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 4, background: '#0C0C0A', border: '2px solid #0066FF', borderRadius: 9999, padding: '6px 12px', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: '#C5FF00', cursor: 'pointer', textTransform: 'uppercase' as const }}
+            style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 4, background: '#0C0C0A', border: 'none', borderRadius: 9999, padding: '6px 12px', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: '#C5FF00', cursor: 'pointer', textTransform: 'uppercase' as const }}
           >
             카테고리 {showCatSection ? '▲' : '▼'}
           </button>
@@ -4716,7 +4716,7 @@ function CtPanel({
           <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: 10, background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.08)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
-          <button onClick={() => openEdit(item)} style={{ flex: 1, padding: 10, background: '#EEEDE9', color: '#4A4846', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, cursor: 'pointer' }}>편집</button>
+          <button onClick={() => openEdit(item)} style={{ flex: 1, padding: 10, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, cursor: 'pointer' }}>편집</button>
         </div>
       </div>
     );
@@ -4765,7 +4765,7 @@ function CtPanel({
                     fontWeight: 800,
                     color: '#C5FF00',
                     background: '#0C0C0A',
-                    border: '2px solid #0066FF',
+                    border: 'none',
                     borderRadius: 9999,
                     padding: '5px 12px',
                     cursor: 'pointer',
@@ -4921,7 +4921,7 @@ function CtPanel({
                         fontWeight: 800,
                         color: '#C5FF00',
                         background: '#0C0C0A',
-                        border: '2px solid #0066FF',
+                        border: 'none',
                         borderRadius: 9999,
                         padding: '5px 12px',
                         cursor: 'pointer',

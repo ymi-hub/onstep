@@ -5354,8 +5354,8 @@ function LogPageInner() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em' }}>#태그</div>
                 <button type="button" onClick={() => setOotdEditTagEditOpen(v => !v)}
-                  style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer', padding: '2px 0' }}>
-                  {ootdEditTagEditOpen ? '닫기' : '편집'}
+                  style={{ background: '#0C0C0A', border: 'none', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
+                  {ootdEditTagEditOpen ? '닫기' : '태그 편집'}
                 </button>
               </div>
               {/* 등록된 태그 pills */}

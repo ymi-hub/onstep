@@ -2006,7 +2006,7 @@ function OOTDRecordSheet({
           <button
             type="button"
             onClick={() => setTagEditOpen(true)}
-            style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', border: '2px solid #0066FF', borderRadius: 9999, padding: '5px 12px', cursor: 'pointer', letterSpacing: '.08em' }}
+            style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', border: 'none', borderRadius: 9999, padding: '5px 12px', cursor: 'pointer', letterSpacing: '.08em' }}
           >
             카테고리 편집
           </button>
@@ -2056,8 +2056,8 @@ function OOTDRecordSheet({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
           <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>#태그 <span style={{ fontWeight: 400 }}>선택</span></div>
           <button type="button" onClick={() => onRecordTagEditOpenChange(!recordTagEditOpen)}
-            style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer', padding: '2px 0' }}>
-            {recordTagEditOpen ? '닫기' : '편집'}
+            style={{ background: '#0C0C0A', border: 'none', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
+            {recordTagEditOpen ? '닫기' : '태그 편집'}
           </button>
         </div>
         {/* 등록된 태그 pills */}
