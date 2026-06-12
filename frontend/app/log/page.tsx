@@ -5299,12 +5299,10 @@ function LogPageInner() {
                         <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250', letterSpacing: '.04em' }}>#</span>
                         <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#555250' }}>태그 (선택)</div>
                       </div>
-                      {refToLibTagArr.length > 0 && (
-                        <button type="button" onClick={() => setRefToLibTagEditOpen(o => !o)}
-                          style={{ height: 26, padding: '0 10px', borderRadius: 6, border: '1px solid rgba(12,12,10,.18)', background: '#0C0C0A', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
-                          태그 편집
-                        </button>
-                      )}
+                      <button type="button" onClick={() => setRefToLibTagEditOpen(o => !o)}
+                        style={{ height: 26, padding: '0 10px', borderRadius: 6, border: '1px solid rgba(12,12,10,.18)', background: '#0C0C0A', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
+                        태그 편집
+                      </button>
                     </div>
 
                     {/* 태그 없는 상태: 입력 필드 */}
