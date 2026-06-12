@@ -2036,7 +2036,7 @@ function OOTDRecordSheet({
             preview={photoPreview}
             onChange={onPhotoApply}
             height={260}
-            placeholderLabel="OOTD 이미지"
+            placeholderLabel="사진 선택"
             isOpen={open}
           />
         </div>
@@ -2061,7 +2061,7 @@ function OOTDRecordSheet({
           </button>
         </div>
         {/* 등록된 태그 pills */}
-        {recordTags.length > 0 && (
+        {recordTags.length > 0 ? (
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 8 }}>
             {recordTags.map(tag => (
               <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
@@ -2069,6 +2069,8 @@ function OOTDRecordSheet({
               </span>
             ))}
           </div>
+        ) : (
+          <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6', marginBottom: 4 }}>태그를 추가해보세요</div>
         )}
         {/* 태그 편집 패널 */}
         {recordTagEditOpen && (

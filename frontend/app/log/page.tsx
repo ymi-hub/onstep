@@ -1463,8 +1463,8 @@ function AddItemSheet({
               preview={imgPreview}
               onChange={(file, base64) => { setImgFile(file); setImgPreview(base64); }}
               onClear={() => { setImgFile(null); setImgPreview(''); }}
-              height={180}
-              placeholderLabel="BASELINE 이미지"
+              height={200}
+              placeholderLabel="사진 선택"
               naturalSize
             />
           </div>
@@ -1921,8 +1921,8 @@ function LogCtPanel({
                   preview={sImagePreview}
                   onChange={(file, base64) => { setSImageFile(file); setSImagePreview(base64); }}
                   onClear={() => { setSImageFile(null); setSImagePreview(''); }}
-                  height={230}
-                  placeholderLabel="이미지 추가"
+                  height={200}
+                  placeholderLabel="사진 선택"
                 />
               </div>
 
@@ -3866,8 +3866,8 @@ function LogPageInner() {
                     preview={refImagePreview}
                     onChange={(file, base64) => { setRefImageFile(file); setRefImagePreview(base64); }}
                     onClear={() => { setRefImageFile(null); setRefImagePreview(''); }}
-                    height={180}
-                    placeholderLabel="이미지 추가 (선택)"
+                    height={160}
+                    placeholderLabel="사진 선택"
                     isOpen={mainTab === '수집'}
                   />
                 </div>
@@ -4619,8 +4619,8 @@ function LogPageInner() {
                     preview={lifetipEditImagePreview}
                     onChange={(file, base64) => { setLifetipEditImageFile(file); setLifetipEditImagePreview(base64); }}
                     onClear={() => { setLifetipEditImageFile(null); setLifetipEditImagePreview(''); }}
-                    height={230}
-                    placeholderLabel="이미지 추가"
+                    height={200}
+                    placeholderLabel="사진 선택"
                   />
                 </div>
 
@@ -5092,7 +5092,7 @@ function LogPageInner() {
                   onChange={(file, base64) => { setRefToLibEditImageFile(file); setRefToLibEditImagePreview(base64); }}
                   onClear={() => { setRefToLibEditImageFile(null); setRefToLibEditImagePreview(''); }}
                   height={160}
-                  placeholderLabel="이미지 추가 (선택)"
+                  placeholderLabel="사진 선택"
                   isOpen={!!refToLib}
                 />
               </div>
@@ -5270,8 +5270,8 @@ function LogPageInner() {
                   preview={refEditImagePreview}
                   onChange={(file, base64) => { setRefEditImageFile(file); setRefEditImagePreview(base64); }}
                   onClear={() => { setRefEditImageFile(null); setRefEditImagePreview(''); }}
-                  height={180}
-                  placeholderLabel="이미지 추가 (선택)"
+                  height={160}
+                  placeholderLabel="사진 선택"
                   isOpen={!!editingRef}
                 />
               </div>
@@ -5339,8 +5339,8 @@ function LogPageInner() {
                   preview={displayImg}
                   onChange={(file, base64) => { setOotdEditPhotoFile(file); setOotdEditPreview(base64); }}
                   onClear={() => { setOotdEditPhotoFile(null); setOotdEditPreview(''); }}
-                  height={220}
-                  placeholderLabel="사진 추가"
+                  height={200}
+                  placeholderLabel="사진 선택"
                   isOpen={!!editingOotd}
                 />
               </div>
@@ -5365,7 +5365,7 @@ function LogPageInner() {
                 </button>
               </div>
               {/* 등록된 태그 pills */}
-              {ootdEditTags.length > 0 && (
+              {ootdEditTags.length > 0 ? (
                 <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
                   {ootdEditTags.map(tag => (
                     <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
@@ -5373,6 +5373,8 @@ function LogPageInner() {
                     </span>
                   ))}
                 </div>
+              ) : (
+                <div style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6', marginBottom: 4 }}>태그를 추가해보세요</div>
               )}
               {/* 태그 편집 패널 */}
               {ootdEditTagEditOpen && (

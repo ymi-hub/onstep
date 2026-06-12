@@ -5015,8 +5015,8 @@ function CtPanel({
                 preview={sImagePreview}
                 onChange={(file, base64) => { setSImageFile(file); setSImagePreview(base64); }}
                 onClear={() => { setSImageFile(null); setSImagePreview(''); }}
-                height={230}
-                placeholderLabel={ctType === 'care' ? 'CARE IMAGE' : ctType === 'makeup' ? 'MAKEUP IMAGE' : 'LOOK IMAGE'}
+                height={200}
+                placeholderLabel="사진 선택"
               />
             </div>
             {/* end image section */}

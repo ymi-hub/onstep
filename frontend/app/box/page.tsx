@@ -3017,8 +3017,8 @@ function AddProductPage({
             preview={displayImg}
             onChange={(file, base64) => setForm(f => ({ ...f, imageFile: file, imagePreview: base64 }))}
             onClear={() => setForm(f => ({ ...f, imageFile: null, imagePreview: '', imageUrl: '' }))}
-            height={230}
-            placeholderLabel="ADD PRODUCT IMAGE"
+            height={200}
+            placeholderLabel="사진 선택"
             isOpen={isOpen}
           />
         </div>
@@ -4094,7 +4094,7 @@ function LocationEditSheet({
             onChange={(_, b64) => setPhotoVal(b64)}
             onClear={() => setPhotoVal('')}
             height={160}
-            placeholderLabel="ADD LOCATION PHOTO"
+            placeholderLabel="사진 선택"
           />
         </div>
 
