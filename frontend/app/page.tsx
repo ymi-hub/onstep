@@ -2088,10 +2088,12 @@ function OOTDRecordSheet({
                 }}
                 onDragEnd={() => { onDragRecTagIdx(null); onDragRecTagOverIdx(null); }}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: idx < recordTags.length - 1 ? '1px solid rgba(12,12,10,.08)' : 'none', opacity: dragRecTagOverIdx === idx ? 0.5 : 1, cursor: 'grab' }}>
-                <span style={{ fontSize: 12, color: '#BCBAB6' }}>☰</span>
-                <span style={{ flex: 1, fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>#{tag.replace(/^#/, '')}</span>
                 <button type="button" onClick={() => onRecordTagsChange(recordTags.filter((_, i) => i !== idx))}
-                  style={{ background: 'none', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BA1A1A', cursor: 'pointer', padding: '0 4px' }}>×</button>
+                  style={{ width: 20, height: 20, borderRadius: 9999, background: 'rgba(220,50,50,.1)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, color: '#C0392B', flexShrink: 0 }}>
+                  <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 1l5 5M6 1L1 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                </button>
+                <span style={{ flex: 1, fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>#{tag.replace(/^#/, '')}</span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, color: '#BCBAB6', cursor: 'grab' }}><circle cx="4" cy="3" r="1" fill="currentColor"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="9" r="1" fill="currentColor"/><circle cx="8" cy="3" r="1" fill="currentColor"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="8" cy="9" r="1" fill="currentColor"/></svg>
               </div>
             ))}
             <input
@@ -2131,7 +2133,7 @@ function OOTDRecordSheet({
         </div>
 
         {/* 삭제 버튼 (수정 모드) */}
-        {ootdLog && (
+        {ootdLog && !saving && (
           <button
             type="button"
             onClick={onDelete}
