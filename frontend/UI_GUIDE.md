@@ -62,25 +62,57 @@ grep -rn "카테고리 편집\|태그 편집\|도메인 편집\|루틴 편집" f
 
 ---
 
-### 저장 버튼 (SaveButton) — 검토 중
+### 저장 버튼 (SaveButton)
 
-> 현재 파일별로 스타일이 다름. 공통화 작업 예정.
-> 아래 "저장/삭제/취소 버튼 현황 표" 참고.
+**확정된 스타일** (2026-06-12 일괄 적용):
+
+```
+background : #0C0C0A
+color      : #C5FF00
+height     : 52px
+borderRadius: 12
+border     : none
+flex       : 1  (취소와 나란히 2열)
+fontSize   : 13~15
+fontWeight : 700
+```
+
+비활성(입력값 없을 때): `background: rgba(12,12,10,.14)`, `color: #9A9490`
 
 ---
 
-### 취소 버튼 (CancelButton) — 검토 중
+### 취소 버튼 (CancelButton)
 
-> 현재 파일별로 배경색이 #F4F4F0 / #EEEDE9 / #fff 혼재. 공통화 작업 예정.
+**확정된 스타일** (2026-06-12 일괄 적용):
+
+```
+background : #F0EFEA
+color      : #4A4846
+height     : 52px
+borderRadius: 12
+border     : none
+flex       : 1  (저장과 나란히 2열)
+fontSize   : 13~15
+fontWeight : 700
+```
 
 ---
 
-### 삭제 버튼 (DeleteButton) — 검토 중
+### 삭제 버튼 (DeleteButton)
 
-> 현재 두 가지 패턴 혼재:
-> - 투명 배경 + 빨간 텍스트 (`color: #BA1A1A`)
-> - 연한 빨간 배경 (`background: #FEE2E2 또는 rgba(186,26,26,.06)`)
-> 공통화 작업 예정.
+**확정된 스타일** (2026-06-12 일괄 적용):
+
+```
+background : rgba(186,26,26,.06)
+color      : #BA1A1A
+height     : 44px   ← 저장/취소보다 작음 (덜 강조)
+borderRadius: 12
+border     : 1.5px solid rgba(186,26,26,.2)
+width      : 100%   ← 항상 전폭
+marginTop  : 8px    ← 취소+저장 아래 배치
+fontSize   : 13
+fontWeight : 700
+```
 
 ---
 
