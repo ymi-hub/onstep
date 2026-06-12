@@ -2985,7 +2985,7 @@ export default function TodayPage() {
   // ── 렌더링 ──
   return (
     <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
-      <div>
+      <div style={{ paddingBottom: 100 }}>
         {/* 페이지 헤더 — 공통 PageHeader 컴포넌트 */}
         <PageHeader label="Today" title="Today" />
 
