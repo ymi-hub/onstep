@@ -4769,7 +4769,7 @@ function CtPanel({
                     fontFamily: f,
                     fontSize: 10,
                     fontWeight: 800,
-                    color: '#C5FF00',
+                    color: '#fff',
                     background: '#0C0C0A',
                     border: 'none',
                     borderRadius: 9999,

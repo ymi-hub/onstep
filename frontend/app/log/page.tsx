@@ -1985,7 +1985,7 @@ function LogCtPanel({
                   </div>
                   <button type="button"
                     onClick={() => { setSTagEditOpen(v => !v); if (sTagEditOpen) setSTagInput(''); }}
-                    style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                    style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
                     <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                     태그 편집
                   </button>
@@ -3895,7 +3895,7 @@ function LogPageInner() {
                     <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490' }}>카테고리</div>
                     <button type="button"
                       onClick={() => { setCatEditOpen(v => !v); if (catEditOpen) setCatNewTag(''); }}
-                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
                       <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                       카테고리 편집
                     </button>
@@ -4673,7 +4673,7 @@ function LogPageInner() {
                     </div>
                     <button type="button"
                       onClick={() => { setLifetipTagEditOpen(v => !v); if (lifetipTagEditOpen) setLifetipTagNewTag(''); }}
-                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
                       <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                       태그 편집
                     </button>
@@ -5138,7 +5138,7 @@ function LogPageInner() {
                 </div>
                 <button type="button"
                   onClick={() => setLibCatEditOpen(v => !v)}
-                  style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                  style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
                   <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                   카테고리 편집
                 </button>
@@ -5336,7 +5336,7 @@ function LogPageInner() {
                   </div>
                   <button type="button"
                     onClick={() => { setRefEditTagEditOpen(v => !v); if (refEditTagEditOpen) setRefEditTagInput(''); }}
-                    style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                    style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
                     <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                     태그 편집
                   </button>
@@ -5478,8 +5478,8 @@ function LogPageInner() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em' }}>#태그</div>
                 <button type="button" onClick={() => setOotdEditTagEditOpen(v => !v)}
-                  style={{ background: '#0C0C0A', border: 'none', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
-                  {ootdEditTagEditOpen ? '닫기' : '태그 편집'}
+                  style={{ background: '#0C0C0A', border: 'none', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
+                  태그 편집
                 </button>
               </div>
               {/* 패널 닫힘: 태그 없으면 입력창, 있으면 pills */}
