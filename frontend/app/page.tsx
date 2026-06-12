@@ -2054,7 +2054,7 @@ function OOTDRecordSheet({
 
         {/* #태그 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>#태그 <span style={{ fontWeight: 400 }}>선택</span></div>
+          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>#태그 <span style={{ fontWeight: 400 }}>(선택)</span></div>
           <button type="button" onClick={() => onRecordTagEditOpenChange(!recordTagEditOpen)}
             style={{ background: '#0C0C0A', border: 'none', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
             태그 편집
@@ -2074,7 +2074,7 @@ function OOTDRecordSheet({
                   }
                 }}
                 placeholder="+ 태그 추가 (Enter)"
-                style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 6 }}
+                style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, margin: '10px 0 20px 0' }}
               />
             : <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
                 {recordTags.map(tag => (
