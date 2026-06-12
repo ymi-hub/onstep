@@ -3696,11 +3696,19 @@ function LogPageInner() {
                           </div>
                           {catChips.length > 0 && (
                             <div style={{ display: 'flex', gap: 3, overflow: 'hidden', flexShrink: 1 }}>
-                              {catChips.slice(0, 2).map(tag => (
-                                <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 70 }}>
-                                  {tag}
-                                </span>
-                              ))}
+                              {catChips.slice(0, 2).map(tag => {
+                                const chipStyle: Record<string, { bg: string; text: string }> = {
+                                  'Life tip': { bg: '#3B82F6', text: '#fff' },
+                                  'Makeup':   { bg: '#C5FF00', text: '#3A6000' },
+                                  'Lookbook': { bg: '#FF8C42', text: '#fff' },
+                                };
+                                const cs = chipStyle[tag] ?? { bg: '#0C0C0A', text: '#fff' };
+                                return (
+                                  <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: cs.text, background: cs.bg, padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 70 }}>
+                                    {tag}
+                                  </span>
+                                );
+                              })}
                             </div>
                           )}
                         </div>
