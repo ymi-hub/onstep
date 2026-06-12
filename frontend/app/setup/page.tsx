@@ -5197,7 +5197,7 @@ function CtPanel({
             <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#0C0C0A' }}>집중케어 카테고리 관리</span>
+              <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#0C0C0A' }}>카테고리 관리</span>
               <button onClick={() => setCategoryManageOpen(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9A9490' }}>✕</button>
             </div>
 
@@ -5276,77 +5276,22 @@ function CtPanel({
                       -
                     </button>
 
-                    {/* 2. 중앙 하얀색 바 */}
+                    {/* 2. 중앙 카테고리명 */}
                     <div
                       style={{
                         flex: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        padding: '14px 16px',
+                        padding: '12px 16px',
                         background: '#fff',
-                        borderRadius: 16,
+                        borderRadius: 14,
                         border: '1px solid rgba(12,12,10,.06)',
                         boxShadow: '0 1px 2px rgba(0,0,0,.04)',
-                        minWidth: 0,
+                        fontFamily: f,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: '#0C0C0A',
                       }}
                     >
-
-                    {/* 2. 순서 번호 원형 배지 */}
-                    <div
-                      style={{
-                        width: 22,
-                        height: 22,
-                        borderRadius: '50%',
-                        background: '#EEEDE9',
-                        color: '#9A9490',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 11,
-                        fontWeight: 700,
-                        flexShrink: 0,
-                      }}
-                    >
-                      {idx + 1}
-                    </div>
-
-                    {/* 3. 아이콘 (✦) */}
-                    <div
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: 12,
-                        background: '#F4F4F2',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 20,
-                        flexShrink: 0,
-                      }}
-                    >
-                      ✦
-                    </div>
-
-                    {/* 4. 카테고리 정보 */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{cat}</div>
-                      <div
-                        style={{
-                          display: 'inline-block',
-                          fontFamily: f,
-                          fontSize: 10,
-                          fontWeight: 700,
-                          color: '#4F7DEC',
-                          background: 'rgba(79, 125, 236, 0.08)',
-                          padding: '2px 6px',
-                          borderRadius: 4,
-                          marginTop: 4,
-                        }}
-                      >
-                        집중케어
-                      </div>
-                    </div>
+                      {cat}
                     </div>
 
                     {/* 5. 우측 삼선 ☰ 드래그 핸들 */}
@@ -5441,7 +5386,7 @@ function CtPanel({
                   transition: 'transform 0.1s',
                 }}
               >
-                <span style={{ fontSize: 18 }}>+</span> 추가
+                <span style={{ fontSize: 18 }}>+</span> 카테고리 추가
               </button>
             </div>
             
