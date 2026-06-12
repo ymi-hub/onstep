@@ -2038,7 +2038,7 @@ function LogCtPanel({
                       setSTagInput('');
                     }
                   }}
-                  placeholder="태그를 추가해보세요"
+                  placeholder="태그 입력 후 Enter"
                   style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginTop: 6 }}
                 />
               </div>
@@ -4707,7 +4707,7 @@ function LogPageInner() {
                         setLifetipTagNewTag('');
                       }
                     }}
-                    placeholder="태그를 추가해보세요"
+                    placeholder="태그 입력 후 Enter"
                     style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginTop: 6 }}
                   />
                 </div>
@@ -5401,7 +5401,7 @@ function LogPageInner() {
                     e.preventDefault();
                   }
                 }}
-                placeholder="태그를 추가해보세요"
+                placeholder="태그 입력 후 Enter"
                 style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 8 }}
               />
 
