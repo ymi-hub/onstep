@@ -182,17 +182,32 @@ export function useTimer(): TimerState {
         setAlarmLabel(timerLabel);
         setAlarmVisible(true);
 
-        // MediaSession 완료 표시
+        // MediaSession 완료 표시 — playbackState를 'playing'으로 유지해서
+        // 잠금화면에 || (정지) 버튼이 보이게 함. > 버튼이 뜨면 혼란스러움.
         if (typeof window !== 'undefined' && 'mediaSession' in navigator) {
           try {
             navigator.mediaSession.metadata = new MediaMetadata({
-              title: `[대기 완료] ${timerLabel || '타이머'}`,
-              artist: '타이머가 완료되었습니다.',
+              title: `⏰ 대기 완료 — ${timerLabel || '타이머'}`,
+              artist: '눌러서 알람 정지',
               album: 'OnStep 타이머',
               artwork: [
                 { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
                 { src: '/icon-512.png', sizes: '512x512', type: 'image/png' }
               ]
+            });
+            // || 버튼 표시를 위해 'playing' 상태 강제 유지
+            navigator.mediaSession.playbackState = 'playing';
+            // 잠금화면 || 탭 → 알람 정지
+            navigator.mediaSession.setActionHandler('pause', () => {
+              setAlarmVisible(false);
+              if (alarmAudioRef.current) {
+                try { alarmAudioRef.current.pause(); } catch {}
+              }
+              stopBackgroundAudio();
+            });
+            navigator.mediaSession.setActionHandler('stop', () => {
+              setAlarmVisible(false);
+              stopBackgroundAudio();
             });
           } catch {}
         }
@@ -336,7 +351,7 @@ export function useTimer(): TimerState {
     if (typeof window !== 'undefined' && 'mediaSession' in navigator) {
       try {
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: `[진행중] ${label}`,
+          title: `⏱ 대기 중 — ${label}`,
           artist: `남은 시간: ${minutes}분`,
           album: 'OnStep 타이머',
           artwork: [
@@ -345,8 +360,11 @@ export function useTimer(): TimerState {
           ]
         });
 
+        // || (정지) 버튼이 보이도록 명시적으로 'playing' 상태 설정
+        navigator.mediaSession.playbackState = 'playing';
+
         // 잠금 화면 재생기 컨트롤에 액션 등록
-        // 사용자가 재생기에서 pause(일시정지) 또는 stop(정지)를 누르면 타이머 종료
+        // 사용자가 재생기에서 || 탭 → 타이머 취소
         navigator.mediaSession.setActionHandler('pause', () => {
           stopTimer();
         });
@@ -354,7 +372,8 @@ export function useTimer(): TimerState {
           stopTimer();
         });
         navigator.mediaSession.setActionHandler('play', () => {
-          // iOS 우회용: play 클릭 시 계속해서 재생 상태 유지
+          // iOS 우회용: play 탭 시 playing 상태 재확인
+          navigator.mediaSession.playbackState = 'playing';
         });
       } catch (e) {
         console.warn("MediaSession handler registration failed", e);
