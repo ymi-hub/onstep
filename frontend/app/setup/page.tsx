@@ -1574,7 +1574,7 @@ function AiImportPanel({
                 <button
                   onClick={() => { if (previewItems.length > 0) onImport(previewItems); }}
                   disabled={previewItems.length === 0}
-                  style={{ flex: 2, height: 44, borderRadius: 10, border: 'none', background: previewItems.length === 0 ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: previewItems.length === 0 ? '#9A9490' : '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 800, cursor: previewItems.length === 0 ? 'not-allowed' : 'pointer' }}>
+                  style={{ flex: 1, height: 44, borderRadius: 10, border: 'none', background: previewItems.length === 0 ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: previewItems.length === 0 ? '#9A9490' : '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 800, cursor: previewItems.length === 0 ? 'not-allowed' : 'pointer' }}>
                   {confirmLabel}
                 </button>
               </div>

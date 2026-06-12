@@ -5240,7 +5240,7 @@ function LogPageInner() {
               <div style={{ display: 'flex', gap: 10 }}>
                 <button onClick={() => setRefToLib(null)} style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>취소</button>
                 <button onClick={saveRefToLibrary} disabled={refToLibSaving || !refToLibCatName}
-                  style={{ flex: 2, height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: (refToLibSaving || !refToLibCatName) ? 0.4 : 1 }}>
+                  style={{ flex: 1, height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: (refToLibSaving || !refToLibCatName) ? 0.4 : 1 }}>
                   {refToLibSaving ? '등록 중...' : '라이브러리 등록'}
                 </button>
               </div>
