@@ -1978,11 +1978,42 @@ function LogCtPanel({
 
               {/* 태그 */}
               <div style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250' }}>#</span>
-                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250' }}>#</span>
+                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</span>
+                  </div>
+                  <button type="button"
+                    onClick={() => { setSTagEditOpen(v => !v); if (sTagEditOpen) setSTagInput(''); }}
+                    style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                    <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                    태그 편집
+                  </button>
                 </div>
-                <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
+                {/* 패널 닫힘: 태그 없으면 입력창, 있으면 pills */}
+                {!sTagEditOpen && (
+                  sTags.length === 0
+                    ? <input type="text" value={sTagInput}
+                        onChange={e => setSTagInput(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                            const t = sTagInput.trim();
+                            if (t && !sTags.includes(t)) setSTags(prev => [...prev, t]);
+                            setSTagInput('');
+                          }
+                        }}
+                        placeholder="+ 태그 추가 (Enter)"
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                      />
+                    : <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                        {sTags.map(tag => (
+                          <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#555250' }}>#{tag}</span>
+                        ))}
+                      </div>
+                )}
+                {/* 태그 편집 패널 — 토글 */}
+                {sTagEditOpen && (
+                  <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
                     <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
                     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                       {sTags.map((tag, i) => (
@@ -2024,6 +2055,7 @@ function LogCtPanel({
                       style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
                     />
                   </div>
+                )}
               </div>
 
               {/* Today 토글 */}
@@ -4640,13 +4672,26 @@ function LogPageInner() {
                     </button>
                   </div>
 
-                  {/* 현재 태그 pills */}
-                  {lifetipEditTags.length > 0 && (
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 8 }}>
-                      {lifetipEditTags.map((tag) => (
-                        <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#555250' }}>#{tag}</span>
-                      ))}
-                    </div>
+                  {/* 패널 닫힘: 태그 없으면 입력창, 있으면 pills */}
+                  {!lifetipTagEditOpen && (
+                    lifetipEditTags.length === 0
+                      ? <input type="text" value={lifetipTagNewTag}
+                          onChange={e => setLifetipTagNewTag(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                              const t = lifetipTagNewTag.trim();
+                              if (t && !lifetipEditTags.includes(t)) setLifetipEditTags(prev => [...prev, t]);
+                              setLifetipTagNewTag('');
+                            }
+                          }}
+                          placeholder="+ 태그 추가 (Enter)"
+                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                        />
+                      : <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                          {lifetipEditTags.map(tag => (
+                            <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#555250' }}>#{tag}</span>
+                          ))}
+                        </div>
                   )}
                   {/* 편집 패널 — 드래그앤드롭 */}
                   {lifetipTagEditOpen && (
@@ -5283,12 +5328,26 @@ function LogPageInner() {
                     태그 편집
                   </button>
                 </div>
-                {refEditTags.filter(t => !categoryTags.includes(t)).length > 0 && (
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: refEditTagEditOpen ? 8 : 0 }}>
-                    {refEditTags.filter(t => !categoryTags.includes(t)).map(tag => (
-                      <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#555250' }}>#{tag}</span>
-                    ))}
-                  </div>
+                {/* 패널 닫힘: 태그 없으면 입력창, 있으면 pills */}
+                {!refEditTagEditOpen && (
+                  refEditTags.filter(t => !categoryTags.includes(t)).length === 0
+                    ? <input type="text" value={refEditTagInput}
+                        onChange={e => setRefEditTagInput(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                            const t = refEditTagInput.trim().replace(/^#/, '');
+                            if (t && !refEditTags.includes(t)) setRefEditTags(prev => [...prev, t]);
+                            setRefEditTagInput('');
+                          }
+                        }}
+                        placeholder="+ 태그 추가 (Enter)"
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                      />
+                    : <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                        {refEditTags.filter(t => !categoryTags.includes(t)).map(tag => (
+                          <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#555250' }}>#{tag}</span>
+                        ))}
+                      </div>
                 )}
                 {refEditTagEditOpen && (
                   <div style={{ marginTop: 8, padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
@@ -5406,15 +5465,28 @@ function LogPageInner() {
                   {ootdEditTagEditOpen ? '닫기' : '태그 편집'}
                 </button>
               </div>
-              {/* 등록된 태그 pills */}
-              {ootdEditTags.length > 0 && (
-                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
-                  {ootdEditTags.map(tag => (
-                    <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
-                      #{tag.replace(/^#/, '')}
-                    </span>
-                  ))}
-                </div>
+              {/* 패널 닫힘: 태그 없으면 입력창, 있으면 pills */}
+              {!ootdEditTagEditOpen && (
+                ootdEditTags.length === 0
+                  ? <input type="text" value={ootdEditTagNewTag}
+                      onChange={e => setOotdEditTagNewTag(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                          const t = ootdEditTagNewTag.trim().replace(/^#/, '');
+                          if (t && !ootdEditTags.includes(t)) setOotdEditTags(prev => [...prev, t]);
+                          setOotdEditTagNewTag('');
+                        }
+                      }}
+                      placeholder="+ 태그 추가 (Enter)"
+                      style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 6 }}
+                    />
+                  : <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                      {ootdEditTags.map(tag => (
+                        <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                          #{tag.replace(/^#/, '')}
+                        </span>
+                      ))}
+                    </div>
               )}
               {/* 태그 편집 패널 */}
               {ootdEditTagEditOpen && (
