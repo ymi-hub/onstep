@@ -70,14 +70,16 @@ import CardButtonBar from '@/components/CardButtonBar';
 
 // 수집 탭 — 레퍼런스 링크
 type CachedLibrary = {
+  ctType?: 'makeup' | 'lookbook' | 'lifetip'; // 해지 시점의 아이템 타입
   name: string;
   emoji: string;
-  tipCategory: string;
+  tipCategory: string;   // lifetip 전용
   sourceUrl: string;
   imageUrl: string;
   tags: string[];
-  memo: string;
-  productIds: string[];
+  memo: string;          // lifetip 전용
+  productIds: string[];  // lifetip 전용
+  desc?: string;         // makeup/lookbook 전용
 };
 
 type Reference = {
@@ -3018,12 +3020,13 @@ function LogPageInner() {
     if (!db || !userId) return;
     const _db = db;
     try {
-      // Life TIP이면 해지 전에 현재 데이터를 cachedLibrary로 저장
+      // 해지 전 현재 데이터를 cachedLibrary로 저장 (lifetip + makeup + lookbook 모두)
       let cachedLibrary: CachedLibrary | undefined;
       if (ref.libraryItemId && ref.libraryItemType === 'lifetip') {
         const item = lifetipItems.find(i => i.id === ref.libraryItemId);
         if (item) {
           cachedLibrary = {
+            ctType: 'lifetip',
             name: item.name,
             emoji: item.emoji,
             tipCategory: item.tipCategory,
@@ -3032,6 +3035,23 @@ function LogPageInner() {
             tags: item.tags ?? [],
             memo: item.memo || '',
             productIds: item.productIds ?? [],
+          };
+        }
+      } else if (ref.libraryItemId && (ref.libraryItemType === 'makeup' || ref.libraryItemType === 'lookbook')) {
+        const colItems = ref.libraryItemType === 'makeup' ? makeupItems : lookItems;
+        const item = colItems.find(i => i.id === ref.libraryItemId);
+        if (item) {
+          cachedLibrary = {
+            ctType: ref.libraryItemType,
+            name: item.name,
+            emoji: item.emoji || '',
+            tipCategory: '',
+            sourceUrl: item.sourceUrl || '',
+            imageUrl: item.imageUrl || '',
+            tags: item.tags ?? [],
+            memo: '',
+            productIds: [],
+            desc: item.desc || '',
           };
         }
       }
@@ -4932,8 +4952,17 @@ function LogPageInner() {
             setRefToLibEditMemo(cache.memo || '');
             setRefToLibEditImageFile(null);
             setRefToLibEditImagePreview(cache.imageUrl || ref.imageUrl || '');
-            const cat = (cache.tipCategory || categoryTags.find(c => (ref.tags ?? []).includes(c))) ?? categoryTags[0] ?? 'Life tip';
-            const libType: 'makeup' | 'lookbook' | 'lifetip' = cat === 'Lookbook' ? 'lookbook' : cat === 'Makeup' ? 'makeup' : 'lifetip';
+            let libType: 'makeup' | 'lookbook' | 'lifetip';
+            let cat: string;
+            if (cache.ctType === 'makeup') {
+              libType = 'makeup'; cat = 'Makeup';
+            } else if (cache.ctType === 'lookbook') {
+              libType = 'lookbook'; cat = 'Lookbook';
+            } else {
+              const fallback = cache.tipCategory || (categoryTags.find(c => (ref.tags ?? []).includes(c))) || categoryTags[0] || 'Life tip';
+              libType = fallback === 'Lookbook' ? 'lookbook' : fallback === 'Makeup' ? 'makeup' : 'lifetip';
+              cat = fallback;
+            }
             setRefToLibCatName(cat);
             setRefToLibType(libType);
             setRefToLibTagArr(libType === 'lifetip' && cache.tipCategory && cache.tipCategory !== cat ? [cache.tipCategory] : []);
@@ -5047,25 +5076,50 @@ function LogPageInner() {
                     if (!db || !userId || !refCachePreview) return;
                     const ref = refCachePreview;
                     setRefCachePreview(null);
-                    // cachedLibrary 값으로 lifetipItem 즉시 생성
-                    const newItem = await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
-                      name: cache.name,
-                      emoji: cache.emoji,
-                      tipCategory: cache.tipCategory,
-                      sourceUrl: cache.sourceUrl,
-                      imageUrl: cache.imageUrl,
-                      tags: cache.tags,
-                      memo: cache.memo,
-                      productIds: cache.productIds,
-                      published: false,
-                      dates: [],
-                      createdAt: new Date().toISOString(),
-                      updatedAt: new Date().toISOString(),
-                    } satisfies Omit<import('@/types/lifetip').LifetipItem, 'id'>);
+                    let newItemId = '';
+                    let newItemType: 'makeup' | 'lookbook' | 'lifetip' = 'lifetip';
+                    if (cache.ctType === 'makeup' || cache.ctType === 'lookbook') {
+                      // makeup/lookbook: CtItem 즉시 생성
+                      const colName = cache.ctType === 'makeup' ? 'makeupItems' : 'lookItems';
+                      newItemType = cache.ctType;
+                      const newItem = await addDoc(collection(db, 'users', userId, colName), {
+                        ctType: cache.ctType,
+                        name: cache.name,
+                        emoji: cache.emoji || (cache.ctType === 'makeup' ? '💄' : '👗'),
+                        desc: cache.desc || '',
+                        imageUrl: cache.imageUrl,
+                        sourceUrl: cache.sourceUrl,
+                        tags: cache.tags,
+                        items: [],
+                        tipItems: [],
+                        published: false,
+                        dates: [],
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                      });
+                      newItemId = newItem.id;
+                    } else {
+                      // lifetip: LifetipItem 즉시 생성
+                      const newItem = await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
+                        name: cache.name,
+                        emoji: cache.emoji,
+                        tipCategory: cache.tipCategory,
+                        sourceUrl: cache.sourceUrl,
+                        imageUrl: cache.imageUrl,
+                        tags: cache.tags,
+                        memo: cache.memo,
+                        productIds: cache.productIds,
+                        published: false,
+                        dates: [],
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                      } satisfies Omit<import('@/types/lifetip').LifetipItem, 'id'>);
+                      newItemId = newItem.id;
+                    }
                     await updateDoc(doc(db, 'users', userId, 'references', ref.id), {
                       inLibrary: true,
-                      libraryItemId: newItem.id,
-                      libraryItemType: 'lifetip',
+                      libraryItemId: newItemId,
+                      libraryItemType: newItemType,
                     });
                   }}
                   style={{ width: '100%', height: 52, background: '#0C0C0A', border: 'none', borderRadius: 14, fontFamily: f, fontSize: 14, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', letterSpacing: '.02em' }}>
