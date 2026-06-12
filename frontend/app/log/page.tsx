@@ -4969,9 +4969,7 @@ function LogPageInner() {
             setRefToLibCatName(cat);
             setRefToLibType(libType);
             setRefToLibTagArr(
-              libType === 'lifetip'
-                ? (cache.tipCategory && cache.tipCategory !== cat ? [cache.tipCategory] : [])
-                : (cache.tags ?? [])
+              (cache.tags ?? []).filter(t => !categoryTags.includes(t))
             );
             setRefToLibTagEditOpen(false);
             setRefToLibTagInput('');
