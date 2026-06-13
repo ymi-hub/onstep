@@ -864,18 +864,18 @@ function DayDetail({
         );
       })()}
 
-      {/* 약 루틴 (Medication) */}
+      {/* 약 루틴 (Medication) — 당일 완료된 기록만 표시 */}
       {(() => {
         const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
         const activeMeds = medRoutines.filter(m => m.active);
         if (activeMeds.length === 0) return null;
+        // 당일 완료된 것만 필터
+        const doneMeds = activeMeds.filter(m => medChecked.has(m.id));
         const getTime = (m: import('@/types/medication').MedRoutine) => {
           if (m.time) return m.time;
           const first = (m.times ?? [])[0];
           return first === 'morning' ? '09:00' : first === 'lunch' ? '12:00' : first === 'evening' ? '18:00' : '22:00';
         };
-        // 아침(파랑) 04-12 · 점심(오렌지) 12-18 · 저녁(핑크) 18-04
-        // times 배열 우선, 없으면 time 필드 시간대로 결정
         const periodOf = (m: { time?: string; times?: string[] }): 'am' | 'pm' | 'ev' => {
           if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
           const ts = m.times ?? [];
@@ -884,21 +884,16 @@ function DayDetail({
           if (ts.some((t: string) => t === 'evening' || t === 'bedtime')) return 'ev';
           return 'ev';
         };
-        const amMeds = activeMeds.filter(m => periodOf(m) === 'am');
-        const pmMeds = activeMeds.filter(m => periodOf(m) === 'pm');
-        const evAll  = activeMeds.filter(m => periodOf(m) === 'ev');
-        const MedRow = ({ m, col }: { m: import('@/types/medication').MedRoutine; col: string }) => {
-          const done = medChecked.has(m.id);
-          return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
-              <div style={{ width: 14, height: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {done ? <CatBadge color="#C5FF00" size={14} /> : <span style={{ fontSize: 11, color: 'rgba(12,12,10,.3)' }}>○</span>}
-              </div>
-              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? col : '#44474A', width: 36, flexShrink: 0 }}>{getTime(m)}</span>
-              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
-            </div>
-          );
-        };
+        const amMeds = doneMeds.filter(m => periodOf(m) === 'am');
+        const pmMeds = doneMeds.filter(m => periodOf(m) === 'pm');
+        const evMeds = doneMeds.filter(m => periodOf(m) === 'ev');
+        const MedRow = ({ m, col }: { m: import('@/types/medication').MedRoutine; col: string }) => (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
+            <CatBadge color="#C5FF00" size={14} />
+            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: col, width: 36, flexShrink: 0 }}>{getTime(m)}</span>
+            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#9A9490', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+          </div>
+        );
         const MedGroup = ({ label, col, meds }: { label: string; col: string; meds: import('@/types/medication').MedRoutine[] }) =>
           meds.length === 0 ? null : (
             <div style={{ marginBottom: 6 }}>
@@ -909,37 +904,46 @@ function DayDetail({
         return (
           <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
             <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>💊 약 루틴</div>
-            <MedGroup label="아침" col="#6B7CE8" meds={amMeds} />
-            <MedGroup label="오후" col="#E8A86B" meds={pmMeds} />
-            <MedGroup label="저녁" col="#E86BAA" meds={evAll} />
+            {doneMeds.length === 0 ? (
+              <div style={{ fontFamily: f, fontSize: 11, color: 'rgba(12,12,10,.35)', fontStyle: 'italic' }}>이 날 완료된 약 루틴 기록이 없어요</div>
+            ) : (
+              <>
+                <MedGroup label="아침" col="#6B7CE8" meds={amMeds} />
+                <MedGroup label="오후" col="#E8A86B" meds={pmMeds} />
+                <MedGroup label="저녁" col="#E86BAA" meds={evMeds} />
+              </>
+            )}
           </div>
         );
       })()}
 
-      {/* 건강 루틴 (Health) */}
+      {/* 건강 루틴 (Health) — 당일 완료된 기록만 표시 */}
       {(() => {
         const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
         const activeRoutines = healthRoutines.filter(h => h.active && h.showInToday);
         if (activeRoutines.length === 0) return null;
+        // 당일 완료된 것만 필터
+        const doneRoutines = activeRoutines.filter(h => healthChecked.has(h.id));
         return (
           <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
             <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>🏃 건강루틴</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-              {activeRoutines.map(h => {
-                const done = healthChecked.has(h.id);
-                const timed = (h.entries ?? []).map((e: { time: string }) => e.time).filter((t: string) => t && t.includes(':'));
-                const pt = timed.length > 0 ? (timed as string[]).sort()[0] : (h.time && h.time.includes(':') ? h.time : '');
-                return (
-                  <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
-                    <div style={{ width: 14, height: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {done ? <CatBadge color="#C5FF00" size={14} /> : <span style={{ fontSize: 11, color: 'rgba(12,12,10,.3)' }}>○</span>}
+            {doneRoutines.length === 0 ? (
+              <div style={{ fontFamily: f, fontSize: 11, color: 'rgba(12,12,10,.35)', fontStyle: 'italic' }}>이 날 완료된 건강 루틴 기록이 없어요</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                {doneRoutines.map(h => {
+                  const timed = (h.entries ?? []).map((e: { time: string }) => e.time).filter((t: string) => t && t.includes(':'));
+                  const pt = timed.length > 0 ? (timed as string[]).sort()[0] : (h.time && h.time.includes(':') ? h.time : '');
+                  return (
+                    <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
+                      <CatBadge color="#C5FF00" size={14} />
+                      {pt && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4CAF50', width: 36, flexShrink: 0 }}>{pt}</span>}
+                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#9A9490', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
                     </div>
-                    {pt && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{pt}</span>}
-                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
       })()}
