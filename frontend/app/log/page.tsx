@@ -2392,6 +2392,8 @@ function LogPageInner() {
   const [lifetipTagNewTag, setLifetipTagNewTag] = useState('');
   const [dragLifetipTagIdx, setDragLifetipTagIdx] = useState<number | null>(null);
   const [dragLifetipTagOverIdx, setDragLifetipTagOverIdx] = useState<number | null>(null);
+  const [editingLifetipTagIdx, setEditingLifetipTagIdx] = useState<number | null>(null);
+  const [editingLifetipTagVal, setEditingLifetipTagVal] = useState('');
   const [lifetipEditPublished, setLifetipEditPublished] = useState(false);
   const [lifetipEditDates, setLifetipEditDates] = useState<string[]>([]);
   const [lifetipEditSaving, setLifetipEditSaving] = useState(false);
@@ -2433,6 +2435,8 @@ function LogPageInner() {
   const [catNewTag, setCatNewTag] = useState('');
   const [dragCatIdx, setDragCatIdx] = useState<number | null>(null);
   const [dragCatOverIdx, setDragCatOverIdx] = useState<number | null>(null);
+  const [editingCatIdx, setEditingCatIdx] = useState<number | null>(null);
+  const [editingCatVal, setEditingCatVal] = useState('');
   const [categoryTags, setCategoryTags] = useState<string[]>(() => {
     // 로컬 캐시를 초기값으로 사용 (깜빡임 방지), Firestore 로드 후 덮어씀
     if (typeof window === 'undefined') return DEFAULT_CATEGORY_TAGS;
@@ -2474,6 +2478,8 @@ function LogPageInner() {
   const [ootdEditTagNewTag, setOotdEditTagNewTag] = useState('');
   const [dragOotdTagIdx, setDragOotdTagIdx] = useState<number | null>(null);
   const [dragOotdTagOverIdx, setDragOotdTagOverIdx] = useState<number | null>(null);
+  const [editingOotdTagIdx, setEditingOotdTagIdx] = useState<number | null>(null);
+  const [editingOotdTagVal, setEditingOotdTagVal] = useState('');
   const [ootdEditSaving, setOotdEditSaving] = useState(false);
   const [ootdPickerOpen, setOotdPickerOpen] = useState(false);
   const [ootdPickerSearch, setOotdPickerSearch] = useState('');
@@ -2557,6 +2563,8 @@ function LogPageInner() {
   const [refToLibTagInput, setRefToLibTagInput] = useState('');
   const [dragRefToLibTagIdx, setDragRefToLibTagIdx] = useState<number | null>(null);
   const [dragRefToLibTagOverIdx, setDragRefToLibTagOverIdx] = useState<number | null>(null);
+  const [editingRefToLibTagIdx, setEditingRefToLibTagIdx] = useState<number | null>(null);
+  const [editingRefToLibTagVal, setEditingRefToLibTagVal] = useState('');
   const [refToLibEmoji, setRefToLibEmoji] = useState('');
   const [refToLibSaving, setRefToLibSaving] = useState(false);
   const [libCatEditOpen, setLibCatEditOpen] = useState(false);
@@ -2591,6 +2599,8 @@ function LogPageInner() {
   const [newLifetipSaving, setNewLifetipSaving] = useState(false);
   const [dragNewLifetipTagIdx, setDragNewLifetipTagIdx] = useState<number | null>(null);
   const [dragNewLifetipTagOverIdx, setDragNewLifetipTagOverIdx] = useState<number | null>(null);
+  const [editingNewLifetipTagIdx, setEditingNewLifetipTagIdx] = useState<number | null>(null);
+  const [editingNewLifetipTagVal, setEditingNewLifetipTagVal] = useState('');
 
   function triggerCollectionEdit(item: CtItem) {
     const domain = item.domain ?? (item.ctType === 'makeup' ? 'beauty' : 'fashion');
@@ -4126,9 +4136,22 @@ function LogPageInner() {
                               style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                               -
                             </button>
-                            <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                              {cat}
-                            </div>
+                            {editingCatIdx === i ? (
+                              <input autoFocus type="text" value={editingCatVal}
+                                onChange={e => setEditingCatVal(e.target.value)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingCatVal.trim(); if (v && !categoryTags.includes(v)) setCategoryTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingCatIdx(null); }
+                                  if (e.key === 'Escape') setEditingCatIdx(null);
+                                }}
+                                onBlur={() => { const v = editingCatVal.trim(); if (v && !categoryTags.includes(v)) setCategoryTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingCatIdx(null); }}
+                                style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                              />
+                            ) : (
+                              <div onClick={() => { setEditingCatIdx(i); setEditingCatVal(cat); }}
+                                style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                                {cat}
+                              </div>
+                            )}
                             <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
                               ☰
                             </div>
@@ -4921,8 +4944,24 @@ function LogPageInner() {
                               style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                               -
                             </button>
-                            <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                              #{tag}
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingLifetipTagIdx === i ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', overflow: 'hidden' }}>
+                              <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', paddingLeft: 12, flexShrink: 0 }}>#</span>
+                              {editingLifetipTagIdx === i ? (
+                                <input autoFocus type="text" value={editingLifetipTagVal}
+                                  onChange={e => setEditingLifetipTagVal(e.target.value)}
+                                  onKeyDown={e => {
+                                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingLifetipTagVal.trim(); if (v && !lifetipEditTags.includes(v)) setLifetipEditTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingLifetipTagIdx(null); }
+                                    if (e.key === 'Escape') setEditingLifetipTagIdx(null);
+                                  }}
+                                  onBlur={() => { const v = editingLifetipTagVal.trim(); if (v && !lifetipEditTags.includes(v)) setLifetipEditTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingLifetipTagIdx(null); }}
+                                  style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                                />
+                              ) : (
+                                <span onClick={() => { setEditingLifetipTagIdx(i); setEditingLifetipTagVal(tag); }}
+                                  style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                                  {tag}
+                                </span>
+                              )}
                             </div>
                             <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
                               ☰
@@ -5427,9 +5466,22 @@ function LogPageInner() {
                           style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                           -
                         </button>
-                        <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                          {cat}
-                        </div>
+                        {editingCatIdx === i ? (
+                          <input autoFocus type="text" value={editingCatVal}
+                            onChange={e => setEditingCatVal(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingCatVal.trim(); if (v && !categoryTags.includes(v)) setCategoryTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingCatIdx(null); }
+                              if (e.key === 'Escape') setEditingCatIdx(null);
+                            }}
+                            onBlur={() => { const v = editingCatVal.trim(); if (v && !categoryTags.includes(v)) setCategoryTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingCatIdx(null); }}
+                            style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                          />
+                        ) : (
+                          <div onClick={() => { setEditingCatIdx(i); setEditingCatVal(cat); }}
+                            style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                            {cat}
+                          </div>
+                        )}
                         <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
                           ☰
                         </div>
@@ -5517,8 +5569,24 @@ function LogPageInner() {
                                 style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                                 -
                               </button>
-                              <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                                #{tag.replace(/^#/, '')}
+                              <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingRefToLibTagIdx === idx ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', overflow: 'hidden' }}>
+                                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', paddingLeft: 12, flexShrink: 0 }}>#</span>
+                                {editingRefToLibTagIdx === idx ? (
+                                  <input autoFocus type="text" value={editingRefToLibTagVal}
+                                    onChange={e => setEditingRefToLibTagVal(e.target.value)}
+                                    onKeyDown={e => {
+                                      if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingRefToLibTagVal.trim().replace(/^#/, ''); if (v && !refToLibTagArr.includes(v)) setRefToLibTagArr(prev => prev.map((t, i) => i === idx ? v : t)); setEditingRefToLibTagIdx(null); }
+                                      if (e.key === 'Escape') setEditingRefToLibTagIdx(null);
+                                    }}
+                                    onBlur={() => { const v = editingRefToLibTagVal.trim().replace(/^#/, ''); if (v && !refToLibTagArr.includes(v)) setRefToLibTagArr(prev => prev.map((t, i) => i === idx ? v : t)); setEditingRefToLibTagIdx(null); }}
+                                    style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                                  />
+                                ) : (
+                                  <span onClick={() => { setEditingRefToLibTagIdx(idx); setEditingRefToLibTagVal(tag.replace(/^#/, '')); }}
+                                    style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                                    {tag.replace(/^#/, '')}
+                                  </span>
+                                )}
                               </div>
                               <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>☰</div>
                             </div>
@@ -5875,8 +5943,24 @@ function LogPageInner() {
                         style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                         -
                       </button>
-                      <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                        #{tag.replace(/^#/, '')}
+                      <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingOotdTagIdx === idx ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', overflow: 'hidden' }}>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', paddingLeft: 12, flexShrink: 0 }}>#</span>
+                        {editingOotdTagIdx === idx ? (
+                          <input autoFocus type="text" value={editingOotdTagVal}
+                            onChange={e => setEditingOotdTagVal(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingOotdTagVal.trim().replace(/^#/, ''); if (v && !ootdEditTags.includes(v)) setOotdEditTags(prev => prev.map((t, i) => i === idx ? v : t)); setEditingOotdTagIdx(null); }
+                              if (e.key === 'Escape') setEditingOotdTagIdx(null);
+                            }}
+                            onBlur={() => { const v = editingOotdTagVal.trim().replace(/^#/, ''); if (v && !ootdEditTags.includes(v)) setOotdEditTags(prev => prev.map((t, i) => i === idx ? v : t)); setEditingOotdTagIdx(null); }}
+                            style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                          />
+                        ) : (
+                          <span onClick={() => { setEditingOotdTagIdx(idx); setEditingOotdTagVal(tag.replace(/^#/, '')); }}
+                            style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                            {tag.replace(/^#/, '')}
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
                         ☰
@@ -6126,8 +6210,24 @@ function LogPageInner() {
                               style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                               -
                             </button>
-                            <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                              #{tag}
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingNewLifetipTagIdx === i ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', overflow: 'hidden' }}>
+                              <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', paddingLeft: 12, flexShrink: 0 }}>#</span>
+                              {editingNewLifetipTagIdx === i ? (
+                                <input autoFocus type="text" value={editingNewLifetipTagVal}
+                                  onChange={e => setEditingNewLifetipTagVal(e.target.value)}
+                                  onKeyDown={e => {
+                                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingNewLifetipTagVal.trim(); if (v && !newLifetipTags.includes(v)) setNewLifetipTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingNewLifetipTagIdx(null); }
+                                    if (e.key === 'Escape') setEditingNewLifetipTagIdx(null);
+                                  }}
+                                  onBlur={() => { const v = editingNewLifetipTagVal.trim(); if (v && !newLifetipTags.includes(v)) setNewLifetipTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingNewLifetipTagIdx(null); }}
+                                  style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                                />
+                              ) : (
+                                <span onClick={() => { setEditingNewLifetipTagIdx(i); setEditingNewLifetipTagVal(tag); }}
+                                  style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                                  {tag}
+                                </span>
+                              )}
                             </div>
                             <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>☰</div>
                           </div>
