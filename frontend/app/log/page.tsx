@@ -3288,12 +3288,14 @@ function LogPageInner() {
         imageUrl,
         updatedAt: new Date().toISOString(),
       });
-      // 수집 문서 실시간 동기화 — 카테고리 태그 유지, 나머지를 lifetipEditTags로 교체
+      // 수집 문서 실시간 동기화 — 카테고리 태그 유지, user 태그만 교체
       const linkedRef = references.find(r => r.libraryItemId === editingLifetip.id);
       if (linkedRef) {
         const catTags = (linkedRef.tags ?? []).filter(t => categoryTags.includes(t));
+        const userTags = lifetipEditTags.filter(t => !categoryTags.includes(t));
         await updateDoc(doc(db, 'users', userId, 'references', linkedRef.id), {
-          tags: [...catTags, ...lifetipEditTags],
+          tags: [...catTags, ...userTags],
+          updatedAt: new Date().toISOString(),
         });
       }
       showToast('라이프 팁 수정 완료');
@@ -4748,7 +4750,11 @@ function LogPageInner() {
               const linkedRef = references.find(r => r.libraryItemId === itemId);
               if (!linkedRef) return;
               const catTags = (linkedRef.tags ?? []).filter(t => categoryTags.includes(t));
-              updateDoc(doc(db, 'users', userId, 'references', linkedRef.id), { tags: [...catTags, ...tags] });
+              const userTags = tags.filter(t => !categoryTags.includes(t));
+              updateDoc(doc(db, 'users', userId, 'references', linkedRef.id), {
+                tags: [...catTags, ...userTags],
+                updatedAt: new Date().toISOString(),
+              });
             }}
           />
         );
