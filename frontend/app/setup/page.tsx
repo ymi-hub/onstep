@@ -4606,9 +4606,11 @@ function CtPanel({
             )}
             <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{item.emoji}</span>
             <span style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#0C0C0A', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
-            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, padding: '3px 8px', borderRadius: 8, flexShrink: 0, background: item.published ? '#0C0C0A' : '#E4E2DC', color: item.published ? '#fff' : '#9A9490' }}>
-              {item.published ? 'ON' : 'OFF'}
-            </span>
+            {item.published && (
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, padding: '3px 8px', borderRadius: 8, flexShrink: 0, background: '#0C0C0A', color: '#fff' }}>
+                ON
+              </span>
+            )}
           </div>
           {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', lineHeight: 1.5, marginBottom: 10 }}>{item.desc}</div>}
           {prodItems.length > 0 && (
