@@ -3869,12 +3869,12 @@ function LogPageInner() {
                 {/* ── 메인 콘텐츠 영역 ── */}
                 <div style={{ display: 'flex', alignItems: 'stretch' }}>
 
-                  {/* 썸네일 — 이미지 있으면 cover, 없으면 플랫폼 이모지 */}
+                  {/* 썸네일 — 이미지 있으면 cover, 없으면 고정핀 이모지 */}
                   <div style={{ width: 90, flexShrink: 0, background: '#F0EEE8', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', minHeight: 90 }}>
                     {ref.imageUrl
                       // eslint-disable-next-line @next/next/no-img-element
                       ? <img src={ref.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : <span style={{ fontSize: 34 }}>{PLATFORM_ICON[platform]}</span>
+                      : <span style={{ fontSize: 34 }}>📌</span>
                     }
                   </div>
 
@@ -4415,17 +4415,18 @@ function LogPageInner() {
             {/* Life TIP 탭 콘텐츠 */}
             {archiveFilter === 'lifetip' && (() => {
               const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-              const lifetipByCategory2: Record<string, typeof lifetipItems[0][]> = {};
+              // 태그 기반 필터 — 각 태그에 해당하는 아이템 수 집계
+              const tagCountMap: Record<string, number> = {};
               for (const item of lifetipItems) {
-                const cat = item.tipCategory || '기타';
-                if (!lifetipByCategory2[cat]) lifetipByCategory2[cat] = [];
-                lifetipByCategory2[cat].push(item);
+                for (const tag of (item.tags ?? [])) {
+                  tagCountMap[tag] = (tagCountMap[tag] ?? 0) + 1;
+                }
               }
-              const lifetipCategories2 = Object.keys(lifetipByCategory2).sort(
-                (a, b) => lifetipByCategory2[b].length - lifetipByCategory2[a].length
+              const lifetipCategories2 = Object.keys(tagCountMap).sort(
+                (a, b) => tagCountMap[b] - tagCountMap[a]
               );
               const filteredTips = lifetipCategory
-                ? (lifetipByCategory2[lifetipCategory] ?? [])
+                ? lifetipItems.filter(item => (item.tags ?? []).includes(lifetipCategory))
                 : lifetipItems;
               return (
                 <div>
@@ -4443,16 +4444,14 @@ function LogPageInner() {
                           style={{ flexShrink: 0, background: lifetipCategory === null ? '#0C0C0A' : '#fff', border: `1px solid ${lifetipCategory === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: lifetipCategory === null ? '#fff' : '#0C0C0A', cursor: 'pointer', transition: 'all .15s' }}>
                           전체 {lifetipItems.length}
                         </button>
-                        {lifetipCategories2.map(cat => {
-                          const items = lifetipByCategory2[cat];
-                          const emoji = items[0]?.emoji || getLifetipEmoji(cat);
-                          const sel = lifetipCategory === cat;
+                        {lifetipCategories2.map(tag => {
+                          const count = tagCountMap[tag];
+                          const sel = lifetipCategory === tag;
                           return (
-                            <button key={cat} type="button" onClick={() => setLifetipCategory(cat)}
+                            <button key={tag} type="button" onClick={() => setLifetipCategory(tag)}
                               style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', transition: 'all .15s' }}>
-                              <span style={{ fontSize: 12, lineHeight: 1 }}>{emoji}</span>
-                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A', whiteSpace: 'nowrap' as const }}>{cat}</span>
-                              <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{items.length}</span>
+                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A', whiteSpace: 'nowrap' as const }}>#{tag}</span>
+                              <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{count}</span>
                             </button>
                           );
                         })}
