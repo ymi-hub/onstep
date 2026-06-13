@@ -18,7 +18,7 @@ export default function SectionHeader({ title, action, barColor, textColor }: Se
     // 컬러 바 모드
     const tc = textColor ?? '#0C0C0A';
     return (
-      <div style={{ margin: '16px 26px 8px', borderRadius: 14, background: barColor, padding: '13px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ margin: '16px 20px 8px', borderRadius: 14, background: barColor, padding: '13px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontFamily: F, fontSize: 15, fontWeight: 800, color: tc, letterSpacing: '.04em' }}>
           {title}
         </span>
@@ -31,9 +31,9 @@ export default function SectionHeader({ title, action, barColor, textColor }: Se
     );
   }
 
-  // 기본 모드 (기존 스타일 유지)
+  // 기본 모드
   return (
-    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '24px 26px 10px' }}>
+    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '20px 20px 12px' }}>
       <span style={{ fontFamily: F, fontSize: 18, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>
         {title}
       </span>

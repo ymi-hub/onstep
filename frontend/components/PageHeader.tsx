@@ -31,8 +31,7 @@ const F = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
 export default function PageHeader({ label, title, subtitle, right }: PageHeaderProps) {
   return (
-    // 전체 헤더 영역 — 좌우 패딩 16px, 위 20px, 아래 14px
-    <div style={{ padding: '20px 26px 14px' }}>
+    <div style={{ padding: '24px 20px 16px' }}>
 
       {/* 상단 행: 레이블(좌) + 우측 슬롯(우) */}
       <div
@@ -43,7 +42,6 @@ export default function PageHeader({ label, title, subtitle, right }: PageHeader
           marginBottom: 2,
         }}
       >
-        {/* 레이블 — 소문자 트래킹 스타일 */}
         <span
           style={{
             fontFamily: F,
@@ -57,7 +55,6 @@ export default function PageHeader({ label, title, subtitle, right }: PageHeader
           {label}
         </span>
 
-        {/* 우측 슬롯: 있을 때만 렌더링 */}
         {right && (
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {right}
@@ -65,14 +62,14 @@ export default function PageHeader({ label, title, subtitle, right }: PageHeader
         )}
       </div>
 
-      {/* 대형 타이틀 */}
+      {/* 대형 타이틀 — 52→40px, 좌우 패딩 26→20px */}
       <h1
         style={{
           fontFamily: F,
-          fontSize: 52,
+          fontSize: 40,
           fontWeight: 900,
           color: '#0C0C0A',
-          lineHeight: 0.92,
+          lineHeight: 1.0,
           letterSpacing: '-.03em',
           margin: '4px 0 0',
         }}
@@ -80,15 +77,14 @@ export default function PageHeader({ label, title, subtitle, right }: PageHeader
         {title}
       </h1>
 
-      {/* 서브타이틀 — 있을 때만 렌더링 */}
       {subtitle && (
         <p
           style={{
             fontFamily: F,
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 500,
             color: '#9A9490',
-            margin: '8px 0 0',
+            margin: '10px 0 0',
             lineHeight: 1.5,
           }}
         >

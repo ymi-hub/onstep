@@ -166,7 +166,7 @@ function SessionHero({
   const dateStr = format(today, 'M월 d일 (EEE)', { locale: ko });
 
   return (
-    <div style={{ padding: '4px 26px 12px' }}>
+    <div style={{ padding: '8px 20px 16px' }}>
       {/* 회차 번호 — #Skincare 섹션 헤더(18px) 하위이므로 13px 서브 레이블 */}
       <div
         style={{
@@ -330,7 +330,7 @@ function FlowCard({
       `}</style>
     <div
       style={{
-        margin: '0 16px',
+        margin: '0 20px',
         background: '#FFFFFF',
         border: '1px solid rgba(12,12,10,.07)',
         boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.03)',
@@ -339,7 +339,7 @@ function FlowCard({
       }}
     >
       {/* ① 최상단: MORNING / NIGHT 탭 */}
-      <div style={{ display: 'flex', padding: '24px 16px 10px', gap: 6 }}>
+      <div style={{ display: 'flex', padding: '20px 20px 10px', gap: 6 }}>
         {(['morning', 'evening'] as const).map((t) => (
           <button
             key={t}
@@ -374,7 +374,7 @@ function FlowCard({
 
       {/* ② 칩 스트립 + EXPERT TIP */}
       {slot.items.length > 0 ? (
-        <div style={{ padding: '10px 16px 0' }}>
+        <div style={{ padding: '10px 20px 0' }}>
           <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'center', paddingBottom: 10, paddingTop: 10 }}>
             {slot.items.map((item, idx) => {
               if (item.type === 'product') {
@@ -706,7 +706,7 @@ function FlowCard({
           )}
         </div>
       ) : (
-        <div style={{ margin: '0 0 0 0', padding: '24px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <div style={{ margin: '0 0 0 0', padding: '24px 20px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>🧴</span>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>이 시간대에 등록된 제품이 없습니다</div>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>SETUP에서 루틴에 제품을 추가해보세요</div>
@@ -715,7 +715,7 @@ function FlowCard({
       )}
 
       {/* ④ 체크 버튼 — 제품이 없으면 비활성 */}
-      <div style={{ padding: '12px 16px 14px' }}>
+      <div style={{ padding: '12px 20px 16px' }}>
         {(() => {
           const hasProducts = slot.items.some(i => i.type === 'product');
           return (
@@ -800,7 +800,7 @@ function TodayHabitSection({
       <SectionHeader title="#Habits" action={`${doneCount}/${todayHabits.length}`} />
 
       {/* 습관 목록 — 오렌지 컬러 바 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '0 20px' }}>
         {todayHabits.map((h) => {
           const isDone = habitChecked.has(h.id);
           return (
@@ -840,7 +840,7 @@ function RoutineEmptyCard() {
     { num: '3', icon: '✅', label: 'TODAY', desc: '매일 체크하고 기록해요', href: null, cta: null },
   ];
   return (
-    <div style={{ margin: '0 16px' }}>
+    <div style={{ margin: '0 20px' }}>
       {/* 안내 헤더 */}
       <div style={{ padding: '20px 4px 16px', textAlign: 'center' }}>
         <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490', marginBottom: 6 }}>GETTING STARTED</div>
@@ -881,12 +881,12 @@ function LoginRequiredCard({ onLogin }: { onLogin: () => void }) {
   return (
     <div
       style={{
-        margin: '0 16px',
+        margin: '0 20px',
         background: '#FFFFFF',
         border: '1px solid rgba(12,12,10,.07)',
         boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.03)',
         borderRadius: 20,
-        padding: '32px 16px',
+        padding: '28px 20px',
         textAlign: 'center',
       }}
     >
@@ -919,7 +919,7 @@ function LoginRequiredCard({ onLogin }: { onLogin: () => void }) {
           color: '#C5FF00',
           border: 'none',
           borderRadius: 12,
-          padding: '10px 16px',
+          padding: '12px 24px',
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
           fontSize: 13,
           fontWeight: 700,
@@ -965,11 +965,11 @@ function OOTDSection({
     <div>
       <SectionHeader title="#OOTD" />
 
-      <div style={{ padding: '0 16px' }}>
+      <div style={{ padding: '0 20px' }}>
 
         {/* 빈 상태 안내 — 등록된 아이템이 없을 때만 */}
         {!hasAny && user && (
-          <div style={{ padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+          <div style={{ padding: '20px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 12 }}>
             <span style={{ fontSize: 28 }}>✨</span>
             <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>오늘의 스타일을 기록해보세요</div>
             <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>라이브러리에서 Today ON으로 설정하면 여기에 표시됩니다</div>
@@ -1451,7 +1451,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
       <div>
         <SectionHeader title="#Intensive Care" />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 20px' }}>
         <style>{`
           .care-step-card:hover {
             transform: translateY(-4px);
@@ -1714,14 +1714,14 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
     <div>
       <SectionHeader title="#Makeup" />
       {items.length === 0 && (
-        <div style={{ margin: '0 16px', padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <div style={{ margin: '0 20px', padding: '20px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>💄</span>
           <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>오늘의 메이크업을 등록해보세요</div>
           <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>Setup에서 Today ON으로 설정하면 여기에 표시됩니다</div>
           <Link href="/log?tab=라이브러리&filter=makeup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
         </div>
       )}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '0 20px' }}>
         {items.map((item) => {
           const prodIds = item.items
             .filter((r): r is { type: 'product'; id: string } => r.type === 'product')
@@ -1817,14 +1817,14 @@ function LifetipSection({ items }: { items: LifetipItem[] }) {
     <div>
       <SectionHeader title="#Life Tip" />
       {items.length === 0 && (
-        <div style={{ margin: '0 16px', padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <div style={{ margin: '0 20px', padding: '20px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>📌</span>
           <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>오늘의 Life TIP이 없어요</div>
           <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>라이브러리에서 Today ON으로 설정하면 여기에 표시됩니다</div>
           <Link href="/log?tab=라이브러리&filter=lifetip" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
         </div>
       )}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 20px' }}>
         {items.map((item) => (
           <div key={item.id} style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
             {/* 이미지 + 뱃지 오버레이 */}
@@ -3026,7 +3026,7 @@ export default function TodayPage() {
         <WeatherWidget />
 
         {/* ── FLOW 영역 헤더 ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '20px 20px 4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '24px 20px 8px' }}>
           <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '.2em', color: '#9A9490', textTransform: 'uppercase' as const }}>Flow</span>
           <div style={{ flex: 1, height: 1, background: 'rgba(12,12,10,.1)' }} />
         </div>
@@ -3049,7 +3049,7 @@ export default function TodayPage() {
           // 로딩 중 — shimmer 스켈레톤
           <div
             style={{
-              margin: '0 16px',
+              margin: '0 20px',
               padding: '20px',
               background: '#FFFFFF',
               borderRadius: 20,
@@ -3145,7 +3145,7 @@ export default function TodayPage() {
           return (
             <>
               <SectionHeader title="#Medication" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 20px' }}>
                 {visAm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#4285F4', letterSpacing: '.1em', padding: '2px 2px 2px 4px' }}>아침</div>}
                 {visAm.map(m => <MedBar key={m.id} m={m} slot="am" />)}
                 {visPm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#E8A86B', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>오후</div>}
@@ -3222,7 +3222,7 @@ export default function TodayPage() {
                   </span>
                 }
               />
-              <div style={{ margin: '0 16px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
+              <div style={{ margin: '0 20px', background: '#FFFFFF', border: '1px solid rgba(12,12,10,.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.04)' }}>
                 {visibleItems.map((item, idx) => {
                   if (item.isWarning) {
                     return (
@@ -3311,7 +3311,7 @@ export default function TodayPage() {
           return (
           <div>
             <SectionHeader title="#Health" action={`${visHealth.length}개`} />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '0 20px' }}>
               {visHealth.map((h) => {
                 const isDone = healthChecked.has(h.id);
                 const pt = primaryTime(h);
@@ -3356,7 +3356,7 @@ export default function TodayPage() {
         {!user && !authLoading && (() => {
           const fT = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
           const TeaserCard = ({ icon, title, desc, col }: { icon: string; title: string; desc: string; col: string }) => (
-            <div style={{ margin: '0 16px', padding: '14px 16px', background: '#fff', borderRadius: 16, border: `1.5px solid ${col}22`, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ margin: '0 20px', padding: '14px 20px', background: '#fff', borderRadius: 16, border: `1.5px solid ${col}22`, display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: `${col}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{icon}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontFamily: fT, fontSize: 13, fontWeight: 800, color: '#0C0C0A', letterSpacing: '.04em' }}>{title}</div>
@@ -3378,13 +3378,16 @@ export default function TodayPage() {
         })()}
 
         {/* ── MY EDIT 영역 — Today ON으로 지정한 콘텐츠 ── */}
-        <div style={{ margin: '20px 12px 0', border: '1.5px solid rgba(12,12,10,.1)', borderRadius: 22, overflow: 'hidden' }}>
+        {/* INTENSIVE PROGRAM(라임 뱃지·다크 카드)과 시각적으로 분리 → 웜 에디토리얼 톤 */}
+        <div style={{ margin: '28px 20px 0', border: '1px solid rgba(12,12,10,.1)', borderRadius: 20, overflow: 'hidden', background: '#FAFAF8' }}>
 
-          {/* MY EDIT 헤더 */}
-          <div style={{ background: '#0C0C0A', padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* MY EDIT 헤더 — 따뜻한 페이퍼 톤, 라임 없음 */}
+          <div style={{ background: '#F0EDE6', padding: '14px 20px 12px', borderBottom: '1px solid rgba(100,70,40,.1)', display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* 에디토리얼 어센트 바 */}
+            <div style={{ width: 3, height: 22, background: '#C9A882', borderRadius: 2, flexShrink: 0 }} />
             <div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.2em', color: '#C5FF00' }}>MY EDIT</div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 9, color: 'rgba(255,255,255,.4)', letterSpacing: '.06em', marginTop: 2 }}>Today ON으로 지정한 콘텐츠</div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '.22em', color: '#2D2926', textTransform: 'uppercase' as const }}>MY EDIT</div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9A9490', letterSpacing: '.04em', marginTop: 2 }}>Today ON으로 지정한 콘텐츠</div>
             </div>
           </div>
 
