@@ -2532,8 +2532,10 @@ function LogPageInner() {
     try {
       await deleteDoc(doc(db, 'users', userId, 'ootdLogs', editingOotd.id));
       setEditingOotd(null);
+      showToast('오늘의 룩 삭제 완료');
     } catch (err) {
       console.error('[OnStep] OOTD 삭제 실패:', err);
+      showToast('삭제 실패 — 다시 시도해주세요');
     }
   }
 
@@ -2975,9 +2977,10 @@ function LogPageInner() {
         ...(snapshotNote ? { note: snapshotNote } : {}),
         createdAt: new Date().toISOString(),
       });
+      showToast('수집 등록 완료');
     } catch (err) {
       console.error('[OnStep] reference 저장 실패:', err);
-      alert('저장에 실패했습니다. 다시 시도해주세요.');
+      showToast('저장 실패 — 다시 시도해주세요');
     } finally {
       setRefSaving(false);
     }
@@ -3054,8 +3057,10 @@ function LogPageInner() {
         });
       }
       setEditingRef(null);
+      showToast('수집 수정 완료');
     } catch (err) {
       console.error('[OnStep] reference 업데이트 실패:', err);
+      showToast('저장 실패 — 다시 시도해주세요');
     } finally {
       setRefEditSaving(false);
     }
@@ -3136,8 +3141,10 @@ function LogPageInner() {
       setRefToLibEditMemo('');
       setRefToLibEditImageFile(null);
       setRefToLibEditImagePreview('');
+      showToast('라이브러리 등록 완료');
     } catch (err) {
       console.error('[OnStep] refToLib 저장 실패:', err);
+      showToast('저장 실패 — 다시 시도해주세요');
     } finally {
       setRefToLibSaving(false);
     }
@@ -3214,8 +3221,10 @@ function LogPageInner() {
           cachedLibrary,
         }),
       });
+      showToast('라이브러리 해제 완료');
     } catch (err) {
       console.error('[OnStep] 라이브러리 해지 실패:', err);
+      showToast('저장 실패 — 다시 시도해주세요');
     }
   }
 
@@ -3313,8 +3322,10 @@ function LogPageInner() {
     try {
       await deleteDoc(doc(db, 'users', userId, 'lifetipItems', editingLifetip.id));
       setEditingLifetip(null);
+      showToast('Life TIP 삭제 완료');
     } catch (err) {
       console.error('[OnStep] Life TIP 삭제 실패:', err);
+      showToast('삭제 실패 — 다시 시도해주세요');
     }
   }
 
@@ -3361,8 +3372,10 @@ function LogPageInner() {
     if (!confirm('이 레퍼런스를 삭제할까요?')) return;
     try {
       await deleteDoc(doc(db, 'users', userId, 'references', id));
+      showToast('수집 삭제 완료');
     } catch (err) {
       console.error('[OnStep] reference 삭제 실패:', err);
+      showToast('삭제 실패 — 다시 시도해주세요');
     }
   }
 
