@@ -1625,6 +1625,8 @@ function LogCtPanel({
   const [sTagEditOpen, setSTagEditOpen] = useState(false);
   const [dragTagIdx, setDragTagIdx] = useState<number | null>(null);
   const [dragTagOverIdx, setDragTagOverIdx] = useState<number | null>(null);
+  const [editingTagIdx, setEditingTagIdx] = useState<number | null>(null);
+  const [editingTagVal, setEditingTagVal] = useState('');
 
   // picker
   const [picker, setPicker] = useState<'main' | 'tip' | null>(null);
@@ -2055,9 +2057,34 @@ function LogCtPanel({
                             style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                             -
                           </button>
-                          <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                            #{tag}
-                          </div>
+                          {editingTagIdx === i ? (
+                            <input
+                              autoFocus
+                              type="text"
+                              value={editingTagVal}
+                              onChange={e => setEditingTagVal(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                  const v = editingTagVal.trim();
+                                  if (v && !sTags.includes(v)) setSTags(prev => prev.map((t, idx) => idx === i ? v : t));
+                                  setEditingTagIdx(null);
+                                }
+                                if (e.key === 'Escape') setEditingTagIdx(null);
+                              }}
+                              onBlur={() => {
+                                const v = editingTagVal.trim();
+                                if (v && !sTags.includes(v)) setSTags(prev => prev.map((t, idx) => idx === i ? v : t));
+                                setEditingTagIdx(null);
+                              }}
+                              style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                            />
+                          ) : (
+                            <div
+                              onClick={() => { setEditingTagIdx(i); setEditingTagVal(tag); }}
+                              style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                              #{tag}
+                            </div>
+                          )}
                           <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
                             ☰
                           </div>
