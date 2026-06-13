@@ -3825,7 +3825,7 @@ function LogPageInner() {
                                 const tagIdx = categoryTags.indexOf(tag);
                                 const cc = CAT_COLORS[tagIdx >= 0 ? tagIdx % CAT_COLORS.length : 0];
                                 return (
-                                  <span key={tag} style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: cc.selText, background: cc.selBg, border: `1px solid ${cc.selBorder}`, padding: '2px 7px', borderRadius: 9999, letterSpacing: '.03em', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 70 }}>
+                                  <span key={tag} style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: cc.selText, background: cc.selBg, border: `1px solid ${cc.selBorder}`, padding: '4px 10px', borderRadius: 4, letterSpacing: '.06em', textTransform: 'uppercase' as const, whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 100 }}>
                                     {tag}
                                   </span>
                                 );
@@ -4218,11 +4218,12 @@ function LogPageInner() {
                         <div key={label} style={{ marginBottom: 24 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                             <span style={{
-                              fontFamily: f, fontSize: 11, fontWeight: 800,
+                              fontFamily: f, fontSize: 12, fontWeight: 700,
                               color: color ? color.selText : '#9A9490',
                               background: color ? color.selBg : 'rgba(12,12,10,.06)',
                               border: `1px solid ${color ? color.selBorder : 'rgba(12,12,10,.12)'}`,
-                              padding: '3px 10px', borderRadius: 9999,
+                              padding: '4px 10px', borderRadius: 4,
+                              textTransform: 'uppercase' as const, letterSpacing: '.06em',
                             }}>{label}</span>
                             <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
                           </div>
