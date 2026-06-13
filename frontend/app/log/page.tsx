@@ -3798,7 +3798,10 @@ function LogPageInner() {
 
           const sortedFiltered = (() => {
             const list = [...filtered];
+            const libFirst = (a: Reference, b: Reference) => (b.inLibrary ? 1 : 0) - (a.inLibrary ? 1 : 0);
             if (refSort === 'category') return list.sort((a, b) => {
+              const libDiff = libFirst(a, b);
+              if (libDiff !== 0) return libDiff;
               const getOrder = (r: Reference) => {
                 const tags = r.tags ?? [];
                 for (let i = 0; i < categoryTags.length; i++) {
@@ -3810,7 +3813,11 @@ function LogPageInner() {
               if (oa !== ob) return oa - ob;
               return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             });
-            return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            return list.sort((a, b) => {
+              const libDiff = libFirst(a, b);
+              if (libDiff !== 0) return libDiff;
+              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            });
           })();
 
           const visibleRefs = sortedFiltered.slice(0, refVisibleCount);
