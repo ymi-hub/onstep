@@ -4550,7 +4550,15 @@ function LogPageInner() {
                               {log.note && (
                                 <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: (log.category || log.theme) ? 4 : 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{log.note}</div>
                               )}
-                              <TagChips tags={log.tags ?? []} style={{ marginTop: 8 }} />
+                              {(log.tags ?? []).length > 0 && (
+                                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginTop: 8 }}>
+                                  {(log.tags ?? []).map(tag => (
+                                    <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 9999, background: '#0C0C0A', color: '#C5FF00', letterSpacing: '.02em' }}>
+                                      #{tag.replace(/^#/, '')}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                               {/* 날짜 — 오른쪽 하단 */}
                               <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
                                 <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
@@ -4722,7 +4730,15 @@ function LogPageInner() {
                                 {log.note && (
                                   <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: (log.category || log.theme) ? 4 : 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{log.note}</div>
                                 )}
-                                <TagChips tags={log.tags ?? []} style={{ marginTop: 8 }} />
+                                {(log.tags ?? []).length > 0 && (
+                                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginTop: 8 }}>
+                                    {(log.tags ?? []).map(tag => (
+                                      <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 9999, background: '#0C0C0A', color: '#C5FF00', letterSpacing: '.02em' }}>
+                                        #{tag.replace(/^#/, '')}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
                                 {/* 날짜 — 오른쪽 하단 */}
                                 <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
                                   <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
