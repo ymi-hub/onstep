@@ -4405,18 +4405,18 @@ function LogPageInner() {
                                     <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>
                                   </div>
                               }
+                              {/* 카테고리 칩 — 메모 위, 검정 배경 + 오렌지 폰트 */}
                               {(log.category || log.theme) && (
-                                <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 12, marginBottom: 4 }}>
-                                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#3A6000', background: 'rgba(197,255,0,.25)', border: '1px solid rgba(197,255,0,.6)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{log.category || log.theme}</span>
+                                <div style={{ marginTop: 12, marginBottom: 4 }}>
+                                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#FF8C42', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{log.category || log.theme}</span>
                                 </div>
                               )}
-                              <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: (log.category || log.theme) ? 0 : 12, width: '100%' }}>{log.category || log.theme || '오늘의 룩'}</div>
                               {log.note && (
-                                <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{log.note}</div>
+                                <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: (log.category || log.theme) ? 4 : 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{log.note}</div>
                               )}
                               <TagChips tags={log.tags ?? []} style={{ marginTop: 8 }} />
                               {/* 날짜 — 오른쪽 하단 */}
-                              <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: (log.tags ?? []).length ? 8 : 8, marginBottom: 12 }}>
+                              <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
                                 <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
                               </div>
                             </div>
@@ -4577,14 +4577,14 @@ function LogPageInner() {
                                       <span style={{ fontSize: 120, opacity: 0.3, lineHeight: 1 }}>👗</span>
                                     </div>
                                 }
+                                {/* 카테고리 칩 — 메모 위, 검정 배경 + 오렌지 폰트 */}
                                 {(log.category || log.theme) && (
-                                  <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 12, marginBottom: 4 }}>
-                                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#3A6000', background: 'rgba(197,255,0,.25)', border: '1px solid rgba(197,255,0,.6)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{log.category || log.theme}</span>
+                                  <div style={{ marginTop: 12, marginBottom: 4 }}>
+                                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#FF8C42', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{log.category || log.theme}</span>
                                   </div>
                                 )}
-                                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: (log.category || log.theme) ? 0 : 12, width: '100%' }}>{log.category || log.theme || '오늘의 룩'}</div>
                                 {log.note && (
-                                  <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{log.note}</div>
+                                  <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: (log.category || log.theme) ? 4 : 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{log.note}</div>
                                 )}
                                 <TagChips tags={log.tags ?? []} style={{ marginTop: 8 }} />
                                 {/* 날짜 — 오른쪽 하단 */}
