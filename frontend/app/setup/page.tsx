@@ -585,7 +585,7 @@ function SessionsView({
 
   return (
     <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
-      <SubPageHeader title="스킨케어 루틴" onClose={onBack} />
+      <SubPageHeader title="SKINCARE" onClose={onBack} />
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* 헤더 */}
         <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
@@ -2172,7 +2172,7 @@ function DietPlanView({
   // ── 목록 화면 ──
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
-      <SubPageHeader title="📋 리셋 플랜" onClose={onBack} />
+      <SubPageHeader title="RESET" onClose={onBack} />
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 80px' }}>
         {programs.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9490', fontFamily: f, fontSize: 13 }}>
@@ -4068,7 +4068,7 @@ function CtPanel({
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
 
   const META: Record<CtType, { panel: string; heroType: string; heroTitle: string; heroSub: string; sheetTitle: string; addBtn: string; icon: string }> = {
-    care: { panel: '집중케어', heroType: 'INTENSIVE CARE', heroTitle: '집중케어', heroSub: '케어 프로그램 설계 · BOX 뷰티 제품 매핑 · 기간 & 스케줄 설정', sheetTitle: '집중케어 설계', addBtn: '+ 새 집중케어 설계', icon: '🧴' },
+    care: { panel: 'INTENSIVE CARE', heroType: 'INTENSIVE CARE', heroTitle: 'Intensive Care', heroSub: '케어 프로그램 설계 · BOX 뷰티 제품 매핑 · 기간 & 스케줄 설정', sheetTitle: '집중케어 설계', addBtn: '+ 새 집중케어 설계', icon: '🧴' },
     makeup: { panel: '메이크업북', heroType: 'BEAUTY', heroTitle: '메이크업북', heroSub: '테마별 화장법 설계 · BOX 뷰티 제품 매핑 · Today 스케줄 연동', sheetTitle: '메이크업 테마 설계', addBtn: '+ 새 메이크업 테마 설계', icon: '💄' },
     lookbook: { panel: '룩북', heroType: 'FASHION', heroTitle: '룩북', heroSub: 'T.P.O 기반 코디 설계 · BOX 패션·액세서리 매핑 · Today OOTD 연동', sheetTitle: '룩 설계', addBtn: '+ 새 룩 설계', icon: '👗' },
     log: { panel: 'LOG', heroType: 'LOG', heroTitle: 'LOG', heroSub: '메이크업 · 룩북 기록', sheetTitle: 'LOG 등록', addBtn: '+ LOG 등록', icon: '📝' },
