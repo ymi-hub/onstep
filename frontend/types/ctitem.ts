@@ -2,12 +2,12 @@ import type { RoutineItem } from './routine';
 
 export type CtType = 'care' | 'makeup' | 'lookbook' | 'log';
 
-// BOX 도메인 → 라이브러리 탭 라벨 매핑
+// BOX 도메인 → 라이브러리 탭 라벨 매핑 (영문 통일)
 export const DOMAIN_LABELS: Record<string, string> = {
-  beauty:   '메이크업',
-  fashion:  '룩북',
-  acc:      '악세서리',
-  interior: '인테리어',
+  beauty:   'Makeup',
+  fashion:  'Lookbook',
+  acc:      'Accessory',
+  interior: 'Interior',
 };
 
 export type CtItem = {
