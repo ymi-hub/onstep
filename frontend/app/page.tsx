@@ -1063,7 +1063,7 @@ function OOTDSection({
             <div style={{ flex: 1, minWidth: 0 }}>
               {/* 카테고리 — 4px 각진 뱃지 */}
               {(ootdLog.category || ootdLog.theme) && (
-                <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#FF8C42', background: '#0C0C0A', padding: '2px 8px', borderRadius: 4, textTransform: 'uppercase' as const, letterSpacing: '.06em', whiteSpace: 'nowrap' as const, display: 'inline-block', marginBottom: 3 }}>
+                <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#FF8C42', background: '#0C0C0A', padding: '6px 14px', borderRadius: 4, textTransform: 'uppercase' as const, letterSpacing: '.06em', whiteSpace: 'nowrap' as const, display: 'inline-block', marginBottom: 3 }}>
                   {ootdLog.category || ootdLog.theme}
                 </span>
               )}
