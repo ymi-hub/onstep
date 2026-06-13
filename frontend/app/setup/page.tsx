@@ -4636,7 +4636,7 @@ function CtPanel({
             </div>
             {/* 카테고리 뱃지 */}
             {ctType === 'care' && item.category && (
-              <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: '#0C0C0A', color: '#C5FF00', flexShrink: 0 }}>
+              <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 4, background: '#0C0C0A', color: '#C5FF00', flexShrink: 0, textTransform: 'uppercase' as const, letterSpacing: '.08em' }}>
                 {item.category}
               </span>
             )}
