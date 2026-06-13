@@ -166,17 +166,17 @@ function SessionHero({
   const dateStr = format(today, 'M월 d일 (EEE)', { locale: ko });
 
   return (
-    <div style={{ padding: '12px 16px 4px' }}>
-      {/* 회차 번호 */}
+    <div style={{ padding: '4px 26px 12px' }}>
+      {/* 회차 번호 — #Skincare 섹션 헤더(18px) 하위이므로 13px 서브 레이블 */}
       <div
         style={{
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 18,
-          fontWeight: 800,
-          color: '#0C0C0A',
-          letterSpacing: '0.02em',
+          fontSize: 13,
+          fontWeight: 700,
+          color: '#4A4846',
+          letterSpacing: '0.06em',
           textTransform: 'uppercase',
-          lineHeight: 1.2,
+          lineHeight: 1.3,
         }}
       >
         {session ? `${toOrdinal(session.sessionNumber)} SESSION` : '— SESSION'}
@@ -186,10 +186,10 @@ function SessionHero({
       <div
         style={{
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: 500,
           color: '#9A9490',
-          marginTop: 3,
+          marginTop: 2,
           marginBottom: 10,
           display: 'flex',
           alignItems: 'center',
