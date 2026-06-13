@@ -800,7 +800,7 @@ function TodayHabitSection({
       <SectionHeader title="#Habits" action={`${doneCount}/${todayHabits.length}`} />
 
       {/* 습관 목록 — 오렌지 컬러 바 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '0 20px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '0 40px' }}>
         {todayHabits.map((h) => {
           const isDone = habitChecked.has(h.id);
           return (
@@ -3160,7 +3160,7 @@ export default function TodayPage() {
           return (
             <>
               <SectionHeader title="#Medication" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 40px' }}>
                 {visAm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#4285F4', letterSpacing: '.1em', padding: '2px 2px 2px 4px' }}>아침</div>}
                 {visAm.map(m => <MedBar key={m.id} m={m} slot="am" />)}
                 {visPm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#E8A86B', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>오후</div>}
@@ -3326,7 +3326,7 @@ export default function TodayPage() {
           return (
           <div>
             <SectionHeader title="#Health" action={`${visHealth.length}개`} />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '0 20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '0 40px' }}>
               {visHealth.map((h) => {
                 const isDone = healthChecked.has(h.id);
                 const pt = primaryTime(h);
