@@ -4598,42 +4598,6 @@ function CtPanel({
       <div style={{ background: '#fff', border: `1.5px solid ${item.published ? '#0C0C0A' : 'rgba(12,12,10,.07)'}`, borderRadius: 16, overflow: 'hidden', transition: 'border-color .2s' }}>
         <div style={{ padding: '14px 16px 10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            {/* 드래그 핸들 */}
-            <div
-              className="ct-drag-handle"
-              draggable={true}
-              onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'move';
-                setDragCtCardId(item.id);
-                const cardEl = document.getElementById(`ct-card-${item.id}`);
-                if (cardEl && e.dataTransfer.setDragImage) {
-                  e.dataTransfer.setDragImage(cardEl, 20, 20);
-                }
-              }}
-              onDragEnd={() => {
-                setDragCtCardId(null);
-                setDragCtCardOverId(null);
-              }}
-              onTouchStart={(e) => handleTouchStartCt(e, item.id)}
-              onTouchMove={handleTouchMoveCt}
-              onTouchEnd={handleTouchEndCt}
-              onTouchCancel={handleTouchEndCt}
-              style={{
-                cursor: 'grab',
-                padding: '4px 6px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                userSelect: 'none',
-                touchAction: 'none',
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#BCBAB6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="4" y1="9" x2="20" y2="9"></line>
-                <line x1="4" y1="15" x2="20" y2="15"></line>
-              </svg>
-            </div>
             {/* 카테고리 뱃지 */}
             {ctType === 'care' && item.category && (
               <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, padding: '4px 10px', borderRadius: 4, background: '#0C0C0A', color: '#C5FF00', flexShrink: 0, textTransform: 'uppercase' as const, letterSpacing: '.08em' }}>
