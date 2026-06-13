@@ -2379,6 +2379,14 @@ function LogPageInner() {
   });
   const [presetEditMode, setPresetEditMode] = useState(false);
   const [presetNewTag, setPresetNewTag] = useState('');
+  // OOTD 카테고리 목록 (TODAY 페이지의 ootdTags와 공유, Firestore settings/ui에서 로드)
+  const [ootdTagList, setOotdTagList] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return ['캐주얼', '오피스룩', '스트릿', '미니멀', '빈티지', '스포티', '포멀', '로맨틱'];
+    try {
+      const saved = localStorage.getItem('onstep_ootd_tags');
+      return saved ? JSON.parse(saved) : ['캐주얼', '오피스룩', '스트릿', '미니멀', '빈티지', '스포티', '포멀', '로맨틱'];
+    } catch { return ['캐주얼', '오피스룩', '스트릿', '미니멀', '빈티지', '스포티', '포멀', '로맨틱']; }
+  });
   // 카테고리 편집 패널 상태
   const [catEditOpen, setCatEditOpen] = useState(false);
   const [catNewTag, setCatNewTag] = useState('');
@@ -2808,7 +2816,7 @@ function LogPageInner() {
     return () => unsub();
   }, [userId, authLoading, user]);
 
-  // ── categoryTags Firestore 로드 (로그인 후 1회) ──
+  // ── settings/ui Firestore 로드: categoryTags + ootdTags (로그인 후 1회) ──
   useEffect(() => {
     if (authLoading || !user || !db) return;
     const _db = db;
@@ -2817,11 +2825,14 @@ function LogPageInner() {
         const data = snap.data();
         if (Array.isArray(data.categoryTags) && data.categoryTags.length > 0) {
           setCategoryTags(data.categoryTags);
-          // Firestore 데이터로 로컬 캐시도 갱신
           try { localStorage.setItem('onstep_category_tags', JSON.stringify(data.categoryTags)); } catch {}
         }
+        // ootdTags: TODAY 페이지와 동일한 카테고리 목록 동기화
+        if (Array.isArray(data.ootdTags) && data.ootdTags.length > 0) {
+          setOotdTagList(data.ootdTags);
+          try { localStorage.setItem('onstep_ootd_tags', JSON.stringify(data.ootdTags)); } catch {}
+        }
       }
-      // 이후부터 setCategoryTags 호출은 사용자 편집으로 간주
       categoryTagsUserEditedRef.current = true;
     }).catch(() => {
       categoryTagsUserEditedRef.current = true;
@@ -5687,8 +5698,9 @@ function LogPageInner() {
       {/* ── OOTD 편집 시트 ── */}
       {editingOotd && (() => {
         const f = "'Plus Jakarta Sans','Space Grotesk','sans-serif'";
-        const THEMES = ['캐주얼', '오피스룩', '스트릿', '미니멀', '빈티지', '스포티', '포멀', '로맨틱'];
         const displayImg = ootdEditPreview;
+        // ootdEditCategory가 목록에 없을 경우 별도 표시용
+        const editCategoryNotInList = ootdEditCategory && !ootdTagList.includes(ootdEditCategory);
         return (
           <>
             <div onClick={() => setEditingOotd(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
@@ -5711,7 +5723,14 @@ function LogPageInner() {
               {/* 카테고리 */}
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>카테고리 편집</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 14 }}>
-                {THEMES.map(t => (
+                {/* 현재 선택값이 목록에 없으면 별도 칩으로 표시 */}
+                {editCategoryNotInList && (
+                  <button key={ootdEditCategory} type="button" onClick={() => setOotdEditCategory('')}
+                    style={{ padding: '6px 14px', borderRadius: 9999, border: '1.5px solid #0C0C0A', background: '#0C0C0A', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', transition: 'all .15s' }}>
+                    {ootdEditCategory}
+                  </button>
+                )}
+                {ootdTagList.map(t => (
                   <button key={t} type="button" onClick={() => setOotdEditCategory(ootdEditCategory === t ? '' : t)}
                     style={{ padding: '6px 14px', borderRadius: 9999, border: `1.5px solid ${ootdEditCategory === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: ootdEditCategory === t ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: ootdEditCategory === t ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
                     {t}
