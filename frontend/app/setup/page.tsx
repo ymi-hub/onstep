@@ -371,6 +371,40 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
         </div>
       </div>
 
+      {/* ── EXPERT TIP 폰트 비교 카드 (폰트 결정 후 제거) ── */}
+      <div style={{ margin: '16px 16px 0', background: '#fff', border: '1.5px solid #C5FF00', borderRadius: 14, overflow: 'hidden' }}>
+        <div style={{ padding: '12px 16px 8px', background: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 14 }}>✏️</span>
+          <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#C5FF00' }}>EXPERT TIP 폰트 비교</span>
+          <span style={{ marginLeft: 'auto', fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 10, color: 'rgba(197,255,0,.5)' }}>결정 후 제거</span>
+        </div>
+        {[
+          { num: 1, name: 'Nanum Myeongjo', var: 'var(--font-myeongjo)', tag: '나눔 명조 · 전통 세리프', style: { fontStyle: 'normal' as const } },
+          { num: 2, name: 'Gowun Batang',   var: 'var(--font-gowun)',    tag: '고운 바탕 · 따뜻한 세리프', style: {} },
+          { num: 3, name: 'Noto Serif KR',  var: 'var(--font-noto-serif)', tag: '노토 세리프 KR · 클린 세리프', style: {} },
+          { num: 4, name: 'Nanum Gothic',   var: 'var(--font-nanum-gothic)', tag: '나눔 고딕 · 라운드 산세리프', style: {} },
+          { num: 5, name: 'Do Hyeon',       var: 'var(--font-do-hyeon)', tag: '두현 · 모던 산세리프', style: {} },
+        ].map(item => (
+          <div key={item.num} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 10, fontWeight: 800, background: '#C5FF00', color: '#0C0C0A', padding: '1px 6px', borderRadius: 3 }}>#{item.num}</span>
+              <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 11, fontWeight: 700, color: '#0C0C0A' }}>{item.name}</span>
+              <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 10, color: '#9A9490' }}>{item.tag}</span>
+            </div>
+            <div style={{ background: '#FAFAFA', border: '1px solid #E4E4E7', borderRadius: 10, padding: '12px 14px', position: 'relative' }}>
+              <svg width="18" height="16" viewBox="0 0 29 27" fill="none" style={{ position: 'absolute', left: -5, top: -5 }}>
+                <path d="M6 26.982C4.875 26.982 3.7625 26.707 2.6625 26.157C1.5625 25.607 0.675 24.882 0 23.982C0.65 23.982 1.3125 23.7257 1.9875 23.2132C2.6625 22.7007 3 21.957 3 20.982C3 19.732 3.4375 18.6695 4.3125 17.7945C5.1875 16.9195 6.25 16.482 7.5 16.482C8.75 16.482 9.8125 16.9195 10.6875 17.7945C11.5625 18.6695 12 19.732 12 20.982C12 22.632 11.4125 24.0445 10.2375 25.2195C9.0625 26.3945 7.65 26.982 6 26.982ZM14.625 17.982L10.5 13.857L23.925 0.432C24.2 0.157 24.5437 0.01325 24.9562 0.00075C25.3687-0.01175 25.725 0.132 26.025 0.432L28.05 2.457C28.35 2.757 28.5 3.107 28.5 3.507C28.5 3.907 28.35 4.257 28.05 4.557L14.625 17.982Z" fill="#0C0C0A"/>
+              </svg>
+              <div style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 9, fontWeight: 900, letterSpacing: 1, color: '#A1A1AA', marginBottom: 6 }}>EXPERT ADVICE</div>
+              <div style={{ fontFamily: item.var, fontSize: 18, lineHeight: '26px', color: '#27272A', ...item.style }}>
+                아침: 물마스크 10분 뒤 러빙하여 흡수. 델마크림+세럼을 섞어 얇게 바른 뒤 라이지피엠에라지로 마무리!
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* ── 비교 카드 끝 ── */}
+
       <div style={{ padding: '16px 16px 8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{cards.left.map((c) => <HubCard key={c.id} card={c as HubCardData} />)}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 64 }}>
