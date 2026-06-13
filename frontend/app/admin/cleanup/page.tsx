@@ -80,6 +80,7 @@ export default function CleanupPage() {
   const [logLines, setLogLines] = useState<string[]>([]);
   const [migrating, setMigrating] = useState(false);
   const [fixing, setFixing] = useState(false);
+  const [cacheCleared, setCacheCleared] = useState(false);
 
   useEffect(() => {
     if (!auth) { setStatus('Firebase 미설정'); setLoading(false); return; }
@@ -249,6 +250,18 @@ export default function CleanupPage() {
     await loadAll(userId);
   }
 
+  function clearLocalCache() {
+    const keys = [
+      'onstep_category_tags',
+      'onstep_ref_preset_tags',
+      'onstep_ootd_tags',
+      'onstep_timer_v1',
+    ];
+    keys.forEach(k => { try { localStorage.removeItem(k); } catch {} });
+    setCacheCleared(true);
+    setTimeout(() => setCacheCleared(false), 2500);
+  }
+
   if (loading) return (
     <div style={{ padding: 40, fontFamily: f, color: '#9A9490', textAlign: 'center' }}>{status}</div>
   );
@@ -264,6 +277,10 @@ export default function CleanupPage() {
       <div style={{ marginBottom: 20, padding: 16, background: '#F4F4F0', borderRadius: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: '#0C0C0A', marginBottom: 2 }}>🔧 데이터 유지보수</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+          <button type="button" onClick={clearLocalCache}
+            style={{ padding: '9px 16px', background: cacheCleared ? '#16A34A' : '#6B7280', color: '#fff', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+            {cacheCleared ? '✓ 캐시 삭제 완료' : '🗑 로컬 캐시 삭제'}
+          </button>
           <button type="button" onClick={fixUndefinedFields} disabled={fixing || migrating}
             style={{ padding: '9px 16px', background: fixing ? '#EBEBEB' : '#0C0C0A', color: fixing ? '#9A9490' : '#C5FF00', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, cursor: fixing ? 'default' : 'pointer' }}>
             {fixing ? '정리 중...' : '① undefined 필드 정리'}

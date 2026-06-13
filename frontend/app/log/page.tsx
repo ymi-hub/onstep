@@ -37,6 +37,8 @@ import {
   addDoc,
   deleteDoc,
   getDocs,
+  getDoc,
+  setDoc,
   doc,
   type Firestore,
 } from 'firebase/firestore';
@@ -2383,12 +2385,14 @@ function LogPageInner() {
   const [dragCatIdx, setDragCatIdx] = useState<number | null>(null);
   const [dragCatOverIdx, setDragCatOverIdx] = useState<number | null>(null);
   const [categoryTags, setCategoryTags] = useState<string[]>(() => {
+    // 로컬 캐시를 초기값으로 사용 (깜빡임 방지), Firestore 로드 후 덮어씀
     if (typeof window === 'undefined') return DEFAULT_CATEGORY_TAGS;
     try {
       const saved = localStorage.getItem('onstep_category_tags');
       return saved ? JSON.parse(saved) : DEFAULT_CATEGORY_TAGS;
     } catch { return DEFAULT_CATEGORY_TAGS; }
   });
+  const categoryTagsUserEditedRef = useRef(false); // 사용자가 직접 편집했는지 추적
   // 수집 편집 시트 상태
   const [editingRef, setEditingRef] = useState<Reference | null>(null);
   const [refEditUrl, setRefEditUrl] = useState('');
@@ -2804,6 +2808,26 @@ function LogPageInner() {
     return () => unsub();
   }, [userId, authLoading, user]);
 
+  // ── categoryTags Firestore 로드 (로그인 후 1회) ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    getDoc(doc(_db, 'users', userId, 'settings', 'ui')).then((snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        if (Array.isArray(data.categoryTags) && data.categoryTags.length > 0) {
+          setCategoryTags(data.categoryTags);
+          // Firestore 데이터로 로컬 캐시도 갱신
+          try { localStorage.setItem('onstep_category_tags', JSON.stringify(data.categoryTags)); } catch {}
+        }
+      }
+      // 이후부터 setCategoryTags 호출은 사용자 편집으로 간주
+      categoryTagsUserEditedRef.current = true;
+    }).catch(() => {
+      categoryTagsUserEditedRef.current = true;
+    });
+  }, [userId, authLoading, user]);
+
   // ── 수집 탭 — references 실시간 구독 ──
   useEffect(() => {
     if (authLoading || !user || !db) return;
@@ -2901,9 +2925,19 @@ function LogPageInner() {
     try { localStorage.setItem('onstep_ref_preset_tags', JSON.stringify(presetTags)); } catch {}
   }, [presetTags]);
 
-  // categoryTags가 바뀌면 localStorage에 저장
+  // categoryTags가 바뀌면 localStorage(오프라인 폴백) + Firestore(동기화) 저장
+  const catTagsSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
+    // 로컬 캐시 갱신
     try { localStorage.setItem('onstep_category_tags', JSON.stringify(categoryTags)); } catch {}
+    // 사용자가 편집한 경우에만 Firestore 저장 (Firestore 로드 후 첫 세팅은 제외)
+    if (!categoryTagsUserEditedRef.current || !user || !db) return;
+    const _db = db;
+    if (catTagsSaveTimer.current) clearTimeout(catTagsSaveTimer.current);
+    catTagsSaveTimer.current = setTimeout(() => {
+      setDoc(doc(_db, 'users', userId, 'settings', 'ui'), { categoryTags }, { merge: true })
+        .catch((err) => console.error('[OnStep] categoryTags Firestore 저장 실패:', err));
+    }, 500);
   }, [categoryTags]);
 
   function savePresetTag() {
