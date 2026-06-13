@@ -3913,6 +3913,7 @@ function LogPageInner() {
                       flex: 1, height: 42, borderRadius: 8,
                       fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em',
                       cursor: 'pointer', transition: 'all .15s',
+                      whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis',
                       // 상태별 스타일
                       ...(ref.inLibrary
                         ? { background: '#0C0C0A', border: '1px solid transparent', color: '#C5FF00' }           // 상태3: 채움
