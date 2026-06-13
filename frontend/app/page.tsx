@@ -1105,6 +1105,9 @@ function OOTDSection({
           </div>
         )}
 
+        {/* RECORD LOOK / 기록 완료 바 하단 여백 */}
+        <div style={{ height: 20 }} />
+
       </div>
     </div>
   );
