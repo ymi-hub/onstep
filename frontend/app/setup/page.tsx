@@ -272,7 +272,7 @@ function GroqUsageSection() {
 
       {/* 뱃지 + 타이틀 + 서브 */}
       <div style={{ padding: '10px 12px 0' }}>
-        <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>#AI</div>
+        <div style={{ display: 'inline-block', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '4px 10px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>#AI</div>
         <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, marginBottom: 3, letterSpacing: '-.01em' }}>AI 사용량</div>
         <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' as const, color: '#9A9490' }}>GEMINI FREE TIER</div>
       </div>
@@ -332,7 +332,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
       <>
         <div style={{ width: '100%', aspectRatio: '1/1.5', background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>{card.emoji}</div>
         <div style={{ padding: '10px 12px 0' }}>
-          <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' }}>{card.badge}</div>
+          <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '4px 10px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' }}>{card.badge}</div>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, marginBottom: 3, letterSpacing: '-.01em' }}>{card.title}</div>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: '#9A9490', paddingBottom: 10 }}>{card.sub}</div>
         </div>
@@ -4636,7 +4636,7 @@ function CtPanel({
             </div>
             {/* 카테고리 뱃지 */}
             {ctType === 'care' && item.category && (
-              <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 4, background: '#0C0C0A', color: '#C5FF00', flexShrink: 0, textTransform: 'uppercase' as const, letterSpacing: '.08em' }}>
+              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, padding: '4px 10px', borderRadius: 4, background: '#0C0C0A', color: '#C5FF00', flexShrink: 0, textTransform: 'uppercase' as const, letterSpacing: '.08em' }}>
                 {item.category}
               </span>
             )}

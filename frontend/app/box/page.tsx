@@ -566,7 +566,7 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
           {product.category && (
-            <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', background: '#F4F4F0', padding: '2px 5px', borderRadius: 4 }}>
+            <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', background: '#F4F4F0', padding: '4px 10px', borderRadius: 4 }}>
               {resolveCategory(product.category)}
             </div>
           )}
