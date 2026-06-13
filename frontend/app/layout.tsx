@@ -1,8 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import {
-  Plus_Jakarta_Sans, Space_Grotesk, Nanum_Pen_Script,
-  Nanum_Myeongjo, Gowun_Batang, Noto_Serif_KR, Nanum_Gothic, Do_Hyeon,
-} from 'next/font/google';
+import { Plus_Jakarta_Sans, Space_Grotesk, Nanum_Pen_Script } from 'next/font/google';
 import './globals.css';
 import AppShell from '@/components/AppShell';
 import { AppProvider } from '@/lib/AppContext';
@@ -30,41 +27,6 @@ const nanumPenScript = Nanum_Pen_Script({
   variable: '--font-nanum',
 });
 
-// ── Expert Tip 폰트 비교용 (5종) ─────────────────────────────────────────────
-const nanumMyeongjo = Nanum_Myeongjo({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  display: 'swap',
-  variable: '--font-myeongjo',
-});
-
-const gowunBatang = Gowun_Batang({
-  subsets: ['latin'],
-  weight: ['400'],
-  display: 'swap',
-  variable: '--font-gowun',
-});
-
-const notoSerifKR = Noto_Serif_KR({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  display: 'swap',
-  variable: '--font-noto-serif',
-});
-
-const nanumGothic = Nanum_Gothic({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  display: 'swap',
-  variable: '--font-nanum-gothic',
-});
-
-const doHyeon = Do_Hyeon({
-  subsets: ['latin'],
-  weight: ['400'],
-  display: 'swap',
-  variable: '--font-do-hyeon',
-});
 
 export const metadata: Metadata = {
   title: 'OnStep — Life OS',
@@ -102,7 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${plusJakartaSans.variable} ${spaceGrotesk.variable} ${nanumPenScript.variable} ${nanumMyeongjo.variable} ${gowunBatang.variable} ${notoSerifKR.variable} ${nanumGothic.variable} ${doHyeon.variable}`}>
+    <html lang="ko" className={`${plusJakartaSans.variable} ${spaceGrotesk.variable} ${nanumPenScript.variable}`}>
       <body style={{ fontFamily: "var(--font-jakarta), var(--font-grotesk), sans-serif" }}>
         {/* PC에서도 앱 사이즈(430px)로 가운데 표시 */}
         <div
