@@ -1061,11 +1061,19 @@ function OOTDSection({
                 : '👗'}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {ootdLog.category || ootdLog.theme || '오늘의 룩'}{ootdLog.note ? ` · ${ootdLog.note}` : ''}
-              </div>
+              {/* 카테고리 — 4px 각진 뱃지 */}
+              {(ootdLog.category || ootdLog.theme) && (
+                <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#FF8C42', background: '#0C0C0A', padding: '2px 8px', borderRadius: 4, textTransform: 'uppercase' as const, letterSpacing: '.06em', whiteSpace: 'nowrap' as const, display: 'inline-block', marginBottom: 3 }}>
+                  {ootdLog.category || ootdLog.theme}
+                </span>
+              )}
+              {ootdLog.note && (
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {ootdLog.note}
+                </div>
+              )}
               {(ootdLog.tags ?? []).length > 0 && (
-                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 3 }}>
                   {(ootdLog.tags ?? []).map(tag => (
                     <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
                       #{tag.replace(/^#/, '')}
