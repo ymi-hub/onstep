@@ -1712,7 +1712,7 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   return (
     <div>
-      <SectionHeader title="#MOTD" />
+      <SectionHeader title="#Makeup" />
       {items.length === 0 && (
         <div style={{ margin: '0 16px', padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>💄</span>
@@ -1815,7 +1815,7 @@ function LifetipSection({ items }: { items: LifetipItem[] }) {
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   return (
     <div>
-      <SectionHeader title="#Life tip" />
+      <SectionHeader title="#Life Tip" />
       {items.length === 0 && (
         <div style={{ margin: '0 16px', padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>📌</span>
@@ -3025,15 +3025,21 @@ export default function TodayPage() {
         {/* 날씨 위젯 */}
         <WeatherWidget />
 
-        {/* 세션 히어로 */}
+        {/* ── FLOW 영역 헤더 ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '20px 20px 4px' }}>
+          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '.2em', color: '#9A9490', textTransform: 'uppercase' as const }}>Flow</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(12,12,10,.1)' }} />
+        </div>
+
+        {/* #Skincare 서브 헤더 */}
+        <SectionHeader title="#Skincare" />
+
+        {/* 세션 히어로 — #Skincare 하위, SESSION 회차·날짜·진행 도트 */}
         <SessionHero
           today={today}
           session={activeSession}
           todayDayNumber={todayDayNumber}
         />
-
-        {/* #Flow 섹션 헤더 */}
-        <SectionHeader title="#Flow" />
 
         {/* 메인 루틴 카드 — 비로그인 / 로딩 / 루틴 있음 / 루틴 없음 분기 */}
         {!user && !authLoading ? (
@@ -3209,7 +3215,7 @@ export default function TodayPage() {
           return (
             <div key={p.id}>
               <SectionHeader
-                title={`#${p.name}`}
+                title="#Reset Plan"
                 action={
                   <span style={{ background: '#0C0C0A', color: '#C5FF00', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 9999, letterSpacing: '.04em' }}>
                     {beforeStart ? `D-${daysLeft}일 후 시작 · ${pat.label}` : `D+${dayN} · ${periodLabel} · ${pat.label}`}
@@ -3371,22 +3377,38 @@ export default function TodayPage() {
           );
         })()}
 
-        {/* 집중케어 섹션 — 오늘 기간에 해당하는 published 아이템 */}
-        <CareSection items={activeCareItems} products={products} />
+        {/* ── MY EDIT 영역 — Today ON으로 지정한 콘텐츠 ── */}
+        <div style={{ margin: '20px 12px 0', border: '1.5px solid rgba(12,12,10,.1)', borderRadius: 22, overflow: 'hidden' }}>
 
-        {/* Life tip 섹션 */}
-        <LifetipSection items={activeLifetipItems} />
+          {/* MY EDIT 헤더 */}
+          <div style={{ background: '#0C0C0A', padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.2em', color: '#C5FF00' }}>MY EDIT</div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 9, color: 'rgba(255,255,255,.4)', letterSpacing: '.06em', marginTop: 2 }}>Today ON으로 지정한 콘텐츠</div>
+            </div>
+          </div>
 
-        {/* OOTD 섹션 — 메이크업 + 룩북 + OOTD 기록 */}
-        <OOTDSection
-          ootdLog={ootdLog}
-          onRecord={handleOpenOOTDSheet}
-          onViewLog={() => router.push('/log?tab=라이브러리&filter=ootd')}
-          user={user}
-          activeLookItems={activeLookItems}
-          activeMakeupItems={activeMakeupItems}
-          products={products}
-        />
+          {/* #Intensive Care */}
+          <CareSection items={activeCareItems} products={products} />
+
+          {/* #Life Tip */}
+          <LifetipSection items={activeLifetipItems} />
+
+          {/* #Makeup */}
+          <MakeupSection items={activeMakeupItems} products={products} />
+
+          {/* #OOTD — 룩북 + 착장 기록 (메이크업은 #Makeup으로 분리) */}
+          <OOTDSection
+            ootdLog={ootdLog}
+            onRecord={handleOpenOOTDSheet}
+            onViewLog={() => router.push('/log?tab=라이브러리&filter=ootd')}
+            user={user}
+            activeLookItems={activeLookItems}
+            activeMakeupItems={[]}
+            products={products}
+          />
+
+        </div>
 
       </div>
 
