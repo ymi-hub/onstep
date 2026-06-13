@@ -2066,14 +2066,14 @@ function LogCtPanel({
                               onKeyDown={e => {
                                 if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
                                   const v = editingTagVal.trim();
-                                  if (v && !sTags.includes(v)) setSTags(prev => prev.map((t, idx) => idx === i ? v : t));
+                                  if (v && v !== tag && !sTags.includes(v)) setSTags(prev => prev.map(t => t === tag ? v : t));
                                   setEditingTagIdx(null);
                                 }
                                 if (e.key === 'Escape') setEditingTagIdx(null);
                               }}
                               onBlur={() => {
                                 const v = editingTagVal.trim();
-                                if (v && !sTags.includes(v)) setSTags(prev => prev.map((t, idx) => idx === i ? v : t));
+                                if (v && v !== tag && !sTags.includes(v)) setSTags(prev => prev.map(t => t === tag ? v : t));
                                 setEditingTagIdx(null);
                               }}
                               style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
@@ -3043,6 +3043,16 @@ function LogPageInner() {
         imageUrl,
         updatedAt: new Date().toISOString(),
       });
+      // 라이브러리에 등록된 경우 해당 아이템 태그도 동기화
+      if (editingRef.libraryItemId && editingRef.libraryItemType) {
+        const colName = editingRef.libraryItemType === 'lifetip' ? 'lifetipItems'
+          : editingRef.libraryItemType === 'makeup' ? 'makeupItems' : 'lookItems';
+        const userTags = finalEditTags.filter(t => !categoryTags.includes(t));
+        await updateDoc(doc(db, 'users', userId, colName, editingRef.libraryItemId), {
+          tags: userTags,
+          updatedAt: new Date().toISOString(),
+        });
+      }
       setEditingRef(null);
     } catch (err) {
       console.error('[OnStep] reference 업데이트 실패:', err);
@@ -3075,7 +3085,7 @@ function LogPageInner() {
           imageUrl: finalImageUrl,
           sourceUrl: finalUrl,
           tipCategory: category,
-          tags: refToLibCacheData?.tags ?? [],
+          tags: refToLibTagArr.length ? refToLibTagArr : (refToLibCacheData?.tags ?? []),
           memo: finalMemo || refToLibCacheData?.memo || '',
           productIds: refToLibCacheData?.productIds ?? [],
           published: false,
@@ -3956,7 +3966,7 @@ function LogPageInner() {
                         setRefToLibCatName(firstCat);
                         const libType = firstCat === 'Lookbook' ? 'lookbook' : firstCat === 'Makeup' ? 'makeup' : 'lifetip';
                         setRefToLibType(libType);
-                        setRefToLibTagArr([]);
+                        setRefToLibTagArr(tags.filter(t => !categoryTags.includes(t)));
                         setRefToLibTagEditOpen(false);
                         setRefToLibTagInput('');
                         setRefToLibEmoji('');
@@ -4147,10 +4157,10 @@ function LogPageInner() {
                               <input autoFocus type="text" value={editingCatVal}
                                 onChange={e => setEditingCatVal(e.target.value)}
                                 onKeyDown={e => {
-                                  if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingCatVal.trim(); if (v && !categoryTags.includes(v)) setCategoryTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingCatIdx(null); }
+                                  if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingCatVal.trim(); if (v && v !== cat && !categoryTags.includes(v)) setCategoryTags(prev => prev.map(t => t === cat ? v : t)); setEditingCatIdx(null); }
                                   if (e.key === 'Escape') setEditingCatIdx(null);
                                 }}
-                                onBlur={() => { const v = editingCatVal.trim(); if (v && !categoryTags.includes(v)) setCategoryTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingCatIdx(null); }}
+                                onBlur={() => { const v = editingCatVal.trim(); if (v && v !== cat && !categoryTags.includes(v)) setCategoryTags(prev => prev.map(t => t === cat ? v : t)); setEditingCatIdx(null); }}
                                 style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
                               />
                             ) : (
@@ -4957,10 +4967,10 @@ function LogPageInner() {
                                 <input autoFocus type="text" value={editingLifetipTagVal}
                                   onChange={e => setEditingLifetipTagVal(e.target.value)}
                                   onKeyDown={e => {
-                                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingLifetipTagVal.trim(); if (v && !lifetipEditTags.includes(v)) setLifetipEditTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingLifetipTagIdx(null); }
+                                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingLifetipTagVal.trim(); if (v && v !== tag && !lifetipEditTags.includes(v)) setLifetipEditTags(prev => prev.map(t => t === tag ? v : t)); setEditingLifetipTagIdx(null); }
                                     if (e.key === 'Escape') setEditingLifetipTagIdx(null);
                                   }}
-                                  onBlur={() => { const v = editingLifetipTagVal.trim(); if (v && !lifetipEditTags.includes(v)) setLifetipEditTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingLifetipTagIdx(null); }}
+                                  onBlur={() => { const v = editingLifetipTagVal.trim(); if (v && v !== tag && !lifetipEditTags.includes(v)) setLifetipEditTags(prev => prev.map(t => t === tag ? v : t)); setEditingLifetipTagIdx(null); }}
                                   style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
                                 />
                               ) : (
@@ -5477,10 +5487,10 @@ function LogPageInner() {
                           <input autoFocus type="text" value={editingCatVal}
                             onChange={e => setEditingCatVal(e.target.value)}
                             onKeyDown={e => {
-                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingCatVal.trim(); if (v && !categoryTags.includes(v)) setCategoryTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingCatIdx(null); }
+                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingCatVal.trim(); if (v && v !== cat && !categoryTags.includes(v)) setCategoryTags(prev => prev.map(t => t === cat ? v : t)); setEditingCatIdx(null); }
                               if (e.key === 'Escape') setEditingCatIdx(null);
                             }}
-                            onBlur={() => { const v = editingCatVal.trim(); if (v && !categoryTags.includes(v)) setCategoryTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingCatIdx(null); }}
+                            onBlur={() => { const v = editingCatVal.trim(); if (v && v !== cat && !categoryTags.includes(v)) setCategoryTags(prev => prev.map(t => t === cat ? v : t)); setEditingCatIdx(null); }}
                             style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
                           />
                         ) : (
@@ -5582,10 +5592,10 @@ function LogPageInner() {
                                   <input autoFocus type="text" value={editingRefToLibTagVal}
                                     onChange={e => setEditingRefToLibTagVal(e.target.value)}
                                     onKeyDown={e => {
-                                      if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingRefToLibTagVal.trim().replace(/^#/, ''); if (v && !refToLibTagArr.includes(v)) setRefToLibTagArr(prev => prev.map((t, i) => i === idx ? v : t)); setEditingRefToLibTagIdx(null); }
+                                      if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingRefToLibTagVal.trim().replace(/^#/, ''); if (v && v !== tag && !refToLibTagArr.includes(v)) setRefToLibTagArr(prev => prev.map(t => t === tag ? v : t)); setEditingRefToLibTagIdx(null); }
                                       if (e.key === 'Escape') setEditingRefToLibTagIdx(null);
                                     }}
-                                    onBlur={() => { const v = editingRefToLibTagVal.trim().replace(/^#/, ''); if (v && !refToLibTagArr.includes(v)) setRefToLibTagArr(prev => prev.map((t, i) => i === idx ? v : t)); setEditingRefToLibTagIdx(null); }}
+                                    onBlur={() => { const v = editingRefToLibTagVal.trim().replace(/^#/, ''); if (v && v !== tag && !refToLibTagArr.includes(v)) setRefToLibTagArr(prev => prev.map(t => t === tag ? v : t)); setEditingRefToLibTagIdx(null); }}
                                     style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
                                   />
                                 ) : (
@@ -5784,14 +5794,14 @@ function LogPageInner() {
                                 onKeyDown={e => {
                                   if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
                                     const v = editingRefTagVal.trim().replace(/^#/, '');
-                                    if (v && !refEditTags.includes(v)) setRefEditTags(prev => prev.map((t, idx) => idx === i ? v : t));
+                                    if (v && v !== tag && !refEditTags.includes(v)) setRefEditTags(prev => prev.map(t => t === tag ? v : t));
                                     setEditingRefTagIdx(null);
                                   }
                                   if (e.key === 'Escape') setEditingRefTagIdx(null);
                                 }}
                                 onBlur={() => {
                                   const v = editingRefTagVal.trim().replace(/^#/, '');
-                                  if (v && !refEditTags.includes(v)) setRefEditTags(prev => prev.map((t, idx) => idx === i ? v : t));
+                                  if (v && v !== tag && !refEditTags.includes(v)) setRefEditTags(prev => prev.map(t => t === tag ? v : t));
                                   setEditingRefTagIdx(null);
                                 }}
                                 style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
@@ -5956,10 +5966,10 @@ function LogPageInner() {
                           <input autoFocus type="text" value={editingOotdTagVal}
                             onChange={e => setEditingOotdTagVal(e.target.value)}
                             onKeyDown={e => {
-                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingOotdTagVal.trim().replace(/^#/, ''); if (v && !ootdEditTags.includes(v)) setOotdEditTags(prev => prev.map((t, i) => i === idx ? v : t)); setEditingOotdTagIdx(null); }
+                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingOotdTagVal.trim().replace(/^#/, ''); if (v && v !== tag && !ootdEditTags.includes(v)) setOotdEditTags(prev => prev.map(t => t === tag ? v : t)); setEditingOotdTagIdx(null); }
                               if (e.key === 'Escape') setEditingOotdTagIdx(null);
                             }}
-                            onBlur={() => { const v = editingOotdTagVal.trim().replace(/^#/, ''); if (v && !ootdEditTags.includes(v)) setOotdEditTags(prev => prev.map((t, i) => i === idx ? v : t)); setEditingOotdTagIdx(null); }}
+                            onBlur={() => { const v = editingOotdTagVal.trim().replace(/^#/, ''); if (v && v !== tag && !ootdEditTags.includes(v)) setOotdEditTags(prev => prev.map(t => t === tag ? v : t)); setEditingOotdTagIdx(null); }}
                             style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
                           />
                         ) : (
@@ -6223,10 +6233,10 @@ function LogPageInner() {
                                 <input autoFocus type="text" value={editingNewLifetipTagVal}
                                   onChange={e => setEditingNewLifetipTagVal(e.target.value)}
                                   onKeyDown={e => {
-                                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingNewLifetipTagVal.trim(); if (v && !newLifetipTags.includes(v)) setNewLifetipTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingNewLifetipTagIdx(null); }
+                                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) { const v = editingNewLifetipTagVal.trim(); if (v && v !== tag && !newLifetipTags.includes(v)) setNewLifetipTags(prev => prev.map(t => t === tag ? v : t)); setEditingNewLifetipTagIdx(null); }
                                     if (e.key === 'Escape') setEditingNewLifetipTagIdx(null);
                                   }}
-                                  onBlur={() => { const v = editingNewLifetipTagVal.trim(); if (v && !newLifetipTags.includes(v)) setNewLifetipTags(prev => prev.map((t, idx) => idx === i ? v : t)); setEditingNewLifetipTagIdx(null); }}
+                                  onBlur={() => { const v = editingNewLifetipTagVal.trim(); if (v && v !== tag && !newLifetipTags.includes(v)) setNewLifetipTags(prev => prev.map(t => t === tag ? v : t)); setEditingNewLifetipTagIdx(null); }}
                                   style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
                                 />
                               ) : (
