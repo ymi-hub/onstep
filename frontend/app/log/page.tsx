@@ -3910,7 +3910,7 @@ function LogPageInner() {
                       cursor: 'pointer', transition: 'all .15s',
                     }}
                   >
-                    {ref.inLibrary ? '라이브러리 ON ✓' : ref.cachedLibrary ? '📦 다시 등록' : '라이브러리 OFF'}
+                    {ref.inLibrary ? '라이브러리 ON ✓' : ref.cachedLibrary ? '라이브러 ON' : '라이브러리 OFF'}
                   </button>
 
                   {/* → 우측: 링크공유 + (편집 — LIB ON 중엔 숨김) + 삭제 */}
