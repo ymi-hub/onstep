@@ -23,6 +23,8 @@ import {
   updateDoc,
   deleteDoc,
   getDocs,
+  getDoc,
+  setDoc,
   doc,
   query,
   orderBy,
@@ -2413,7 +2415,13 @@ export default function TodayPage() {
 
   function saveOotdTags(tags: string[]) {
     setOotdTags(tags);
-    localStorage.setItem('onstep_ootd_tags', JSON.stringify(tags));
+    // 로컬 캐시 갱신
+    try { localStorage.setItem('onstep_ootd_tags', JSON.stringify(tags)); } catch {}
+    // Firestore 동기화
+    if (!db || !user) return;
+    const _db = db;
+    setDoc(doc(_db, 'users', userId, 'settings', 'ui'), { ootdTags: tags }, { merge: true })
+      .catch((err) => console.error('[OnStep] ootdTags Firestore 저장 실패:', err));
   }
 
   // ── CT 섹션 (공유 컨텍스트에서) ──
@@ -2533,6 +2541,21 @@ export default function TodayPage() {
     }, (err) => console.error('[OnStep] OOTD 로드 실패:', err));
     return () => unsub();
   }, [userId, authLoading, user, todayKey]); // todayKey: 자정 리셋
+
+  // ── ootdTags Firestore 로드 (로그인 후 1회) ──
+  useEffect(() => {
+    if (authLoading || !user || !db) return;
+    const _db = db;
+    getDoc(doc(_db, 'users', userId, 'settings', 'ui')).then((snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        if (Array.isArray(data.ootdTags) && data.ootdTags.length > 0) {
+          setOotdTags(data.ootdTags);
+          try { localStorage.setItem('onstep_ootd_tags', JSON.stringify(data.ootdTags)); } catch {}
+        }
+      }
+    }).catch(() => {});
+  }, [userId, authLoading, user]);
 
   // ── 실시간 구독 6: 오늘 습관 완료 기록 ──
   // todayKey가 바뀌면(자정 경과) 새 날짜로 재구독 → 체크 상태 자동 리셋
