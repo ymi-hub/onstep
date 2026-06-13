@@ -3877,19 +3877,13 @@ function LogPageInner() {
                     type="button"
                     onClick={() => {
                       if (ref.inLibrary) {
-                        // 상태3: 등록됨 → 해지
+                        // ON → 해지
                         removeFromLibrary(ref);
-                      } else if (ref.deregistered && ref.cachedLibrary) {
-                        // 상태4: 해지됨 → 클릭 시 deregistered 해제 후 재등록 시트
-                        if (db && userId) {
-                          updateDoc(doc(db, 'users', userId, 'references', ref.id), { deregistered: false });
-                        }
-                        setRefCachePreview(ref);
                       } else if (ref.cachedLibrary) {
-                        // 상태2: 재등록 가능 → 미리보기 시트
+                        // OFF (재등록 가능) → 미리보기 시트 (deregistered는 완료 시에만 해제)
                         setRefCachePreview(ref);
                       } else {
-                        // 상태1: 처음 등록 → 일반 등록 시트
+                        // OFF (처음 등록) → 신규 등록 시트
                         setRefToLib(ref);
                         setRefToLibCacheData(null);
                         setLibCatEditOpen(false);
@@ -3914,24 +3908,19 @@ function LogPageInner() {
                       fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em',
                       cursor: 'pointer', transition: 'all .15s',
                       whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis',
-                      // 상태별 스타일
                       ...(ref.inLibrary
-                        ? { background: '#0C0C0A', border: '1px solid transparent', color: '#C5FF00' }           // 상태3: 채움
-                        : ref.deregistered
-                          ? { background: 'rgba(12,12,10,.04)', border: '1px solid rgba(12,12,10,.1)', color: '#BCBAB6' } // 상태4: 회색 비활성
-                          : ref.cachedLibrary
-                            ? { background: 'rgba(197,255,0,.08)', border: '1px solid rgba(132,176,0,.35)', color: '#4A7700' } // 상태2: 라임 아웃라인
-                            : { background: 'transparent', border: '1.5px dashed rgba(12,12,10,.25)', color: '#4A4846' }      // 상태1: 투명 점선
+                        ? { background: '#0C0C0A', border: '1px solid transparent', color: '#C5FF00' }
+                        : ref.cachedLibrary
+                          ? { background: 'rgba(12,12,10,.04)', border: '1px solid rgba(12,12,10,.14)', color: '#6A6866' }
+                          : { background: 'transparent', border: '1.5px dashed rgba(12,12,10,.25)', color: '#4A4846' }
                       ),
                     }}
                   >
                     {ref.inLibrary
                       ? '라이브러리 ON ✓'
-                      : ref.deregistered
+                      : ref.cachedLibrary
                         ? '라이브러리 OFF'
-                        : ref.cachedLibrary
-                          ? '라이브러 ON'
-                          : '+ 라이브러리 등록'}
+                        : '+ 라이브러리 등록'}
                   </button>
 
                   {/* → 우측: 링크공유 + (편집 — LIB ON 중엔 숨김) + 삭제 */}
@@ -5253,6 +5242,7 @@ function LogPageInner() {
                     }
                     await updateDoc(doc(db, 'users', userId, 'references', ref.id), {
                       inLibrary: true,
+                      deregistered: false,  // 재등록 완료 시에만 해제
                       libraryItemId: newItemId,
                       libraryItemType: newItemType,
                     });

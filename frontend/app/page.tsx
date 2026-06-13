@@ -1852,7 +1852,7 @@ function LifetipSection({ items }: { items: LifetipItem[] }) {
                   <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.3 }}>{item.name}</div>
                 </div>
                 {item.tipCategory && (
-                  <span style={{ flexShrink: 0, fontFamily: f, fontSize: 10, fontWeight: 700, color: '#1D6DDB', background: 'rgba(96,165,250,.15)', border: '1px solid rgba(96,165,250,.4)', padding: '3px 8px', borderRadius: 9999, whiteSpace: 'nowrap' as const, marginTop: 2 }}>
+                  <span style={{ flexShrink: 0, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#1D6DDB', background: 'rgba(96,165,250,.15)', border: '1px solid rgba(96,165,250,.4)', padding: '4px 10px', borderRadius: 4, whiteSpace: 'nowrap' as const, marginTop: 2, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>
                     {item.tipCategory}
                   </span>
                 )}
