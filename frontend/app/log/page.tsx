@@ -1102,11 +1102,19 @@ function RecentStrip({
                 border: isSelected && today
                   ? '1.5px solid #0C0C0A'
                   : isSelected
-                  ? '2px solid #FF8C42'
+                  ? '2px solid rgba(0,0,0,0.5)'
                   : today
                   ? '1.5px solid rgba(12,12,10,.2)'
                   : '1.5px solid transparent',
-                background: isSelected && today ? 'transparent' : isSelected ? '#FF8C42' : bothDone ? '#F5FDD4' : 'transparent',
+                background: isSelected && today
+                  ? 'transparent'
+                  : isSelected
+                  ? 'rgba(0,0,0,0.5)'
+                  : bothDone && today
+                  ? '#F5FDD4'
+                  : bothDone
+                  ? 'rgba(12,12,10,.07)'
+                  : 'transparent',
                 cursor: 'pointer',
                 transition: 'all .15s',
               }}
@@ -1117,7 +1125,7 @@ function RecentStrip({
                   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                   fontSize: 10,
                   fontWeight: 700,
-                  color: isSelected && today ? '#0C0C0A' : isSelected ? '#FFFFFF' : '#9A9490',
+                  color: isSelected && today ? '#0C0C0A' : isSelected ? '#C5FF00' : '#9A9490',
                 }}
               >
                 {format(day, 'EEE', { locale: ko }).slice(0, 1)}
