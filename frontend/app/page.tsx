@@ -1494,7 +1494,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '70%', background: 'linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 100%)', pointerEvents: 'none' }} />
                 {/* 배지 & 타이틀 */}
                 <div style={{ position: 'absolute', bottom: 16, left: 20, right: 20, zIndex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div style={{
                       display: 'inline-block',
                       background: '#C5FF00', color: '#000',
@@ -1503,20 +1503,18 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     }}>
                       INTENSIVE PROGRAM
                     </div>
-                  </div>
-                  <div style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-.02em', lineHeight: 1.2, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
                     {item.category && (
                       <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        background: 'rgba(255,255,255,0.25)', color: '#fff',
-                        fontFamily: f, fontWeight: 800, fontSize: 10, letterSpacing: '.06em',
-                        padding: '3px 7px', borderRadius: 4, lineHeight: 1.1, backdropFilter: 'blur(4px)',
-                        flexShrink: 0
+                        display: 'inline-flex', alignItems: 'center',
+                        background: 'rgba(255,255,255,0.22)', color: '#fff',
+                        fontFamily: f, fontWeight: 700, fontSize: 12, letterSpacing: '.08em',
+                        padding: '4px 10px', borderRadius: 4, backdropFilter: 'blur(4px)',
                       }}>
                         {item.category}
                       </span>
                     )}
+                  </div>
+                  <div style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-.02em', lineHeight: 1.2 }}>
                     <span>{item.emoji} {item.name}</span>
                   </div>
                   {item.desc && (
@@ -1538,7 +1536,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   background: 'rgba(197, 255, 0, 0.12)', borderRadius: '50%', filter: 'blur(30px)'
                 }} />
                 <div style={{ position: 'relative', zIndex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const, marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div style={{
                       display: 'inline-block',
                       background: '#C5FF00', color: '#000',
@@ -1547,20 +1545,18 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     }}>
                       INTENSIVE PROGRAM
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     {item.category && (
                       <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        background: 'rgba(197, 255, 0, 0.15)', color: '#C5FF00',
-                        fontFamily: f, fontWeight: 800, fontSize: 10, letterSpacing: '.06em',
-                        padding: '3px 7px', borderRadius: 4, lineHeight: 1.1,
-                        flexShrink: 0
+                        display: 'inline-flex', alignItems: 'center',
+                        background: 'rgba(197,255,0,0.18)', color: '#C5FF00',
+                        fontFamily: f, fontWeight: 700, fontSize: 12, letterSpacing: '.08em',
+                        padding: '4px 10px', borderRadius: 4,
                       }}>
                         {item.category}
                       </span>
                     )}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{ fontSize: 24 }}>{item.emoji}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#FFFFFF', letterSpacing: '-.01em' }}>
