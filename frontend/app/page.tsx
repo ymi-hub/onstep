@@ -2944,7 +2944,8 @@ export default function TodayPage() {
       const todayStr = getTodayDateStr();
       if (ootdLog) {
         await updateDoc(doc(_db, 'users', userId, 'ootdLogs', ootdLog.id), {
-          theme: ootdTheme,
+          category: ootdTheme,   // theme → category 통일
+          theme: ootdTheme,      // 구 필드 하위 호환 유지
           note: ootdNote,
           photoUrl,
           tags: finalTags,
@@ -2953,7 +2954,8 @@ export default function TodayPage() {
       } else {
         await addDoc(collection(_db, 'users', userId, 'ootdLogs'), {
           date: todayStr,
-          theme: ootdTheme,
+          category: ootdTheme,   // theme → category 통일
+          theme: ootdTheme,      // 구 필드 하위 호환 유지
           note: ootdNote,
           photoUrl,
           tags: finalTags,

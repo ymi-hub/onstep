@@ -2459,6 +2459,7 @@ function LogPageInner() {
       setEditingOotd(null);
     } catch (err) {
       console.error('[OnStep] OOTD 수정 실패:', err);
+      showToast('저장 실패 — 다시 시도해주세요');
     } finally {
       setOotdEditSaving(false);
     }
@@ -2799,7 +2800,7 @@ function LogPageInner() {
     );
     const unsub = onSnapshot(q, (snap) => {
       setOotdLogs(snap.docs.map(d => ({ id: d.id, ...d.data() } as OOTDLog)));
-    });
+    }, (err) => console.error('[OnStep] OOTD 구독 실패:', err));
     return () => unsub();
   }, [userId, authLoading, user]);
 
