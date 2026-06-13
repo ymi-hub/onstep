@@ -4408,7 +4408,7 @@ function LogPageInner() {
                               {/* 카테고리 칩 — 메모 위, 검정 배경 + 오렌지 폰트 */}
                               {(log.category || log.theme) && (
                                 <div style={{ marginTop: 12, marginBottom: 4 }}>
-                                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#FF8C42', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{log.category || log.theme}</span>
+                                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#FF8C42', background: '#0C0C0A', padding: '3px 8px', borderRadius: 4, whiteSpace: 'nowrap' as const, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>{log.category || log.theme}</span>
                                 </div>
                               )}
                               {log.note && (
@@ -4580,7 +4580,7 @@ function LogPageInner() {
                                 {/* 카테고리 칩 — 메모 위, 검정 배경 + 오렌지 폰트 */}
                                 {(log.category || log.theme) && (
                                   <div style={{ marginTop: 12, marginBottom: 4 }}>
-                                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#FF8C42', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, whiteSpace: 'nowrap' as const }}>{log.category || log.theme}</span>
+                                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#FF8C42', background: '#0C0C0A', padding: '3px 8px', borderRadius: 4, whiteSpace: 'nowrap' as const, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>{log.category || log.theme}</span>
                                   </div>
                                 )}
                                 {log.note && (
