@@ -1,4 +1,17 @@
 /* 폰트는 layout.tsx의 next/font으로 자체 호스팅 — Google CDN 호출 제거 */
+/* 아래 두 폰트는 Google Fonts 외 출처 → 임시 CDN 로드 (비교 테스트용) */
+@font-face {
+  font-family: 'KyoboHand';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/KyoboHand.woff') format('woff');
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'NelnaLizzyChae';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2205@1.0/NelnaLizzyChae.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
 
 @import "tailwindcss";
 

@@ -376,14 +376,17 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
         <div style={{ padding: '12px 16px 8px', background: '#0C0C0A', display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 14 }}>✏️</span>
           <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#C5FF00' }}>EXPERT TIP 폰트 비교</span>
+          <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 10, background: '#C5FF00', color: '#0C0C0A', padding: '1px 7px', borderRadius: 3, fontWeight: 700 }}>현재: #4</span>
           <span style={{ marginLeft: 'auto', fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 10, color: 'rgba(197,255,0,.5)' }}>결정 후 제거</span>
         </div>
         {[
           { num: 1, name: 'Nanum Myeongjo', var: 'var(--font-myeongjo)', tag: '나눔 명조 · 전통 세리프', style: { fontStyle: 'normal' as const } },
           { num: 2, name: 'Gowun Batang',   var: 'var(--font-gowun)',    tag: '고운 바탕 · 따뜻한 세리프', style: {} },
           { num: 3, name: 'Noto Serif KR',  var: 'var(--font-noto-serif)', tag: '노토 세리프 KR · 클린 세리프', style: {} },
-          { num: 4, name: 'Nanum Gothic',   var: 'var(--font-nanum-gothic)', tag: '나눔 고딕 · 라운드 산세리프', style: {} },
+          { num: 4, name: 'Nanum Gothic',   var: 'var(--font-nanum-gothic)', tag: '나눔 고딕 · 라운드 산세리프 ✓ 현재 적용', style: {} },
           { num: 5, name: 'Do Hyeon',       var: 'var(--font-do-hyeon)', tag: '두현 · 모던 산세리프', style: {} },
+          { num: 6, name: '교보 손글씨 2019', var: "'KyoboHand', cursive", tag: '교보문고 · 손글씨 스타일', style: {} },
+          { num: 7, name: '낼나 리지체',      var: "'NelnaLizzyChae', cursive", tag: '낼나샵 · 귀여운 손글씨', style: {} },
         ].map(item => (
           <div key={item.num} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
@@ -4748,7 +4751,7 @@ function CtPanel({
           {ctType === 'care' && item.expertTip && (
             <div style={{ marginTop: 8, background: '#FAFAFA', padding: '8px 12px', borderRadius: 8, border: '1px solid #E4E4E7' }}>
               <span style={{ fontFamily: f, fontSize: 9, fontWeight: 900, color: '#A1A1AA', textTransform: 'uppercase', display: 'block', marginBottom: 2 }}>Expert Advice</span>
-              <span style={{ fontFamily: "'Nanum Pen Script',cursive", fontSize: 18, color: '#27272A', lineHeight: 1 }}>{item.expertTip}</span>
+              <span style={{ fontFamily: "var(--font-nanum-gothic)", fontSize: 16, color: '#27272A', lineHeight: 1.5 }}>{item.expertTip}</span>
             </div>
           )}
         </div>
