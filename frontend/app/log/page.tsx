@@ -676,7 +676,7 @@ function DayDetail({
                   {isDeleted ? '🗑' : '🧴'}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: isDeleted ? '#BCBAB6' : '#0C0C0A', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textDecoration: isDeleted ? 'line-through' : 'none' }}>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, color: isDeleted ? '#BCBAB6' : '#0C0C0A', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textDecoration: isDeleted ? 'line-through' : 'none' }}>
                     {product?.name ?? '삭제된 제품'}
                   </div>
                   {!isDeleted && entry.amount != null && entry.amount > 0 && (
@@ -694,11 +694,11 @@ function DayDetail({
         {expertProds.length > 0 && (
           <>
             <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '4px 0' }} />
-            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA', marginBottom: 2 }}>TIPS</div>
+            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA', marginBottom: 2 }}>TIPS</div>
             {expertProds.map((p) => (
               <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1px solid rgba(132,176,0,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>✨</div>
-                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#3A6000', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 600, color: '#3A6000', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                   {p.name}
                 </div>
               </div>
@@ -892,7 +892,7 @@ function DayDetail({
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
               <div style={{ width: 14, height: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {done ? <CatBadge color="#C5FF00" size={14} /> : <span style={{ fontSize: 9, color: 'rgba(12,12,10,.3)' }}>○</span>}
+                {done ? <CatBadge color="#C5FF00" size={14} /> : <span style={{ fontSize: 11, color: 'rgba(12,12,10,.3)' }}>○</span>}
               </div>
               <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? col : '#44474A', width: 36, flexShrink: 0 }}>{getTime(m)}</span>
               <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
@@ -932,7 +932,7 @@ function DayDetail({
                 return (
                   <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
                     <div style={{ width: 14, height: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {done ? <CatBadge color="#C5FF00" size={14} /> : <span style={{ fontSize: 9, color: 'rgba(12,12,10,.3)' }}>○</span>}
+                      {done ? <CatBadge color="#C5FF00" size={14} /> : <span style={{ fontSize: 11, color: 'rgba(12,12,10,.3)' }}>○</span>}
                     </div>
                     {pt && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: done ? '#C5C6CA' : '#44474A', width: 36, flexShrink: 0 }}>{pt}</span>}
                     <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: done ? '#9A9490' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
@@ -1208,7 +1208,7 @@ function LogLibraryCard({
             <div style={{ position: 'absolute', inset: 5, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="today" style={{ width: 34, height: 34, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
-            <div style={{ fontFamily: f, fontSize: 8, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
+            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
           </div>
         )}
       </div>
@@ -1227,7 +1227,7 @@ function LogLibraryCard({
         {/* daily — 우측 정렬 */}
         {item.daily && <div style={{ width: '100%', textAlign: 'right', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#BCBAB6', marginTop: 6 }}>{item.daily}</div>}
         {/* 서브 */}
-        {item.desc && <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.desc}</div>}
+        {item.desc && <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#1D6DDB', lineHeight: '20px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.desc}</div>}
         {item.sourceUrl?.trim() && (() => {
           let domain = item.sourceUrl;
           try { domain = new URL(item.sourceUrl).hostname; } catch {}
@@ -1338,7 +1338,7 @@ function LifetipLibraryCard({
         <TagChips tags={item.tags ?? []} style={{ marginTop: 12 }} />
         <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '24px', marginTop: 12, width: '100%' }}>{item.name}</div>
         {item.memo && (
-          <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{item.memo}</div>
+          <div style={{ fontFamily: f, fontSize: 14, color: '#1D6DDB', lineHeight: '20px', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{item.memo}</div>
         )}
         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
           <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{createdDate}</span>
@@ -1797,10 +1797,10 @@ function LogCtPanel({
           </div>
         )}
         <div style={{ padding: '0 12px 12px', display: 'flex', gap: 6 }}>
-          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
-          <button onClick={() => openEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>편집</button>
+          <button onClick={() => openEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>편집</button>
         </div>
       </div>
     );
@@ -1834,7 +1834,7 @@ function LogCtPanel({
                   <div style={{ width: 52, height: 52, borderRadius: 8, background: '#fff', border: '1px solid rgba(12,12,10,.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 3px rgba(0,0,0,.06)' }}>
                     {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16, opacity: 0.2 }}>🧴</span>}
                   </div>
-                  <span style={{ fontFamily: f, fontSize: 9, fontWeight: 600, color: '#4A4846', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
+                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#4A4846', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
                 </div>
               );
             })}
@@ -1842,10 +1842,10 @@ function LogCtPanel({
         )}
         {/* 편집 버튼 */}
         <div style={{ padding: '0 8px 8px', display: 'flex', gap: 4 }}>
-          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
-          <button onClick={() => openEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>편집</button>
+          <button onClick={() => openEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>편집</button>
         </div>
       </div>
     );
@@ -1856,7 +1856,7 @@ function LogCtPanel({
       {/* 카드 목록 — hiddenMode일 때 숨김 (편집 시트만 사용) */}
       <div style={{ padding: '0 16px', display: hiddenMode ? 'none' : undefined }}>
         {!hideAddButton && (
-          <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', color: '#9A9490', cursor: 'pointer', marginBottom: 12 }}>
+          <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', color: '#9A9490', cursor: 'pointer', marginBottom: 12 }}>
             + 새 {colLabel} 등록
           </button>
         )}
@@ -4432,7 +4432,7 @@ function LogPageInner() {
                               </div>
                             </div>
                             <ProductThumbnailStrip productIds={pIds} products={products} />
-                            <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
+                            <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
                           </div>
                         );
                       })}
@@ -4527,7 +4527,7 @@ function LogPageInner() {
                                 <div style={{ position: 'absolute', bottom: -45, right: -20, transform: 'rotate(-9deg)', zIndex: 4, width: 88, height: 88, borderRadius: '50%', border: '3px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
                                   <div style={{ position: 'absolute', inset: 5, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
                                   <img src="/logo.png" alt="today" style={{ width: 34, height: 34, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
-                                  <div style={{ fontFamily: f, fontSize: 8, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
+                                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
                                 </div>
                               )}
                             </div>
@@ -4604,7 +4604,7 @@ function LogPageInner() {
                                 </div>
                               </div>
                               <ProductThumbnailStrip productIds={pIds} products={products} />
-                              <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
+                              <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
                             </div>
                           );
                         })}

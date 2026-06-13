@@ -18,7 +18,7 @@ export default function TagChips({
           key={tag}
           style={{
             fontFamily: FONT,
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: 600,
             padding: '3px 8px',
             borderRadius: 9999,

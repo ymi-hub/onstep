@@ -303,7 +303,7 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
                   {p.name}
                 </div>
                 {p.boxLocation && (
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 9, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '2px 6px', borderRadius: 9999, marginBottom: 4, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '2px 6px', borderRadius: 9999, marginBottom: 4, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                     📍 {p.boxLocation}
                   </div>
                 )}
@@ -501,7 +501,7 @@ function ProductCard({
           <div
             style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              fontSize: 9, fontWeight: 700, letterSpacing: '.02em',
+              fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
             }}
           >
             <span style={{ color: '#C5FF00' }}>
@@ -586,7 +586,7 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
           <div style={{ height: 3, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden' }}>
             <div style={{ height: '100%', width: `${pct}%`, background: '#C5FF00', borderRadius: 2 }} />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 9, color: '#9A9490', marginTop: 3, gap: 2 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 3, gap: 2 }}>
             <span>{pct}%</span>
             <span style={{ fontWeight: 700, color: '#4A4846' }}>
               {product.itemUnit === '개' || product.itemUnit === 'ea'
@@ -1521,7 +1521,7 @@ export default function BoxPage() {
                           </span>
                           {/* 도메인 배지 */}
                           {spendingFilter === 'all' && (
-                            <span style={{ fontFamily: f, fontSize: 9, fontWeight: 700, color: domainColors[p.domain], background: 'rgba(0,0,0,.04)', padding: '1px 5px', borderRadius: 4 }}>
+                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: domainColors[p.domain], background: 'rgba(0,0,0,.04)', padding: '1px 5px', borderRadius: 4 }}>
                               {domainLabels[p.domain]}
                             </span>
                           )}
@@ -1587,7 +1587,7 @@ export default function BoxPage() {
             >
               <span>{activeTab === id ? `#${label}` : label}</span>
               <span style={{
-                fontSize: 9, fontWeight: 800,
+                fontSize: 11, fontWeight: 800,
                 color: activeTab === id ? '#4E7D00' : '#BCBAB6',
                 letterSpacing: '.02em',
               }}>
@@ -1610,7 +1610,7 @@ export default function BoxPage() {
             }}
           >
             <span style={{ fontSize: 15, fontWeight: 700, lineHeight: 1 }}>⊞</span>
-            <span style={{ fontSize: 9, fontWeight: 800, color: activeTab === 'all' ? '#4E7D00' : '#BCBAB6', letterSpacing: '.02em' }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: activeTab === 'all' ? '#4E7D00' : '#BCBAB6', letterSpacing: '.02em' }}>
               {products.length}
             </span>
           </button>

@@ -489,7 +489,7 @@ function SessionsView({
         {/* TIP 제품 (있을 때만) */}
         {tipProds.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
-            <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#B8A08A' }}>TIP</div>
+            <div style={{ fontFamily: font, fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#B8A08A' }}>TIP</div>
             {tipProds.map((item, idx) => (
               <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#7A6A58', padding: '3px 6px', background: '#FDF8F3', border: '1px solid rgba(184,160,138,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                 {pName(item.id)}
@@ -500,7 +500,7 @@ function SessionsView({
         {/* EXPERT TIP 하이라이팅 제품 (있을 때만) */}
         {expertTipMentions(day).length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
-            <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA' }}>TIPS</div>
+            <div style={{ fontFamily: font, fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA' }}>TIPS</div>
             {expertTipMentions(day).map((name, idx) => (
               <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#3A6000', padding: '3px 6px', background: 'rgba(197,255,0,.12)', border: '1px solid rgba(132,176,0,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                 {name}
@@ -546,7 +546,7 @@ function SessionsView({
             {/* TIP 제품 (있을 때만) */}
             {dayTipProds(firstRow[0]).length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
-                <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#B8A08A' }}>TIP</div>
+                <div style={{ fontFamily: font, fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#B8A08A' }}>TIP</div>
                 {dayTipProds(firstRow[0]).map((item, idx) => (
                   <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#7A6A58', padding: '3px 6px', background: '#FDF8F3', border: '1px solid rgba(184,160,138,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                     {pName(item.id)}
@@ -557,7 +557,7 @@ function SessionsView({
             {/* EXPERT TIP 하이라이팅 제품 (있을 때만) */}
             {expertTipMentions(firstRow[0]).length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
-                <div style={{ fontFamily: font, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA' }}>TIPS</div>
+                <div style={{ fontFamily: font, fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA' }}>TIPS</div>
                 {expertTipMentions(firstRow[0]).map((name, idx) => (
                   <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#3A6000', padding: '3px 6px', background: 'rgba(197,255,0,.12)', border: '1px solid rgba(132,176,0,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                     {name}
@@ -705,7 +705,7 @@ function SessionsView({
                       )}
                       <button
                         onClick={(e) => { e.stopPropagation(); onEdit(s); }}
-                        style={{ width: '100%', marginTop: 12, padding: '12px', border: 'none', borderRadius: 12, background: '#0C0C0A', color: '#fff', fontFamily: font, fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, cursor: 'pointer' }}
+                        style={{ width: '100%', marginTop: 12, padding: '12px', border: 'none', borderRadius: 12, background: '#0C0C0A', color: '#fff', fontFamily: font, fontSize: 13, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, cursor: 'pointer' }}
                       >
                         루틴 편집
                       </button>
@@ -1968,8 +1968,8 @@ function DietPlanView({
                     <button onClick={addItemTag} style={{ padding: '7px 10px', background: '#F4F4F0', border: '1px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', cursor: 'pointer', flexShrink: 0 }}>추가</button>
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={cancelEditSlot} style={{ flex: 1, padding: '9px', background: '#F0EFEA', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-                    <button onClick={addSlot} style={{ flex: 1, padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer' }}>수정</button>
+                    <button onClick={cancelEditSlot} style={{ flex: 1, padding: '9px', background: '#F0EFEA', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
+                    <button onClick={addSlot} style={{ flex: 1, padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer' }}>수정</button>
                   </div>
                 </div>
               ) : (
@@ -2039,7 +2039,7 @@ function DietPlanView({
                 placeholder="수량" style={{ width: 52, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
               <button onClick={addItemTag} style={{ padding: '8px 10px', background: '#F4F4F0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer', flexShrink: 0 }}>추가</button>
             </div>
-            <button onClick={addSlot} style={{ width: '100%', padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', marginBottom: 6 }}>슬롯 추가</button>
+            <button onClick={addSlot} style={{ width: '100%', padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', marginBottom: 6 }}>슬롯 추가</button>
             <button onClick={addWarning} style={{ width: '100%', padding: '7px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>⚠️ 경고 배너 추가</button>
           </div>
           )}

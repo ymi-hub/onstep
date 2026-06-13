@@ -708,8 +708,8 @@ function FlowCard({
       ) : (
         <div style={{ margin: '0 0 0 0', padding: '24px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>🧴</span>
-          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>이 시간대에 등록된 제품이 없습니다</div>
-          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>SETUP에서 루틴에 제품을 추가해보세요</div>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>이 시간대에 등록된 제품이 없습니다</div>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>SETUP에서 루틴에 제품을 추가해보세요</div>
           <Link href="/setup" style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 2 }}>SETUP 바로가기 →</Link>
         </div>
       )}
@@ -845,7 +845,7 @@ function RoutineEmptyCard() {
       <div style={{ padding: '20px 4px 16px', textAlign: 'center' }}>
         <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490', marginBottom: 6 }}>GETTING STARTED</div>
         <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.3 }}>시작하는 방법</div>
-        <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 6 }}>아래 순서대로 진행하면 오늘의 루틴이 완성돼요</div>
+        <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 6 }}>아래 순서대로 진행하면 오늘의 루틴이 완성돼요</div>
       </div>
 
       {/* 3단계 카드 */}
@@ -859,9 +859,9 @@ function RoutineEmptyCard() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                 <span style={{ fontSize: 14 }}>{s.icon}</span>
-                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: i === 2 ? '#BCBAB6' : '#0C0C0A', letterSpacing: '.06em' }}>{s.label}</span>
+                <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: i === 2 ? '#BCBAB6' : '#0C0C0A', letterSpacing: '.06em' }}>{s.label}</span>
               </div>
-              <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>{s.desc}</div>
+              <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>{s.desc}</div>
             </div>
             {s.href && (
               <Link href={s.href} style={{ flexShrink: 0, height: 34, padding: '0 14px', background: '#C5FF00', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A', textDecoration: 'none', whiteSpace: 'nowrap' }}>
@@ -971,8 +971,8 @@ function OOTDSection({
         {!hasAny && user && (
           <div style={{ padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 12 }}>
             <span style={{ fontSize: 28 }}>✨</span>
-            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 스타일을 기록해보세요</div>
-            <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>라이브러리에서 Today ON으로 설정하면 여기에 표시됩니다</div>
+            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>오늘의 스타일을 기록해보세요</div>
+            <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>라이브러리에서 Today ON으로 설정하면 여기에 표시됩니다</div>
             <Link href="/log?tab=라이브러리" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
           </div>
         )}
@@ -1003,7 +1003,7 @@ function OOTDSection({
                       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '60px 16px 18px', background: 'linear-gradient(to top,rgba(0,0,0,.56) 0%,transparent 55%)', pointerEvents: 'none' }}>
                         <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,.7)', marginBottom: 5 }}>TODAY&apos;S {isMakeup ? 'MAKEUP' : 'LOOK'}</div>
                         <div style={{ fontFamily: f, fontSize: 17, fontWeight: 700, color: '#fff', lineHeight: 1.25 }}>{item.name}</div>
-                        {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{item.desc}</div>}
+                        {item.desc && <div style={{ fontFamily: f, fontSize: 13, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{item.desc}</div>}
                       </div>
                     </div>
                   </Link>
@@ -1012,7 +1012,7 @@ function OOTDSection({
                     <span style={{ fontSize: 22, flexShrink: 0 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{item.name}</div>
-                      {item.desc && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{item.desc}</div>}
+                      {item.desc && <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 2 }}>{item.desc}</div>}
                     </div>
                     {/* 텍스트 전용 카드에도 뱃지 표시 */}
                     <div style={{ flexShrink: 0, background: badgeBg, border: '1px solid #18181B', borderRadius: 4, padding: '3px 8px' }}>
@@ -1190,7 +1190,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             <div style={{
               position: 'absolute', top: 8, left: 8,
               background: '#0C0C0A', color: '#C5FF00',
-              fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
+              fontFamily: f, fontWeight: 800, fontSize: 11, letterSpacing: '.06em',
               padding: '3px 8px', borderRadius: 6, lineHeight: 1
             }}>
               {stepLabel}
@@ -1274,7 +1274,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 6 }}>
                 <div style={{
                   background: '#C5FF00', color: '#000000',
-                  fontFamily: f, fontWeight: 800, fontSize: 9, letterSpacing: '.06em',
+                  fontFamily: f, fontWeight: 800, fontSize: 11, letterSpacing: '.06em',
                   padding: '3px 8px', borderRadius: 6, lineHeight: 1
                 }}>
                   {isActiveTimer ? "TAB하여 중지" : "TAB하여 실행"}
@@ -1483,7 +1483,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     <div style={{
                       display: 'inline-block',
                       background: '#C5FF00', color: '#000',
-                      fontFamily: f, fontWeight: 900, fontSize: 9, letterSpacing: '.12em',
+                      fontFamily: f, fontWeight: 900, fontSize: 11, letterSpacing: '.12em',
                       padding: '4px 8px', borderRadius: 4, lineHeight: 1
                     }}>
                       INTENSIVE PROGRAM
@@ -1505,7 +1505,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     <span>{item.emoji} {item.name}</span>
                   </div>
                   {item.desc && (
-                    <div style={{ fontFamily: f, fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 4, fontWeight: 500 }}>
+                    <div style={{ fontFamily: f, fontSize: 14, color: 'rgba(255,255,255,0.8)', marginTop: 4, fontWeight: 500 }}>
                       {item.desc}
                     </div>
                   )}
@@ -1527,7 +1527,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     <div style={{
                       display: 'inline-block',
                       background: '#C5FF00', color: '#000',
-                      fontFamily: f, fontWeight: 900, fontSize: 9, letterSpacing: '.12em',
+                      fontFamily: f, fontWeight: 900, fontSize: 11, letterSpacing: '.12em',
                       padding: '4px 8px', borderRadius: 4, lineHeight: 1
                     }}>
                       INTENSIVE PROGRAM
@@ -1552,7 +1552,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                         {item.name}
                       </div>
                       {item.desc && (
-                        <div style={{ fontFamily: f, fontSize: 13, color: '#9CA3AF', marginTop: 4, fontWeight: 500 }}>
+                        <div style={{ fontFamily: f, fontSize: 14, color: '#9CA3AF', marginTop: 4, fontWeight: 500 }}>
                           {item.desc}
                         </div>
                       )}
@@ -1634,8 +1634,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                             {imgUrl ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 18 }}>🧴</span>}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#2185fd', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>MAPPED PRODUCT</div>
-                            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#1A1C1E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p?.name ?? '?'}</div>
+                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#2185fd', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>MAPPED PRODUCT</div>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#1A1C1E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p?.name ?? '?'}</div>
                           </div>
                         </div>
                       );
@@ -1645,8 +1645,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                         <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: 'rgba(197,255,0,0.05)', borderRadius: 14, border: '1px solid rgba(197,255,0,0.25)', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
                           <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>💡</span>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#4E7D00', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>SPECIAL TIP</div>
-                            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#2C3A1A', lineHeight: 1.45 }}>{r.text}</div>
+                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#4E7D00', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>SPECIAL TIP</div>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#2C3A1A', lineHeight: 1.45 }}>{r.text}</div>
                           </div>
                         </div>
                       );
@@ -1656,8 +1656,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                         <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
                           <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>📋</span>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>NOTICE / DETAILS</div>
-                            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 500, color: '#374151', lineHeight: 1.45 }}>{r.text}</div>
+                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>NOTICE / DETAILS</div>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: '#374151', lineHeight: 1.45 }}>{r.text}</div>
                           </div>
                         </div>
                       );
@@ -1716,8 +1716,8 @@ function MakeupSection({ items, products }: { items: CtItem[]; products: Map<str
       {items.length === 0 && (
         <div style={{ margin: '0 16px', padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>💄</span>
-          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 메이크업을 등록해보세요</div>
-          <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>Setup에서 Today ON으로 설정하면 여기에 표시됩니다</div>
+          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>오늘의 메이크업을 등록해보세요</div>
+          <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>Setup에서 Today ON으로 설정하면 여기에 표시됩니다</div>
           <Link href="/log?tab=라이브러리&filter=makeup" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
         </div>
       )}
@@ -1819,8 +1819,8 @@ function LifetipSection({ items }: { items: LifetipItem[] }) {
       {items.length === 0 && (
         <div style={{ margin: '0 16px', padding: '20px 16px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 28 }}>📌</span>
-          <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A' }}>오늘의 Life TIP이 없어요</div>
-          <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>라이브러리에서 Today ON으로 설정하면 여기에 표시됩니다</div>
+          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>오늘의 Life TIP이 없어요</div>
+          <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>라이브러리에서 Today ON으로 설정하면 여기에 표시됩니다</div>
           <Link href="/log?tab=라이브러리&filter=lifetip" style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', textDecoration: 'none', marginTop: 4 }}>List →</Link>
         </div>
       )}
@@ -1858,7 +1858,7 @@ function LifetipSection({ items }: { items: LifetipItem[] }) {
                 )}
               </div>
               {item.memo && (
-                <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: 1.5, marginBottom: item.sourceUrl ? 10 : 0 }}>
+                <div style={{ fontFamily: f, fontSize: 14, color: '#1D6DDB', lineHeight: 1.5, marginBottom: item.sourceUrl ? 10 : 0 }}>
                   {item.memo}
                 </div>
               )}
