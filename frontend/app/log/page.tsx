@@ -2456,6 +2456,8 @@ function LogPageInner() {
   const [refEditTagEditOpen, setRefEditTagEditOpen] = useState(false);
   const [dragRefEditTagIdx, setDragRefEditTagIdx] = useState<number | null>(null);
   const [dragRefEditTagOverIdx, setDragRefEditTagOverIdx] = useState<number | null>(null);
+  const [editingRefTagIdx, setEditingRefTagIdx] = useState<number | null>(null);
+  const [editingRefTagVal, setEditingRefTagVal] = useState('');
   // 수집 정렬 + 페이지네이션
   const [refSort, setRefSort] = useState<'date_desc' | 'category'>('date_desc');
   const [refVisibleCount, setRefVisibleCount] = useState(10);
@@ -5696,8 +5698,36 @@ function LogPageInner() {
                             style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                             -
                           </button>
-                          <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
-                            #{tag}
+                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingRefTagIdx === i ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', overflow: 'hidden' }}>
+                            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', paddingLeft: 12, flexShrink: 0 }}>#</span>
+                            {editingRefTagIdx === i ? (
+                              <input
+                                autoFocus
+                                type="text"
+                                value={editingRefTagVal}
+                                onChange={e => setEditingRefTagVal(e.target.value)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                    const v = editingRefTagVal.trim().replace(/^#/, '');
+                                    if (v && !refEditTags.includes(v)) setRefEditTags(prev => prev.map((t, idx) => idx === i ? v : t));
+                                    setEditingRefTagIdx(null);
+                                  }
+                                  if (e.key === 'Escape') setEditingRefTagIdx(null);
+                                }}
+                                onBlur={() => {
+                                  const v = editingRefTagVal.trim().replace(/^#/, '');
+                                  if (v && !refEditTags.includes(v)) setRefEditTags(prev => prev.map((t, idx) => idx === i ? v : t));
+                                  setEditingRefTagIdx(null);
+                                }}
+                                style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                              />
+                            ) : (
+                              <span
+                                onClick={() => { setEditingRefTagIdx(i); setEditingRefTagVal(tag); }}
+                                style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                                {tag}
+                              </span>
+                            )}
                           </div>
                           <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
                             ☰
