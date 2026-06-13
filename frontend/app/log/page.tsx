@@ -51,7 +51,7 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'fire
 import { imageFileToBase64 } from '@/lib/imageUtils';
 import type { RoutineItem } from '@/types/routine';
 import type { CtType } from '@/types/ctitem';
-import { DOMAIN_LABELS } from '@/types/ctitem';
+import { DOMAIN_LABELS, DOMAIN_LABELS_KO } from '@/types/ctitem';
 import type { LifetipItem } from '@/types/lifetip';
 import { getLifetipEmoji } from '@/types/lifetip';
 import { useAppContext } from '@/lib/AppContext';
@@ -1462,7 +1462,7 @@ function AddItemSheet({
         <div style={{ padding: '20px 20px 0' }}>
           <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
           <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 4 }}>
-            {ctType === 'makeup' ? 'Add Makeup' : 'Add Look'}
+            {ctType === 'makeup' ? '메이크업 추가' : '룩 추가'}
           </div>
           <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginBottom: 20 }}>등록 후 Library에서 Today 즉시 적용 가능</div>
 
@@ -1592,6 +1592,7 @@ function LogCtPanel({
   const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
   const ctType: CtType = filter === 'fashion' ? 'lookbook' : 'makeup';
   const colLabel = DOMAIN_LABELS[filter] ?? filter;
+  const colLabelKo = DOMAIN_LABELS_KO[filter] ?? filter;
   const icon = DOMAIN_EMOJIS[filter] ?? '📦';
 
   // 시트 상태
@@ -1861,7 +1862,7 @@ function LogCtPanel({
       <div style={{ padding: '0 16px', display: hiddenMode ? 'none' : undefined }}>
         {!hideAddButton && (
           <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', color: '#9A9490', cursor: 'pointer', marginBottom: 12 }}>
-            + Add {colLabel}
+            + 새 {colLabelKo} 등록
           </button>
         )}
         {items.length === 0 ? (
@@ -1873,7 +1874,7 @@ function LogCtPanel({
               <div style={{ padding: '10px 12px 0' }}>
                 <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: `${BADGE_COLOR}40`, color: '#9A9490', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>{BADGE}</div>
                 <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#C4C2BE', lineHeight: 1.2, marginBottom: 3 }}>No Items</div>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, color: '#C4C2BE', paddingBottom: 10 }}>Add via button above</div>
+                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, color: '#C4C2BE', paddingBottom: 10 }}>위 버튼으로 추가</div>
               </div>
               <div style={{ borderTop: '1px solid #0C0C0A', padding: '10px 12px', display: 'flex', gap: 6 }}>
                 <div style={{ flex: 1, padding: '8px 0', background: 'rgba(12,12,10,.04)', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C4C2BE', textAlign: 'center', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>Today OFF</div>
@@ -1902,7 +1903,7 @@ function LogCtPanel({
             <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
               <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
-                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A' }}>{editItem ? `Edit: ${editItem.name}` : `Add ${colLabel}`}</div>
+                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A' }}>{editItem ? `편집: ${editItem.name}` : `새 ${colLabelKo} 등록`}</div>
                 <button onClick={closeSheet} style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
               </div>
             </div>
@@ -4699,7 +4700,7 @@ function LogPageInner() {
               <div style={{ position: 'fixed', bottom: 156, right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 39, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
                 {fabDomains.map(domain => {
                   const isHealthDomain = domain === 'health';
-                  const label = isHealthDomain ? 'Add Life TIP' : `Add ${DOMAIN_LABELS[domain] ?? domain}`;
+                  const label = isHealthDomain ? 'Life TIP 등록' : `${DOMAIN_LABELS_KO[domain] ?? domain} 등록`;
                   const icon = isHealthDomain ? '📌' : (DOMAIN_EMOJIS[domain] ?? '📦');
                   return (
                     <button key={domain} type="button"
