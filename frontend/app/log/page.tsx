@@ -3792,11 +3792,40 @@ function LogPageInner() {
         {mainTab === '수집' && (() => {
           const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
           const PLATFORM_ICON: Record<string, string> = {
-            instagram: '📸',
-            youtube: '▶️',
-            pinterest: '📌',
+            instagram: '📷',
+            youtube: '🎬',
+            pinterest: '📍',
             other: '🔗',
           };
+          // 플랫폼 뱃지 아이콘 — YouTube/Instagram은 브랜드 SVG, 나머지는 이모지
+          // uniqueId: SVG gradient id 중복 방지용 (ref.id 사용)
+          function PlatformBadgeIcon({ platform, uniqueId }: { platform: string; uniqueId: string }) {
+            if (platform === 'youtube') return (
+              <svg width="11" height="8" viewBox="0 0 11 8" fill="none" style={{ flexShrink: 0 }}>
+                <rect width="11" height="8" rx="2" fill="#FF0000"/>
+                <path d="M4.5 2.2l3.2 1.8-3.2 1.8V2.2z" fill="white"/>
+              </svg>
+            );
+            if (platform === 'instagram') {
+              const gid = `ig-${uniqueId}`;
+              return (
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
+                  <defs>
+                    <linearGradient id={gid} x1="0" y1="10" x2="10" y2="0" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#FFDC80"/>
+                      <stop offset="30%" stopColor="#F77737"/>
+                      <stop offset="60%" stopColor="#E1306C"/>
+                      <stop offset="100%" stopColor="#833AB4"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="0.75" y="0.75" width="8.5" height="8.5" rx="2.2" stroke={`url(#${gid})`} strokeWidth="1.2"/>
+                  <circle cx="5" cy="5" r="1.8" stroke={`url(#${gid})`} strokeWidth="1.1"/>
+                  <circle cx="7.4" cy="2.6" r="0.6" fill="#C13584"/>
+                </svg>
+              );
+            }
+            return <span style={{ fontSize: 9 }}>{PLATFORM_ICON[platform] ?? '🔗'}</span>;
+          }
 
           // Life TIP에 등록된 카테고리 집합 — 태그 색상 구분에 사용
           const lifetipCategorySet = new Set(lifetipItems.map(i => i.tipCategory));
@@ -3887,7 +3916,7 @@ function LogPageInner() {
                       return (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, flexShrink: 0, height: 18, padding: '0 7px', borderRadius: 9999, background: `${pColor}18` }}>
-                            <span style={{ fontSize: 9 }}>{PLATFORM_ICON[platform]}</span>
+                            <PlatformBadgeIcon platform={platform} uniqueId={ref.id} />
                             <span style={{ fontFamily: f, fontSize: 9, fontWeight: 800, color: pColor, letterSpacing: '.06em', textTransform: 'uppercase' as const }}>
                               {PLATFORM_LABEL[platform]}
                             </span>
