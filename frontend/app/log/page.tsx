@@ -3077,7 +3077,7 @@ function LogPageInner() {
 
       let libraryItemId = '';
       if (refToLibType === 'lifetip') {
-        const category = refToLibTagArr[0]?.trim() || refToLibCatName || 'Life tip';
+        const category = refToLibCatName || 'Life tip';
         const emoji = refToLibEmoji.trim() || getLifetipEmoji(category);
         const newRef = await addDoc(collection(db, 'users', userId, 'lifetipItems'), {
           name: finalName,
@@ -3085,7 +3085,7 @@ function LogPageInner() {
           imageUrl: finalImageUrl,
           sourceUrl: finalUrl,
           tipCategory: category,
-          tags: refToLibTagArr.length ? refToLibTagArr : (refToLibCacheData?.tags ?? []),
+          tags: refToLibTagArr,
           memo: finalMemo || refToLibCacheData?.memo || '',
           productIds: refToLibCacheData?.productIds ?? [],
           published: false,
@@ -3252,12 +3252,9 @@ function LogPageInner() {
     setLifetipEditImageFile(null);
     setLifetipEditImagePreview(item.imageUrl ?? '');
     setLifetipEditMemo(item.memo || '');
-    // tipCategory(등록 시 태그) + tags 를 하나의 편집 리스트로 합침
-    const mergedTags = [...new Set([
-      ...(item.tipCategory ? [item.tipCategory] : []),
-      ...(item.tags ?? []),
-    ])];
-    setLifetipEditTags(mergedTags);
+    // 카테고리는 별도 표시, 태그에서 제외
+    const userTags = [...new Set((item.tags ?? []).filter(t => !categoryTags.includes(t) && t !== item.tipCategory))];
+    setLifetipEditTags(userTags);
     setLifetipEditPublished(item.published);
     setLifetipEditDates(item.dates ?? []);
     setLifetipTagEditOpen(false);
@@ -3273,8 +3270,8 @@ function LogPageInner() {
       const imageUrl = lifetipEditImageFile
         ? await imageFileToBase64(lifetipEditImageFile)
         : lifetipEditImagePreview;
-      // tipCategory: 태그 리스트 첫 번째 값 (라이브러리 내부 필터링용)
-      const newTipCategory = lifetipEditTags[0] || editingLifetip.tipCategory;
+      // tipCategory: 카테고리 레이블(Life tip / Makeup 등) 사용
+      const newTipCategory = lifetipEditCategoryLabel || editingLifetip.tipCategory;
       await updateDoc(doc(db, 'users', userId, 'lifetipItems', editingLifetip.id), {
         name: lifetipEditName.trim() || editingLifetip.name,
         emoji: lifetipEditEmoji.trim() || editingLifetip.emoji,
