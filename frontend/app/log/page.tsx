@@ -3252,9 +3252,12 @@ function LogPageInner() {
     setLifetipEditImageFile(null);
     setLifetipEditImagePreview(item.imageUrl ?? '');
     setLifetipEditMemo(item.memo || '');
-    // 카테고리는 별도 표시, 태그에서 제외
-    const userTags = [...new Set((item.tags ?? []).filter(t => !categoryTags.includes(t) && t !== item.tipCategory))];
-    setLifetipEditTags(userTags);
+    // tipCategory + tags 를 하나의 편집 리스트로 합침 (사용자가 직접 삭제 가능)
+    const mergedTags = [...new Set([
+      ...(item.tipCategory ? [item.tipCategory] : []),
+      ...(item.tags ?? []),
+    ])];
+    setLifetipEditTags(mergedTags);
     setLifetipEditPublished(item.published);
     setLifetipEditDates(item.dates ?? []);
     setLifetipTagEditOpen(false);
