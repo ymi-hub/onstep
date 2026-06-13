@@ -1100,11 +1100,11 @@ function RecentStrip({
                 padding: '8px 4px',
                 borderRadius: 12,
                 border: isSelected && today
-                  ? '1.5px solid #0C0C0A'
+                  ? '1.5px solid #FF8C42'
                   : isSelected
                   ? '2px solid rgba(0,0,0,0.5)'
                   : today
-                  ? '1.5px solid rgba(12,12,10,.2)'
+                  ? '1.5px solid #0C0C0A'
                   : '1.5px solid transparent',
                 background: isSelected && today
                   ? '#FF8C42'
