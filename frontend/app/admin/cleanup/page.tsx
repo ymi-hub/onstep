@@ -282,7 +282,7 @@ export default function CleanupPage() {
             {cacheCleared ? '✓ 캐시 삭제 완료' : '🗑 로컬 캐시 삭제'}
           </button>
           <button type="button" onClick={fixUndefinedFields} disabled={fixing || migrating}
-            style={{ padding: '9px 16px', background: fixing ? '#EBEBEB' : '#0C0C0A', color: fixing ? '#9A9490' : '#C5FF00', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, cursor: fixing ? 'default' : 'pointer' }}>
+            style={{ padding: '9px 16px', background: fixing ? '#EBEBEB' : '#0C0C0A', color: fixing ? '#9A9490' : '#6F4E37', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 700, cursor: fixing ? 'default' : 'pointer' }}>
             {fixing ? '정리 중...' : '① undefined 필드 정리'}
           </button>
           <button type="button" onClick={migrateToLibraryItems} disabled={migrating || fixing}
@@ -355,7 +355,7 @@ export default function CleanupPage() {
 
       {/* 하단 고정 삭제 버튼 */}
       {totalSelected > 0 && (
-        <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', padding: '12px 26px calc(env(safe-area-inset-bottom,0px) + 12px)', background: '#FAFAF8', borderTop: '1px solid rgba(12,12,10,.1)' }}>
+        <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', padding: '12px 26px calc(env(safe-area-inset-bottom,0px) + 12px)', background: '#F5EDE0', borderTop: '1px solid rgba(12,12,10,.1)' }}>
           <button onClick={deleteSelected} disabled={deleting}
             style={{ width: '100%', height: 50, background: '#DC2626', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: deleting ? .7 : 1 }}>
             {deleting ? '삭제 중…' : `선택한 ${totalSelected}개 영구 삭제`}

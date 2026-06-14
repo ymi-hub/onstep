@@ -21,18 +21,18 @@
  * 사용법: bg-bg, text-ink, text-mist, bg-lime, rounded-xl 등
  */
 @theme {
-  /* ── 색상 팔레트 ── */
-  --color-bg: #FAFAF8;
-  --color-surface: #F4F4F0;
-  --color-surface-low: #EEEDE9;
-  --color-surface-mid: #E4E2DC;
-  --color-surface-high: #D8D6CF;
-  --color-surface-inv: #0C0C0A;
-  --color-ink: #0C0C0A;
-  --color-sub: #4A4846;
-  --color-mist: #9A9490;
-  --color-lime: #C5FF00;
-  --color-lime-dark: #A6D900;
+  /* ── 색상 팔레트 (v2) ── */
+  --color-bg: #F5EDE0;
+  --color-surface: #FFFFFF;
+  --color-surface-low: #F5EDE0;
+  --color-surface-mid: #E5E5EA;
+  --color-surface-high: #D1D1D6;
+  --color-surface-inv: #1C1C1E;
+  --color-ink: #1C1C1E;
+  --color-sub: #3A3A3C;
+  --color-mist: #8E8E93;
+  --color-lime: #6F4E37;
+  --color-lime-dark: #4E3020;
   --color-lime-fg: #0C0C0A;
   --color-error: #D93025;
   --color-green: #1E6B4A;
@@ -77,14 +77,15 @@
   to   { transform: translateY(0);     opacity: 1; }
 }
 @keyframes alarmPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(197,255,0,.5); }
-  50%       { box-shadow: 0 0 0 8px rgba(197,255,0,.0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,93,107,.5); }
+  50%       { box-shadow: 0 0 0 8px rgba(232,93,107,.0); }
 }
 .alarm-banner-enter {
   animation: alarmSlideDown 0.35s cubic-bezier(.22,1,.36,1) forwards;
 }
 .alarm-banner-pulse {
   animation: alarmPulse 1.2s ease-in-out 3;
+
 }
 
 /* ── 기본 리셋 & body ── */
@@ -101,8 +102,8 @@ html {
 body {
   height: 100%;
   overflow: hidden; /* body 자체 스크롤 차단 — main 안에서만 스크롤 */
-  background-color: #E8E6E0;
-  color: #0C0C0A;
+  background-color: #E8DDD0;
+  color: #1C1C1E;
   font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

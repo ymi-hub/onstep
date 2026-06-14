@@ -49,6 +49,8 @@ import WeatherWidget from '@/components/WeatherWidget';
 import type { Product } from '@/types/product';
 import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
 import type { Habit } from '@/types/habit';
+import type { MedRoutine } from '@/types/medication';
+import type { HealthRoutine } from '@/types/healthroutine';
 import type { CtItem } from '@/types/ctitem';
 import type { LifetipItem } from '@/types/lifetip';
 import { EXPERT_TIP_HIGHLIGHT } from '@/components/ExpertTipField';
@@ -356,7 +358,7 @@ function FlowCard({
               fontWeight: 700,
               letterSpacing: '0.04em',
               background: tab === t ? '#0C0C0A' : 'transparent',
-              color: tab === t ? '#C5FF00' : '#BCBAB6',
+              color: tab === t ? '#6F4E37' : '#BCBAB6',
               transition: 'all .18s',
               position: 'relative',
             }}
@@ -365,7 +367,7 @@ function FlowCard({
             {/* 완료 시 SVG 고양이 뱃지 — 아침(라임) / 저녁(오렌지) */}
             {(t === 'morning' ? checked.morning : checked.evening) && (
               <span style={{ position: 'absolute', top: -8, right: -8, display: 'block', width: 20, height: 20 }}>
-                <CatBadge color={t === 'morning' ? '#C5FF00' : '#f7bc45'} size={20} />
+                <CatBadge color={t === 'morning' ? '#6F4E37' : '#f7bc45'} size={20} />
               </span>
             )}
           </button>
@@ -507,7 +509,7 @@ function FlowCard({
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '100%' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
                           <div style={{
-                            background: '#C5FF00', color: '#000000',
+                            background: '#6F4E37', color: '#000000',
                             fontFamily: f, fontWeight: 800, fontSize: 10, letterSpacing: '.06em',
                             padding: '3px 8px', borderRadius: 6, lineHeight: 1
                           }}>
@@ -551,7 +553,7 @@ function FlowCard({
                             cx="12"
                             cy="12"
                             r="9"
-                            stroke={isActiveTimer ? '#C5FF00' : 'rgba(12,12,10,0.15)'}
+                            stroke={isActiveTimer ? '#6F4E37' : 'rgba(12,12,10,0.15)'}
                             strokeWidth="2"
                             strokeDasharray="56.5"
                             strokeDashoffset={isActiveTimer ? 56.5 * (1 - (timerRemainMs / (waitMins * 60_000))) : 0}
@@ -621,7 +623,7 @@ function FlowCard({
                 );
               }
               if (item.type === 'tip') return (
-                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '0 8px', minWidth: 36, height: 22, background: 'rgba(197,255,0,.22)', borderRadius: 12, fontSize: 12, fontWeight: 800, color: '#4E7D00', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap', opacity: isChecked ? 0.45 : 1, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif" }}>
+                <div key={idx} style={{ flexShrink: 0, alignSelf: 'center', padding: '0 8px', minWidth: 36, height: 22, background: 'rgba(232,93,107,.22)', borderRadius: 12, fontSize: 12, fontWeight: 800, color: '#4E7D00', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap', opacity: isChecked ? 0.45 : 1, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif" }}>
                   {item.text || 'TIP'}
                 </div>
               );
@@ -652,7 +654,7 @@ function FlowCard({
             <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 400, color: '#BCBAB6' }}>
               {slot.items.filter(i => i.type === 'product').length}개 제품
             </span>
-            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase' as const, background: '#0C0C0A', color: '#A6D900', padding: '3px 10px', borderRadius: 9999 }}>
+            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase' as const, background: '#0C0C0A', color: '#4E3020', padding: '3px 10px', borderRadius: 9999 }}>
               Day {todayDayNumber}
             </span>
           </div>
@@ -664,14 +666,14 @@ function FlowCard({
               margin: '10px 0 4px',
               padding: '10px 14px',
               background: '#0C0C0A',
-              border: '1.5px solid #C5FF00',
+              border: '1.5px solid #6F4E37',
               borderRadius: 12,
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{
-                  width: 7, height: 7, borderRadius: '50%', background: '#C5FF00',
+                  width: 7, height: 7, borderRadius: '50%', background: '#6F4E37',
                   display: 'inline-block',
-                  boxShadow: '0 0 0 3px rgba(197,255,0,.3)',
+                  boxShadow: '0 0 0 3px rgba(232,93,107,.3)',
                   flexShrink: 0,
                 }} />
                 <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: 'rgba(255,255,255,.7)' }}>
@@ -679,7 +681,7 @@ function FlowCard({
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 22, fontWeight: 800, color: '#C5FF00', fontVariantNumeric: 'tabular-nums', letterSpacing: '.06em' }}>
+                <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 22, fontWeight: 800, color: '#6F4E37', fontVariantNumeric: 'tabular-nums', letterSpacing: '.06em' }}>
                   {formatTimerRemain(timerRemainMs)}
                 </span>
                 <button
@@ -730,7 +732,7 @@ function FlowCard({
                 height: 40,
                 width: '100%',
                 background: !hasProducts ? '#F4F4F0' : isChecked ? '#0C0C0A' : '#F4F4F0',
-                color: !hasProducts ? '#BCBAB6' : isChecked ? '#C5FF00' : '#4A4846',
+                color: !hasProducts ? '#BCBAB6' : isChecked ? '#6F4E37' : '#4A4846',
                 border: !hasProducts ? '1.5px solid rgba(12,12,10,.07)' : isChecked ? '1.5px solid #0C0C0A' : '1.5px solid rgba(12,12,10,.1)',
                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                 fontSize: 12,
@@ -747,7 +749,7 @@ function FlowCard({
                 <>
                   {tab === 'morning' ? '☀' : '🌙'} 스킨케어 체크 완료
                   <span style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4 }}>
-                    <CatBadge color={tab === 'morning' ? '#C5FF00' : '#f7bc45'} size={20} />
+                    <CatBadge color={tab === 'morning' ? '#6F4E37' : '#f7bc45'} size={20} />
                   </span>
                 </>
               ) : (
@@ -830,6 +832,249 @@ function TodayHabitSection({
   );
 }
 
+// ─── 통합 일일 체크인 섹션 (#Daily) ─────────────────────────────────────────────
+// #Habits + #Medication + #Health → 시간대별(아침/오후/저녁/종일) + 카테고리 탭 필터
+
+type DailyPeriod = 'am' | 'pm' | 'ev' | 'allday';
+type DailyFilter = 'all' | 'habit' | 'med' | 'health';
+
+// 시간 문자열("HH:MM")을 시간대로 분류
+function parsePeriodFromTime(t: string | undefined | null): DailyPeriod {
+  if (!t || !t.includes(':')) return 'allday';
+  const h = parseInt(t.split(':')[0], 10);
+  if (h >= 4 && h < 12) return 'am';
+  if (h >= 12 && h < 18) return 'pm';
+  return 'ev';
+}
+
+function DailyCheckSection({
+  todayHabits, habitChecked, onToggleHabit,
+  activeMeds, medChecked, onToggleMed,
+  visHealth, healthChecked, onToggleHealth,
+}: {
+  todayHabits: Habit[];
+  habitChecked: Set<string>;
+  onToggleHabit: (id: string) => void;
+  activeMeds: MedRoutine[];
+  medChecked: Set<string>;
+  onToggleMed: (id: string) => void;
+  visHealth: HealthRoutine[];
+  healthChecked: Set<string>;
+  onToggleHealth: (id: string) => void;
+}) {
+  const [filter, setFilter] = useState<DailyFilter>('all');
+  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+
+  // ── 약 시간 헬퍼 ──
+  const medDisplayTime = (m: MedRoutine): string => {
+    if (m.time?.trim()) return m.time;
+    const ts = m.times ?? [];
+    if (ts.includes('morning')) return '09:00';
+    if (ts.includes('lunch')) return '13:00';
+    if (ts.includes('bedtime')) return '22:00';
+    return '19:00';
+  };
+  const medPeriodOf = (m: MedRoutine): DailyPeriod => {
+    if (m.time?.trim()) return parsePeriodFromTime(m.time);
+    const ts = m.times ?? [];
+    if (ts.includes('morning')) return 'am';
+    if (ts.includes('lunch')) return 'pm';
+    return 'ev';
+  };
+
+  // ── 건강 대표 시간 헬퍼 ──
+  const healthPrimaryTime = (h: HealthRoutine): string => {
+    const timed = (h.entries ?? []).map(e => e.time).filter(t => t?.includes(':'));
+    if (timed.length > 0) return [...timed].sort()[0];
+    return (h.time?.includes(':')) ? h.time : '';
+  };
+
+  // ── 통합 아이템 리스트 구성 ──
+  type UnifiedItem =
+    | { kind: 'habit';  id: string; data: Habit;        period: DailyPeriod; sortKey: string; displayTime: string }
+    | { kind: 'med';    id: string; data: MedRoutine;   period: DailyPeriod; sortKey: string; displayTime: string }
+    | { kind: 'health'; id: string; data: HealthRoutine; period: DailyPeriod; sortKey: string; displayTime: string };
+
+  const allItems: UnifiedItem[] = [
+    ...todayHabits.map(h => ({
+      kind: 'habit' as const, id: h.id, data: h,
+      period: parsePeriodFromTime(h.time ?? null),
+      sortKey: h.time ?? '99:99',
+      displayTime: h.time ?? '',
+    })),
+    ...activeMeds.map(m => {
+      const dt = medDisplayTime(m);
+      return { kind: 'med' as const, id: m.id, data: m, period: medPeriodOf(m), sortKey: dt, displayTime: dt };
+    }),
+    ...visHealth.map(h => {
+      const t = healthPrimaryTime(h);
+      return { kind: 'health' as const, id: h.id, data: h, period: parsePeriodFromTime(t || null), sortKey: t || '99:99', displayTime: t };
+    }),
+  ];
+
+  if (allItems.length === 0) return null;
+
+  // ── 필터 적용 ──
+  const filtered = filter === 'all' ? allItems : allItems.filter(i => i.kind === filter);
+
+  // ── 완료 카운트 ──
+  const doneCount = filtered.filter(i => {
+    if (i.kind === 'habit')  return habitChecked.has(i.id);
+    if (i.kind === 'med')    return medChecked.has(i.id);
+    return healthChecked.has(i.id);
+  }).length;
+
+  // ── 시간대별 그룹화 ──
+  const PERIOD_DEFS: Array<{ key: DailyPeriod; label: string; emoji: string }> = [
+    { key: 'am',     label: '아침', emoji: '☀' },
+    { key: 'pm',     label: '오후', emoji: '🌤' },
+    { key: 'ev',     label: '저녁', emoji: '🌙' },
+    { key: 'allday', label: '종일', emoji: '✦' },
+  ];
+  const grouped = PERIOD_DEFS.map(p => ({
+    ...p,
+    items: filtered.filter(i => i.period === p.key).sort((a, b) => a.sortKey.localeCompare(b.sortKey)),
+  })).filter(g => g.items.length > 0);
+
+  // ── 행 렌더러 ──
+  const renderRow = (item: UnifiedItem) => {
+    if (item.kind === 'habit') {
+      const h = item.data;
+      const isDone = habitChecked.has(h.id);
+      // 미완료: 연한 파스텔 tint / 완료: 진한 파스텔 풀 배경
+      const BASE = '#C19070';  // 피치 오렌지
+      const bg  = isDone ? 'rgba(193,144,112,.18)' : 'rgba(193,144,112,.28)';
+      const textCol = isDone ? '#B0ABA5' : '#2D1F0E';
+      return (
+        <div key={`h-${h.id}`} onClick={() => onToggleHabit(h.id)}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: bg, cursor: 'pointer', transition: 'all .18s' }}>
+          <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(193,144,112,.4)' : BASE}`, background: isDone ? 'rgba(193,144,112,.3)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+            {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BASE} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+          </div>
+          <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '✦'}</span>
+          {h.time && h.repeatType !== 'allday' && (
+            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: isDone ? '#B0ABA5' : BASE, width: 42, flexShrink: 0 }}>{h.time}</span>
+          )}
+          <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: textCol, textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>{h.name}</span>
+        </div>
+      );
+    }
+    if (item.kind === 'med') {
+      const m = item.data;
+      const isDone = medChecked.has(m.id);
+      const BASE = '#8FA8B8';  // 스카이 블루 (시간대 무관 단일)
+      const bg  = isDone ? 'rgba(143,168,184,.18)' : 'rgba(143,168,184,.28)';
+      const textCol = isDone ? '#B0ABA5' : '#0E1E2D';
+      return (
+        <div key={`m-${m.id}`} onClick={() => onToggleMed(m.id)}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: bg, cursor: 'pointer', transition: 'all .18s' }}>
+          <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(143,168,184,.4)' : BASE}`, background: isDone ? 'rgba(143,168,184,.3)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+            {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BASE} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+          </div>
+          <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{m.icon || '💊'}</span>
+          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: isDone ? '#B0ABA5' : BASE, width: 42, flexShrink: 0 }}>{item.displayTime}</span>
+          <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: textCol, textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+        </div>
+      );
+    }
+    if (item.kind === 'health') {
+      const h = item.data;
+      const isDone = healthChecked.has(h.id);
+      const BASE = '#7A9E72';  // 민트 그린
+      const bg  = isDone ? 'rgba(122,158,114,.18)' : 'rgba(122,158,114,.28)';
+      const textCol = isDone ? '#B0ABA5' : '#0D2018';
+      const dBadge = (() => {
+        if (h.repeatType !== 'interval' || !h.intervalUnit || !h.intervalValue) return null;
+        const nd = calcNextDueDate(h.lastDoneDate, h.intervalUnit, h.intervalValue);
+        const d  = getDaysUntilDue(nd);
+        return { label: dueBadgeLabel(d), ...dueBadgeColor(d) };
+      })();
+      return (
+        <div key={`he-${h.id}`} onClick={() => onToggleHealth(h.id)}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: bg, cursor: 'pointer', transition: 'all .18s' }}>
+          <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(122,158,114,.4)' : BASE}`, background: isDone ? 'rgba(122,158,114,.3)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+            {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={BASE} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+          </div>
+          <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '🥗'}</span>
+          {dBadge ? (
+            <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: dBadge.bg, color: dBadge.color, padding: '2px 7px', borderRadius: 9999, flexShrink: 0 }}>{dBadge.label}</span>
+          ) : item.displayTime ? (
+            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: isDone ? '#B0ABA5' : BASE, width: 42, flexShrink: 0 }}>{item.displayTime}</span>
+          ) : null}
+          <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: textCol, textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>{h.name}</span>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // ── 필터 탭 (아이템 없는 카테고리는 숨김) ──
+  const ALL_FILTER_TABS: Array<{ key: DailyFilter; label: string; activeBg: string; activeText: string }> = [
+    { key: 'all',    label: '전체',   activeBg: '#6F4E37', activeText: '#fff' },
+    { key: 'habit',  label: 'Habits', activeBg: '#C19070', activeText: '#fff' },
+    { key: 'med',    label: 'Meds',   activeBg: '#8FA8B8', activeText: '#fff' },
+    { key: 'health', label: 'Health', activeBg: '#7A9E72', activeText: '#fff' },
+  ];
+  const FILTER_TABS = ALL_FILTER_TABS.filter(t =>
+    t.key === 'all' ||
+    (t.key === 'habit'  && todayHabits.length > 0) ||
+    (t.key === 'med'    && activeMeds.length > 0) ||
+    (t.key === 'health' && visHealth.length > 0)
+  );
+
+  return (
+    <div>
+      <SectionHeader title="#Daily" action={`${doneCount}/${filtered.length}`} />
+
+      {/* 카테고리 필터 탭 */}
+      <div style={{ display: 'flex', gap: 6, padding: '0 20px 12px', overflowX: 'auto', scrollbarWidth: 'none' as const }}>
+        {FILTER_TABS.map(tab => {
+          const isActive = filter === tab.key;
+          return (
+            <button key={tab.key} onClick={() => setFilter(tab.key)}
+              style={{
+                flexShrink: 0, height: 28, padding: '0 12px', borderRadius: 9999,
+                border: isActive ? 'none' : '1px solid rgba(12,12,10,.1)',
+                cursor: 'pointer', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em',
+                background: isActive ? tab.activeBg : 'transparent',
+                color: isActive ? tab.activeText : '#BCBAB6',
+                transition: 'all .18s',
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 시간대별 그룹 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, margin: '0 40px' }}>
+        {grouped.map(group => (
+          <div key={group.key}>
+            {/* 시간대 구분선 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#9A9490', letterSpacing: '.12em', textTransform: 'uppercase' as const }}>
+                {group.emoji} {group.label}
+              </span>
+              <div style={{ flex: 1, height: 1, background: 'rgba(12,12,10,.08)' }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {group.items.map(item => renderRow(item))}
+            </div>
+          </div>
+        ))}
+
+        {/* List → 링크들 */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 14, padding: '2px 4px 8px' }}>
+          {todayHabits.length > 0 && <Link href="/setup#tracker"    style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>Habits →</Link>}
+          {activeMeds.length  > 0 && <Link href="/setup#medication" style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>Meds →</Link>}
+          {visHealth.length   > 0 && <Link href="/setup#health"     style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>Health →</Link>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── 루틴 없을 때 빈 상태 카드 ─────────────────────────────────────────────────
 
 function RoutineEmptyCard() {
@@ -854,7 +1099,7 @@ function RoutineEmptyCard() {
           <div key={i} style={{ background: '#fff', borderRadius: 16, padding: '16px', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.04)', display: 'flex', alignItems: 'center', gap: 14 }}>
             {/* 번호 배지 */}
             <div style={{ width: 36, height: 36, borderRadius: '50%', background: i === 2 ? '#F4F4F0' : '#0C0C0A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: i === 2 ? '#BCBAB6' : '#C5FF00' }}>{s.num}</span>
+              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: i === 2 ? '#BCBAB6' : '#6F4E37' }}>{s.num}</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
@@ -864,7 +1109,7 @@ function RoutineEmptyCard() {
               <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>{s.desc}</div>
             </div>
             {s.href && (
-              <Link href={s.href} style={{ flexShrink: 0, height: 34, padding: '0 14px', background: '#C5FF00', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              <Link href={s.href} style={{ flexShrink: 0, height: 34, padding: '0 14px', background: '#6F4E37', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                 {s.cta}
               </Link>
             )}
@@ -916,7 +1161,7 @@ function LoginRequiredCard({ onLogin }: { onLogin: () => void }) {
         onClick={onLogin}
         style={{
           background: '#0C0C0A',
-          color: '#C5FF00',
+          color: '#6F4E37',
           border: 'none',
           borderRadius: 12,
           padding: '12px 24px',
@@ -994,7 +1239,7 @@ function OOTDSection({
           {allLibItems.map(item => {
             const isMakeup = item.ctType === 'makeup';
             const badgeLabel = isMakeup ? '#MAKEUP' : '#LOOKBOOK';
-            const badgeBg = isMakeup ? '#C5FF00' : '#FF8C42';
+            const badgeBg = isMakeup ? '#6F4E37' : '#FF8C42';
             const badgeText = isMakeup ? '#3A6000' : '#7A3000';
             const filter = isMakeup ? 'makeup' : 'lookbook';
             const prodIds = item.items
@@ -1101,7 +1346,7 @@ function OOTDSection({
           <div onClick={onRecord} style={{ border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 9999, minHeight: 52, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
             <div style={{ width: 36, height: 36, background: '#E8E6E0', borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>📷</div>
             <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: '#9A9490', flex: 1 }}>RECORD LOOK</span>
-            <div style={{ width: 30, height: 30, background: '#C5FF00', borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, lineHeight: 1, color: '#0C0C0A', flexShrink: 0, fontWeight: 300 }}>+</div>
+            <div style={{ width: 30, height: 30, background: '#6F4E37', borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, lineHeight: 1, color: '#0C0C0A', flexShrink: 0, fontWeight: 300 }}>+</div>
           </div>
         )}
 
@@ -1204,7 +1449,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             {/* Step 뱃지 (좌상단 플로팅) */}
             <div style={{
               position: 'absolute', top: 8, left: 8,
-              background: '#0C0C0A', color: '#C5FF00',
+              background: '#0C0C0A', color: '#6F4E37',
               fontFamily: f, fontWeight: 800, fontSize: 11, letterSpacing: '.06em',
               padding: '3px 8px', borderRadius: 6, lineHeight: 1
             }}>
@@ -1288,7 +1533,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '100%' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 6 }}>
                 <div style={{
-                  background: '#C5FF00', color: '#000000',
+                  background: '#6F4E37', color: '#000000',
                   fontFamily: f, fontWeight: 800, fontSize: 11, letterSpacing: '.06em',
                   padding: '3px 8px', borderRadius: 6, lineHeight: 1
                 }}>
@@ -1332,7 +1577,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   cx="12"
                   cy="12"
                   r="9"
-                  stroke={isActiveTimer ? '#C5FF00' : 'rgba(12,12,10,0.15)'}
+                  stroke={isActiveTimer ? '#6F4E37' : 'rgba(12,12,10,0.15)'}
                   strokeWidth="2"
                   strokeDasharray="56.5"
                   strokeDashoffset={isActiveTimer ? 56.5 * (1 - (timerRemainMs / (waitMins * 60_000))) : 0}
@@ -1409,8 +1654,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           style={{
             flexShrink: 0,
             padding: '6px 14px',
-            background: 'rgba(197,255,0,0.08)',
-            border: '1px solid rgba(197,255,0,0.25)',
+            background: 'rgba(232,93,107,0.08)',
+            border: '1px solid rgba(232,93,107,0.25)',
             borderRadius: 9999,
             fontSize: 12,
             fontWeight: 800,
@@ -1497,7 +1742,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div style={{
                       display: 'inline-block',
-                      background: '#C5FF00', color: '#000',
+                      background: '#6F4E37', color: '#000',
                       fontFamily: f, fontWeight: 900, fontSize: 11, letterSpacing: '.12em',
                       padding: '4px 8px', borderRadius: 4, lineHeight: 1
                     }}>
@@ -1539,7 +1784,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div style={{
                       display: 'inline-block',
-                      background: '#C5FF00', color: '#000',
+                      background: '#6F4E37', color: '#000',
                       fontFamily: f, fontWeight: 900, fontSize: 11, letterSpacing: '.12em',
                       padding: '4px 8px', borderRadius: 4, lineHeight: 1
                     }}>
@@ -1548,7 +1793,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     {item.category && (
                       <span style={{
                         display: 'inline-flex', alignItems: 'center',
-                        background: 'rgba(197,255,0,0.18)', color: '#C5FF00',
+                        background: 'rgba(232,93,107,0.18)', color: '#6F4E37',
                         fontFamily: f, fontWeight: 700, fontSize: 12, letterSpacing: '.08em',
                         padding: '4px 10px', borderRadius: 4,
                       }}>
@@ -1594,14 +1839,14 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                       marginTop: 14,
                       padding: '10px 14px',
                       background: '#0C0C0A',
-                      border: '1.5px solid #C5FF00',
+                      border: '1.5px solid #6F4E37',
                       borderRadius: 12,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{
-                          width: 7, height: 7, borderRadius: '50%', background: '#C5FF00',
+                          width: 7, height: 7, borderRadius: '50%', background: '#6F4E37',
                           display: 'inline-block',
-                          boxShadow: '0 0 0 3px rgba(197,255,0,.3)',
+                          boxShadow: '0 0 0 3px rgba(232,93,107,.3)',
                           flexShrink: 0,
                         }} />
                         <span style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.7)' }}>
@@ -1609,7 +1854,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                         </span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#C5FF00', fontVariantNumeric: 'tabular-nums', letterSpacing: '.06em' }}>
+                        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#6F4E37', fontVariantNumeric: 'tabular-nums', letterSpacing: '.06em' }}>
                           {formatTimerRemain(timerRemainMs)}
                         </span>
                         <button
@@ -1653,7 +1898,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     }
                     if (r.type === 'tip') {
                       return (
-                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: 'rgba(197,255,0,0.05)', borderRadius: 14, border: '1px solid rgba(197,255,0,0.25)', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
+                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: 'rgba(232,93,107,0.05)', borderRadius: 14, border: '1px solid rgba(232,93,107,0.25)', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
                           <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>💡</span>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#4E7D00', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>SPECIAL TIP</div>
@@ -2038,7 +2283,7 @@ function OOTDRecordSheet({
               key={t}
               type="button"
               onClick={() => onThemeChange(theme === t ? '' : t)}
-              style={{ padding: '5px 14px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#0A0A0A' : 'rgba(12,12,10,.14)'}`, background: theme === t ? '#0A0A0A' : 'transparent', color: theme === t ? '#C5FF00' : '#0C0C0A', fontFamily: f, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all .15s' }}
+              style={{ padding: '5px 14px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#0A0A0A' : 'rgba(12,12,10,.14)'}`, background: theme === t ? '#0A0A0A' : 'transparent', color: theme === t ? '#6F4E37' : '#0C0C0A', fontFamily: f, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all .15s' }}
             >
               {t}
             </button>
@@ -2168,7 +2413,7 @@ function OOTDRecordSheet({
             type="button"
             onClick={onSave}
             disabled={saving}
-            style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
+            style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#6F4E37', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
           >
             {saving ? '저장 중...' : '저장'}
           </button>
@@ -2190,7 +2435,7 @@ function OOTDRecordSheet({
       {tagEditOpen && (
         <>
           <div onClick={() => setTagEditOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 102 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, zIndex: 103, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 24px)', maxHeight: '75%', overflowY: 'auto', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, zIndex: 103, background: '#F5EDE0', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 24px)', maxHeight: '75%', overflowY: 'auto', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
             <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -2216,7 +2461,7 @@ function OOTDRecordSheet({
                     style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       opacity: isDragging ? 0.4 : 1,
-                      outline: isDragOver ? '2px dashed #C5FF00' : 'none',
+                      outline: isDragOver ? '2px dashed #6F4E37' : 'none',
                       outlineOffset: 2,
                       borderRadius: 14,
                       transition: 'opacity .15s, outline .1s',
@@ -3028,13 +3273,10 @@ export default function TodayPage() {
 
   // ── 렌더링 ──
   return (
-    <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
+    <div style={{ background: '#F5EDE0', minHeight: '100%' }}>
       <div style={{ paddingBottom: 100 }}>
-        {/* 페이지 헤더 — 공통 PageHeader 컴포넌트 */}
-        <PageHeader label="Today" title="Today" />
-
-        {/* 날씨 위젯 */}
-        <WeatherWidget />
+        {/* 페이지 헤더 — 날씨 위젯을 타이틀 오른쪽에 인라인 배치 */}
+        <PageHeader label="Today" title="Today" titleRight={<WeatherWidget compact />} />
 
         {/* ── FLOW 영역 헤더 ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '24px 20px 8px' }}>
@@ -3093,84 +3335,18 @@ export default function TodayPage() {
           <RoutineEmptyCard />
         )}
 
-        {/* 오늘의 습관 — 루틴 유무와 무관하게 항상 표시 (showInToday=true 전체) */}
-        <TodayHabitSection
+        {/* #Daily — 습관·약·건강 루틴 시간대별 통합 */}
+        <DailyCheckSection
           todayHabits={todayHabits}
           habitChecked={habitChecked}
-          onToggle={handleToggleHabit}
+          onToggleHabit={handleToggleHabit}
+          activeMeds={medRoutines.filter(m => m.showInToday || m.active)}
+          medChecked={medChecked}
+          onToggleMed={handleToggleMed}
+          visHealth={healthRoutines.filter(h => h.showInToday && isHealthToday(h))}
+          healthChecked={healthChecked}
+          onToggleHealth={handleToggleHealth}
         />
-
-        {/* 약 루틴 섹션 — 아침(04-12) / 오후(12-18) / 저녁(18-04) 3구간 */}
-        {(() => {
-          const fMed = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-          // showInToday=true 또는 active=true 인 약 루틴 모두 표시
-          const activeMeds = medRoutines.filter(m => m.showInToday || m.active);
-          if (activeMeds.length === 0) return null;
-
-          // 구간별 대표 시각
-          const slotTime = (m: typeof activeMeds[0], slot: 'am' | 'pm' | 'ev'): string => {
-            if (m.time && m.time.trim()) return m.time;
-            if (slot === 'am') return '09:00';
-            if (slot === 'pm') return '13:00';
-            return (m.times ?? []).includes('bedtime') ? '22:00' : '19:00';
-          };
-
-          // 구간 분류 (times 배열 우선, 없으면 time 필드 시간대 fallback)
-          const periodOf = (m: typeof activeMeds[0]): 'am' | 'pm' | 'ev' => {
-            if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
-            const ts = m.times ?? [];
-            if (ts.includes('morning')) return 'am';
-            if (ts.includes('lunch')) return 'pm';
-            if (ts.some((t: string) => t === 'evening' || t === 'bedtime')) return 'ev';
-            return 'ev';
-          };
-
-          // 시간창 필터 없이 구간별 전체 표시
-          const medLoggedIds = new Set(medLogs.map(l => l.routineId));
-          const visAm = activeMeds.filter(m => periodOf(m) === 'am');
-          const visPm = activeMeds.filter(m => periodOf(m) === 'pm');
-          const visEv = activeMeds.filter(m => periodOf(m) === 'ev');
-          const assignedIds = new Set([...visAm, ...visPm, ...visEv].map(m => m.id));
-          const orphanChecked = activeMeds.filter(m => medLoggedIds.has(m.id) && !assignedIds.has(m.id));
-
-          if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0 && orphanChecked.length === 0) return null;
-
-          const allVisMeds = [...visAm, ...visPm, ...visEv];
-          // 슬롯별 색상: 아침(파랑) · 점심(오렌지) · 저녁(핑크)
-          const slotColor = (s: 'am' | 'pm' | 'ev') => s === 'am' ? '#4285F4' : s === 'pm' ? '#E8A86B' : '#E86BAA';
-          const MedBar = ({ m, slot }: { m: typeof activeMeds[0]; slot: 'am' | 'pm' | 'ev' }) => {
-            const isDone = medChecked.has(m.id);
-            const col = slotColor(slot);
-            return (
-              <div onClick={() => handleToggleMed(m.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: 'transparent', border: `1px solid ${col}`, opacity: isDone ? 0.5 : 1, cursor: 'pointer', transition: 'opacity .18s' }}>
-                <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${col}`, background: isDone ? col : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                  {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                </div>
-                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 700, color: col, width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{slotTime(m, slot)}</span>
-                <span style={{ fontFamily: fMed, fontSize: 14, fontWeight: 700, color: col, textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
-              </div>
-            );
-          };
-
-          return (
-            <>
-              <SectionHeader title="#Medication" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 40px' }}>
-                {visAm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#4285F4', letterSpacing: '.1em', padding: '2px 2px 2px 4px' }}>아침</div>}
-                {visAm.map(m => <MedBar key={m.id} m={m} slot="am" />)}
-                {visPm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#E8A86B', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>오후</div>}
-                {visPm.map(m => <MedBar key={m.id} m={m} slot="pm" />)}
-                {visEv.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 800, color: '#E86BAA', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>저녁</div>}
-                {visEv.map(m => <MedBar key={m.id} m={m} slot="ev" />)}
-                {orphanChecked.map(m => <MedBar key={m.id} m={m} slot="ev" />)}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
-                  <Link href="/setup#medication" style={{ fontFamily: fMed, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
-                </div>
-              </div>
-            </>
-          );
-        })()}
 
         {/* 다이어트 플랜 섹션 — showInToday=true, 오늘 일차에 맞는 패턴 */}
         {dietPrograms.filter(p => p.showInToday).map(p => {
@@ -3228,7 +3404,7 @@ export default function TodayPage() {
               <SectionHeader
                 title="#Reset Plan"
                 action={
-                  <span style={{ background: '#0C0C0A', color: '#C5FF00', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 9999, letterSpacing: '.04em' }}>
+                  <span style={{ background: '#0C0C0A', color: '#6F4E37', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 9999, letterSpacing: '.04em' }}>
                     {beforeStart ? `D-${daysLeft}일 후 시작 · ${pat.label}` : `D+${dayN} · ${periodLabel} · ${pat.label}`}
                   </span>
                 }
@@ -3248,9 +3424,9 @@ export default function TodayPage() {
                   const isDone = dietChecked.has(key);
                   return (
                     <div key={slot.id} onClick={() => handleToggleDiet(p.id, slot.id)}
-                      style={{ padding: '12px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
+                      style={{ padding: '12px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(232,93,107,.08)' : 'transparent', transition: 'background .18s' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                        <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
+                        <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#6F4E37' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
                           {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -3271,7 +3447,7 @@ export default function TodayPage() {
                             }
                             return (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-                                {slot.time && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 800, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#C5FF00', padding: '2px 8px', borderRadius: 9999 }}>{slot.time}</span>}
+                                {slot.time && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 800, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#6F4E37', padding: '2px 8px', borderRadius: 9999 }}>{slot.time}</span>}
                                 <span style={{ fontFamily: fDiet, fontSize: 14, fontWeight: 600, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none' }}>
                                   {slot.label}{autoRange}
                                 </span>
@@ -3298,99 +3474,36 @@ export default function TodayPage() {
           );
         })}
 
-        {/* 건강 루틴 섹션 — showInToday=true + 오늘 날짜 해당 + ±1시간 창 */}
-        {(() => {
-          const fH = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-          const _hNowMin = today.getHours() * 60 + today.getMinutes();
-          const _hToMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
-          const _hInWin = (t: string) => { const tm = _hToMin(t); return _hNowMin >= tm - 60 && _hNowMin <= tm + 60; };
-          // 시간 있으면 ±1시간 창, 없으면 종일 노출
-          const isHealthVisible = (h: { time?: string; entries?: { time: string }[] }) => {
-            const timedEntries = (h.entries ?? []).filter(e => e.time && e.time.includes(':'));
-            if (timedEntries.length > 0) return timedEntries.some(e => _hInWin(e.time));
-            if (h.time && h.time.includes(':')) return _hInWin(h.time);
-            return true;
-          };
-          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h));
-          if (visHealth.length === 0) return null;
-          // 대표 시간: entries 중 가장 이른 시간, 없으면 h.time, 없으면 ''
-          const primaryTime = (h: { time?: string; entries?: { time: string }[] }) => {
-            const timed = (h.entries ?? []).map(e => e.time).filter(t => t && t.includes(':'));
-            if (timed.length > 0) return timed.sort()[0];
-            return h.time && h.time.includes(':') ? h.time : '';
-          };
-          return (
-          <div>
-            <SectionHeader title="#Health" action={`${visHealth.length}개`} />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '0 40px' }}>
-              {visHealth.map((h) => {
-                const isDone = healthChecked.has(h.id);
-                const pt = primaryTime(h);
-                // interval 루틴 D-N 배지
-                const dBadge = (() => {
-                  if (h.repeatType !== 'interval' || !h.intervalUnit || !h.intervalValue) return null;
-                  const nd = calcNextDueDate(h.lastDoneDate, h.intervalUnit, h.intervalValue);
-                  const d = getDaysUntilDue(nd);
-                  return { label: dueBadgeLabel(d), ...dueBadgeColor(d) };
-                })();
-                return (
-                  <div key={h.id} onClick={() => handleToggleHealth(h.id)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: 'rgb(8,191,16)', opacity: isDone ? 0.5 : 1, cursor: 'pointer', transition: 'opacity .18s' }}>
-                    {/* 동그라미 체크 */}
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.85)', background: isDone ? '#fff' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                      {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgb(8,191,16)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                    </div>
-                    {/* 아이콘 */}
-                    <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '🥗'}</span>
-                    {/* 시간 또는 D-N 배지 */}
-                    {dBadge ? (
-                      <span style={{ fontFamily: fH, fontSize: 10, fontWeight: 800, background: dBadge.bg, color: dBadge.color, padding: '2px 7px', borderRadius: 9999, flexShrink: 0 }}>{dBadge.label}</span>
-                    ) : pt ? (
-                      <span style={{ fontFamily: fH, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{pt}</span>
-                    ) : null}
-                    {/* 이름 */}
-                    <span style={{ fontFamily: fH, fontSize: 14, fontWeight: 700, color: '#fff', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>
-                      {h.name}
-                    </span>
-                  </div>
-                );
-              })}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
-                <Link href="/setup#health" style={{ fontFamily: fH, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
-              </div>
-            </div>
-          </div>
-          );
-        })()}
 
-        {/* 비로그인 시 Habits · Medication · Health · OOTD 기능 소개 */}
+        {/* 비로그인 시 #Daily 기능 소개 */}
         {!user && !authLoading && (() => {
           const fT = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-          const TeaserCard = ({ icon, title, desc, col }: { icon: string; title: string; desc: string; col: string }) => (
-            <div style={{ margin: '0 20px', padding: '14px 20px', background: '#fff', borderRadius: 16, border: `1.5px solid ${col}22`, display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: `${col}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{icon}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: fT, fontSize: 13, fontWeight: 800, color: '#0C0C0A', letterSpacing: '.04em' }}>{title}</div>
-                <div style={{ fontFamily: fT, fontSize: 11, color: '#9A9490', marginTop: 2 }}>{desc}</div>
-              </div>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: col, flexShrink: 0 }} />
-            </div>
-          );
           return (
             <>
-              <SectionHeader title="#Habits" />
-              <TeaserCard icon="🗓" title="습관 트래커" desc="매일 반복할 습관을 등록하고 체크하세요" col="#F5A623" />
-              <SectionHeader title="#Medication" />
-              <TeaserCard icon="💊" title="약 루틴" desc="복용 약과 시간을 등록해 타이밍을 놓치지 마세요" col="#6B7CE8" />
-              <SectionHeader title="#Health" />
-              <TeaserCard icon="🏃" title="건강 루틴" desc="운동, 수분, 수면 등 건강 루틴을 관리하세요" col="#4CAF50" />
+              <SectionHeader title="#Daily" />
+              <div style={{ margin: '0 20px', background: '#fff', borderRadius: 16, border: '1px solid rgba(12,12,10,.07)', overflow: 'hidden' }}>
+                {[
+                  { icon: '🗓', label: 'Habits',     desc: '매일 반복할 습관을 체크하세요',             col: 'rgb(254,160,4)' },
+                  { icon: '💊', label: 'Meds',       desc: '복용 약과 시간을 등록해 타이밍을 놓치지 마세요', col: '#4285F4' },
+                  { icon: '🏃', label: 'Health',     desc: '운동, 수분, 수면 등 건강 루틴을 관리하세요',  col: 'rgb(8,191,16)' },
+                ].map((item, i) => (
+                  <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderTop: i > 0 ? '1px solid rgba(12,12,10,.06)' : 'none' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: `${item.col}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{item.icon}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: fT, fontSize: 12, fontWeight: 800, color: item.col, letterSpacing: '.06em' }}>{item.label}</div>
+                      <div style={{ fontFamily: fT, fontSize: 11, color: '#9A9490', marginTop: 1 }}>{item.desc}</div>
+                    </div>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: item.col, flexShrink: 0 }} />
+                  </div>
+                ))}
+              </div>
             </>
           );
         })()}
 
         {/* ── MY EDIT 영역 — Today ON으로 지정한 콘텐츠 ── */}
         {/* INTENSIVE PROGRAM(라임 뱃지·다크 카드)과 시각적으로 분리 → 웜 에디토리얼 톤 */}
-        <div style={{ margin: '28px 20px 0', border: '1px solid rgba(12,12,10,.1)', borderRadius: 20, overflow: 'hidden', background: '#FAFAF8' }}>
+        <div style={{ margin: '28px 20px 0', border: '1px solid rgba(12,12,10,.1)', borderRadius: 20, overflow: 'hidden', background: '#F5EDE0' }}>
 
           {/* MY EDIT 헤더 — 따뜻한 페이퍼 톤, 라임 없음 */}
           <div style={{ background: '#F0EDE6', padding: '14px 20px 12px', borderBottom: '1px solid rgba(100,70,40,.1)', display: 'flex', alignItems: 'center', gap: 12 }}>

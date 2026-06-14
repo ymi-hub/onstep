@@ -7,7 +7,7 @@ import { FONT } from '@/lib/constants';
 export type BadgeKey = 'beauty' | 'fashion' | 'acc' | 'interior' | 'lifetip' | 'ootd';
 
 export const BADGE_CONFIG: Record<BadgeKey, { bg: string; text: string; label: string }> = {
-  beauty:   { bg: '#C5FF00', text: '#3A6000', label: '#MAKEUP'    },
+  beauty:   { bg: '#6F4E37', text: '#3A6000', label: '#MAKEUP'    },
   fashion:  { bg: '#FF8C42', text: '#7A3000', label: '#LOOKBOOK'  },
   acc:      { bg: '#FFD700', text: '#7A5A00', label: '#ACCESSORY' },
   interior: { bg: '#69DB7C', text: '#1E6B30', label: '#INTERIOR'  },

@@ -15,7 +15,7 @@ const WMO_MAP: Record<number, [string, string]> = {
   95: ['뇌우', '⛈'], 96: ['뇌우+우박', '⛈'], 99: ['강한 뇌우', '⛈'],
 };
 
-export default function WeatherWidget() {
+export default function WeatherWidget({ compact }: { compact?: boolean }) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [locName, setLocName] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -91,7 +91,7 @@ export default function WeatherWidget() {
 
   if (loading || !requested) {
     return (
-      <div style={{ padding: '10px 26px 4px' }}>
+      <div style={compact ? undefined : { padding: '10px 26px 4px' }}>
         <div style={{ fontFamily: FONT, fontSize: 12, color: '#BCBAB6' }}>날씨 불러오는 중…</div>
       </div>
     );
@@ -100,7 +100,7 @@ export default function WeatherWidget() {
   if (error) {
     if (error === 'denied') {
       return (
-        <div style={{ padding: '10px 26px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ ...(compact ? {} : { padding: '10px 26px 4px' }), display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontFamily: FONT, fontSize: 12, color: '#9A9490' }}>📍 위치 권한 필요</span>
           <a
             href="app-settings:"
@@ -121,7 +121,7 @@ export default function WeatherWidget() {
       );
     }
     return (
-      <div style={{ padding: '10px 26px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ ...(compact ? {} : { padding: '10px 26px 4px' }), display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ fontFamily: FONT, fontSize: 12, color: '#9A9490' }}>날씨 정보 없음</span>
         <button onClick={() => { setError(''); fetchWeather(); }} style={{ background: 'none', border: 'none', fontFamily: FONT, fontSize: 11, color: '#9A9490', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>재시도</button>
       </div>
@@ -131,8 +131,8 @@ export default function WeatherWidget() {
   if (!weather) return null;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 26px 4px' }}>
-      <div style={{ width: 40, height: 40, background: '#C5FF00', borderRadius: 10, border: '2px solid #91C000', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, lineHeight: 1 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, ...(compact ? {} : { padding: '10px 26px 4px' }) }}>
+      <div style={{ width: 40, height: 40, background: '#6F4E37', borderRadius: 10, border: '2px solid #91C000', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, lineHeight: 1 }}>
         {weather.emoji}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

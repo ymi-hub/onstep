@@ -55,7 +55,7 @@ export default function SubPageHeader({ title, onClose, right }: SubPageHeaderPr
       {/* 중앙: 라임 뱃지 타이틀 */}
       <div
         style={{
-          background: '#C5FF00',
+          background: '#6F4E37',
           color: '#0C0C0A',
           fontFamily: F,
           fontSize: 11,

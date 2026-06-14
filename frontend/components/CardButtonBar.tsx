@@ -24,7 +24,7 @@ export default function CardButtonBar({
         style={{
           flex: 1, padding: '12px 0',
           background: isOnToday ? '#0C0C0A' : '#F3F3F1',
-          color: isOnToday ? '#C5FF00' : '#0C0C0A',
+          color: isOnToday ? '#6F4E37' : '#0C0C0A',
           border: 'none', borderRight: '1px solid #000000', borderRadius: 0,
           fontFamily: FONT, fontSize: 12, fontWeight: 700,
           letterSpacing: '.06em', textTransform: 'uppercase',

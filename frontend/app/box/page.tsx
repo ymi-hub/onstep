@@ -403,7 +403,7 @@ function MagResBar({ product }: { product: Product }) {
   return (
     <>
       <div style={{ height: 3, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden', marginBottom: 4 }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: '#C5FF00', borderRadius: 2 }} />
+        <div style={{ height: '100%', width: `${pct}%`, background: '#6F4E37', borderRadius: 2 }} />
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9A9490', gap: 2, flexWrap: 'nowrap' as const }}>
         <span style={{ whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1, minWidth: 0 }}>
@@ -467,7 +467,7 @@ function ProductCard({
       {/* 상단 잔량 바 — 스킨케어(beauty)만 표시 */}
       {isSkincare && (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'rgba(0,0,0,.12)', zIndex: 1 }}>
-          <div style={{ height: '100%', width: `${fillRate * 100}%`, background: '#C5FF00' }} />
+          <div style={{ height: '100%', width: `${fillRate * 100}%`, background: '#6F4E37' }} />
         </div>
       )}
 
@@ -504,7 +504,7 @@ function ProductCard({
               fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
             }}
           >
-            <span style={{ color: '#C5FF00' }}>
+            <span style={{ color: '#6F4E37' }}>
               {product.itemUnit === '개' || product.itemUnit === 'ea'
                 ? `${formattedRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
                 : `${formattedRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
@@ -584,7 +584,7 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
       {product.totalAmount > 0 && product.currentRemaining != null && (
         <div style={{ width: 75, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
           <div style={{ height: 3, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${pct}%`, background: '#C5FF00', borderRadius: 2 }} />
+            <div style={{ height: '100%', width: `${pct}%`, background: '#6F4E37', borderRadius: 2 }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 3, gap: 2 }}>
             <span>{pct}%</span>
@@ -1326,7 +1326,7 @@ export default function BoxPage() {
   }
 
   return (
-    <div style={{ background: '#FAFAF8', minHeight: '100%', position: 'relative' }}>
+    <div style={{ background: '#F5EDE0', minHeight: '100%', position: 'relative' }}>
       {/* 비로그인 안내 */}
       {!authLoading && !user && (
         <div style={{ background: '#FEF3C7', color: '#92400E', padding: '8px 16px', fontSize: 13, borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1358,7 +1358,7 @@ export default function BoxPage() {
               fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
               fontSize: 12, fontWeight: 800, letterSpacing: '.02em',
               color: boxView === v ? '#0C0C0A' : '#9A9490',
-              borderBottom: boxView === v ? '2px solid #C5FF00' : '2px solid transparent',
+              borderBottom: boxView === v ? '2px solid #6F4E37' : '2px solid transparent',
               transition: 'all .18s',
             }}
           >
@@ -1444,7 +1444,7 @@ export default function BoxPage() {
                 <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.5)', letterSpacing: '.06em', marginBottom: 4 }}>
                   {spendingFilter === 'all' ? '전체 월 추정 지출' : `${domainLabels[spendingFilter]} 월 추정 지출`}
                 </div>
-                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#C5FF00', lineHeight: 1 }}>
+                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#6F4E37', lineHeight: 1 }}>
                   {Math.round(filteredMonthlyTotal).toLocaleString()}원
                 </div>
                 <div style={{ fontFamily: f, fontSize: 10, color: 'rgba(255,255,255,.4)', marginTop: 4 }}>
@@ -1471,7 +1471,7 @@ export default function BoxPage() {
                   padding: '6px 14px', borderRadius: 9999,
                   border: `1.5px solid ${spendingFilter === 'all' ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
                   background: spendingFilter === 'all' ? '#0C0C0A' : 'transparent',
-                  color: spendingFilter === 'all' ? '#C5FF00' : '#0C0C0A',
+                  color: spendingFilter === 'all' ? '#6F4E37' : '#0C0C0A',
                   fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
                   cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .15s',
                 }}
@@ -1486,7 +1486,7 @@ export default function BoxPage() {
                     padding: '6px 14px', borderRadius: 9999,
                     border: `1.5px solid ${spendingFilter === id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
                     background: spendingFilter === id ? '#0C0C0A' : 'transparent',
-                    color: spendingFilter === id ? '#C5FF00' : '#0C0C0A',
+                    color: spendingFilter === id ? '#6F4E37' : '#0C0C0A',
                     fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
                     cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .15s',
                   }}
@@ -1542,7 +1542,7 @@ export default function BoxPage() {
                     </div>
                     {/* CPD 상대 바 */}
                     <div style={{ height: 4, background: 'rgba(12,12,10,.07)', borderRadius: 9999, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${barWidth}%`, background: idx === 0 ? '#C5FF00' : '#0C0C0A', opacity: idx === 0 ? 1 : 0.25 + (0.6 * (1 - idx / filteredPriced.length)), borderRadius: 9999 }} />
+                      <div style={{ height: '100%', width: `${barWidth}%`, background: idx === 0 ? '#6F4E37' : '#0C0C0A', opacity: idx === 0 ? 1 : 0.25 + (0.6 * (1 - idx / filteredPriced.length)), borderRadius: 9999 }} />
                     </div>
                   </div>
                 );
@@ -1580,7 +1580,7 @@ export default function BoxPage() {
                 fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
                 color: activeTab === id ? '#0C0C0A' : '#9A9490',
                 background: 'none', border: 'none', cursor: 'pointer',
-                borderBottom: activeTab === id ? '3px solid #C5FF00' : '3px solid transparent',
+                borderBottom: activeTab === id ? '3px solid #6F4E37' : '3px solid transparent',
                 transition: 'all .18s', whiteSpace: 'nowrap',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
               }}
@@ -1605,7 +1605,7 @@ export default function BoxPage() {
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
               color: activeTab === 'all' ? '#0C0C0A' : '#9A9490',
               background: 'none', border: 'none', cursor: 'pointer',
-              borderBottom: activeTab === 'all' ? '3px solid #C5FF00' : '3px solid transparent',
+              borderBottom: activeTab === 'all' ? '3px solid #6F4E37' : '3px solid transparent',
               transition: 'all .18s', lineHeight: 1,
             }}
           >
@@ -1675,7 +1675,7 @@ export default function BoxPage() {
                 fontSize: 12, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase',
                 color: subType === st.id ? '#0C0C0A' : '#9A9490',
                 background: 'none', border: 'none', cursor: 'pointer',
-                borderBottom: subType === st.id ? '2px solid #C5FF00' : '2px solid transparent',
+                borderBottom: subType === st.id ? '2px solid #6F4E37' : '2px solid transparent',
                 transition: 'all .18s',
               }}
             >
@@ -1705,7 +1705,7 @@ export default function BoxPage() {
                 background: activeCategory === cat ? (cat === '미분류' ? '#B45309' : '#0C0C0A') : 'transparent',
                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                 fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-                color: activeCategory === cat ? (cat === '미분류' ? '#fff' : '#C5FF00') : (cat === '미분류' ? '#B45309' : '#4A4846'),
+                color: activeCategory === cat ? (cat === '미분류' ? '#fff' : '#6F4E37') : (cat === '미분류' ? '#B45309' : '#4A4846'),
                 cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .18s',
               }}
             >
@@ -1933,7 +1933,7 @@ export default function BoxPage() {
                         padding: '8px 16px 6px',
                         fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                         fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase',
-                        color: '#9A9490', background: '#FAFAF8',
+                        color: '#9A9490', background: '#F5EDE0',
                         borderBottom: '1px solid rgba(12,12,10,.07)',
                         borderTop: '1px solid rgba(12,12,10,.04)',
                       }}
@@ -1976,10 +1976,10 @@ export default function BoxPage() {
           style={{
             position: 'fixed', bottom: 88, right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 40,
             width: 52, height: 52, borderRadius: 9999,
-            background: '#C5FF00', color: '#0C0C0A',
+            background: '#6F4E37', color: '#0C0C0A',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 22, fontWeight: 700, cursor: 'pointer', border: 'none',
-            boxShadow: '0 4px 20px rgba(197,255,0,.4)',
+            boxShadow: '0 4px 20px rgba(232,93,107,.4)',
             transition: 'transform .18s',
           }}
           aria-label="제품 추가"
@@ -2018,7 +2018,7 @@ export default function BoxPage() {
               background: '#0C0C0A',
               fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
               fontSize: 12, fontWeight: 800, letterSpacing: '.04em',
-              color: '#C5FF00', cursor: 'pointer',
+              color: '#6F4E37', cursor: 'pointer',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -2464,7 +2464,7 @@ function ManageSheet({
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
 
       {/* 시트 */}
-      <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
 
         {/* 핸들 + 헤더 */}
         <div style={{ padding: '12px 16px 0', flexShrink: 0 }}>
@@ -2506,7 +2506,7 @@ function ManageSheet({
                     gap: 12,
                     marginBottom: 12,
                     opacity: dragDomIdx === idx ? 0.4 : 1,
-                    outline: dragDomOver === idx ? '2px dashed #C5FF00' : 'none',
+                    outline: dragDomOver === idx ? '2px dashed #6F4E37' : 'none',
                     outlineOffset: 2,
                     borderRadius: 4
                   }}
@@ -2578,7 +2578,7 @@ function ManageSheet({
                         onChange={(e) => setRenameVal(e.target.value)}
                         onBlur={() => { if (renameVal.trim()) renameDomain(d.id, renameVal.trim()); else setRenamingDomainId(null); }}
                         onKeyDown={(e) => { if (e.key === 'Enter') { if (renameVal.trim()) renameDomain(d.id, renameVal.trim()); } else if (e.key === 'Escape') setRenamingDomainId(null); }}
-                        style={{ flex: 1, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', background: 'transparent', padding: '2px 0' }}
+                        style={{ flex: 1, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #6F4E37', outline: 'none', background: 'transparent', padding: '2px 0' }}
                       />
                     ) : (
                       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
@@ -2632,7 +2632,7 @@ function ManageSheet({
                   placeholder="새 도메인 이름..."
                   style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, padding: '9px 12px', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }}
                 />
-                <button onClick={addDomain} style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
+                <button onClick={addDomain} style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0C0C0A', color: '#6F4E37', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
           )}
@@ -2653,7 +2653,7 @@ function ManageSheet({
                         onDragOver={(e) => { e.preventDefault(); setDragStOver(idx); }}
                         onDrop={(e) => { e.preventDefault(); if (dragStIdx != null) moveSubType(dragStIdx, idx); setDragStIdx(null); setDragStOver(null); }}
                         onDragEnd={() => { setDragStIdx(null); setDragStOver(null); }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 4, opacity: dragStIdx === idx ? 0.4 : 1, outline: dragStOver === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 9999 }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 4, opacity: dragStIdx === idx ? 0.4 : 1, outline: dragStOver === idx ? '2px dashed #6F4E37' : 'none', outlineOffset: 2, borderRadius: 9999 }}
                       >
                         {renamingSubTypeId === st.id ? (
                           <input
@@ -2662,7 +2662,7 @@ function ManageSheet({
                             onChange={(e) => setRenameVal(e.target.value)}
                             onBlur={() => { if (renameVal.trim()) renameSubType(st.id, renameVal.trim()); else setRenamingSubTypeId(null); }}
                             onKeyDown={(e) => { if (e.key === 'Enter') { if (renameVal.trim()) renameSubType(st.id, renameVal.trim()); } else if (e.key === 'Escape') setRenamingSubTypeId(null); }}
-                            style={{ width: 80, border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', fontFamily: f, fontSize: 12, fontWeight: 700, background: 'transparent', padding: '2px 4px' }}
+                            style={{ width: 80, border: 'none', borderBottom: '2px solid #6F4E37', outline: 'none', fontFamily: f, fontSize: 12, fontWeight: 700, background: 'transparent', padding: '2px 4px' }}
                           />
                         ) : (
                           <button
@@ -2679,7 +2679,7 @@ function ManageSheet({
                     {/* 서브타입 추가 */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <input value={newSubTypeLabel} onChange={(e) => setNewSubTypeLabel(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) addSubType(); }} placeholder="서브타입..." style={{ width: 80, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9999, padding: '5px 10px', fontFamily: f, fontSize: 11, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
-                      <button onClick={addSubType} style={{ padding: '5px 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>+</button>
+                      <button onClick={addSubType} style={{ padding: '5px 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#6F4E37', fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>+</button>
                     </div>
                   </div>
                 </div>
@@ -2709,7 +2709,7 @@ function ManageSheet({
                     gap: 12,
                     marginBottom: 12,
                     opacity: dragCatIdx === idx ? 0.4 : 1,
-                    outline: dragCatOver === idx ? '2px dashed #C5FF00' : 'none',
+                    outline: dragCatOver === idx ? '2px dashed #6F4E37' : 'none',
                     outlineOffset: 2,
                     borderRadius: 4
                   }}
@@ -2819,7 +2819,7 @@ function ManageSheet({
                   placeholder="카테고리 이름..."
                   style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, padding: '9px 12px', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }}
                 />
-                <button onClick={addCat} style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
+                <button onClick={addCat} style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0C0C0A', color: '#6F4E37', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
           )}
@@ -3098,7 +3098,7 @@ function AddProductPage({
                       fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                       fontSize: 10,
                       fontWeight: 800,
-                      color: '#C5FF00',
+                      color: '#6F4E37',
                       background: '#0C0C0A',
                       border: 'none',
                       borderRadius: 9999,
@@ -3151,7 +3151,7 @@ function AddProductPage({
                           padding: '7px 16px 7px 0',
                           marginRight: 4,
                           background: 'none', border: 'none',
-                          borderBottom: subType === st.id ? '2.5px solid #C5FF00' : '2.5px solid transparent',
+                          borderBottom: subType === st.id ? '2.5px solid #6F4E37' : '2.5px solid transparent',
                           marginBottom: -1.5,
                           fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                           fontSize: 13, fontWeight: subType === st.id ? 700 : 500,
@@ -3196,7 +3196,7 @@ function AddProductPage({
                           background: form.category === cat ? '#0C0C0A' : 'transparent',
                           fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                           fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const,
-                          color: form.category === cat ? '#C5FF00' : '#9A9490',
+                          color: form.category === cat ? '#6F4E37' : '#9A9490',
                           cursor: 'pointer', borderRadius: 6, transition: 'all .15s',
                         }}
                       >
@@ -3481,7 +3481,7 @@ function AddProductPage({
                       <div style={{
                         height: '100%',
                         width: `${Math.min(100, (currentCount / Math.max(1, (isSkincare && isCountMode ? form.packageCount : totalAmount))) * 100)}%`,
-                        background: '#C5FF00', transition: 'width .3s',
+                        background: '#6F4E37', transition: 'width .3s',
                       }} />
                     </div>
                   </div>
@@ -3748,7 +3748,7 @@ function AddProductPage({
 
                 {/* 펼쳐지는 편집 패널 */}
                 {locPanelOpen && (
-                  <div style={{ marginTop: 6, border: '1.5px solid rgba(12,12,10,.1)', borderRadius: 12, background: '#FAFAF8' }}>
+                  <div style={{ marginTop: 6, border: '1.5px solid rgba(12,12,10,.1)', borderRadius: 12, background: '#F5EDE0' }}>
 
                     {/* 위치 목록 */}
                     <div style={{ display: 'flex', flexDirection: 'column', padding: '10px 10px 2px' }}>
@@ -3763,7 +3763,7 @@ function AddProductPage({
                           onDragOver={e => { e.preventDefault(); setDragLocOverIdx(idx); }}
                           onDrop={e => { e.preventDefault(); if (dragLocIdx != null) moveLoc(dragLocIdx, idx); setDragLocIdx(null); setDragLocOverIdx(null); }}
                           onDragEnd={() => { setDragLocIdx(null); setDragLocOverIdx(null); }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, opacity: dragLocIdx === idx ? 0.4 : 1, outline: dragLocOverIdx === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 4 }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, opacity: dragLocIdx === idx ? 0.4 : 1, outline: dragLocOverIdx === idx ? '2px dashed #6F4E37' : 'none', outlineOffset: 2, borderRadius: 4 }}
                         >
                           {/* 좌측 빨간 삭제 버튼 */}
                           <button type="button" onClick={() => removeLocation(idx)} style={{ width: 20, height: 20, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, cursor: 'pointer', flexShrink: 0, lineHeight: 1 }} aria-label="삭제">-</button>
@@ -3774,7 +3774,7 @@ function AddProductPage({
                             <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#EEEDE9', color: '#9A9490', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{idx + 1}</div>
 
                             {editLocIdx === idx ? (
-                              <input autoFocus value={editLocName} onChange={e => setEditLocName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveEditLoc(idx); if (e.key === 'Escape') { setEditLocIdx(null); setEditLocName(''); } }} onBlur={() => saveEditLoc(idx)} style={{ flex: 1, fontFamily: f2, fontSize: 13, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', background: 'transparent', padding: '2px 0' }} />
+                              <input autoFocus value={editLocName} onChange={e => setEditLocName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveEditLoc(idx); if (e.key === 'Escape') { setEditLocIdx(null); setEditLocName(''); } }} onBlur={() => saveEditLoc(idx)} style={{ flex: 1, fontFamily: f2, fontSize: 13, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #6F4E37', outline: 'none', background: 'transparent', padding: '2px 0' }} />
                             ) : (
                               <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
                                 <button type="button" onClick={() => setForm(f => ({ ...f, boxLocation: f.boxLocation === loc ? '' : loc }))} style={{ flex: 1, background: 'none', border: 'none', padding: 0, textAlign: 'left', fontFamily: f2, fontSize: 13, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -3835,7 +3835,7 @@ function AddProductPage({
               style={{
                 flex: 1, height: 52,
                 background: '#0C0C0A',
-                color: '#C5FF00', border: 'none', borderRadius: 12,
+                color: '#6F4E37', border: 'none', borderRadius: 12,
                 fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                 fontSize: 15, fontWeight: 700, cursor: 'pointer',
                 opacity: saving ? 0.5 : 1,
@@ -3872,7 +3872,7 @@ const labelStyle: React.CSSProperties = {
 // underline 스타일 input (하단 테두리만)
 const underlineInputStyle: React.CSSProperties = {
   width: '100%', border: 'none', borderBottom: '1px solid rgba(12,12,10,.2)',
-  background: '#FAFAF8', outline: 'none',
+  background: '#F5EDE0', outline: 'none',
   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
   fontSize: 16, color: '#0C0C0A', padding: '8px 0 4px', height: 42,
 };
@@ -3880,7 +3880,7 @@ const underlineInputStyle: React.CSSProperties = {
 // 날짜 input 스타일
 const dateInputStyle: React.CSSProperties = {
   width: '100%', border: 'none', borderBottom: '1px solid rgba(12,12,10,.2)',
-  background: '#FAFAF8', outline: 'none',
+  background: '#F5EDE0', outline: 'none',
   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
   fontSize: 14, color: '#0C0C0A', padding: '6px 0', height: 41,
 };
@@ -4108,7 +4108,7 @@ function LocationEditSheet({
           <button
             onClick={handleSave}
             disabled={saving}
-            style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.5 : 1 }}
+            style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#6F4E37', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.5 : 1 }}
           >
             {saving ? '저장 중...' : '저장'}
           </button>

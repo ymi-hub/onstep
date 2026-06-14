@@ -60,7 +60,7 @@ export default function TopNav() {
     <div
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
-        background: '#FAFAF8',
+        background: '#F5EDE0',
         borderBottom: '1px solid rgba(12,12,10,.07)',
         flexShrink: 0,
         position: 'relative',

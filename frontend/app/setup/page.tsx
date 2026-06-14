@@ -272,7 +272,7 @@ function GroqUsageSection() {
 
       {/* 뱃지 + 타이틀 + 서브 */}
       <div style={{ padding: '10px 12px 0' }}>
-        <div style={{ display: 'inline-block', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '4px 10px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>#AI</div>
+        <div style={{ display: 'inline-block', fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.1em', background: '#6F4E37', color: '#0C0C0A', padding: '4px 10px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>#AI</div>
         <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, marginBottom: 3, letterSpacing: '-.01em' }}>AI 사용량</div>
         <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase' as const, color: '#9A9490' }}>GEMINI FREE TIER</div>
       </div>
@@ -284,7 +284,7 @@ function GroqUsageSection() {
           <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A7700' }}>{remaining.toLocaleString()} 남음</span>
         </div>
         <div style={{ height: 4, background: 'rgba(12,12,10,.07)', borderRadius: 9999, overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${pct}%`, background: pct > 80 ? '#E94F6B' : '#C5FF00', borderRadius: 9999, transition: 'width .4s ease' }} />
+          <div style={{ height: '100%', width: `${pct}%`, background: pct > 80 ? '#E94F6B' : '#6F4E37', borderRadius: 9999, transition: 'width .4s ease' }} />
         </div>
       </div>
 
@@ -332,7 +332,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
       <>
         <div style={{ width: '100%', aspectRatio: '1/1.5', background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>{card.emoji}</div>
         <div style={{ padding: '10px 12px 0' }}>
-          <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '.1em', background: '#C5FF00', color: '#0C0C0A', padding: '4px 10px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' }}>{card.badge}</div>
+          <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '.1em', background: '#6F4E37', color: '#0C0C0A', padding: '4px 10px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' }}>{card.badge}</div>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, marginBottom: 3, letterSpacing: '-.01em' }}>{card.title}</div>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', color: '#9A9490', paddingBottom: 10 }}>{card.sub}</div>
         </div>
@@ -344,7 +344,7 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
   }
 
   return (
-    <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
+    <div style={{ background: '#F5EDE0', minHeight: '100%' }}>
       {/* 페이지 헤더 — 공통 PageHeader 컴포넌트 */}
       <div style={{ borderBottom: '1px solid rgba(12,12,10,.07)' }}>
         <PageHeader
@@ -356,11 +356,11 @@ function HubView({ onOpenSessions, onOpenTracker, onOpenCare, onOpenMedication, 
       {/* 시작 가이드 배너 */}
       <div style={{ margin: '16px 16px 0', padding: '14px 16px', background: '#0C0C0A', borderRadius: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#C5FF00', marginBottom: 3 }}>HOW TO START</div>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#6F4E37', marginBottom: 3 }}>HOW TO START</div>
           <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: 'rgba(255,255,255,.7)', lineHeight: 1.5 }}>
-            <span style={{ color: '#C5FF00', fontWeight: 700 }}>1 BOX</span> 제품 등록 →{' '}
-            <span style={{ color: '#C5FF00', fontWeight: 700 }}>2 스킨케어 루틴</span> 플랜 설계 →{' '}
-            <span style={{ color: '#C5FF00', fontWeight: 700 }}>3 TODAY</span> 매일 체크
+            <span style={{ color: '#6F4E37', fontWeight: 700 }}>1 BOX</span> 제품 등록 →{' '}
+            <span style={{ color: '#6F4E37', fontWeight: 700 }}>2 스킨케어 루틴</span> 플랜 설계 →{' '}
+            <span style={{ color: '#6F4E37', fontWeight: 700 }}>3 TODAY</span> 매일 체크
           </div>
         </div>
         <div style={{ display: 'flex', gap: 4, flexShrink: 0, alignItems: 'flex-end' }}>
@@ -481,7 +481,7 @@ function SessionsView({
         {/* 메인 제품 목록 */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {prods.map((item, idx) => (
-            <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#0C0C0A', padding: '4px 6px', background: '#FAFAF8', border: '1px solid rgba(12,12,10,.07)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+            <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#0C0C0A', padding: '4px 6px', background: '#F5EDE0', border: '1px solid rgba(12,12,10,.07)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
               {pName(item.id)}
             </div>
           ))}
@@ -502,7 +502,7 @@ function SessionsView({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
             <div style={{ fontFamily: font, fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA' }}>TIPS</div>
             {expertTipMentions(day).map((name, idx) => (
-              <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#3A6000', padding: '3px 6px', background: 'rgba(197,255,0,.12)', border: '1px solid rgba(132,176,0,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+              <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#3A6000', padding: '3px 6px', background: 'rgba(232,93,107,.12)', border: '1px solid rgba(132,176,0,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                 {name}
               </div>
             ))}
@@ -539,7 +539,7 @@ function SessionsView({
           // 단일 DAY: 전체 너비
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {dayProds(firstRow[0]).map((item, idx) => (
-              <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#0C0C0A', padding: '4px 6px', background: '#FAFAF8', border: '1px solid rgba(12,12,10,.07)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+              <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#0C0C0A', padding: '4px 6px', background: '#F5EDE0', border: '1px solid rgba(12,12,10,.07)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                 {pName(item.id)}
               </div>
             ))}
@@ -559,7 +559,7 @@ function SessionsView({
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
                 <div style={{ fontFamily: font, fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA' }}>TIPS</div>
                 {expertTipMentions(firstRow[0]).map((name, idx) => (
-                  <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#3A6000', padding: '3px 6px', background: 'rgba(197,255,0,.12)', border: '1px solid rgba(132,176,0,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                  <div key={idx} style={{ fontFamily: font, fontSize: 11, color: '#3A6000', padding: '3px 6px', background: 'rgba(232,93,107,.12)', border: '1px solid rgba(132,176,0,.25)', borderRadius: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                     {name}
                   </div>
                 ))}
@@ -584,7 +584,7 @@ function SessionsView({
   }
 
   return (
-    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#F5EDE0', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
       <SubPageHeader title="SKINCARE" onClose={onBack} />
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {/* 헤더 */}
@@ -653,7 +653,7 @@ function SessionsView({
                       padding: '12px 16px',
                       borderBottom: isExpanded ? 'none' : '1px solid rgba(12,12,10,.07)',
                       cursor: 'pointer',
-                      background: isNow ? '#C5FF00' : 'transparent',
+                      background: isNow ? '#6F4E37' : 'transparent',
                       transition: 'background .12s',
                     }}
                   >
@@ -671,7 +671,7 @@ function SessionsView({
                           <span style={{ fontFamily: font, fontSize: 11, fontWeight: 700, letterSpacing: '.04em', background: '#E8F5CC', color: '#4E7D00', padding: '2px 8px', borderRadius: 6, flexShrink: 0, border: '1px solid rgba(132,176,0,.3)' }}>{s.sessionTag}</span>
                         )}
                         {isNow && (
-                          <span style={{ fontFamily: font, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase' as const, background: '#0C0C0A', color: '#C5FF00', padding: '2px 7px', borderRadius: 9999, flexShrink: 0 }}>NOW</span>
+                          <span style={{ fontFamily: font, fontSize: 10, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase' as const, background: '#0C0C0A', color: '#6F4E37', padding: '2px 7px', borderRadius: 9999, flexShrink: 0 }}>NOW</span>
                         )}
                       </div>
                       <div style={{ fontFamily: font, fontSize: 13, color: '#777370', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
@@ -730,10 +730,10 @@ function SessionsView({
         style={{
           position: 'absolute', bottom: 24, right: 18, zIndex: 10,
           width: 52, height: 52, borderRadius: 9999,
-          background: '#C5FF00', color: '#0C0C0A',
+          background: '#6F4E37', color: '#0C0C0A',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           border: 'none', cursor: 'pointer',
-          boxShadow: '0 4px 20px rgba(197,255,0,.4)',
+          boxShadow: '0 4px 20px rgba(232,93,107,.4)',
           fontSize: 22, fontWeight: 700,
           transition: 'transform .18s',
         }}
@@ -997,14 +997,14 @@ function EditorView({
       onDragEnd: () => { setDragIdx(null); setDragOverIdx(null); },
     };
     const outline: React.CSSProperties = isDragOver
-      ? { outline: '2px dashed #C5FF00', outlineOffset: 2 }
+      ? { outline: '2px dashed #6F4E37', outlineOffset: 2 }
       : isHighlighted
-      ? { outline: '2px solid #C5FF00', outlineOffset: 2 }
+      ? { outline: '2px solid #6F4E37', outlineOffset: 2 }
       : {};
 
     if (item.type === 'product') return (
       <div key={itemKey} {...drag} style={{ position: 'relative', flexShrink: 0, opacity: isDragging ? 0.35 : 1, borderRadius: 10, cursor: 'grab', ...outline }}>
-        <div style={{ width: 72, height: 72, background: isHighlighted ? 'rgba(197,255,0,.12)' : '#fff', border: `1px solid ${isHighlighted ? 'rgba(132,176,0,.5)' : 'rgba(12,12,10,.07)'}`, borderRadius: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 6, transition: 'background .2s, border .2s' }}>
+        <div style={{ width: 72, height: 72, background: isHighlighted ? 'rgba(232,93,107,.12)' : '#fff', border: `1px solid ${isHighlighted ? 'rgba(132,176,0,.5)' : 'rgba(12,12,10,.07)'}`, borderRadius: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 6, transition: 'background .2s, border .2s' }}>
           <div style={{ width: 30, height: 30, borderRadius: 7, background: '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, marginBottom: 5 }}>✦</div>
           <div style={{ fontFamily: f, fontSize: 10, color: '#0C0C0A', textAlign: 'center', lineHeight: 1.3, overflow: 'hidden', maxWidth: 60, wordBreak: 'break-all', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{productName(item.id)}</div>
         </div>{delBtn}
@@ -1019,7 +1019,7 @@ function EditorView({
     );
     if (item.type === 'tip') return (
       <div key={itemKey} {...drag} style={{ position: 'relative', flexShrink: 0, alignSelf: 'center', opacity: isDragging ? 0.35 : 1, borderRadius: 10, cursor: 'grab', ...outline }}>
-        <div style={{ minWidth: 72, maxWidth: 150, height: 72, background: 'rgba(197,255,0,.1)', border: '1.5px solid rgba(132,176,0,.4)', borderRadius: 10, padding: '8px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ minWidth: 72, maxWidth: 150, height: 72, background: 'rgba(232,93,107,.1)', border: '1.5px solid rgba(132,176,0,.4)', borderRadius: 10, padding: '8px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4E7D00', lineHeight: 1.35, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', wordBreak: 'break-word', textAlign: 'center' }}>{item.text}</div>
         </div>{delBtn}
       </div>
@@ -1060,7 +1060,7 @@ function EditorView({
           {section === 'main' && onAIImport && (
             <button
               onClick={onAIImport}
-              style={{ padding: '4px 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 11, fontWeight: 800, cursor: 'pointer', letterSpacing: '.04em', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' as const }}
+              style={{ padding: '4px 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#6F4E37', fontFamily: f, fontSize: 11, fontWeight: 800, cursor: 'pointer', letterSpacing: '.04em', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' as const }}
             >
               ✨ AI
             </button>
@@ -1112,7 +1112,7 @@ function EditorView({
               onKeyDown={(e) => { if (e.key === 'Enter') confirmInput(); if (e.key === 'Escape') cancelInput(); }}
               placeholder="팁 텍스트 입력..."
               autoFocus
-              style={{ flex: 1, border: '1.5px solid rgba(132,176,0,.3)', borderRadius: 8, padding: '8px 10px', fontFamily: f, fontSize: 13, color: '#4E7D00', background: 'rgba(197,255,0,.04)', outline: 'none', boxSizing: 'border-box' as const }}
+              style={{ flex: 1, border: '1.5px solid rgba(132,176,0,.3)', borderRadius: 8, padding: '8px 10px', fontFamily: f, fontSize: 13, color: '#4E7D00', background: 'rgba(232,93,107,.04)', outline: 'none', boxSizing: 'border-box' as const }}
             />
             <button onClick={confirmInput} style={{ padding: '8px 14px', border: 'none', borderRadius: 8, background: '#84B000', color: '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>추가</button>
             <button onClick={cancelInput} style={{ padding: '8px', border: 'none', background: 'transparent', color: '#9A9490', fontSize: 16, cursor: 'pointer' }}>✕</button>
@@ -1121,9 +1121,9 @@ function EditorView({
 
         {/* 액션 버튼 */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginTop: 4 }}>
-          <button onClick={() => openPicker(slotKey, section)} style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
+          <button onClick={() => openPicker(slotKey, section)} style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#6F4E37', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
           <button onClick={() => { setActiveInput({ slot: slotKey, section, type: 'desc' }); setInputText(''); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(12,12,10,.14)', background: 'transparent', color: '#4A4846', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>설명 +</button>
-          <button onClick={() => { setActiveInput({ slot: slotKey, section, type: 'tip' }); setInputText(''); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(132,176,0,.4)', background: 'rgba(197,255,0,.1)', color: '#4A7700', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>TIP +</button>
+          <button onClick={() => { setActiveInput({ slot: slotKey, section, type: 'tip' }); setInputText(''); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(132,176,0,.4)', background: 'rgba(232,93,107,.1)', color: '#4A7700', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>TIP +</button>
           <button onClick={() => addItems(slotKey, section, [{ type: 'plus' }])} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(33,150,243,.4)', background: 'rgba(33,150,243,.08)', color: '#1976D2', fontFamily: f, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>+</button>
           <button onClick={() => addItems(slotKey, section, [{ type: 'minus' }])} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(255,152,0,.4)', background: 'rgba(255,152,0,.08)', color: '#E65100', fontFamily: f, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>→</button>
         </div>
@@ -1171,7 +1171,7 @@ function EditorView({
 
         {/* TIP 섹션 */}
         <div style={{ borderTop: '1px solid rgba(0,0,0,.05)', marginTop: 14, paddingTop: 2 }}>
-          {ChipStrip({ slotKey, section: 'tip', items: activeDay.tipItems, label: '— TIP', sublabel: '(내용 있을 때만 Today 표시)', borderColor: 'rgba(132,176,0,.3)', bgColor: 'rgba(197,255,0,.03)', textColor: '#9A9490' })}
+          {ChipStrip({ slotKey, section: 'tip', items: activeDay.tipItems, label: '— TIP', sublabel: '(내용 있을 때만 Today 표시)', borderColor: 'rgba(132,176,0,.3)', bgColor: 'rgba(232,93,107,.03)', textColor: '#9A9490' })}
         </div>
 
         {/* EXPERT TIP — ExpertTipField 공통 컴포넌트 */}
@@ -1191,7 +1191,7 @@ function EditorView({
             disabled={saving}
             style={{
               width: '50%', padding: '12px 0',
-              background: saving ? '#D8D6CF' : '#C5FF00',
+              background: saving ? '#D8D6CF' : '#6F4E37',
               color: saving ? '#9A9490' : '#0C0C0A',
               border: 'none', borderRadius: 10,
               fontFamily: f, fontSize: 13, fontWeight: 700,
@@ -1209,7 +1209,7 @@ function EditorView({
   // ── 렌더 ─────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 200, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 200, background: '#F5EDE0', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
       {/* 에디터 헤더 — SubPageHeader 공통 스타일 */}
       <SubPageHeader title="ROUTINE EDIT" onClose={onBack} />
 
@@ -1284,7 +1284,7 @@ function EditorView({
 
       {/* 하단 고정 저장 버튼 */}
       <div style={{ flexShrink: 0, padding: '10px 16px 16px', background: 'rgba(250,250,248,.97)', borderTop: '1px solid rgba(12,12,10,.07)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
-        <button onClick={onSave} disabled={saving} style={{ width: '100%', height: 52, background: saving ? '#D8D6CF' : '#0C0C0A', color: saving ? '#9A9490' : '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'default' : 'pointer', letterSpacing: '.04em' }}>
+        <button onClick={onSave} disabled={saving} style={{ width: '100%', height: 52, background: saving ? '#D8D6CF' : '#0C0C0A', color: saving ? '#9A9490' : '#6F4E37', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'default' : 'pointer', letterSpacing: '.04em' }}>
           {saving ? '저장중...' : '저장'}
         </button>
       </div>
@@ -1307,7 +1307,7 @@ function EditorView({
       {picker && (
         <>
           <div onClick={() => setPicker(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 300 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 310, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 310, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
             <div style={{ padding: '12px 16px 0', flexShrink: 0 }}>
               <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 16px' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -1327,20 +1327,20 @@ function EditorView({
                   {filteredProducts.map((p) => {
                     const isSel = pickerSelected.has(p.id);
                     return (
-                      <div key={p.id} onClick={() => setPickerSelected((prev) => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                      <div key={p.id} onClick={() => setPickerSelected((prev) => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(232,93,107,.06)' : 'transparent' }}>
                         <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>✦</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
                           {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                         </div>
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#6F4E37' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
                       </div>
                     );
                   })}
                   {/* 검색어 있고 결과 없으면 → 이름으로 등록 후 추가 */}
                   {pickerSearch.trim() && filteredProducts.length === 0 && (
-                    <div onClick={() => registerAndAdd(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
+                    <div onClick={() => registerAndAdd(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(232,93,107,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#6F4E37', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
                         <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 상세 정보 수정 가능</div>
@@ -1456,7 +1456,7 @@ function AiImportPanel({
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 320 }} />
 
       {/* 패널 본체 */}
-      <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.15)' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.15)' }}>
         {/* 드래그 핸들 */}
         <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '10px auto 0', flexShrink: 0 }} />
 
@@ -1504,11 +1504,11 @@ function AiImportPanel({
               <button
                 onClick={handleParse}
                 disabled={panelPhase === 'parsing' || !text.trim() || !hasGroqKey}
-                style={{ marginTop: 14, width: '100%', height: 44, borderRadius: 10, border: 'none', background: (panelPhase === 'parsing' || !text.trim() || !hasGroqKey) ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: (panelPhase === 'parsing' || !text.trim() || !hasGroqKey) ? '#9A9490' : '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 800, cursor: (panelPhase === 'parsing' || !text.trim() || !hasGroqKey) ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                style={{ marginTop: 14, width: '100%', height: 44, borderRadius: 10, border: 'none', background: (panelPhase === 'parsing' || !text.trim() || !hasGroqKey) ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: (panelPhase === 'parsing' || !text.trim() || !hasGroqKey) ? '#9A9490' : '#6F4E37', fontFamily: f, fontSize: 13, fontWeight: 800, cursor: (panelPhase === 'parsing' || !text.trim() || !hasGroqKey) ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
                 {panelPhase === 'parsing' ? (
                   <>
-                    <span style={{ width: 12, height: 12, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#C5FF00', borderRadius: 9999, display: 'inline-block', animation: 'spin .8s linear infinite' }} />
+                    <span style={{ width: 12, height: 12, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#6F4E37', borderRadius: 9999, display: 'inline-block', animation: 'spin .8s linear infinite' }} />
                     분석 중...
                   </>
                 ) : '✨ AI 분석하기'}
@@ -1518,7 +1518,7 @@ function AiImportPanel({
             // ── 결과 단계 ──
             <div style={{ padding: '16px 16px 32px' }}>
               {/* 결과 헤더 카드 */}
-              <div style={{ background: 'linear-gradient(135deg,#f0ffe0,#e8ffc0)', border: '1px solid rgba(197,255,0,.3)', borderRadius: 12, padding: '12px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ background: 'linear-gradient(135deg,#f0ffe0,#e8ffc0)', border: '1px solid rgba(232,93,107,.3)', borderRadius: 12, padding: '12px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#0C0C0A' }}>
                     ✨ 분석 완료
@@ -1539,7 +1539,7 @@ function AiImportPanel({
                       if (item.type === 'product') {
                         const p = products.find((pr) => pr.id === item.id);
                         return (
-                          <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, height: 26, padding: '0 10px', borderRadius: 9999, background: '#F5FDD4', border: '1px solid rgba(197,255,0,.5)', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000' }}>
+                          <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, height: 26, padding: '0 10px', borderRadius: 9999, background: '#F5FDD4', border: '1px solid rgba(232,93,107,.5)', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#3A6000' }}>
                             ✓ {p?.name ?? '?'}
                           </span>
                         );
@@ -1574,7 +1574,7 @@ function AiImportPanel({
                 <button
                   onClick={() => { if (previewItems.length > 0) onImport(previewItems); }}
                   disabled={previewItems.length === 0}
-                  style={{ flex: 1, height: 44, borderRadius: 10, border: 'none', background: previewItems.length === 0 ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: previewItems.length === 0 ? '#9A9490' : '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 800, cursor: previewItems.length === 0 ? 'not-allowed' : 'pointer' }}>
+                  style={{ flex: 1, height: 44, borderRadius: 10, border: 'none', background: previewItems.length === 0 ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: previewItems.length === 0 ? '#9A9490' : '#6F4E37', fontFamily: f, fontSize: 13, fontWeight: 800, cursor: previewItems.length === 0 ? 'not-allowed' : 'pointer' }}>
                   {confirmLabel}
                 </button>
               </div>
@@ -1872,7 +1872,7 @@ function DietPlanView({
   if (editProgram !== null) {
     const pat = pPatterns[activePatternIdx];
     return (
-      <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
+      <div style={{ position: 'fixed', inset: 0, background: '#F5EDE0', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
         <SubPageHeader title={isNew ? '새 리셋 플랜' : '리셋 플랜 편집'} onClose={() => setEditProgram(null)} />
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
           {/* 기본 정보 */}
@@ -1889,7 +1889,7 @@ function DietPlanView({
           <div style={{ display: 'flex', gap: 5, marginBottom: 14, overflowX: 'auto' }}>
             {pPatterns.map((pat, i) => (
               <button key={pat.id} onClick={() => setActivePatternIdx(i)}
-                style={{ flexShrink: 0, padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${activePatternIdx===i ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: activePatternIdx===i ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: activePatternIdx===i ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                style={{ flexShrink: 0, padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${activePatternIdx===i ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: activePatternIdx===i ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: activePatternIdx===i ? '#6F4E37' : '#4A4846', cursor: 'pointer' }}>
                 {pat.label}
               </button>
             ))}
@@ -1921,7 +1921,7 @@ function DietPlanView({
                 </div>
               ) : editSlotId === item.id ? (
                 /* ── 인라인 편집 폼 ── */
-                <div style={{ background: '#F5FDD4', border: '1.5px solid #C5FF00', borderRadius: 12, padding: '12px' }}>
+                <div style={{ background: '#F5FDD4', border: '1.5px solid #6F4E37', borderRadius: 12, padding: '12px' }}>
                   <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#4E7D00', letterSpacing: '.06em', marginBottom: 8 }}>✎ 슬롯 편집</div>
                   {/* 시간·타이밍명·물 */}
                   <div style={{ display: 'flex', gap: 6, marginBottom: 7 }}>
@@ -1951,14 +1951,14 @@ function DietPlanView({
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
                       {slotItemTags.map(tag => (
                         <div key={tag.id} style={{ display: 'flex', alignItems: 'center', gap: 3, background: '#0C0C0A', borderRadius: 9999, padding: '2px 8px 2px 7px' }}>
-                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00' }}>{tag.name}{tag.qty ? `(${tag.qty})` : ''}</span>
+                          <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#6F4E37' }}>{tag.name}{tag.qty ? `(${tag.qty})` : ''}</span>
                           <button onClick={() => removeItemTag(tag.id)} style={{ border: 'none', background: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 12, padding: 0 }}>×</button>
                         </div>
                       ))}
                     </div>
                   )}
                   <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
-                    <button onClick={() => setShowPicker(true)} style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
+                    <button onClick={() => setShowPicker(true)} style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#6F4E37', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
                     <input value={slotItemInput} onChange={e=>setSlotItemInput(e.target.value)}
                       onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault(); addItemTag();} }}
                       placeholder="제품명" style={{ flex: 1, padding: '7px 9px', border: '1.5px solid rgba(12,12,10,.2)', borderRadius: 8, fontFamily: f, fontSize: 11, outline: 'none', background: '#fff' }} />
@@ -1969,14 +1969,14 @@ function DietPlanView({
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button onClick={cancelEditSlot} style={{ flex: 1, padding: '9px', background: '#F0EFEA', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-                    <button onClick={addSlot} style={{ flex: 1, padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer' }}>수정</button>
+                    <button onClick={addSlot} style={{ flex: 1, padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#6F4E37', cursor: 'pointer' }}>수정</button>
                   </div>
                 </div>
               ) : (
                 /* ── 일반 슬롯 표시 ── */
                 <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 12, padding: '10px 12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    {(item as DietSlot).time && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, background: '#0C0C0A', color: '#C5FF00', padding: '2px 8px', borderRadius: 6 }}>{(item as DietSlot).time}</span>}
+                    {(item as DietSlot).time && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, background: '#0C0C0A', color: '#6F4E37', padding: '2px 8px', borderRadius: 6 }}>{(item as DietSlot).time}</span>}
                     <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{(item as DietSlot).label}</span>
                     <span style={{ fontFamily: f, fontSize: 11, color: '#4A9ED6', fontWeight: 700 }}>💧{(item as DietSlot).water}ml</span>
                     <button onClick={() => startEditSlot(item as DietSlot)} style={{ border: 'none', background: 'none', color: '#9A9490', cursor: 'pointer', fontSize: 14, padding: '2px 6px' }} title="편집">✎</button>
@@ -2022,7 +2022,7 @@ function DietPlanView({
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 7 }}>
                 {slotItemTags.map(tag => (
                   <div key={tag.id} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#0C0C0A', borderRadius: 9999, padding: '3px 10px 3px 8px' }}>
-                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00' }}>{tag.name}{tag.qty ? `(${tag.qty})` : ''}</span>
+                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#6F4E37' }}>{tag.name}{tag.qty ? `(${tag.qty})` : ''}</span>
                     <button onClick={() => removeItemTag(tag.id)} style={{ border: 'none', background: 'none', color: 'rgba(255,255,255,.5)', cursor: 'pointer', fontSize: 12, lineHeight: 1, padding: 0 }}>×</button>
                   </div>
                 ))}
@@ -2030,7 +2030,7 @@ function DietPlanView({
             )}
             {/* 제품 추가 */}
             <div style={{ display: 'flex', gap: 5, marginBottom: 7 }}>
-              <button onClick={() => setShowPicker(true)} style={{ padding: '8px 10px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
+              <button onClick={() => setShowPicker(true)} style={{ padding: '8px 10px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#6F4E37', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
               <input value={slotItemInput} onChange={e=>setSlotItemInput(e.target.value)}
                 onKeyDown={e=>{ if(e.key==='Enter'){e.preventDefault(); addItemTag();} }}
                 placeholder="제품명" style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
@@ -2039,14 +2039,14 @@ function DietPlanView({
                 placeholder="수량" style={{ width: 52, padding: '8px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff', textAlign: 'center' }} />
               <button onClick={addItemTag} style={{ padding: '8px 10px', background: '#F4F4F0', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9, fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A4846', cursor: 'pointer', flexShrink: 0 }}>추가</button>
             </div>
-            <button onClick={addSlot} style={{ width: '100%', padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', marginBottom: 6 }}>슬롯 추가</button>
+            <button onClick={addSlot} style={{ width: '100%', padding: '9px', background: '#0C0C0A', border: 'none', borderRadius: 9, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#6F4E37', cursor: 'pointer', marginBottom: 6 }}>슬롯 추가</button>
             <button onClick={addWarning} style={{ width: '100%', padding: '7px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>⚠️ 경고 배너 추가</button>
           </div>
           )}
 
           {/* 저장/삭제 */}
           <div style={{ paddingBottom: 24 }}>
-            <button onClick={handleSave} disabled={saving} style={{ width: '100%', height: 52, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
+            <button onClick={handleSave} disabled={saving} style={{ width: '100%', height: 52, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#6F4E37', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
               {saving ? '저장 중…' : '저장'}
             </button>
             {!isNew && editProgram?.id && (
@@ -2058,7 +2058,7 @@ function DietPlanView({
       {showPicker ? (
         <>
           <div onClick={closePicker} style={{ position: 'absolute', inset: 0, background: 'rgba(12,12,10,.4)', zIndex: 20 }} />
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#FAFAF8', borderRadius: '20px 20px 0 0', zIndex: 21, display: 'flex', flexDirection: 'column', maxHeight: '75vh' }}>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#F5EDE0', borderRadius: '20px 20px 0 0', zIndex: 21, display: 'flex', flexDirection: 'column', maxHeight: '75vh' }}>
 
             {pickerStep === 'select' ? (
               <>
@@ -2081,8 +2081,8 @@ function DietPlanView({
                   {/* 검색어 있고 결과 없으면 → 이름으로 등록 후 추가 */}
                   {pickerSearch.trim() && filteredPickerProds.length === 0 && (
                     <div onClick={() => registerAndAddDiet(pickerSearch)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
+                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(232,93,107,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#6F4E37', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 등록 후 추가</div>
                         <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX 약·비타민에 자동 저장 · 나중에 상세 수정 가능</div>
@@ -2100,7 +2100,7 @@ function DietPlanView({
                       const imgSrc = p.imageUrl || p.storageUrl;
                       return (
                         <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })}
-                          style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                          style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(232,93,107,.06)' : 'transparent' }}>
                           <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, overflow: 'hidden' }}>
                             {imgSrc
                               // eslint-disable-next-line @next/next/no-img-element
@@ -2111,7 +2111,7 @@ function DietPlanView({
                             <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
                             {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                           </div>
-                          <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
+                          <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#6F4E37' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
                         </div>
                       );
                     })
@@ -2171,7 +2171,7 @@ function DietPlanView({
 
   // ── 목록 화면 ──
   return (
-    <div style={{ position: 'fixed', inset: 0, background: '#FAFAF8', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
+    <div style={{ position: 'fixed', inset: 0, background: '#F5EDE0', zIndex: 50, display: 'flex', flexDirection: 'column', maxWidth: 430, margin: '0 auto' }}>
       <SubPageHeader title="RESET" onClose={onBack} />
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 80px' }}>
         {programs.length === 0 && (
@@ -2234,7 +2234,7 @@ function DietPlanView({
                 </div>
                 {/* 오른쪽 버튼들 */}
                 <button onClick={() => toggleShowInToday(p)}
-                  style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: p.showInToday ? '#0C0C0A' : '#F4F4F0', color: p.showInToday ? '#C5FF00' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', flexShrink: 0 }}>
+                  style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: p.showInToday ? '#0C0C0A' : '#F4F4F0', color: p.showInToday ? '#6F4E37' : '#9A9490', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', flexShrink: 0 }}>
                   {p.showInToday ? 'Today ON' : 'Today OFF'}
                 </button>
                 <button onClick={() => openEdit(p)} style={{ padding: '5px 10px', background: '#F4F4F0', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer', color: '#4A4846' }}>편집</button>
@@ -2249,7 +2249,7 @@ function DietPlanView({
                   <div style={{ display: 'flex', gap: 5, padding: '10px 14px 6px', overflowX: 'auto', scrollbarWidth: 'none' }}>
                     {p.patterns?.map((pat, i) => (
                       <button key={pat.id} onClick={() => setViewPatIdx(prev => ({ ...prev, [p.id]: i }))}
-                        style={{ flexShrink: 0, padding: '4px 10px', borderRadius: 9999, border: `1.5px solid ${patIdx === i ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: patIdx === i ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 10, fontWeight: 700, color: patIdx === i ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                        style={{ flexShrink: 0, padding: '4px 10px', borderRadius: 9999, border: `1.5px solid ${patIdx === i ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: patIdx === i ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 10, fontWeight: 700, color: patIdx === i ? '#6F4E37' : '#4A4846', cursor: 'pointer' }}>
                         {pat.label}
                       </button>
                     ))}
@@ -2264,9 +2264,9 @@ function DietPlanView({
                             <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626' }}>{(item as DietWarning).text}</span>
                           </div>
                         ) : (
-                          <div style={{ padding: '8px 10px', background: '#FAFAF8', borderRadius: 10, marginBottom: 5, border: '1px solid rgba(12,12,10,.06)' }}>
+                          <div style={{ padding: '8px 10px', background: '#F5EDE0', borderRadius: 10, marginBottom: 5, border: '1px solid rgba(12,12,10,.06)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-                              {(item as DietSlot).time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: '#0C0C0A', color: '#C5FF00', padding: '1px 7px', borderRadius: 5 }}>{(item as DietSlot).time}</span>}
+                              {(item as DietSlot).time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: '#0C0C0A', color: '#6F4E37', padding: '1px 7px', borderRadius: 5 }}>{(item as DietSlot).time}</span>}
                               <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A', flex: 1 }}>{(item as DietSlot).label}</span>
                               <span style={{ fontFamily: f, fontSize: 10, color: '#4A9ED6', fontWeight: 700 }}>💧{(item as DietSlot).water}ml</span>
                             </div>
@@ -2390,7 +2390,7 @@ function TimePickerField({ value, onChange, f }: {
           {value || '시간 미설정'}
         </div>
         <button type="button" onClick={() => setOpen(p => !p)}
-          style={{ width: 48, height: 48, borderRadius: 12, border: 'none', background: open ? '#0C0C0A' : '#F4F4F0', color: open ? '#C5FF00' : '#4A4846', fontFamily: f, fontSize: open ? 11 : 22, fontWeight: 800, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s' }}>
+          style={{ width: 48, height: 48, borderRadius: 12, border: 'none', background: open ? '#0C0C0A' : '#F4F4F0', color: open ? '#6F4E37' : '#4A4846', fontFamily: f, fontSize: open ? 11 : 22, fontWeight: 800, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s' }}>
           {open ? '확인' : '+'}
         </button>
       </div>
@@ -2451,7 +2451,7 @@ function RepeatFormFieldsShared({
             {INTERVAL_PRESETS.map(p => {
               const active = intervalUnit_ === p.unit && intervalValue_ === p.value;
               return (
-                <button type="button" key={p.label} onClick={() => { setIntervalUnit_(p.unit); setIntervalValue_(p.value); }} style={{ flex: '1 1 0', minWidth: 48, height: 36, borderRadius: 10, border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: active ? '#0C0C0A' : '#fff', color: active ? '#C5FF00' : '#4A4846', fontFamily: f, fontSize: 11, fontWeight: 800, cursor: 'pointer', transition: 'all .15s' }}>{p.label}</button>
+                <button type="button" key={p.label} onClick={() => { setIntervalUnit_(p.unit); setIntervalValue_(p.value); }} style={{ flex: '1 1 0', minWidth: 48, height: 36, borderRadius: 10, border: `1.5px solid ${active ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: active ? '#0C0C0A' : '#fff', color: active ? '#6F4E37' : '#4A4846', fontFamily: f, fontSize: 11, fontWeight: 800, cursor: 'pointer', transition: 'all .15s' }}>{p.label}</button>
               );
             })}
           </div>
@@ -2650,7 +2650,7 @@ function MedView({
           style={{
             height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
             background: isToday ? '#0C0C0A' : '#F4F4F0',
-            color: isToday ? '#C5FF00' : '#9A9490',
+            color: isToday ? '#6F4E37' : '#9A9490',
             fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
             textTransform: 'uppercase' as const, transition: 'all .18s', flexShrink: 0,
           }}
@@ -2676,7 +2676,7 @@ function MedView({
   }
 
   return (
-    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#F5EDE0', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
       <SubPageHeader title="MEDICATION" onClose={onBack} />
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -2699,7 +2699,7 @@ function MedView({
             <input value={newDosage} onChange={e => setNewDosage(e.target.value)} placeholder="용량 (예: 1정, 2캡슐)" style={{ padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
               {ALL_TIMES.map(t => (
-                <button key={t} onClick={() => toggleNewTime(t)} style={{ padding: '7px 14px', borderRadius: 9999, border: `1.5px solid ${newTimes.includes(t) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: newTimes.includes(t) ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: newTimes.includes(t) ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
+                <button key={t} onClick={() => toggleNewTime(t)} style={{ padding: '7px 14px', borderRadius: 9999, border: `1.5px solid ${newTimes.includes(t) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: newTimes.includes(t) ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: newTimes.includes(t) ? '#6F4E37' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
                   {MED_TIME_LABELS[t]}
                 </button>
               ))}
@@ -2816,7 +2816,7 @@ function MedView({
               <span style={{ fontFamily: f, fontSize: 14, color: '#0C0C0A', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
               <button
                 onClick={() => onToggleToday(m.id, true)}
-                style={{ height: 28, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const, flexShrink: 0 }}
+                style={{ height: 28, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#6F4E37', fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const, flexShrink: 0 }}
               >
                 Today ON
               </button>
@@ -2840,7 +2840,7 @@ function MedView({
                       {now.toLocaleDateString('ko-KR', { weekday: 'long' })}
                     </div>
                   </div>
-                  <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '3px 9px', borderRadius: 9999, marginTop: 4 }}>
+                  <span style={{ background: '#6F4E37', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '3px 9px', borderRadius: 9999, marginTop: 4 }}>
                     TODAY {todayMeds.length}개
                   </span>
                 </div>
@@ -2870,7 +2870,7 @@ function MedView({
       {editItem && (
         <>
           <div onClick={() => setEditItem(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 310 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 48px)', maxHeight: '88%', overflowY: 'auto' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#F5EDE0', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 48px)', maxHeight: '88%', overflowY: 'auto' }}>
             <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>약 편집</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -2882,7 +2882,7 @@ function MedView({
               <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em' }}>복용 시간 (복수 선택)</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
                 {ALL_TIMES.map(t => (
-                  <button key={t} onClick={() => toggleETime(t)} style={{ padding: '7px 14px', borderRadius: 9999, border: `1.5px solid ${eTimes.includes(t) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: eTimes.includes(t) ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: eTimes.includes(t) ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
+                  <button key={t} onClick={() => toggleETime(t)} style={{ padding: '7px 14px', borderRadius: 9999, border: `1.5px solid ${eTimes.includes(t) ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: eTimes.includes(t) ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: eTimes.includes(t) ? '#6F4E37' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
                     {MED_TIME_LABELS[t]}
                   </button>
                 ))}
@@ -2898,7 +2898,7 @@ function MedView({
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
               <button onClick={() => setEditItem(null)} style={{ flex: 1, height: 52, background: '#F0EFEA', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-              <button onClick={handleSaveEdit} disabled={saving} style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em', opacity: saving ? .6 : 1 }}>{saving ? '저장 중…' : '저장'}</button>
+              <button onClick={handleSaveEdit} disabled={saving} style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#6F4E37', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em', opacity: saving ? .6 : 1 }}>{saving ? '저장 중…' : '저장'}</button>
             </div>
             <button onClick={handleDelete} style={{ marginTop: 8, width: '100%', height: 44, background: 'rgba(186,26,26,.06)', color: '#BA1A1A', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>삭제</button>
           </div>
@@ -3253,7 +3253,7 @@ function HealthView({
             style={{
               height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
               background: item.showInToday ? '#0C0C0A' : '#F4F4F0',
-              color: item.showInToday ? '#C5FF00' : '#9A9490',
+              color: item.showInToday ? '#6F4E37' : '#9A9490',
               fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
               textTransform: 'uppercase' as const, transition: 'all .18s', flexShrink: 0,
             }}
@@ -3279,7 +3279,7 @@ function HealthView({
           <div style={{ borderTop: '1px solid rgba(12,12,10,.06)' }}>
             {[...(item.entries ?? [])].sort((a, b) => a.time.localeCompare(b.time)).map((e: import('@/types/healthroutine').HealthEntry) => (
               <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
-                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#6F4E37', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
                 <span style={{ fontFamily: f, fontSize: 12, color: '#4A4846', flex: 1 }}>{e.desc}</span>
               </div>
             ))}
@@ -3290,7 +3290,7 @@ function HealthView({
   }
 
   return (
-    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#F5EDE0', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
       <SubPageHeader title="HEALTH" onClose={onBack} />
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -3298,7 +3298,7 @@ function HealthView({
         <div style={{ padding: '28px 16px 20px', borderBottom: '1px solid rgba(12,12,10,.07)', position: 'relative' }}>
           <button
             onClick={() => setShowCatSection(p => !p)}
-            style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 4, background: '#0C0C0A', border: 'none', borderRadius: 9999, padding: '6px 12px', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: '#C5FF00', cursor: 'pointer', textTransform: 'uppercase' as const }}
+            style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 4, background: '#0C0C0A', border: 'none', borderRadius: 9999, padding: '6px 12px', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', color: '#6F4E37', cursor: 'pointer', textTransform: 'uppercase' as const }}
           >
             카테고리 {showCatSection ? '▲' : '▼'}
           </button>
@@ -3327,7 +3327,7 @@ function HealthView({
                       gap: 12,
                       marginBottom: 12,
                       opacity: isDragging ? 0.4 : 1,
-                      outline: isDragOver ? '2px dashed #C5FF00' : 'none',
+                      outline: isDragOver ? '2px dashed #6F4E37' : 'none',
                       outlineOffset: '2px',
                       transition: 'opacity 0.15s, outline 0.1s',
                       cursor: 'default',
@@ -3527,7 +3527,7 @@ function HealthView({
                 {categories.map(cat => {
                   const activeCat = qCatId;
                   return (
-                    <button key={cat.id} onClick={() => setQCatId(cat.id)} style={{ padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${activeCat === cat.id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: activeCat === cat.id ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: activeCat === cat.id ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
+                    <button key={cat.id} onClick={() => setQCatId(cat.id)} style={{ padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${activeCat === cat.id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: activeCat === cat.id ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 11, fontWeight: 700, color: activeCat === cat.id ? '#6F4E37' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
                       {cat.icon} {cat.name}
                     </button>
                   );
@@ -3604,7 +3604,7 @@ function HealthView({
           <div style={{ padding: '24px 16px 0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>DAILY HEALTH</span>
-              <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>TODAY</span>
+              <span style={{ background: '#6F4E37', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>TODAY</span>
               <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>{items.filter(i => i.showInToday).length}개</span>
             </div>
             <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
@@ -3615,7 +3615,7 @@ function HealthView({
                   ? timedEntries.map(e => e.time).sort().join(' · ')
                   : (item.time && item.time.includes(':') ? item.time : '');
                 return (
-                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', background: '#FAFAF8' }}>
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', background: '#F5EDE0' }}>
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
                       {item.icon}
                     </div>
@@ -3628,7 +3628,7 @@ function HealthView({
                       ) : null}
                     </div>
                     <button onClick={() => onToggleToday(item.id, true)}
-                      style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const, flexShrink: 0 }}>
+                      style={{ height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer', background: '#0C0C0A', color: '#6F4E37', fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' as const, flexShrink: 0 }}>
                       Today ON
                     </button>
                   </div>
@@ -3645,7 +3645,7 @@ function HealthView({
       {showForm && (
         <>
           <div onClick={() => setShowForm(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 310 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 48px)', maxHeight: '92%', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#F5EDE0', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 48px)', maxHeight: '92%', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>{editId ? '루틴 수정' : '루틴 추가'}</div>
 
@@ -3653,7 +3653,7 @@ function HealthView({
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 14 }}>
               {categories.map(cat => (
                 <button key={cat.id} onClick={() => { setCatId(cat.id); setRoutineIcon(cat.icon); }}
-                  style={{ padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${catId === cat.id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: catId === cat.id ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: catId === cat.id ? '#C5FF00' : '#4A4846', cursor: 'pointer' }}>
+                  style={{ padding: '6px 12px', borderRadius: 9999, border: `1.5px solid ${catId === cat.id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: catId === cat.id ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: catId === cat.id ? '#6F4E37' : '#4A4846', cursor: 'pointer' }}>
                   {cat.icon} {cat.name}
                 </button>
               ))}
@@ -3686,8 +3686,8 @@ function HealthView({
 
             <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: '#0C0C0A', marginBottom: 8 }}>시간별 항목</div>
             {[...entries].sort((a, b) => a.time.localeCompare(b.time)).map(e => (
-              <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: editEntryId === e.id ? '#F5FDD4' : '#F9F9F7', borderRadius: 10, marginBottom: 6, border: `1px solid ${editEntryId === e.id ? '#C5FF00' : 'transparent'}` }}>
-                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
+              <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: editEntryId === e.id ? '#F5FDD4' : '#F9F9F7', borderRadius: 10, marginBottom: 6, border: `1px solid ${editEntryId === e.id ? '#6F4E37' : 'transparent'}` }}>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#6F4E37', background: '#0C0C0A', padding: '2px 7px', borderRadius: 6, flexShrink: 0 }}>{e.time}</span>
                 <span style={{ fontFamily: f, fontSize: 12, flex: 1, color: '#4A4846' }}>{e.desc}</span>
                 <button onClick={() => startEditEntry(e)} style={{ border: 'none', background: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer', padding: '2px 6px' }}>수정</button>
                 <button onClick={() => deleteEntry(e.id)} style={{ border: 'none', background: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#DC2626', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
@@ -3704,7 +3704,7 @@ function HealthView({
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOrUpdateEntry(); } }}
                   placeholder="내용 (예: 30분 러닝)"
                   style={{ flex: 1, padding: '8px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 12, outline: 'none', background: '#fff' }} />
-                <button onClick={addOrUpdateEntry} style={{ padding: '8px 12px', background: '#0C0C0A', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>
+                <button onClick={addOrUpdateEntry} style={{ padding: '8px 12px', background: '#0C0C0A', border: 'none', borderRadius: 10, fontFamily: f, fontSize: 12, fontWeight: 800, color: '#6F4E37', cursor: 'pointer', flexShrink: 0 }}>
                   {editEntryId ? '수정' : '추가'}
                 </button>
               </div>
@@ -3712,7 +3712,7 @@ function HealthView({
 
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '12px', background: '#F4F4F0', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-              <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
+              <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '12px', background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#6F4E37', cursor: 'pointer', opacity: saving ? .6 : 1 }}>
                 {saving ? '저장 중…' : '저장'}
               </button>
             </div>
@@ -3725,7 +3725,7 @@ function HealthView({
       {showCatForm && (
         <>
           <div onClick={() => setShowCatForm(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 310 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 28px)', maxHeight: '80%', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#F5EDE0', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 28px)', maxHeight: '80%', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>{catEditId ? '카테고리 수정' : '카테고리 추가'}</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
@@ -3741,7 +3741,7 @@ function HealthView({
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               {catEditId && <button onClick={() => deleteCat(catEditId)} style={{ padding: '12px 16px', background: '#FEE2E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#DC2626', cursor: 'pointer' }}>삭제</button>}
-              <button onClick={saveCat} disabled={catSaving} style={{ flex: 1, padding: 14, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', opacity: catSaving ? .6 : 1 }}>
+              <button onClick={saveCat} disabled={catSaving} style={{ flex: 1, padding: 14, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 800, color: '#6F4E37', cursor: 'pointer', opacity: catSaving ? .6 : 1 }}>
                 {catSaving ? '저장 중…' : '저장'}
               </button>
             </div>
@@ -3880,7 +3880,7 @@ function TrackerView({
           style={{
             height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
             background: isToday ? '#0C0C0A' : '#F4F4F0',
-            color: isToday ? '#C5FF00' : '#9A9490',
+            color: isToday ? '#6F4E37' : '#9A9490',
             fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
             textTransform: 'uppercase' as const,
             transition: 'all .18s', flexShrink: 0,
@@ -3909,7 +3909,7 @@ function TrackerView({
   }
 
   return (
-    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#F5EDE0', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
       <SubPageHeader title="HABITS" onClose={onBack} />
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -3978,7 +3978,7 @@ function TrackerView({
               <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490' }}>
                 DAILY HABITS
               </span>
-              <span style={{ background: '#C5FF00', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>
+              <span style={{ background: '#6F4E37', color: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 9999 }}>
                 TODAY
               </span>
               <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', marginLeft: 'auto' }}>
@@ -3993,7 +3993,7 @@ function TrackerView({
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '12px 14px',
                     borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none',
-                    background: '#FAFAF8',
+                    background: '#F5EDE0',
                   }}
                 >
                   <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, lineHeight: 1 }}>
@@ -4009,7 +4009,7 @@ function TrackerView({
                     onClick={() => onToggleToday(h.id, true)}
                     style={{
                       height: 26, padding: '0 10px', borderRadius: 9999, border: 'none', cursor: 'pointer',
-                      background: '#0C0C0A', color: '#C5FF00',
+                      background: '#0C0C0A', color: '#6F4E37',
                       fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.08em',
                       textTransform: 'uppercase' as const,
                       flexShrink: 0,
@@ -4030,7 +4030,7 @@ function TrackerView({
       {editHabit && (
         <>
           <div onClick={() => setEditHabit(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 310 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 48px)', maxHeight: '88%', overflowY: 'auto' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#F5EDE0', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 48px)', maxHeight: '88%', overflowY: 'auto' }}>
             <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
             <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>습관 편집</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -4042,7 +4042,7 @@ function TrackerView({
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
               <button onClick={() => setEditHabit(null)} style={{ flex: 1, height: 52, background: '#F0EFEA', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-              <button onClick={handleSaveEdit} style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em' }}>저장</button>
+              <button onClick={handleSaveEdit} style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#6F4E37', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '.02em' }}>저장</button>
             </div>
             <button onClick={handleDeleteHabit} style={{ marginTop: 8, width: '100%', height: 44, background: 'rgba(186,26,26,.06)', color: '#BA1A1A', border: '1.5px solid rgba(186,26,26,.2)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>삭제</button>
           </div>
@@ -4535,7 +4535,7 @@ function CtPanel({
     );
     if (item.type === 'tip') return (
       <div key={key} style={base} {...dragHandlers}>
-        <div style={{ minWidth: 72, maxWidth: 150, height: 72, background: 'rgba(197,255,0,.1)', border: '1.5px solid rgba(132,176,0,.4)', borderRadius: 10, padding: '8px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ minWidth: 72, maxWidth: 150, height: 72, background: 'rgba(232,93,107,.1)', border: '1.5px solid rgba(132,176,0,.4)', borderRadius: 10, padding: '8px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4E7D00', lineHeight: 1.35, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, wordBreak: 'break-word' as const, textAlign: 'center' }}>{item.text}</div>
         </div>{delBtn}
       </div>
@@ -4576,15 +4576,15 @@ function CtPanel({
         )}
         {isTip && (
           <div style={{ display: 'flex', gap: 6, marginBottom: 8, alignItems: 'center' }}>
-            <input value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') confirmInput(); if (e.key === 'Escape') { setActiveInput(null); setInputText(''); } }} placeholder="팁 텍스트 입력..." autoFocus style={{ flex: 1, border: '1.5px solid rgba(132,176,0,.3)', borderRadius: 8, padding: '8px 10px', fontFamily: f, fontSize: 13, color: '#4E7D00', background: 'rgba(197,255,0,.04)', outline: 'none' }} />
+            <input value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') confirmInput(); if (e.key === 'Escape') { setActiveInput(null); setInputText(''); } }} placeholder="팁 텍스트 입력..." autoFocus style={{ flex: 1, border: '1.5px solid rgba(132,176,0,.3)', borderRadius: 8, padding: '8px 10px', fontFamily: f, fontSize: 13, color: '#4E7D00', background: 'rgba(232,93,107,.04)', outline: 'none' }} />
             <button onClick={confirmInput} style={{ padding: '8px 14px', border: 'none', borderRadius: 8, background: '#84B000', color: '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>추가</button>
             <button onClick={() => { setActiveInput(null); setInputText(''); }} style={{ padding: 8, border: 'none', background: 'transparent', color: '#9A9490', fontSize: 16, cursor: 'pointer' }}>✕</button>
           </div>
         )}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginTop: 4 }}>
-          <button onClick={() => openPicker(section)} style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
+          <button onClick={() => openPicker(section)} style={{ padding: '7px 10px', background: '#0C0C0A', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#6F4E37', cursor: 'pointer', flexShrink: 0 }}>BOX</button>
           <button onClick={() => { setActiveInput({ section, type: 'desc' }); setInputText(''); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(12,12,10,.14)', background: 'transparent', color: '#4A4846', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>설명 +</button>
-          <button onClick={() => { setActiveInput({ section, type: 'tip' }); setInputText(''); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(132,176,0,.4)', background: 'rgba(197,255,0,.1)', color: '#4A7700', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>TIP +</button>
+          <button onClick={() => { setActiveInput({ section, type: 'tip' }); setInputText(''); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(132,176,0,.4)', background: 'rgba(232,93,107,.1)', color: '#4A7700', fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>TIP +</button>
           <button onClick={() => { const i: RoutineItem = { type: 'plus' }; if (section === 'main') setSItems(p => [...p, i]); else setSTipItems(p => [...p, i]); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(33,150,243,.4)', background: 'rgba(33,150,243,.08)', color: '#1976D2', fontFamily: f, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>+</button>
           <button onClick={() => { const i: RoutineItem = { type: 'minus' }; if (section === 'main') setSItems(p => [...p, i]); else setSTipItems(p => [...p, i]); }} style={{ padding: '7px 12px', borderRadius: 9999, border: '1.5px solid rgba(255,152,0,.4)', background: 'rgba(255,152,0,.08)', color: '#E65100', fontFamily: f, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>→</button>
         </div>
@@ -4600,7 +4600,7 @@ function CtPanel({
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             {/* 카테고리 뱃지 */}
             {ctType === 'care' && item.category && (
-              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, padding: '4px 10px', borderRadius: 4, background: '#0C0C0A', color: '#C5FF00', flexShrink: 0, textTransform: 'uppercase' as const, letterSpacing: '.08em' }}>
+              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, padding: '4px 10px', borderRadius: 4, background: '#0C0C0A', color: '#6F4E37', flexShrink: 0, textTransform: 'uppercase' as const, letterSpacing: '.08em' }}>
                 {item.category}
               </span>
             )}
@@ -4642,7 +4642,7 @@ function CtPanel({
           )}
           {item.tpo && item.tpo.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
-              {item.tpo.map(tp => <span key={tp} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'rgba(197,255,0,.15)', color: '#4E7D00', border: '1px solid rgba(132,176,0,.3)' }}>{tp}</span>)}
+              {item.tpo.map(tp => <span key={tp} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 9999, background: 'rgba(232,93,107,.15)', color: '#4E7D00', border: '1px solid rgba(132,176,0,.3)' }}>{tp}</span>)}
             </div>
           )}
           {ctType === 'care' && (item.tipItems?.length ?? 0) > 0 && (
@@ -4652,7 +4652,7 @@ function CtPanel({
                 {item.tipItems.map((tip, idx) => {
                   if (tip.type === 'tip') {
                     return (
-                      <span key={idx} style={{ fontFamily: f, fontSize: 11, background: 'rgba(197,255,0,0.12)', color: '#4E7D00', padding: '3px 8px', borderRadius: 6, fontWeight: 500 }}>
+                      <span key={idx} style={{ fontFamily: f, fontSize: 11, background: 'rgba(232,93,107,0.12)', color: '#4E7D00', padding: '3px 8px', borderRadius: 6, fontWeight: 500 }}>
                         💡 {tip.text}
                       </span>
                     );
@@ -4685,17 +4685,17 @@ function CtPanel({
           )}
         </div>
         <div style={{ borderTop: '1px solid rgba(12,12,10,.07)', padding: '10px 16px 12px', display: 'flex', gap: 8 }}>
-          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: 10, background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.08)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: 10, background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.08)', color: item.published ? '#6F4E37' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
-          <button onClick={() => openEdit(item)} style={{ flex: 1, padding: 10, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, cursor: 'pointer' }}>편집</button>
+          <button onClick={() => openEdit(item)} style={{ flex: 1, padding: 10, background: '#0C0C0A', color: '#6F4E37', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, cursor: 'pointer' }}>편집</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#FAFAF8', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 100, background: '#F5EDE0', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
       <SubPageHeader title={m.panel.toUpperCase()} onClose={onBack} />
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -4759,7 +4759,7 @@ function CtPanel({
                       borderRadius: 9999,
                       border: `1.5px solid ${careCategoryFilter === cat ? '#0C0C0A' : 'rgba(12,12,10,.18)'}`,
                       background: careCategoryFilter === cat ? '#0C0C0A' : 'transparent',
-                      color: careCategoryFilter === cat ? '#C5FF00' : '#9A9490',
+                      color: careCategoryFilter === cat ? '#6F4E37' : '#9A9490',
                       fontFamily: f,
                       fontSize: 11,
                       fontWeight: 700,
@@ -4824,7 +4824,7 @@ function CtPanel({
                     {...dragHandlers}
                     style={{
                       opacity: isDragging ? 0.4 : 1,
-                      outline: isDragOver ? '2px dashed #C5FF00' : 'none',
+                      outline: isDragOver ? '2px dashed #6F4E37' : 'none',
                       outlineOffset: '4px',
                       borderRadius: '16px',
                       transition: 'opacity 0.15s, outline 0.1s',
@@ -4861,7 +4861,7 @@ function CtPanel({
       {sheetOpen && (
         <>
           <div onClick={closeSheet} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 120 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 130, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 40px)', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 130, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 40px)', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
             <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
               <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
@@ -4891,7 +4891,7 @@ function CtPanel({
                         fontFamily: f,
                         fontSize: 10,
                         fontWeight: 800,
-                        color: '#C5FF00',
+                        color: '#6F4E37',
                         background: '#0C0C0A',
                         border: 'none',
                         borderRadius: 9999,
@@ -4914,7 +4914,7 @@ function CtPanel({
                           borderRadius: 9999,
                           border: `1.5px solid ${sCategory === cat ? '#0C0C0A' : 'rgba(12,12,10,.18)'}`,
                           background: sCategory === cat ? '#0C0C0A' : 'transparent',
-                          color: sCategory === cat ? '#C5FF00' : '#9A9490',
+                          color: sCategory === cat ? '#6F4E37' : '#9A9490',
                           fontFamily: f,
                           fontSize: 11,
                           fontWeight: 700,
@@ -4995,7 +4995,7 @@ function CtPanel({
                 {ctType !== 'lookbook' && (
                   <button
                     onClick={() => setAiCarePanel(true)}
-                    style={{ padding: '4px 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 11, fontWeight: 800, cursor: 'pointer', letterSpacing: '.04em', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' as const }}
+                    style={{ padding: '4px 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#6F4E37', fontFamily: f, fontSize: 11, fontWeight: 800, cursor: 'pointer', letterSpacing: '.04em', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' as const }}
                   >
                     ✨ AI
                   </button>
@@ -5101,7 +5101,7 @@ function CtPanel({
           {picker && (
             <>
               <div onClick={() => setPicker(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 141 }} />
-              <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 142, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+              <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 142, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
                 <div style={{ padding: '12px 16px 0', flexShrink: 0 }}>
                   <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 16px' }} />
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -5122,20 +5122,20 @@ function CtPanel({
                       {filteredProducts.map(p => {
                         const isSel = pickerSelected.has(p.id);
                         return (
-                          <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                          <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); if (n.has(p.id)) n.delete(p.id); else n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: isSel ? 'rgba(232,93,107,.06)' : 'transparent' }}>
                             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>✦</div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
                               {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                             </div>
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${isSel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: isSel ? '#6F4E37' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{isSel ? '✓' : ''}</div>
                           </div>
                         );
                       })}
                       {/* 검색어 있고 결과 없으면 → 이름으로 등록 후 추가 */}
                       {pickerSearch.trim() && filteredProducts.length === 0 && (
-                        <div onClick={() => registerAndAdd(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-                          <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
+                        <div onClick={() => registerAndAdd(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(232,93,107,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 8, background: '#6F4E37', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
                             <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 상세 정보 수정 가능</div>
@@ -5159,7 +5159,7 @@ function CtPanel({
       {categoryManageOpen && (
         <>
           <div onClick={() => setCategoryManageOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 310 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 24px)', maxHeight: '80%', overflowY: 'auto', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 311, background: '#F5EDE0', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 24px)', maxHeight: '80%', overflowY: 'auto', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
             <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -5202,7 +5202,7 @@ function CtPanel({
                       gap: 12,
                       marginBottom: 12,
                       opacity: isDragging ? 0.4 : 1,
-                      outline: isDragOver ? '2px dashed #C5FF00' : 'none',
+                      outline: isDragOver ? '2px dashed #6F4E37' : 'none',
                       outlineOffset: '2px',
                       transition: 'opacity 0.15s, outline 0.1s',
                       cursor: 'default',
