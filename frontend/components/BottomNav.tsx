@@ -70,8 +70,8 @@ export default function BottomNav() {
   return (
     <nav
       style={{
-        background: '#FFFFFF',
-        borderTop: '1px solid #E5E5EA',
+        background: 'var(--color-bg, #FAFAF8)',
+        borderTop: '1px solid rgba(0,0,0,0.06)',
         display: 'flex',
       }}
     >
@@ -88,39 +88,37 @@ export default function BottomNav() {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 4,
+              gap: '5px',
               cursor: 'pointer',
-              padding: '10px 6px',
-              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
+              padding: '12px 6px 20px',
               textDecoration: 'none',
-              position: 'relative',
+              borderRadius: '20px 20px 0 0',
+              background: isActive ? '#0A0A0A' : 'transparent',
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 14px)',
             }}
           >
-            {/* 활성 탭 상단 인디케이터 */}
-            {isActive && (
-              <div style={{
-                position: 'absolute', top: 0, left: '50%',
-                transform: 'translateX(-50%)',
-                width: 28, height: 3,
-                background: '#6F4E37',
-                borderRadius: '0 0 4px 4px',
-              }} />
-            )}
-            <span style={{
-              width: 24, height: 24,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: isActive ? '#6F4E37' : '#8E8E93',
-              transition: 'color .15s',
-            }}>
+            <span
+              style={{
+                width: 24,
+                height: 24,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: isActive ? '#FFFFFF' : '#AAAAAA',
+              }}
+            >
               {item.icon}
             </span>
-            <span style={{
-              fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              color: isActive ? '#6F4E37' : '#8E8E93',
-              transition: 'color .15s',
-            }}>
+            <span
+              style={{
+                fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: isActive ? '#FFFFFF' : '#AAAAAA',
+              }}
+            >
               {item.label}
             </span>
           </Link>

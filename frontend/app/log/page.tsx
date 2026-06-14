@@ -109,7 +109,7 @@ const LIB_CATEGORY_TAGS = ['Life tip', 'Makeup', 'Lookbook'] as const;
 // 카테고리 버튼 색상 팔레트 (순서대로 순환 사용)
 const CAT_COLORS = [
   { selBg: 'rgba(96,165,250,.14)',  selBorder: '#60A5FA', selText: '#1D6DDB' },
-  { selBg: 'rgba(232,93,107,.14)',   selBorder: '#4A7700', selText: '#3A6000' },
+  { selBg: 'rgba(197,255,0,.14)',   selBorder: '#4A7700', selText: '#3A6000' },
   { selBg: 'rgba(255,140,66,.14)',  selBorder: '#FF8C42', selText: '#B85A00' },
   { selBg: 'rgba(167,139,250,.14)', selBorder: '#7C3AED', selText: '#5B21B6' },
   { selBg: 'rgba(251,191,36,.14)',  selBorder: '#D97706', selText: '#92400E' },
@@ -169,7 +169,7 @@ const WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 // 라임 고양이 스탬프 — UwU 눈 + ω 입
 function StampBadge({ size = 22, rotate = -10, full = false }: { size?: number; rotate?: number; full?: boolean }) {
-  const bg = full ? '#6F4E37' : '#E8FFB0';
+  const bg = full ? '#C5FF00' : '#E8FFB0';
   return (
     <svg width={size} height={size} viewBox="0 0 36 36" fill="none" style={{ transform: `rotate(${rotate}deg)`, flexShrink: 0, display: 'block' }}>
       <polygon points="9,16 5,3 17,12" fill={bg} stroke="#0C0C0A" strokeWidth="1.3"/>
@@ -260,7 +260,7 @@ function MonthCalendar({
       fontFamily: fTag, fontSize: 11, fontWeight: 800,
       padding: '3px 9px', borderRadius: 9999,
       background: active ? '#0C0C0A' : 'transparent',
-      color: active ? '#6F4E37' : '#BCBAB6',
+      color: active ? '#C5FF00' : '#BCBAB6',
       border: active ? '1.5px solid transparent' : '1.5px dashed #BCBAB6',
       letterSpacing: '.04em', whiteSpace: 'nowrap' as const,
     }}>{label}</span>
@@ -465,7 +465,7 @@ function MonthCalendar({
               {/* 아침(라임)·저녁(오렌지) 고양이 */}
               <div style={{ display: 'flex', gap: 1, alignItems: 'center', position: 'relative' }}>
                 <span style={{ opacity: log?.hasMorning ? 1 : 0.18 }}>
-                  <CatBadge color={log?.hasMorning ? '#6F4E37' : '#0C0C0A'} size={12} />
+                  <CatBadge color={log?.hasMorning ? '#C5FF00' : '#0C0C0A'} size={12} />
                 </span>
                 <span style={{ opacity: log?.hasEvening ? 1 : 0.18 }}>
                   <CatBadge color={log?.hasEvening ? '#f7bc45' : '#0C0C0A'} size={12} />
@@ -497,7 +497,7 @@ function MonthCalendar({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <CatBadge color="#6F4E37" size={16} />
+          <CatBadge color="#C5FF00" size={16} />
           <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>아침 완료</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -655,7 +655,7 @@ function DayDetail({
         </span>
         {hasLog && (
           <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-            <CatBadge color={label === 'MORNING' ? '#6F4E37' : '#f7bc45'} size={18} />
+            <CatBadge color={label === 'MORNING' ? '#C5FF00' : '#f7bc45'} size={18} />
           </span>
         )}
       </div>
@@ -697,7 +697,7 @@ function DayDetail({
             <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA', marginBottom: 2 }}>TIPS</div>
             {expertProds.map((p) => (
               <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(232,93,107,.18)', border: '1px solid rgba(132,176,0,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>✨</div>
+                <div style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1px solid rgba(132,176,0,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>✨</div>
                 <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 600, color: '#3A6000', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                   {p.name}
                 </div>
@@ -766,7 +766,7 @@ function DayDetail({
           >
             {dayLog ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                {dayLog.hasMorning && <><CatBadge color="#6F4E37" size={13} /><span>아침</span></>}
+                {dayLog.hasMorning && <><CatBadge color="#C5FF00" size={13} /><span>아침</span></>}
                 {dayLog.hasMorning && dayLog.hasEvening && <span> · </span>}
                 {dayLog.hasEvening && <><CatBadge color="#f7bc45" size={13} /><span>저녁</span></>}
               </span>
@@ -781,8 +781,8 @@ function DayDetail({
                   onClick={onToggleMorning}
                   style={{
                     height: 28, padding: '0 12px', borderRadius: 9999,
-                    border: `1.5px solid ${dayLog?.hasMorning ? '#6F4E37' : 'rgba(12,12,10,.2)'}`,
-                    background: dayLog?.hasMorning ? '#6F4E37' : 'transparent',
+                    border: `1.5px solid ${dayLog?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.2)'}`,
+                    background: dayLog?.hasMorning ? '#C5FF00' : 'transparent',
                     fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                     fontSize: 11, fontWeight: 700,
                     color: dayLog?.hasMorning ? '#2D5200' : '#9A9490',
@@ -850,14 +850,14 @@ function DayDetail({
         if (!incomplete) return null;
         const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
         return (
-          <div style={{ margin: '0 12px 12px', padding: '12px 14px', background: '#F5FDD4', border: '1px solid #6F4E37', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ margin: '0 12px 12px', padding: '12px 14px', background: '#F5FDD4', border: '1px solid #C5FF00', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A' }}>
                 {!dayLog?.hasMorning && !dayLog?.hasEvening ? '아침·저녁 루틴이 미완료예요' :
                  !dayLog?.hasMorning ? '아침 루틴이 미완료예요' : '저녁 루틴이 미완료예요'}
               </div>
             </div>
-            <Link href="/" style={{ flexShrink: 0, height: 32, padding: '0 14px', background: '#0C0C0A', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#6F4E37', textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+            <Link href="/" style={{ flexShrink: 0, height: 32, padding: '0 14px', background: '#0C0C0A', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
               TODAY →
             </Link>
           </div>
@@ -889,7 +889,7 @@ function DayDetail({
         const evMeds = doneMeds.filter(m => periodOf(m) === 'ev');
         const MedRow = ({ m, col }: { m: import('@/types/medication').MedRoutine; col: string }) => (
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
-            <CatBadge color="#6F4E37" size={14} />
+            <CatBadge color="#C5FF00" size={14} />
             <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: col, width: 36, flexShrink: 0 }}>{getTime(m)}</span>
             <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#9A9490', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
           </div>
@@ -936,7 +936,7 @@ function DayDetail({
                   const pt = timed.length > 0 ? (timed as string[]).sort()[0] : (h.time && h.time.includes(':') ? h.time : '');
                   return (
                     <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
-                      <CatBadge color="#6F4E37" size={14} />
+                      <CatBadge color="#C5FF00" size={14} />
                       {pt && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4CAF50', width: 36, flexShrink: 0 }}>{pt}</span>}
                       <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#9A9490', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
                     </div>
@@ -969,14 +969,14 @@ function DayDetail({
               return (
                 <div key={p.id} style={{ marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                    {programDone && <CatBadge color="#6F4E37" size={14} />}
+                    {programDone && <CatBadge color="#C5FF00" size={14} />}
                     <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A' }}>{p.name}</span>
                     <span style={{ fontFamily: f, fontWeight: 400, color: '#9A9490', fontSize: 10 }}>D+{dayN} · {pat.label}</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {slots.map(slot => (
                       <div key={slot.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '3px 0' }}>
-                        {slot.time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: '#0C0C0A', color: '#6F4E37', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
+                        {slot.time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: '#0C0C0A', color: '#C5FF00', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
                         <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{slot.label}</span>
                       </div>
                     ))}
@@ -1125,7 +1125,7 @@ function RecentStrip({
                   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                   fontSize: 10,
                   fontWeight: 700,
-                  color: isSelected && today ? '#FFFFFF' : isSelected ? '#6F4E37' : '#9A9490',
+                  color: isSelected && today ? '#FFFFFF' : isSelected ? '#C5FF00' : '#9A9490',
                 }}
               >
                 {format(day, 'EEE', { locale: ko }).slice(0, 1)}
@@ -1147,7 +1147,7 @@ function RecentStrip({
               {/* 오늘: 하나라도 완료면 캐릭터 / 나머지: 아침(라임)·저녁(블랙) 닷 */}
               {/* 아침(라임)·저녁(오렌지) SVG 고양이 */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center' }}>
-                <span style={{ opacity: log?.hasMorning ? 1 : 0.8 }}><CatBadge color={log?.hasMorning ? '#6F4E37' : 'rgba(12,12,10,.12)'} size={18} /></span>
+                <span style={{ opacity: log?.hasMorning ? 1 : 0.8 }}><CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={18} /></span>
                 <span style={{ opacity: log?.hasEvening ? 1 : 0.8 }}><CatBadge color={log?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.12)'} size={18} /></span>
               </div>
             </button>
@@ -1178,7 +1178,7 @@ function LogLibraryCard({
   const f = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
   const isMakeup = item.ctType === 'makeup';
   const badge = isMakeup ? '#MAKEUP' : '#LOOKBOOK';
-  const badgeBg = isMakeup ? '#6F4E37' : '#FF8C42';
+  const badgeBg = isMakeup ? '#C5FF00' : '#FF8C42';
   const badgeTextColor = isMakeup ? '#3A6000' : '#7A3000';
   const todayStr = format(new Date(), 'yyyy-MM-dd');
   const isOnToday = item.published && (item.dates ?? []).includes(todayStr);
@@ -1296,7 +1296,7 @@ function LogLibraryCard({
         {recentDates.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {recentDates.map(d => (
-              <span key={d} style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: d === todayStr ? '#0C0C0A' : '#6B6966', background: d === todayStr ? '#6F4E37' : '#F3F3F1', padding: '3px 10px', borderRadius: 9999 }}>
+              <span key={d} style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: d === todayStr ? '#0C0C0A' : '#6B6966', background: d === todayStr ? '#C5FF00' : '#F3F3F1', padding: '3px 10px', borderRadius: 9999 }}>
                 {format(new Date(d), 'MM.dd')}
               </span>
             ))}
@@ -1513,7 +1513,7 @@ function AddItemSheet({
           {/* 버튼 */}
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={onClose} style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
-            <button onClick={handleSave} disabled={saving || !name.trim()} style={{ flex: 1, height: 52, background: name.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: name.trim() ? '#6F4E37' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: name.trim() ? 'pointer' : 'default' }}>
+            <button onClick={handleSave} disabled={saving || !name.trim()} style={{ flex: 1, height: 52, background: name.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: name.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: name.trim() ? 'pointer' : 'default' }}>
               {saving ? '저장 중...' : '저장'}
             </button>
           </div>
@@ -1524,7 +1524,7 @@ function AddItemSheet({
       {pickerOpen && (
         <>
           <div onClick={() => setPickerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 220 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 230, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 230, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
               <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
               <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)} placeholder="제품 검색..." autoFocus style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
@@ -1534,7 +1534,7 @@ function AddItemSheet({
                 const sel = selectedProds.has(p.id);
                 const imgSrc = p.imageUrl || p.storageUrl;
                 return (
-                  <div key={p.id} onClick={() => setSelectedProds(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(232,93,107,.06)' : 'transparent' }}>
+                  <div key={p.id} onClick={() => setSelectedProds(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{ctType === 'makeup' ? '💄' : '👗'}</span>}
@@ -1543,14 +1543,14 @@ function AddItemSheet({
                       <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
                       {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                     </div>
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#6F4E37' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                   </div>
                 );
               })}
               {/* 검색어 있고 결과 없으면 → 이름으로 BOX 등록 후 추가 */}
               {pickerSearch.trim() && filteredProds.length === 0 && (
-                <div onClick={() => registerAndAddProduct(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(232,93,107,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 8, background: '#6F4E37', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
+                <div onClick={() => registerAndAddProduct(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
                     <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 상세 정보 수정 가능</div>
@@ -1759,14 +1759,14 @@ function LogCtPanel({
     interior: '#INTERIOR',
   };
   const DOMAIN_BADGE_COLOR: Record<string, string> = {
-    beauty:   '#6F4E37',
+    beauty:   '#C5FF00',
     fashion:  '#FF8C42',
     acc:      '#FFD700',
     interior: '#69DB7C',
   };
   const BG = DOMAIN_BG[filter] ?? 'linear-gradient(135deg,#f0f0f0 0%,#d0d0d0 100%)';
   const BADGE = DOMAIN_BADGE[filter] ?? `#${(DOMAIN_LABELS[filter] ?? filter).toUpperCase()}`;
-  const BADGE_COLOR = DOMAIN_BADGE_COLOR[filter] ?? '#6F4E37';
+  const BADGE_COLOR = DOMAIN_BADGE_COLOR[filter] ?? '#C5FF00';
 
   function HubStyleCard({ item, featured }: { item: CtItem; featured?: boolean }) {
     const today = format(new Date(), 'yyyy-MM-dd');
@@ -1779,7 +1779,7 @@ function LogCtPanel({
 
     /* ── featured(Card 1): 이미지 + 배지/제목 + 제품 스크롤 + CTA ── */
     if (featured) return (
-      <div style={{ background: '#F5EDE0', overflow: 'hidden' }}>
+      <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
         <div style={{ width: '100%', height: 340, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, overflow: 'visible', position: 'relative' }}>
           {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : item.emoji || (DOMAIN_EMOJIS[filter] ?? '📦')}
           {isOnToday && (
@@ -1812,7 +1812,7 @@ function LogCtPanel({
           </div>
         )}
         <div style={{ padding: '0 12px 12px', display: 'flex', gap: 6 }}>
-          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#6F4E37' : '#9A9490', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
           <button onClick={() => openEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>편집</button>
@@ -1822,7 +1822,7 @@ function LogCtPanel({
 
     /* ── square(Card 2+): 이미지 + 이름 오버레이 + 소형 제품 + 편집버튼 ── */
     return (
-      <div style={{ background: '#F5EDE0', overflow: 'hidden' }}>
+      <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
         {/* 이미지 — 이름 오버레이 포함 */}
         <div style={{ width: '100%', height: 180, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, overflow: 'visible', position: 'relative' }}>
           {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : item.emoji || (DOMAIN_EMOJIS[filter] ?? '📦')}
@@ -1857,7 +1857,7 @@ function LogCtPanel({
         )}
         {/* 편집 버튼 */}
         <div style={{ padding: '0 8px 8px', display: 'flex', gap: 4 }}>
-          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#6F4E37' : '#9A9490', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
           <button onClick={() => openEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>편집</button>
@@ -1909,7 +1909,7 @@ function LogCtPanel({
       {sheetOpen && (
         <>
           <div onClick={closeSheet} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
             <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
               <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
@@ -2125,7 +2125,7 @@ function LogCtPanel({
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={closeSheet} style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
-                <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 1, height: 52, background: sName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: sName.trim() ? '#6F4E37' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default' }}>
+                <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 1, height: 52, background: sName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: sName.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default' }}>
                   {saving ? '저장 중...' : editItem ? '수정' : '저장'}
                 </button>
               </div>
@@ -2139,7 +2139,7 @@ function LogCtPanel({
           {picker && (
             <>
               <div onClick={() => setPicker(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 220 }} />
-              <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 230, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 230, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
                   <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
                   {/* 도메인 탭 */}
@@ -2176,7 +2176,7 @@ function LogCtPanel({
                     const sel = pickerSelected.has(p.id);
                     const imgSrc = p.imageUrl || p.storageUrl;
                     return (
-                      <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(232,93,107,.06)' : 'transparent' }}>
+                      <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                         <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{DOMAIN_EMOJIS[filter] ?? '📦'}</span>}
@@ -2185,7 +2185,7 @@ function LogCtPanel({
                           <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
                           {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                         </div>
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#6F4E37' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                       </div>
                     );
                   })}
@@ -2197,8 +2197,8 @@ function LogCtPanel({
                       const ref = await addDoc(collection(db, 'users', userId, 'products'), { name: pickerSearch.trim(), brand: '', domain, packageCount: 1, unitPerPackage: 0, itemUnit: '', totalAmount: 0, dosePerUse: 0, usesPerDay: 1, frequencyType: 'daily', currentRemaining: 0, createdAt: now, updatedAt: now });
                       setPickerSelected(prev => { const n = new Set(prev); n.add(ref.id); return n; });
                       setPickerSearch('');
-                    }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(232,93,107,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#6F4E37', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>+</div>
+                    }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>+</div>
                       <div>
                         <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
                         <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 수정 가능</div>
@@ -3396,7 +3396,7 @@ function LogPageInner() {
 
   // ── 렌더링 ──
   return (
-    <div style={{ background: '#F5EDE0', minHeight: '100%', position: 'relative' }}>
+    <div style={{ background: '#FAFAF8', minHeight: '100%', position: 'relative' }}>
 
       <div style={{ paddingBottom: 100 }}>
 
@@ -3568,7 +3568,7 @@ function LogPageInner() {
                   );
                   const CheckDot = ({ done }: { done: boolean }) => (
                     <div style={{ width: 16, height: 16, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {done ? <CatBadge color="#6F4E37" size={16} /> : <div style={{ width: 14, height: 14, borderRadius: 3, border: '1.5px solid rgba(12,12,10,.2)' }} />}
+                      {done ? <CatBadge color="#C5FF00" size={16} /> : <div style={{ width: 14, height: 14, borderRadius: 3, border: '1.5px solid rgba(12,12,10,.2)' }} />}
                     </div>
                   );
 
@@ -3724,7 +3724,7 @@ function LogPageInner() {
                                     <CheckDot done={done} />
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                                        {slot.time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: done ? '#F0F0ED' : '#0C0C0A', color: done ? '#BCBAB6' : '#6F4E37', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
+                                        {slot.time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: done ? '#F0F0ED' : '#0C0C0A', color: done ? '#BCBAB6' : '#C5FF00', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
                                         <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none' }}>{slot.label}</span>
                                         {slot.water > 0 && <span style={{ fontFamily: f, fontSize: 10, color: '#4A9ED6', fontWeight: 700, marginLeft: 'auto' }}>💧{slot.water}ml</span>}
                                       </div>
@@ -4022,7 +4022,7 @@ function LogPageInner() {
                       cursor: 'pointer', transition: 'all .15s',
                       whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis',
                       ...(ref.inLibrary
-                        ? { background: '#0C0C0A', border: '1px solid transparent', color: '#6F4E37' }
+                        ? { background: '#0C0C0A', border: '1px solid transparent', color: '#C5FF00' }
                         : ref.cachedLibrary
                           ? { background: 'rgba(12,12,10,.04)', border: '1px solid rgba(12,12,10,.14)', color: '#6A6866' }
                           : { background: 'transparent', border: '1.5px dashed rgba(12,12,10,.25)', color: '#4A4846' }
@@ -4084,7 +4084,7 @@ function LogPageInner() {
             <div style={{ paddingTop: 16, paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
 
               {/* ── 수집 등록 폼 ── 편집 시트와 동일한 레이아웃·스타일 */}
-              <div style={{ margin: '0 16px 16px', background: '#F5EDE0', borderRadius: 16, padding: '16px 16px 20px', border: '1px solid rgba(12,12,10,.08)' }}>
+              <div style={{ margin: '0 16px 16px', background: '#FAFAF8', borderRadius: 16, padding: '16px 16px 20px', border: '1px solid rgba(12,12,10,.08)' }}>
 
                 {/* 헤더 */}
                 <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>새 수집 추가</div>
@@ -4121,7 +4121,7 @@ function LogPageInner() {
                     {refOgLoading && (
                       <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none' }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
-                          <circle cx="12" cy="12" r="10" stroke="#6F4E37" strokeWidth="2.5" strokeDasharray="30" strokeDashoffset="10"/>
+                          <circle cx="12" cy="12" r="10" stroke="#C5FF00" strokeWidth="2.5" strokeDasharray="30" strokeDashoffset="10"/>
                         </svg>
                         <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490' }}>미리보기 중...</span>
                       </div>
@@ -4386,13 +4386,13 @@ function LogPageInner() {
             {(() => {
               const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
               const TAB_COLOR: Record<string, { active: string; bg: string; text: string }> = {
-                all:      { active: '#0C0C0A', bg: '#0C0C0A',                text: '#6F4E37' },
-                beauty:   { active: '#6F4E37', bg: 'rgba(232,93,107,.14)',   text: '#3A6000' },
+                all:      { active: '#0C0C0A', bg: '#0C0C0A',                text: '#C5FF00' },
+                beauty:   { active: '#C5FF00', bg: 'rgba(197,255,0,.14)',   text: '#3A6000' },
                 fashion:  { active: '#FF8C42', bg: 'rgba(255,140,66,.14)',  text: '#B85A00' },
                 acc:      { active: '#FFD700', bg: 'rgba(255,215,0,.14)',   text: '#7A5A00' },
                 interior: { active: '#69DB7C', bg: 'rgba(105,219,124,.14)', text: '#1E6B30' },
                 lifetip:  { active: '#60A5FA', bg: 'rgba(96,165,250,.14)', text: '#1D6DDB' },
-                ootd:     { active: '#6F4E37', bg: 'rgba(232,93,107,.14)',   text: '#3A6000' },
+                ootd:     { active: '#C5FF00', bg: 'rgba(197,255,0,.14)',   text: '#3A6000' },
               };
               // allLibItems에서 실제 존재하는 도메인 목록 (순서: beauty → fashion → acc → interior → 기타)
               const DOMAIN_ORDER = ['beauty', 'fashion', 'acc', 'interior'];
@@ -4553,7 +4553,7 @@ function LogPageInner() {
                               {(log.tags ?? []).length > 0 && (
                                 <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginTop: 8 }}>
                                   {(log.tags ?? []).map(tag => (
-                                    <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 9999, background: '#0C0C0A', color: '#6F4E37', letterSpacing: '.02em' }}>
+                                    <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 9999, background: '#0C0C0A', color: '#C5FF00', letterSpacing: '.02em' }}>
                                       #{tag.replace(/^#/, '')}
                                     </span>
                                   ))}
@@ -4634,11 +4634,11 @@ function LogPageInner() {
                     {sortedItems.map(item => {
                       // 도메인 기반 배지 색상
                       const itemDomain = item.domain ?? (item.ctType === 'makeup' ? 'beauty' : 'fashion');
-                      const CARD_BADGE_BG: Record<string, string> = { beauty: '#6F4E37', fashion: '#FF8C42', acc: '#FFD700', interior: '#69DB7C' };
+                      const CARD_BADGE_BG: Record<string, string> = { beauty: '#C5FF00', fashion: '#FF8C42', acc: '#FFD700', interior: '#69DB7C' };
                       const CARD_BADGE_TEXT: Record<string, string> = { beauty: '#3A6000', fashion: '#7A3000', acc: '#7A5A00', interior: '#1E6B30' };
                       const CARD_BADGE_LABELS: Record<string, string> = { beauty: '#MAKEUP', fashion: '#LOOKBOOK', acc: '#ACCESSORY', interior: '#INTERIOR' };
                       const badge = CARD_BADGE_LABELS[itemDomain] ?? `#${(DOMAIN_LABELS[itemDomain] ?? itemDomain).toUpperCase()}`;
-                      const badgeBg2 = CARD_BADGE_BG[itemDomain] ?? '#6F4E37';
+                      const badgeBg2 = CARD_BADGE_BG[itemDomain] ?? '#C5FF00';
                       const badgeText2 = CARD_BADGE_TEXT[itemDomain] ?? '#3A6000';
                       const isOnToday = item.published && (item.dates ?? []).includes(todayStr);
                       const prodItems = item.items.filter((i): i is { type: 'product'; id: string } => i.type === 'product');
@@ -4733,7 +4733,7 @@ function LogPageInner() {
                                 {(log.tags ?? []).length > 0 && (
                                   <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginTop: 8 }}>
                                     {(log.tags ?? []).map(tag => (
-                                      <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 9999, background: '#0C0C0A', color: '#6F4E37', letterSpacing: '.02em' }}>
+                                      <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 9999, background: '#0C0C0A', color: '#C5FF00', letterSpacing: '.02em' }}>
                                         #{tag.replace(/^#/, '')}
                                       </span>
                                     ))}
@@ -4868,10 +4868,10 @@ function LogPageInner() {
             style={{
               position: 'fixed', bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)', right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 40,
               width: 52, height: 52, borderRadius: 9999,
-              background: '#6F4E37', color: '#0C0C0A',
+              background: '#C5FF00', color: '#0C0C0A',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: 'none', cursor: 'pointer',
-              boxShadow: '0 4px 20px rgba(232,93,107,.4)',
+              boxShadow: '0 4px 20px rgba(197,255,0,.4)',
               fontSize: 22, fontWeight: 700,
               transform: fabMenuOpen ? 'rotate(45deg)' : 'rotate(0deg)',
               transition: 'transform .2s',
@@ -4893,7 +4893,7 @@ function LogPageInner() {
             <div onClick={() => setEditingLifetip(null)}
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
             {/* 시트 — Makeup/Lookbook과 동일한 center constraint, sticky 헤더 */}
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
 
               {/* Sticky 헤더 — Makeup/Lookbook과 동일 */}
               <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
@@ -5121,7 +5121,7 @@ function LogPageInner() {
                   <button type="button" onClick={() => setEditingLifetip(null)}
                     style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
                   <button type="button" onClick={saveLifetipEdit} disabled={lifetipEditSaving || !lifetipEditName.trim()}
-                    style={{ flex: 1, height: 52, background: lifetipEditName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: lifetipEditName.trim() ? '#6F4E37' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: lifetipEditName.trim() ? 'pointer' : 'default' }}>
+                    style={{ flex: 1, height: 52, background: lifetipEditName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: lifetipEditName.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: lifetipEditName.trim() ? 'pointer' : 'default' }}>
                     {lifetipEditSaving ? '저장 중...' : '수정'}
                   </button>
                 </div>
@@ -5149,7 +5149,7 @@ function LogPageInner() {
               return (
                 <>
                   <div onClick={() => setLifetipPickerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 320 }} />
-                  <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
                       <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
                       {/* 도메인 선택 탭 — 가로 스크롤 */}
@@ -5185,7 +5185,7 @@ function LogPageInner() {
                         const imgSrc = p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl;
                         return (
                           <div key={p.id} onClick={() => setLifetipEditProductIds(ids => sel ? ids.filter(id => id !== p.id) : [...ids, p.id])}
-                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(232,93,107,.06)' : 'transparent' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                               {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{DOMAIN_EMOJIS[p.domain ?? ''] ?? '🧴'}</span>}
                             </div>
@@ -5195,7 +5195,7 @@ function LogPageInner() {
                                 {DOMAIN_LABELS[p.domain ?? ''] ?? p.domain ?? ''}{p.brand ? ` · ${p.brand}` : ''}
                               </div>
                             </div>
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#6F4E37' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                           </div>
                         );
                       })}
@@ -5278,7 +5278,7 @@ function LogPageInner() {
           <>
             <div onClick={() => setRefCachePreview(null)}
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '88vh', overflowY: 'auto', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 28px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '88vh', overflowY: 'auto', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 28px)', scrollbarWidth: 'none' as const }}>
 
               {/* 핸들 */}
               <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 20px' }} />
@@ -5408,7 +5408,7 @@ function LogPageInner() {
                       libraryItemType: newItemType,
                     });
                   }}
-                  style={{ width: '100%', height: 52, background: '#0C0C0A', border: 'none', borderRadius: 14, fontFamily: f, fontSize: 14, fontWeight: 800, color: '#6F4E37', cursor: 'pointer', letterSpacing: '.02em' }}>
+                  style={{ width: '100%', height: 52, background: '#0C0C0A', border: 'none', borderRadius: 14, fontFamily: f, fontSize: 14, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', letterSpacing: '.02em' }}>
                   이대로 등록
                 </button>
 
@@ -5439,7 +5439,7 @@ function LogPageInner() {
         return (
           <>
             <div onClick={() => setRefToLib(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflowY: 'auto', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 24px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflowY: 'auto', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 24px)', scrollbarWidth: 'none' as const }}>
               <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 16px' }} />
               <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: refToLibCacheData ? 4 : 16 }}>라이브러리에 등록</div>
               {refToLibCacheData && (
@@ -5722,7 +5722,7 @@ function LogPageInner() {
             {/* 딤 오버레이 */}
             <div onClick={() => setEditingRef(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
             {/* 시트 */}
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', padding: '10px 20px calc(env(safe-area-inset-bottom,0px) + 24px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', padding: '10px 20px calc(env(safe-area-inset-bottom,0px) + 24px)', scrollbarWidth: 'none' as const }}>
 
               {/* 핸들 */}
               <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 16px' }} />
@@ -5934,7 +5934,7 @@ function LogPageInner() {
         return (
           <>
             <div onClick={() => setEditingOotd(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', padding: '10px 20px calc(env(safe-area-inset-bottom,0px) + 24px)' }}>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', padding: '10px 20px calc(env(safe-area-inset-bottom,0px) + 24px)' }}>
               <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 18px' }} />
               <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', marginBottom: 4 }}>{editingOotd.date}</div>
               <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 16 }}>오늘의 룩 편집</div>
@@ -5956,13 +5956,13 @@ function LogPageInner() {
                 {/* 현재 선택값이 목록에 없으면 별도 칩으로 표시 */}
                 {editCategoryNotInList && (
                   <button key={ootdEditCategory} type="button" onClick={() => setOotdEditCategory('')}
-                    style={{ padding: '6px 14px', borderRadius: 9999, border: '1.5px solid #0C0C0A', background: '#0C0C0A', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#6F4E37', cursor: 'pointer', transition: 'all .15s' }}>
+                    style={{ padding: '6px 14px', borderRadius: 9999, border: '1.5px solid #0C0C0A', background: '#0C0C0A', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', transition: 'all .15s' }}>
                     {ootdEditCategory}
                   </button>
                 )}
                 {ootdTagList.map(t => (
                   <button key={t} type="button" onClick={() => setOotdEditCategory(ootdEditCategory === t ? '' : t)}
-                    style={{ padding: '6px 14px', borderRadius: 9999, border: `1.5px solid ${ootdEditCategory === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: ootdEditCategory === t ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: ootdEditCategory === t ? '#6F4E37' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
+                    style={{ padding: '6px 14px', borderRadius: 9999, border: `1.5px solid ${ootdEditCategory === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: ootdEditCategory === t ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: ootdEditCategory === t ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
                     {t}
                   </button>
                 ))}
@@ -6089,7 +6089,7 @@ function LogPageInner() {
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 8 }}>
                 <button type="button" onClick={() => setEditingOotd(null)} style={{ flex: 1, height: 52, background: '#F0EFEA', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-                <button type="button" onClick={saveOotdEdit} disabled={ootdEditSaving} style={{ flex: 1, height: 52, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#6F4E37', cursor: 'pointer', opacity: ootdEditSaving ? .6 : 1 }}>
+                <button type="button" onClick={saveOotdEdit} disabled={ootdEditSaving} style={{ flex: 1, height: 52, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', opacity: ootdEditSaving ? .6 : 1 }}>
                   {ootdEditSaving ? '저장 중…' : '저장'}
                 </button>
               </div>
@@ -6109,7 +6109,7 @@ function LogPageInner() {
               return (
                 <>
                   <div onClick={() => setOotdPickerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 320 }} />
-                  <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
                       <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
                       {sortedDomains.length > 1 && (
@@ -6141,7 +6141,7 @@ function LogPageInner() {
                         const imgSrc = p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl;
                         return (
                           <div key={p.id} onClick={() => setOotdEditProductIds(ids => sel ? ids.filter(id => id !== p.id) : [...ids, p.id])}
-                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(232,93,107,.06)' : 'transparent' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                               {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{DOMAIN_EMOJIS[p.domain ?? ''] ?? '📦'}</span>}
                             </div>
@@ -6149,7 +6149,7 @@ function LogPageInner() {
                               <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
                               {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                             </div>
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#6F4E37' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                           </div>
                         );
                       })}
@@ -6176,7 +6176,7 @@ function LogPageInner() {
           <>
             <div onClick={() => setNewLifetipOpen(false)}
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#F5EDE0', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
 
               {/* Sticky 헤더 */}
               <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
@@ -6345,7 +6345,7 @@ function LogPageInner() {
                     취소
                   </button>
                   <button type="button" onClick={saveNewLifetip} disabled={!newLifetipName.trim() || newLifetipSaving}
-                    style={{ flex: 2, height: 52, background: newLifetipName.trim() ? '#0C0C0A' : '#E4E2DC', color: newLifetipName.trim() ? '#6F4E37' : '#BCBAB6', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 800, cursor: newLifetipName.trim() ? 'pointer' : 'default', letterSpacing: '.02em' }}>
+                    style={{ flex: 2, height: 52, background: newLifetipName.trim() ? '#0C0C0A' : '#E4E2DC', color: newLifetipName.trim() ? '#C5FF00' : '#BCBAB6', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 800, cursor: newLifetipName.trim() ? 'pointer' : 'default', letterSpacing: '.02em' }}>
                     {newLifetipSaving ? '등록 중...' : '등록'}
                   </button>
                 </div>

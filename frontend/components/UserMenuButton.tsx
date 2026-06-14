@@ -26,7 +26,7 @@ export default function UserMenuButton({
         style={{
           height: 44, padding: '0 26px', borderRadius: 9999,
           background: '#0C0C0A', border: 'none', cursor: 'pointer',
-          color: '#6F4E37',
+          color: '#C5FF00',
           fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
           fontSize: 11, fontWeight: 700, letterSpacing: '.04em',
         }}
@@ -80,7 +80,7 @@ export default function UserMenuButton({
               left: 'max(0px,calc(50vw - 215px))',
               right: 'max(0px,calc(50vw - 215px))',
               zIndex: 510,
-              background: '#F5EDE0', borderRadius: '20px 20px 0 0',
+              background: '#FAFAF8', borderRadius: '20px 20px 0 0',
               padding: '12px 20px calc(env(safe-area-inset-bottom, 0px) + 40px)',
               boxShadow: '0 -4px 40px rgba(0,0,0,.12)',
             }}

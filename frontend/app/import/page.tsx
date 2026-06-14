@@ -189,7 +189,7 @@ function InputSection({
           fontSize: 13,
           lineHeight: 1.7,
           color: '#0C0C0A',
-          background: '#F5EDE0',
+          background: '#FAFAF8',
           boxSizing: 'border-box',
           minHeight: 180,
         }}
@@ -229,7 +229,7 @@ function InputSection({
             border: 'none',
             cursor: isParsing || !text.trim() ? 'not-allowed' : 'pointer',
             background: isParsing || !text.trim() ? 'rgba(12,12,10,.08)' : '#0C0C0A',
-            color: isParsing || !text.trim() ? '#9A9490' : '#6F4E37',
+            color: isParsing || !text.trim() ? '#9A9490' : '#C5FF00',
             fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
             fontSize: 12,
             fontWeight: 800,
@@ -247,7 +247,7 @@ function InputSection({
                   width: 12,
                   height: 12,
                   border: '2px solid rgba(255,255,255,.3)',
-                  borderTopColor: '#6F4E37',
+                  borderTopColor: '#C5FF00',
                   borderRadius: 9999,
                   display: 'inline-block',
                   animation: 'spin 0.8s linear infinite',
@@ -297,7 +297,7 @@ function ResultSection({
       <div
         style={{
           background: 'linear-gradient(135deg, #f0ffe0 0%, #e8ffc0 100%)',
-          border: '1px solid rgba(232,93,107,.3)',
+          border: '1px solid rgba(197,255,0,.3)',
           borderRadius: 16,
           padding: '14px 26px',
           marginBottom: 12,
@@ -318,7 +318,7 @@ function ResultSection({
             {result.session}회차
             {result.date ? ` · ${result.date}` : ''}
             {result.tag && (
-              <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 9999, background: '#0C0C0A', color: '#6F4E37', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em' }}>
+              <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 9999, background: '#0C0C0A', color: '#C5FF00', fontSize: 11, fontWeight: 700, letterSpacing: '0.04em' }}>
                 {result.tag}
               </span>
             )}
@@ -414,7 +414,7 @@ function ResultSection({
                         height: 22,
                         borderRadius: 9999,
                         background: '#0C0C0A',
-                        color: '#6F4E37',
+                        color: '#C5FF00',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -446,7 +446,7 @@ function ResultSection({
                                 borderRadius: 9999,
                                 background: isMatched ? '#F5FDD4' : '#F4F4F0',
                                 border: isMatched
-                                  ? '1px solid rgba(232,93,107,.4)'
+                                  ? '1px solid rgba(197,255,0,.4)'
                                   : '1px solid rgba(12,12,10,.1)',
                                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                                 fontSize: 11,
@@ -550,7 +550,7 @@ function ResultSection({
             border: 'none',
             cursor: isSaving ? 'not-allowed' : 'pointer',
             background: isSaving ? 'rgba(12,12,10,.08)' : '#0C0C0A',
-            color: isSaving ? '#9A9490' : '#6F4E37',
+            color: isSaving ? '#9A9490' : '#C5FF00',
             fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
             fontSize: 13,
             fontWeight: 800,
@@ -728,7 +728,7 @@ export default function ImportPage() {
   // ── 성공 화면 ──
   if (pageState === 'done') {
     return (
-      <div style={{ background: '#F5EDE0', minHeight: '100%' }}>
+      <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
         <div
           style={{
             display: 'flex',
@@ -792,7 +792,7 @@ export default function ImportPage() {
                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                 fontSize: 13,
                 fontWeight: 800,
-                color: '#6F4E37',
+                color: '#C5FF00',
               }}
             >
               또 가져오기
@@ -804,7 +804,7 @@ export default function ImportPage() {
   }
 
   return (
-    <div style={{ background: '#F5EDE0', minHeight: '100%' }}>
+    <div style={{ background: '#FAFAF8', minHeight: '100%' }}>
       {/* CSS 애니메이션 (로딩 스피너용) */}
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }

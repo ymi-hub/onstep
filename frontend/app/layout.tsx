@@ -74,7 +74,7 @@ export default function RootLayout({
             height: '100dvh',
             display: 'flex',
             flexDirection: 'column',
-            background: '#F5EDE0',
+            background: '#FAFAF8',
             overflowX: 'hidden',
             boxShadow: '0 0 60px rgba(0,0,0,0.12)',
           }}

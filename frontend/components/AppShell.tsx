@@ -61,12 +61,12 @@ function GlobalToast() {
       {/* 체크 아이콘 */}
       <div style={{
         width: 24, height: 24, borderRadius: '50%',
-        background: '#6F4E37',
+        background: '#C5FF00',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0,
       }}>
         <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
-          <polyline points="2,6 5,9 10,3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <polyline points="2,6 5,9 10,3" stroke="#0C0C0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
       {/* 메시지 */}
@@ -95,7 +95,7 @@ function GlobalAlarmBanner() {
         right: 'max(0px, calc(50vw - 215px))',
         zIndex: 9999,
         background: '#0C0C0A',
-        borderBottom: '2.5px solid #6F4E37',
+        borderBottom: '2.5px solid #C5FF00',
         boxShadow: '0 8px 40px rgba(0,0,0,.9)',
       }}
     >
@@ -131,7 +131,7 @@ function GlobalAlarmBanner() {
         }}>
           {/* 외부 링 */}
           <svg width="56" height="56" viewBox="0 0 56 56" style={{ position: 'absolute', top: 0, left: 0 }}>
-            <circle cx="28" cy="28" r="25" fill="none" stroke="#6F4E37" strokeWidth="3" strokeDasharray="157" strokeDashoffset="0" strokeLinecap="round" />
+            <circle cx="28" cy="28" r="25" fill="none" stroke="#C5FF00" strokeWidth="3" strokeDasharray="157" strokeDashoffset="0" strokeLinecap="round" />
           </svg>
           {/* 내부 원 배경 */}
           <div style={{
@@ -140,7 +140,7 @@ function GlobalAlarmBanner() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             {/* 시계 SVG */}
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#6F4E37" strokeWidth="2" strokeLinecap="round">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C5FF00" strokeWidth="2" strokeLinecap="round">
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
@@ -149,7 +149,7 @@ function GlobalAlarmBanner() {
 
         {/* 텍스트 */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: F, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#6F4E37', marginBottom: 3 }}>
+          <div style={{ fontFamily: F, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#C5FF00', marginBottom: 3 }}>
             ✓ 대기 완료
           </div>
           <div style={{ fontFamily: F, fontSize: 17, fontWeight: 700, color: '#fff', lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -165,13 +165,13 @@ function GlobalAlarmBanner() {
           className="alarm-banner-pulse"
           style={{
             width: 44, height: 44, borderRadius: '50%',
-            background: '#6F4E37',
+            background: '#C5FF00',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, cursor: 'pointer',
           }}
           onClick={dismissAlarm}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
           </svg>
