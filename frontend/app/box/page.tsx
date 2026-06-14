@@ -118,7 +118,7 @@ function getVirtualRemaining(product: Product): { remaining: number; pct: number
   const baseRemaining = product.currentRemaining ?? divisor;
 
   // 자동 소진 계산 조건: 뷰티-스킨케어, 시작일이 있고, 사용 패턴이 "불규칙"이 아닌 경우
-  const dailyUsage = (product.dosePerUse ?? 0) * (product.usesPerDay ?? 1) * ((product.frequencyValue ?? 7) / 7);
+  const dailyUsage = (product.dosePerUse ?? 0) * (product.usesPerDay ?? 0) * ((product.frequencyValue ?? 0) / 7);
   const hasRegularPattern = product.frequencyValue !== 0 && dailyUsage > 0;
 
   if (isSkincare && product.startDate && hasRegularPattern && product.updatedAt) {
@@ -166,8 +166,8 @@ const CATEGORY_DOSE_DEFAULTS: Record<string, { dose: number; unit: string }> = {
   '세럼':     { dose: 0.3,  unit: 'ml' },
   '에센스':   { dose: 0.3,  unit: 'ml' },
   '앰플':     { dose: 0.3,  unit: 'ml' },
-  '크림':     { dose: 0.45, unit: 'g' },
-  '아이크림': { dose: 0.12, unit: 'g' },
+  '크림':     { dose: 0.45, unit: 'ml' },
+  '아이크림': { dose: 0.12, unit: 'ml' },
   '토너':     { dose: 2.0,  unit: 'ml' },
   '선크림':   { dose: 1.25, unit: 'ml' },
   '클렌저':   { dose: 0.6,  unit: 'ml' },
@@ -226,8 +226,8 @@ const INITIAL_FORM: FormState = {
   formSubType: 'skincare',
   packageCount: 1,
   unitPerPackage: 1,
-  usesPerDay: 2,
-  dosePerUse: 0.3,
+  usesPerDay: 0,
+  dosePerUse: 0,
   daysPerWeek: 0,
   purchaseDate: '',
   expiryDate: '',
@@ -271,15 +271,15 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
         <MagImg product={hero} borderRadius={20} isHero />
         <div style={{ padding: '12px 0 4px' }}>
           {hero.brand && (
-            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontStyle: 'italic', color: '#0C0C0A', marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontStyle: 'italic', color: '#4E382F', marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {hero.brand}
             </div>
           )}
-          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 500, color: '#0C0C0A', lineHeight: 1.3, marginBottom: hero.boxLocation ? 6 : 8 }}>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 500, color: '#4E382F', lineHeight: 1.3, marginBottom: hero.boxLocation ? 6 : 8 }}>
             {hero.name}
           </div>
           {hero.boxLocation && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '2px 8px', borderRadius: 9999, marginBottom: 8, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '2px 8px', borderRadius: 9999, marginBottom: 8, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
               📍 {hero.boxLocation}
             </div>
           )}
@@ -287,29 +287,11 @@ function MagazineView({ products, onEdit }: { products: Product[]; onEdit: (p: P
         </div>
       </div>
 
-      {/* ── 3열 소형 카드 (design/box.html .mag-3col) ── */}
+      {/* ── 3열 ProductCard 그리드 (NEW ARRIVAL 제외 전체) ── */}
       {rest.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, padding: '12px 16px 0' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1.5, marginTop: 12 }}>
           {rest.map((p) => (
-            <div key={p.id} onClick={() => onEdit(p)} style={{ cursor: 'pointer' }}>
-              <MagImg product={p} borderRadius={12} />
-              <div style={{ padding: '6px 0 0' }}>
-                {p.brand && (
-                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontStyle: 'italic', color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {p.brand}
-                  </div>
-                )}
-                <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 500, color: '#0C0C0A', lineHeight: 1.3, marginBottom: p.boxLocation ? 4 : 6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
-                  {p.name}
-                </div>
-                {p.boxLocation && (
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '2px 6px', borderRadius: 9999, marginBottom: 4, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
-                    📍 {p.boxLocation}
-                  </div>
-                )}
-                <MagResBar product={p} />
-              </div>
-            </div>
+            <ProductCard key={p.id} product={p} onClick={() => onEdit(p)} />
           ))}
         </div>
       )}
@@ -341,30 +323,25 @@ function AdaptiveImg({ src, style }: { src: string; style?: React.CSSProperties 
   return <img src={src} alt="" onLoad={handleLoad} style={{ ...style, objectFit: fit }} />;
 }
 
-// 매거진 이미지 블록 (히어로: 전폭 / 소형: 3:4 비율)
+// 매거진 이미지 블록 (히어로: 4:3 / 소형: 3:4 비율)
 function MagImg({ product, borderRadius, isHero }: { product: Product; borderRadius: number; isHero?: boolean }) {
   const imgUrl = product.imageUrl ?? (product as Product & { storageUrl?: string }).storageUrl;
   return (
     <div
       style={{
         width: '100%',
-        ...(isHero ? {} : { aspectRatio: '3/4' }),
+        aspectRatio: isHero ? '4/3' : '3/4',
         borderRadius, background: '#EEEDE9',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative', overflow: 'hidden',
       }}
     >
       {imgUrl
-        ? isHero
-          // 히어로(NEW ARRIVAL): 자연 비율 (height: auto)
-          // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={imgUrl} alt="" style={{ width: '100%', height: 'auto', display: 'block' }} />
-          // 3열 소형: 3/4 고정 비율 cover
-          // eslint-disable-next-line @next/next/no-img-element
-          : <img src={imgUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        ? // eslint-disable-next-line @next/next/no-img-element
+          <img src={imgUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
         : <span style={{ fontSize: isHero ? 48 : 24, opacity: 0.15 }}>✦</span>}
       {isHero && (
-        <div style={{ position: 'absolute', top: 14, left: 14, background: '#fff', color: '#0C0C0A', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 9999, boxShadow: '0 2px 8px rgba(0,0,0,.12)', zIndex: 1 }}>
+        <div style={{ position: 'absolute', top: 14, left: 14, background: '#fff', color: '#4E382F', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', padding: '5px 12px', borderRadius: 9999, boxShadow: '0 2px 8px rgba(0,0,0,.12)', zIndex: 1 }}>
           NEW ARRIVAL
         </div>
       )}
@@ -379,6 +356,7 @@ function MagResBar({ product }: { product: Product }) {
   // 표시 조건: beauty skincare 또는 개 단위 제품
   if (!isSkincare && !isCountMode) return null;
   if (!product.totalAmount || product.currentRemaining == null) return null;
+  if (['fashion', 'interior', 'acc'].includes(product.domain)) return null;
 
   const divisor = (isSkincare && isCountMode && product.packageCount > 0)
     ? product.packageCount
@@ -387,7 +365,7 @@ function MagResBar({ product }: { product: Product }) {
   const { remaining, pct, fillRate } = getVirtualRemaining(product);
 
   // D-N 계산: 뷰티-스킨케어 제품이고 사용 시작일이 있는 경우에만 소진 디데이 노출
-  const dailyUsage = (product.dosePerUse ?? 0) * (product.usesPerDay ?? 1) * ((product.frequencyValue ?? 7) / 7);
+  const dailyUsage = (product.dosePerUse ?? 0) * (product.usesPerDay ?? 0) * ((product.frequencyValue ?? 0) / 7);
   
   // 개수 모드이면서 스킨케어인 경우, 남은 개수에 개당 용량을 곱해 용량(ml)으로 환산하여 디데이 계산
   const remainingVolumeForDDay = (isSkincare && isCountMode)
@@ -403,9 +381,9 @@ function MagResBar({ product }: { product: Product }) {
   return (
     <>
       <div style={{ height: 3, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden', marginBottom: 4 }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: '#C5FF00', borderRadius: 2 }} />
+        <div style={{ height: '100%', width: `${pct}%`, background: 'var(--color-point)', borderRadius: 2 }} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9A9490', gap: 2, flexWrap: 'nowrap' as const }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 18, fontWeight: 500, color: '#4E382F', gap: 2, flexWrap: 'nowrap' as const }}>
         <span style={{ whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 1, minWidth: 0 }}>
           {isCountMode
             ? `${formattedRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
@@ -413,7 +391,7 @@ function MagResBar({ product }: { product: Product }) {
         </span>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
           {daysLeft !== null && (
-            <span style={{ fontWeight: 700, color: daysLeft <= 7 ? '#E94F6B' : daysLeft <= 14 ? '#F97316' : '#9A9490' }}>
+            <span style={{ fontWeight: 700, color: daysLeft <= 7 ? 'var(--color-point)' : daysLeft <= 14 ? '#F97316' : '#9A9490' }}>
               D-{daysLeft}
             </span>
           )}
@@ -448,83 +426,82 @@ function ProductCard({
     <div
       onClick={onClick}
       style={{
-        aspectRatio: '3/4',
-        position: 'relative',
-        cursor: 'pointer',
-        overflow: 'hidden',
-        background: '#EEEDE9',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: 'flex', flexDirection: 'column',
+        cursor: 'pointer', overflow: 'hidden',
+        background: '#fff',
+        borderRadius: 0,
       }}
     >
-      {/* 배경 이미지 (있을 때만) — 갤러리 셀은 항상 cover로 꽉 채움 */}
-      {imgUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={imgUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-      )}
+      {/* 이미지 영역 */}
+      <div
+        style={{
+          aspectRatio: '3/4',
+          position: 'relative',
+          background: '#EEEDE9',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        {imgUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={imgUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        )}
+        {!imgUrl && <span style={{ fontSize: 24, opacity: 0.15 }}>✦</span>}
 
-      {/* 상단 잔량 바 — 스킨케어(beauty)만 표시 */}
+        {/* 잔량 낮음 경고 뱃지 */}
+        {isSkincare && fillRate < 0.2 && (product.frequencyValue ?? 0) > 0 && (
+          <div
+            style={{
+              position: 'absolute', top: 5, right: 5, zIndex: 2,
+              background: '#D93025', color: '#fff',
+              borderRadius: 3, fontSize: 9, fontWeight: 700, padding: '2px 4px',
+            }}
+          >
+            LOW
+          </div>
+        )}
+
+        {/* 도메인 컬러 닷 */}
+        {domainColor && (
+          <div style={{ position: 'absolute', top: 5, left: 5, width: 6, height: 6, borderRadius: '50%', background: domainColor, zIndex: 2, boxShadow: '0 0 0 1.5px rgba(255,255,255,.7)' }} />
+        )}
+      </div>
+
+      {/* 잔량 바 — 이미지 하단 */}
       {isSkincare && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'rgba(0,0,0,.12)', zIndex: 1 }}>
-          <div style={{ height: '100%', width: `${fillRate * 100}%`, background: '#C5FF00' }} />
+        <div style={{ height: 3, background: 'rgba(78,56,47,.08)' }}>
+          <div style={{ height: '100%', width: `${fillRate * 100}%`, background: 'var(--color-point)' }} />
         </div>
       )}
 
-      {/* 도메인 컬러 닷 — 전체 보기에서 도메인 구분 */}
-      {domainColor && (
-        <div style={{ position: 'absolute', top: isSkincare ? 7 : 4, left: 4, width: 7, height: 7, borderRadius: '50%', background: domainColor, zIndex: 2, boxShadow: '0 0 0 1.5px rgba(255,255,255,.6)' }} />
-      )}
-
-      {/* 제품 플레이스홀더 (이미지 없을 때만) */}
-      {!imgUrl && <span style={{ fontSize: 24, opacity: 0.15 }}>✦</span>}
-
-      {/* 하단 제품명 바 (그라데이션 오버레이) */}
+      {/* 텍스트 영역 — 흰 배경, 제품명+수량 명확하게 */}
       <div
         style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1,
-          padding: '22px 8px 6px',
-          background: 'linear-gradient(transparent, rgba(0,0,0,.78))',
+          padding: '8px 8px 9px',
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          display: 'flex', flexDirection: 'column', gap: 2,
+          background: '#fff',
+          display: 'flex', flexDirection: 'column', gap: 3,
         }}
       >
         <div
           style={{
-            fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: '.04em',
+            fontSize: 16, fontWeight: 500, color: '#4E382F', letterSpacing: '-.01em',
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            lineHeight: 1.3,
           }}
         >
           {product.name}
         </div>
-        {product.totalAmount > 0 && product.currentRemaining != null && (
-          <div
-            style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
-            }}
-          >
-            <span style={{ color: '#C5FF00' }}>
-              {product.itemUnit === '개' || product.itemUnit === 'ea'
-                ? `${formattedRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
-                : `${formattedRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
-            </span>
+        {product.totalAmount > 0 && product.currentRemaining != null && !['fashion', 'interior', 'acc'].includes(product.domain) ? (
+          <div style={{ fontSize: 18, fontWeight: 500, color: '#4E382F', letterSpacing: '-.01em' }}>
+            {product.itemUnit === '개' || product.itemUnit === 'ea'
+              ? `${formattedRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
+              : `${formattedRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
           </div>
+        ) : (
+          <div style={{ fontSize: 13, color: '#C9B9AE' }}>{product.subCategory || product.brand || '—'}</div>
         )}
       </div>
-
-      {/* 잔량 낮음 경고 뱃지 — beauty만 */}
-      {isSkincare && fillRate < 0.2 && (
-        <div
-          style={{
-            position: 'absolute', top: 6, right: 4, zIndex: 2,
-            background: '#D93025', color: '#fff',
-            borderRadius: 3, fontSize: 10, fontWeight: 700, padding: '2px 4px',
-          }}
-        >
-          LOW
-        </div>
-      )}
     </div>
   );
 }
@@ -543,7 +520,7 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
       onClick={onClick}
       style={{
         display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px',
-        borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer',
+        borderBottom: '1px solid rgba(78,56,47,.07)', cursor: 'pointer',
         background: '#fff', transition: 'background .12s',
       }}
     >
@@ -557,42 +534,37 @@ function ListRow({ product, onClick }: { product: Product; onClick: () => void }
       {/* 제품 정보 */}
       <div style={{ flex: 1, minWidth: 0 }}>
         {product.brand && (
-          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 500, letterSpacing: '.06em', textTransform: 'uppercase', color: '#9A9490' }}>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: '#9B8B83' }}>
             {product.brand}
           </div>
         )}
-        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 30, fontWeight: 800, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-.02em', lineHeight: 1.1 }}>
           {product.name}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
-          {product.category && (
-            <div style={{ display: 'inline-block', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', background: '#F4F4F0', padding: '4px 10px', borderRadius: 4 }}>
-              {resolveCategory(product.category)}
-            </div>
-          )}
-        </div>
+        {product.category && (
+          <div style={{ marginTop: 2, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#C9B9AE' }}>
+            {resolveCategory(product.category)}
+          </div>
+        )}
       </div>
 
       {/* 📍 보관 위치 — 오른쪽 정렬 */}
       {product.boxLocation && (
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, flexShrink: 0, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '3px 8px', borderRadius: 9999, maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, flexShrink: 0, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#4A4846', background: '#EEEDE9', padding: '3px 8px', borderRadius: 9999, maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
           📍 {product.boxLocation}
         </div>
       )}
 
-      {/* 잔량 바 + 퍼센트 + 수량 — 수량 정보가 있는 모든 제품 표시 */}
-      {product.totalAmount > 0 && product.currentRemaining != null && (
-        <div style={{ width: 75, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
-          <div style={{ height: 3, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${pct}%`, background: '#C5FF00', borderRadius: 2 }} />
+      {/* 수량 — 오른쪽 정렬, 크고 명확하게 */}
+      {product.totalAmount > 0 && product.currentRemaining != null && !['fashion', 'interior', 'acc'].includes(product.domain) && (
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, minWidth: 64 }}>
+          <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 30, fontWeight: 600, color: 'var(--color-point)', letterSpacing: '-.02em', lineHeight: 1 }}>
+            {product.itemUnit === '개' || product.itemUnit === 'ea'
+              ? `${formattedRemaining}개`
+              : `${formattedRemaining}${product.itemUnit || 'ml'}`}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490', marginTop: 3, gap: 2 }}>
-            <span>{pct}%</span>
-            <span style={{ fontWeight: 700, color: '#4A4846' }}>
-              {product.itemUnit === '개' || product.itemUnit === 'ea'
-                ? `${formattedRemaining}/${isSkincare ? product.packageCount : product.totalAmount}개`
-                : `${formattedRemaining}/${product.totalAmount}${product.itemUnit || 'ml'}`}
-            </span>
+          <div style={{ height: 3, width: 64, background: 'rgba(78,56,47,.08)', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${pct}%`, background: 'var(--color-point)', borderRadius: 2 }} />
           </div>
         </div>
       )}
@@ -607,7 +579,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       style={{
         padding: '48px 32px',
         textAlign: 'center',
-        border: '1.5px dashed rgba(12,12,10,.14)',
+        border: '1.5px dashed rgba(78,56,47,.14)',
         borderRadius: 16,
         margin: '16px',
       }}
@@ -624,7 +596,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       <div
         style={{
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 11, fontWeight: 600, letterSpacing: '.06em', color: '#9A9490', marginBottom: 20,
+          fontSize: 13, fontWeight: 600, letterSpacing: '.06em', color: '#9A9490', marginBottom: 20,
         }}
       >
         + 버튼으로 첫 제품을 추가해보세요
@@ -632,10 +604,10 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       <button
         onClick={onAdd}
         style={{
-          padding: '10px 16px', background: '#0C0C0A', color: '#fff',
+          padding: '10px 16px', background: '#4E382F', color: '#fff',
           border: 'none', borderRadius: 9999, cursor: 'pointer',
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 12, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
+          fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
         }}
       >
         제품 추가
@@ -1326,7 +1298,7 @@ export default function BoxPage() {
   }
 
   return (
-    <div style={{ background: '#FAFAF8', minHeight: '100%', position: 'relative' }}>
+    <div style={{ background: '#F2EDE6', minHeight: '100%', position: 'relative' }}>
       {/* 비로그인 안내 */}
       {!authLoading && !user && (
         <div style={{ background: '#FEF3C7', color: '#92400E', padding: '8px 16px', fontSize: 13, borderBottom: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1342,7 +1314,7 @@ export default function BoxPage() {
         right={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {/* 제품 수 */}
-            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#9A9490' }}>
+            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: '#9A9490' }}>
               {products.length} assets
             </span>
           </div>
@@ -1350,15 +1322,15 @@ export default function BoxPage() {
       />
 
       {/* ── 제품 / 지출 분석 / 보관장소 상위 탭 ── */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(12,12,10,.07)', background: 'rgba(255,255,255,.97)' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid rgba(78,56,47,.07)', background: 'rgba(255,255,255,.97)' }}>
         {(['products', 'spending', 'storage'] as const).map(v => (
           <button key={v} onClick={() => setBoxView(v)}
             style={{
               flex: 1, height: 42, border: 'none', background: 'none', cursor: 'pointer',
               fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-              fontSize: 12, fontWeight: 800, letterSpacing: '.02em',
-              color: boxView === v ? '#0C0C0A' : '#9A9490',
-              borderBottom: boxView === v ? '2px solid #C5FF00' : '2px solid transparent',
+              fontSize: 13, fontWeight: 800, letterSpacing: '.02em',
+              color: boxView === v ? '#4E382F' : '#9A9490',
+              borderBottom: boxView === v ? '2px solid var(--color-point)' : '2px solid transparent',
               transition: 'all .18s',
             }}
           >
@@ -1419,8 +1391,8 @@ export default function BoxPage() {
           return (
             <div style={{ padding: '60px 16px', textAlign: 'center' }}>
               <div style={{ fontSize: 36, marginBottom: 12 }}>💰</div>
-              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', marginBottom: 6 }}>가격 정보가 없어요</div>
-              <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>제품 편집에서 가격을 입력하면 분석이 시작됩니다</div>
+              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F', marginBottom: 6 }}>가격 정보가 없어요</div>
+              <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>제품 편집에서 가격을 입력하면 분석이 시작됩니다</div>
             </div>
           );
         }
@@ -1440,26 +1412,26 @@ export default function BoxPage() {
             {/* 전체/도메인 요약 카드 */}
             <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
               {/* 월 추정 지출 */}
-              <div style={{ flex: 1, background: '#0C0C0A', borderRadius: 14, padding: '14px 14px 12px' }}>
-                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,.5)', letterSpacing: '.06em', marginBottom: 4 }}>
+              <div style={{ flex: 1, background: '#4E382F', borderRadius: 14, padding: '14px 14px 12px' }}>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.5)', letterSpacing: '.06em', marginBottom: 4 }}>
                   {spendingFilter === 'all' ? '전체 월 추정 지출' : `${domainLabels[spendingFilter]} 월 추정 지출`}
                 </div>
-                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#C5FF00', lineHeight: 1 }}>
+                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: 'var(--color-point)', lineHeight: 1 }}>
                   {Math.round(filteredMonthlyTotal).toLocaleString()}원
                 </div>
-                <div style={{ fontFamily: f, fontSize: 10, color: 'rgba(255,255,255,.4)', marginTop: 4 }}>
+                <div style={{ fontFamily: f, fontSize: 13, color: 'rgba(255,255,255,.4)', marginTop: 4 }}>
                   {spendingFilter === 'all' ? 'CPD 합산 × 30일' : '해당 도메인 30일분'}
                 </div>
               </div>
               {/* 총 구매가 */}
-              <div style={{ flex: 1, background: '#F5F4F2', borderRadius: 14, padding: '14px 14px 12px', border: '1px solid rgba(12,12,10,.08)' }}>
-                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 4 }}>
+              <div style={{ flex: 1, background: '#F5F4F2', borderRadius: 14, padding: '14px 14px 12px', border: '1px solid rgba(78,56,47,.08)' }}>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em', marginBottom: 4 }}>
                   {spendingFilter === 'all' ? '전체 총 구매 금액' : `${domainLabels[spendingFilter]} 총 구매 금액`}
                 </div>
-                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', lineHeight: 1 }}>
+                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#4E382F', lineHeight: 1 }}>
                   {Math.round(filteredPurchaseTotal).toLocaleString()}원
                 </div>
-                <div style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginTop: 4 }}>{filteredPriced.length}개 제품</div>
+                <div style={{ fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 4 }}>{filteredPriced.length}개 제품</div>
               </div>
             </div>
 
@@ -1469,10 +1441,10 @@ export default function BoxPage() {
                 onClick={() => setSpendingFilter('all')}
                 style={{
                   padding: '6px 14px', borderRadius: 9999,
-                  border: `1.5px solid ${spendingFilter === 'all' ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
-                  background: spendingFilter === 'all' ? '#0C0C0A' : 'transparent',
-                  color: spendingFilter === 'all' ? '#C5FF00' : '#0C0C0A',
-                  fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
+                  border: `1.5px solid ${spendingFilter === 'all' ? '#4E382F' : 'rgba(78,56,47,.14)'}`,
+                  background: spendingFilter === 'all' ? '#4E382F' : 'transparent',
+                  color: spendingFilter === 'all' ? 'var(--color-point)' : '#4E382F',
+                  fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.02em',
                   cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .15s',
                 }}
               >
@@ -1484,10 +1456,10 @@ export default function BoxPage() {
                   onClick={() => setSpendingFilter(id)}
                   style={{
                     padding: '6px 14px', borderRadius: 9999,
-                    border: `1.5px solid ${spendingFilter === id ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
-                    background: spendingFilter === id ? '#0C0C0A' : 'transparent',
-                    color: spendingFilter === id ? '#C5FF00' : '#0C0C0A',
-                    fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
+                    border: `1.5px solid ${spendingFilter === id ? '#4E382F' : 'rgba(78,56,47,.14)'}`,
+                    background: spendingFilter === id ? '#4E382F' : 'transparent',
+                    color: spendingFilter === id ? 'var(--color-point)' : '#4E382F',
+                    fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.02em',
                     cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .15s',
                   }}
                 >
@@ -1498,10 +1470,10 @@ export default function BoxPage() {
 
             {/* CPD 섹션 헤더 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A', letterSpacing: '.04em' }}>
+              <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4E382F', letterSpacing: '.04em' }}>
                 {spendingFilter === 'all' ? '지출 순위 (하루 소비 비용)' : `${domainLabels[spendingFilter]} 지출 순위`}
               </span>
-              <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490' }}>높은 순</span>
+              <span style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>높은 순</span>
             </div>
 
             {/* 제품별 CPD 카드 */}
@@ -1511,38 +1483,38 @@ export default function BoxPage() {
                 const maxCpd = filteredPriced[0]?.cpd || 1;
                 const barWidth = maxCpd > 0 ? (p.cpd / maxCpd) * 100 : 0;
                 return (
-                  <div key={p.id} style={{ background: '#fff', borderRadius: 12, padding: '12px 14px', border: '1px solid rgba(12,12,10,.07)' }}>
+                  <div key={p.id} style={{ background: '#fff', borderRadius: 12, padding: '12px 14px', border: '1px solid rgba(78,56,47,.07)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                       <div style={{ flex: 1, minWidth: 0, paddingRight: 8 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                          <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#BCBAB6' }}>#{idx + 1}</span>
-                          <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                          <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#BCBAB6' }}>#{idx + 1}</span>
+                          <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                             {p.name}
                           </span>
                           {/* 도메인 배지 */}
                           {spendingFilter === 'all' && (
-                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: domainColors[p.domain], background: 'rgba(0,0,0,.04)', padding: '1px 5px', borderRadius: 4 }}>
+                            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: domainColors[p.domain], background: 'rgba(78,56,47,.04)', padding: '1px 5px', borderRadius: 4 }}>
                               {domainLabels[p.domain]}
                             </span>
                           )}
                         </div>
                         {p.brand && (
-                          <span style={{ fontFamily: f, fontSize: 11, color: '#9A9490' }}>{p.brand}</span>
+                          <span style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>{p.brand}</span>
                         )}
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>
+                        <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#4E382F' }}>
                           {p.cpd < 10 ? p.cpd.toFixed(1) : Math.round(p.cpd).toLocaleString()}원
-                          <span style={{ fontSize: 10, fontWeight: 600, color: '#9A9490' }}>/일</span>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: '#9A9490' }}>/일</span>
                         </div>
-                        <div style={{ fontFamily: f, fontSize: 10, color: '#BCBAB6', marginTop: 1 }}>
+                        <div style={{ fontFamily: f, fontSize: 13, color: '#BCBAB6', marginTop: 1 }}>
                           {Math.round(p.price).toLocaleString()}원 · {p.domain === 'beauty' && p.subCategory === 'skincare' && calcCostPerUse({ ...p, price: String(p.price) } as Product) ? `1회 ${calcCostPerUse({ ...p, price: String(p.price) } as Product)}` : (p.totalDays > 0 ? `${p.totalDays}일분` : '-')}
                         </div>
                       </div>
                     </div>
                     {/* CPD 상대 바 */}
-                    <div style={{ height: 4, background: 'rgba(12,12,10,.07)', borderRadius: 9999, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${barWidth}%`, background: idx === 0 ? '#C5FF00' : '#0C0C0A', opacity: idx === 0 ? 1 : 0.25 + (0.6 * (1 - idx / filteredPriced.length)), borderRadius: 9999 }} />
+                    <div style={{ height: 4, background: 'rgba(78,56,47,.07)', borderRadius: 9999, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${barWidth}%`, background: idx === 0 ? 'var(--color-point)' : '#4E382F', opacity: idx === 0 ? 1 : 0.25 + (0.6 * (1 - idx / filteredPriced.length)), borderRadius: 9999 }} />
                     </div>
                   </div>
                 );
@@ -1551,7 +1523,7 @@ export default function BoxPage() {
 
             {/* 미분석 제품 안내 */}
             {products.filter(p => !parsePrice(p.price)).length > 0 && (
-              <div style={{ marginTop: 16, padding: '10px 14px', background: '#F5F4F2', borderRadius: 10, fontFamily: f, fontSize: 12, color: '#9A9490' }}>
+              <div style={{ marginTop: 16, padding: '10px 14px', background: '#F5F4F2', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#9A9490' }}>
                 💡 가격 미입력 제품 {products.filter(p => !parsePrice(p.price)).length}개는 분석에서 제외됩니다.
               </div>
             )}
@@ -1564,7 +1536,7 @@ export default function BoxPage() {
         <div
           style={{
             display: 'flex',
-            borderBottom: '1px solid rgba(12,12,10,.07)',
+            borderBottom: '1px solid rgba(78,56,47,.07)',
             position: 'sticky', top: 0, zIndex: 8,
             background: 'rgba(255,255,255,.94)', backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
@@ -1577,17 +1549,17 @@ export default function BoxPage() {
               style={{
                 flex: 1, textAlign: 'center', padding: '11px 6px 10px',
                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                fontSize: 11, fontWeight: 700, letterSpacing: '.02em',
-                color: activeTab === id ? '#0C0C0A' : '#9A9490',
+                fontSize: 13, fontWeight: 700, letterSpacing: '.02em',
+                color: activeTab === id ? '#4E382F' : '#9A9490',
                 background: 'none', border: 'none', cursor: 'pointer',
-                borderBottom: activeTab === id ? '3px solid #C5FF00' : '3px solid transparent',
+                borderBottom: activeTab === id ? '3px solid var(--color-point)' : '3px solid transparent',
                 transition: 'all .18s', whiteSpace: 'nowrap',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
               }}
             >
               <span>{activeTab === id ? `#${label}` : label}</span>
               <span style={{
-                fontSize: 11, fontWeight: 800,
+                fontSize: 13, fontWeight: 800,
                 color: activeTab === id ? '#4E7D00' : '#BCBAB6',
                 letterSpacing: '.02em',
               }}>
@@ -1603,14 +1575,14 @@ export default function BoxPage() {
               padding: '8px 14px 9px',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              color: activeTab === 'all' ? '#0C0C0A' : '#9A9490',
+              color: activeTab === 'all' ? '#4E382F' : '#9A9490',
               background: 'none', border: 'none', cursor: 'pointer',
-              borderBottom: activeTab === 'all' ? '3px solid #C5FF00' : '3px solid transparent',
+              borderBottom: activeTab === 'all' ? '3px solid var(--color-point)' : '3px solid transparent',
               transition: 'all .18s', lineHeight: 1,
             }}
           >
             <span style={{ fontSize: 15, fontWeight: 700, lineHeight: 1 }}>⊞</span>
-            <span style={{ fontSize: 11, fontWeight: 800, color: activeTab === 'all' ? '#4E7D00' : '#BCBAB6', letterSpacing: '.02em' }}>
+            <span style={{ fontSize: 13, fontWeight: 800, color: activeTab === 'all' ? '#4E7D00' : '#BCBAB6', letterSpacing: '.02em' }}>
               {products.length}
             </span>
           </button>
@@ -1628,7 +1600,7 @@ export default function BoxPage() {
           position: 'sticky', top: 55, zIndex: 7,
           background: 'rgba(255,255,255,.95)', backdropFilter: 'blur(14px)',
           WebkitBackdropFilter: 'blur(14px)',
-          padding: '8px 16px', borderBottom: '1px solid rgba(12,12,10,.07)',
+          padding: '8px 16px', borderBottom: '1px solid rgba(78,56,47,.07)',
         }}
       >
         <div style={{ position: 'relative' }}>
@@ -1639,9 +1611,9 @@ export default function BoxPage() {
             placeholder="제품명 · 브랜드 검색..."
             style={{
               width: '100%', padding: '9px 40px 9px 14px',
-              border: '1.5px solid rgba(12,12,10,.07)', borderRadius: 9999,
+              border: '1.5px solid rgba(78,56,47,.07)', borderRadius: 9999,
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none',
+              fontSize: 13, color: '#4E382F', background: '#F4F4F0', outline: 'none',
             }}
           />
           {/* 검색 아이콘 */}
@@ -1659,7 +1631,7 @@ export default function BoxPage() {
         <div
           style={{
             display: 'flex',
-            borderBottom: '1px solid rgba(12,12,10,.07)',
+            borderBottom: '1px solid rgba(78,56,47,.07)',
             background: 'rgba(255,255,255,.94)', backdropFilter: 'blur(14px)',
             WebkitBackdropFilter: 'blur(14px)',
             position: 'sticky', top: 103, zIndex: 6,
@@ -1672,10 +1644,10 @@ export default function BoxPage() {
               style={{
                 padding: '9px 18px 8px',
                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                fontSize: 12, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase',
-                color: subType === st.id ? '#0C0C0A' : '#9A9490',
+                fontSize: 13, fontWeight: 700, letterSpacing: '.04em', textTransform: 'uppercase',
+                color: subType === st.id ? '#4E382F' : '#9A9490',
                 background: 'none', border: 'none', cursor: 'pointer',
-                borderBottom: subType === st.id ? '2px solid #C5FF00' : '2px solid transparent',
+                borderBottom: subType === st.id ? '2px solid var(--color-point)' : '2px solid transparent',
                 transition: 'all .18s',
               }}
             >
@@ -1691,7 +1663,7 @@ export default function BoxPage() {
           style={{
             display: 'flex', gap: 6, padding: '10px 16px 8px',
             overflowX: 'auto', scrollbarWidth: 'none',
-            borderBottom: '1px solid rgba(12,12,10,.07)',
+            borderBottom: '1px solid rgba(78,56,47,.07)',
           }}
         >
           {/* 'ALL' 칩 + 카테고리 칩 목록 */}
@@ -1701,11 +1673,11 @@ export default function BoxPage() {
               onClick={() => setActiveCategory(cat)}
               style={{
                 flexShrink: 0, padding: '5px 12px', borderRadius: 9999,
-                border: `1.5px solid ${activeCategory === cat ? (cat === '미분류' ? '#B45309' : '#0C0C0A') : (cat === '미분류' ? 'rgba(180,83,9,.3)' : 'rgba(12,12,10,.14)')}`,
-                background: activeCategory === cat ? (cat === '미분류' ? '#B45309' : '#0C0C0A') : 'transparent',
+                border: `1.5px solid ${activeCategory === cat ? (cat === '미분류' ? '#B45309' : '#4E382F') : (cat === '미분류' ? 'rgba(180,83,9,.3)' : 'rgba(78,56,47,.14)')}`,
+                background: activeCategory === cat ? (cat === '미분류' ? '#B45309' : '#4E382F') : 'transparent',
                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
-                color: activeCategory === cat ? (cat === '미분류' ? '#fff' : '#C5FF00') : (cat === '미분류' ? '#B45309' : '#4A4846'),
+                fontSize: 13, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase',
+                color: activeCategory === cat ? (cat === '미분류' ? '#fff' : 'var(--color-point)') : (cat === '미분류' ? '#B45309' : '#4A4846'),
                 cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .18s',
               }}
             >
@@ -1749,7 +1721,7 @@ export default function BoxPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ fontSize: 13 }}>⚠️</span>
-                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#B45309', letterSpacing: '.06em' }}>
+                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#B45309', letterSpacing: '.06em' }}>
                   소진 임박 — {urgent.length}개
                 </span>
               </div>
@@ -1767,7 +1739,7 @@ export default function BoxPage() {
                     }))
                   );
                 }}
-                style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#B45309', background: 'rgba(180,83,9,.08)', border: '1px solid rgba(180,83,9,.2)', borderRadius: 9999, padding: '4px 10px', cursor: 'pointer' }}
+                style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#B45309', background: 'rgba(180,83,9,.08)', border: '1px solid rgba(180,83,9,.2)', borderRadius: 9999, padding: '4px 10px', cursor: 'pointer' }}
               >
                 전체 불규칙 적용
               </button>
@@ -1777,7 +1749,7 @@ export default function BoxPage() {
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 6 }}>
               {urgent.map(p => {
                 const isRed = p.daysLeft <= 3;
-                const color = isRed ? '#E94F6B' : '#F97316';
+                const color = isRed ? 'var(--color-point)' : '#F97316';
                 const bg = isRed ? 'rgba(233,79,107,.07)' : 'rgba(249,115,22,.07)';
                 return (
                   <button
@@ -1792,11 +1764,11 @@ export default function BoxPage() {
                     <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color, lineHeight: 1, marginBottom: 3 }}>
                       D-{p.daysLeft}
                     </span>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                    <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4E382F', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                       {p.name}
                     </span>
                     {p.brand && (
-                      <span style={{ fontFamily: f, fontSize: 10, color: '#9A9490', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, maxWidth: '100%' }}>
+                      <span style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, maxWidth: '100%' }}>
                         {p.brand}
                       </span>
                     )}
@@ -1804,7 +1776,7 @@ export default function BoxPage() {
                 );
               })}
             </div>
-            <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '8px 0 0' }} />
+            <div style={{ height: 1, background: 'rgba(78,56,47,.07)', margin: '8px 0 0' }} />
           </div>
         );
       })()}
@@ -1815,7 +1787,7 @@ export default function BoxPage() {
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '8px 16px 6px',
-            borderBottom: '1px solid rgba(12,12,10,.07)',
+            borderBottom: '1px solid rgba(78,56,47,.07)',
             background: 'rgba(255,255,255,.95)',
           }}
         >
@@ -1826,8 +1798,8 @@ export default function BoxPage() {
               onClick={() => setViewMode('magazine')}
               title="매거진"
               style={{
-                width: 30, height: 30, border: `1.5px solid ${viewMode === 'magazine' ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
-                borderRadius: 6, background: viewMode === 'magazine' ? '#0C0C0A' : 'transparent',
+                width: 30, height: 30, border: `1.5px solid ${viewMode === 'magazine' ? '#4E382F' : 'rgba(78,56,47,.14)'}`,
+                borderRadius: 6, background: viewMode === 'magazine' ? '#4E382F' : 'transparent',
                 cursor: 'pointer', color: viewMode === 'magazine' ? '#fff' : '#9A9490',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, transition: 'all .15s',
               }}
@@ -1842,8 +1814,8 @@ export default function BoxPage() {
               onClick={() => setViewMode('gallery')}
               title="갤러리"
               style={{
-                width: 30, height: 30, border: `1.5px solid ${viewMode === 'gallery' ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
-                borderRadius: 6, background: viewMode === 'gallery' ? '#0C0C0A' : 'transparent',
+                width: 30, height: 30, border: `1.5px solid ${viewMode === 'gallery' ? '#4E382F' : 'rgba(78,56,47,.14)'}`,
+                borderRadius: 6, background: viewMode === 'gallery' ? '#4E382F' : 'transparent',
                 cursor: 'pointer', color: viewMode === 'gallery' ? '#fff' : '#9A9490',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, transition: 'all .15s',
               }}
@@ -1858,8 +1830,8 @@ export default function BoxPage() {
               onClick={() => setViewMode('list')}
               title="리스트"
               style={{
-                width: 30, height: 30, border: `1.5px solid ${viewMode === 'list' ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`,
-                borderRadius: 6, background: viewMode === 'list' ? '#0C0C0A' : 'transparent',
+                width: 30, height: 30, border: `1.5px solid ${viewMode === 'list' ? '#4E382F' : 'rgba(78,56,47,.14)'}`,
+                borderRadius: 6, background: viewMode === 'list' ? '#4E382F' : 'transparent',
                 cursor: 'pointer', color: viewMode === 'list' ? '#fff' : '#9A9490',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, transition: 'all .15s',
               }}
@@ -1871,17 +1843,30 @@ export default function BoxPage() {
             </button>
           </div>
 
-          {/* 정렬 탭 */}
-          <SortBar
+          {/* 정렬 셀렉트 */}
+          <select
+            title="정렬 기준"
             value={sortMode}
-            onChange={(k) => { setSortMode(k); setBoxVisibleCount(10); }}
-            options={[
-              { key: 'added', label: '최신순' },
-              { key: 'name', label: '이름순' },
-              { key: 'uses', label: '사용빈도' },
-              { key: 'brand', label: '브랜드' },
-            ]}
-          />
+            onChange={e => { setSortMode(e.target.value as typeof sortMode); setBoxVisibleCount(10); }}
+            style={{
+              height: 30, padding: '0 28px 0 10px',
+              border: '1.5px solid rgba(78,56,47,.18)',
+              borderRadius: 8,
+              background: '#fff',
+              fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
+              fontSize: 13, fontWeight: 700, color: '#4E382F',
+              cursor: 'pointer', outline: 'none',
+              appearance: 'none' as const,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234E382F' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 8px center',
+            }}
+          >
+            <option value="added">최신순</option>
+            <option value="name">이름순</option>
+            <option value="uses">사용빈도</option>
+            <option value="brand">브랜드</option>
+          </select>
         </div>
       )}
 
@@ -1907,7 +1892,7 @@ export default function BoxPage() {
               <ProductCard key={p.id} product={p} onClick={() => openEdit(p)} domainColor={activeTab === 'all' ? DOMAIN_COLORS[p.domain] : undefined} />
             ))}
           </div>
-          <div style={{ padding: '0 16px' }}>
+          <div style={{ padding: '0 20px' }}>
             <MoreButton
               visible={Math.min(boxVisibleCount, sortedFiltered.length)}
               total={sortedFiltered.length}
@@ -1932,10 +1917,10 @@ export default function BoxPage() {
                       style={{
                         padding: '8px 16px 6px',
                         fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                        fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase',
-                        color: '#9A9490', background: '#FAFAF8',
-                        borderBottom: '1px solid rgba(12,12,10,.07)',
-                        borderTop: '1px solid rgba(12,12,10,.04)',
+                        fontSize: 13, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase',
+                        color: '#9A9490', background: '#F2EDE6',
+                        borderBottom: '1px solid rgba(78,56,47,.07)',
+                        borderTop: '1px solid rgba(78,56,47,.04)',
                       }}
                     >
                       {brand} · {items.length}개
@@ -1943,7 +1928,7 @@ export default function BoxPage() {
                     {items.map((p) => <ListRow key={p.id} product={p} onClick={() => openEdit(p)} />)}
                   </div>
                 ))}
-                <div style={{ padding: '0 16px' }}>
+                <div style={{ padding: '0 20px' }}>
                   <MoreButton
                     visible={Math.min(boxVisibleCount, sortedFiltered.length)}
                     total={sortedFiltered.length}
@@ -1958,7 +1943,7 @@ export default function BoxPage() {
         // 리스트 뷰 — 단순 목록
         <div style={{ paddingBottom: 100 }}>
           {sortedFiltered.slice(0, boxVisibleCount).map((p) => <ListRow key={p.id} product={p} onClick={() => openEdit(p)} />)}
-          <div style={{ padding: '0 16px' }}>
+          <div style={{ padding: '0 20px' }}>
             <MoreButton
               visible={Math.min(boxVisibleCount, sortedFiltered.length)}
               total={sortedFiltered.length}
@@ -1976,10 +1961,10 @@ export default function BoxPage() {
           style={{
             position: 'fixed', bottom: 88, right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 40,
             width: 52, height: 52, borderRadius: 9999,
-            background: '#C5FF00', color: '#0C0C0A',
+            background: 'var(--color-point)', color: 'var(--color-point-fg)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 22, fontWeight: 700, cursor: 'pointer', border: 'none',
-            boxShadow: '0 4px 20px rgba(197,255,0,.4)',
+            boxShadow: '0 4px 20px rgba(232,93,107,.35)',
             transition: 'transform .18s',
           }}
           aria-label="제품 추가"
@@ -1995,10 +1980,10 @@ export default function BoxPage() {
             onClick={handleManualMigrate}
             disabled={migrating}
             style={{
-              padding: '8px 18px', borderRadius: 9999, border: '1.5px dashed rgba(12,12,10,.2)',
+              padding: '8px 18px', borderRadius: 9999, border: '1.5px dashed rgba(78,56,47,.2)',
               background: 'transparent', cursor: migrating ? 'default' : 'pointer',
               fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-              fontSize: 12, fontWeight: 600, color: '#9A9490',
+              fontSize: 13, fontWeight: 600, color: '#9A9490',
             }}
           >
             {migrating ? '가져오는 중...' : '이전 박스 데이터 가져오기'}
@@ -2015,10 +2000,10 @@ export default function BoxPage() {
               display: 'flex', alignItems: 'center', gap: 8,
               padding: '10px 20px', borderRadius: 12,
               border: 'none',
-              background: '#0C0C0A',
+              background: '#4E382F',
               fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-              fontSize: 12, fontWeight: 800, letterSpacing: '.04em',
-              color: '#C5FF00', cursor: 'pointer',
+              fontSize: 13, fontWeight: 800, letterSpacing: '.04em',
+              color: 'var(--color-point)', cursor: 'pointer',
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -2073,14 +2058,14 @@ export default function BoxPage() {
           <div style={{ padding: '16px 16px calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
             {/* 보관장소 추가 바 (전체 보기 아닐 때만 표시) */}
             {activeTab !== 'all' && (
-              <div style={{ marginBottom: 20, background: '#fff', borderRadius: 14, padding: 16, border: '1px solid rgba(12,12,10,.07)' }}>
+              <div style={{ marginBottom: 20, background: '#fff', borderRadius: 14, padding: 16, border: '1px solid rgba(78,56,47,.07)' }}>
                 {!addingStorageLoc ? (
                   <button
                     onClick={() => setAddingStorageLoc(true)}
                     style={{
-                      width: '100%', padding: '10px 0', border: '1.5px dashed rgba(12,12,10,.14)',
+                      width: '100%', padding: '10px 0', border: '1.5px dashed rgba(78,56,47,.14)',
                       borderRadius: 10, background: 'transparent', cursor: 'pointer',
-                      fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490',
+                      fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                     }}
                   >
@@ -2088,7 +2073,7 @@ export default function BoxPage() {
                   </button>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A' }}>새 보관장소 이름</div>
+                    <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4E382F' }}>새 보관장소 이름</div>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <input
                         autoFocus
@@ -2101,15 +2086,15 @@ export default function BoxPage() {
                         placeholder="예: 안방 화장대, 드레스룸 A"
                         style={{
                           flex: 1, padding: '0 14px', height: 38,
-                          border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8,
+                          border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 8,
                           fontFamily: f, fontSize: 13, outline: 'none',
                         }}
                       />
                       <button
                         onClick={handleAddStorageLoc}
                         style={{
-                          height: 38, padding: '0 16px', background: '#0C0C0A', color: '#fff',
-                          border: 'none', borderRadius: 8, fontFamily: f, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                          height: 38, padding: '0 16px', background: '#4E382F', color: '#fff',
+                          border: 'none', borderRadius: 8, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer',
                         }}
                       >
                         추가
@@ -2118,8 +2103,8 @@ export default function BoxPage() {
                         onClick={() => { setAddingStorageLoc(false); setNewStorageLocName(''); }}
                         style={{
                           height: 38, padding: '0 12px', background: 'transparent',
-                          border: '1px solid rgba(12,12,10,.14)', borderRadius: 8,
-                          fontFamily: f, fontSize: 12, color: '#9A9490', cursor: 'pointer',
+                          border: '1px solid rgba(78,56,47,.14)', borderRadius: 8,
+                          fontFamily: f, fontSize: 13, color: '#9A9490', cursor: 'pointer',
                         }}
                       >
                         취소
@@ -2133,8 +2118,8 @@ export default function BoxPage() {
             {storageList.length === 0 ? (
               <div style={{ padding: '60px 16px', textAlign: 'center' }}>
                 <div style={{ fontSize: 36, marginBottom: 12 }}>📍</div>
-                <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', marginBottom: 6 }}>보관장소가 없습니다</div>
-                <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>새 보관장소를 추가하거나 제품 편집에서 위치를 등록해보세요</div>
+                <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F', marginBottom: 6 }}>보관장소가 없습니다</div>
+                <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>새 보관장소를 추가하거나 제품 편집에서 위치를 등록해보세요</div>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
@@ -2145,7 +2130,7 @@ export default function BoxPage() {
                       key={item.name}
                       style={{
                         background: '#fff', borderRadius: 20, padding: 16,
-                        border: '1px solid rgba(12,12,10,.07)',
+                        border: '1px solid rgba(78,56,47,.07)',
                         boxShadow: '0 4px 18px rgba(0,0,0,.02)',
                         display: 'flex', flexDirection: 'column', gap: 12,
                       }}
@@ -2153,7 +2138,7 @@ export default function BoxPage() {
                       {/* 헤더 */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-                          <span style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {item.name}
                           </span>
                           {activeTab === 'all' && !isUnassigned && (
@@ -2162,7 +2147,7 @@ export default function BoxPage() {
                             </span>
                           )}
                         </div>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A', background: '#EEEDE9', padding: '3px 8px', borderRadius: 9999 }}>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4E382F', background: '#EEEDE9', padding: '3px 8px', borderRadius: 9999 }}>
                           {item.products.length}개
                         </span>
                       </div>
@@ -2196,7 +2181,7 @@ export default function BoxPage() {
                                 width: 44, height: 44, borderRadius: 8, flexShrink: 0,
                                 background: '#EEEDE9', overflow: 'hidden', position: 'relative',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                border: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', padding: 0,
+                                border: '1px solid rgba(78,56,47,.07)', cursor: 'pointer', padding: 0,
                               }}
                               title={p.name}
                             >
@@ -2204,7 +2189,7 @@ export default function BoxPage() {
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={pImg} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               ) : (
-                                <span style={{ fontSize: 12, opacity: 0.3 }}>✦</span>
+                                <span style={{ fontSize: 13, opacity: 0.3 }}>✦</span>
                               )}
                             </button>
                           );
@@ -2213,13 +2198,13 @@ export default function BoxPage() {
 
                       {/* 푸터 액션 */}
                       {!isUnassigned && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 4, borderTop: '1px solid rgba(12,12,10,.05)', paddingTop: 10 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 4, borderTop: '1px solid rgba(78,56,47,.05)', paddingTop: 10 }}>
                           <button
                             onClick={() => openLocEditor(item.name, item.domain)}
                             style={{
-                              flex: 1, padding: '7px 0', border: '1px solid rgba(12,12,10,.08)',
+                              flex: 1, padding: '7px 0', border: '1px solid rgba(78,56,47,.08)',
                               borderRadius: 8, background: 'transparent', cursor: 'pointer',
-                              fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846',
+                              fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                             }}
                           >
@@ -2229,8 +2214,8 @@ export default function BoxPage() {
                             onClick={() => openAddForLocation(item.name, item.domain)}
                             style={{
                               flex: 1, padding: '7px 0', border: 'none',
-                              borderRadius: 8, background: '#0C0C0A', cursor: 'pointer',
-                              fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff',
+                              borderRadius: 8, background: '#4E382F', cursor: 'pointer',
+                              fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                             }}
                           >
@@ -2256,7 +2241,7 @@ export default function BoxPage() {
             left: 'max(16px,calc(50vw - 199px))',
             right: 'max(16px,calc(50vw - 199px))',
             zIndex: 200,
-            background: migrationToast.ok ? '#0C0C0A' : '#991B1B',
+            background: migrationToast.ok ? '#4E382F' : '#991B1B',
             color: '#fff',
             borderRadius: 12,
             padding: '12px 16px',
@@ -2451,9 +2436,9 @@ function ManageSheet({
 
   const chipBtn = (selected: boolean) => ({
     padding: '6px 14px', borderRadius: 9999,
-    border: `1.5px solid ${selected ? '#0C0C0A' : 'rgba(12,12,10,.18)'}`,
-    background: selected ? '#0C0C0A' : 'transparent',
-    fontFamily: f, fontSize: 12, fontWeight: 700,
+    border: `1.5px solid ${selected ? '#4E382F' : 'rgba(78,56,47,.18)'}`,
+    background: selected ? '#4E382F' : 'transparent',
+    fontFamily: f, fontSize: 13, fontWeight: 700,
     color: selected ? '#fff' : '#9A9490',
     cursor: 'pointer', transition: 'all .15s',
   } as React.CSSProperties);
@@ -2464,18 +2449,18 @@ function ManageSheet({
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
 
       {/* 시트 */}
-      <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
 
         {/* 핸들 + 헤더 */}
         <div style={{ padding: '12px 16px 0', flexShrink: 0 }}>
-          <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 14px' }} />
+          <div style={{ width: 32, height: 3, background: 'rgba(78,56,47,.14)', borderRadius: 2, margin: '0 auto 14px' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
             {view === 'cats' && (
               <button onClick={() => { setView('domains'); setEditDomainId(null); setEditSubTypeId(null); }} style={{ width: 36, height: 36, borderRadius: 10, background: '#F0EFEA', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A4846', flexShrink: 0 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6"/></svg>
               </button>
             )}
-            <div style={{ fontFamily: f, fontSize: 17, fontWeight: 800, color: '#0C0C0A' }}>
+            <div style={{ fontFamily: f, fontSize: 17, fontWeight: 800, color: '#4E382F' }}>
               {view === 'domains' ? 'BOX 관리' : `${editingDomain?.label ?? ''} 카테고리`}
             </div>
             <button onClick={onClose} style={{ marginLeft: 'auto', width: 36, height: 36, borderRadius: 10, background: '#F0EFEA', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4A4846', flexShrink: 0 }}>
@@ -2490,7 +2475,7 @@ function ManageSheet({
           {/* ── VIEW: 도메인 목록 ── */}
           {view === 'domains' && (
             <div>
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 10 }}>도메인 순서 · 이름 · 카테고리 편집</div>
+              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 10 }}>도메인 순서 · 이름 · 카테고리 편집</div>
 
               {config.domains.map((d, idx) => (
                 <div
@@ -2506,7 +2491,7 @@ function ManageSheet({
                     gap: 12,
                     marginBottom: 12,
                     opacity: dragDomIdx === idx ? 0.4 : 1,
-                    outline: dragDomOver === idx ? '2px dashed #C5FF00' : 'none',
+                    outline: dragDomOver === idx ? '2px dashed var(--color-point)' : 'none',
                     outlineOffset: 2,
                     borderRadius: 4
                   }}
@@ -2519,7 +2504,7 @@ function ManageSheet({
                       width: 22,
                       height: 22,
                       borderRadius: '50%',
-                      background: '#E94F6B',
+                      background: 'var(--color-point)',
                       color: '#fff',
                       border: 'none',
                       display: 'flex',
@@ -2546,8 +2531,8 @@ function ManageSheet({
                       padding: '14px 16px',
                       background: '#fff',
                       borderRadius: 16,
-                      border: '1px solid rgba(12,12,10,.06)',
-                      boxShadow: '0 1px 2px rgba(0,0,0,.04)',
+                      border: '1px solid rgba(78,56,47,.06)',
+                      boxShadow: '0 1px 2px rgba(78,56,47,.04)',
                       minWidth: 0,
                     }}
                   >
@@ -2562,7 +2547,7 @@ function ManageSheet({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: 700,
                         flexShrink: 0,
                       }}
@@ -2578,16 +2563,16 @@ function ManageSheet({
                         onChange={(e) => setRenameVal(e.target.value)}
                         onBlur={() => { if (renameVal.trim()) renameDomain(d.id, renameVal.trim()); else setRenamingDomainId(null); }}
                         onKeyDown={(e) => { if (e.key === 'Enter') { if (renameVal.trim()) renameDomain(d.id, renameVal.trim()); } else if (e.key === 'Escape') setRenamingDomainId(null); }}
-                        style={{ flex: 1, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', background: 'transparent', padding: '2px 0' }}
+                        style={{ flex: 1, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F', border: 'none', borderBottom: '2px solid var(--color-point)', outline: 'none', background: 'transparent', padding: '2px 0' }}
                       />
                     ) : (
                       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                        <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.label}</span>
+                        <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.label}</span>
                         <button
                           type="button"
                           onClick={() => { setRenamingDomainId(d.id); setRenameVal(d.label); }}
                           title="이름 수정"
-                          style={{ width: 22, height: 22, borderRadius: 6, border: '1px solid rgba(12,12,10,.14)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9A9490', flexShrink: 0 }}
+                          style={{ width: 22, height: 22, borderRadius: 6, border: '1px solid rgba(78,56,47,.14)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9A9490', flexShrink: 0 }}
                         >
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -2601,7 +2586,7 @@ function ManageSheet({
                     <button
                       type="button"
                       onClick={() => { setEditDomainId(d.id); setEditSubTypeId(d.subTypes?.[0]?.id ?? null); setView('cats'); setNewCatLabel(''); setNewSubTypeLabel(''); }}
-                      style={{ padding: '4px 10px', borderRadius: 8, border: '1.5px solid rgba(12,12,10,.14)', background: 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                      style={{ padding: '4px 10px', borderRadius: 8, border: '1.5px solid rgba(78,56,47,.14)', background: 'transparent', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer', whiteSpace: 'nowrap' }}
                     >
                       카테고리 &gt;
                     </button>
@@ -2630,9 +2615,9 @@ function ManageSheet({
                   onChange={(e) => setNewDomainLabel(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) addDomain(); }}
                   placeholder="새 도메인 이름..."
-                  style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, padding: '9px 12px', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }}
+                  style={{ flex: 1, border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, padding: '9px 12px', fontFamily: f, fontSize: 13, color: '#4E382F', background: '#fff', outline: 'none' }}
                 />
-                <button onClick={addDomain} style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
+                <button onClick={addDomain} style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#4E382F', color: '#FFFFFF', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
           )}
@@ -2643,7 +2628,7 @@ function ManageSheet({
               {/* 서브타입 탭 (있을 때만) */}
               {editingDomain.subTypes?.length ? (
                 <div>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>서브타입</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>서브타입</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
                     {editingDomain.subTypes.map((st, idx) => (
                       <div
@@ -2653,7 +2638,7 @@ function ManageSheet({
                         onDragOver={(e) => { e.preventDefault(); setDragStOver(idx); }}
                         onDrop={(e) => { e.preventDefault(); if (dragStIdx != null) moveSubType(dragStIdx, idx); setDragStIdx(null); setDragStOver(null); }}
                         onDragEnd={() => { setDragStIdx(null); setDragStOver(null); }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 4, opacity: dragStIdx === idx ? 0.4 : 1, outline: dragStOver === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 9999 }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 4, opacity: dragStIdx === idx ? 0.4 : 1, outline: dragStOver === idx ? '2px dashed var(--color-point)' : 'none', outlineOffset: 2, borderRadius: 9999 }}
                       >
                         {renamingSubTypeId === st.id ? (
                           <input
@@ -2662,7 +2647,7 @@ function ManageSheet({
                             onChange={(e) => setRenameVal(e.target.value)}
                             onBlur={() => { if (renameVal.trim()) renameSubType(st.id, renameVal.trim()); else setRenamingSubTypeId(null); }}
                             onKeyDown={(e) => { if (e.key === 'Enter') { if (renameVal.trim()) renameSubType(st.id, renameVal.trim()); } else if (e.key === 'Escape') setRenamingSubTypeId(null); }}
-                            style={{ width: 80, border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', fontFamily: f, fontSize: 12, fontWeight: 700, background: 'transparent', padding: '2px 4px' }}
+                            style={{ width: 80, border: 'none', borderBottom: '2px solid var(--color-point)', outline: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, background: 'transparent', padding: '2px 4px' }}
                           />
                         ) : (
                           <button
@@ -2678,15 +2663,15 @@ function ManageSheet({
                     ))}
                     {/* 서브타입 추가 */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <input value={newSubTypeLabel} onChange={(e) => setNewSubTypeLabel(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) addSubType(); }} placeholder="서브타입..." style={{ width: 80, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9999, padding: '5px 10px', fontFamily: f, fontSize: 11, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
-                      <button onClick={addSubType} style={{ padding: '5px 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>+</button>
+                      <input value={newSubTypeLabel} onChange={(e) => setNewSubTypeLabel(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) addSubType(); }} placeholder="서브타입..." style={{ width: 80, border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 9999, padding: '5px 10px', fontFamily: f, fontSize: 13, color: '#4E382F', background: '#fff', outline: 'none' }} />
+                      <button onClick={addSubType} style={{ padding: '5px 10px', borderRadius: 9999, border: 'none', background: '#4E382F', color: '#FFFFFF', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>+</button>
                     </div>
                   </div>
                 </div>
               ) : null}
 
               {/* 카테고리 목록 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>
+              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>
                 카테고리
                 {editingDomain.subTypes?.length && activeSt ? ` — ${editingDomain.subTypes.find(st => st.id === activeSt)?.label}` : ''}
               </div>
@@ -2709,7 +2694,7 @@ function ManageSheet({
                     gap: 12,
                     marginBottom: 12,
                     opacity: dragCatIdx === idx ? 0.4 : 1,
-                    outline: dragCatOver === idx ? '2px dashed #C5FF00' : 'none',
+                    outline: dragCatOver === idx ? '2px dashed var(--color-point)' : 'none',
                     outlineOffset: 2,
                     borderRadius: 4
                   }}
@@ -2722,7 +2707,7 @@ function ManageSheet({
                       width: 22,
                       height: 22,
                       borderRadius: '50%',
-                      background: '#E94F6B',
+                      background: 'var(--color-point)',
                       color: '#fff',
                       border: 'none',
                       display: 'flex',
@@ -2749,8 +2734,8 @@ function ManageSheet({
                       padding: '14px 16px',
                       background: '#fff',
                       borderRadius: 16,
-                      border: '1px solid rgba(12,12,10,.06)',
-                      boxShadow: '0 1px 2px rgba(0,0,0,.04)',
+                      border: '1px solid rgba(78,56,47,.06)',
+                      boxShadow: '0 1px 2px rgba(78,56,47,.04)',
                       minWidth: 0,
                     }}
                   >
@@ -2765,7 +2750,7 @@ function ManageSheet({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: 700,
                         flexShrink: 0,
                       }}
@@ -2791,7 +2776,7 @@ function ManageSheet({
                     </div>
 
                     {/* 2-3. 카테고리 텍스트 */}
-                    <span style={{ flex: 1, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cat}</span>
+                    <span style={{ flex: 1, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cat}</span>
                   </div>
 
                   {/* 3. 우측 삼선 드래그 핸들 */}
@@ -2817,9 +2802,9 @@ function ManageSheet({
                   onChange={(e) => setNewCatLabel(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) addCat(); }}
                   placeholder="카테고리 이름..."
-                  style={{ flex: 1, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, padding: '9px 12px', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none' }}
+                  style={{ flex: 1, border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, padding: '9px 12px', fontFamily: f, fontSize: 13, color: '#4E382F', background: '#fff', outline: 'none' }}
                 />
-                <button onClick={addCat} style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#0C0C0A', color: '#C5FF00', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
+                <button onClick={addCat} style={{ padding: '9px 16px', borderRadius: 10, border: 'none', background: '#4E382F', color: '#FFFFFF', fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
           )}
@@ -2912,6 +2897,7 @@ function AddProductPage({
   ]);
 
   const isSkincare = form.formDomain === 'beauty' && form.formSubType === 'skincare';
+  const isHealth = form.formDomain === 'health';
 
   // 현재 카테고리의 기본 단위 (ml 또는 g, 기본값은 ml)
   const categoryDefault = form.category ? CATEGORY_DOSE_DEFAULTS[form.category] : null;
@@ -2926,6 +2912,13 @@ function AddProductPage({
       }
     }
   }, [isSkincare, baseUnit, form.itemUnit, setForm]);
+
+  // ── health 도메인은 itemUnit '개' 고정 ──
+  useEffect(() => {
+    if (isHealth && form.itemUnit !== '개') {
+      setForm((f) => ({ ...f, itemUnit: '개', unitPerPackage: 1 }));
+    }
+  }, [isHealth, form.itemUnit, setForm]);
 
   // 소진 예측 계산
   // 기준 잔량: 편집 모드는 현재 잔량, 신규 등록은 총 용량
@@ -2958,6 +2951,12 @@ function AddProductPage({
     ? Math.round(remainingVolumeForEstimate / dailyUsage)
     : null;
 
+  const estimatedEndDate = estimatedDays !== null ? (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + estimatedDays);
+    return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+  })() : null;
+
   // form state에서 domain/subType/cats 동적 계산
   const domain = form.formDomain;
   const subType = form.formSubType;
@@ -2986,20 +2985,20 @@ function AddProductPage({
         style={{
           height: 56, background: 'rgba(255,255,255,.95)',
           backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(12,12,10,.07)',
+          borderBottom: '1px solid rgba(78,56,47,.07)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '0 16px', flexShrink: 0,
         }}
       >
         <button
           onClick={onClose}
-          style={{ width: 36, height: 36, border: 'none', background: 'none', cursor: 'pointer', color: '#0C0C0A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ width: 36, height: 36, border: 'none', background: 'none', cursor: 'pointer', color: '#4E382F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 5l-7 7 7 7" />
           </svg>
         </button>
-        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 800, color: '#0C0C0A' }}>
+        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 800, color: '#4E382F' }}>
           {isEditing ? '제품 수정' : '제품 추가'}
         </span>
         <div style={{ width: 36 }} />
@@ -3010,7 +3009,7 @@ function AddProductPage({
 
         {/* ── 제품 이미지 ── */}
         <div style={{ padding: '16px 20px 0' }}>
-          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, display: 'block' }}>
+          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8, display: 'block' }}>
             PRODUCT IMAGE
           </span>
           <ImagePicker
@@ -3027,10 +3026,10 @@ function AddProductPage({
 
           {/* ── Purchase history 섹션 ── */}
           <div>
-            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>
+            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>
               기본 정보
             </div>
-            <div style={{ borderTop: '1px solid rgba(12,12,10,.1)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ borderTop: '1px solid rgba(78,56,47,.1)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
               {/* 구매일 + 유통기한 */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -3048,7 +3047,7 @@ function AddProductPage({
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                   <div style={labelStyle}>PRODUCT NAME</div>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9A9490' }}>*필수</div>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9A9490' }}>*필수</div>
                 </div>
                 <input
                   id="add-product-name"
@@ -3060,16 +3059,16 @@ function AddProductPage({
                   placeholder="제품명을 입력하세요"
                   style={{
                     ...underlineInputStyle, fontSize: 18,
-                    borderBottomColor: saveAttempted && isNameEmpty ? '#E94F6B' : isNameEmpty ? '#C5C6CA' : '#6B7280',
+                    borderBottomColor: saveAttempted && isNameEmpty ? 'var(--color-point)' : isNameEmpty ? '#C5C6CA' : '#6B7280',
                     borderBottomWidth: saveAttempted && isNameEmpty ? 2 : 1,
                   }}
                 />
                 {saveAttempted && isNameEmpty && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 6 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#E94F6B" strokeWidth="2.5" strokeLinecap="round">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-point)" strokeWidth="2.5" strokeLinecap="round">
                       <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                     </svg>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 600, color: '#E94F6B' }}>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600, color: 'var(--color-point)' }}>
                       제품명은 필수 항목입니다
                     </span>
                   </div>
@@ -3096,10 +3095,10 @@ function AddProductPage({
                     onClick={() => onOpenCatEditor?.()}
                     style={{
                       fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-                      fontSize: 10,
+                      fontSize: 13,
                       fontWeight: 800,
-                      color: '#C5FF00',
-                      background: '#0C0C0A',
+                      color: 'var(--color-point)',
+                      background: '#4E382F',
                       border: 'none',
                       borderRadius: 9999,
                       padding: '4px 10px',
@@ -3120,10 +3119,10 @@ function AddProductPage({
                       }}
                       style={{
                         padding: '6px 14px', borderRadius: 9999,
-                        border: `1.5px solid ${domain === d.id ? '#0C0C0A' : 'rgba(12,12,10,.18)'}`,
-                        background: domain === d.id ? '#0C0C0A' : 'transparent',
+                        border: `1.5px solid ${domain === d.id ? '#4E382F' : 'rgba(78,56,47,.18)'}`,
+                        background: domain === d.id ? '#4E382F' : 'transparent',
                         fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-                        fontSize: 11, fontWeight: 700, letterSpacing: '.04em',
+                        fontSize: 13, fontWeight: 700, letterSpacing: '.04em',
                         color: domain === d.id ? '#fff' : '#9A9490',
                         cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const,
                       }}
@@ -3138,11 +3137,11 @@ function AddProductPage({
               {domainCfg?.subTypes?.length ? (
                 <div style={{ marginTop: -4 }}>
                   {/* 라벨 */}
-                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '.12em', color: '#B0AEA9', marginBottom: 2, textTransform: 'uppercase' as const }}>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.12em', color: '#B0AEA9', marginBottom: 2, textTransform: 'uppercase' as const }}>
                     TYPE
                   </div>
                   {/* 탭 행 — 언더라인 스타일 */}
-                  <div style={{ display: 'flex', borderBottom: '1.5px solid rgba(12,12,10,.08)' }}>
+                  <div style={{ display: 'flex', borderBottom: '1.5px solid rgba(78,56,47,.08)' }}>
                     {domainCfg.subTypes.map((st) => (
                       <button
                         key={st.id}
@@ -3151,12 +3150,12 @@ function AddProductPage({
                           padding: '7px 16px 7px 0',
                           marginRight: 4,
                           background: 'none', border: 'none',
-                          borderBottom: subType === st.id ? '2.5px solid #C5FF00' : '2.5px solid transparent',
+                          borderBottom: subType === st.id ? '2.5px solid var(--color-point)' : '2.5px solid transparent',
                           marginBottom: -1.5,
                           fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                           fontSize: 13, fontWeight: subType === st.id ? 700 : 500,
                           letterSpacing: '.01em',
-                          color: subType === st.id ? '#0C0C0A' : '#9A9490',
+                          color: subType === st.id ? '#4E382F' : '#9A9490',
                           cursor: 'pointer', transition: 'all .15s',
                           whiteSpace: 'nowrap' as const,
                         }}
@@ -3171,7 +3170,7 @@ function AddProductPage({
               {/* PRIMARY CLASSIFICATION 카테고리 칩 */}
               {cats.length > 0 && (
                 <div>
-                  <div style={{ borderBottom: '1px solid rgba(12,12,10,.1)', paddingBottom: 4, marginBottom: 10 }}>
+                  <div style={{ borderBottom: '1px solid rgba(78,56,47,.1)', paddingBottom: 4, marginBottom: 10 }}>
                     <div style={labelStyle}>카테고리</div>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -3192,11 +3191,11 @@ function AddProductPage({
                         }}
                         style={{
                           height: 28, padding: '0 14px',
-                          border: `1.5px solid ${form.category === cat ? '#0C0C0A' : 'rgba(12,12,10,.18)'}`,
-                          background: form.category === cat ? '#0C0C0A' : 'transparent',
+                          border: `1.5px solid ${form.category === cat ? '#4E382F' : 'rgba(78,56,47,.18)'}`,
+                          background: form.category === cat ? '#4E382F' : 'transparent',
                           fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-                          fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const,
-                          color: form.category === cat ? '#C5FF00' : '#9A9490',
+                          fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const,
+                          color: form.category === cat ? 'var(--color-point)' : '#9A9490',
                           cursor: 'pointer', borderRadius: 6, transition: 'all .15s',
                         }}
                       >
@@ -3211,14 +3210,14 @@ function AddProductPage({
 
           {/* ── 구매 정보 (가격 + 링크) ── */}
           <div>
-            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>
+            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>
               구매 정보
             </div>
-            <div style={{ borderTop: '1px solid rgba(12,12,10,.1)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ borderTop: '1px solid rgba(78,56,47,.1)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <div style={labelStyle}>가격</div>
-                <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1.5px solid rgba(12,12,10,.18)', paddingBottom: 6, gap: 2 }}>
-                  <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: form.price ? '#0C0C0A' : '#BCBAB6', flexShrink: 0 }}>₩</span>
+                <div style={{ display: 'flex', alignItems: 'center', borderBottom: '1.5px solid rgba(78,56,47,.18)', paddingBottom: 6, gap: 2 }}>
+                  <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: form.price ? '#4E382F' : '#BCBAB6', flexShrink: 0 }}>₩</span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -3249,10 +3248,10 @@ function AddProductPage({
           {/* ── Fashion 섹션 ── */}
           {domain === 'fashion' && (
             <div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>
                 패션 정보
               </div>
-              <div style={{ borderTop: '1px solid rgba(12,12,10,.1)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={{ borderTop: '1px solid rgba(78,56,47,.1)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <div>
                   <div style={labelStyle}>Material</div>
                   <input
@@ -3278,10 +3277,10 @@ function AddProductPage({
           {/* ── Acc 섹션 ── */}
           {domain === 'acc' && (
             <div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>
                 액세서리 정보
               </div>
-              <div style={{ borderTop: '1px solid rgba(12,12,10,.1)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={{ borderTop: '1px solid rgba(78,56,47,.1)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <div>
                   <div style={{ ...labelStyle, marginBottom: 10 }}>Material Type</div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
@@ -3307,20 +3306,20 @@ function AddProductPage({
 
           {/* ── Asset Count 섹션 (Beauty 전용) ── */}
           {domain === 'beauty' && <div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>
+              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9A9490', marginBottom: 8 }}>
                 수량 · 사용 패턴
               </div>
-              <div style={{ borderTop: '1px solid rgba(12,12,10,.1)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={{ borderTop: '1px solid rgba(78,56,47,.1)', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-                {/* ── 수량 구조: 박스 수 × 박스당 개수 (개 모드) / 패키지 × ml (ml 모드) ── */}
+                {/* ── 수량 구조 ── */}
                 <div>
                   <div style={{ ...labelStyle, marginBottom: 10 }}>수량 구조</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 8, alignItems: 'center', marginBottom: 10 }}>
+
+                  {/* 처음 구매 개수 / 현재 남은 개수 */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 8, alignItems: 'end', marginBottom: 10 }}>
                     <div>
-                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>
-                        {isSkincare && isCountMode ? '총 구매 개수 (병/개)' : (isCountMode ? '박스 수' : '패키지 수')}
-                      </div>
-                      <div style={{ borderBottom: '1.5px solid rgba(12,12,10,.18)', paddingBottom: 4 }}>
+                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 13 }}>처음 구매 개수</div>
+                      <div style={{ borderBottom: '1.5px solid rgba(78,56,47,.18)', paddingBottom: 4 }}>
                         <input
                           type="number" min={1}
                           value={form.packageCount || ''}
@@ -3329,110 +3328,123 @@ function AddProductPage({
                             const pkgCount = isNaN(n) ? 0 : n;
                             setForm((f) => {
                               const defaultRem = (isSkincare && isCountMode) ? pkgCount : pkgCount * f.unitPerPackage;
-                              return {
-                                ...f,
-                                packageCount: pkgCount,
-                                ...(!isEditing ? { currentRemaining: defaultRem } : {})
-                              };
+                              return { ...f, packageCount: pkgCount, ...(!isEditing ? { currentRemaining: defaultRem } : {}) };
                             });
                           }}
                           onBlur={() => {
                             setForm((f) => {
                               const pkgCount = Math.max(1, f.packageCount || 1);
                               const defaultRem = (isSkincare && isCountMode) ? pkgCount : pkgCount * f.unitPerPackage;
-                              return {
-                                ...f,
-                                packageCount: pkgCount,
-                                ...(!isEditing ? { currentRemaining: defaultRem } : {})
-                              };
+                              return { ...f, packageCount: pkgCount, ...(!isEditing ? { currentRemaining: defaultRem } : {}) };
                             });
                           }}
                           style={countInputStyle}
                         />
                       </div>
                     </div>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 18, color: '#C5C6CA', paddingTop: 14 }}>×</span>
+                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 20, color: '#C9B9AE', paddingBottom: 6 }}>/</span>
                     <div>
-                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 10 }}>
+                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 13 }}>현재 남은 개수</div>
+                      <div style={{ borderBottom: '1.5px solid rgba(78,56,47,.18)', paddingBottom: 4 }}>
+                        <input
+                          type="number" min={0} step="any"
+                          value={
+                            isCountMode && !isEditing && form.currentRemaining === 0
+                              ? (isSkincare ? form.packageCount : totalAmount)
+                              : form.currentRemaining || ''
+                          }
+                          onChange={(e) => {
+                            const n = parseFloat(e.target.value);
+                            setForm((f) => ({ ...f, currentRemaining: isNaN(n) ? 0 : Math.max(0, n) }));
+                          }}
+                          onBlur={() => setForm((f) => ({ ...f, currentRemaining: f.currentRemaining || 0 }))}
+                          style={countInputStyle}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 잔량 프로그레스 바 */}
+                  <div style={{ marginBottom: 14, height: 3, background: 'rgba(78,56,47,.08)', borderRadius: 2, overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${Math.min(100, (currentCount / Math.max(1, (isSkincare && isCountMode ? form.packageCount : totalAmount))) * 100)}%`,
+                      background: 'var(--color-point)', transition: 'width .3s',
+                    }} />
+                  </div>
+
+                  {/* 개당 용량 — health 도메인은 숨김 */}
+                  {!isHealth && (
+                    <div style={{ marginBottom: 10 }}>
+                      <div style={{ ...labelStyle, marginBottom: 4, fontSize: 13 }}>
                         {isSkincare && isCountMode ? (baseUnit === 'g' ? '개당 중량 (g)' : '개당 용량 (ml)') : (isCountMode ? '박스당 개수' : `패키지 용량 (${form.itemUnit})`)}
                       </div>
-                      <div style={{ borderBottom: '1.5px solid rgba(12,12,10,.18)', paddingBottom: 4 }}>
+                      <div style={{ borderBottom: '1.5px solid rgba(78,56,47,.18)', paddingBottom: 4 }}>
                         <input
                           type="number" min={0.1} step="any"
+                          title="개당 용량"
                           value={form.unitPerPackage || ''}
                           onChange={(e) => {
                             const n = parseFloat(e.target.value);
                             const unitVal = isNaN(n) ? 0 : n;
                             setForm((f) => {
                               const defaultRem = (isSkincare && isCountMode) ? f.packageCount : f.packageCount * unitVal;
-                              return {
-                                ...f,
-                                unitPerPackage: unitVal,
-                                ...(!isEditing ? { currentRemaining: defaultRem } : {})
-                              };
+                              return { ...f, unitPerPackage: unitVal, ...(!isEditing ? { currentRemaining: defaultRem } : {}) };
                             });
                           }}
                           onBlur={() => {
                             setForm((f) => {
                               const unitVal = Math.max(0.1, f.unitPerPackage || 1);
                               const defaultRem = (isSkincare && isCountMode) ? f.packageCount : f.packageCount * unitVal;
-                              return {
-                                ...f,
-                                unitPerPackage: unitVal,
-                                ...(!isEditing ? { currentRemaining: defaultRem } : {})
-                              };
+                              return { ...f, unitPerPackage: unitVal, ...(!isEditing ? { currentRemaining: defaultRem } : {}) };
                             });
                           }}
                           style={countInputStyle}
                         />
                       </div>
                     </div>
-                  </div>
-                  {/* 단위 선택 */}
-                  <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-                    {(() => {
-                      const unitOptions = (() => {
-                        if (!isSkincare) return ['개', 'ml', 'g'];
-                        if (baseUnit === 'ml') return ['개', 'ml'];
-                        if (baseUnit === 'g') return ['개', 'g'];
-                        if (baseUnit === '개') return ['개'];
-                        return ['개', 'ml'];
-                      })();
-                      return unitOptions.map((u) => {
-                        let label = u;
-                        if (isSkincare) {
-                          if (u === '개') {
-                            label = baseUnit === 'g' ? '개수 + 중량(g) 결합' : (baseUnit === '개' ? '개수 단독' : '개수 + 용량(ml) 결합');
-                          } else if (u === 'ml') {
-                            label = '용량(ml) 단독';
-                          } else if (u === 'g') {
-                            label = '중량(g) 단독';
+                  )}
+
+                  {/* 단위 선택 — health 도메인은 숨김 */}
+                  {!isHealth && (
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
+                      {(() => {
+                        const unitOptions = (() => {
+                          if (!isSkincare) return ['개', 'ml', 'g'];
+                          if (baseUnit === 'ml') return ['개', 'ml'];
+                          if (baseUnit === 'g') return ['개', 'g'];
+                          if (baseUnit === '개') return ['개'];
+                          return ['개', 'ml'];
+                        })();
+                        return unitOptions.map((u) => {
+                          let label = u;
+                          if (isSkincare) {
+                            if (u === '개') label = baseUnit === 'g' ? '개수 + 중량(g) 결합' : (baseUnit === '개' ? '개수 단독' : '개수 + 용량(ml) 결합');
+                            else if (u === 'ml') label = '용량(ml) 단독';
+                            else if (u === 'g') label = '중량(g) 단독';
                           }
-                        }
-                        return (
-                          <button
-                            key={u}
-                            onClick={() => setForm((f) => ({ ...f, itemUnit: u, usageDurationMonths: 0 }))}
-                            style={{
-                              ...pillStyle(form.itemUnit === u),
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {label}
-                          </button>
-                        );
-                      });
-                    })()}
-                  </div>
-                  {/* 총량 요약 */}
-                  <div style={{ display: 'flex', alignItems: 'center', background: '#F5F5F3', borderRadius: 6, padding: '8px 12px' }}>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>
-                      {isSkincare && isCountMode ? (baseUnit === 'g' ? '총 중량 (환산)' : '총 용량 (환산)') : (isCountMode ? '총 개수' : '총 용량')}
-                    </span>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014', marginLeft: 'auto' }}>
-                      {isSkincare && isCountMode ? `${totalAmount}${baseUnit}` : `${totalAmount}${form.itemUnit}`}
-                    </span>
-                  </div>
+                          return (
+                            <button key={u} onClick={() => setForm((f) => ({ ...f, itemUnit: u, usageDurationMonths: 0 }))}
+                              style={{ ...pillStyle(form.itemUnit === u), whiteSpace: 'nowrap' }}>
+                              {label}
+                            </button>
+                          );
+                        });
+                      })()}
+                    </div>
+                  )}
+
+                  {/* 총량 요약 — health 도메인은 숨김 */}
+                  {!isHealth && (
+                    <div style={{ display: 'flex', alignItems: 'center', background: '#F5F5F3', borderRadius: 6, padding: '8px 12px' }}>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>
+                        {isSkincare && isCountMode ? (baseUnit === 'g' ? '총 중량 (환산)' : '총 용량 (환산)') : (isCountMode ? '총 개수' : '총 용량')}
+                      </span>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#4E382F', marginLeft: 'auto' }}>
+                        {isSkincare && isCountMode ? `${totalAmount}${baseUnit}` : `${totalAmount}${form.itemUnit}`}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* 시작일 */}
@@ -3440,52 +3452,6 @@ function AddProductPage({
                   <div style={labelStyle}>사용 시작일</div>
                   <input type="date" value={form.startDate} onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))} style={dateInputStyle} />
                 </div>
-
-                {/* ── 현재 남은 수량 ── */}
-                {(isCountMode || isEditing) && (
-                  <div>
-                    <div style={{ ...labelStyle, marginBottom: 6 }}>
-                      {isSkincare && isCountMode ? '현재 남은 개수' : (isCountMode ? '현재 남은 개수' : '현재 잔량')}
-                    </div>
-                    {isCountMode && !isEditing && (
-                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 8 }}>
-                        {isSkincare
-                          ? `새 것이면 그대로 두세요 (총 ${form.packageCount}개). 이미 쓰던 것이면 남은 개수를 입력하세요 (예: 1.5).`
-                          : `새 것이면 그대로 두세요 (총 ${totalAmount}개). 이미 쓰던 것이면 남은 개수를 입력하세요.`}
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                      <input
-                        type="number"
-                        min={0}
-                        step="any"
-                        value={
-                          isCountMode && !isEditing && form.currentRemaining === 0
-                            ? (isSkincare ? form.packageCount : totalAmount)
-                            : form.currentRemaining || ''
-                        }
-                        onChange={(e) => {
-                          const n = parseFloat(e.target.value);
-                          setForm((f) => ({ ...f, currentRemaining: isNaN(n) ? 0 : Math.max(0, n) }));
-                        }}
-                        onBlur={() => setForm((f) => ({ ...f, currentRemaining: f.currentRemaining || 0 }))}
-                        style={{ ...countInputStyle, textAlign: 'left', fontSize: 22, width: 80 }}
-                      />
-                      <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9A9490' }}>
-                        {isSkincare && isCountMode
-                          ? `개 / 총 ${form.packageCount}개 (남은 ${baseUnit === 'g' ? '중량' : '용량'}: ${currentCount * form.unitPerPackage}${baseUnit} / ${totalAmount}${baseUnit})`
-                          : `${form.itemUnit} / ${totalAmount}${form.itemUnit}`}
-                      </span>
-                    </div>
-                    <div style={{ marginTop: 6, height: 4, background: '#EEEDE9', borderRadius: 2, overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%',
-                        width: `${Math.min(100, (currentCount / Math.max(1, (isSkincare && isCountMode ? form.packageCount : totalAmount))) * 100)}%`,
-                        background: '#C5FF00', transition: 'width .3s',
-                      }} />
-                    </div>
-                  </div>
-                )}
 
                 {/* ── 소비 패턴 섹션: 개 모드 vs ml 모드 (뷰티-스킨케어에만 노출) ── */}
                 {domain === 'beauty' && subType === 'skincare' && (
@@ -3495,7 +3461,7 @@ function AddProductPage({
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 2 }}>
                         <div style={labelStyle}>사용 패턴</div>
                       </div>
-                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 14 }}>소진 예측에 사용됩니다</div>
+                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9CA3AF', marginBottom: 14 }}>소진 예측에 사용됩니다</div>
 
                       {/* 하루 횟수 */}
                       <div style={{ marginBottom: 14 }}>
@@ -3564,7 +3530,7 @@ function AddProductPage({
 
                         {/* 직접 입력 시 상세 입력 필드 */}
                         {![1, 2, 3, 4, 6].includes(form.usageDurationMonths) && form.usageDurationMonths > 0 && form.daysPerWeek > 0 && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid rgba(12,12,10,.18)', paddingBottom: 4, width: 120 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid rgba(78,56,47,.18)', paddingBottom: 4, width: 120 }}>
                             <input
                               type="number"
                               min={1}
@@ -3584,7 +3550,7 @@ function AddProductPage({
                       {/* 1회 사용량 */}
                       <div style={{ marginBottom: 14 }}>
                         <div style={{ ...labelStyle, marginBottom: 8 }}>1회 사용량</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid rgba(12,12,10,.18)', paddingBottom: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid rgba(78,56,47,.18)', paddingBottom: 4 }}>
                           <input
                             type="number" min={0.01} step="any"
                             value={form.dosePerUse || ''}
@@ -3601,7 +3567,7 @@ function AddProductPage({
                           />
                           <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, color: '#44474A' }}>{baseUnit}</span>
                           {form.unitPerPackage > 0 && form.dosePerUse > 0 && (
-                            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, color: '#9CA3AF', marginLeft: 8 }}>
+                            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9CA3AF', marginLeft: 8 }}>
                               (약 {(form.dosePerUse / form.unitPerPackage).toFixed(2)}개 소모)
                             </span>
                           )}
@@ -3612,14 +3578,14 @@ function AddProductPage({
                       {countDailyRate !== null && (
                         <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', gap: 0, marginBottom: 8 }}>
                           <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #E5E4E2' }}>
-                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '.06em', marginBottom: 2 }}>하루 소모</div>
-                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014' }}>
+                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#9CA3AF', letterSpacing: '.06em', marginBottom: 2 }}>하루 소모</div>
+                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#4E382F' }}>
                               {countDailyRate < 1 ? countDailyRate.toFixed(2) : countDailyRate.toFixed(1)}개
                             </div>
                           </div>
                           <div style={{ flex: 1, textAlign: 'center' }}>
-                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '.06em', marginBottom: 2 }}>주간 소모</div>
-                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#0C1014' }}>
+                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, color: '#9CA3AF', letterSpacing: '.06em', marginBottom: 2 }}>주간 소모</div>
+                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 16, fontWeight: 700, color: '#4E382F' }}>
                               {countWeeklyRate !== null ? (countWeeklyRate < 1 ? countWeeklyRate.toFixed(2) : countWeeklyRate.toFixed(1)) : '—'}개
                             </div>
                           </div>
@@ -3628,10 +3594,15 @@ function AddProductPage({
 
                       {/* 예상 소진 */}
                       <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>예상 소진</span>
-                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: estimatedDays !== null ? '#0C1014' : '#C5C6CA' }}>
-                          {estimatedDays !== null ? `약 ${estimatedDays}일 후` : '불규칙'}
-                        </span>
+                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>예상 소진</span>
+                        {estimatedDays !== null ? (
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: '#4E382F' }}>{estimatedEndDate} 종료</div>
+                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 500, color: '#9B8B83', marginTop: 2 }}>약 {estimatedDays}일 후</div>
+                          </div>
+                        ) : (
+                          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: '#C5C6CA' }}>불규칙</span>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -3640,16 +3611,16 @@ function AddProductPage({
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 2 }}>
                         <div style={labelStyle}>사용 패턴</div>
                         {form.category && CATEGORY_DOSE_DEFAULTS[form.category] && (
-                          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9CA3AF' }}>
+                          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9CA3AF' }}>
                             ({form.category} 기본값 자동 적용)
                           </span>
                         )}
                       </div>
-                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, color: '#9CA3AF', marginBottom: 14 }}>소진 예측에 사용됩니다</div>
+                      <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, color: '#9CA3AF', marginBottom: 14 }}>소진 예측에 사용됩니다</div>
 
                       <div style={{ marginBottom: 14 }}>
                         <div style={{ ...labelStyle, marginBottom: 8 }}>1회 사용량</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid rgba(12,12,10,.18)', paddingBottom: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1.5px solid rgba(78,56,47,.18)', paddingBottom: 4 }}>
                           <input
                             type="number" min={0.01} step="any"
                             value={form.dosePerUse || ''}
@@ -3684,10 +3655,15 @@ function AddProductPage({
                       </div>
 
                       <div style={{ background: '#F5F5F3', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>예상 소진</span>
-                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: estimatedDays !== null ? '#0C1014' : '#C5C6CA' }}>
-                          {estimatedDays !== null ? `약 ${estimatedDays}일 후` : '불규칙'}
-                        </span>
+                        <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '.08em', color: '#9CA3AF', textTransform: 'uppercase' }}>예상 소진</span>
+                        {estimatedDays !== null ? (
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: '#4E382F' }}>{estimatedEndDate} 종료</div>
+                            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 500, color: '#9B8B83', marginTop: 2 }}>약 {estimatedDays}일 후</div>
+                          </div>
+                        ) : (
+                          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 15, fontWeight: 700, color: '#C5C6CA' }}>불규칙</span>
+                        )}
                       </div>
                     </div>
                   )
@@ -3740,7 +3716,7 @@ function AddProductPage({
                 <button
                   type="button"
                   onClick={() => { setLocPanelOpen(v => !v); setAddingLoc(false); setEditLocIdx(null); }}
-                  style={{ width: '100%', height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f2, fontSize: 13, fontWeight: 600, color: form.boxLocation ? '#0C0C0A' : '#BCBAB6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', outline: 'none' }}
+                  style={{ width: '100%', height: 44, padding: '0 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, background: '#fff', fontFamily: f2, fontSize: 13, fontWeight: 600, color: form.boxLocation ? '#4E382F' : '#BCBAB6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', outline: 'none' }}
                 >
                   <span>{form.boxLocation || '위치 선택 안 함'}</span>
                   <svg style={{ transition: 'transform .2s', transform: locPanelOpen ? 'rotate(180deg)' : 'rotate(0deg)', flexShrink: 0 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -3748,12 +3724,12 @@ function AddProductPage({
 
                 {/* 펼쳐지는 편집 패널 */}
                 {locPanelOpen && (
-                  <div style={{ marginTop: 6, border: '1.5px solid rgba(12,12,10,.1)', borderRadius: 12, background: '#FAFAF8' }}>
+                  <div style={{ marginTop: 6, border: '1.5px solid rgba(78,56,47,.1)', borderRadius: 12, background: '#F2EDE6' }}>
 
                     {/* 위치 목록 */}
                     <div style={{ display: 'flex', flexDirection: 'column', padding: '10px 10px 2px' }}>
                       {locs.length === 0 && (
-                        <div style={{ padding: '10px 0 12px', fontFamily: f2, fontSize: 12, color: '#BCBAB6', textAlign: 'center' }}>등록된 위치가 없습니다</div>
+                        <div style={{ padding: '10px 0 12px', fontFamily: f2, fontSize: 13, color: '#BCBAB6', textAlign: 'center' }}>등록된 위치가 없습니다</div>
                       )}
                       {locs.map((loc, idx) => (
                         <div
@@ -3763,25 +3739,25 @@ function AddProductPage({
                           onDragOver={e => { e.preventDefault(); setDragLocOverIdx(idx); }}
                           onDrop={e => { e.preventDefault(); if (dragLocIdx != null) moveLoc(dragLocIdx, idx); setDragLocIdx(null); setDragLocOverIdx(null); }}
                           onDragEnd={() => { setDragLocIdx(null); setDragLocOverIdx(null); }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, opacity: dragLocIdx === idx ? 0.4 : 1, outline: dragLocOverIdx === idx ? '2px dashed #C5FF00' : 'none', outlineOffset: 2, borderRadius: 4 }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, opacity: dragLocIdx === idx ? 0.4 : 1, outline: dragLocOverIdx === idx ? '2px dashed var(--color-point)' : 'none', outlineOffset: 2, borderRadius: 4 }}
                         >
                           {/* 좌측 빨간 삭제 버튼 */}
-                          <button type="button" onClick={() => removeLocation(idx)} style={{ width: 20, height: 20, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, cursor: 'pointer', flexShrink: 0, lineHeight: 1 }} aria-label="삭제">-</button>
+                          <button type="button" onClick={() => removeLocation(idx)} style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, cursor: 'pointer', flexShrink: 0, lineHeight: 1 }} aria-label="삭제">-</button>
 
                           {/* 중앙 흰색 카드 */}
-                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: '#fff', borderRadius: 12, border: form.boxLocation === loc ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', minWidth: 0 }}>
+                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: '#fff', borderRadius: 12, border: form.boxLocation === loc ? '1.5px solid #4E382F' : '1px solid rgba(78,56,47,.06)', boxShadow: '0 1px 2px rgba(78,56,47,.04)', minWidth: 0 }}>
                             {/* 번호 배지 */}
-                            <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#EEEDE9', color: '#9A9490', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{idx + 1}</div>
+                            <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#EEEDE9', color: '#9A9490', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{idx + 1}</div>
 
                             {editLocIdx === idx ? (
-                              <input autoFocus value={editLocName} onChange={e => setEditLocName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveEditLoc(idx); if (e.key === 'Escape') { setEditLocIdx(null); setEditLocName(''); } }} onBlur={() => saveEditLoc(idx)} style={{ flex: 1, fontFamily: f2, fontSize: 13, fontWeight: 700, color: '#0C0C0A', border: 'none', borderBottom: '2px solid #C5FF00', outline: 'none', background: 'transparent', padding: '2px 0' }} />
+                              <input autoFocus value={editLocName} onChange={e => setEditLocName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') saveEditLoc(idx); if (e.key === 'Escape') { setEditLocIdx(null); setEditLocName(''); } }} onBlur={() => saveEditLoc(idx)} style={{ flex: 1, fontFamily: f2, fontSize: 13, fontWeight: 700, color: '#4E382F', border: 'none', borderBottom: '2px solid var(--color-point)', outline: 'none', background: 'transparent', padding: '2px 0' }} />
                             ) : (
                               <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                                <button type="button" onClick={() => setForm(f => ({ ...f, boxLocation: f.boxLocation === loc ? '' : loc }))} style={{ flex: 1, background: 'none', border: 'none', padding: 0, textAlign: 'left', fontFamily: f2, fontSize: 13, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {form.boxLocation === loc && <svg style={{ marginRight: 5, verticalAlign: 'middle', flexShrink: 0 }} width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                                <button type="button" onClick={() => setForm(f => ({ ...f, boxLocation: f.boxLocation === loc ? '' : loc }))} style={{ flex: 1, background: 'none', border: 'none', padding: 0, textAlign: 'left', fontFamily: f2, fontSize: 13, fontWeight: 700, color: '#4E382F', cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {form.boxLocation === loc && <svg style={{ marginRight: 5, verticalAlign: 'middle', flexShrink: 0 }} width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4E382F" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                                   {loc}
                                 </button>
-                                <button type="button" onClick={() => { setEditLocIdx(idx); setEditLocName(loc); setAddingLoc(false); }} title="이름 수정" style={{ width: 20, height: 20, borderRadius: 5, border: '1px solid rgba(12,12,10,.14)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9A9490', flexShrink: 0 }}>
+                                <button type="button" onClick={() => { setEditLocIdx(idx); setEditLocName(loc); setAddingLoc(false); }} title="이름 수정" style={{ width: 20, height: 20, borderRadius: 5, border: '1px solid rgba(78,56,47,.14)', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9A9490', flexShrink: 0 }}>
                                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </button>
                               </div>
@@ -3795,14 +3771,14 @@ function AddProductPage({
                     </div>
 
                     {/* 위치 추가 */}
-                    <div style={{ padding: '8px 10px 10px', borderTop: locs.length > 0 ? '1px solid rgba(12,12,10,.07)' : 'none' }}>
+                    <div style={{ padding: '8px 10px 10px', borderTop: locs.length > 0 ? '1px solid rgba(78,56,47,.07)' : 'none' }}>
                       {!addingLoc ? (
-                        <button type="button" onClick={() => { setAddingLoc(true); setEditLocIdx(null); }} style={{ height: 30, padding: '0 12px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.18)', background: 'transparent', fontFamily: f2, fontSize: 11, fontWeight: 700, color: '#9A9490', cursor: 'pointer', letterSpacing: '.04em' }}>+ 위치 추가</button>
+                        <button type="button" onClick={() => { setAddingLoc(true); setEditLocIdx(null); }} style={{ height: 30, padding: '0 12px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.18)', background: 'transparent', fontFamily: f2, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', letterSpacing: '.04em' }}>+ 위치 추가</button>
                       ) : (
                         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                          <input autoFocus value={newLocName} onChange={e => setNewLocName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addLocation(); if (e.key === 'Escape') { setAddingLoc(false); setNewLocName(''); } }} placeholder="위치 이름 (예: 욕실 선반)" style={{ flex: 1, height: 32, padding: '0 10px', border: '1.5px solid #0C0C0A', borderRadius: 8, fontFamily: f2, fontSize: 12, outline: 'none', background: '#fff', color: '#0C0C0A' }} />
-                          <button type="button" onClick={addLocation} style={{ height: 32, padding: '0 12px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 8, fontFamily: f2, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>추가</button>
-                          <button type="button" onClick={() => { setAddingLoc(false); setNewLocName(''); }} style={{ height: 32, padding: '0 10px', background: 'transparent', border: '1px solid rgba(12,12,10,.2)', borderRadius: 8, fontFamily: f2, fontSize: 11, cursor: 'pointer', color: '#9A9490' }}>취소</button>
+                          <input autoFocus value={newLocName} onChange={e => setNewLocName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addLocation(); if (e.key === 'Escape') { setAddingLoc(false); setNewLocName(''); } }} placeholder="위치 이름 (예: 욕실 선반)" style={{ flex: 1, height: 32, padding: '0 10px', border: '1.5px solid #4E382F', borderRadius: 8, fontFamily: f2, fontSize: 13, outline: 'none', background: '#fff', color: '#4E382F' }} />
+                          <button type="button" onClick={addLocation} style={{ height: 32, padding: '0 12px', background: '#4E382F', color: '#fff', border: 'none', borderRadius: 8, fontFamily: f2, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>추가</button>
+                          <button type="button" onClick={() => { setAddingLoc(false); setNewLocName(''); }} style={{ height: 32, padding: '0 10px', background: 'transparent', border: '1px solid rgba(78,56,47,.2)', borderRadius: 8, fontFamily: f2, fontSize: 13, cursor: 'pointer', color: '#9A9490' }}>취소</button>
                         </div>
                       )}
                     </div>
@@ -3834,8 +3810,8 @@ function AddProductPage({
               disabled={saving}
               style={{
                 flex: 1, height: 52,
-                background: '#0C0C0A',
-                color: '#C5FF00', border: 'none', borderRadius: 12,
+                background: '#4E382F',
+                color: '#FFFFFF', border: 'none', borderRadius: 12,
                 fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
                 fontSize: 15, fontWeight: 700, cursor: 'pointer',
                 opacity: saving ? 0.5 : 1,
@@ -3865,31 +3841,31 @@ function AddProductPage({
 
 const labelStyle: React.CSSProperties = {
   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-  fontSize: 11, fontWeight: 700, letterSpacing: '.1em',
+  fontSize: 13, fontWeight: 700, letterSpacing: '.1em',
   textTransform: 'uppercase', color: '#9A9490',
 };
 
 // underline 스타일 input (하단 테두리만)
 const underlineInputStyle: React.CSSProperties = {
-  width: '100%', border: 'none', borderBottom: '1px solid rgba(12,12,10,.2)',
-  background: '#FAFAF8', outline: 'none',
+  width: '100%', border: 'none', borderBottom: '1px solid rgba(78,56,47,.2)',
+  background: '#F2EDE6', outline: 'none',
   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-  fontSize: 16, color: '#0C0C0A', padding: '8px 0 4px', height: 42,
+  fontSize: 16, color: '#4E382F', padding: '8px 0 4px', height: 42,
 };
 
 // 날짜 input 스타일
 const dateInputStyle: React.CSSProperties = {
-  width: '100%', border: 'none', borderBottom: '1px solid rgba(12,12,10,.2)',
-  background: '#FAFAF8', outline: 'none',
+  width: '100%', border: 'none', borderBottom: '1px solid rgba(78,56,47,.2)',
+  background: '#F2EDE6', outline: 'none',
   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-  fontSize: 14, color: '#0C0C0A', padding: '6px 0', height: 41,
+  fontSize: 14, color: '#4E382F', padding: '6px 0', height: 41,
 };
 
 // 수량 input 스타일 (중앙 정렬, 큰 폰트)
 const countInputStyle: React.CSSProperties = {
   width: '100%', border: 'none', background: 'transparent',
   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-  fontSize: 20, color: '#0C0C0A', outline: 'none',
+  fontSize: 20, color: '#4E382F', outline: 'none',
   padding: '4px 0', textAlign: 'center',
 };
 
@@ -3897,10 +3873,10 @@ const countInputStyle: React.CSSProperties = {
 function pillStyle(isActive: boolean): React.CSSProperties {
   return {
     padding: '6px 12px', borderRadius: 9999,
-    border: `1.5px solid ${isActive ? '#0C0C0A' : 'rgba(12,12,10,.18)'}`,
-    background: isActive ? '#0C0C0A' : 'transparent',
+    border: `1.5px solid ${isActive ? '#4E382F' : 'rgba(78,56,47,.18)'}`,
+    background: isActive ? '#4E382F' : 'transparent',
     fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-    fontSize: 12, fontWeight: 700, letterSpacing: '.04em',
+    fontSize: 13, fontWeight: 700, letterSpacing: '.04em',
     color: isActive ? '#fff' : '#9A9490',
     cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all .18s',
   };
@@ -4067,7 +4043,7 @@ function LocationEditSheet({
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A' }}>📍 보관장소 관리</span>
+          <span style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#4E382F' }}>📍 보관장소 관리</span>
           <button
             onClick={onClose}
             style={{ width: 30, height: 30, borderRadius: '50%', background: '#F4F4F0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}
@@ -4108,7 +4084,7 @@ function LocationEditSheet({
           <button
             onClick={handleSave}
             disabled={saving}
-            style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.5 : 1 }}
+            style={{ flex: 1, height: 52, background: '#4E382F', color: '#FFFFFF', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.5 : 1 }}
           >
             {saving ? '저장 중...' : '저장'}
           </button>

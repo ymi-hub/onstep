@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: __dirname,
+  },
   // 💡 output: 'export' — Next.js를 정적 HTML/CSS/JS 파일로 빌드
   //    `npm run build` 실행 시 frontend/out/ 폴더 생성
   //    Firebase Hosting에서 이 폴더를 서빙

@@ -23,13 +23,15 @@ interface PageHeaderProps {
   title: string;
   /** 서브 텍스트 (선택) — 날짜, 세션 정보, 설명 등 */
   subtitle?: string;
-  /** 우측 슬롯 (선택) — 버튼, 카운트 배지 등 */
+  /** 레이블 행 우측 슬롯 (선택) — 버튼, 카운트 배지 등 */
   right?: ReactNode;
+  /** 타이틀 행 우측 슬롯 (선택) — 날씨 위젯 등 큰 요소 */
+  titleRight?: ReactNode;
 }
 
 const F = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
-export default function PageHeader({ label, title, subtitle, right }: PageHeaderProps) {
+export default function PageHeader({ label, title, subtitle, right, titleRight }: PageHeaderProps) {
   return (
     <div style={{ padding: '24px 20px 16px' }}>
 
@@ -62,20 +64,28 @@ export default function PageHeader({ label, title, subtitle, right }: PageHeader
         )}
       </div>
 
-      {/* 대형 타이틀 — 52→40px, 좌우 패딩 26→20px */}
-      <h1
-        style={{
-          fontFamily: F,
-          fontSize: 40,
-          fontWeight: 700,
-          color: '#2D2420',
-          lineHeight: 1.0,
-          letterSpacing: '-.02em',
-          margin: '4px 0 0',
-        }}
-      >
-        {title}
-      </h1>
+      {/* 타이틀 행: h1(좌) + titleRight 슬롯(우) */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 4 }}>
+        <h1
+          style={{
+            fontFamily: F,
+            fontSize: 40,
+            fontWeight: 700,
+            color: '#4E382F',
+            lineHeight: 1.0,
+            letterSpacing: '-.02em',
+            margin: 0,
+          }}
+        >
+          {title}
+        </h1>
+
+        {titleRight && (
+          <div style={{ flexShrink: 0 }}>
+            {titleRight}
+          </div>
+        )}
+      </div>
 
       {subtitle && (
         <p

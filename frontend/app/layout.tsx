@@ -66,10 +66,10 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${plusJakartaSans.variable} ${spaceGrotesk.variable} ${nanumPenScript.variable}`}>
       <body style={{ fontFamily: "var(--font-jakarta), var(--font-grotesk), sans-serif" }}>
-        {/* PC에서도 앱 사이즈(430px)로 가운데 표시 */}
+        {/* PC에서도 앱 사이즈(390px)로 가운데 표시 */}
         <div
           style={{
-            maxWidth: 430,
+            maxWidth: 390,
             margin: '0 auto',
             height: '100dvh',
             display: 'flex',

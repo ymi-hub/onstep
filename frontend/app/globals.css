@@ -27,10 +27,14 @@
   --color-surface-low: #E8DDD5;
   --color-surface-mid: #DDD0C6;
   --color-surface-high: #C9B9AE;
-  --color-surface-inv: #2D2420;
-  --color-ink: #2D2420;
+  --color-surface-inv: #4E382F;
+  --color-ink: #4E382F;
   --color-sub: #6B5C55;
   --color-mist: #9B8B83;
+  /* ── 포인트 컬러 — 여기 한 곳만 수정하면 전체 적용 ── */
+  --color-point: #E85D6B;       /* 핑크 코랄 — CTA·체크박스·타임칩·카테고리 배지 */
+  --color-point-fg: #FFFFFF;    /* 포인트 위 텍스트/아이콘 */
+
   --color-lime: #C5FF00;
   --color-lime-dark: #A6D900;
   --color-lime-fg: #0C0C0A;
@@ -137,7 +141,7 @@ main {
 }
 
 /* ── 모바일 입력 확대 방지 ── */
-@media (max-width: 430px) {
+@media (max-width: 390px) {
   input,
   textarea,
   select {

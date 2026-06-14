@@ -24,8 +24,8 @@ const F = "'Plus Jakarta Sans', 'Space Grotesk', sans-serif";
 
 /** EXPERT TIP 제품명 하이라이팅 공통 스타일 — 등록/노출 화면 모두 동일 적용 */
 export const EXPERT_TIP_HIGHLIGHT = {
-  bg:     'rgba(197,255,0,.28)',
-  color:  '#3A6000',
+  bg:     'rgba(232,93,107,.14)',
+  color:  '#C04050',
   weight: '700',
 } as const;
 
@@ -67,7 +67,7 @@ export default function ExpertTipField({
     fontSize: 13,
     lineHeight: 1.65,
     color: '#4A4846',
-    background: 'rgba(197,255,0,.04)',
+    background: 'rgba(232,93,107,.04)',
     boxSizing: 'border-box',
   };
 
@@ -80,7 +80,7 @@ export default function ExpertTipField({
           fontSize: 10,
           fontWeight: 700,
           letterSpacing: '.08em',
-          color: '#4E7D00',
+          color: 'var(--color-point)',
           marginBottom: 6,
           display: 'flex',
           alignItems: 'center',

@@ -5,7 +5,7 @@
 // 구조 변경 포인트:
 //   - position: fixed → 제거. NavWrapper가 BottomNav를 숨기므로
 //     <main>이 100dvh를 채움. 그 안에서 height: 100dvh로 자연스럽게 꽉 참.
-//   - 전체 화면이 아닌 430px 앱 박스 안에서 렌더링됨 (앱 화면처럼 보임)
+//   - 전체 화면이 아닌 390px 앱 박스 안에서 렌더링됨 (앱 화면처럼 보임)
 //   - 슬라이드 1 → 킹받은 귀요미 캐릭터(logo.png) 중심 웰컴 화면
 //   - 슬라이드 2 → 오늘 흐름 시각화 (기존 유지)
 //   - 슬라이드 3 → 소형 캐릭터 + 통계 미니카드 + 시작 버튼
@@ -197,7 +197,7 @@ function Slide1() {
           <em style={{
             fontStyle: 'italic',
             // 포인트 컬러 그라데이션
-            background: 'linear-gradient(135deg, #E94F6B, #F4847A)',
+            background: 'linear-gradient(135deg, var(--color-point), #F4847A)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',

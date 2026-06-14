@@ -168,7 +168,7 @@ function SessionHero({
   const dateStr = format(today, 'M월 d일 (EEE)', { locale: ko });
 
   return (
-    <div style={{ margin: '0 20px 12px', background: '#FFFFFF', borderRadius: 20, boxShadow: '0 4px 16px rgba(45,36,32,.08)', border: '1px solid rgba(45,36,32,.06)', padding: '16px 20px 20px' }}>
+    <div style={{ margin: '0 20px 12px', background: '#FFFFFF', borderRadius: 20, boxShadow: '0 4px 16px rgba(78,56,47,.08)', border: '1px solid rgba(78,56,47,.06)', padding: '16px 20px 20px' }}>
       {/* 회차 번호 */}
       <div
         style={{
@@ -190,7 +190,7 @@ function SessionHero({
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
           fontSize: 13,
           fontWeight: 500,
-          color: '#2D2420',
+          color: '#4E382F',
           marginTop: 4,
           marginBottom: 14,
           display: 'flex',
@@ -243,7 +243,7 @@ function SessionHero({
                     dayNum < dotPos
                       ? 'rgba(232,93,107,.35)'
                       : dayNum === dotPos
-                      ? '#E85D6B'
+                      ? 'var(--color-point)'
                       : '#E8E7E4',
                   transition: 'all 0.3s',
                   flexShrink: 0,
@@ -325,13 +325,28 @@ function FlowCard({
           border-color: #0C0C0A !important;
           box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08) !important;
         }
+        .timer-card:hover {
+          background: var(--color-point) !important;
+          border-color: var(--color-point) !important;
+          box-shadow: 0 10px 28px rgba(232,93,107,.4) !important;
+        }
+        .timer-card:hover .timer-badge {
+          background: rgba(255,255,255,.22) !important;
+          color: #fff !important;
+        }
+        .timer-card:hover .timer-main-text { color: #fff !important; }
+        .timer-card:hover .timer-mins { color: rgba(255,255,255,.8) !important; }
+        .timer-card:hover svg circle { stroke: rgba(255,255,255,.3) !important; }
+        .timer-card:hover svg polyline,
+        .timer-card:hover svg path { stroke: rgba(255,255,255,.9) !important; }
+        .timer-card:hover .timer-stopwatch-btn { background: rgba(255,255,255,.8) !important; }
       `}</style>
     <div
       style={{
         margin: '0 20px',
         background: '#FFFFFF',
-        border: '1px solid rgba(45,36,32,.06)',
-        boxShadow: '0 4px 16px rgba(45,36,32,.08)',
+        border: '1px solid rgba(78,56,47,.06)',
+        boxShadow: '0 4px 16px rgba(78,56,47,.08)',
         borderRadius: 20,
         overflow: 'hidden',
       }}
@@ -347,14 +362,14 @@ function FlowCard({
               height: 38,
               padding: '0 4px',
               border: 'none',
-              borderBottom: tab === t ? '2px solid #2D2420' : '2px solid transparent',
+              borderBottom: tab === t ? '2px solid #4E382F' : '2px solid transparent',
               cursor: 'pointer',
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
               fontSize: 13,
               fontWeight: tab === t ? 700 : 500,
               letterSpacing: '0.04em',
               background: 'transparent',
-              color: tab === t ? '#2D2420' : '#C7C7CC',
+              color: tab === t ? '#4E382F' : '#C7C7CC',
               transition: 'all .18s',
               position: 'relative',
               marginBottom: -1,
@@ -364,7 +379,7 @@ function FlowCard({
             {/* 완료 배지 — 더 부드러운 코랄 */}
             {(t === 'morning' ? checked.morning : checked.evening) && (
               <span style={{ position: 'absolute', top: -6, right: 0, display: 'block', width: 18, height: 18 }}>
-                <CatBadge color={t === 'morning' ? '#E85D6B' : '#D4948C'} size={18} />
+                <CatBadge color="#C5FF00" size={18} />
               </span>
             )}
           </button>
@@ -474,7 +489,7 @@ function FlowCard({
                   return (
                     <div
                       key={idx}
-                      className="care-step-card"
+                      className="care-step-card timer-card"
                       onClick={() => {
                         if (isActiveTimer) {
                           stopTimer();
@@ -492,10 +507,10 @@ function FlowCard({
                         width: 240,
                         minWidth: 240,
                         height: 350,
-                        background: 'rgba(12,12,10,0.03)',
-                        border: isActiveTimer ? '2px solid #0066FF' : '1px solid rgba(12,12,10,.07)',
+                        background: isActiveTimer ? 'rgba(232,93,107,.06)' : 'rgba(232,93,107,.04)',
+                        border: isActiveTimer ? '2px solid var(--color-point)' : '1.5px solid var(--color-point)',
                         borderRadius: 16,
-                        boxShadow: isActiveTimer ? '0 6px 18px rgba(0,0,0,.08)' : '0 4px 16px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.02)',
+                        boxShadow: isActiveTimer ? '0 6px 18px rgba(232,93,107,.18)' : '0 4px 16px rgba(232,93,107,.06)',
                         transition: 'all .2s ease-in-out',
                         cursor: 'pointer',
                         position: 'relative',
@@ -505,7 +520,7 @@ function FlowCard({
                       {/* 상단 고정 영역: GUIDE 뱃지 + 설명문구 */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '100%' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
-                          <div style={{
+                          <div className="timer-badge" style={{
                             background: '#C5FF00', color: '#000000',
                             fontFamily: f, fontWeight: 800, fontSize: 10, letterSpacing: '.06em',
                             padding: '3px 8px', borderRadius: 6, lineHeight: 1
@@ -514,7 +529,7 @@ function FlowCard({
                           </div>
                         </div>
                         {/* 설명 문구 */}
-                        <div style={{
+                        <div className="timer-main-text" style={{
                           fontFamily: f,
                           fontWeight: 700,
                           fontSize: 20,
@@ -565,7 +580,7 @@ function FlowCard({
                           </svg>
                         </div>
                         {/* 상단 스톱워치 버튼 데코 */}
-                        <div style={{ position: 'absolute', top: 2, width: 10, height: 5, background: '#0C0C0A', borderRadius: '2px 2px 0 0', opacity: isActiveTimer ? 1 : 0.35 }} />
+                        <div className="timer-stopwatch-btn" style={{ position: 'absolute', top: 2, width: 10, height: 5, background: '#0C0C0A', borderRadius: '2px 2px 0 0', opacity: isActiveTimer ? 1 : 0.35 }} />
                       </div>
 
                       {/* 하단 영역: 실시간 남은 시간 또는 타이머 가이드 배너 */}
@@ -583,7 +598,7 @@ function FlowCard({
                             {formatTimerRemain(timerRemainMs)}
                           </div>
                         ) : (
-                          <div style={{
+                          <div className="timer-mins" style={{
                             fontFamily: f,
                             fontWeight: 700,
                             fontSize: 22,
@@ -606,7 +621,7 @@ function FlowCard({
                       flexShrink: 0,
                       alignSelf: 'center',
                       padding: '6px 14px',
-                      background: 'rgb(3, 105, 227)',
+                      background: 'var(--color-point)',
                       borderRadius: 9999,
                       fontSize: 12,
                       fontWeight: 700,
@@ -651,7 +666,7 @@ function FlowCard({
             <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 12, fontWeight: 400, color: '#BCBAB6' }}>
               {slot.items.filter(i => i.type === 'product').length}개 제품
             </span>
-            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase' as const, background: '#0C0C0A', color: '#A6D900', padding: '3px 10px', borderRadius: 9999 }}>
+            <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase' as const, background: '#4E382F', color: '#FFFFFF', padding: '3px 10px', borderRadius: 9999 }}>
               Day {todayDayNumber}
             </span>
           </div>
@@ -728,9 +743,9 @@ function FlowCard({
                 gap: 6,
                 height: 40,
                 width: '100%',
-                background: !hasProducts ? '#F4F4F0' : isChecked ? '#0C0C0A' : '#F4F4F0',
-                color: !hasProducts ? '#BCBAB6' : isChecked ? '#C5FF00' : '#4A4846',
-                border: !hasProducts ? '1.5px solid rgba(12,12,10,.07)' : isChecked ? '1.5px solid #0C0C0A' : '1.5px solid rgba(12,12,10,.1)',
+                background: !hasProducts ? '#F4F4F0' : isChecked ? '#4E382F' : '#F4F4F0',
+                color: !hasProducts ? '#BCBAB6' : isChecked ? '#FFFFFF' : '#4A4846',
+                border: !hasProducts ? '1.5px solid rgba(12,12,10,.07)' : isChecked ? '1.5px solid #4E382F' : '1.5px solid rgba(12,12,10,.1)',
                 fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                 fontSize: 12,
                 fontWeight: 700,
@@ -742,19 +757,19 @@ function FlowCard({
               }}
             >
               {saving ? '저장 중...' : isChecked ? (
-                /* 완료 — 아침(라임) / 저녁(오렌지) 고양이 */
+                /* 완료 — 다크 브라운 배경 위 밀크 고양이 */
                 <>
                   {tab === 'morning' ? '☀' : '🌙'} 스킨케어 체크 완료
                   <span style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4 }}>
-                    <CatBadge color={tab === 'morning' ? '#C5FF00' : '#f7bc45'} size={20} />
+                    <CatBadge color="#C5FF00" stroke="rgba(139,99,71,.4)" size={20} />
                   </span>
                 </>
               ) : (
-                /* 미완료(비활성 포함) — 회색 고양이 */
+                /* 미완료(비활성 포함) — 라이트 배경 위 시나몬 브라운 고양이 */
                 <>
                   {tab === 'morning' ? '☀' : '🌙'} 스킨케어 체크
                   <span style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: 4, opacity: !hasProducts ? 0.5 : 0.7 }}>
-                    <CatBadge color="#9A9490" size={20} />
+                    <CatBadge color="#C5FF00" stroke="rgba(139,99,71,.4)" size={20} />
                   </span>
                 </>
               )}
@@ -858,18 +873,20 @@ function DailyCheckSection({
 
   const periodOrder: PK[] = ['am', 'pm', 'ev', 'allday'];
   const periodLabel: Record<PK, string> = { am: '아침', pm: '오후', ev: '저녁', allday: '종일' };
-  const tabAccent: Record<string, string> = { all: '#2D2420', habits: '#F2A05E', meds: '#6BABDA', health: '#5CB87E' };
+  const tabAccent: Record<string, string> = { all: '#4E382F', habits: '#F2A05E', meds: '#6BABDA', health: '#5CB87E' };
   const catCount = (hasHabits ? 1 : 0) + (hasMeds ? 1 : 0) + (hasHealth ? 1 : 0);
 
   return (
     <div>
+      {/* 섹션 타이틀 + 진행 카운트 */}
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '20px 20px 10px' }}>
-        <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#2D2420', letterSpacing: '-.01em' }}>#Daily</span>
+        <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#4E382F', letterSpacing: '-.01em' }}>#Daily</span>
         <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9B8B83' }}>{totalDone}/{totalCount}</span>
       </div>
 
+      {/* 필터 탭 — 2개 이상 카테고리 시만 */}
       {catCount > 1 && (
-        <div style={{ display: 'flex', gap: 6, padding: '0 20px 12px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+        <div style={{ display: 'flex', gap: 6, padding: '0 20px 10px', overflowX: 'auto', scrollbarWidth: 'none' }}>
           {([
             { key: 'all' as const, label: 'ALL', cnt: totalCount },
             hasHabits ? { key: 'habits' as const, label: 'HABITS', cnt: todayHabits.length } : null,
@@ -877,84 +894,90 @@ function DailyCheckSection({
             hasHealth ? { key: 'health' as const, label: 'HEALTH', cnt: visHealth.length } : null,
           ].filter(Boolean) as { key: typeof filter; label: string; cnt: number }[]).map(tab => {
             const isActive = filter === tab.key;
-            const ac = tabAccent[tab.key];
             return (
               <button type="button" key={tab.key} onClick={() => setFilter(tab.key)}
-                style={{ background: isActive ? `${ac}18` : 'transparent', border: `1px solid ${isActive ? `${ac}40` : 'rgba(45,36,32,.10)'}`, borderRadius: 9999, padding: '5px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, transition: 'all .18s' }}>
-                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: isActive ? ac : '#9B8B83' }}>{tab.label}</span>
-                <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: isActive ? ac : '#C9B9AE' }}>{tab.cnt}</span>
+                style={{ background: isActive ? 'rgba(232,93,107,.12)' : 'transparent', border: `1px solid ${isActive ? 'rgba(232,93,107,.35)' : 'rgba(78,56,47,.10)'}`, borderRadius: 9999, padding: '5px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, transition: 'all .18s' }}>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: isActive ? 'var(--color-point)' : '#9B8B83' }}>{tab.label}</span>
+                <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: isActive ? 'rgba(232,93,107,.7)' : '#C9B9AE' }}>{tab.cnt}</span>
               </button>
             );
           })}
         </div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '0 20px' }}>
+      {/* MindBridge 스타일 흰 카드 컨테이너 */}
+      <div style={{ margin: '0 20px', background: '#FFFFFF', borderRadius: 20, border: '1px solid rgba(78,56,47,.06)', boxShadow: '0 4px 16px rgba(78,56,47,.08)', overflow: 'hidden' }}>
         {periodOrder.map(period => {
           const its = groups[period];
           if (its.length === 0) return null;
           return (
             <div key={period}>
-              <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.1em', color: '#9B8B83', padding: '2px 2px 6px 4px' }}>{periodLabel[period]}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {its.map((item) => {
-                  if (item.kind === 'habit') {
-                    const h = item.data; const isDone = habitChecked.has(h.id);
-                    return (
-                      <div key={h.id} onClick={() => onToggleHabit(h.id)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(242,160,94,.32)' : 'rgba(242,160,94,.18)', cursor: 'pointer', transition: 'background .18s' }}>
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(242,160,94,.5)' : '#F2A05E'}`, background: isDone ? 'rgba(242,160,94,.4)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F2A05E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                        </div>
-                        <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '✦'}</span>
-                        {h.time && h.repeatType !== 'allday' && <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{h.time}</span>}
-                        <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>{h.name}</span>
-                      </div>
-                    );
-                  }
-                  if (item.kind === 'med') {
-                    const m = item.data; const isDone = medChecked.has(m.id);
-                    return (
-                      <div key={m.id} onClick={() => onToggleMed(m.id)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(107,171,218,.32)' : 'rgba(107,171,218,.18)', cursor: 'pointer', transition: 'background .18s' }}>
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(107,171,218,.5)' : '#6BABDA'}`, background: isDone ? 'rgba(107,171,218,.4)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6BABDA" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                        </div>
-                        <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{m.icon || '💊'}</span>
-                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{medSlotTime(m, item.slot)}</span>
-                        <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
-                      </div>
-                    );
-                  }
-                  const h = item.data; const isDone = healthChecked.has(h.id);
-                  const pt = healthPrimaryTime(h);
-                  const dBadge = (() => {
-                    if (h.repeatType !== 'interval' || !h.intervalUnit || !h.intervalValue) return null;
-                    const nd = calcNextDueDate(h.lastDoneDate, h.intervalUnit, h.intervalValue);
-                    const d = getDaysUntilDue(nd);
-                    return { label: dueBadgeLabel(d), ...dueBadgeColor(d) };
-                  })();
+              {/* 시간대 레이블 — MindBridge Q.XXXX 스타일 */}
+              <div style={{ padding: '10px 16px 2px', fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.12em', color: '#C9B9AE', textTransform: 'uppercase' as const }}>
+                {periodLabel[period]}
+              </div>
+              {its.map((item) => {
+                if (item.kind === 'habit') {
+                  const h = item.data;
+                  const isDone = habitChecked.has(h.id);
                   return (
-                    <div key={h.id} onClick={() => onToggleHealth(h.id)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(92,184,126,.32)' : 'rgba(92,184,126,.18)', cursor: 'pointer', transition: 'background .18s' }}>
-                      <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(92,184,126,.5)' : '#5CB87E'}`, background: isDone ? 'rgba(92,184,126,.4)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5CB87E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                    <div key={h.id} onClick={() => onToggleHabit(h.id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(78,56,47,.04)', cursor: 'pointer' }}>
+                      <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'var(--color-point)' : 'rgba(78,56,47,.22)'}`, background: isDone ? 'var(--color-point)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                        {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                       </div>
-                      <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '🥗'}</span>
-                      {dBadge ? (
-                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: dBadge.bg, color: dBadge.color, padding: '2px 7px', borderRadius: 9999, flexShrink: 0 }}>{dBadge.label}</span>
-                      ) : pt ? (
-                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{pt}</span>
-                      ) : null}
-                      <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>{h.name}</span>
+                      <span style={{ fontSize: 17, lineHeight: 1, flexShrink: 0, opacity: isDone ? 0.4 : 1 }}>{h.icon || '✦'}</span>
+                      {h.time && h.repeatType !== 'allday' && <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: isDone ? '#C9B9AE' : '#9B8B83', width: 42, flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{h.time}</span>}
+                      <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#4E382F', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
                     </div>
                   );
-                })}
-              </div>
+                }
+                if (item.kind === 'med') {
+                  const m = item.data;
+                  const isDone = medChecked.has(m.id);
+                  return (
+                    <div key={m.id} onClick={() => onToggleMed(m.id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(78,56,47,.04)', cursor: 'pointer' }}>
+                      <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'var(--color-point)' : 'rgba(78,56,47,.22)'}`, background: isDone ? 'var(--color-point)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                        {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </div>
+                      <span style={{ fontSize: 17, lineHeight: 1, flexShrink: 0, opacity: isDone ? 0.4 : 1 }}>{m.icon || '💊'}</span>
+                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: isDone ? '#C9B9AE' : '#9B8B83', width: 42, flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{medSlotTime(m, item.slot)}</span>
+                      <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#4E382F', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+                    </div>
+                  );
+                }
+                const h = item.data;
+                const isDone = healthChecked.has(h.id);
+                const pt = healthPrimaryTime(h);
+                const dBadge = (() => {
+                  if (h.repeatType !== 'interval' || !h.intervalUnit || !h.intervalValue) return null;
+                  const nd = calcNextDueDate(h.lastDoneDate, h.intervalUnit, h.intervalValue);
+                  const d = getDaysUntilDue(nd);
+                  return { label: dueBadgeLabel(d), ...dueBadgeColor(d) };
+                })();
+                return (
+                  <div key={h.id} onClick={() => onToggleHealth(h.id)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(78,56,47,.04)', cursor: 'pointer' }}>
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'var(--color-point)' : 'rgba(78,56,47,.22)'}`, background: isDone ? 'var(--color-point)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
+                      {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                    </div>
+                    <span style={{ fontSize: 17, lineHeight: 1, flexShrink: 0, opacity: isDone ? 0.4 : 1 }}>{h.icon || '🥗'}</span>
+                    {dBadge ? (
+                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: dBadge.bg, color: dBadge.color, padding: '2px 6px', borderRadius: 9999, flexShrink: 0 }}>{dBadge.label}</span>
+                    ) : pt ? (
+                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: isDone ? '#C9B9AE' : '#9B8B83', width: 42, flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{pt}</span>
+                    ) : null}
+                    <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#4E382F', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
+                  </div>
+                );
+              })}
             </div>
           );
         })}
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
+
+        {/* 하단 링크 */}
+        <div style={{ padding: '10px 16px 14px', display: 'flex', gap: 14, justifyContent: 'flex-end', borderTop: '1px solid rgba(78,56,47,.04)' }}>
           {hasHabits && (filter === 'all' || filter === 'habits') && <Link href="/setup#tracker" style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#C9B9AE', textDecoration: 'none', letterSpacing: '.04em' }}>Habits →</Link>}
           {hasMeds && (filter === 'all' || filter === 'meds') && <Link href="/setup#medication" style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#C9B9AE', textDecoration: 'none', letterSpacing: '.04em' }}>Meds →</Link>}
           {hasHealth && (filter === 'all' || filter === 'health') && <Link href="/setup#health" style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#C9B9AE', textDecoration: 'none', letterSpacing: '.04em' }}>Health →</Link>}
@@ -995,11 +1018,11 @@ function TodayHabitSection({
               </div>
               <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '✦'}</span>
               {h.time && h.repeatType !== 'allday' && (
-                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
+                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#4E382F', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
                   {h.time}
                 </span>
               )}
-              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>
+              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#4E382F', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>
                 {h.name}
               </span>
             </div>
@@ -1037,7 +1060,7 @@ function RoutineEmptyCard() {
         {steps.map((s, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 16, padding: '16px', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.04)', display: 'flex', alignItems: 'center', gap: 14 }}>
             {/* 번호 배지 */}
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: i === 2 ? '#EDE4D8' : '#2D2420', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: i === 2 ? '#EDE4D8' : '#4E382F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: i === 2 ? '#C9B9AE' : '#FFFFFF' }}>{s.num}</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -1048,7 +1071,7 @@ function RoutineEmptyCard() {
               <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>{s.desc}</div>
             </div>
             {s.href && (
-              <Link href={s.href} style={{ flexShrink: 0, height: 34, padding: '0 14px', background: '#2D2420', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#FFFFFF', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              <Link href={s.href} style={{ flexShrink: 0, height: 34, padding: '0 14px', background: '#4E382F', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#FFFFFF', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                 {s.cta}
               </Link>
             )}
@@ -1099,7 +1122,7 @@ function LoginRequiredCard({ onLogin }: { onLogin: () => void }) {
       <button
         onClick={onLogin}
         style={{
-          background: '#2D2420',
+          background: '#4E382F',
           color: '#FFFFFF',
           border: 'none',
           borderRadius: 12,
@@ -1153,9 +1176,9 @@ function OOTDSection({
 
         {/* 빈 상태 안내 — 아이템 없을 때 로그인 여부와 무관하게 항상 표시 */}
         {!hasAny && (
-          <div style={{ padding: '20px', background: '#fff', borderRadius: 20, boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+          <div style={{ padding: '20px', background: '#fff', borderRadius: 20, border: '1px solid rgba(78,56,47,.06)', boxShadow: '0 4px 16px rgba(78,56,47,.08)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 12 }}>
             <span style={{ fontSize: 28 }}>✨</span>
-            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>오늘의 스타일을 기록해보세요</div>
+            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F' }}>오늘의 스타일을 기록해보세요</div>
             {user ? (
               <>
                 <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', textAlign: 'center' as const }}>
@@ -1185,7 +1208,7 @@ function OOTDSection({
               .filter((r): r is { type: 'product'; id: string } => r.type === 'product')
               .map(r => r.id);
             return (
-              <div key={item.id} style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)' }}>
+              <div key={item.id} style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', border: '1px solid rgba(78,56,47,.06)', boxShadow: '0 4px 16px rgba(78,56,47,.08)' }}>
                 {/* 이미지 영역 — 뱃지 오버레이 포함 */}
                 {item.imageUrl ? (
                   <Link href={`/log?tab=라이브러리&filter=${filter}&id=${item.id}`} style={{ display: 'block', textDecoration: 'none' }}>
@@ -1207,7 +1230,7 @@ function OOTDSection({
                   <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 0' }}>
                     <span style={{ fontSize: 22, flexShrink: 0 }}>{item.emoji || (isMakeup ? '💄' : '👗')}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-.01em' }}>{item.name}</div>
+                      <div style={{ fontFamily: f, fontSize: 15, fontWeight: 800, color: '#4E382F', letterSpacing: '-.01em' }}>{item.name}</div>
                       {item.desc && <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 2 }}>{item.desc}</div>}
                     </div>
                     {/* 텍스트 전용 카드에도 뱃지 표시 */}
@@ -1225,7 +1248,7 @@ function OOTDSection({
                       const imgUrl = p?.imageUrl || p?.storageUrl;
                       return (
                         <div key={pid} style={{ flexShrink: 0, width: 120, scrollSnapAlign: 'start' as const }}>
-                          <div style={{ width: 120, height: 160, background: '#F3F3F4', borderRadius: 4, border: '1px solid #E4E4E7', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                          <div style={{ width: 120, height: 160, background: '#EDE4D8', borderRadius: 4, border: '1px solid rgba(78,56,47,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                             {imgUrl
                               // eslint-disable-next-line @next/next/no-img-element
                               ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -1249,7 +1272,7 @@ function OOTDSection({
 
         {/* ── RECORD LOOK / Logged 카드 ── */}
         {!user ? null : ootdLog ? (
-          <div onClick={onViewLog} style={{ border: '1.5px solid #4caf78', borderRadius: 20, minHeight: 52, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
+          <div onClick={onViewLog} style={{ border: '1.5px solid rgba(78,56,47,.15)', borderRadius: 20, minHeight: 52, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', boxShadow: '0 4px 16px rgba(78,56,47,.08)', transition: 'background .2s' }}>
             <div style={{ width: 36, height: 36, borderRadius: 9999, background: '#E8E6E0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, overflow: 'hidden' }}>
               {ootdLog.photoUrl
                 // eslint-disable-next-line @next/next/no-img-element
@@ -1259,33 +1282,33 @@ function OOTDSection({
             <div style={{ flex: 1, minWidth: 0 }}>
               {/* 카테고리 — 4px 각진 뱃지 */}
               {(ootdLog.category || ootdLog.theme) && (
-                <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#FF8C42', background: '#0C0C0A', padding: '6px 14px', borderRadius: 4, textTransform: 'uppercase' as const, letterSpacing: '.06em', whiteSpace: 'nowrap' as const, display: 'inline-block', marginBottom: 3 }}>
+                <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#FFFFFF', background: 'var(--color-point)', padding: '4px 10px', borderRadius: 6, textTransform: 'uppercase' as const, letterSpacing: '.06em', whiteSpace: 'nowrap' as const, display: 'inline-block', marginBottom: 3 }}>
                   {ootdLog.category || ootdLog.theme}
                 </span>
               )}
               {ootdLog.note && (
-                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {ootdLog.note}
                 </div>
               )}
               {(ootdLog.tags ?? []).length > 0 && (
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 3 }}>
                   {(ootdLog.tags ?? []).map(tag => (
-                    <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                    <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 9999, background: 'rgba(78,56,47,.06)', border: '1px solid rgba(78,56,47,.1)', color: '#9B8B83' }}>
                       #{tag.replace(/^#/, '')}
                     </span>
                   ))}
                 </div>
               )}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4caf78', marginTop: 3 }}>✓ 기록 완료</div>
+              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: 'var(--color-point)', marginTop: 3 }}>✓ 기록 완료</div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
         ) : (
-          <div onClick={onRecord} style={{ border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 9999, minHeight: 52, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
+          <div onClick={onRecord} style={{ border: '1.5px dashed rgba(78,56,47,.18)', borderRadius: 9999, minHeight: 52, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: '#fff', transition: 'background .2s' }}>
             <div style={{ width: 36, height: 36, background: '#E8E6E0', borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>📷</div>
             <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase' as const, color: '#9A9490', flex: 1 }}>RECORD LOOK</span>
-            <div style={{ width: 30, height: 30, background: '#C5FF00', borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, lineHeight: 1, color: '#0C0C0A', flexShrink: 0, fontWeight: 300 }}>+</div>
+            <div style={{ width: 30, height: 30, background: '#4E382F', borderRadius: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, lineHeight: 1, color: '#FFFFFF', flexShrink: 0, fontWeight: 300 }}>+</div>
           </div>
         )}
 
@@ -1310,7 +1333,7 @@ function SourceLink({ url }: { url?: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderTop: '1px solid rgba(12,12,10,.07)', textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.02)' }}
+      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderTop: '1px solid rgba(78,56,47,.07)', textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9B8B83', letterSpacing: '.04em', background: 'rgba(78,56,47,.03)' }}
     >
       {/* 링크 아이콘 */}
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
@@ -1388,7 +1411,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             {/* Step 뱃지 (좌상단 플로팅) */}
             <div style={{
               position: 'absolute', top: 8, left: 8,
-              background: '#2D2420', color: '#FFFFFF',
+              background: '#4E382F', color: '#FFFFFF',
               fontFamily: f, fontWeight: 800, fontSize: 11, letterSpacing: '.06em',
               padding: '3px 8px', borderRadius: 6, lineHeight: 1
             }}>
@@ -1441,7 +1464,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
         return (
           <div
             key={idx}
-            className="care-step-card"
+            className="care-step-card timer-card"
             onClick={() => {
               if (isActiveTimer) {
                 stopTimer();
@@ -1459,10 +1482,10 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               width: 170,
               minWidth: 170,
               height: 260,
-              background: 'rgba(12,12,10,0.03)',
-              border: isActiveTimer ? '2px solid #E85D6B' : '1px solid rgba(45,36,32,.07)',
+              background: isActiveTimer ? 'rgba(232,93,107,.06)' : 'rgba(232,93,107,.04)',
+              border: isActiveTimer ? '2px solid var(--color-point)' : '1.5px solid var(--color-point)',
               borderRadius: 16,
-              boxShadow: isActiveTimer ? '0 6px 18px rgba(232,93,107,.15)' : '0 4px 16px rgba(45,36,32,.04), 0 0 0 1px rgba(45,36,32,.02)',
+              boxShadow: isActiveTimer ? '0 6px 18px rgba(232,93,107,.18)' : '0 4px 16px rgba(232,93,107,.06)',
               transition: 'all .2s ease-in-out',
               cursor: 'pointer',
               position: 'relative',
@@ -1471,8 +1494,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             {/* 상단 고정 영역: GUIDE 뱃지 + 설명문구 */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '100%' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 6 }}>
-                <div style={{
-                  background: '#E85D6B', color: '#FFFFFF',
+                <div className="timer-badge" style={{
+                  background: 'var(--color-point)', color: '#FFFFFF',
                   fontFamily: f, fontWeight: 800, fontSize: 11, letterSpacing: '.06em',
                   padding: '3px 8px', borderRadius: 6, lineHeight: 1
                 }}>
@@ -1480,7 +1503,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                 </div>
               </div>
               {/* 상단 고정 설명문구 */}
-              <div style={{
+              <div className="timer-main-text" style={{
                 fontFamily: f,
                 fontWeight: 700,
                 fontSize: 18,
@@ -1510,13 +1533,13 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             }}>
               <svg width="84" height="84" viewBox="0 0 24 24" fill="none" style={{ transform: 'rotate(-90deg)' }}>
                 {/* 회색 배경 링 */}
-                <circle cx="12" cy="12" r="9" stroke="rgba(45,36,32,0.08)" strokeWidth="2" />
+                <circle cx="12" cy="12" r="9" stroke="rgba(78,56,47,0.08)" strokeWidth="2" />
                 {/* 진행률 링 */}
                 <circle
                   cx="12"
                   cy="12"
                   r="9"
-                  stroke={isActiveTimer ? '#E85D6B' : 'rgba(45,36,32,0.18)'}
+                  stroke={isActiveTimer ? 'var(--color-point)' : 'rgba(78,56,47,0.18)'}
                   strokeWidth="2"
                   strokeDasharray="56.5"
                   strokeDashoffset={isActiveTimer ? 56.5 * (1 - (timerRemainMs / (waitMins * 60_000))) : 0}
@@ -1526,12 +1549,12 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               </svg>
               {/* 중앙 시계바늘 아이콘 */}
               <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActiveTimer ? 1 : 0.35 }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2D2420" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4E382F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
               </div>
               {/* 상단 스톱워치 버튼 데코 */}
-              <div style={{ position: 'absolute', top: 2, width: 8, height: 4, background: '#2D2420', borderRadius: '2px 2px 0 0', opacity: isActiveTimer ? 1 : 0.35 }} />
+              <div className="timer-stopwatch-btn" style={{ position: 'absolute', top: 2, width: 8, height: 4, background: '#4E382F', borderRadius: '2px 2px 0 0', opacity: isActiveTimer ? 1 : 0.35 }} />
             </div>
 
             {/* 하단 영역: 실시간 남은 시간 또는 타이머 가이드 배너 */}
@@ -1549,7 +1572,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   {formatTimerRemain(timerRemainMs)}
                 </div>
               ) : (
-                <div style={{
+                <div className="timer-mins" style={{
                   fontFamily: f,
                   fontWeight: 700,
                   fontSize: 18,
@@ -1571,12 +1594,11 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             style={{
               flexShrink: 0,
               padding: '6px 14px',
-              background: 'rgba(45,36,32,.08)',
-              border: '1px solid rgba(45,36,32,.14)',
+              background: 'var(--color-point)',
               borderRadius: 9999,
               fontSize: 12,
               fontWeight: 700,
-              color: '#2D2420',
+              color: '#fff',
               fontFamily: f,
               whiteSpace: 'nowrap',
             }}
@@ -1599,7 +1621,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             borderRadius: 9999,
             fontSize: 12,
             fontWeight: 800,
-            color: '#E85D6B',
+            color: 'var(--color-point)',
             fontFamily: f,
             whiteSpace: 'nowrap',
             display: 'inline-flex',
@@ -1655,9 +1677,24 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
         <style>{`
           .care-step-card:hover {
             transform: translateY(-4px);
-            border-color: #2D2420 !important;
-            box-shadow: 0 10px 22px rgba(45, 36, 32, 0.12) !important;
+            border-color: #4E382F !important;
+            box-shadow: 0 10px 22px rgba(78, 56, 47, 0.12) !important;
           }
+          .timer-card:hover {
+            background: var(--color-point) !important;
+            border-color: var(--color-point) !important;
+            box-shadow: 0 10px 28px rgba(232,93,107,.4) !important;
+          }
+          .timer-card:hover .timer-badge {
+            background: rgba(255,255,255,.22) !important;
+            color: #fff !important;
+          }
+          .timer-card:hover .timer-main-text { color: #fff !important; }
+          .timer-card:hover .timer-mins { color: rgba(255,255,255,.8) !important; }
+          .timer-card:hover svg circle { stroke: rgba(255,255,255,.3) !important; }
+          .timer-card:hover svg polyline,
+          .timer-card:hover svg path { stroke: rgba(255,255,255,.9) !important; }
+          .timer-card:hover .timer-stopwatch-btn { background: rgba(255,255,255,.8) !important; }
         `}</style>
 
         {items.map((item) => (
@@ -1667,8 +1704,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               background: '#fff',
               borderRadius: 24,
               overflow: 'hidden',
-              boxShadow: '0 4px 24px rgba(45,36,32,.08), 0 0 0 1px rgba(45,36,32,.04)',
-              border: '1px solid rgba(45,36,32,.04)',
+              boxShadow: '0 4px 24px rgba(78,56,47,.08), 0 0 0 1px rgba(78,56,47,.04)',
+              border: '1px solid rgba(78,56,47,.04)',
             }}
           >
             {/* 헤더 영역 */}
@@ -1691,9 +1728,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     {item.category && (
                       <span style={{
                         display: 'inline-flex', alignItems: 'center',
-                        background: 'rgba(255,255,255,0.22)', color: '#fff',
+                        background: 'var(--color-point)', color: 'var(--color-point-fg)',
                         fontFamily: f, fontWeight: 700, fontSize: 12, letterSpacing: '.08em',
-                        padding: '4px 10px', borderRadius: 4, backdropFilter: 'blur(4px)',
+                        padding: '4px 10px', borderRadius: 4,
                       }}>
                         {item.category}
                       </span>
@@ -1711,7 +1748,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               </div>
             ) : (
               <div style={{
-                background: '#2D2420',
+                background: '#4E382F',
                 padding: '24px 20px',
                 position: 'relative',
                 overflow: 'hidden'
@@ -1729,7 +1766,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     {item.category && (
                       <span style={{
                         display: 'inline-flex', alignItems: 'center',
-                        background: 'rgba(255,255,255,0.14)', color: 'rgba(255,255,255,.85)',
+                        background: 'var(--color-point)', color: 'var(--color-point-fg)',
                         fontFamily: f, fontWeight: 700, fontSize: 12, letterSpacing: '.08em',
                         padding: '4px 10px', borderRadius: 4,
                       }}>
@@ -1754,8 +1791,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               </div>
             )}
             {/* 메인 루틴 카드 가로 스크롤 */}
-            {item.items.length > 0 && (() => {
-              const hasThisTimer = item.items.some(r => r.type === 'desc' && r.text === timerLabel);
+            {(item.items?.length ?? 0) > 0 && (() => {
+              const hasThisTimer = (item.items ?? []).some(r => r.type === 'desc' && r.text === timerLabel);
               return (
                 <div style={{ padding: '20px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
                   <div style={{
@@ -1765,7 +1802,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     Routine Steps
                   </div>
                   <div style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', gap: 8, alignItems: 'center', paddingTop: 10, paddingBottom: 10 }}>
-                    {item.items.map((r, i) => renderChip(r, i, item.items))}
+                    {(item.items ?? []).map((r, i) => renderChip(r, i, item.items ?? []))}
                   </div>
 
                   {/* 대기 타이머 배너 */}
@@ -1774,13 +1811,13 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       marginTop: 14,
                       padding: '10px 14px',
-                      background: '#2D2420',
-                      border: '1.5px solid #E85D6B',
+                      background: '#4E382F',
+                      border: '1.5px solid var(--color-point)',
                       borderRadius: 12,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{
-                          width: 7, height: 7, borderRadius: '50%', background: '#E85D6B',
+                          width: 7, height: 7, borderRadius: '50%', background: 'var(--color-point)',
                           display: 'inline-block',
                           boxShadow: '0 0 0 3px rgba(232,93,107,.3)',
                           flexShrink: 0,
@@ -1790,7 +1827,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                         </span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#E85D6B', fontVariantNumeric: 'tabular-nums', letterSpacing: '.06em' }}>
+                        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: 'var(--color-point)', fontVariantNumeric: 'tabular-nums', letterSpacing: '.06em' }}>
                           {formatTimerRemain(timerRemainMs)}
                         </span>
                         <button
@@ -1808,7 +1845,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
 
             {/* TIP 루틴 세로 스택형 Rich List */}
             {(item.tipItems?.length ?? 0) > 0 && (
-              <div style={{ padding: '20px', borderBottom: '1px dashed rgba(45,36,32,.06)', background: '#F8F6F3' }}>
+              <div style={{ padding: '20px', borderBottom: '1px dashed rgba(78,56,47,.06)', background: '#F8F6F3' }}>
                 <div style={{
                   fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: '#9B8B83',
                   textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6
@@ -1821,35 +1858,35 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                       const p = products.get(r.id);
                       const imgUrl = p?.imageUrl || p?.storageUrl;
                       return (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(45,36,32,.06)', boxShadow: '0 2px 8px rgba(45,36,32,.03)' }}>
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(78,56,47,.06)', boxShadow: '0 2px 8px rgba(78,56,47,.03)' }}>
                           <div style={{ width: 40, height: 40, borderRadius: 8, background: '#F2EDE6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             {imgUrl ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 18 }}>🧴</span>}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#9B8B83', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>MAPPED PRODUCT</div>
-                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#2D2420', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p?.name ?? '?'}</div>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p?.name ?? '?'}</div>
                           </div>
                         </div>
                       );
                     }
                     if (r.type === 'tip') {
                       return (
-                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: 'rgba(232,93,107,.05)', borderRadius: 14, border: '1px solid rgba(232,93,107,.15)', boxShadow: '0 2px 8px rgba(45,36,32,.02)' }}>
+                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: 'rgba(232,93,107,.05)', borderRadius: 14, border: '1px solid rgba(232,93,107,.15)', boxShadow: '0 2px 8px rgba(78,56,47,.02)' }}>
                           <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>💡</span>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#E85D6B', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>SPECIAL TIP</div>
-                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#2D2420', lineHeight: 1.45 }}>{r.text}</div>
+                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: 'var(--color-point)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>SPECIAL TIP</div>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#4E382F', lineHeight: 1.45 }}>{r.text}</div>
                           </div>
                         </div>
                       );
                     }
                     if (r.type === 'desc') {
                       return (
-                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(45,36,32,.06)', boxShadow: '0 2px 8px rgba(45,36,32,.02)' }}>
+                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(78,56,47,.06)', boxShadow: '0 2px 8px rgba(78,56,47,.02)' }}>
                           <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>📋</span>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#9B8B83', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>NOTICE / DETAILS</div>
-                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: '#2D2420', lineHeight: 1.45 }}>{r.text}</div>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: '#4E382F', lineHeight: 1.45 }}>{r.text}</div>
                           </div>
                         </div>
                       );
@@ -1883,7 +1920,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             {item.sourceUrl && <SourceLink url={item.sourceUrl} />}
 
             {/* 카드 하단 메뉴 */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(45,36,32,.05)', padding: '12px 20px', background: '#F8F6F3' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(78,56,47,.05)', padding: '12px 20px', background: '#F8F6F3' }}>
               <Link href="/setup#care" style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9B8B83', textDecoration: 'none', letterSpacing: '.06em', textTransform: 'uppercase' }}>
                 Edit Program →
               </Link>
@@ -2190,15 +2227,15 @@ function OOTDRecordSheet({
         style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 100, opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none', transition: 'opacity .3s' }}
       />
 
-      {/* 시트 — 앱 컨테이너(430px) 폭에 맞춤 */}
+      {/* 시트 — 앱 컨테이너(390px) 폭에 맞춤 */}
       <div
-        style={{ position: 'fixed', bottom: 0, left: '50%', transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)', width: '100%', maxWidth: 430, background: '#fff', borderRadius: '24px 24px 0 0', padding: '24px 20px calc(env(safe-area-inset-bottom, 0px) + 40px)', zIndex: 101, transition: 'transform .35s cubic-bezier(.4,0,.2,1)', maxHeight: '85vh', overflowY: 'auto' }}
+        style={{ position: 'fixed', bottom: 0, left: '50%', transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)', width: '100%', maxWidth: 390, background: '#fff', borderRadius: '24px 24px 0 0', padding: '24px 20px calc(env(safe-area-inset-bottom, 0px) + 40px)', zIndex: 101, transition: 'transform .35s cubic-bezier(.4,0,.2,1)', maxHeight: '85vh', overflowY: 'auto' }}
       >
         {/* 핸들 */}
         <div style={{ width: 32, height: 4, background: '#E5E7EB', borderRadius: 9999, margin: '0 auto 20px' }} />
 
         {/* 제목 */}
-        <div style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#0C1014', marginBottom: 16 }}>
+        <div style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#4E382F', marginBottom: 16 }}>
           오늘의 룩 기록
         </div>
 
@@ -2208,7 +2245,7 @@ function OOTDRecordSheet({
           <button
             type="button"
             onClick={() => setTagEditOpen(true)}
-            style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', background: '#0C0C0A', border: 'none', borderRadius: 9999, padding: '5px 12px', cursor: 'pointer', letterSpacing: '.08em' }}
+            style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', background: '#4E382F', border: 'none', borderRadius: 9999, padding: '5px 12px', cursor: 'pointer', letterSpacing: '.08em' }}
           >
             카테고리 편집
           </button>
@@ -2219,7 +2256,7 @@ function OOTDRecordSheet({
               key={t}
               type="button"
               onClick={() => onThemeChange(theme === t ? '' : t)}
-              style={{ padding: '5px 14px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#0A0A0A' : 'rgba(12,12,10,.14)'}`, background: theme === t ? '#0A0A0A' : 'transparent', color: theme === t ? '#C5FF00' : '#0C0C0A', fontFamily: f, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all .15s' }}
+              style={{ padding: '5px 14px', borderRadius: 9999, border: `1.5px solid ${theme === t ? '#4E382F' : 'rgba(78,56,47,.18)'}`, background: theme === t ? '#4E382F' : 'transparent', color: theme === t ? '#FFFFFF' : '#4E382F', fontFamily: f, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all .15s' }}
             >
               {t}
             </button>
@@ -2251,14 +2288,14 @@ function OOTDRecordSheet({
           value={note}
           onChange={(e) => onNoteChange(e.target.value)}
           placeholder="오늘의 룩 메모…"
-          style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#0C1014', resize: 'none', height: 64, outline: 'none', boxSizing: 'border-box', marginBottom: 16 }}
+          style={{ width: '100%', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#4E382F', resize: 'none', height: 64, outline: 'none', boxSizing: 'border-box', marginBottom: 16 }}
         />
 
         {/* #태그 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
           <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>#태그 <span style={{ fontWeight: 400 }}>(선택)</span></div>
           <button type="button" onClick={() => onRecordTagEditOpenChange(!recordTagEditOpen)}
-            style={{ background: '#0C0C0A', border: 'none', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
+            style={{ background: '#4E382F', border: 'none', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
             태그 편집
           </button>
         </div>
@@ -2276,11 +2313,11 @@ function OOTDRecordSheet({
                   }
                 }}
                 placeholder="+ 태그 추가 (Enter)"
-                style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, margin: '10px 0 20px 0' }}
+                style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const, margin: '10px 0 20px 0' }}
               />
             : <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
                 {recordTags.map(tag => (
-                  <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                  <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(78,56,47,.06)', border: '1px solid rgba(78,56,47,.1)', color: '#9B8B83' }}>
                     #{tag.replace(/^#/, '')}
                   </span>
                 ))}
@@ -2288,7 +2325,7 @@ function OOTDRecordSheet({
         )}
         {/* 태그 편집 패널 */}
         {recordTagEditOpen && (
-          <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)', marginBottom: 10 }}>
+          <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(78,56,47,.03)', border: '1px solid rgba(78,56,47,.1)', marginBottom: 10 }}>
             <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
             <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
             {recordTags.map((tag, idx) => (
@@ -2307,10 +2344,10 @@ function OOTDRecordSheet({
                 onDragEnd={() => { onDragRecTagIdx(null); onDragRecTagOverIdx(null); }}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragRecTagOverIdx === idx ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                 <button type="button" onClick={() => onRecordTagsChange(recordTags.filter((_, i) => i !== idx))}
-                  style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                  style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                   -
                 </button>
-                <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A' }}>
+                <div style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(78,56,47,.06)', boxShadow: '0 1px 4px rgba(78,56,47,.06)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F' }}>
                   #{tag.replace(/^#/, '')}
                 </div>
                 <div style={{ fontSize: 18, color: '#BCBAB6', padding: '4px 6px', flexShrink: 0, userSelect: 'none' as const }}>
@@ -2341,7 +2378,7 @@ function OOTDRecordSheet({
           <button
             type="button"
             onClick={onClose}
-            style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+            style={{ flex: 1, height: 52, background: 'rgba(78,56,47,.08)', color: '#4E382F', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
           >
             취소
           </button>
@@ -2349,7 +2386,7 @@ function OOTDRecordSheet({
             type="button"
             onClick={onSave}
             disabled={saving}
-            style={{ flex: 1, height: 52, background: '#0C0C0A', color: '#C5FF00', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
+            style={{ flex: 1, height: 52, background: '#4E382F', color: '#FFFFFF', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
           >
             {saving ? '저장 중...' : '저장'}
           </button>
@@ -2371,11 +2408,11 @@ function OOTDRecordSheet({
       {tagEditOpen && (
         <>
           <div onClick={() => setTagEditOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 102 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, zIndex: 103, background: '#FAFAF8', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 24px)', maxHeight: '75%', overflowY: 'auto', boxShadow: '0 -4px 40px rgba(0,0,0,.12)' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 390, zIndex: 103, background: '#F2EDE6', borderRadius: '20px 20px 0 0', padding: '10px 20px calc(env(safe-area-inset-bottom, 0px) + 24px)', maxHeight: '75%', overflowY: 'auto', boxShadow: '0 -4px 40px rgba(78,56,47,.12)' }}>
             <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#0C0C0A' }}>카테고리 관리</span>
+              <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#4E382F' }}>카테고리 관리</span>
               <button onClick={() => setTagEditOpen(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9A9490' }}>✕</button>
             </div>
 
@@ -2408,7 +2445,7 @@ function OOTDRecordSheet({
                     <button
                       type="button"
                       onClick={() => onTagsChange(tags.filter((_, i) => i !== idx))}
-                      style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}
+                      style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}
                     >
                       -
                     </button>
@@ -3211,15 +3248,18 @@ export default function TodayPage() {
   return (
     <div style={{ background: '#F2EDE6', minHeight: '100%' }}>
       <div style={{ paddingBottom: 100 }}>
-        {/* 페이지 헤더 — 공통 PageHeader 컴포넌트 */}
-        <PageHeader label="Today" title="Today" />
+        {/* 페이지 헤더 — 타이틀 우측에 날씨 위젯 인라인 배치 */}
+        <PageHeader label="Today" title="Today" titleRight={<WeatherWidget />} />
 
-        {/* 날씨 위젯 */}
-        <WeatherWidget />
+        {/* ── FLOW 영역 헤더 — 라벨(좌) + hairline(우) ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '18px 20px 12px' }}>
+          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '.2em', color: '#9B8B83', textTransform: 'uppercase' as const, flexShrink: 0 }}>Flow</span>
+          <div style={{ flex: 1, height: 1, background: '#DDD0C6' }} />
+        </div>
 
-        {/* ── Skincare 섹션 레이블 ── */}
-        <div style={{ padding: '24px 20px 6px' }}>
-          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', color: '#9B8B83', textTransform: 'uppercase' as const }}>#Skincare</span>
+        {/* ── Skincare 서브헤더 ── */}
+        <div style={{ padding: '0 20px 6px' }}>
+          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 18, fontWeight: 800, color: '#4E382F', letterSpacing: '-.01em' }}>#Skincare</span>
         </div>
 
         {/* 세션 히어로 — #Skincare 하위, SESSION 회차·날짜·진행 도트 */}
@@ -3341,7 +3381,7 @@ export default function TodayPage() {
               <SectionHeader
                 title="#Reset Plan"
                 action={
-                  <span style={{ background: '#0C0C0A', color: '#C5FF00', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 9999, letterSpacing: '.04em' }}>
+                  <span style={{ background: 'var(--color-point)', color: 'var(--color-point-fg)', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 9999, letterSpacing: '.04em' }}>
                     {beforeStart ? `D-${daysLeft}일 후 시작 · ${pat.label}` : `D+${dayN} · ${periodLabel} · ${pat.label}`}
                   </span>
                 }
@@ -3361,10 +3401,10 @@ export default function TodayPage() {
                   const isDone = dietChecked.has(key);
                   return (
                     <div key={slot.id} onClick={() => handleToggleDiet(p.id, slot.id)}
-                      style={{ padding: '12px 16px', borderTop: idx > 0 ? '1px solid rgba(12,12,10,.07)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(197,255,0,.08)' : 'transparent', transition: 'background .18s' }}>
+                      style={{ padding: '12px 16px', borderTop: idx > 0 ? '1px solid rgba(78,56,47,.05)' : 'none', cursor: 'pointer', background: isDone ? 'rgba(78,56,47,.04)' : 'transparent', transition: 'background .18s' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                        <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? '#8AB000' : 'rgba(12,12,10,.2)'}`, background: isDone ? '#C5FF00' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
-                          {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                        <div style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? 'var(--color-point)' : 'rgba(78,56,47,.22)'}`, background: isDone ? 'var(--color-point)' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
+                          {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           {(() => {
@@ -3384,8 +3424,8 @@ export default function TodayPage() {
                             }
                             return (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-                                {slot.time && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 800, background: isDone ? 'rgba(12,12,10,.08)' : '#0C0C0A', color: isDone ? '#BCBAB6' : '#C5FF00', padding: '2px 8px', borderRadius: 9999 }}>{slot.time}</span>}
-                                <span style={{ fontFamily: fDiet, fontSize: 14, fontWeight: 600, color: isDone ? '#9A9490' : '#0C0C0A', textDecoration: isDone ? 'line-through' : 'none' }}>
+                                {slot.time && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 800, background: isDone ? 'rgba(78,56,47,.06)' : 'var(--color-point)', color: isDone ? '#B0ABA5' : 'var(--color-point-fg)', padding: '2px 8px', borderRadius: 9999 }}>{slot.time}</span>}
+                                <span style={{ fontFamily: fDiet, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#4E382F', textDecoration: isDone ? 'line-through' : 'none' }}>
                                   {slot.label}{autoRange}
                                 </span>
                                 {slot.water > 0 && <span style={{ fontFamily: fDiet, fontSize: 11, fontWeight: 700, color: '#4A9ED6', marginLeft: 'auto' }}>💧{slot.water}ml</span>}
@@ -3436,6 +3476,13 @@ export default function TodayPage() {
             </>
           );
         })()}
+
+        {/* ── Flow / MY EDIT 경계 구분선 ── */}
+        <div style={{ margin: '24px 20px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ flex: 1, height: 1, background: 'rgba(78,56,47,.08)' }} />
+          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: '.14em', color: '#C9B9AE', textTransform: 'uppercase' as const }}>MY EDIT</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(78,56,47,.08)' }} />
+        </div>
 
         {/* ── MY EDIT 영역 — Today ON 콘텐츠 (카드 없이 섹션 나열) ── */}
         <div style={{ marginTop: 8 }}>

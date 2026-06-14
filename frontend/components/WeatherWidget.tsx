@@ -139,7 +139,7 @@ export default function WeatherWidget() {
         {locName && (
           <div style={{ fontFamily: FONT, fontSize: 11, fontWeight: 600, color: '#9A9490', letterSpacing: '.04em', lineHeight: 1 }}>{locName}</div>
         )}
-        <div style={{ fontFamily: FONT, fontSize: 13, fontWeight: 500, color: '#2D2420', lineHeight: 1 }}>
+        <div style={{ fontFamily: FONT, fontSize: 13, fontWeight: 500, color: '#4E382F', lineHeight: 1 }}>
           {weather.temp}°C · {weather.desc}
         </div>
       </div>

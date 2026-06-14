@@ -34,7 +34,7 @@ export default function SectionHeader({ title, action, barColor, textColor }: Se
   // 기본 모드
   return (
     <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '20px 20px 12px' }}>
-      <span style={{ fontFamily: F, fontSize: 18, fontWeight: 800, color: '#2D2420', letterSpacing: '-.01em' }}>
+      <span style={{ fontFamily: F, fontSize: 18, fontWeight: 800, color: '#4E382F', letterSpacing: '-.01em' }}>
         {title}
       </span>
       {action && (

@@ -172,16 +172,16 @@ function StampBadge({ size = 22, rotate = -10, full = false }: { size?: number; 
   const bg = full ? '#C5FF00' : '#E8FFB0';
   return (
     <svg width={size} height={size} viewBox="0 0 36 36" fill="none" style={{ transform: `rotate(${rotate}deg)`, flexShrink: 0, display: 'block' }}>
-      <polygon points="9,16 5,3 17,12" fill={bg} stroke="#0C0C0A" strokeWidth="1.3"/>
-      <polygon points="27,16 31,3 19,12" fill={bg} stroke="#0C0C0A" strokeWidth="1.3"/>
+      <polygon points="9,16 5,3 17,12" fill={bg} stroke="#4E382F" strokeWidth="1.3"/>
+      <polygon points="27,16 31,3 19,12" fill={bg} stroke="#4E382F" strokeWidth="1.3"/>
       <polygon points="10,15 7,6 15,11" fill="#FFB3C6" opacity="0.7"/>
       <polygon points="26,15 29,6 21,11" fill="#FFB3C6" opacity="0.7"/>
-      <circle cx="18" cy="22" r="13" fill={bg} stroke="#0C0C0A" strokeWidth="1.5"/>
-      <path d="M10 20 Q13 25 16 20" stroke="#0C0C0A" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
-      <path d="M20 20 Q23 25 26 20" stroke="#0C0C0A" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      <circle cx="18" cy="22" r="13" fill={bg} stroke="#4E382F" strokeWidth="1.5"/>
+      <path d="M10 20 Q13 25 16 20" stroke="#4E382F" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      <path d="M20 20 Q23 25 26 20" stroke="#4E382F" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
       <ellipse cx="10" cy="25" rx="3.2" ry="2" fill="#FF8FA3" opacity="0.45"/>
       <ellipse cx="26" cy="25" rx="3.2" ry="2" fill="#FF8FA3" opacity="0.45"/>
-      <path d="M13.5 28 Q15.5 31.5 18 29.5 Q20.5 31.5 22.5 28" stroke="#0C0C0A" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+      <path d="M13.5 28 Q15.5 31.5 18 29.5 Q20.5 31.5 22.5 28" stroke="#4E382F" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
     </svg>
   );
 }
@@ -257,9 +257,9 @@ function MonthCalendar({
   const fTag = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
   const Tag = ({ label, active }: { label: string; active: boolean }) => (
     <span style={{
-      fontFamily: fTag, fontSize: 11, fontWeight: 800,
+      fontFamily: fTag, fontSize: 13, fontWeight: 800,
       padding: '3px 9px', borderRadius: 9999,
-      background: active ? '#0C0C0A' : 'transparent',
+      background: active ? '#4E382F' : 'transparent',
       color: active ? '#C5FF00' : '#BCBAB6',
       border: active ? '1.5px solid transparent' : '1.5px dashed #BCBAB6',
       letterSpacing: '.04em', whiteSpace: 'nowrap' as const,
@@ -267,7 +267,7 @@ function MonthCalendar({
   );
 
   return (
-    <div style={{ margin: '0 16px 16px', border: '1px solid #0C0C0A', borderRadius: 16, overflow: 'hidden', background: '#fff' }}>
+    <div style={{ margin: '0 20px 16px', border: '1px solid #4E382F', borderRadius: 16, overflow: 'hidden', background: '#fff' }}>
       {/* 월 헤더 — 클릭으로 접기/펼치기 */}
       <div
         onClick={() => setIsOpen(o => !o)}
@@ -281,7 +281,7 @@ function MonthCalendar({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
-          <span style={{ fontFamily: fTag, fontSize: 15, fontWeight: 800, color: '#0C0C0A', letterSpacing: '-0.01em' }}>
+          <span style={{ fontFamily: fTag, fontSize: 15, fontWeight: 800, color: '#4E382F', letterSpacing: '-0.01em' }}>
             {isSameMonth(currentMonth, new Date())
               ? format(new Date(), 'yyyy년 M월 d일(EEE) · 오늘의 기록', { locale: ko })
               : format(currentMonth, 'yyyy년 M월', { locale: ko })}
@@ -294,7 +294,7 @@ function MonthCalendar({
 
       {/* 펼쳐진 캘린더 */}
       {isOpen && (
-      <div style={{ padding: '0 16px 16px', borderTop: '1px solid #0C0C0A' }}>
+      <div style={{ padding: '0 16px 16px', borderTop: '1px solid #4E382F' }}>
       {/* 월 네비게이션 */}
       <div
         style={{
@@ -310,7 +310,7 @@ function MonthCalendar({
             width: 36,
             height: 36,
             borderRadius: 9999,
-            border: '1px solid rgba(12,12,10,.14)',
+            border: '1px solid rgba(78,56,47,.14)',
             background: 'transparent',
             cursor: 'pointer',
             display: 'flex',
@@ -319,7 +319,7 @@ function MonthCalendar({
           }}
           aria-label="이전 달"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4E382F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
@@ -329,7 +329,7 @@ function MonthCalendar({
             fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
             fontSize: 16,
             fontWeight: 800,
-            color: '#0C0C0A',
+            color: '#4E382F',
             letterSpacing: '-0.01em',
           }}
         >
@@ -342,7 +342,7 @@ function MonthCalendar({
             width: 36,
             height: 36,
             borderRadius: 9999,
-            border: '1px solid rgba(12,12,10,.14)',
+            border: '1px solid rgba(78,56,47,.14)',
             background: 'transparent',
             cursor: 'pointer',
             display: 'flex',
@@ -351,7 +351,7 @@ function MonthCalendar({
           }}
           aria-label="다음 달"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4E382F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </button>
@@ -371,7 +371,7 @@ function MonthCalendar({
             style={{
               textAlign: 'center',
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 11,
+              fontSize: 13,
               fontWeight: 700,
               letterSpacing: '0.06em',
               color: '#9A9490',
@@ -414,8 +414,8 @@ function MonthCalendar({
                 justifyContent: 'center',
                 gap: 2,
                 padding: '6px 2px',
-                background: isSelected && !today ? '#0C0C0A' : 'transparent',
-                border: isSelected && today ? '1.5px solid #0C0C0A' : today && !isSelected ? '1.5px solid rgba(12,12,10,.2)' : '1.5px solid transparent',
+                background: isSelected && !today ? '#4E382F' : 'transparent',
+                border: isSelected && today ? '1.5px solid #4E382F' : today && !isSelected ? '1.5px solid rgba(78,56,47,.2)' : '1.5px solid transparent',
                 borderRadius: 10,
                 cursor: 'pointer',
                 transition: 'background .15s',
@@ -455,7 +455,7 @@ function MonthCalendar({
                   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                   fontSize: 13,
                   fontWeight: isSelected || today ? 800 : 400,
-                  color: isSelected && !today ? '#FFFFFF' : today ? '#0C0C0A' : '#4A4846',
+                  color: isSelected && !today ? '#FFFFFF' : today ? '#4E382F' : '#4A4846',
                   position: 'relative',
                 }}
               >
@@ -465,10 +465,10 @@ function MonthCalendar({
               {/* 아침(라임)·저녁(오렌지) 고양이 */}
               <div style={{ display: 'flex', gap: 1, alignItems: 'center', position: 'relative' }}>
                 <span style={{ opacity: log?.hasMorning ? 1 : 0.18 }}>
-                  <CatBadge color={log?.hasMorning ? '#C5FF00' : '#0C0C0A'} size={12} />
+                  <CatBadge color={log?.hasMorning ? '#C5FF00' : '#4E382F'} size={12} />
                 </span>
                 <span style={{ opacity: log?.hasEvening ? 1 : 0.18 }}>
-                  <CatBadge color={log?.hasEvening ? '#f7bc45' : '#0C0C0A'} size={12} />
+                  <CatBadge color={log?.hasEvening ? '#f7bc45' : '#4E382F'} size={12} />
                 </span>
               </div>
 
@@ -493,33 +493,33 @@ function MonthCalendar({
           gap: 14,
           marginTop: 12,
           padding: '10px 0 0',
-          borderTop: '1px solid #0C0C0A',
+          borderTop: '1px solid #4E382F',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <CatBadge color="#C5FF00" size={16} />
-          <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>아침 완료</span>
+          <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490', fontWeight: 600 }}>아침 완료</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <CatBadge color="#f7bc45" size={16} />
-          <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>저녁 완료</span>
+          <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490', fontWeight: 600 }}>저녁 완료</span>
         </div>
         {hasMed && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 12 }}>💊</span>
-            <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>약 복용</span>
+            <span style={{ fontSize: 13 }}>💊</span>
+            <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490', fontWeight: 600 }}>약 복용</span>
           </div>
         )}
         {hasHealth && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 12 }}>🏃</span>
-            <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>건강 루틴</span>
+            <span style={{ fontSize: 13 }}>🏃</span>
+            <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490', fontWeight: 600 }}>건강 루틴</span>
           </div>
         )}
         {hasDiet && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 12, opacity: 0.7, filter: 'grayscale(1)' }}>📋</span>
-            <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', fontWeight: 600 }}>리셋 플랜</span>
+            <span style={{ fontSize: 13, opacity: 0.7, filter: 'grayscale(1)' }}>📋</span>
+            <span style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490', fontWeight: 600 }}>리셋 플랜</span>
           </div>
         )}
       </div>
@@ -624,7 +624,7 @@ function DayDetail({
     <div
       style={{
         background: '#FFFFFF',
-        border: '1px solid #0C0C0A',
+        border: '1px solid #4E382F',
         borderRadius: 16,
         overflow: 'hidden',
         flex: 1,
@@ -637,7 +637,7 @@ function DayDetail({
           alignItems: 'center',
           gap: 6,
           padding: '12px 14px',
-          borderBottom: '1px solid #0C0C0A',
+          borderBottom: '1px solid #4E382F',
           background: hasLog ? '#F5FDD4' : '#F4F4F0',
         }}
       >
@@ -645,10 +645,10 @@ function DayDetail({
         <span
           style={{
             fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 800,
             letterSpacing: '0.06em',
-            color: hasLog ? '#0C0C0A' : '#9A9490',
+            color: hasLog ? '#4E382F' : '#9A9490',
           }}
         >
           {label}
@@ -663,7 +663,7 @@ function DayDetail({
       {/* 제품 목록 */}
       <div style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
         {entries.length === 0 ? (
-          <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 12, color: '#9A9490', textAlign: 'center', padding: '10px 0' }}>
+          <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490', textAlign: 'center', padding: '10px 0' }}>
             {hasLog ? '기록 없음' : '미완료'}
           </div>
         ) : (
@@ -672,15 +672,15 @@ function DayDetail({
             const isDeleted = !product;
             return (
               <div key={entry.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 9999, background: isDeleted ? 'rgba(12,12,10,.06)' : '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>
+                <div style={{ width: 28, height: 28, borderRadius: 9999, background: isDeleted ? 'rgba(78,56,47,.06)' : '#EEEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, flexShrink: 0 }}>
                   {isDeleted ? '🗑' : '🧴'}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, color: isDeleted ? '#BCBAB6' : '#0C0C0A', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textDecoration: isDeleted ? 'line-through' : 'none' }}>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 600, color: isDeleted ? '#BCBAB6' : '#4E382F', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textDecoration: isDeleted ? 'line-through' : 'none' }}>
                     {product?.name ?? '삭제된 제품'}
                   </div>
                   {!isDeleted && entry.amount != null && entry.amount > 0 && (
-                    <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 11, color: '#9A9490', marginTop: 1 }}>
+                    <div style={{ fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif", fontSize: 13, color: '#9A9490', marginTop: 1 }}>
                       {entry.amount}{product?.itemUnit ? ` ${product.itemUnit}` : ''} 사용
                     </div>
                   )}
@@ -693,11 +693,11 @@ function DayDetail({
         {/* EXPERT TIP 하이라이팅 제품 */}
         {expertProds.length > 0 && (
           <>
-            <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '4px 0' }} />
-            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA', marginBottom: 2 }}>TIPS</div>
+            <div style={{ height: 1, background: 'rgba(78,56,47,.07)', margin: '4px 0' }} />
+            <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 800, letterSpacing: '.12em', color: '#A1A1AA', marginBottom: 2 }}>TIPS</div>
             {expertProds.map((p) => (
               <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1px solid rgba(132,176,0,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 }}>✨</div>
+                <div style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(197,255,0,.18)', border: '1px solid rgba(132,176,0,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, flexShrink: 0 }}>✨</div>
                 <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 14, fontWeight: 600, color: '#3A6000', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                   {p.name}
                 </div>
@@ -712,12 +712,12 @@ function DayDetail({
   return (
     <div
       style={{
-        margin: '0 16px',
+        margin: '0 20px',
         background: '#FFFFFF',
-        border: '1px solid #0C0C0A',
+        border: '1px solid #4E382F',
         borderRadius: 20,
         overflow: 'hidden',
-        boxShadow: '0 1px 2px rgba(0,0,0,.04)',
+        boxShadow: '0 1px 2px rgba(78,56,47,.04)',
       }}
     >
       {/* 날짜 헤더 */}
@@ -732,7 +732,7 @@ function DayDetail({
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '14px 16px',
-          borderBottom: '1px solid #0C0C0A',
+          borderBottom: '1px solid #4E382F',
           background: '#F4F4F0',
           position: 'relative',
           overflow: 'visible',
@@ -750,7 +750,7 @@ function DayDetail({
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
               fontSize: 16,
               fontWeight: 800,
-              color: '#0C0C0A',
+              color: '#4E382F',
             }}
           >
             {dateLabel}
@@ -759,7 +759,7 @@ function DayDetail({
           <div
             style={{
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-              fontSize: 12,
+              fontSize: 13,
               color: '#9A9490',
               marginTop: 2,
             }}
@@ -781,10 +781,10 @@ function DayDetail({
                   onClick={onToggleMorning}
                   style={{
                     height: 28, padding: '0 12px', borderRadius: 9999,
-                    border: `1.5px solid ${dayLog?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.2)'}`,
+                    border: `1.5px solid ${dayLog?.hasMorning ? '#C5FF00' : 'rgba(78,56,47,.2)'}`,
                     background: dayLog?.hasMorning ? '#C5FF00' : 'transparent',
                     fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-                    fontSize: 11, fontWeight: 700,
+                    fontSize: 13, fontWeight: 700,
                     color: dayLog?.hasMorning ? '#2D5200' : '#9A9490',
                     cursor: 'pointer',
                   }}
@@ -797,10 +797,10 @@ function DayDetail({
                   onClick={onToggleEvening}
                   style={{
                     height: 28, padding: '0 12px', borderRadius: 9999,
-                    border: `1.5px solid ${dayLog?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.2)'}`,
+                    border: `1.5px solid ${dayLog?.hasEvening ? '#f7bc45' : 'rgba(78,56,47,.2)'}`,
                     background: dayLog?.hasEvening ? '#f7bc45' : 'transparent',
                     fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif",
-                    fontSize: 11, fontWeight: 700,
+                    fontSize: 13, fontWeight: 700,
                     color: dayLog?.hasEvening ? '#7A4F00' : '#9A9490',
                     cursor: 'pointer',
                   }}
@@ -819,7 +819,7 @@ function DayDetail({
             width: 28,
             height: 28,
             borderRadius: 9999,
-            background: 'rgba(12,12,10,.07)',
+            background: 'rgba(78,56,47,.07)',
             border: 'none',
             cursor: 'pointer',
             display: 'flex',
@@ -852,12 +852,12 @@ function DayDetail({
         return (
           <div style={{ margin: '0 12px 12px', padding: '12px 14px', background: '#F5FDD4', border: '1px solid #C5FF00', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#0C0C0A' }}>
+              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4E382F' }}>
                 {!dayLog?.hasMorning && !dayLog?.hasEvening ? '아침·저녁 루틴이 미완료예요' :
                  !dayLog?.hasMorning ? '아침 루틴이 미완료예요' : '저녁 루틴이 미완료예요'}
               </div>
             </div>
-            <Link href="/" style={{ flexShrink: 0, height: 32, padding: '0 14px', background: '#0C0C0A', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#C5FF00', textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+            <Link href="/" style={{ flexShrink: 0, height: 32, padding: '0 14px', background: '#4E382F', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 13, fontWeight: 800, color: '#C5FF00', textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
               TODAY →
             </Link>
           </div>
@@ -890,8 +890,8 @@ function DayDetail({
         const MedRow = ({ m, col }: { m: import('@/types/medication').MedRoutine; col: string }) => (
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
             <CatBadge color="#C5FF00" size={14} />
-            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: col, width: 36, flexShrink: 0 }}>{getTime(m)}</span>
-            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#9A9490', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: col, width: 44, flexShrink: 0 }}>{getTime(m)}</span>
+            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
           </div>
         );
         const MedGroup = ({ label, col, meds }: { label: string; col: string; meds: import('@/types/medication').MedRoutine[] }) =>
@@ -902,10 +902,10 @@ function DayDetail({
             </div>
           );
         return (
-          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>💊 약 루틴</div>
+          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(78,56,47,.06)' }}>
+            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>💊 약 루틴</div>
             {doneMeds.length === 0 ? (
-              <div style={{ fontFamily: f, fontSize: 11, color: 'rgba(12,12,10,.35)', fontStyle: 'italic' }}>이 날 완료된 약 루틴 기록이 없어요</div>
+              <div style={{ fontFamily: f, fontSize: 13, color: 'rgba(78,56,47,.35)', fontStyle: 'italic' }}>이 날 완료된 약 루틴 기록이 없어요</div>
             ) : (
               <>
                 <MedGroup label="아침" col="#6B7CE8" meds={amMeds} />
@@ -925,10 +925,10 @@ function DayDetail({
         // 당일 완료된 것만 필터
         const doneRoutines = activeRoutines.filter(h => healthChecked.has(h.id));
         return (
-          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>🏃 건강루틴</div>
+          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(78,56,47,.06)' }}>
+            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>🏃 건강루틴</div>
             {doneRoutines.length === 0 ? (
-              <div style={{ fontFamily: f, fontSize: 11, color: 'rgba(12,12,10,.35)', fontStyle: 'italic' }}>이 날 완료된 건강 루틴 기록이 없어요</div>
+              <div style={{ fontFamily: f, fontSize: 13, color: 'rgba(78,56,47,.35)', fontStyle: 'italic' }}>이 날 완료된 건강 루틴 기록이 없어요</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 {doneRoutines.map(h => {
@@ -937,8 +937,8 @@ function DayDetail({
                   return (
                     <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 0' }}>
                       <CatBadge color="#C5FF00" size={14} />
-                      {pt && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4CAF50', width: 36, flexShrink: 0 }}>{pt}</span>}
-                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#9A9490', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
+                      {pt && <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4CAF50', width: 44, flexShrink: 0 }}>{pt}</span>}
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
                     </div>
                   );
                 })}
@@ -955,8 +955,8 @@ function DayDetail({
         if (activePrograms.length === 0) return null;
         // dietChecked: programId Set — 해당 날짜에 하나라도 완료한 프로그램 ID 집합
         return (
-          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(12,12,10,.06)' }}>
-            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>🥗 식단플랜</div>
+          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(78,56,47,.06)' }}>
+            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 6 }}>🥗 식단플랜</div>
             {activePrograms.map(p => {
               const dayN = Math.floor((new Date(dateStr).getTime() - new Date(p.startDate).getTime()) / 86400000) + 1;
               const sortedPats = [...(p.patterns ?? [])].sort((a, b) => a.dayStart - b.dayStart);
@@ -970,14 +970,14 @@ function DayDetail({
                 <div key={p.id} style={{ marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                     {programDone && <CatBadge color="#C5FF00" size={14} />}
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#0C0C0A' }}>{p.name}</span>
-                    <span style={{ fontFamily: f, fontWeight: 400, color: '#9A9490', fontSize: 10 }}>D+{dayN} · {pat.label}</span>
+                    <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4E382F' }}>{p.name}</span>
+                    <span style={{ fontFamily: f, fontWeight: 400, color: '#9A9490', fontSize: 13 }}>D+{dayN} · {pat.label}</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {slots.map(slot => (
                       <div key={slot.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '3px 0' }}>
-                        {slot.time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: '#0C0C0A', color: '#C5FF00', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
-                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{slot.label}</span>
+                        {slot.time && <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, background: '#4E382F', color: '#C5FF00', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{slot.label}</span>
                       </div>
                     ))}
                   </div>
@@ -999,7 +999,7 @@ function DayDetail({
             {/* 메이크업 */}
             {dayMotd.length > 0 && (
               <div>
-                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>MOTD</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>MOTD</div>
                 <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
                   {dayMotd.map(item => (
                     <div key={item.id} style={{ flexShrink: 0, width: 80, display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -1010,7 +1010,7 @@ function DayDetail({
                           : <span style={{ fontSize: 32 }}>{item.emoji || '💄'}</span>
                         }
                       </div>
-                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                     </div>
                   ))}
                 </div>
@@ -1019,7 +1019,7 @@ function DayDetail({
             {/* 코디 — 3:4 세로형 */}
             {dayOotd.length > 0 && (
               <div>
-                <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>OOTD</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>OOTD</div>
                 <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
                   {dayOotd.map(item => (
                     <div key={item.id} style={{ flexShrink: 0, width: 80, display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -1030,7 +1030,7 @@ function DayDetail({
                           : <span style={{ fontSize: 36 }}>{item.emoji || '👗'}</span>
                         }
                       </div>
-                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                     </div>
                   ))}
                 </div>
@@ -1068,7 +1068,7 @@ function RecentStrip({
       <div
         style={{
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: 800,
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
@@ -1104,7 +1104,7 @@ function RecentStrip({
                   : isSelected
                   ? '2px solid rgba(0,0,0,0.5)'
                   : today
-                  ? '1.5px solid #0C0C0A'
+                  ? '1.5px solid #4E382F'
                   : '1.5px solid transparent',
                 background: isSelected && today
                   ? '#FF8C42'
@@ -1113,7 +1113,7 @@ function RecentStrip({
                   : bothDone && today
                   ? '#F5FDD4'
                   : bothDone
-                  ? 'rgba(12,12,10,.07)'
+                  ? 'rgba(78,56,47,.07)'
                   : 'transparent',
                 cursor: 'pointer',
                 transition: 'all .15s',
@@ -1123,7 +1123,7 @@ function RecentStrip({
               <span
                 style={{
                   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-                  fontSize: 10,
+                  fontSize: 13,
                   fontWeight: 700,
                   color: isSelected && today ? '#FFFFFF' : isSelected ? '#C5FF00' : '#9A9490',
                 }}
@@ -1137,7 +1137,7 @@ function RecentStrip({
                   fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
                   fontSize: 15,
                   fontWeight: today || isSelected ? 800 : 400,
-                  color: isSelected ? '#FFFFFF' : today ? '#0C0C0A' : '#4A4846',
+                  color: isSelected ? '#FFFFFF' : today ? '#4E382F' : '#4A4846',
                   position: 'relative', zIndex: 1,
                 }}
               >
@@ -1147,8 +1147,8 @@ function RecentStrip({
               {/* 오늘: 하나라도 완료면 캐릭터 / 나머지: 아침(라임)·저녁(블랙) 닷 */}
               {/* 아침(라임)·저녁(오렌지) SVG 고양이 */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center' }}>
-                <span style={{ opacity: log?.hasMorning ? 1 : 0.8 }}><CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(12,12,10,.12)'} size={18} /></span>
-                <span style={{ opacity: log?.hasEvening ? 1 : 0.8 }}><CatBadge color={log?.hasEvening ? '#f7bc45' : 'rgba(12,12,10,.12)'} size={18} /></span>
+                <span style={{ opacity: log?.hasMorning ? 1 : 0.8 }}><CatBadge color={log?.hasMorning ? '#C5FF00' : 'rgba(78,56,47,.12)'} size={18} /></span>
+                <span style={{ opacity: log?.hasEvening ? 1 : 0.8 }}><CatBadge color={log?.hasEvening ? '#f7bc45' : 'rgba(78,56,47,.12)'} size={18} /></span>
               </div>
             </button>
           );
@@ -1220,7 +1220,7 @@ function LogLibraryCard({
             <div style={{ position: 'absolute', inset: 5, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="today" style={{ width: 34, height: 34, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
-            <div style={{ fontFamily: f, fontSize: 10, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
+            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
           </div>
         )}
       </div>
@@ -1237,7 +1237,7 @@ function LogLibraryCard({
         {/* 제목 */}
         <div style={{ fontFamily: f, fontSize: 20, fontWeight: 600, color: '#000', lineHeight: '18px', width: '100%', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{item.name}</div>
         {/* daily — 우측 정렬 */}
-        {item.daily && <div style={{ width: '100%', textAlign: 'right', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#BCBAB6', marginTop: 6 }}>{item.daily}</div>}
+        {item.daily && <div style={{ width: '100%', textAlign: 'right', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', color: '#BCBAB6', marginTop: 6 }}>{item.daily}</div>}
         {/* 서브 */}
         {item.desc && <div style={{ fontFamily: f, fontSize: 14, fontWeight: 400, color: '#1D6DDB', lineHeight: '20px', marginTop: 4, marginBottom: 12, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.desc}</div>}
         {item.sourceUrl?.trim() && (() => {
@@ -1245,7 +1245,7 @@ function LogLibraryCard({
           try { domain = new URL(item.sourceUrl).hostname; } catch {}
           return (
             <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
-              style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, padding: '8px 12px', border: '1px solid rgba(12,12,10,.15)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, padding: '8px 12px', border: '1px solid rgba(78,56,47,.15)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
                 <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
@@ -1270,7 +1270,7 @@ function LogLibraryCard({
                 <div style={{ width: 120, height: 160, borderRadius: 0, background: '#F3F3F4', border: '1px solid #000000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 24, opacity: 0.2 }}>🧴</span>}
                 </div>
-                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
+                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#525252', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
               </div>
             );
           })}
@@ -1282,13 +1282,13 @@ function LogLibraryCard({
         {/* 총 적용 횟수 + 마지막 적용일 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <span style={{ fontFamily: f, fontSize: 28, fontWeight: 800, color: '#0C0C0A', lineHeight: 1 }}>{totalCount}</span>
-            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em' }}>회 적용</span>
+            <span style={{ fontFamily: f, fontSize: 28, fontWeight: 800, color: '#4E382F', lineHeight: 1 }}>{totalCount}</span>
+            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.06em' }}>회 적용</span>
           </div>
           {lastDate && (
             <>
-              <div style={{ width: 1, height: 16, background: 'rgba(12,12,10,.12)' }} />
-              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#9A9490' }}>마지막 {lastDate}</span>
+              <div style={{ width: 1, height: 16, background: 'rgba(78,56,47,.12)' }} />
+              <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>마지막 {lastDate}</span>
             </>
           )}
         </div>
@@ -1296,19 +1296,19 @@ function LogLibraryCard({
         {recentDates.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {recentDates.map(d => (
-              <span key={d} style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: d === todayStr ? '#0C0C0A' : '#6B6966', background: d === todayStr ? '#C5FF00' : '#F3F3F1', padding: '3px 10px', borderRadius: 9999 }}>
+              <span key={d} style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: d === todayStr ? '#4E382F' : '#6B6966', background: d === todayStr ? '#C5FF00' : '#F3F3F1', padding: '3px 10px', borderRadius: 9999 }}>
                 {format(new Date(d), 'MM.dd')}
               </span>
             ))}
-            {totalCount > 5 && <span style={{ fontFamily: f, fontSize: 11, color: '#BCBAB6', padding: '3px 4px' }}>+{totalCount - 5}회</span>}
+            {totalCount > 5 && <span style={{ fontFamily: f, fontSize: 13, color: '#BCBAB6', padding: '3px 4px' }}>+{totalCount - 5}회</span>}
           </div>
         )}
         {totalCount === 0 && (
-          <span style={{ fontFamily: f, fontSize: 12, color: '#BCBAB6' }}>아직 적용 기록이 없습니다</span>
+          <span style={{ fontFamily: f, fontSize: 13, color: '#BCBAB6' }}>아직 적용 기록이 없습니다</span>
         )}
       </div>
       {onEdit && (
-        <button onClick={onEdit} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 12, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
+        <button onClick={onEdit} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#4E382F', border: 'none', borderTop: '1px solid #000000', borderRadius: 0, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer' }}>편집</button>
       )}
     </div>
   );
@@ -1353,7 +1353,7 @@ function LifetipLibraryCard({
           <div style={{ fontFamily: f, fontSize: 14, color: '#1D6DDB', lineHeight: '20px', marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, width: '100%' }}>{item.memo}</div>
         )}
         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
-          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{createdDate}</span>
+          <span style={{ fontFamily: f, fontSize: 13, fontWeight: 500, color: '#BCBAB6' }}>{createdDate}</span>
         </div>
       </div>
       <ProductThumbnailStrip productIds={pIds} products={products} />
@@ -1468,11 +1468,11 @@ function AddItemSheet({
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
       <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#fff', borderRadius: '24px 24px 0 0', maxHeight: '90vh', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 32px)', scrollbarWidth: 'none' as const }}>
         <div style={{ padding: '20px 20px 0' }}>
-          <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
-          <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 4 }}>
+          <div style={{ width: 32, height: 3, background: 'rgba(78,56,47,.14)', borderRadius: 2, margin: '0 auto 20px' }} />
+          <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#4E382F', marginBottom: 4 }}>
             {ctType === 'makeup' ? '메이크업 추가' : '룩 추가'}
           </div>
-          <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginBottom: 20 }}>등록 후 Library에서 Today 즉시 적용 가능</div>
+          <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginBottom: 20 }}>등록 후 Library에서 Today 즉시 적용 가능</div>
 
           {/* 이미지 */}
           <div style={{ marginBottom: 16 }}>
@@ -1487,24 +1487,24 @@ function AddItemSheet({
 
           {/* 이모지 + 이름 */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-            <input value={emoji} onChange={e => setEmoji(e.target.value)} maxLength={2} style={{ width: 52, padding: '10px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="이름 *" style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+            <input value={emoji} onChange={e => setEmoji(e.target.value)} maxLength={2} style={{ width: 52, padding: '10px 6px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+            <input value={name} onChange={e => setName(e.target.value)} placeholder="이름 *" style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, fontFamily: f, fontSize: 14, color: '#4E382F', background: '#fff', outline: 'none' }} />
           </div>
 
           {/* 설명 */}
-          <textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="간단한 설명 (선택)" rows={2} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, marginBottom: 16, lineHeight: 1.5 }} />
+          <textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="간단한 설명 (선택)" rows={2} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#4E382F', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, marginBottom: 16, lineHeight: 1.5 }} />
 
           {/* BOX 제품 연결 */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 8 }}>BOX 제품 연결</div>
-            <button onClick={() => setPickerOpen(true)} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
+            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', color: '#9A9490', marginBottom: 8 }}>BOX 제품 연결</div>
+            <button onClick={() => setPickerOpen(true)} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(78,56,47,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
               {selectedProds.size > 0 ? `${selectedProds.size}개 선택됨 · 변경` : '+ BOX에서 불러오기'}
             </button>
             {selectedProds.size > 0 && (
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
                 {Array.from(selectedProds).map(id => {
                   const p = products.get(id);
-                  return <span key={id} style={{ fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>{p?.name ?? id}</span>;
+                  return <span key={id} style={{ fontFamily: f, fontSize: 13, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#4E382F' }}>{p?.name ?? id}</span>;
                 })}
               </div>
             )}
@@ -1513,7 +1513,7 @@ function AddItemSheet({
           {/* 버튼 */}
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={onClose} style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
-            <button onClick={handleSave} disabled={saving || !name.trim()} style={{ flex: 1, height: 52, background: name.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: name.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: name.trim() ? 'pointer' : 'default' }}>
+            <button onClick={handleSave} disabled={saving || !name.trim()} style={{ flex: 1, height: 52, background: name.trim() ? '#4E382F' : 'rgba(78,56,47,.14)', color: name.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: name.trim() ? 'pointer' : 'default' }}>
               {saving ? '저장 중...' : '저장'}
             </button>
           </div>
@@ -1524,36 +1524,36 @@ function AddItemSheet({
       {pickerOpen && (
         <>
           <div onClick={() => setPickerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 220 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 230, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 230, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
-              <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
-              <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)} placeholder="제품 검색..." autoFocus style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
+              <div style={{ width: 32, height: 3, background: 'rgba(78,56,47,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
+              <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)} placeholder="제품 검색..." autoFocus style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#4E382F', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
             </div>
             <div style={{ flex: 1, overflowY: 'auto' }}>
               {filteredProds.map(p => {
                 const sel = selectedProds.has(p.id);
                 const imgSrc = p.imageUrl || p.storageUrl;
                 return (
-                  <div key={p.id} onClick={() => setSelectedProds(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                  <div key={p.id} onClick={() => setSelectedProds(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(78,56,47,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                     <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{ctType === 'makeup' ? '💄' : '👗'}</span>}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                      {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                      <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                      {p.brand && <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                     </div>
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(78,56,47,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#4E382F', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                   </div>
                 );
               })}
               {/* 검색어 있고 결과 없으면 → 이름으로 BOX 등록 후 추가 */}
               {pickerSearch.trim() && filteredProds.length === 0 && (
-                <div onClick={() => registerAndAddProduct(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                <div onClick={() => registerAndAddProduct(pickerSearch)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(78,56,47,.07)' }}>
                   <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 300 }}>+</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
-                    <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 상세 정보 수정 가능</div>
+                    <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
+                    <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 상세 정보 수정 가능</div>
                   </div>
                 </div>
               )}
@@ -1564,8 +1564,8 @@ function AddItemSheet({
                 </div>
               )}
             </div>
-            <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 20px)', borderTop: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
-              <button onClick={() => setPickerOpen(false)} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료 ({selectedProds.size}개)</button>
+            <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 20px)', borderTop: '1px solid rgba(78,56,47,.07)', flexShrink: 0 }}>
+              <button onClick={() => setPickerOpen(false)} style={{ width: '100%', height: 52, background: '#4E382F', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료 ({selectedProds.size}개)</button>
             </div>
           </div>
         </>
@@ -1779,7 +1779,7 @@ function LogCtPanel({
 
     /* ── featured(Card 1): 이미지 + 배지/제목 + 제품 스크롤 + CTA ── */
     if (featured) return (
-      <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
+      <div style={{ background: '#F2EDE6', overflow: 'hidden' }}>
         <div style={{ width: '100%', height: 340, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, overflow: 'visible', position: 'relative' }}>
           {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : item.emoji || (DOMAIN_EMOJIS[filter] ?? '📦')}
           {isOnToday && (
@@ -1791,9 +1791,9 @@ function LogCtPanel({
           )}
         </div>
         <div style={{ padding: '12px 12px 4px' }}>
-          <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: BADGE_COLOR, color: '#0C0C0A', padding: '3px 8px', borderRadius: 4, marginBottom: 6, textTransform: 'uppercase' as const }}>{BADGE}</div>
-          <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', lineHeight: 1.2, letterSpacing: '-.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
-          {sub && <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{sub}</div>}
+          <div style={{ display: 'inline-block', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', background: BADGE_COLOR, color: '#4E382F', padding: '3px 8px', borderRadius: 4, marginBottom: 6, textTransform: 'uppercase' as const }}>{BADGE}</div>
+          <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#4E382F', lineHeight: 1.2, letterSpacing: '-.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
+          {sub && <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{sub}</div>}
         </div>
         {prodItems.length > 0 && (
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '10px 12px 12px', scrollbarWidth: 'none' as const }}>
@@ -1802,17 +1802,17 @@ function LogCtPanel({
               const imgSrc = p?.imageUrl || p?.storageUrl;
               return (
                 <div key={idx} style={{ flexShrink: 0, width: 100, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <div style={{ width: 100, height: 100, borderRadius: 12, background: '#fff', border: '1px solid rgba(12,12,10,.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                  <div style={{ width: 100, height: 100, borderRadius: 12, background: '#fff', border: '1px solid rgba(78,56,47,.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(78,56,47,.06)' }}>
                     {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 28, opacity: 0.2 }}>🧴</span>}
                   </div>
-                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#0C0C0A', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
+                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
                 </div>
               );
             })}
           </div>
         )}
         <div style={{ padding: '0 12px 12px', display: 'flex', gap: 6 }}>
-          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#4E382F' : 'rgba(78,56,47,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
           <button onClick={() => openEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 8, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>편집</button>
@@ -1822,13 +1822,13 @@ function LogCtPanel({
 
     /* ── square(Card 2+): 이미지 + 이름 오버레이 + 소형 제품 + 편집버튼 ── */
     return (
-      <div style={{ background: '#FAFAF8', overflow: 'hidden' }}>
+      <div style={{ background: '#F2EDE6', overflow: 'hidden' }}>
         {/* 이미지 — 이름 오버레이 포함 */}
         <div style={{ width: '100%', height: 180, background: item.imageUrl ? 'transparent' : BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, overflow: 'visible', position: 'relative' }}>
           {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : item.emoji || (DOMAIN_EMOJIS[filter] ?? '📦')}
           {/* 하단 그라데이션 + 이름 오버레이 */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px 8px 8px', background: 'linear-gradient(to top, rgba(0,0,0,.6) 0%, transparent 100%)' }}>
-            <div style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
+            <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</div>
           </div>
           {isOnToday && (
             <div style={{ position: 'absolute', bottom: -44, right: -22, transform: 'rotate(-9deg)', zIndex: 4, width: 60, height: 60, borderRadius: '50%', border: '2px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
@@ -1846,10 +1846,10 @@ function LogCtPanel({
               const imgSrc = p?.imageUrl || p?.storageUrl;
               return (
                 <div key={idx} style={{ flexShrink: 0, width: 52, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 8, background: '#fff', border: '1px solid rgba(12,12,10,.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 3px rgba(0,0,0,.06)' }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 8, background: '#fff', border: '1px solid rgba(78,56,47,.1)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 3px rgba(78,56,47,.06)' }}>
                     {imgSrc ? <img src={imgSrc} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16, opacity: 0.2 }}>🧴</span>}
                   </div>
-                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: '#4A4846', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
+                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4A4846', textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p?.name ?? ''}</span>
                 </div>
               );
             })}
@@ -1857,7 +1857,7 @@ function LogCtPanel({
         )}
         {/* 편집 버튼 */}
         <div style={{ padding: '0 8px 8px', display: 'flex', gap: 4 }}>
-          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#0C0C0A' : 'rgba(12,12,10,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
+          <button onClick={() => togglePublished(item)} style={{ flex: 1, padding: '8px 0', background: item.published ? '#4E382F' : 'rgba(78,56,47,.06)', color: item.published ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, cursor: 'pointer', transition: 'all .15s' }}>
             {item.published ? 'Today ON' : 'Today OFF'}
           </button>
           <button onClick={() => openEdit(item)} style={{ padding: '8px 10px', background: '#EEEDE9', color: '#4A4846', border: 'none', borderRadius: 6, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>편집</button>
@@ -1869,9 +1869,9 @@ function LogCtPanel({
   return (
     <>
       {/* 카드 목록 — hiddenMode일 때 숨김 (편집 시트만 사용) */}
-      <div style={{ padding: '0 16px', display: hiddenMode ? 'none' : undefined }}>
+      <div style={{ padding: '0 20px', display: hiddenMode ? 'none' : undefined }}>
         {!hideAddButton && (
-          <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', color: '#9A9490', cursor: 'pointer', marginBottom: 12 }}>
+          <button onClick={openNew} style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(78,56,47,.14)', borderRadius: 12, background: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', color: '#9A9490', cursor: 'pointer', marginBottom: 12 }}>
             + 새 {colLabelKo} 등록
           </button>
         )}
@@ -1882,12 +1882,12 @@ function LogCtPanel({
                 <span style={{ fontSize: 40, opacity: 0.3 }}>{icon}</span>
               </div>
               <div style={{ padding: '10px 12px 0' }}>
-                <div style={{ display: 'inline-block', fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', background: `${BADGE_COLOR}40`, color: '#9A9490', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>{BADGE}</div>
+                <div style={{ display: 'inline-block', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', background: `${BADGE_COLOR}40`, color: '#9A9490', padding: '3px 8px', borderRadius: 4, marginBottom: 7, textTransform: 'uppercase' as const }}>{BADGE}</div>
                 <div style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: '#C4C2BE', lineHeight: 1.2, marginBottom: 3 }}>No Items</div>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, color: '#C4C2BE', paddingBottom: 10 }}>위 버튼으로 추가</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' as const, color: '#C4C2BE', paddingBottom: 10 }}>위 버튼으로 추가</div>
               </div>
-              <div style={{ borderTop: '1px solid #0C0C0A', padding: '10px 12px', display: 'flex', gap: 6 }}>
-                <div style={{ flex: 1, padding: '8px 0', background: 'rgba(12,12,10,.04)', borderRadius: 8, fontFamily: f, fontSize: 11, fontWeight: 700, color: '#C4C2BE', textAlign: 'center', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>Today OFF</div>
+              <div style={{ borderTop: '1px solid #4E382F', padding: '10px 12px', display: 'flex', gap: 6 }}>
+                <div style={{ flex: 1, padding: '8px 0', background: 'rgba(78,56,47,.04)', borderRadius: 8, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#C4C2BE', textAlign: 'center', letterSpacing: '.06em', textTransform: 'uppercase' as const }}>Today OFF</div>
               </div>
             </div>
           </div>
@@ -1909,11 +1909,11 @@ function LogCtPanel({
       {sheetOpen && (
         <>
           <div onClick={closeSheet} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
-            <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-              <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
+          <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(78,56,47,.07)' }}>
+              <div style={{ width: 32, height: 3, background: 'rgba(78,56,47,.14)', borderRadius: 2, margin: '14px auto 0' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
-                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A' }}>{editItem ? `편집: ${editItem.name}` : `새 ${colLabelKo} 등록`}</div>
+                <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#4E382F' }}>{editItem ? `편집: ${editItem.name}` : `새 ${colLabelKo} 등록`}</div>
                 <button onClick={closeSheet} style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
               </div>
             </div>
@@ -1921,16 +1921,16 @@ function LogCtPanel({
             {/* 이모지 + 이름 */}
             <div style={{ padding: '16px 20px 0' }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
-                <input value={sEmoji} onChange={e => setSEmoji(e.target.value)} placeholder={icon} maxLength={2} style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
-                <input value={sName} onChange={e => setSName(e.target.value)} placeholder="이름 *" style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+                <input value={sEmoji} onChange={e => setSEmoji(e.target.value)} placeholder={icon} maxLength={2} style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+                <input value={sName} onChange={e => setSName(e.target.value)} placeholder="이름 *" style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#4E382F', background: '#fff', outline: 'none' }} />
               </div>
 
               {/* 참고 링크 */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginBottom: 8 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2.5" style={{ flexShrink: 0 }}>
                   <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
                 </svg>
-                <input type="url" value={sSourceUrl} onChange={e => setSSourceUrl(e.target.value)} placeholder="참고 링크 (Instagram, YouTube...)" style={{ flex: 1, border: 'none', outline: 'none', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: 'transparent' }} />
+                <input type="url" value={sSourceUrl} onChange={e => setSSourceUrl(e.target.value)} placeholder="참고 링크 (Instagram, YouTube...)" style={{ flex: 1, border: 'none', outline: 'none', fontFamily: f, fontSize: 13, color: '#4E382F', background: 'transparent' }} />
                 {sSourceUrl && <button onClick={() => setSSourceUrl('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#BCBAB6', fontSize: 14, padding: 0 }}>✕</button>}
               </div>
 
@@ -1946,18 +1946,18 @@ function LogCtPanel({
 
               {/* 메모 */}
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
                 <textarea value={sDesc} onChange={e => setSDesc(e.target.value)}
                   placeholder="메모 입력 (선택)..."
                   rows={3}
-                  style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }}
+                  style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#4E382F', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }}
                 />
               </div>
 
               {/* BOX 제품 연결 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8, marginTop: 8 }}>BOX 제품 연결</div>
+              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8, marginTop: 8 }}>BOX 제품 연결</div>
               <button type="button" onClick={() => { setPicker('main'); setPickerSearch(''); setPickerDomain(filter); setPickerSelected(new Set(sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map(i => i.id))); }}
-                style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
+                style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(78,56,47,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
                 {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length > 0
                   ? `${sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length}개 선택됨 · 변경`
                   : '+ BOX에서 불러오기'}
@@ -1965,9 +1965,9 @@ function LogCtPanel({
               {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').length > 0 ? (
                 <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, marginBottom: 16 }}>
                   {sItems.filter((i): i is { type: 'product'; id: string } => i.type === 'product').map((it, idx) => (
-                    <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>
+                    <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: f, fontSize: 13, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#4E382F' }}>
                       {productName(it.id)}
-                      <button type="button" onClick={() => setSItems(p => p.filter((_, i) => i !== idx))} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 12, padding: 0, lineHeight: 1 }}>×</button>
+                      <button type="button" onClick={() => setSItems(p => p.filter((_, i) => i !== idx))} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 13, padding: 0, lineHeight: 1 }}>×</button>
                     </span>
                   ))}
                 </div>
@@ -1975,23 +1975,23 @@ function LogCtPanel({
 
               {/* 예정 날짜 */}
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>예정 날짜</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>예정 날짜</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-                  {sDates.map(d => <span key={d} onClick={() => setSDates(p => p.filter(x => x !== d))} style={{ fontFamily: f, fontSize: 12, fontWeight: 700, padding: '5px 10px', borderRadius: 9999, background: '#0C0C0A', color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>{fmtDate(d)} <span style={{ opacity: .6, fontSize: 10 }}>✕</span></span>)}
-                  <input type="date" onChange={e => { if (e.target.value && !sDates.includes(e.target.value)) { setSDates(p => [...p, e.target.value].sort()); e.target.value = ''; } }} style={{ padding: '5px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9999, fontFamily: f, fontSize: 12, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+                  {sDates.map(d => <span key={d} onClick={() => setSDates(p => p.filter(x => x !== d))} style={{ fontFamily: f, fontSize: 13, fontWeight: 700, padding: '5px 10px', borderRadius: 9999, background: '#4E382F', color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>{fmtDate(d)} <span style={{ opacity: .6, fontSize: 13 }}>✕</span></span>)}
+                  <input type="date" onChange={e => { if (e.target.value && !sDates.includes(e.target.value)) { setSDates(p => [...p, e.target.value].sort()); e.target.value = ''; } }} style={{ padding: '5px 10px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 9999, fontFamily: f, fontSize: 13, color: '#4E382F', background: '#fff', outline: 'none' }} />
                 </div>
               </div>
 
               {/* 구분선 */}
-              <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+              <div style={{ height: 1, background: 'rgba(78,56,47,.08)', margin: '4px 0 16px' }} />
 
               {/* 카테고리 — 읽기 전용 배지 */}
               <div style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 2, background: '#0C0C0A', display: 'inline-block' }} />
-                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#0C0C0A' }}>카테고리</span>
+                  <span style={{ width: 8, height: 8, borderRadius: 2, background: '#4E382F', display: 'inline-block' }} />
+                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', color: '#4E382F' }}>카테고리</span>
                 </div>
-                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: BADGE_COLOR, background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
+                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: BADGE_COLOR, background: '#4E382F', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
                   {DOMAIN_LABELS[filter] ?? filter}
                 </span>
               </div>
@@ -2000,12 +2000,12 @@ function LogCtPanel({
               <div style={{ marginBottom: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250' }}>#</span>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</span>
+                    <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#555250' }}>#</span>
+                    <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</span>
                   </div>
                   <button type="button"
                     onClick={() => { setSTagEditOpen(v => !v); if (sTagEditOpen) setSTagInput(''); }}
-                    style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                    style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#4E382F', fontFamily: f, fontSize: 13, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
                     <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                     태그 편집
                   </button>
@@ -2023,18 +2023,18 @@ function LogCtPanel({
                           }
                         }}
                         placeholder="+ 태그 추가 (Enter)"
-                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                       />
                     : <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
                         {sTags.map(tag => (
-                          <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#555250' }}>#{tag}</span>
+                          <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(78,56,47,.07)', color: '#555250' }}>#{tag}</span>
                         ))}
                       </div>
                 )}
                 {/* 태그 편집 패널 — 토글 */}
                 {sTagEditOpen && (
-                  <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
-                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                  <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(78,56,47,.03)', border: '1px solid rgba(78,56,47,.1)' }}>
+                    <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
                     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                       {sTags.map((tag, i) => (
                         <div key={tag}
@@ -2052,9 +2052,9 @@ function LogCtPanel({
                             setDragTagIdx(null); setDragTagOverIdx(null);
                           }}
                           onDragEnd={() => { setDragTagIdx(null); setDragTagOverIdx(null); }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragTagOverIdx === i ? 'rgba(78,56,47,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                           <button type="button" onClick={() => setSTags(prev => prev.filter(t => t !== tag))}
-                            style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                            style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                             -
                           </button>
                           {editingTagIdx === i ? (
@@ -2076,12 +2076,12 @@ function LogCtPanel({
                                 if (v && v !== tag && !sTags.includes(v)) setSTags(prev => prev.map(t => t === tag ? v : t));
                                 setEditingTagIdx(null);
                               }}
-                              style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                              style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #4E382F', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                             />
                           ) : (
                             <div
                               onClick={() => { setEditingTagIdx(i); setEditingTagVal(tag); }}
-                              style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                              style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(78,56,47,.06)', boxShadow: '0 1px 2px rgba(78,56,47,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', cursor: 'text' }}>
                               #{tag}
                             </div>
                           )}
@@ -2101,7 +2101,7 @@ function LogCtPanel({
                         }
                       }}
                       placeholder="+ 태그 추가 (Enter)"
-                      style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                      style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                     />
                   </div>
                 )}
@@ -2109,15 +2109,15 @@ function LogCtPanel({
 
               {/* Today 토글 */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginBottom: 20 }} onClick={() => { const next = !sPublished; setSPublished(next); const today = format(new Date(), 'yyyy-MM-dd'); if (next) setSDates(p => p.includes(today) ? p : [...p, today].sort()); }}>
-                <div style={{ width: 44, height: 26, borderRadius: 13, background: sPublished ? '#0C0C0A' : '#D8D6CF', transition: 'background .2s', position: 'relative', flexShrink: 0 }}>
+                <div style={{ width: 44, height: 26, borderRadius: 13, background: sPublished ? '#4E382F' : '#D8D6CF', transition: 'background .2s', position: 'relative', flexShrink: 0 }}>
                   <div style={{ position: 'absolute', top: 3, left: sPublished ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.3)' }} />
                 </div>
-                <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{sPublished ? 'Today에 표시 ON' : 'Today에 표시 OFF'}</span>
+                <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F' }}>{sPublished ? 'Today에 표시 ON' : 'Today에 표시 OFF'}</span>
               </div>
 
               {/* 저장 에러 배너 */}
               {saveError && (
-                <div style={{ padding: '10px 14px', background: '#FFF0F0', border: '1.5px solid rgba(186,26,26,.25)', borderRadius: 10, marginBottom: 8, fontFamily: f, fontSize: 12, color: '#BA1A1A', lineHeight: 1.5, wordBreak: 'break-all' as const }}>
+                <div style={{ padding: '10px 14px', background: '#FFF0F0', border: '1.5px solid rgba(186,26,26,.25)', borderRadius: 10, marginBottom: 8, fontFamily: f, fontSize: 13, color: '#BA1A1A', lineHeight: 1.5, wordBreak: 'break-all' as const }}>
                   ⚠ 저장 실패: {saveError}
                 </div>
               )}
@@ -2125,7 +2125,7 @@ function LogCtPanel({
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={closeSheet} style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
-                <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 1, height: 52, background: sName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: sName.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default' }}>
+                <button onClick={handleSave} disabled={saving || !sName.trim()} style={{ flex: 1, height: 52, background: sName.trim() ? '#4E382F' : 'rgba(78,56,47,.14)', color: sName.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: sName.trim() ? 'pointer' : 'default' }}>
                   {saving ? '저장 중...' : editItem ? '수정' : '저장'}
                 </button>
               </div>
@@ -2139,9 +2139,9 @@ function LogCtPanel({
           {picker && (
             <>
               <div onClick={() => setPicker(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 220 }} />
-              <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 230, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 230, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
-                  <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
+                  <div style={{ width: 32, height: 3, background: 'rgba(78,56,47,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
                   {/* 도메인 탭 */}
                   {(() => {
                     const allDomains = [...new Set(products.map(p => p.domain).filter(Boolean))] as string[];
@@ -2150,7 +2150,7 @@ function LogCtPanel({
                     return sorted.length > 1 ? (
                       <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' as const }}>
                         <button type="button" onClick={() => setPickerDomain(null)}
-                          style={{ flexShrink: 0, background: pickerDomain === null ? '#0C0C0A' : '#fff', border: `1px solid ${pickerDomain === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: pickerDomain === null ? '#fff' : '#0C0C0A', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                          style={{ flexShrink: 0, background: pickerDomain === null ? '#4E382F' : '#fff', border: `1px solid ${pickerDomain === null ? '#4E382F' : 'rgba(78,56,47,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 13, fontWeight: 700, color: pickerDomain === null ? '#fff' : '#4E382F', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
                           전체 {products.length}
                         </button>
                         {sorted.map(d => {
@@ -2158,34 +2158,34 @@ function LogCtPanel({
                           const sel = pickerDomain === d;
                           return (
                             <button key={d} type="button" onClick={() => setPickerDomain(d)}
-                              style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                              <span style={{ fontSize: 12 }}>{DOMAIN_EMOJIS[d] ?? '📦'}</span>
-                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A' }}>{DOMAIN_LABELS[d] ?? d}</span>
-                              <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{cnt}</span>
+                              style={{ flexShrink: 0, background: sel ? '#4E382F' : '#fff', border: `1px solid ${sel ? '#4E382F' : 'rgba(78,56,47,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                              <span style={{ fontSize: 13 }}>{DOMAIN_EMOJIS[d] ?? '📦'}</span>
+                              <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: sel ? '#fff' : '#4E382F' }}>{DOMAIN_LABELS[d] ?? d}</span>
+                              <span style={{ fontFamily: f, fontSize: 13, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{cnt}</span>
                             </button>
                           );
                         })}
                       </div>
                     ) : null;
                   })()}
-                  <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)} placeholder="제품명 · 브랜드 검색..." autoFocus style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 4 }} />
-                  <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginBottom: 8 }}>{pickerSelected.size > 0 ? `${pickerSelected.size}개 선택됨` : 'BOX에서 제품을 선택하세요'}</div>
+                  <input type="search" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)} placeholder="제품명 · 브랜드 검색..." autoFocus style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#4E382F', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 4 }} />
+                  <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginBottom: 8 }}>{pickerSelected.size > 0 ? `${pickerSelected.size}개 선택됨` : 'BOX에서 제품을 선택하세요'}</div>
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto' }}>
                   {filteredPicker.map(p => {
                     const sel = pickerSelected.has(p.id);
                     const imgSrc = p.imageUrl || p.storageUrl;
                     return (
-                      <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                      <div key={p.id} onClick={() => setPickerSelected(prev => { const n = new Set(prev); sel ? n.delete(p.id) : n.add(p.id); return n; })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(78,56,47,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                         <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{DOMAIN_EMOJIS[filter] ?? '📦'}</span>}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                          {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                          <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                          {p.brand && <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                         </div>
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(78,56,47,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#4E382F', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                       </div>
                     );
                   })}
@@ -2197,18 +2197,18 @@ function LogCtPanel({
                       const ref = await addDoc(collection(db, 'users', userId, 'products'), { name: pickerSearch.trim(), brand: '', domain, packageCount: 1, unitPerPackage: 0, itemUnit: '', totalAmount: 0, dosePerUse: 0, usesPerDay: 1, frequencyType: 'daily', currentRemaining: 0, createdAt: now, updatedAt: now });
                       setPickerSelected(prev => { const n = new Set(prev); n.add(ref.id); return n; });
                       setPickerSearch('');
-                    }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(12,12,10,.07)' }}>
+                    }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: 'rgba(197,255,0,.06)', borderBottom: '1px solid rgba(78,56,47,.07)' }}>
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: '#C5FF00', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>+</div>
                       <div>
-                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
-                        <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 수정 가능</div>
+                        <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F' }}>"{pickerSearch.trim()}" 이름으로 등록 후 추가</div>
+                        <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 2 }}>BOX에 자동 저장 · 나중에 수정 가능</div>
                       </div>
                     </div>
                   )}
                   {!pickerSearch.trim() && filteredPicker.length === 0 && <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>BOX에 해당 도메인 제품이 없어요</div>}
                 </div>
-                <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 20px)', borderTop: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
-                  <button onClick={confirmPicker} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료{pickerSelected.size > 0 ? ` (${pickerSelected.size}개)` : ''}</button>
+                <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 20px)', borderTop: '1px solid rgba(78,56,47,.07)', flexShrink: 0 }}>
+                  <button onClick={confirmPicker} style={{ width: '100%', height: 52, background: '#4E382F', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료{pickerSelected.size > 0 ? ` (${pickerSelected.size}개)` : ''}</button>
                 </div>
               </div>
             </>
@@ -2226,7 +2226,7 @@ function EmptyState({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn:
     return (
       <div
         style={{
-          margin: '0 16px',
+          margin: '0 20px',
           padding: 40,
           textAlign: 'center',
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
@@ -2234,7 +2234,7 @@ function EmptyState({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn:
           color: '#9A9490',
           background: '#FFFFFF',
           borderRadius: 20,
-          border: '1px solid rgba(12,12,10,.07)',
+          border: '1px solid rgba(78,56,47,.07)',
         }}
       >
         기록 불러오는 중...
@@ -2246,18 +2246,18 @@ function EmptyState({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn:
     return (
       <div
         style={{
-          margin: '0 16px',
+          margin: '0 20px',
           padding: '40px 16px',
           textAlign: 'center',
-          border: '1.5px dashed rgba(12,12,10,.14)',
+          border: '1.5px dashed rgba(78,56,47,.14)',
           borderRadius: 20,
           background: '#F4F4F0',
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
         }}
       >
         <div style={{ fontSize: 28, marginBottom: 12 }}>🔐</div>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#0C0C0A', marginBottom: 6 }}>로그인이 필요해요</div>
-        <div style={{ fontSize: 12, color: '#9A9490' }}>Google 로그인 후 루틴 기록을 확인할 수 있어요</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#4E382F', marginBottom: 6 }}>로그인이 필요해요</div>
+        <div style={{ fontSize: 13, color: '#9A9490' }}>Google 로그인 후 루틴 기록을 확인할 수 있어요</div>
       </div>
     );
   }
@@ -2265,10 +2265,10 @@ function EmptyState({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn:
   return (
     <div
       style={{
-        margin: '0 16px',
+        margin: '0 20px',
         padding: '48px 16px',
         textAlign: 'center',
-        border: '1.5px dashed rgba(12,12,10,.14)',
+        border: '1.5px dashed rgba(78,56,47,.14)',
         borderRadius: 20,
         background: '#F4F4F0',
       }}
@@ -2288,7 +2288,7 @@ function EmptyState({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn:
       <div
         style={{
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
-          fontSize: 12,
+          fontSize: 13,
           color: '#9A9490',
           lineHeight: 1.7,
         }}
@@ -3396,7 +3396,7 @@ function LogPageInner() {
 
   // ── 렌더링 ──
   return (
-    <div style={{ background: '#FAFAF8', minHeight: '100%', position: 'relative' }}>
+    <div style={{ background: '#F2EDE6', minHeight: '100%', position: 'relative' }}>
 
       <div style={{ paddingBottom: 100 }}>
 
@@ -3408,10 +3408,10 @@ function LogPageInner() {
         />
 
         {/* 탭 바 — 기록 / 라이브러리 / 수집 */}
-        <div style={{ display: 'flex', gap: 0, height: 46, alignItems: 'stretch', background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(12,12,10,.07)', margin: '16px 0 0', padding: '0 16px' }}>
+        <div style={{ display: 'flex', gap: 0, height: 46, alignItems: 'stretch', background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(78,56,47,.07)', margin: '16px 0 0', padding: '0 16px' }}>
           {(['기록', '라이브러리', '수집'] as const).map((t) => (
             <button key={t} onClick={() => setMainTab(t)}
-              style={{ flex: 1, border: 'none', background: 'none', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: '.02em', color: mainTab === t ? '#0C0C0A' : '#9A9490', borderBottom: mainTab === t ? '2px solid #0C0C0A' : '2px solid transparent', cursor: 'pointer', transition: 'all .18s' }}
+              style={{ flex: 1, border: 'none', background: 'none', fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 800, letterSpacing: '.02em', color: mainTab === t ? '#4E382F' : '#9A9490', borderBottom: mainTab === t ? '2px solid #4E382F' : '2px solid transparent', cursor: 'pointer', transition: 'all .18s' }}
             >
               {t}
             </button>
@@ -3463,15 +3463,15 @@ function LogPageInner() {
               if (completedDays === 0) return null;
 
               return (
-                <div style={{ margin: '0 16px 16px', background: 'linear-gradient(135deg,#EFF9DC,#E6F5C2)', borderRadius: 16, padding: '14px 16px', border: '1px solid rgba(74,119,0,.12)' }}>
+                <div style={{ margin: '0 20px 16px', background: 'linear-gradient(135deg,#EFF9DC,#E6F5C2)', borderRadius: 16, padding: '14px 16px', border: '1px solid rgba(74,119,0,.12)' }}>
                   <div style={{ display: 'flex', gap: 0, justifyContent: 'space-between' }}>
 
                     {/* 연속 기록일 */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A7700', letterSpacing: '.06em' }}>연속 기록</span>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A7700', letterSpacing: '.06em' }}>연속 기록</span>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
                         <span style={{ fontFamily: f, fontSize: 28, fontWeight: 800, color: '#2D5200', lineHeight: 1 }}>{streak}</span>
-                        <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#4A7700' }}>일</span>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A7700' }}>일</span>
                         {streak >= 3 && <span style={{ fontSize: 14 }}>🔥</span>}
                       </div>
                     </div>
@@ -3482,7 +3482,7 @@ function LogPageInner() {
                     {/* 월간 달성률 */}
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'center' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#4A7700', letterSpacing: '.06em' }}>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A7700', letterSpacing: '.06em' }}>
                           {format(currentMonth, 'M월', { locale: ko })} 달성률
                         </span>
                         <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#2D5200' }}>{pct}%</span>
@@ -3491,7 +3491,7 @@ function LogPageInner() {
                       <div style={{ height: 6, background: 'rgba(74,119,0,.15)', borderRadius: 9999, overflow: 'hidden' }}>
                         <div style={{ height: '100%', width: `${pct}%`, background: '#4A7700', borderRadius: 9999, transition: 'width .5s ease' }} />
                       </div>
-                      <span style={{ fontFamily: f, fontSize: 10, color: '#4A7700' }}>
+                      <span style={{ fontFamily: f, fontSize: 13, color: '#4A7700' }}>
                         {completedDays}일 완료 / {totalDaysInMonth}일
                       </span>
                     </div>
@@ -3501,7 +3501,7 @@ function LogPageInner() {
             })()}
 
             <RecentStrip dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate} />
-            <div style={{ height: 1, background: 'rgba(12,12,10,.07)', margin: '16px 16px 0' }} />
+            <div style={{ height: 1, background: 'rgba(78,56,47,.07)', margin: '16px 16px 0' }} />
             <MonthCalendar
               currentMonth={currentMonth} dayLogs={dayLogs} selectedDate={selectedDate} onSelectDate={handleSelectDate}
               onPrevMonth={() => { setCurrentMonth(m => subMonths(m, 1)); setSelectedDate(null); }}
@@ -3560,15 +3560,15 @@ function LogPageInner() {
 
                   // ── 공통 헬퍼 ──
                   const CardHeader = ({ emoji, title, badge }: { emoji: string; title: string; badge?: string }) => (
-                    <div style={{ padding: '10px 14px 8px', display: 'flex', alignItems: 'center', gap: 7, borderBottom: '1px solid rgba(12,12,10,.05)' }}>
+                    <div style={{ padding: '10px 14px 8px', display: 'flex', alignItems: 'center', gap: 7, borderBottom: '1px solid rgba(78,56,47,.05)' }}>
                       <span style={{ fontSize: 15 }}>{emoji}</span>
-                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A', letterSpacing: '.02em', flex: 1 }}>{title}</span>
-                      {badge && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490' }}>{badge}</span>}
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4E382F', letterSpacing: '.02em', flex: 1 }}>{title}</span>
+                      {badge && <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490' }}>{badge}</span>}
                     </div>
                   );
                   const CheckDot = ({ done }: { done: boolean }) => (
                     <div style={{ width: 16, height: 16, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {done ? <CatBadge color="#C5FF00" size={16} /> : <div style={{ width: 14, height: 14, borderRadius: 3, border: '1.5px solid rgba(12,12,10,.2)' }} />}
+                      {done ? <CatBadge color="#C5FF00" size={16} /> : <div style={{ width: 14, height: 14, borderRadius: 3, border: '1.5px solid rgba(78,56,47,.2)' }} />}
                     </div>
                   );
 
@@ -3603,18 +3603,18 @@ function LogPageInner() {
                           return (
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                               <CheckDot done={done} />
-                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', width: 38, flexShrink: 0 }}>{getTime(m)}</span>
-                              <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+                              <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', width: 44, flexShrink: 0 }}>{getTime(m)}</span>
+                              <span style={{ fontFamily: f, fontSize: 13, color: done ? '#BCBAB6' : '#4E382F', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
                             </div>
                           );
                         };
                         return (
-                          <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                          <div style={{ background: '#fff', border: '1px solid rgba(78,56,47,.07)', borderRadius: 16, overflow: 'hidden' }}>
                             <CardHeader emoji="💊" title="약 복용" badge={`${doneCnt}/${activeMeds.length}`} />
                             <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                               {groups.map((g, gi) => (
                                 <div key={g.label}>
-                                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 800, color: g.color, letterSpacing: '.06em', marginBottom: 5 }}>{g.label}</div>
+                                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: g.color, letterSpacing: '.06em', marginBottom: 5 }}>{g.label}</div>
                                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>{g.meds.map(m => <MedRow key={m.id} m={m} />)}</div>
                                 </div>
                               ))}
@@ -3627,7 +3627,7 @@ function LogPageInner() {
                       {todayHabits.length > 0 && (() => {
                         const doneCnt = todayHabits.filter(h => checkedHabitIds.has(h.id)).length;
                         return (
-                          <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                          <div style={{ background: '#fff', border: '1px solid rgba(78,56,47,.07)', borderRadius: 16, overflow: 'hidden' }}>
                             <CardHeader emoji="⭐" title="습관" badge={`${doneCnt}/${todayHabits.length}`} />
                             <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                               {todayHabits.map(h => {
@@ -3637,9 +3637,9 @@ function LogPageInner() {
                                     <CheckDot done={done} />
                                     <span style={{ fontSize: 13, flexShrink: 0 }}>{h.icon || '•'}</span>
                                     {h.time && h.repeatType !== 'allday' && (
-                                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', width: 38, flexShrink: 0 }}>{h.time}</span>
+                                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', width: 44, flexShrink: 0 }}>{h.time}</span>
                                     )}
-                                    <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
+                                    <span style={{ fontFamily: f, fontSize: 13, color: done ? '#BCBAB6' : '#4E382F', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
                                   </div>
                                 );
                               })}
@@ -3654,7 +3654,7 @@ function LogPageInner() {
                         const activeH = healthRoutines.filter(h => h.active && h.showInToday);
                         const doneCnt = activeH.filter(h => doneSet.has(h.id)).length;
                         return (
-                          <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                          <div style={{ background: '#fff', border: '1px solid rgba(78,56,47,.07)', borderRadius: 16, overflow: 'hidden' }}>
                             <CardHeader emoji="🏃" title="건강루틴" badge={`${doneCnt}/${activeH.length}`} />
                             <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                               {activeH.map(h => {
@@ -3668,8 +3668,8 @@ function LogPageInner() {
                                   <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <CheckDot done={done} />
                                     <span style={{ fontSize: 13, flexShrink: 0 }}>{h.icon || '🏃'}</span>
-                                    {pt && <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', width: 38, flexShrink: 0 }}>{pt}</span>}
-                                    <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
+                                    {pt && <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', width: 44, flexShrink: 0 }}>{pt}</span>}
+                                    <span style={{ fontFamily: f, fontSize: 13, color: done ? '#BCBAB6' : '#4E382F', textDecoration: done ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{h.name}</span>
                                   </div>
                                 );
                               })}
@@ -3713,7 +3713,7 @@ function LogPageInner() {
                         }
                         const doneCnt = allSlots.filter(s => doneSet.has(`${p.id}:${(curSlotByLabel.get(s.label) ?? s).id}`)).length;
                         return (
-                          <div key={p.id} style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                          <div key={p.id} style={{ background: '#fff', border: '1px solid rgba(78,56,47,.07)', borderRadius: 16, overflow: 'hidden' }}>
                             <CardHeader emoji={p.icon || '📋'} title={`${p.name}`} badge={`D+${dayN} · ${doneCnt}/${allSlots.length}`} />
                             <div style={{ padding: '8px 14px 10px', display: 'flex', flexDirection: 'column', gap: 7 }}>
                               {allSlots.map(slot => {
@@ -3724,14 +3724,14 @@ function LogPageInner() {
                                     <CheckDot done={done} />
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                                        {slot.time && <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: done ? '#F0F0ED' : '#0C0C0A', color: done ? '#BCBAB6' : '#C5FF00', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
-                                        <span style={{ fontFamily: f, fontSize: 12, color: done ? '#BCBAB6' : '#0C0C0A', textDecoration: done ? 'line-through' : 'none' }}>{slot.label}</span>
-                                        {slot.water > 0 && <span style={{ fontFamily: f, fontSize: 10, color: '#4A9ED6', fontWeight: 700, marginLeft: 'auto' }}>💧{slot.water}ml</span>}
+                                        {slot.time && <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, background: done ? '#F0F0ED' : '#4E382F', color: done ? '#BCBAB6' : '#C5FF00', padding: '1px 6px', borderRadius: 4, flexShrink: 0 }}>{slot.time}</span>}
+                                        <span style={{ fontFamily: f, fontSize: 13, color: done ? '#BCBAB6' : '#4E382F', textDecoration: done ? 'line-through' : 'none' }}>{slot.label}</span>
+                                        {slot.water > 0 && <span style={{ fontFamily: f, fontSize: 13, color: '#4A9ED6', fontWeight: 700, marginLeft: 'auto' }}>💧{slot.water}ml</span>}
                                       </div>
                                       {slot.items && slot.items.length > 0 && (
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 3 }}>
                                           {slot.items.map(it => (
-                                            <span key={it.id} style={{ fontFamily: f, fontSize: 10, background: done ? '#F4F4F2' : '#EEEDE9', color: done ? '#BCBAB6' : '#4A4846', padding: '1px 6px', borderRadius: 4 }}>
+                                            <span key={it.id} style={{ fontFamily: f, fontSize: 13, background: done ? '#F4F4F2' : '#EEEDE9', color: done ? '#BCBAB6' : '#4A4846', padding: '1px 6px', borderRadius: 4 }}>
                                               {it.name}{it.qty ? ` ${it.qty}` : ''}
                                             </span>
                                           ))}
@@ -3748,10 +3748,10 @@ function LogPageInner() {
 
                       {/* ── 💄👗 MOTD + OOTD 카드 ── */}
                       {(todayMotd.length > 0 || todayOotd.length > 0) && (
-                        <div style={{ background: '#fff', border: '1px solid rgba(12,12,10,.07)', borderRadius: 16, overflow: 'hidden' }}>
-                          <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid rgba(12,12,10,.05)', display: 'flex', gap: 10 }}>
-                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A' }}>💄 MOTD</span>
-                            <span style={{ fontFamily: f, fontSize: 12, fontWeight: 800, color: '#0C0C0A', marginLeft: 'auto' }}>✨ OOTD</span>
+                        <div style={{ background: '#fff', border: '1px solid rgba(78,56,47,.07)', borderRadius: 16, overflow: 'hidden' }}>
+                          <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid rgba(78,56,47,.05)', display: 'flex', gap: 10 }}>
+                            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4E382F' }}>💄 MOTD</span>
+                            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4E382F', marginLeft: 'auto' }}>✨ OOTD</span>
                           </div>
                           <div style={{ padding: '10px 14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                             {/* MOTD — 컬럼 전체 너비 채움 */}
@@ -3764,7 +3764,7 @@ function LogPageInner() {
                                       ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
                                       : <span style={{ fontSize: 36 }}>{item.emoji || '💄'}</span>}
                                   </div>
-                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                                 </div>
                               )) : (
                                 <div style={{ width: '100%', minHeight: 120, background: 'linear-gradient(135deg,#f5f0ff,#d0b0ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -3782,7 +3782,7 @@ function LogPageInner() {
                                       ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
                                       : <span style={{ fontSize: 36 }}>{item.emoji || '👗'}</span>}
                                   </div>
-                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#0C0C0A', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
+                                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.name}</span>
                                 </div>
                               )) : (
                                 <div style={{ width: '100%', minHeight: 120, background: 'linear-gradient(135deg,#fff0f5,#ffc0d0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -3891,9 +3891,9 @@ function LogPageInner() {
               <div style={{ position: 'relative', flexShrink: 0, display: 'flex' }}
                 onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
                 {show && (
-                  <div style={{ position: 'absolute', bottom: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)', background: '#0C0C0A', color: '#fff', fontFamily: f, fontSize: 10, fontWeight: 700, padding: '4px 9px', borderRadius: 6, whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 99, letterSpacing: '.02em' }}>
+                  <div style={{ position: 'absolute', bottom: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)', background: '#4E382F', color: '#fff', fontFamily: f, fontSize: 13, fontWeight: 700, padding: '4px 9px', borderRadius: 6, whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 99, letterSpacing: '.02em' }}>
                     {label}
-                    <div style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '5px solid #0C0C0A' }} />
+                    <div style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '5px solid #4E382F' }} />
                   </div>
                 )}
                 {children}
@@ -3906,7 +3906,7 @@ function LogPageInner() {
             const platform = ref.platform ?? 'other';
             const pColor = PLATFORM_COLOR[platform];
             return (
-              <div key={ref.id} style={{ background: '#fff', borderRadius: 16, border: '1px solid rgba(12,12,10,.08)', overflow: 'hidden' }}>
+              <div key={ref.id} style={{ background: '#fff', borderRadius: 16, border: '1px solid rgba(78,56,47,.08)', overflow: 'hidden' }}>
 
                 {/* ── 메인 콘텐츠 영역 ── */}
                 <div style={{ display: 'flex', alignItems: 'stretch' }}>
@@ -3940,7 +3940,7 @@ function LogPageInner() {
                                 const tagIdx = categoryTags.indexOf(tag);
                                 const cc = CAT_COLORS[tagIdx >= 0 ? tagIdx % CAT_COLORS.length : 0];
                                 return (
-                                  <span key={tag} style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: cc.selText, background: cc.selBg, border: `1px solid ${cc.selBorder}`, padding: '4px 10px', borderRadius: 4, letterSpacing: '.06em', textTransform: 'uppercase' as const, whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 100 }}>
+                                  <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: cc.selText, background: cc.selBg, border: `1px solid ${cc.selBorder}`, padding: '4px 10px', borderRadius: 4, letterSpacing: '.06em', textTransform: 'uppercase' as const, whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 100 }}>
                                     {tag}
                                   </span>
                                 );
@@ -3952,13 +3952,13 @@ function LogPageInner() {
                     })()}
 
                     {/* 제목 */}
-                    <div style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#0C0C0A', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                    <div style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#4E382F', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                       {ref.title || ref.url || '제목 없음'}
                     </div>
 
                     {/* 메모 */}
                     {ref.note && (
-                      <div style={{ fontFamily: f, fontSize: 11, color: '#1D6DDB', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                      <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                         {ref.note}
                       </div>
                     )}
@@ -3969,7 +3969,7 @@ function LogPageInner() {
                       return userTags.length > 0 ? (
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
                           {userTags.map(tag => (
-                            <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#555250', background: 'rgba(12,12,10,.07)', padding: '2px 8px', borderRadius: 9999, letterSpacing: '.02em' }}>
+                            <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#555250', background: 'rgba(78,56,47,.07)', padding: '2px 8px', borderRadius: 9999, letterSpacing: '.02em' }}>
                               #{tag}
                             </span>
                           ))}
@@ -3980,7 +3980,7 @@ function LogPageInner() {
                 </div>
 
                 {/* ── 구분선 ── */}
-                <div style={{ height: 1, background: 'rgba(12,12,10,.06)', margin: '0 12px' }} />
+                <div style={{ height: 1, background: 'rgba(78,56,47,.06)', margin: '0 12px' }} />
 
                 {/* ── 액션 바 ── */}
                 <div style={{ display: 'flex', alignItems: 'stretch', padding: '8px 10px 10px', gap: 6 }}>
@@ -4018,14 +4018,14 @@ function LogPageInner() {
                     }}
                     style={{
                       flex: 1, height: 42, borderRadius: 8,
-                      fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.04em',
+                      fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.04em',
                       cursor: 'pointer', transition: 'all .15s',
                       whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis',
                       ...(ref.inLibrary
-                        ? { background: '#0C0C0A', border: '1px solid transparent', color: '#C5FF00' }
+                        ? { background: '#4E382F', border: '1px solid transparent', color: '#C5FF00' }
                         : ref.cachedLibrary
-                          ? { background: 'rgba(12,12,10,.04)', border: '1px solid rgba(12,12,10,.14)', color: '#6A6866' }
-                          : { background: 'transparent', border: '1.5px dashed rgba(12,12,10,.25)', color: '#4A4846' }
+                          ? { background: 'rgba(78,56,47,.04)', border: '1px solid rgba(78,56,47,.14)', color: '#6A6866' }
+                          : { background: 'transparent', border: '1.5px dashed rgba(78,56,47,.25)', color: '#4A4846' }
                       ),
                     }}
                   >
@@ -4042,7 +4042,7 @@ function LogPageInner() {
                     {/* 링크 공유 */}
                     {ref.url ? (
                       <a href={ref.url} target="_blank" rel="noopener noreferrer" aria-label="링크 열기"
-                        style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                        style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(78,56,47,.06)', border: '1px solid rgba(78,56,47,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
                         <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                           <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round"/>
                           <path d="M10 2h4v4M14 2L8 8" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -4050,17 +4050,17 @@ function LogPageInner() {
                       </a>
                     ) : (
                       <span aria-label="링크 없음"
-                        style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(12,12,10,.04)', border: '1px solid rgba(12,12,10,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(78,56,47,.04)', border: '1px solid rgba(78,56,47,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.2 }}>
-                          <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#0C0C0A" strokeWidth="1.5" strokeLinecap="round"/>
-                          <path d="M10 2h4v4M14 2L8 8" stroke="#0C0C0A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9" stroke="#4E382F" strokeWidth="1.5" strokeLinecap="round"/>
+                          <path d="M10 2h4v4M14 2L8 8" stroke="#4E382F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </span>
                     )}
 
                     {/* 편집 */}
                     <button type="button" onClick={() => openRefEdit(ref)} aria-label="편집"
-                      style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(78,56,47,.06)', border: '1px solid rgba(78,56,47,.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                         <path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="#9A9490" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
@@ -4070,7 +4070,7 @@ function LogPageInner() {
                     <button type="button" onClick={() => deleteReference(ref.id)} aria-label="삭제"
                       style={{ flex: 1, height: 42, borderRadius: 10, background: 'rgba(233,79,107,.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                        <path d="M3 3l10 10M13 3L3 13" stroke="#E94F6B" strokeWidth="2" strokeLinecap="round"/>
+                        <path d="M3 3l10 10M13 3L3 13" stroke="var(--color-point)" strokeWidth="2" strokeLinecap="round"/>
                       </svg>
                     </button>
 
@@ -4084,26 +4084,26 @@ function LogPageInner() {
             <div style={{ paddingTop: 16, paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 100px)' }}>
 
               {/* ── 수집 등록 폼 ── 편집 시트와 동일한 레이아웃·스타일 */}
-              <div style={{ margin: '0 16px 16px', background: '#FAFAF8', borderRadius: 16, padding: '16px 16px 20px', border: '1px solid rgba(12,12,10,.08)' }}>
+              <div style={{ margin: '0 16px 16px', background: '#F2EDE6', borderRadius: 16, padding: '16px 16px 20px', border: '1px solid rgba(78,56,47,.08)' }}>
 
                 {/* 헤더 */}
-                <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>새 수집 추가</div>
+                <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#4E382F', marginBottom: 20 }}>새 수집 추가</div>
 
                 {/* 제목 */}
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>제목</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>제목</div>
                   <input
                     type="text"
                     value={refTitle}
                     onChange={e => setRefTitle(e.target.value)}
                     placeholder="제목 입력"
-                    style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                    style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none' }}
                   />
                 </div>
 
                 {/* 링크 */}
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>링크</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>링크</div>
                   <div style={{ position: 'relative' }}>
                     <input
                       type="url"
@@ -4116,14 +4116,14 @@ function LogPageInner() {
                         if (pasted.startsWith('http')) setTimeout(() => fetchOgMeta(pasted.trim()), 50);
                       }}
                       placeholder="링크 입력 (선택)"
-                      style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                      style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none' }}
                     />
                     {refOgLoading && (
                       <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 5, pointerEvents: 'none' }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
                           <circle cx="12" cy="12" r="10" stroke="#C5FF00" strokeWidth="2.5" strokeDasharray="30" strokeDashoffset="10"/>
                         </svg>
-                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#9A9490' }}>미리보기 중...</span>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490' }}>미리보기 중...</span>
                       </div>
                     )}
                   </div>
@@ -4131,7 +4131,7 @@ function LogPageInner() {
 
                 {/* 이미지 */}
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>이미지</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>이미지</div>
                   <ImagePicker
                     preview={refImagePreview}
                     onChange={(file, base64) => { setRefImageFile(file); setRefImagePreview(base64); }}
@@ -4146,10 +4146,10 @@ function LogPageInner() {
                 <div style={{ marginBottom: 14 }}>
                   {/* 레이블 행 */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490' }}>카테고리</div>
+                    <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490' }}>카테고리</div>
                     <button type="button"
                       onClick={() => { setCatEditOpen(v => !v); if (catEditOpen) setCatNewTag(''); }}
-                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#4E382F', fontFamily: f, fontSize: 13, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
                       <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                       카테고리 편집
                     </button>
@@ -4163,8 +4163,8 @@ function LogPageInner() {
                       return (
                         <button key={cat} type="button"
                           onClick={() => setRefTags(prev => sel ? prev.filter(t => t !== cat) : [...prev.filter(t => !categoryTags.includes(t)), cat])}
-                          style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(12,12,10,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, cursor: 'pointer', transition: 'all .15s' }}>
-                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? color.selText : '#9A9490' }}>{cat}</span>
+                          style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(78,56,47,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, cursor: 'pointer', transition: 'all .15s' }}>
+                          <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: sel ? color.selText : '#9A9490' }}>{cat}</span>
                         </button>
                       );
                     })}
@@ -4172,8 +4172,8 @@ function LogPageInner() {
 
                   {/* 카테고리 편집 패널 — catEditOpen 시 노출 */}
                   {catEditOpen && (
-                    <div style={{ marginTop: 8, padding: '10px 12px 12px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
-                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                    <div style={{ marginTop: 8, padding: '10px 12px 12px', borderRadius: 10, background: 'rgba(78,56,47,.03)', border: '1px solid rgba(78,56,47,.1)' }}>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
                       <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                         {categoryTags.map((cat, i) => (
                           <div key={cat}
@@ -4191,10 +4191,10 @@ function LogPageInner() {
                               setDragCatIdx(null); setDragCatOverIdx(null);
                             }}
                             onDragEnd={() => { setDragCatIdx(null); setDragCatOverIdx(null); }}
-                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragCatOverIdx === i ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragCatOverIdx === i ? 'rgba(78,56,47,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                             <button type="button" title="삭제"
                               onClick={() => { setCategoryTags(prev => prev.filter(t => t !== cat)); setRefTags(prev => prev.filter(t => t !== cat)); }}
-                              style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                              style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                               -
                             </button>
                             {editingCatIdx === i ? (
@@ -4205,11 +4205,11 @@ function LogPageInner() {
                                   if (e.key === 'Escape') setEditingCatIdx(null);
                                 }}
                                 onBlur={() => { const v = editingCatVal.trim(); if (v && v !== cat && !categoryTags.includes(v)) setCategoryTags(prev => prev.map(t => t === cat ? v : t)); setEditingCatIdx(null); }}
-                                style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                                style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #4E382F', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', outline: 'none' }}
                               />
                             ) : (
                               <div onClick={() => { setEditingCatIdx(i); setEditingCatVal(cat); }}
-                                style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                                style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(78,56,47,.06)', boxShadow: '0 1px 2px rgba(78,56,47,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', cursor: 'text' }}>
                                 {cat}
                               </div>
                             )}
@@ -4229,7 +4229,7 @@ function LogPageInner() {
                           }
                         }}
                         placeholder="+ 카테고리 추가 (Enter)"
-                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                       />
                     </div>
                   )}
@@ -4237,13 +4237,13 @@ function LogPageInner() {
 
                 {/* 메모 */}
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
                   <textarea
                     value={refNote}
                     onChange={e => setRefNote(e.target.value)}
                     placeholder="메모 입력 (선택)..."
                     rows={2}
-                    style={{ width: '100%', boxSizing: 'border-box' as const, padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none', resize: 'none', lineHeight: 1.5 }}
+                    style={{ width: '100%', boxSizing: 'border-box' as const, padding: '10px 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', resize: 'none', lineHeight: 1.5 }}
                   />
                 </div>
 
@@ -4252,7 +4252,7 @@ function LogPageInner() {
                   <button
                     type="button"
                     onClick={() => { setRefUrl(''); setRefTitle(''); setRefNote(''); setRefTags([]); setRefImageFile(null); setRefImagePreview(''); }}
-                    style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}
+                    style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}
                   >
                     취소
                   </button>
@@ -4260,7 +4260,7 @@ function LogPageInner() {
                     type="button"
                     onClick={saveReference}
                     disabled={(!refUrl.trim() && !refTitle.trim() && !refImagePreview) || refSaving}
-                    style={{ flex: 1, height: 48, background: (refUrl.trim() || refTitle.trim() || refImagePreview) ? '#0C0C0A' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: (refUrl.trim() || refTitle.trim() || refImagePreview) ? '#fff' : '#9A9490', cursor: (refUrl.trim() || refTitle.trim() || refImagePreview) ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
+                    style={{ flex: 1, height: 48, background: (refUrl.trim() || refTitle.trim() || refImagePreview) ? '#4E382F' : '#E5E4E2', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: (refUrl.trim() || refTitle.trim() || refImagePreview) ? '#fff' : '#9A9490', cursor: (refUrl.trim() || refTitle.trim() || refImagePreview) ? 'pointer' : 'default', transition: 'all .15s', opacity: refSaving ? 0.6 : 1 }}
                   >
                     {refSaving ? '저장 중...' : '저장'}
                   </button>
@@ -4272,7 +4272,7 @@ function LogPageInner() {
                 {(['date_desc', 'category'] as const).map(s => (
                   <button key={s} type="button"
                     onClick={() => { setRefSort(s); setRefVisibleCount(10); }}
-                    style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${refSort === s ? 'rgba(12,12,10,.3)' : 'rgba(12,12,10,.14)'}`, background: refSort === s ? '#0C0C0A' : 'transparent', fontFamily: f, fontSize: 11, fontWeight: 700, color: refSort === s ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
+                    style={{ height: 28, padding: '0 12px', borderRadius: 9999, border: `1.5px solid ${refSort === s ? 'rgba(78,56,47,.3)' : 'rgba(78,56,47,.14)'}`, background: refSort === s ? '#4E382F' : 'transparent', fontFamily: f, fontSize: 13, fontWeight: 700, color: refSort === s ? '#fff' : '#9A9490', cursor: 'pointer', transition: 'all .15s' }}>
                     {s === 'date_desc' ? '최신순' : '카테고리순'}
                   </button>
                 ))}
@@ -4290,12 +4290,12 @@ function LogPageInner() {
                       style={{
                         flexShrink: 0, height: 28, padding: '0 12px', borderRadius: 9999,
                         border: active
-                          ? `1.5px solid ${tag === 'all' ? 'rgba(12,12,10,.4)' : color!.selBorder}`
-                          : '1.5px solid rgba(12,12,10,.14)',
+                          ? `1.5px solid ${tag === 'all' ? 'rgba(78,56,47,.4)' : color!.selBorder}`
+                          : '1.5px solid rgba(78,56,47,.14)',
                         background: active
-                          ? (tag === 'all' ? '#0C0C0A' : color!.selBg)
+                          ? (tag === 'all' ? '#4E382F' : color!.selBg)
                           : 'transparent',
-                        fontFamily: f, fontSize: 11, fontWeight: 700,
+                        fontFamily: f, fontSize: 13, fontWeight: 700,
                         color: active ? (tag === 'all' ? '#fff' : color!.selText) : '#9A9490',
                         cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const,
                       }}>
@@ -4309,10 +4309,10 @@ function LogPageInner() {
               {sortedFiltered.length === 0 ? (
                 <div style={{ padding: '48px 16px', textAlign: 'center' }}>
                   <div style={{ fontSize: 32, marginBottom: 12 }}>🔗</div>
-                  <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', marginBottom: 6 }}>
+                  <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F', marginBottom: 6 }}>
                     {activeFilter === 'all' ? '아직 수집한 항목이 없어요' : `${activeFilter} 항목이 없어요`}
                   </div>
-                  <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>
+                  <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>
                     이미지, 링크, 제목 중 하나만 있어도 저장할 수 있어요
                   </div>
                 </div>
@@ -4329,8 +4329,8 @@ function LogPageInner() {
                     return Object.entries(grouped).map(([month, items]) => (
                       <div key={month} style={{ marginBottom: 24 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                          <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#0C0C0A' }}>{month}</span>
-                          <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
+                          <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4E382F' }}>{month}</span>
+                          <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{items.map(renderRef)}</div>
                       </div>
@@ -4354,14 +4354,14 @@ function LogPageInner() {
                         <div key={label} style={{ marginBottom: 24 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                             <span style={{
-                              fontFamily: f, fontSize: 12, fontWeight: 700,
+                              fontFamily: f, fontSize: 13, fontWeight: 700,
                               color: color ? color.selText : '#9A9490',
-                              background: color ? color.selBg : 'rgba(12,12,10,.06)',
-                              border: `1px solid ${color ? color.selBorder : 'rgba(12,12,10,.12)'}`,
+                              background: color ? color.selBg : 'rgba(78,56,47,.06)',
+                              border: `1px solid ${color ? color.selBorder : 'rgba(78,56,47,.12)'}`,
                               padding: '4px 10px', borderRadius: 4,
                               textTransform: 'uppercase' as const, letterSpacing: '.06em',
                             }}>{label}</span>
-                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
+                            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490' }}>{items.length}개</span>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{items.map(renderRef)}</div>
                         </div>
@@ -4386,7 +4386,7 @@ function LogPageInner() {
             {(() => {
               const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
               const TAB_COLOR: Record<string, { active: string; bg: string; text: string }> = {
-                all:      { active: '#0C0C0A', bg: '#0C0C0A',                text: '#C5FF00' },
+                all:      { active: '#4E382F', bg: '#4E382F',                text: '#C5FF00' },
                 beauty:   { active: '#C5FF00', bg: 'rgba(197,255,0,.14)',   text: '#3A6000' },
                 fashion:  { active: '#FF8C42', bg: 'rgba(255,140,66,.14)',  text: '#B85A00' },
                 acc:      { active: '#FFD700', bg: 'rgba(255,215,0,.14)',   text: '#7A5A00' },
@@ -4415,19 +4415,19 @@ function LogPageInner() {
               const selAll = archiveFilter === 'all';
               const colAll = TAB_COLOR.all;
               return (
-                <div style={{ padding: '0 16px', marginBottom: 18 }}>
+                <div style={{ padding: '0 20px', marginBottom: 18 }}>
                   {/* ALL — 전체 너비 카드 */}
                   <button type="button" onClick={() => { setArchiveFilter('all'); setLifetipCategory(null); setDomainTagFilter(null); }}
                     style={{ width: '100%', padding: '12px 18px', marginBottom: 8, borderRadius: 14,
-                      border: `1.5px solid ${selAll ? colAll.active : 'rgba(12,12,10,.1)'}`,
+                      border: `1.5px solid ${selAll ? colAll.active : 'rgba(78,56,47,.1)'}`,
                       background: selAll ? colAll.bg : '#fff',
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       cursor: 'pointer', transition: 'all .15s', boxSizing: 'border-box' as const }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
-                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: selAll ? '#fff' : '#9A9490', letterSpacing: '.08em' }}>ALL</span>
-                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 600, color: selAll ? 'rgba(255,255,255,.6)' : '#BCBAB6' }}>전체 라이브러리</span>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: selAll ? '#fff' : '#9A9490', letterSpacing: '.08em' }}>ALL</span>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: selAll ? 'rgba(255,255,255,.6)' : '#BCBAB6' }}>전체 라이브러리</span>
                     </div>
-                    <span style={{ fontFamily: f, fontSize: 32, fontWeight: 900, lineHeight: 1, color: selAll ? colAll.text : '#0C0C0A' }}>{totalCount}</span>
+                    <span style={{ fontFamily: f, fontSize: 32, fontWeight: 900, lineHeight: 1, color: selAll ? colAll.text : '#4E382F' }}>{totalCount}</span>
                   </button>
                   {/* 도메인 카드 — 2×N 그리드 (동적 생성) */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -4437,14 +4437,14 @@ function LogPageInner() {
                       return (
                         <button type="button" key={t.key} onClick={() => { setArchiveFilter(t.key); setLifetipCategory(null); setDomainTagFilter(null); }}
                           style={{ padding: '14px 16px', borderRadius: 14,
-                            border: `1.5px solid ${sel ? col.active : 'rgba(12,12,10,.1)'}`,
+                            border: `1.5px solid ${sel ? col.active : 'rgba(78,56,47,.1)'}`,
                             background: sel ? col.bg : '#fff',
                             display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10,
                             cursor: 'pointer', transition: 'all .15s', textAlign: 'left' as const }}>
                           <span style={{ fontSize: 22, lineHeight: 1 }}>{t.label.split(' ')[0]}</span>
                           <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? col.text : '#9A9490' }}>{t.label.split(' ').slice(1).join(' ')}</span>
-                            <span style={{ fontFamily: f, fontSize: 26, fontWeight: 900, lineHeight: 1, color: sel ? col.text : '#0C0C0A' }}>{t.count}</span>
+                            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: sel ? col.text : '#9A9490' }}>{t.label.split(' ').slice(1).join(' ')}</span>
+                            <span style={{ fontFamily: f, fontSize: 26, fontWeight: 900, lineHeight: 1, color: sel ? col.text : '#4E382F' }}>{t.count}</span>
                           </div>
                         </button>
                       );
@@ -4473,17 +4473,17 @@ function LogPageInner() {
               return (
                 <div>
                   {lifetipItems.length === 0 ? (
-                    <div style={{ margin: '0 16px', padding: '40px 20px', textAlign: 'center', background: '#fff', borderRadius: 16, border: '1px solid rgba(12,12,10,.08)' }}>
+                    <div style={{ margin: '0 20px', padding: '40px 20px', textAlign: 'center', background: '#fff', borderRadius: 16, border: '1px solid rgba(78,56,47,.08)' }}>
                       <div style={{ fontSize: 32, marginBottom: 8 }}>📌</div>
-                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>Life TIP이 없어요</div>
-                      <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>수집에서 + 라이브러리 버튼으로 추가하세요</div>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4E382F', marginBottom: 4 }}>Life TIP이 없어요</div>
+                      <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>수집에서 + 라이브러리 버튼으로 추가하세요</div>
                     </div>
                   ) : (
                     <>
-                      {/* 카테고리 필터 칩 — 메이크업/룩북 태그칩과 동일한 10px 좌우 패딩 */}
-                      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '0 10px 10px', scrollbarWidth: 'none' as const }}>
+                      {/* 카테고리 필터 칩 */}
+                      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '0 20px 10px', scrollbarWidth: 'none' as const }}>
                         <button type="button" onClick={() => setLifetipCategory(null)}
-                          style={{ flexShrink: 0, background: lifetipCategory === null ? '#0C0C0A' : '#fff', border: `1px solid ${lifetipCategory === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: lifetipCategory === null ? '#fff' : '#0C0C0A', cursor: 'pointer', transition: 'all .15s' }}>
+                          style={{ flexShrink: 0, background: lifetipCategory === null ? '#4E382F' : '#fff', border: `1px solid ${lifetipCategory === null ? '#4E382F' : 'rgba(78,56,47,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 13, fontWeight: 700, color: lifetipCategory === null ? '#fff' : '#4E382F', cursor: 'pointer', transition: 'all .15s' }}>
                           전체 {lifetipItems.length}
                         </button>
                         {lifetipCategories2.map(tag => {
@@ -4491,15 +4491,14 @@ function LogPageInner() {
                           const sel = lifetipCategory === tag;
                           return (
                             <button key={tag} type="button" onClick={() => setLifetipCategory(tag)}
-                              style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', transition: 'all .15s' }}>
-                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A', whiteSpace: 'nowrap' as const }}>#{tag}</span>
-                              <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{count}</span>
+                              style={{ flexShrink: 0, background: sel ? '#4E382F' : '#fff', border: `1px solid ${sel ? '#4E382F' : 'rgba(78,56,47,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', transition: 'all .15s' }}>
+                              <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: sel ? '#fff' : '#4E382F', whiteSpace: 'nowrap' as const }}>#{tag}</span>
+                              <span style={{ fontFamily: f, fontSize: 13, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{count}</span>
                             </button>
                           );
                         })}
                       </div>
-                      {/* 카드 — 메이크업/룩북과 동일한 16px 좌우 패딩, gap 12 */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 16px 20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 20px 20px' }}>
                         {filteredTips.map(item => (
                           <LifetipLibraryCard
                             key={item.id}
@@ -4520,12 +4519,12 @@ function LogPageInner() {
             {archiveFilter === 'ootd' && (() => {
               const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
               return (
-                <div style={{ padding: '0 16px 20px' }}>
+                <div style={{ padding: '0 20px 20px' }}>
                   {ootdLogs.length === 0 ? (
                     <div style={{ padding: '40px 20px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16 }}>
                       <div style={{ fontSize: 28, marginBottom: 8 }}>👗</div>
-                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>오늘의 룩 기록이 없어요</div>
-                      <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>TODAY 화면에서 기록해보세요</div>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4E382F', marginBottom: 4 }}>오늘의 룩 기록이 없어요</div>
+                      <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>TODAY 화면에서 기록해보세요</div>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -4544,7 +4543,7 @@ function LogPageInner() {
                               {/* 카테고리 칩 — 메모 위, 검정 배경 + 오렌지 폰트 */}
                               {(log.category || log.theme) && (
                                 <div style={{ marginTop: 12, marginBottom: 4 }}>
-                                  <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#FF8C42', background: '#0C0C0A', padding: '6px 14px', borderRadius: 4, whiteSpace: 'nowrap' as const, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>{log.category || log.theme}</span>
+                                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#FF8C42', background: '#4E382F', padding: '6px 14px', borderRadius: 4, whiteSpace: 'nowrap' as const, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>{log.category || log.theme}</span>
                                 </div>
                               )}
                               {log.note && (
@@ -4553,7 +4552,7 @@ function LogPageInner() {
                               {(log.tags ?? []).length > 0 && (
                                 <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginTop: 8 }}>
                                   {(log.tags ?? []).map(tag => (
-                                    <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 9999, background: '#0C0C0A', color: '#C5FF00', letterSpacing: '.02em' }}>
+                                    <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 700, padding: '3px 9px', borderRadius: 9999, background: '#4E382F', color: '#C5FF00', letterSpacing: '.02em' }}>
                                       #{tag.replace(/^#/, '')}
                                     </span>
                                   ))}
@@ -4561,11 +4560,11 @@ function LogPageInner() {
                               )}
                               {/* 날짜 — 오른쪽 하단 */}
                               <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
-                                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
+                                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
                               </div>
                             </div>
                             <ProductThumbnailStrip productIds={pIds} products={products} />
-                            <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
+                            <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#4E382F', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
                           </div>
                         );
                       })}
@@ -4602,19 +4601,19 @@ function LogPageInner() {
                 return bOn - aOn;
               });
               if (sortedItems.length === 0 && archiveFilter !== 'all') return (
-                <div style={{ padding: '40px 16px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, margin: '0 16px' }}>
+                <div style={{ padding: '40px 16px', textAlign: 'center', background: '#fff', border: '1px solid rgba(78,56,47,.08)', borderRadius: 16, margin: '0 20px' }}>
                   <div style={{ fontSize: 28, marginBottom: 8 }}>📁</div>
-                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>라이브러리가 비어있어요</div>
-                  <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>+ 버튼으로 추가해보세요</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4E382F', marginBottom: 4 }}>라이브러리가 비어있어요</div>
+                  <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>+ 버튼으로 추가해보세요</div>
                 </div>
               );
               return (
                 <div style={{ marginTop: 8 }}>
                   {/* 도메인 탭 선택 시 태그 필터 칩 (Life TIP 카테고리 칩과 동일 스타일) */}
                   {isDomainTab && allTagsInDomain.length > 0 && (
-                    <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '0 10px 10px', scrollbarWidth: 'none' as const }}>
+                    <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '0 20px 10px', scrollbarWidth: 'none' as const }}>
                       <button type="button" onClick={() => setDomainTagFilter(null)}
-                        style={{ flexShrink: 0, background: domainTagFilter === null ? '#0C0C0A' : '#fff', border: `1px solid ${domainTagFilter === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: domainTagFilter === null ? '#fff' : '#0C0C0A', cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const }}>
+                        style={{ flexShrink: 0, background: domainTagFilter === null ? '#4E382F' : '#fff', border: `1px solid ${domainTagFilter === null ? '#4E382F' : 'rgba(78,56,47,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 13, fontWeight: 700, color: domainTagFilter === null ? '#fff' : '#4E382F', cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap' as const }}>
                         전체 {domainFiltered.length}
                       </button>
                       {allTagsInDomain.map(tag => {
@@ -4622,15 +4621,15 @@ function LogPageInner() {
                         const sel = domainTagFilter === tag;
                         return (
                           <button key={tag} type="button" onClick={() => setDomainTagFilter(sel ? null : tag)}
-                            style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', transition: 'all .15s' }}>
-                            <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A', whiteSpace: 'nowrap' as const }}>{tag}</span>
-                            <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{count}</span>
+                            style={{ flexShrink: 0, background: sel ? '#4E382F' : '#fff', border: `1px solid ${sel ? '#4E382F' : 'rgba(78,56,47,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', transition: 'all .15s' }}>
+                            <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: sel ? '#fff' : '#4E382F', whiteSpace: 'nowrap' as const }}>{tag}</span>
+                            <span style={{ fontFamily: f, fontSize: 13, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{count}</span>
                           </button>
                         );
                       })}
                     </div>
                   )}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 16px 20px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 20px 20px' }}>
                     {sortedItems.map(item => {
                       // 도메인 기반 배지 색상
                       const itemDomain = item.domain ?? (item.ctType === 'makeup' ? 'beauty' : 'fashion');
@@ -4660,13 +4659,12 @@ function LogPageInner() {
                                 <div style={{ position: 'absolute', bottom: -45, right: -20, transform: 'rotate(-9deg)', zIndex: 4, width: 88, height: 88, borderRadius: '50%', border: '3px solid rgba(190,30,30,.75)', background: 'rgba(255,255,255,.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mixBlendMode: 'multiply' as const, flexShrink: 0 }}>
                                   <div style={{ position: 'absolute', inset: 5, borderRadius: '50%', border: '1px solid rgba(190,30,30,.3)', pointerEvents: 'none' }} />
                                   <img src="/logo.png" alt="today" style={{ width: 34, height: 34, objectFit: 'contain', filter: 'sepia(1) saturate(8) hue-rotate(-20deg) contrast(1.2)', opacity: .8, marginBottom: 1, position: 'relative', zIndex: 1 }} />
-                                  <div style={{ fontFamily: f, fontSize: 10, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
+                                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 900, letterSpacing: '.32em', color: 'rgba(190,30,30,.85)', textTransform: 'uppercase' as const, marginTop: -2, position: 'relative', zIndex: 1 }}>TODAY</div>
                                 </div>
                               )}
                             </div>
                             {/* 제목 — Life TIP과 동일: 14px/700 */}
                             <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#000', lineHeight: '18px', marginTop: 12, width: '100%', marginBottom: item.desc?.trim() ? 0 : 6, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, zIndex: 1 }}>{item.name}</div>
-                            {/* 메모(desc) — 블루컬러 */}
                             {item.desc?.trim() ? (
                               <div style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#1D6DDB', lineHeight: '18px', marginTop: 6, marginBottom: 8, width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, zIndex: 2 }}>{item.desc}</div>
                             ) : null}
@@ -4677,7 +4675,7 @@ function LogPageInner() {
                               try { domain = new URL(item.sourceUrl!).hostname; } catch {}
                               return (
                                 <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
-                                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '8px 12px', border: '1px solid rgba(12,12,10,.15)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}
+                                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '8px 12px', border: '1px solid rgba(78,56,47,.15)', borderRadius: 8, textDecoration: 'none', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', letterSpacing: '.04em', background: 'rgba(0,0,0,.03)', width: '100%', boxSizing: 'border-box' as const }}
                                 >
                                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}>
                                     <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
@@ -4690,7 +4688,7 @@ function LogPageInner() {
                             })()}
                             {/* 날짜 — 오른쪽 하단 */}
                             <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                              <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{item.createdAt?.slice(0, 10) ?? ''}</span>
+                              <span style={{ fontFamily: f, fontSize: 13, fontWeight: 500, color: '#BCBAB6' }}>{item.createdAt?.slice(0, 10) ?? ''}</span>
                             </div>
                           </div>
                           <ProductThumbnailStrip productIds={prodItems.map(it => it.id)} products={products} />
@@ -4703,8 +4701,8 @@ function LogPageInner() {
                   {archiveFilter === 'all' && ootdLogs.length > 0 && (
                     <div style={{ padding: '0 16px 20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '20px 0 12px' }}>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490' }}>OOTD</span>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{ootdLogs.length}개</span>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490' }}>OOTD</span>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4E382F' }}>{ootdLogs.length}개</span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         {ootdLogs.map(log => {
@@ -4724,7 +4722,7 @@ function LogPageInner() {
                                 {/* 카테고리 칩 — 메모 위, 검정 배경 + 오렌지 폰트 */}
                                 {(log.category || log.theme) && (
                                   <div style={{ marginTop: 12, marginBottom: 4 }}>
-                                    <span style={{ fontFamily: f, fontSize: 12, fontWeight: 700, color: '#FF8C42', background: '#0C0C0A', padding: '6px 14px', borderRadius: 4, whiteSpace: 'nowrap' as const, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>{log.category || log.theme}</span>
+                                    <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#FF8C42', background: '#4E382F', padding: '6px 14px', borderRadius: 4, whiteSpace: 'nowrap' as const, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>{log.category || log.theme}</span>
                                   </div>
                                 )}
                                 {log.note && (
@@ -4733,7 +4731,7 @@ function LogPageInner() {
                                 {(log.tags ?? []).length > 0 && (
                                   <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginTop: 8 }}>
                                     {(log.tags ?? []).map(tag => (
-                                      <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 9999, background: '#0C0C0A', color: '#C5FF00', letterSpacing: '.02em' }}>
+                                      <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 700, padding: '3px 9px', borderRadius: 9999, background: '#4E382F', color: '#C5FF00', letterSpacing: '.02em' }}>
                                         #{tag.replace(/^#/, '')}
                                       </span>
                                     ))}
@@ -4741,11 +4739,11 @@ function LogPageInner() {
                                 )}
                                 {/* 날짜 — 오른쪽 하단 */}
                                 <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 12 }}>
-                                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
+                                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 500, color: '#BCBAB6' }}>{log.date}</span>
                                 </div>
                               </div>
                               <ProductThumbnailStrip productIds={pIds} products={products} />
-                              <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#0C0C0A', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
+                              <button onClick={() => openOotdEdit(log)} style={{ width: '100%', padding: '12px 0', background: '#F3F3F1', color: '#4E382F', border: 'none', borderTop: '1px solid #000000', fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.06em', cursor: 'pointer', textTransform: 'uppercase' as const }}>편집</button>
                             </div>
                           );
                         })}
@@ -4756,8 +4754,8 @@ function LogPageInner() {
                   {archiveFilter === 'all' && lifetipItems.length > 0 && (
                     <div style={{ padding: '0 16px 20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '20px 6px 12px' }}>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490' }}>LIFE TIP</span>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A' }}>{lifetipItems.length}개</span>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.16em', color: '#9A9490' }}>LIFE TIP</span>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#4E382F' }}>{lifetipItems.length}개</span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         {lifetipItems.map(item => (
@@ -4774,10 +4772,10 @@ function LogPageInner() {
                   )}
                   {/* ALL이고 아무것도 없는 경우 */}
                   {archiveFilter === 'all' && sortedItems.length === 0 && ootdLogs.length === 0 && lifetipItems.length === 0 && (
-                    <div style={{ padding: '40px 16px', textAlign: 'center', background: '#fff', border: '1px solid #000000', borderRadius: 16, margin: '0 16px' }}>
+                    <div style={{ padding: '40px 16px', textAlign: 'center', background: '#fff', border: '1px solid rgba(78,56,47,.08)', borderRadius: 16, margin: '0 20px' }}>
                       <div style={{ fontSize: 28, marginBottom: 8 }}>📁</div>
-                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#0C0C0A', marginBottom: 4 }}>라이브러리가 비어있어요</div>
-                      <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490' }}>+ 버튼으로 새 룩·메이크업을 추가해보세요</div>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4E382F', marginBottom: 4 }}>라이브러리가 비어있어요</div>
+                      <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>+ 버튼으로 새 룩·메이크업을 추가해보세요</div>
                     </div>
                   )}
                 </div>
@@ -4852,7 +4850,7 @@ function LogPageInner() {
                         }
                         setFabMenuOpen(false);
                       }}
-                      style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 16px 0 14px', background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.18)', whiteSpace: 'nowrap' as const }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 16px 0 14px', background: '#4E382F', color: '#fff', border: 'none', borderRadius: 9999, fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,.18)', whiteSpace: 'nowrap' as const }}
                     >
                       <span style={{ fontSize: 18 }}>{icon}</span> {label}
                     </button>
@@ -4868,7 +4866,7 @@ function LogPageInner() {
             style={{
               position: 'fixed', bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)', right: 'max(18px, calc(50vw - 215px + 18px))', zIndex: 40,
               width: 52, height: 52, borderRadius: 9999,
-              background: '#C5FF00', color: '#0C0C0A',
+              background: '#C5FF00', color: '#4E382F',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: 'none', cursor: 'pointer',
               boxShadow: '0 4px 20px rgba(197,255,0,.4)',
@@ -4893,13 +4891,13 @@ function LogPageInner() {
             <div onClick={() => setEditingLifetip(null)}
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
             {/* 시트 — Makeup/Lookbook과 동일한 center constraint, sticky 헤더 */}
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
 
               {/* Sticky 헤더 — Makeup/Lookbook과 동일 */}
-              <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-                <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
+              <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(78,56,47,.07)' }}>
+                <div style={{ width: 32, height: 3, background: 'rgba(78,56,47,.14)', borderRadius: 2, margin: '14px auto 0' }} />
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
-                  <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A' }}>편집: {editingLifetip.name}</div>
+                  <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#4E382F' }}>편집: {editingLifetip.name}</div>
                   <button type="button" onClick={() => setEditingLifetip(null)}
                     style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                 </div>
@@ -4911,20 +4909,20 @@ function LogPageInner() {
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
                   <input type="text" value={lifetipEditEmoji} onChange={e => setLifetipEditEmoji(e.target.value)}
                     placeholder="📌" maxLength={2}
-                    style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+                    style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
                   <input type="text" value={lifetipEditName} onChange={e => setLifetipEditName(e.target.value)}
                     placeholder="이름 *"
-                    style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+                    style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#4E382F', background: '#fff', outline: 'none' }} />
                 </div>
 
                 {/* 참고 링크 — Makeup/Lookbook과 동일한 스타일 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginBottom: 8 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2.5" style={{ flexShrink: 0 }}>
                     <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
                   </svg>
                   <input type="url" value={lifetipEditUrl} onChange={e => setLifetipEditUrl(e.target.value)}
                     placeholder="참고 링크 (Instagram, YouTube...)"
-                    style={{ flex: 1, border: 'none', outline: 'none', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: 'transparent' }} />
+                    style={{ flex: 1, border: 'none', outline: 'none', fontFamily: f, fontSize: 13, color: '#4E382F', background: 'transparent' }} />
                   {lifetipEditUrl && <button type="button" onClick={() => setLifetipEditUrl('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#BCBAB6', fontSize: 14, padding: 0 }}>✕</button>}
                 </div>
 
@@ -4939,21 +4937,21 @@ function LogPageInner() {
                 </div>
 
                 {/* 메모 */}
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>메모</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>메모</div>
                 <textarea value={lifetipEditMemo} onChange={e => setLifetipEditMemo(e.target.value)} placeholder="메모…"
-                  style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#0C0C0A', resize: 'none', height: 72, outline: 'none', boxSizing: 'border-box' as const, marginBottom: 16 }} />
+                  style={{ width: '100%', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#4E382F', resize: 'none', height: 72, outline: 'none', boxSizing: 'border-box' as const, marginBottom: 16 }} />
 
                 {/* 구분선 */}
-                <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+                <div style={{ height: 1, background: 'rgba(78,56,47,.08)', margin: '4px 0 16px' }} />
 
                 {/* 카테고리 — Life tip / Makeup / Lookbook, 읽기 전용 배지 */}
                 <div style={{ marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: 2, background: '#0C0C0A', display: 'inline-block' }} />
-                    <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#0C0C0A' }}>카테고리</div>
+                    <span style={{ width: 8, height: 8, borderRadius: 2, background: '#4E382F', display: 'inline-block' }} />
+                    <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', color: '#4E382F' }}>카테고리</div>
                   </div>
                   <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#60A5FA', background: '#0C0C0A', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
+                    <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#60A5FA', background: '#4E382F', padding: '4px 12px', borderRadius: 9999, letterSpacing: '.04em' }}>
                       {lifetipEditCategoryLabel || 'Life tip'}
                     </span>
                   </div>
@@ -4964,13 +4962,13 @@ function LogPageInner() {
                   {/* 레이블 행 */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250', letterSpacing: '.04em' }}>#</span>
-                      <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</div>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#555250', letterSpacing: '.04em' }}>#</span>
+                      <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</div>
                     </div>
                     {lifetipEditTags.length > 0 && (
                       <button type="button"
                         onClick={() => { setLifetipTagEditOpen(v => !v); if (lifetipTagEditOpen) setLifetipTagNewTag(''); }}
-                        style={{ height: 26, padding: '0 10px', borderRadius: 6, border: '1px solid rgba(12,12,10,.18)', background: '#0C0C0A', fontFamily: f, fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
+                        style={{ height: 26, padding: '0 10px', borderRadius: 6, border: '1px solid rgba(78,56,47,.18)', background: '#4E382F', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
                         태그 편집
                       </button>
                     )}
@@ -4989,18 +4987,18 @@ function LogPageInner() {
                             }
                           }}
                           placeholder="+ 태그 추가 (Enter)"
-                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                         />
                       : <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
                           {lifetipEditTags.map(tag => (
-                            <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#555250' }}>#{tag}</span>
+                            <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(78,56,47,.07)', color: '#555250' }}>#{tag}</span>
                           ))}
                         </div>
                   )}
                   {/* 편집 패널 — 드래그앤드롭 */}
                   {lifetipTagEditOpen && (
-                    <div style={{ marginTop: 8, padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
-                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                    <div style={{ marginTop: 8, padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(78,56,47,.03)', border: '1px solid rgba(78,56,47,.1)' }}>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
                       <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                         {lifetipEditTags.map((tag, i) => (
                           <div key={tag}
@@ -5018,13 +5016,13 @@ function LogPageInner() {
                               setDragLifetipTagIdx(null); setDragLifetipTagOverIdx(null);
                             }}
                             onDragEnd={() => { setDragLifetipTagIdx(null); setDragLifetipTagOverIdx(null); }}
-                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragLifetipTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragLifetipTagOverIdx === i ? 'rgba(78,56,47,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                             <button type="button" title="삭제"
                               onClick={() => setLifetipEditTags(prev => prev.filter(t => t !== tag))}
-                              style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                              style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                               -
                             </button>
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingLifetipTagIdx === i ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', overflow: 'hidden' }}>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingLifetipTagIdx === i ? '1.5px solid #4E382F' : '1px solid rgba(78,56,47,.06)', boxShadow: '0 1px 2px rgba(78,56,47,.04)', overflow: 'hidden' }}>
                               <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', paddingLeft: 12, flexShrink: 0 }}>#</span>
                               {editingLifetipTagIdx === i ? (
                                 <input autoFocus type="text" value={editingLifetipTagVal}
@@ -5034,11 +5032,11 @@ function LogPageInner() {
                                     if (e.key === 'Escape') setEditingLifetipTagIdx(null);
                                   }}
                                   onBlur={() => { const v = editingLifetipTagVal.trim(); if (v && v !== tag && !lifetipEditTags.includes(v)) setLifetipEditTags(prev => prev.map(t => t === tag ? v : t)); setEditingLifetipTagIdx(null); }}
-                                  style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                                  style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', outline: 'none' }}
                                 />
                               ) : (
                                 <span onClick={() => { setEditingLifetipTagIdx(i); setEditingLifetipTagVal(tag); }}
-                                  style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                                  style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', cursor: 'text' }}>
                                   {tag}
                                 </span>
                               )}
@@ -5059,38 +5057,38 @@ function LogPageInner() {
                           }
                         }}
                         placeholder="+ 태그 추가 (Enter)"
-                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                       />
                     </div>
                   )}
                 </div>
 
                 {/* BOX 제품 연결 */}
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>BOX 제품 연결</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>BOX 제품 연결</div>
                 <button type="button" onClick={() => setLifetipPickerOpen(true)}
-                  style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
+                  style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(78,56,47,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
                   {lifetipEditProductIds.length > 0 ? `${lifetipEditProductIds.length}개 선택됨 · 변경` : '+ BOX에서 불러오기'}
                 </button>
                 {lifetipEditProductIds.length > 0 ? (
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 16 }}>
                     {lifetipEditProductIds.map(pid => {
                       const p = allProducts.find(q => q.id === pid);
-                      return <span key={pid} style={{ fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>{p?.name ?? pid}</span>;
+                      return <span key={pid} style={{ fontFamily: f, fontSize: 13, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#4E382F' }}>{p?.name ?? pid}</span>;
                     })}
                   </div>
                 ) : <div style={{ marginBottom: 16 }} />}
 
                 {/* 예정 날짜 */}
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>예정 날짜</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>예정 날짜</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, alignItems: 'center' }}>
                     {lifetipEditDates.map(d => (
                       <span key={d} onClick={() => {
                         const next = lifetipEditDates.filter(x => x !== d);
                         setLifetipEditDates(next);
                         if (next.length === 0) setLifetipEditPublished(false);
-                      }} style={{ fontFamily: f, fontSize: 12, fontWeight: 700, padding: '5px 10px', borderRadius: 9999, background: '#0C0C0A', color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                        {d} <span style={{ opacity: .6, fontSize: 10 }}>✕</span>
+                      }} style={{ fontFamily: f, fontSize: 13, fontWeight: 700, padding: '5px 10px', borderRadius: 9999, background: '#4E382F', color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                        {d} <span style={{ opacity: .6, fontSize: 13 }}>✕</span>
                       </span>
                     ))}
                     <input type="date" title="날짜 추가" onChange={e => {
@@ -5098,7 +5096,7 @@ function LogPageInner() {
                         setLifetipEditDates(p => [...p, e.target.value].sort());
                         e.target.value = '';
                       }
-                    }} style={{ padding: '5px 10px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 9999, fontFamily: f, fontSize: 12, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+                    }} style={{ padding: '5px 10px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 9999, fontFamily: f, fontSize: 13, color: '#4E382F', background: '#fff', outline: 'none' }} />
                   </div>
                 </div>
 
@@ -5110,10 +5108,10 @@ function LogPageInner() {
                     const today = format(new Date(), 'yyyy-MM-dd');
                     if (next) setLifetipEditDates(p => p.includes(today) ? p : [...p, today].sort());
                   }}>
-                  <div style={{ width: 44, height: 26, borderRadius: 13, background: lifetipEditPublished ? '#0C0C0A' : '#D8D6CF', transition: 'background .2s', position: 'relative', flexShrink: 0 }}>
+                  <div style={{ width: 44, height: 26, borderRadius: 13, background: lifetipEditPublished ? '#4E382F' : '#D8D6CF', transition: 'background .2s', position: 'relative', flexShrink: 0 }}>
                     <div style={{ position: 'absolute', top: 3, left: lifetipEditPublished ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.3)' }} />
                   </div>
-                  <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{lifetipEditPublished ? 'Today에 표시 ON' : 'Today에 표시 OFF'}</span>
+                  <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F' }}>{lifetipEditPublished ? 'Today에 표시 ON' : 'Today에 표시 OFF'}</span>
                 </div>
 
                 {/* 버튼 — Makeup/Lookbook과 동일한 취소/저장/삭제 구조 */}
@@ -5121,7 +5119,7 @@ function LogPageInner() {
                   <button type="button" onClick={() => setEditingLifetip(null)}
                     style={{ flex: 1, height: 52, background: '#F0EFEA', color: '#4A4846', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>취소</button>
                   <button type="button" onClick={saveLifetipEdit} disabled={lifetipEditSaving || !lifetipEditName.trim()}
-                    style={{ flex: 1, height: 52, background: lifetipEditName.trim() ? '#0C0C0A' : 'rgba(12,12,10,.14)', color: lifetipEditName.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: lifetipEditName.trim() ? 'pointer' : 'default' }}>
+                    style={{ flex: 1, height: 52, background: lifetipEditName.trim() ? '#4E382F' : 'rgba(78,56,47,.14)', color: lifetipEditName.trim() ? '#C5FF00' : '#9A9490', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, cursor: lifetipEditName.trim() ? 'pointer' : 'default' }}>
                     {lifetipEditSaving ? '저장 중...' : '수정'}
                   </button>
                 </div>
@@ -5149,14 +5147,14 @@ function LogPageInner() {
               return (
                 <>
                   <div onClick={() => setLifetipPickerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 320 }} />
-                  <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
-                      <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
+                      <div style={{ width: 32, height: 3, background: 'rgba(78,56,47,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
                       {/* 도메인 선택 탭 — 가로 스크롤 */}
                       {sortedPickerDomains.length > 1 && (
                         <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' as const }}>
                           <button type="button" onClick={() => setLifetipPickerDomain(null)}
-                            style={{ flexShrink: 0, background: lifetipPickerDomain === null ? '#0C0C0A' : '#fff', border: `1px solid ${lifetipPickerDomain === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: lifetipPickerDomain === null ? '#fff' : '#0C0C0A', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                            style={{ flexShrink: 0, background: lifetipPickerDomain === null ? '#4E382F' : '#fff', border: `1px solid ${lifetipPickerDomain === null ? '#4E382F' : 'rgba(78,56,47,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 13, fontWeight: 700, color: lifetipPickerDomain === null ? '#fff' : '#4E382F', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
                             전체 {allProducts.length}
                           </button>
                           {sortedPickerDomains.map(d => {
@@ -5164,17 +5162,17 @@ function LogPageInner() {
                             const sel = lifetipPickerDomain === d;
                             return (
                               <button key={d} type="button" onClick={() => setLifetipPickerDomain(d)}
-                                style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                                <span style={{ fontSize: 12 }}>{DOMAIN_EMOJIS[d] ?? '📦'}</span>
-                                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A' }}>{DOMAIN_LABELS[d] ?? d}</span>
-                                <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{cnt}</span>
+                                style={{ flexShrink: 0, background: sel ? '#4E382F' : '#fff', border: `1px solid ${sel ? '#4E382F' : 'rgba(78,56,47,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                                <span style={{ fontSize: 13 }}>{DOMAIN_EMOJIS[d] ?? '📦'}</span>
+                                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: sel ? '#fff' : '#4E382F' }}>{DOMAIN_LABELS[d] ?? d}</span>
+                                <span style={{ fontFamily: f, fontSize: 13, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{cnt}</span>
                               </button>
                             );
                           })}
                         </div>
                       )}
                       <input type="search" value={lifetipPickerSearch} onChange={e => setLifetipPickerSearch(e.target.value)} placeholder="제품 검색..." autoFocus
-                        style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
+                        style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#4E382F', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
                     </div>
                     <div style={{ flex: 1, overflowY: 'auto' }}>
                       {filtered.length === 0 && (
@@ -5185,24 +5183,24 @@ function LogPageInner() {
                         const imgSrc = p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl;
                         return (
                           <div key={p.id} onClick={() => setLifetipEditProductIds(ids => sel ? ids.filter(id => id !== p.id) : [...ids, p.id])}
-                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(78,56,47,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                               {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{DOMAIN_EMOJIS[p.domain ?? ''] ?? '🧴'}</span>}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                              <div style={{ fontFamily: f, fontSize: 11, color: '#9A9490', marginTop: 2 }}>
+                              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                              <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 2 }}>
                                 {DOMAIN_LABELS[p.domain ?? ''] ?? p.domain ?? ''}{p.brand ? ` · ${p.brand}` : ''}
                               </div>
                             </div>
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(78,56,47,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#4E382F', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                           </div>
                         );
                       })}
                     </div>
-                    <div style={{ padding: '12px 16px', flexShrink: 0, borderTop: '1px solid rgba(12,12,10,.07)' }}>
+                    <div style={{ padding: '12px 16px', flexShrink: 0, borderTop: '1px solid rgba(78,56,47,.07)' }}>
                       <button type="button" onClick={() => setLifetipPickerOpen(false)}
-                        style={{ width: '100%', height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
+                        style={{ width: '100%', height: 48, background: '#4E382F', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
                         완료 ({lifetipEditProductIds.length}개)
                       </button>
                     </div>
@@ -5278,22 +5276,22 @@ function LogPageInner() {
           <>
             <div onClick={() => setRefCachePreview(null)}
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '88vh', overflowY: 'auto', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 28px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '88vh', overflowY: 'auto', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 28px)', scrollbarWidth: 'none' as const }}>
 
               {/* 핸들 */}
-              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 20px' }} />
+              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(78,56,47,.12)', margin: '0 auto 20px' }} />
 
               {/* 헤더 */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                 <span style={{ fontSize: 18 }}>📦</span>
-                <div style={{ fontFamily: f, fontSize: 17, fontWeight: 800, color: '#0C0C0A' }}>이전 라이브러리 자료</div>
+                <div style={{ fontFamily: f, fontSize: 17, fontWeight: 800, color: '#4E382F' }}>이전 라이브러리 자료</div>
               </div>
-              <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginBottom: 20 }}>
+              <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginBottom: 20 }}>
                 마지막으로 편집한 내용을 확인 후 등록 방식을 선택하세요
               </div>
 
               {/* 미리보기 카드 */}
-              <div style={{ border: '1px solid rgba(12,12,10,.1)', borderRadius: 14, overflow: 'hidden', marginBottom: 24, background: '#fff' }}>
+              <div style={{ border: '1px solid rgba(78,56,47,.1)', borderRadius: 14, overflow: 'hidden', marginBottom: 24, background: '#fff' }}>
 
                 {/* 이미지 */}
                 {cache.imageUrl && (
@@ -5306,20 +5304,20 @@ function LogPageInner() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                     <span style={{ fontSize: 20 }}>{cache.emoji || '📌'}</span>
                     {cache.tipCategory && (
-                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#1D6DDB', background: 'rgba(29,109,219,.1)', border: '1px solid rgba(29,109,219,.25)', padding: '3px 9px', borderRadius: 9999 }}>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#1D6DDB', background: 'rgba(29,109,219,.1)', border: '1px solid rgba(29,109,219,.25)', padding: '3px 9px', borderRadius: 9999 }}>
                         {cache.tipCategory}
                       </span>
                     )}
                   </div>
 
                   {/* 이름 */}
-                  <div style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#0C0C0A', marginBottom: cache.memo ? 6 : 10 }}>
+                  <div style={{ fontFamily: f, fontSize: 15, fontWeight: 700, color: '#4E382F', marginBottom: cache.memo ? 6 : 10 }}>
                     {cache.name}
                   </div>
 
                   {/* 메모 */}
                   {cache.memo && (
-                    <div style={{ fontFamily: f, fontSize: 12, color: '#6A6866', lineHeight: 1.5, marginBottom: 10 }}>
+                    <div style={{ fontFamily: f, fontSize: 13, color: '#6A6866', lineHeight: 1.5, marginBottom: 10 }}>
                       {cache.memo}
                     </div>
                   )}
@@ -5328,7 +5326,7 @@ function LogPageInner() {
                   {cache.tags.length > 0 && (
                     <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 10 }}>
                       {cache.tags.map(tag => (
-                        <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                        <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(78,56,47,.06)', border: '1px solid rgba(78,56,47,.1)', color: '#6A6866' }}>
                           #{tag}
                         </span>
                       ))}
@@ -5344,7 +5342,7 @@ function LogPageInner() {
                         <rect x="2" y="9" width="5" height="5" rx="1" stroke="#9A9490" strokeWidth="1.5"/>
                         <rect x="9" y="9" width="5" height="5" rx="1" stroke="#9A9490" strokeWidth="1.5"/>
                       </svg>
-                      <span style={{ fontFamily: f, fontSize: 11, color: '#9A9490', fontWeight: 600 }}>
+                      <span style={{ fontFamily: f, fontSize: 13, color: '#9A9490', fontWeight: 600 }}>
                         BOX {linkedProducts.map(p => p.name).join(', ')}
                       </span>
                     </div>
@@ -5408,14 +5406,14 @@ function LogPageInner() {
                       libraryItemType: newItemType,
                     });
                   }}
-                  style={{ width: '100%', height: 52, background: '#0C0C0A', border: 'none', borderRadius: 14, fontFamily: f, fontSize: 14, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', letterSpacing: '.02em' }}>
+                  style={{ width: '100%', height: 52, background: '#4E382F', border: 'none', borderRadius: 14, fontFamily: f, fontSize: 14, fontWeight: 800, color: '#C5FF00', cursor: 'pointer', letterSpacing: '.02em' }}>
                   이대로 등록
                 </button>
 
                 {/* ② 수정 후 등록 */}
                 <button type="button"
                   onClick={() => openRegistrationSheet(true)}
-                  style={{ width: '100%', height: 52, background: '#fff', border: '1.5px solid rgba(12,12,10,.15)', borderRadius: 14, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A', cursor: 'pointer' }}>
+                  style={{ width: '100%', height: 52, background: '#fff', border: '1.5px solid rgba(78,56,47,.15)', borderRadius: 14, fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F', cursor: 'pointer' }}>
                   수정 후 등록
                 </button>
 
@@ -5439,38 +5437,38 @@ function LogPageInner() {
         return (
           <>
             <div onClick={() => setRefToLib(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflowY: 'auto', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 24px)', scrollbarWidth: 'none' as const }}>
-              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 16px' }} />
-              <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: refToLibCacheData ? 4 : 16 }}>라이브러리에 등록</div>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflowY: 'auto', padding: '12px 20px calc(env(safe-area-inset-bottom,0px) + 24px)', scrollbarWidth: 'none' as const }}>
+              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(78,56,47,.12)', margin: '0 auto 16px' }} />
+              <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#4E382F', marginBottom: refToLibCacheData ? 4 : 16 }}>라이브러리에 등록</div>
               {refToLibCacheData && (
-                <div style={{ fontFamily: f, fontSize: 11, color: '#1D6DDB', background: 'rgba(29,109,219,.08)', border: '1px solid rgba(29,109,219,.18)', borderRadius: 8, padding: '5px 10px', marginBottom: 16, display: 'inline-block' }}>
+                <div style={{ fontFamily: f, fontSize: 13, color: '#1D6DDB', background: 'rgba(29,109,219,.08)', border: '1px solid rgba(29,109,219,.18)', borderRadius: 8, padding: '5px 10px', marginBottom: 16, display: 'inline-block' }}>
                   이전 자료 불러옴 — 수정 후 등록
                 </div>
               )}
 
               {/* 제목 */}
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>제목</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>제목</div>
                 <input type="text" value={refToLibEditName}
                   onChange={e => setRefToLibEditName(e.target.value)}
                   placeholder="제목 입력"
-                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none' }}
                 />
               </div>
 
               {/* 링크 */}
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>링크</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>링크</div>
                 <input type="url" value={refToLibEditUrl}
                   onChange={e => setRefToLibEditUrl(e.target.value)}
                   placeholder="https://"
-                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none' }}
                 />
               </div>
 
               {/* 이미지 */}
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>이미지</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>이미지</div>
                 <ImagePicker
                   preview={refToLibEditImagePreview}
                   onChange={(file, base64) => { setRefToLibEditImageFile(file); setRefToLibEditImagePreview(base64); }}
@@ -5482,17 +5480,17 @@ function LogPageInner() {
               </div>
 
               {/* ── 구분선 ── */}
-              <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+              <div style={{ height: 1, background: 'rgba(78,56,47,.08)', margin: '4px 0 16px' }} />
 
               {/* 카테고리 선택 — categoryTags 기반 pill + 편집 */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 2, background: '#0C0C0A', display: 'inline-block' }} />
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', color: '#0C0C0A' }}>카테고리</div>
+                  <span style={{ width: 8, height: 8, borderRadius: 2, background: '#4E382F', display: 'inline-block' }} />
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', color: '#4E382F' }}>카테고리</div>
                 </div>
                 <button type="button"
                   onClick={() => setLibCatEditOpen(v => !v)}
-                  style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                  style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#4E382F', fontFamily: f, fontSize: 13, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
                   <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                   카테고리 편집
                 </button>
@@ -5512,8 +5510,8 @@ function LogPageInner() {
                         setRefToLibTagInput('');
                         setRefToLibEmoji('');
                       }}
-                      style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(12,12,10,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all .15s' }}>
-                      <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? color.selText : '#9A9490' }}>{cat}</span>
+                      style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(78,56,47,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all .15s' }}>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: sel ? color.selText : '#9A9490' }}>{cat}</span>
                     </button>
                   );
                 })}
@@ -5521,8 +5519,8 @@ function LogPageInner() {
 
               {/* 카테고리 편집 패널 */}
               {libCatEditOpen && (
-                <div style={{ marginBottom: 12, padding: '10px 12px 12px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
-                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                <div style={{ marginBottom: 12, padding: '10px 12px 12px', borderRadius: 10, background: 'rgba(78,56,47,.03)', border: '1px solid rgba(78,56,47,.1)' }}>
+                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
                   <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                     {categoryTags.map((cat, i) => (
                       <div key={cat}
@@ -5540,10 +5538,10 @@ function LogPageInner() {
                           setDragCatIdx(null); setDragCatOverIdx(null);
                         }}
                         onDragEnd={() => { setDragCatIdx(null); setDragCatOverIdx(null); }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragCatOverIdx === i ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
+                        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragCatOverIdx === i ? 'rgba(78,56,47,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                         <button type="button" title="삭제"
                           onClick={() => { setCategoryTags(prev => prev.filter(t => t !== cat)); if (refToLibCatName === cat) { const next = categoryTags.filter(t => t !== cat)[0] ?? ''; setRefToLibCatName(next); } }}
-                          style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                          style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                           -
                         </button>
                         {editingCatIdx === i ? (
@@ -5554,11 +5552,11 @@ function LogPageInner() {
                               if (e.key === 'Escape') setEditingCatIdx(null);
                             }}
                             onBlur={() => { const v = editingCatVal.trim(); if (v && v !== cat && !categoryTags.includes(v)) setCategoryTags(prev => prev.map(t => t === cat ? v : t)); setEditingCatIdx(null); }}
-                            style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #0C0C0A', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                            style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1.5px solid #4E382F', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', outline: 'none' }}
                           />
                         ) : (
                           <div onClick={() => { setEditingCatIdx(i); setEditingCatVal(cat); }}
-                            style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                            style={{ flex: 1, padding: '8px 12px', background: '#fff', borderRadius: 14, border: '1px solid rgba(78,56,47,.06)', boxShadow: '0 1px 2px rgba(78,56,47,.04)', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', cursor: 'text' }}>
                             {cat}
                           </div>
                         )}
@@ -5578,20 +5576,20 @@ function LogPageInner() {
                       }
                     }}
                     placeholder="+ 카테고리 추가 (Enter)"
-                    style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                    style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                   />
                 </div>
               )}
 
               {/* 태그 입력 — 전체 타입 공통 */}
               <>
-                <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+                <div style={{ height: 1, background: 'rgba(78,56,47,.08)', margin: '4px 0 16px' }} />
                   <div style={{ marginBottom: 16 }}>
                     {/* 헤더: "# 태그 (선택)" + 태그 편집 버튼 */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                       <div style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}># 태그 <span style={{ fontWeight: 400 }}>(선택)</span></div>
                       <button type="button" onClick={() => setRefToLibTagEditOpen(o => !o)}
-                        style={{ background: '#0C0C0A', border: 'none', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
+                        style={{ background: '#4E382F', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 800, color: '#fff', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
                         태그 편집
                       </button>
                     </div>
@@ -5609,7 +5607,7 @@ function LogPageInner() {
                           }
                         }}
                         placeholder="+ 태그 추가 (Enter)"
-                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 6 }}
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 6 }}
                       />
                     )}
 
@@ -5617,7 +5615,7 @@ function LogPageInner() {
                     {!refToLibTagEditOpen && refToLibTagArr.length > 0 && (
                       <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
                         {refToLibTagArr.map(tag => (
-                          <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                          <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(78,56,47,.06)', border: '1px solid rgba(78,56,47,.1)', color: '#6A6866' }}>
                             #{tag.replace(/^#/, '')}
                           </span>
                         ))}
@@ -5626,8 +5624,8 @@ function LogPageInner() {
 
                     {/* 태그 편집 패널 (드래그·추가·삭제) */}
                     {refToLibTagEditOpen && (
-                      <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)', marginBottom: 10 }}>
-                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                      <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(78,56,47,.03)', border: '1px solid rgba(78,56,47,.1)', marginBottom: 10 }}>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
                         <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                           {refToLibTagArr.map((tag, idx) => (
                             <div key={idx} draggable
@@ -5643,13 +5641,13 @@ function LogPageInner() {
                                 setDragRefToLibTagOverIdx(null);
                               }}
                               onDragEnd={() => { setDragRefToLibTagIdx(null); setDragRefToLibTagOverIdx(null); }}
-                              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragRefToLibTagOverIdx === idx ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
+                              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragRefToLibTagOverIdx === idx ? 'rgba(78,56,47,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                               <button type="button"
                                 onClick={() => setRefToLibTagArr(prev => prev.filter((_, i) => i !== idx))}
-                                style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                                style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                                 -
                               </button>
-                              <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingRefToLibTagIdx === idx ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', overflow: 'hidden' }}>
+                              <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingRefToLibTagIdx === idx ? '1.5px solid #4E382F' : '1px solid rgba(78,56,47,.06)', boxShadow: '0 1px 2px rgba(78,56,47,.04)', overflow: 'hidden' }}>
                                 <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', paddingLeft: 12, flexShrink: 0 }}>#</span>
                                 {editingRefToLibTagIdx === idx ? (
                                   <input autoFocus type="text" value={editingRefToLibTagVal}
@@ -5659,11 +5657,11 @@ function LogPageInner() {
                                       if (e.key === 'Escape') setEditingRefToLibTagIdx(null);
                                     }}
                                     onBlur={() => { const v = editingRefToLibTagVal.trim().replace(/^#/, ''); if (v && v !== tag && !refToLibTagArr.includes(v)) setRefToLibTagArr(prev => prev.map(t => t === tag ? v : t)); setEditingRefToLibTagIdx(null); }}
-                                    style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                                    style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', outline: 'none' }}
                                   />
                                 ) : (
                                   <span onClick={() => { setEditingRefToLibTagIdx(idx); setEditingRefToLibTagVal(tag.replace(/^#/, '')); }}
-                                    style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                                    style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', cursor: 'text' }}>
                                     {tag.replace(/^#/, '')}
                                   </span>
                                 )}
@@ -5683,7 +5681,7 @@ function LogPageInner() {
                             }
                           }}
                           placeholder="+ 태그 추가 (Enter)"
-                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                         />
                       </div>
                     )}
@@ -5692,20 +5690,20 @@ function LogPageInner() {
 
               {/* 메모 */}
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>메모 (선택)</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 6 }}>메모 (선택)</div>
                 <textarea value={refToLibEditMemo}
                   onChange={e => setRefToLibEditMemo(e.target.value)}
                   placeholder="메모를 입력하세요"
                   rows={3}
-                  style={{ width: '100%', boxSizing: 'border-box' as const, padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none', resize: 'none' as const, lineHeight: 1.5 }}
+                  style={{ width: '100%', boxSizing: 'border-box' as const, padding: '10px 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', resize: 'none' as const, lineHeight: 1.5 }}
                 />
               </div>
 
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={() => setRefToLib(null)} style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>취소</button>
+                <button onClick={() => setRefToLib(null)} style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>취소</button>
                 <button onClick={saveRefToLibrary} disabled={refToLibSaving || !refToLibCatName}
-                  style={{ flex: 1, height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: (refToLibSaving || !refToLibCatName) ? 0.4 : 1 }}>
+                  style={{ flex: 1, height: 48, background: '#4E382F', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: (refToLibSaving || !refToLibCatName) ? 0.4 : 1 }}>
                   {refToLibSaving ? '등록 중...' : '라이브러리 등록'}
                 </button>
               </div>
@@ -5722,41 +5720,41 @@ function LogPageInner() {
             {/* 딤 오버레이 */}
             <div onClick={() => setEditingRef(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
             {/* 시트 */}
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', padding: '10px 20px calc(env(safe-area-inset-bottom,0px) + 24px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', padding: '10px 20px calc(env(safe-area-inset-bottom,0px) + 24px)', scrollbarWidth: 'none' as const }}>
 
               {/* 핸들 */}
-              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(12,12,10,.12)', margin: '0 auto 16px' }} />
+              <div style={{ width: 36, height: 4, borderRadius: 9999, background: 'rgba(78,56,47,.12)', margin: '0 auto 16px' }} />
 
               {/* 헤더 */}
-              <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#0C0C0A', marginBottom: 20 }}>수집 편집</div>
+              <div style={{ fontFamily: f, fontSize: 16, fontWeight: 800, color: '#4E382F', marginBottom: 20 }}>수집 편집</div>
 
               {/* 제목 — 등록 폼과 동일한 순서: 제목 → 링크 → 이미지 → 태그 */}
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>제목</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>제목</div>
                 <input
                   type="text"
                   value={refEditTitle}
                   onChange={e => setRefEditTitle(e.target.value)}
                   placeholder="제목 입력"
-                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none' }}
                 />
               </div>
 
               {/* 링크 */}
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>링크</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>링크</div>
                 <input
                   type="url"
                   value={refEditUrl}
                   onChange={e => setRefEditUrl(e.target.value)}
                   placeholder="링크 입력 (선택)"
-                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none' }}
+                  style={{ width: '100%', boxSizing: 'border-box' as const, height: 44, padding: '0 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none' }}
                 />
               </div>
 
               {/* 이미지 */}
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>이미지</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>이미지</div>
                 <ImagePicker
                   preview={refEditImagePreview}
                   onChange={(file, base64) => { setRefEditImageFile(file); setRefEditImagePreview(base64); }}
@@ -5769,7 +5767,7 @@ function LogPageInner() {
 
               {/* 카테고리 — categoryTags 기반 동적 버튼 */}
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>카테고리</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>카테고리</div>
                 <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' as const }}>
                   {categoryTags.map((cat, i) => {
                     const color = CAT_COLORS[i % CAT_COLORS.length];
@@ -5777,8 +5775,8 @@ function LogPageInner() {
                     return (
                       <button key={cat} type="button"
                         onClick={() => setRefEditTags(prev => sel ? prev.filter(t => t !== cat) : [...prev.filter(t => !categoryTags.includes(t)), cat])}
-                        style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(12,12,10,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all .15s' }}>
-                        <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? color.selText : '#9A9490' }}>{cat}</span>
+                        style={{ flex: 1, minWidth: 0, height: 36, borderRadius: 10, border: `1.5px solid ${sel ? color.selBorder : 'rgba(78,56,47,.12)'}`, background: sel ? color.selBg : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all .15s' }}>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: sel ? color.selText : '#9A9490' }}>{cat}</span>
                       </button>
                     );
                   })}
@@ -5789,12 +5787,12 @@ function LogPageInner() {
               <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#555250' }}>#</span>
-                    <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</span>
+                    <span style={{ fontFamily: f, fontSize: 13, fontWeight: 800, color: '#555250' }}>#</span>
+                    <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.08em', color: '#555250' }}>태그</span>
                   </div>
                   <button type="button"
                     onClick={() => { setRefEditTagEditOpen(v => !v); if (refEditTagEditOpen) setRefEditTagInput(''); }}
-                    style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                    style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#4E382F', fontFamily: f, fontSize: 13, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
                     <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                     태그 편집
                   </button>
@@ -5812,17 +5810,17 @@ function LogPageInner() {
                           }
                         }}
                         placeholder="+ 태그 추가 (Enter)"
-                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                       />
                     : <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
                         {refEditTags.filter(t => !categoryTags.includes(t)).map(tag => (
-                          <span key={tag} style={{ fontFamily: f, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#555250' }}>#{tag}</span>
+                          <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(78,56,47,.07)', color: '#555250' }}>#{tag}</span>
                         ))}
                       </div>
                 )}
                 {refEditTagEditOpen && (
-                  <div style={{ marginTop: 8, padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
-                    <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                  <div style={{ marginTop: 8, padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(78,56,47,.03)', border: '1px solid rgba(78,56,47,.1)' }}>
+                    <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
                     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                       {refEditTags.filter(t => !categoryTags.includes(t)).map((tag, i) => (
                         <div key={tag}
@@ -5840,13 +5838,13 @@ function LogPageInner() {
                             setDragRefEditTagIdx(null); setDragRefEditTagOverIdx(null);
                           }}
                           onDragEnd={() => { setDragRefEditTagIdx(null); setDragRefEditTagOverIdx(null); }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragRefEditTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragRefEditTagOverIdx === i ? 'rgba(78,56,47,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                           <button type="button" title="삭제"
                             onClick={() => setRefEditTags(prev => prev.filter(t => t !== tag))}
-                            style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                            style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                             -
                           </button>
-                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingRefTagIdx === i ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', overflow: 'hidden' }}>
+                          <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingRefTagIdx === i ? '1.5px solid #4E382F' : '1px solid rgba(78,56,47,.06)', boxShadow: '0 1px 2px rgba(78,56,47,.04)', overflow: 'hidden' }}>
                             <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', paddingLeft: 12, flexShrink: 0 }}>#</span>
                             {editingRefTagIdx === i ? (
                               <input
@@ -5867,12 +5865,12 @@ function LogPageInner() {
                                   if (v && v !== tag && !refEditTags.includes(v)) setRefEditTags(prev => prev.map(t => t === tag ? v : t));
                                   setEditingRefTagIdx(null);
                                 }}
-                                style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                                style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', outline: 'none' }}
                               />
                             ) : (
                               <span
                                 onClick={() => { setEditingRefTagIdx(i); setEditingRefTagVal(tag); }}
-                                style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                                style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', cursor: 'text' }}>
                                 {tag}
                               </span>
                             )}
@@ -5893,7 +5891,7 @@ function LogPageInner() {
                         }
                       }}
                       placeholder="+ 태그 추가 (Enter)"
-                      style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                      style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                     />
                   </div>
                 )}
@@ -5901,22 +5899,22 @@ function LogPageInner() {
 
               {/* 메모 */}
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
                 <textarea
                   value={refEditNote}
                   onChange={e => setRefEditNote(e.target.value)}
                   placeholder="메모 입력 (선택)..."
                   rows={2}
-                  style={{ width: '100%', boxSizing: 'border-box' as const, padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#0C0C0A', outline: 'none', resize: 'none', lineHeight: 1.5 }}
+                  style={{ width: '100%', boxSizing: 'border-box' as const, padding: '10px 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, background: '#fff', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', resize: 'none', lineHeight: 1.5 }}
                 />
               </div>
 
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 10 }}>
-                <button type="button" onClick={() => setEditingRef(null)} style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
+                <button type="button" onClick={() => setEditingRef(null)} style={{ flex: 1, height: 48, background: '#fff', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer' }}>
                   취소
                 </button>
-                <button type="button" onClick={saveRefEdit} disabled={refEditSaving} style={{ flex: 1, height: 48, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: refEditSaving ? .6 : 1 }}>
+                <button type="button" onClick={saveRefEdit} disabled={refEditSaving} style={{ flex: 1, height: 48, background: '#4E382F', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', opacity: refEditSaving ? .6 : 1 }}>
                   {refEditSaving ? '저장 중...' : '저장'}
                 </button>
               </div>
@@ -5934,10 +5932,10 @@ function LogPageInner() {
         return (
           <>
             <div onClick={() => setEditingOotd(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 200 }} />
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', padding: '10px 20px calc(env(safe-area-inset-bottom,0px) + 24px)' }}>
-              <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 18px' }} />
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 201, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', padding: '10px 20px calc(env(safe-area-inset-bottom,0px) + 24px)' }}>
+              <div style={{ width: 32, height: 3, background: 'rgba(78,56,47,.14)', borderRadius: 2, margin: '0 auto 18px' }} />
               <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', marginBottom: 4 }}>{editingOotd.date}</div>
-              <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A', marginBottom: 16 }}>오늘의 룩 편집</div>
+              <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#4E382F', marginBottom: 16 }}>오늘의 룩 편집</div>
 
               {/* 사진 */}
               <div style={{ marginBottom: 14 }}>
@@ -5951,18 +5949,18 @@ function LogPageInner() {
               </div>
 
               {/* 카테고리 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>카테고리 편집</div>
+              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>카테고리 편집</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 14 }}>
                 {/* 현재 선택값이 목록에 없으면 별도 칩으로 표시 */}
                 {editCategoryNotInList && (
                   <button key={ootdEditCategory} type="button" onClick={() => setOotdEditCategory('')}
-                    style={{ padding: '6px 14px', borderRadius: 9999, border: '1.5px solid #0C0C0A', background: '#0C0C0A', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', transition: 'all .15s' }}>
+                    style={{ padding: '6px 14px', borderRadius: 9999, border: '1.5px solid #4E382F', background: '#4E382F', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', transition: 'all .15s' }}>
                     {ootdEditCategory}
                   </button>
                 )}
                 {ootdTagList.map(t => (
                   <button key={t} type="button" onClick={() => setOotdEditCategory(ootdEditCategory === t ? '' : t)}
-                    style={{ padding: '6px 14px', borderRadius: 9999, border: `1.5px solid ${ootdEditCategory === t ? '#0C0C0A' : 'rgba(12,12,10,.14)'}`, background: ootdEditCategory === t ? '#0C0C0A' : '#fff', fontFamily: f, fontSize: 12, fontWeight: 700, color: ootdEditCategory === t ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
+                    style={{ padding: '6px 14px', borderRadius: 9999, border: `1.5px solid ${ootdEditCategory === t ? '#4E382F' : 'rgba(78,56,47,.14)'}`, background: ootdEditCategory === t ? '#4E382F' : '#fff', fontFamily: f, fontSize: 13, fontWeight: 700, color: ootdEditCategory === t ? '#C5FF00' : '#4A4846', cursor: 'pointer', transition: 'all .15s' }}>
                     {t}
                   </button>
                 ))}
@@ -5970,9 +5968,9 @@ function LogPageInner() {
 
               {/* 태그 */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em' }}>#태그</div>
+                <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em' }}>#태그</div>
                 <button type="button" onClick={() => setOotdEditTagEditOpen(v => !v)}
-                  style={{ background: '#0C0C0A', border: 'none', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
+                  style={{ background: '#4E382F', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 800, color: '#fff', cursor: 'pointer', borderRadius: 9999, padding: '0 10px', height: 24, letterSpacing: '.04em' }}>
                   태그 편집
                 </button>
               </div>
@@ -5989,11 +5987,11 @@ function LogPageInner() {
                         }
                       }}
                       placeholder="+ 태그 추가 (Enter)"
-                      style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 6 }}
+                      style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 6 }}
                     />
                   : <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
                       {ootdEditTags.map(tag => (
-                        <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(12,12,10,.06)', border: '1px solid rgba(12,12,10,.1)', color: '#6A6866' }}>
+                        <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: 'rgba(78,56,47,.06)', border: '1px solid rgba(78,56,47,.1)', color: '#6A6866' }}>
                           #{tag.replace(/^#/, '')}
                         </span>
                       ))}
@@ -6001,8 +5999,8 @@ function LogPageInner() {
               )}
               {/* 태그 편집 패널 */}
               {ootdEditTagEditOpen && (
-                <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)', marginBottom: 6 }}>
-                  <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(78,56,47,.03)', border: '1px solid rgba(78,56,47,.1)', marginBottom: 6 }}>
+                  <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
                   <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                   {ootdEditTags.map((tag, idx) => (
                     <div key={idx}
@@ -6018,12 +6016,12 @@ function LogPageInner() {
                         setDragOotdTagIdx(null); setDragOotdTagOverIdx(null);
                       }}
                       onDragEnd={() => { setDragOotdTagIdx(null); setDragOotdTagOverIdx(null); }}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragOotdTagOverIdx === idx ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragOotdTagOverIdx === idx ? 'rgba(78,56,47,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                       <button type="button" onClick={() => setOotdEditTags(ootdEditTags.filter((_, i) => i !== idx))}
-                        style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                        style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                         -
                       </button>
-                      <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingOotdTagIdx === idx ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', overflow: 'hidden' }}>
+                      <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingOotdTagIdx === idx ? '1.5px solid #4E382F' : '1px solid rgba(78,56,47,.06)', boxShadow: '0 1px 2px rgba(78,56,47,.04)', overflow: 'hidden' }}>
                         <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', paddingLeft: 12, flexShrink: 0 }}>#</span>
                         {editingOotdTagIdx === idx ? (
                           <input autoFocus type="text" value={editingOotdTagVal}
@@ -6033,11 +6031,11 @@ function LogPageInner() {
                               if (e.key === 'Escape') setEditingOotdTagIdx(null);
                             }}
                             onBlur={() => { const v = editingOotdTagVal.trim().replace(/^#/, ''); if (v && v !== tag && !ootdEditTags.includes(v)) setOotdEditTags(prev => prev.map(t => t === tag ? v : t)); setEditingOotdTagIdx(null); }}
-                            style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                            style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', outline: 'none' }}
                           />
                         ) : (
                           <span onClick={() => { setEditingOotdTagIdx(idx); setEditingOotdTagVal(tag.replace(/^#/, '')); }}
-                            style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                            style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', cursor: 'text' }}>
                             {tag.replace(/^#/, '')}
                           </span>
                         )}
@@ -6060,27 +6058,27 @@ function LogPageInner() {
                       }
                     }}
                     placeholder="+ 태그 추가 (Enter)"
-                    style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 12, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                    style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                   />
                 </div>
               )}
 
               {/* 메모 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>메모</div>
+              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>메모</div>
               <textarea value={ootdEditNote} onChange={e => setOotdEditNote(e.target.value)} placeholder="오늘의 룩 메모…"
-                style={{ width: '100%', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#0C0C0A', resize: 'none', height: 72, outline: 'none', boxSizing: 'border-box' as const, marginBottom: 16 }} />
+                style={{ width: '100%', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, padding: '11px 14px', fontFamily: f, fontSize: 14, color: '#4E382F', resize: 'none', height: 72, outline: 'none', boxSizing: 'border-box' as const, marginBottom: 16 }} />
 
               {/* 제품 등록 — BOX 불러오기 */}
-              <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>BOX 제품 연결</div>
+              <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', letterSpacing: '.08em', marginBottom: 8 }}>BOX 제품 연결</div>
               <button type="button" onClick={() => setOotdPickerOpen(true)}
-                style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(12,12,10,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 12, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
+                style={{ width: '100%', padding: '12px', border: '1.5px dashed rgba(78,56,47,.14)', borderRadius: 10, background: 'transparent', fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', cursor: 'pointer', marginBottom: 8 }}>
                 {ootdEditProductIds.length > 0 ? `${ootdEditProductIds.length}개 선택됨 · 변경` : '+ BOX에서 불러오기'}
               </button>
               {ootdEditProductIds.length > 0 && (
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 16 }}>
                   {ootdEditProductIds.map(pid => {
                     const p = products.get(pid);
-                    return <span key={pid} style={{ fontFamily: f, fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#0C0C0A' }}>{p?.name ?? pid}</span>;
+                    return <span key={pid} style={{ fontFamily: f, fontSize: 13, fontWeight: 600, padding: '3px 8px', borderRadius: 9999, background: '#EEEDE9', color: '#4E382F' }}>{p?.name ?? pid}</span>;
                   })}
                 </div>
               )}
@@ -6089,7 +6087,7 @@ function LogPageInner() {
               {/* 버튼 */}
               <div style={{ display: 'flex', gap: 8 }}>
                 <button type="button" onClick={() => setEditingOotd(null)} style={{ flex: 1, height: 52, background: '#F0EFEA', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#4A4846', cursor: 'pointer' }}>취소</button>
-                <button type="button" onClick={saveOotdEdit} disabled={ootdEditSaving} style={{ flex: 1, height: 52, background: '#0C0C0A', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', opacity: ootdEditSaving ? .6 : 1 }}>
+                <button type="button" onClick={saveOotdEdit} disabled={ootdEditSaving} style={{ flex: 1, height: 52, background: '#4E382F', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 13, fontWeight: 700, color: '#C5FF00', cursor: 'pointer', opacity: ootdEditSaving ? .6 : 1 }}>
                   {ootdEditSaving ? '저장 중…' : '저장'}
                 </button>
               </div>
@@ -6109,13 +6107,13 @@ function LogPageInner() {
               return (
                 <>
                   <div onClick={() => setOotdPickerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.25)', zIndex: 320 }} />
-                  <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 330, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ padding: '12px 16px 8px', flexShrink: 0 }}>
-                      <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
+                      <div style={{ width: 32, height: 3, background: 'rgba(78,56,47,.14)', borderRadius: 2, margin: '0 auto 12px' }} />
                       {sortedDomains.length > 1 && (
                         <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' as const }}>
                           <button type="button" onClick={() => setOotdPickerDomain(null)}
-                            style={{ flexShrink: 0, background: ootdPickerDomain === null ? '#0C0C0A' : '#fff', border: `1px solid ${ootdPickerDomain === null ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 11, fontWeight: 700, color: ootdPickerDomain === null ? '#fff' : '#0C0C0A', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                            style={{ flexShrink: 0, background: ootdPickerDomain === null ? '#4E382F' : '#fff', border: `1px solid ${ootdPickerDomain === null ? '#4E382F' : 'rgba(78,56,47,.15)'}`, borderRadius: 9999, padding: '5px 12px', fontFamily: f, fontSize: 13, fontWeight: 700, color: ootdPickerDomain === null ? '#fff' : '#4E382F', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
                             전체 {allProds.length}
                           </button>
                           {sortedDomains.map(d => {
@@ -6123,17 +6121,17 @@ function LogPageInner() {
                             const sel = ootdPickerDomain === d;
                             return (
                               <button key={d} type="button" onClick={() => setOotdPickerDomain(d)}
-                                style={{ flexShrink: 0, background: sel ? '#0C0C0A' : '#fff', border: `1px solid ${sel ? '#0C0C0A' : 'rgba(12,12,10,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                                <span style={{ fontSize: 12 }}>{DOMAIN_EMOJIS[d] ?? '📦'}</span>
-                                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: sel ? '#fff' : '#0C0C0A' }}>{DOMAIN_LABELS[d] ?? d}</span>
-                                <span style={{ fontFamily: f, fontSize: 10, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{cnt}</span>
+                                style={{ flexShrink: 0, background: sel ? '#4E382F' : '#fff', border: `1px solid ${sel ? '#4E382F' : 'rgba(78,56,47,.15)'}`, borderRadius: 9999, padding: '5px 12px', display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                                <span style={{ fontSize: 13 }}>{DOMAIN_EMOJIS[d] ?? '📦'}</span>
+                                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: sel ? '#fff' : '#4E382F' }}>{DOMAIN_LABELS[d] ?? d}</span>
+                                <span style={{ fontFamily: f, fontSize: 13, color: sel ? 'rgba(255,255,255,.5)' : '#BCBAB6' }}>{cnt}</span>
                               </button>
                             );
                           })}
                         </div>
                       )}
                       <input type="search" value={ootdPickerSearch} onChange={e => setOotdPickerSearch(e.target.value)} placeholder="제품 검색..." autoFocus
-                        style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
+                        style={{ width: '100%', padding: '10px 12px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 8, fontFamily: f, fontSize: 13, color: '#4E382F', background: '#F4F4F0', outline: 'none', boxSizing: 'border-box' as const }} />
                     </div>
                     <div style={{ flex: 1, overflowY: 'auto' }}>
                       {filtered.map(p => {
@@ -6141,15 +6139,15 @@ function LogPageInner() {
                         const imgSrc = p.imageUrl ?? (p as Product & { storageUrl?: string }).storageUrl;
                         return (
                           <div key={p.id} onClick={() => setOotdEditProductIds(ids => sel ? ids.filter(id => id !== p.id) : [...ids, p.id])}
-                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(12,12,10,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(78,56,47,.07)', cursor: 'pointer', background: sel ? 'rgba(197,255,0,.06)' : 'transparent' }}>
                             <div style={{ width: 36, height: 36, borderRadius: 8, background: '#EEEDE9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                               {imgSrc ? <img src={imgSrc} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 16 }}>{DOMAIN_EMOJIS[p.domain ?? ''] ?? '📦'}</span>}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#0C0C0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                              {p.brand && <div style={{ fontFamily: f, fontSize: 12, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
+                              <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#4E382F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
+                              {p.brand && <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490', marginTop: 2 }}>{p.brand}</div>}
                             </div>
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(12,12,10,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#0C0C0A', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${sel ? '#8AB000' : 'rgba(78,56,47,.14)'}`, background: sel ? '#C5FF00' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#4E382F', flexShrink: 0 }}>{sel ? '✓' : ''}</div>
                           </div>
                         );
                       })}
@@ -6157,8 +6155,8 @@ function LogPageInner() {
                         <div style={{ padding: '32px 16px', textAlign: 'center', fontFamily: f, fontSize: 13, color: '#9A9490' }}>제품이 없어요</div>
                       )}
                     </div>
-                    <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 20px)', borderTop: '1px solid rgba(12,12,10,.07)', flexShrink: 0 }}>
-                      <button onClick={() => setOotdPickerOpen(false)} style={{ width: '100%', height: 52, background: '#0C0C0A', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료 ({ootdEditProductIds.length}개)</button>
+                    <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom,0px) + 20px)', borderTop: '1px solid rgba(78,56,47,.07)', flexShrink: 0 }}>
+                      <button onClick={() => setOotdPickerOpen(false)} style={{ width: '100%', height: 52, background: '#4E382F', color: '#fff', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>완료 ({ootdEditProductIds.length}개)</button>
                     </div>
                   </div>
                 </>
@@ -6176,13 +6174,13 @@ function LogPageInner() {
           <>
             <div onClick={() => setNewLifetipOpen(false)}
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 200 }} />
-            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#FAFAF8', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
+            <div style={{ position: 'fixed', bottom: 0, left: 'max(0px,calc(50vw - 215px))', right: 'max(0px,calc(50vw - 215px))', zIndex: 210, background: '#F2EDE6', borderRadius: '20px 20px 0 0', maxHeight: '94%', overflowY: 'auto', paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 40px)', scrollbarWidth: 'none' as const }}>
 
               {/* Sticky 헤더 */}
-              <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(12,12,10,.07)' }}>
-                <div style={{ width: 32, height: 3, background: 'rgba(12,12,10,.14)', borderRadius: 2, margin: '14px auto 0' }} />
+              <div style={{ position: 'sticky', top: 0, background: 'rgba(250,250,248,.96)', backdropFilter: 'blur(12px)', zIndex: 1, paddingBottom: 14, borderBottom: '1px solid rgba(78,56,47,.07)' }}>
+                <div style={{ width: 32, height: 3, background: 'rgba(78,56,47,.14)', borderRadius: 2, margin: '14px auto 0' }} />
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px 0' }}>
-                  <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#0C0C0A' }}>새 Life TIP 등록</div>
+                  <div style={{ fontFamily: f, fontSize: 20, fontWeight: 800, color: '#4E382F' }}>새 Life TIP 등록</div>
                   <button type="button" onClick={() => setNewLifetipOpen(false)}
                     style={{ width: 36, height: 36, borderRadius: 10, background: '#E4E2DC', border: 'none', cursor: 'pointer', fontSize: 15, color: '#4A4846', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                 </div>
@@ -6193,19 +6191,19 @@ function LogPageInner() {
                 {/* 이모지 + 이름 */}
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
                   <input value={newLifetipEmoji} onChange={e => setNewLifetipEmoji(e.target.value)} placeholder="📌" maxLength={2}
-                    style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
+                    style={{ width: 48, padding: '11px 6px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, fontSize: 22, textAlign: 'center', background: '#fff', outline: 'none', flexShrink: 0 }} />
                   <input value={newLifetipName} onChange={e => setNewLifetipName(e.target.value)} placeholder="이름 *"
-                    style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#0C0C0A', background: '#fff', outline: 'none' }} />
+                    style={{ flex: 1, padding: '12px 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, fontFamily: f, fontSize: 14, color: '#4E382F', background: '#fff', outline: 'none' }} />
                 </div>
 
                 {/* 참고 링크 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 12, padding: '10px 14px', background: '#fff', marginBottom: 8 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9490" strokeWidth="2.5" style={{ flexShrink: 0 }}>
                     <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
                   </svg>
                   <input type="url" value={newLifetipSourceUrl} onChange={e => setNewLifetipSourceUrl(e.target.value)}
                     placeholder="참고 링크 (Instagram, YouTube...)"
-                    style={{ flex: 1, border: 'none', outline: 'none', fontFamily: f, fontSize: 13, color: '#0C0C0A', background: 'transparent' }} />
+                    style={{ flex: 1, border: 'none', outline: 'none', fontFamily: f, fontSize: 13, color: '#4E382F', background: 'transparent' }} />
                   {newLifetipSourceUrl && <button type="button" onClick={() => setNewLifetipSourceUrl('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#BCBAB6', fontSize: 14, padding: 0 }}>✕</button>}
                 </div>
 
@@ -6221,14 +6219,14 @@ function LogPageInner() {
 
                 {/* 메모 */}
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
+                  <div style={{ fontFamily: f, fontSize: 13, fontWeight: 700, letterSpacing: '.16em', textTransform: 'uppercase' as const, color: '#9A9490', marginBottom: 8 }}>메모</div>
                   <textarea value={newLifetipMemo} onChange={e => setNewLifetipMemo(e.target.value)}
                     placeholder="메모 입력 (선택)..." rows={3}
-                    style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(12,12,10,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#0C0C0A', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }} />
+                    style={{ width: '100%', padding: '10px 14px', border: '1.5px solid rgba(78,56,47,.14)', borderRadius: 10, fontFamily: f, fontSize: 13, color: '#4E382F', background: '#fff', outline: 'none', resize: 'none', boxSizing: 'border-box' as const, lineHeight: 1.5 }} />
                 </div>
 
                 {/* 구분선 */}
-                <div style={{ height: 1, background: 'rgba(12,12,10,.08)', margin: '4px 0 16px' }} />
+                <div style={{ height: 1, background: 'rgba(78,56,47,.08)', margin: '4px 0 16px' }} />
 
                 {/* 태그 (카테고리 역할 — 첫 번째 태그가 tipCategory) */}
                 <div style={{ marginBottom: 20 }}>
@@ -6236,11 +6234,11 @@ function LogPageInner() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>#</span>
                       <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9A9490' }}>태그</span>
-                      <span style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: '#BCBAB6' }}>(선택)</span>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: '#BCBAB6' }}>(선택)</span>
                     </div>
                     <button type="button"
                       onClick={() => { setNewLifetipTagEditOpen(v => !v); if (newLifetipTagEditOpen) setNewLifetipTagInput(''); }}
-                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#0C0C0A', fontFamily: f, fontSize: 10, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
+                      style={{ height: 24, padding: '0 10px', borderRadius: 9999, border: 'none', background: '#4E382F', fontFamily: f, fontSize: 13, fontWeight: 800, color: '#fff', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, letterSpacing: '.04em' }}>
                       <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                       태그 편집
                     </button>
@@ -6257,17 +6255,17 @@ function LogPageInner() {
                             }
                           }}
                           placeholder="+ 태그 추가 (Enter)"
-                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const, margin: '10px 0 20px 0' }}
+                          style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const, margin: '10px 0 20px 0' }}
                         />
                       : <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
                           {newLifetipTags.map(tag => (
-                            <span key={tag} style={{ fontFamily: f, fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(12,12,10,.07)', color: '#6A6866' }}>#{tag}</span>
+                            <span key={tag} style={{ fontFamily: f, fontSize: 13, fontWeight: 700, padding: '4px 10px', borderRadius: 9999, background: 'rgba(78,56,47,.07)', color: '#6A6866' }}>#{tag}</span>
                           ))}
                         </div>
                   )}
                   {newLifetipTagEditOpen && (
-                    <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(12,12,10,.03)', border: '1px solid rgba(12,12,10,.1)' }}>
-                      <span style={{ fontFamily: f, fontSize: 10, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
+                    <div style={{ padding: '10px 12px 8px', borderRadius: 10, background: 'rgba(78,56,47,.03)', border: '1px solid rgba(78,56,47,.1)' }}>
+                      <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#BCBAB6', letterSpacing: '.06em', textTransform: 'uppercase' as const, display: 'block', marginBottom: 8 }}>드래그로 순서 변경</span>
                       <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, marginBottom: 8 }}>
                         {newLifetipTags.map((tag, i) => (
                           <div key={tag}
@@ -6285,12 +6283,12 @@ function LogPageInner() {
                               setDragNewLifetipTagIdx(null); setDragNewLifetipTagOverIdx(null);
                             }}
                             onDragEnd={() => { setDragNewLifetipTagIdx(null); setDragNewLifetipTagOverIdx(null); }}
-                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragNewLifetipTagOverIdx === i ? 'rgba(12,12,10,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 8, background: dragNewLifetipTagOverIdx === i ? 'rgba(78,56,47,.07)' : 'transparent', transition: 'all .1s', cursor: 'grab' }}>
                             <button type="button" onClick={() => setNewLifetipTags(prev => prev.filter(t => t !== tag))}
-                              style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: '#E94F6B', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
+                              style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', background: 'var(--color-point)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer', flexShrink: 0, padding: 0, lineHeight: '22px' }}>
                               -
                             </button>
-                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingNewLifetipTagIdx === i ? '1.5px solid #0C0C0A' : '1px solid rgba(12,12,10,.06)', boxShadow: '0 1px 2px rgba(0,0,0,.04)', overflow: 'hidden' }}>
+                            <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 14, border: editingNewLifetipTagIdx === i ? '1.5px solid #4E382F' : '1px solid rgba(78,56,47,.06)', boxShadow: '0 1px 2px rgba(78,56,47,.04)', overflow: 'hidden' }}>
                               <span style={{ fontFamily: f, fontSize: 13, fontWeight: 700, color: '#9A9490', paddingLeft: 12, flexShrink: 0 }}>#</span>
                               {editingNewLifetipTagIdx === i ? (
                                 <input autoFocus type="text" value={editingNewLifetipTagVal}
@@ -6300,11 +6298,11 @@ function LogPageInner() {
                                     if (e.key === 'Escape') setEditingNewLifetipTagIdx(null);
                                   }}
                                   onBlur={() => { const v = editingNewLifetipTagVal.trim(); if (v && v !== tag && !newLifetipTags.includes(v)) setNewLifetipTags(prev => prev.map(t => t === tag ? v : t)); setEditingNewLifetipTagIdx(null); }}
-                                  style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', outline: 'none' }}
+                                  style={{ flex: 1, padding: '8px 6px 8px 4px', background: 'transparent', border: 'none', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', outline: 'none' }}
                                 />
                               ) : (
                                 <span onClick={() => { setEditingNewLifetipTagIdx(i); setEditingNewLifetipTagVal(tag); }}
-                                  style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#0C0C0A', cursor: 'text' }}>
+                                  style={{ flex: 1, padding: '8px 12px 8px 4px', fontFamily: f, fontSize: 13, fontWeight: 600, color: '#4E382F', cursor: 'text' }}>
                                   {tag}
                                 </span>
                               )}
@@ -6323,7 +6321,7 @@ function LogPageInner() {
                           }
                         }}
                         placeholder="+ 태그 추가 (Enter)"
-                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(12,12,10,.25)', background: 'transparent', fontFamily: f, fontSize: 11, color: '#0C0C0A', outline: 'none', boxSizing: 'border-box' as const }}
+                        style={{ width: '100%', height: 32, padding: '0 10px', borderRadius: 8, border: '1.5px dashed rgba(78,56,47,.25)', background: 'transparent', fontFamily: f, fontSize: 13, color: '#4E382F', outline: 'none', boxSizing: 'border-box' as const }}
                       />
                     </div>
                   )}
@@ -6332,10 +6330,10 @@ function LogPageInner() {
                 {/* Today 토글 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginBottom: 20 }}
                   onClick={() => setNewLifetipPublished(v => !v)}>
-                  <div style={{ width: 44, height: 26, borderRadius: 13, background: newLifetipPublished ? '#0C0C0A' : '#D8D6CF', transition: 'background .2s', position: 'relative', flexShrink: 0 }}>
+                  <div style={{ width: 44, height: 26, borderRadius: 13, background: newLifetipPublished ? '#4E382F' : '#D8D6CF', transition: 'background .2s', position: 'relative', flexShrink: 0 }}>
                     <div style={{ position: 'absolute', top: 3, left: newLifetipPublished ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.3)' }} />
                   </div>
-                  <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#0C0C0A' }}>{newLifetipPublished ? 'Today에 표시 ON' : 'Today에 표시 OFF'}</span>
+                  <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#4E382F' }}>{newLifetipPublished ? 'Today에 표시 ON' : 'Today에 표시 OFF'}</span>
                 </div>
 
                 {/* 버튼 */}
@@ -6345,7 +6343,7 @@ function LogPageInner() {
                     취소
                   </button>
                   <button type="button" onClick={saveNewLifetip} disabled={!newLifetipName.trim() || newLifetipSaving}
-                    style={{ flex: 2, height: 52, background: newLifetipName.trim() ? '#0C0C0A' : '#E4E2DC', color: newLifetipName.trim() ? '#C5FF00' : '#BCBAB6', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 800, cursor: newLifetipName.trim() ? 'pointer' : 'default', letterSpacing: '.02em' }}>
+                    style={{ flex: 2, height: 52, background: newLifetipName.trim() ? '#4E382F' : '#E4E2DC', color: newLifetipName.trim() ? '#C5FF00' : '#BCBAB6', border: 'none', borderRadius: 12, fontFamily: f, fontSize: 14, fontWeight: 800, cursor: newLifetipName.trim() ? 'pointer' : 'default', letterSpacing: '.02em' }}>
                     {newLifetipSaving ? '등록 중...' : '등록'}
                   </button>
                 </div>

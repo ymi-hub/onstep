@@ -202,7 +202,7 @@ export default function ImagePicker({
             <button
               type="button"
               onClick={onClear}
-              style={{ ...actionBtn, flex: 'none', padding: '10px 16px', color: '#E94F6B' }}
+              style={{ ...actionBtn, flex: 'none', padding: '10px 16px', color: 'var(--color-point)' }}
               aria-label="이미지 삭제"
             >
               ✕
