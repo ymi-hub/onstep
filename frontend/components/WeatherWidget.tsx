@@ -132,14 +132,14 @@ export default function WeatherWidget() {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 26px 4px' }}>
-      <div style={{ width: 40, height: 40, background: '#C5FF00', borderRadius: 10, border: '2px solid #91C000', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, lineHeight: 1 }}>
+      <div style={{ width: 40, height: 40, background: 'rgba(232,93,107,.10)', borderRadius: 10, border: '1px solid rgba(232,93,107,.18)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, lineHeight: 1 }}>
         {weather.emoji}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {locName && (
           <div style={{ fontFamily: FONT, fontSize: 11, fontWeight: 600, color: '#9A9490', letterSpacing: '.04em', lineHeight: 1 }}>{locName}</div>
         )}
-        <div style={{ fontFamily: FONT, fontSize: 13, fontWeight: 500, color: '#0C0C0A', lineHeight: 1 }}>
+        <div style={{ fontFamily: FONT, fontSize: 13, fontWeight: 500, color: '#1C1C1E', lineHeight: 1 }}>
           {weather.temp}°C · {weather.desc}
         </div>
       </div>

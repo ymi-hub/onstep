@@ -67,10 +67,10 @@ export default function PageHeader({ label, title, subtitle, right }: PageHeader
         style={{
           fontFamily: F,
           fontSize: 40,
-          fontWeight: 900,
-          color: '#0C0C0A',
+          fontWeight: 700,
+          color: '#1C1C1E',
           lineHeight: 1.0,
-          letterSpacing: '-.03em',
+          letterSpacing: '-.02em',
           margin: '4px 0 0',
         }}
       >
