@@ -113,6 +113,52 @@ padding:       13px 18px
 margin:        16px 20px 8px
 ```
 
+### 타이머 카드 (Timer Card)
+
+> FlowCard(Skincare) + CareSection(Intensive Care) 내 대기 타이머 카드
+> `className="care-step-card timer-card"` 적용
+
+```
+/* 기본 (비활성) */
+background:    rgba(232,93,107,.04)   /* 연한 포인트 틴트 */
+border:        1.5px solid var(--color-point)
+border-radius: 16px
+box-shadow:    0 4px 16px rgba(232,93,107,.06)
+cursor:        pointer
+transition:    all .2s ease-in-out
+
+/* 활성 (타이머 실행 중) */
+background:    rgba(232,93,107,.06)
+border:        2px solid var(--color-point)
+box-shadow:    0 6px 18px rgba(232,93,107,.18)
+
+/* 호버 */
+background:    var(--color-point)          /* 포인트 컬러 배경 */
+border-color:  var(--color-point)
+box-shadow:    0 10px 28px rgba(232,93,107,.4)
+
+  └─ .timer-badge   → background: rgba(255,255,255,.22), color: #fff
+  └─ .timer-main-text → color: #fff
+  └─ .timer-mins    → color: rgba(255,255,255,.8)
+  └─ svg circle     → stroke: rgba(255,255,255,.3)
+  └─ svg polyline/path → stroke: rgba(255,255,255,.9)
+  └─ .timer-stopwatch-btn → background: rgba(255,255,255,.8)
+```
+
+### 설명문구 칩 (Desc Chip)
+
+> Skincare Flow + Intensive Care의 non-timer 설명 텍스트 칩
+
+```
+background:    var(--color-point)
+color:         #FFFFFF
+border-radius: 9999px
+padding:       6px 14px
+font-size:     12px
+font-weight:   700
+white-space:   nowrap
+```
+
 ---
 
 ## 4. 바 / 행 디자인 패턴 (Bar / Row Patterns)
