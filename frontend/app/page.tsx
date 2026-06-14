@@ -51,6 +51,8 @@ import type { RoutineItem, SlotDay, Slot, Session } from '@/types/routine';
 import type { Habit } from '@/types/habit';
 import type { CtItem } from '@/types/ctitem';
 import type { LifetipItem } from '@/types/lifetip';
+import type { MedRoutine } from '@/types/medication';
+import type { HealthRoutine } from '@/types/healthroutine';
 import { EXPERT_TIP_HIGHLIGHT } from '@/components/ExpertTipField';
 import PageHeader from '@/components/PageHeader';
 import SectionHeader from '@/components/SectionHeader';
@@ -777,6 +779,191 @@ function FlowCard({
 // ROUTINE TRACKER에 등록된 습관 중 오늘 날짜에 해당하는 것만 표시
 // 루틴 유무와 무관하게 항상 렌더링 (todayHabits.length > 0 일 때)
 
+// ─── Daily 통합 섹션 (Habits + Meds + Health) ────────────────────────────────
+function DailyCheckSection({
+  todayHabits, habitChecked, onToggleHabit,
+  medRoutines, medChecked, onToggleMed, medLogs,
+  healthRoutines, healthChecked, onToggleHealth,
+}: {
+  todayHabits: Habit[];
+  habitChecked: Set<string>;
+  onToggleHabit: (id: string) => void;
+  medRoutines: MedRoutine[];
+  medChecked: Set<string>;
+  onToggleMed: (id: string) => void;
+  medLogs: { id: string; routineId: string }[];
+  healthRoutines: HealthRoutine[];
+  healthChecked: Set<string>;
+  onToggleHealth: (id: string) => void;
+}) {
+  const [filter, setFilter] = useState<'all' | 'habits' | 'meds' | 'health'>('all');
+  const f = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
+
+  const activeMeds = medRoutines.filter(m => m.showInToday || m.active);
+
+  const medPeriodOf = (m: MedRoutine): 'am' | 'pm' | 'ev' => {
+    if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
+    const ts = m.times ?? [];
+    if (ts.includes('morning')) return 'am';
+    if (ts.includes('lunch')) return 'pm';
+    if (ts.some((t) => t === 'evening' || t === 'bedtime')) return 'ev';
+    return 'ev';
+  };
+
+  const medSlotTime = (m: MedRoutine, slot: 'am' | 'pm' | 'ev'): string => {
+    if (m.time && m.time.trim()) return m.time;
+    if (slot === 'am') return '09:00';
+    if (slot === 'pm') return '13:00';
+    return (m.times ?? []).includes('bedtime') ? '22:00' : '19:00';
+  };
+
+  const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h));
+
+  const healthPrimaryTime = (h: HealthRoutine): string => {
+    const timed = (h.entries ?? []).map(e => e.time).filter(t => t && t.includes(':'));
+    if (timed.length > 0) return timed.sort()[0];
+    return h.time && h.time.includes(':') ? h.time : '';
+  };
+
+  const toPeriod = (t: string): 'am' | 'pm' | 'ev' | 'allday' => {
+    if (!t) return 'allday';
+    const h = parseInt(t.split(':')[0], 10);
+    return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev';
+  };
+
+  const hasHabits = todayHabits.length > 0;
+  const hasMeds = activeMeds.length > 0;
+  const hasHealth = visHealth.length > 0;
+  if (!hasHabits && !hasMeds && !hasHealth) return null;
+
+  const totalDone = todayHabits.filter(h => habitChecked.has(h.id)).length
+    + activeMeds.filter(m => medChecked.has(m.id)).length
+    + visHealth.filter(h => healthChecked.has(h.id)).length;
+  const totalCount = todayHabits.length + activeMeds.length + visHealth.length;
+
+  const showHabits = filter === 'all' || filter === 'habits';
+  const showMeds = filter === 'all' || filter === 'meds';
+  const showHealth = filter === 'all' || filter === 'health';
+
+  type PK = 'am' | 'pm' | 'ev' | 'allday';
+  type AnyItem =
+    | { kind: 'habit'; data: Habit }
+    | { kind: 'med'; data: MedRoutine; slot: 'am' | 'pm' | 'ev' }
+    | { kind: 'health'; data: HealthRoutine };
+
+  const groups: Record<PK, AnyItem[]> = { am: [], pm: [], ev: [], allday: [] };
+  if (showHabits) for (const h of todayHabits) groups[!h.time || h.repeatType === 'allday' ? 'allday' : toPeriod(h.time)].push({ kind: 'habit', data: h });
+  if (showMeds) for (const m of activeMeds) { const slot = medPeriodOf(m); groups[slot].push({ kind: 'med', data: m, slot }); }
+  if (showHealth) for (const h of visHealth) groups[toPeriod(healthPrimaryTime(h))].push({ kind: 'health', data: h });
+
+  const periodOrder: PK[] = ['am', 'pm', 'ev', 'allday'];
+  const periodLabel: Record<PK, string> = { am: '아침', pm: '오후', ev: '저녁', allday: '종일' };
+  const tabAccent: Record<string, string> = { all: '#2D2420', habits: '#F2A05E', meds: '#6BABDA', health: '#5CB87E' };
+  const catCount = (hasHabits ? 1 : 0) + (hasMeds ? 1 : 0) + (hasHealth ? 1 : 0);
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '20px 20px 10px' }}>
+        <span style={{ fontFamily: f, fontSize: 18, fontWeight: 800, color: '#2D2420', letterSpacing: '-.01em' }}>#Daily</span>
+        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: '#9B8B83' }}>{totalDone}/{totalCount}</span>
+      </div>
+
+      {catCount > 1 && (
+        <div style={{ display: 'flex', gap: 6, padding: '0 20px 12px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {([
+            { key: 'all' as const, label: 'ALL', cnt: totalCount },
+            hasHabits ? { key: 'habits' as const, label: 'HABITS', cnt: todayHabits.length } : null,
+            hasMeds ? { key: 'meds' as const, label: 'MEDS', cnt: activeMeds.length } : null,
+            hasHealth ? { key: 'health' as const, label: 'HEALTH', cnt: visHealth.length } : null,
+          ].filter(Boolean) as { key: typeof filter; label: string; cnt: number }[]).map(tab => {
+            const isActive = filter === tab.key;
+            const ac = tabAccent[tab.key];
+            return (
+              <button type="button" key={tab.key} onClick={() => setFilter(tab.key)}
+                style={{ background: isActive ? `${ac}18` : 'transparent', border: `1px solid ${isActive ? `${ac}40` : 'rgba(45,36,32,.10)'}`, borderRadius: 9999, padding: '5px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, transition: 'all .18s' }}>
+                <span style={{ fontFamily: f, fontSize: 11, fontWeight: 700, letterSpacing: '.08em', color: isActive ? ac : '#9B8B83' }}>{tab.label}</span>
+                <span style={{ fontFamily: f, fontSize: 10, fontWeight: 600, color: isActive ? ac : '#C9B9AE' }}>{tab.cnt}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '0 20px' }}>
+        {periodOrder.map(period => {
+          const its = groups[period];
+          if (its.length === 0) return null;
+          return (
+            <div key={period}>
+              <div style={{ fontFamily: f, fontSize: 10, fontWeight: 700, letterSpacing: '.1em', color: '#9B8B83', padding: '2px 2px 6px 4px' }}>{periodLabel[period]}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {its.map((item) => {
+                  if (item.kind === 'habit') {
+                    const h = item.data; const isDone = habitChecked.has(h.id);
+                    return (
+                      <div key={h.id} onClick={() => onToggleHabit(h.id)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(242,160,94,.32)' : 'rgba(242,160,94,.18)', cursor: 'pointer', transition: 'background .18s' }}>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(242,160,94,.5)' : '#F2A05E'}`, background: isDone ? 'rgba(242,160,94,.4)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F2A05E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                        </div>
+                        <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '✦'}</span>
+                        {h.time && h.repeatType !== 'allday' && <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{h.time}</span>}
+                        <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>{h.name}</span>
+                      </div>
+                    );
+                  }
+                  if (item.kind === 'med') {
+                    const m = item.data; const isDone = medChecked.has(m.id);
+                    return (
+                      <div key={m.id} onClick={() => onToggleMed(m.id)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(107,171,218,.32)' : 'rgba(107,171,218,.18)', cursor: 'pointer', transition: 'background .18s' }}>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(107,171,218,.5)' : '#6BABDA'}`, background: isDone ? 'rgba(107,171,218,.4)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6BABDA" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                        </div>
+                        <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{m.icon || '💊'}</span>
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{medSlotTime(m, item.slot)}</span>
+                        <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+                      </div>
+                    );
+                  }
+                  const h = item.data; const isDone = healthChecked.has(h.id);
+                  const pt = healthPrimaryTime(h);
+                  const dBadge = (() => {
+                    if (h.repeatType !== 'interval' || !h.intervalUnit || !h.intervalValue) return null;
+                    const nd = calcNextDueDate(h.lastDoneDate, h.intervalUnit, h.intervalValue);
+                    const d = getDaysUntilDue(nd);
+                    return { label: dueBadgeLabel(d), ...dueBadgeColor(d) };
+                  })();
+                  return (
+                    <div key={h.id} onClick={() => onToggleHealth(h.id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(92,184,126,.32)' : 'rgba(92,184,126,.18)', cursor: 'pointer', transition: 'background .18s' }}>
+                      <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(92,184,126,.5)' : '#5CB87E'}`, background: isDone ? 'rgba(92,184,126,.4)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5CB87E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </div>
+                      <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '🥗'}</span>
+                      {dBadge ? (
+                        <span style={{ fontFamily: f, fontSize: 10, fontWeight: 800, background: dBadge.bg, color: dBadge.color, padding: '2px 7px', borderRadius: 9999, flexShrink: 0 }}>{dBadge.label}</span>
+                      ) : pt ? (
+                        <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{pt}</span>
+                      ) : null}
+                      <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>{h.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+        <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
+          {hasHabits && (filter === 'all' || filter === 'habits') && <Link href="/setup#tracker" style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#C9B9AE', textDecoration: 'none', letterSpacing: '.04em' }}>Habits →</Link>}
+          {hasMeds && (filter === 'all' || filter === 'meds') && <Link href="/setup#medication" style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#C9B9AE', textDecoration: 'none', letterSpacing: '.04em' }}>Meds →</Link>}
+          {hasHealth && (filter === 'all' || filter === 'health') && <Link href="/setup#health" style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: '#C9B9AE', textDecoration: 'none', letterSpacing: '.04em' }}>Health →</Link>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TodayHabitSection({
   todayHabits,
   habitChecked,
@@ -1201,7 +1388,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             {/* Step 뱃지 (좌상단 플로팅) */}
             <div style={{
               position: 'absolute', top: 8, left: 8,
-              background: '#0C0C0A', color: '#C5FF00',
+              background: '#2D2420', color: '#FFFFFF',
               fontFamily: f, fontWeight: 800, fontSize: 11, letterSpacing: '.06em',
               padding: '3px 8px', borderRadius: 6, lineHeight: 1
             }}>
@@ -1273,9 +1460,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               minWidth: 170,
               height: 260,
               background: 'rgba(12,12,10,0.03)',
-              border: isActiveTimer ? '2px solid #0066FF' : '1px solid rgba(12,12,10,.07)',
+              border: isActiveTimer ? '2px solid #E85D6B' : '1px solid rgba(45,36,32,.07)',
               borderRadius: 16,
-              boxShadow: isActiveTimer ? '0 6px 18px rgba(0,0,0,.08)' : '0 4px 16px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.02)',
+              boxShadow: isActiveTimer ? '0 6px 18px rgba(232,93,107,.15)' : '0 4px 16px rgba(45,36,32,.04), 0 0 0 1px rgba(45,36,32,.02)',
               transition: 'all .2s ease-in-out',
               cursor: 'pointer',
               position: 'relative',
@@ -1285,7 +1472,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '100%' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 6 }}>
                 <div style={{
-                  background: '#C5FF00', color: '#000000',
+                  background: '#E85D6B', color: '#FFFFFF',
                   fontFamily: f, fontWeight: 800, fontSize: 11, letterSpacing: '.06em',
                   padding: '3px 8px', borderRadius: 6, lineHeight: 1
                 }}>
@@ -1323,13 +1510,13 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             }}>
               <svg width="84" height="84" viewBox="0 0 24 24" fill="none" style={{ transform: 'rotate(-90deg)' }}>
                 {/* 회색 배경 링 */}
-                <circle cx="12" cy="12" r="9" stroke="rgba(12,12,10,0.06)" strokeWidth="2" />
+                <circle cx="12" cy="12" r="9" stroke="rgba(45,36,32,0.08)" strokeWidth="2" />
                 {/* 진행률 링 */}
                 <circle
                   cx="12"
                   cy="12"
                   r="9"
-                  stroke={isActiveTimer ? '#C5FF00' : 'rgba(12,12,10,0.15)'}
+                  stroke={isActiveTimer ? '#E85D6B' : 'rgba(45,36,32,0.18)'}
                   strokeWidth="2"
                   strokeDasharray="56.5"
                   strokeDashoffset={isActiveTimer ? 56.5 * (1 - (timerRemainMs / (waitMins * 60_000))) : 0}
@@ -1339,12 +1526,12 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               </svg>
               {/* 중앙 시계바늘 아이콘 */}
               <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isActiveTimer ? 1 : 0.35 }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2D2420" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
               </div>
               {/* 상단 스톱워치 버튼 데코 */}
-              <div style={{ position: 'absolute', top: 2, width: 8, height: 4, background: '#0C0C0A', borderRadius: '2px 2px 0 0', opacity: isActiveTimer ? 1 : 0.35 }} />
+              <div style={{ position: 'absolute', top: 2, width: 8, height: 4, background: '#2D2420', borderRadius: '2px 2px 0 0', opacity: isActiveTimer ? 1 : 0.35 }} />
             </div>
 
             {/* 하단 영역: 실시간 남은 시간 또는 타이머 가이드 배너 */}
@@ -1384,11 +1571,12 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             style={{
               flexShrink: 0,
               padding: '6px 14px',
-              background: 'rgb(3, 105, 227)',
+              background: 'rgba(45,36,32,.08)',
+              border: '1px solid rgba(45,36,32,.14)',
               borderRadius: 9999,
               fontSize: 12,
               fontWeight: 700,
-              color: '#fff',
+              color: '#2D2420',
               fontFamily: f,
               whiteSpace: 'nowrap',
             }}
@@ -1406,12 +1594,12 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
           style={{
             flexShrink: 0,
             padding: '6px 14px',
-            background: 'rgba(197,255,0,0.08)',
-            border: '1px solid rgba(197,255,0,0.25)',
+            background: 'rgba(232,93,107,.10)',
+            border: '1px solid rgba(232,93,107,.22)',
             borderRadius: 9999,
             fontSize: 12,
             fontWeight: 800,
-            color: '#4E7D00',
+            color: '#E85D6B',
             fontFamily: f,
             whiteSpace: 'nowrap',
             display: 'inline-flex',
@@ -1467,8 +1655,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
         <style>{`
           .care-step-card:hover {
             transform: translateY(-4px);
-            border-color: #0C0C0A !important;
-            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08) !important;
+            border-color: #2D2420 !important;
+            box-shadow: 0 10px 22px rgba(45, 36, 32, 0.12) !important;
           }
         `}</style>
 
@@ -1479,8 +1667,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               background: '#fff',
               borderRadius: 24,
               overflow: 'hidden',
-              boxShadow: '0 4px 24px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.03)',
-              border: '1px solid rgba(0,0,0,.02)',
+              boxShadow: '0 4px 24px rgba(45,36,32,.08), 0 0 0 1px rgba(45,36,32,.04)',
+              border: '1px solid rgba(45,36,32,.04)',
             }}
           >
             {/* 헤더 영역 */}
@@ -1494,9 +1682,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div style={{
                       display: 'inline-block',
-                      background: '#C5FF00', color: '#000',
+                      background: 'rgba(255,255,255,.22)', color: '#fff',
                       fontFamily: f, fontWeight: 900, fontSize: 11, letterSpacing: '.12em',
-                      padding: '4px 8px', borderRadius: 4, lineHeight: 1
+                      padding: '4px 8px', borderRadius: 4, lineHeight: 1, backdropFilter: 'blur(4px)',
                     }}>
                       INTENSIVE PROGRAM
                     </div>
@@ -1523,20 +1711,16 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               </div>
             ) : (
               <div style={{
-                background: 'linear-gradient(135deg, #1A1C20 0%, #0F1113 100%)',
+                background: '#2D2420',
                 padding: '24px 20px',
                 position: 'relative',
                 overflow: 'hidden'
               }}>
-                <div style={{
-                  position: 'absolute', top: '-20%', right: '-10%', width: '120px', height: '120px',
-                  background: 'rgba(197, 255, 0, 0.12)', borderRadius: '50%', filter: 'blur(30px)'
-                }} />
                 <div style={{ position: 'relative', zIndex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div style={{
                       display: 'inline-block',
-                      background: '#C5FF00', color: '#000',
+                      background: 'rgba(255,255,255,.18)', color: '#FFFFFF',
                       fontFamily: f, fontWeight: 900, fontSize: 11, letterSpacing: '.12em',
                       padding: '4px 8px', borderRadius: 4, lineHeight: 1
                     }}>
@@ -1545,7 +1729,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                     {item.category && (
                       <span style={{
                         display: 'inline-flex', alignItems: 'center',
-                        background: 'rgba(197,255,0,0.18)', color: '#C5FF00',
+                        background: 'rgba(255,255,255,0.14)', color: 'rgba(255,255,255,.85)',
                         fontFamily: f, fontWeight: 700, fontSize: 12, letterSpacing: '.08em',
                         padding: '4px 10px', borderRadius: 4,
                       }}>
@@ -1560,7 +1744,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                         {item.name}
                       </div>
                       {item.desc && (
-                        <div style={{ fontFamily: f, fontSize: 14, color: '#9CA3AF', marginTop: 4, fontWeight: 500 }}>
+                        <div style={{ fontFamily: f, fontSize: 14, color: 'rgba(255,255,255,.6)', marginTop: 4, fontWeight: 500 }}>
                           {item.desc}
                         </div>
                       )}
@@ -1575,7 +1759,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
               return (
                 <div style={{ padding: '20px', borderBottom: '1px solid rgba(12,12,10,.04)' }}>
                   <div style={{
-                    fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: '#9CA3AF',
+                    fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: '#9B8B83',
                     textTransform: 'uppercase', marginBottom: 12
                   }}>
                     Routine Steps
@@ -1590,15 +1774,15 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       marginTop: 14,
                       padding: '10px 14px',
-                      background: '#0C0C0A',
-                      border: '1.5px solid #C5FF00',
+                      background: '#2D2420',
+                      border: '1.5px solid #E85D6B',
                       borderRadius: 12,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{
-                          width: 7, height: 7, borderRadius: '50%', background: '#C5FF00',
+                          width: 7, height: 7, borderRadius: '50%', background: '#E85D6B',
                           display: 'inline-block',
-                          boxShadow: '0 0 0 3px rgba(197,255,0,.3)',
+                          boxShadow: '0 0 0 3px rgba(232,93,107,.3)',
                           flexShrink: 0,
                         }} />
                         <span style={{ fontFamily: f, fontSize: 12, color: 'rgba(255,255,255,.7)' }}>
@@ -1606,7 +1790,7 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                         </span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#C5FF00', fontVariantNumeric: 'tabular-nums', letterSpacing: '.06em' }}>
+                        <span style={{ fontFamily: f, fontSize: 22, fontWeight: 800, color: '#E85D6B', fontVariantNumeric: 'tabular-nums', letterSpacing: '.06em' }}>
                           {formatTimerRemain(timerRemainMs)}
                         </span>
                         <button
@@ -1624,9 +1808,9 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
 
             {/* TIP 루틴 세로 스택형 Rich List */}
             {(item.tipItems?.length ?? 0) > 0 && (
-              <div style={{ padding: '20px', borderBottom: '1px dashed rgba(12,12,10,.05)', background: '#FAFBF9' }}>
+              <div style={{ padding: '20px', borderBottom: '1px dashed rgba(45,36,32,.06)', background: '#F8F6F3' }}>
                 <div style={{
-                  fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: '#4E7D00',
+                  fontFamily: f, fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: '#9B8B83',
                   textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6
                 }}>
                   <span style={{ fontSize: 13 }}>💡</span> Tips & Special Care
@@ -1637,35 +1821,35 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
                       const p = products.get(r.id);
                       const imgUrl = p?.imageUrl || p?.storageUrl;
                       return (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(33,133,253,0.12)', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
-                          <div style={{ width: 40, height: 40, borderRadius: 8, background: '#F3F4F6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(45,36,32,.06)', boxShadow: '0 2px 8px rgba(45,36,32,.03)' }}>
+                          <div style={{ width: 40, height: 40, borderRadius: 8, background: '#F2EDE6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             {imgUrl ? <img src={imgUrl} alt={p?.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 18 }}>🧴</span>}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#2185fd', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>MAPPED PRODUCT</div>
-                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#1A1C1E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p?.name ?? '?'}</div>
+                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#9B8B83', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>MAPPED PRODUCT</div>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: '#2D2420', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p?.name ?? '?'}</div>
                           </div>
                         </div>
                       );
                     }
                     if (r.type === 'tip') {
                       return (
-                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: 'rgba(197,255,0,0.05)', borderRadius: 14, border: '1px solid rgba(197,255,0,0.25)', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
+                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: 'rgba(232,93,107,.05)', borderRadius: 14, border: '1px solid rgba(232,93,107,.15)', boxShadow: '0 2px 8px rgba(45,36,32,.02)' }}>
                           <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>💡</span>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#4E7D00', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>SPECIAL TIP</div>
-                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#2C3A1A', lineHeight: 1.45 }}>{r.text}</div>
+                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#E85D6B', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>SPECIAL TIP</div>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: '#2D2420', lineHeight: 1.45 }}>{r.text}</div>
                           </div>
                         </div>
                       );
                     }
                     if (r.type === 'desc') {
                       return (
-                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
+                        <div key={idx} style={{ display: 'flex', gap: 10, padding: '14px 16px', background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(45,36,32,.06)', boxShadow: '0 2px 8px rgba(45,36,32,.02)' }}>
                           <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>📋</span>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>NOTICE / DETAILS</div>
-                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: '#374151', lineHeight: 1.45 }}>{r.text}</div>
+                            <div style={{ fontFamily: f, fontSize: 11, fontWeight: 800, color: '#9B8B83', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 2 }}>NOTICE / DETAILS</div>
+                            <div style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: '#2D2420', lineHeight: 1.45 }}>{r.text}</div>
                           </div>
                         </div>
                       );
@@ -1699,8 +1883,8 @@ function CareSection({ items, products }: { items: CtItem[]; products: Map<strin
             {item.sourceUrl && <SourceLink url={item.sourceUrl} />}
 
             {/* 카드 하단 메뉴 */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(12,12,10,.05)', padding: '12px 20px', background: '#FAFBFB' }}>
-              <Link href="/setup#care" style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9CA3AF', textDecoration: 'none', letterSpacing: '.06em', textTransform: 'uppercase' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(45,36,32,.05)', padding: '12px 20px', background: '#F8F6F3' }}>
+              <Link href="/setup#care" style={{ fontFamily: f, fontSize: 11, fontWeight: 700, color: '#9B8B83', textDecoration: 'none', letterSpacing: '.06em', textTransform: 'uppercase' }}>
                 Edit Program →
               </Link>
             </div>
@@ -3086,83 +3270,20 @@ export default function TodayPage() {
           <RoutineEmptyCard />
         )}
 
-        {/* 오늘의 습관 — 루틴 유무와 무관하게 항상 표시 (showInToday=true 전체) */}
-        <TodayHabitSection
+        {/* Daily 통합 섹션 — Habits + Meds + Health */}
+        <DailyCheckSection
           todayHabits={todayHabits}
           habitChecked={habitChecked}
-          onToggle={handleToggleHabit}
+          onToggleHabit={handleToggleHabit}
+          medRoutines={medRoutines}
+          medChecked={medChecked}
+          onToggleMed={handleToggleMed}
+          medLogs={medLogs}
+          healthRoutines={healthRoutines}
+          healthChecked={healthChecked}
+          onToggleHealth={handleToggleHealth}
         />
 
-        {/* 약 루틴 섹션 — 아침(04-12) / 오후(12-18) / 저녁(18-04) 3구간 */}
-        {(() => {
-          const fMed = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-          // showInToday=true 또는 active=true 인 약 루틴 모두 표시
-          const activeMeds = medRoutines.filter(m => m.showInToday || m.active);
-          if (activeMeds.length === 0) return null;
-
-          // 구간별 대표 시각
-          const slotTime = (m: typeof activeMeds[0], slot: 'am' | 'pm' | 'ev'): string => {
-            if (m.time && m.time.trim()) return m.time;
-            if (slot === 'am') return '09:00';
-            if (slot === 'pm') return '13:00';
-            return (m.times ?? []).includes('bedtime') ? '22:00' : '19:00';
-          };
-
-          // 구간 분류 (times 배열 우선, 없으면 time 필드 시간대 fallback)
-          const periodOf = (m: typeof activeMeds[0]): 'am' | 'pm' | 'ev' => {
-            if (m.time && m.time.trim()) { const h = parseInt(m.time.split(':')[0], 10); return h >= 4 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'ev'; }
-            const ts = m.times ?? [];
-            if (ts.includes('morning')) return 'am';
-            if (ts.includes('lunch')) return 'pm';
-            if (ts.some((t: string) => t === 'evening' || t === 'bedtime')) return 'ev';
-            return 'ev';
-          };
-
-          // 시간창 필터 없이 구간별 전체 표시
-          const medLoggedIds = new Set(medLogs.map(l => l.routineId));
-          const visAm = activeMeds.filter(m => periodOf(m) === 'am');
-          const visPm = activeMeds.filter(m => periodOf(m) === 'pm');
-          const visEv = activeMeds.filter(m => periodOf(m) === 'ev');
-          const assignedIds = new Set([...visAm, ...visPm, ...visEv].map(m => m.id));
-          const orphanChecked = activeMeds.filter(m => medLoggedIds.has(m.id) && !assignedIds.has(m.id));
-
-          if (visAm.length === 0 && visPm.length === 0 && visEv.length === 0 && orphanChecked.length === 0) return null;
-
-          const allVisMeds = [...visAm, ...visPm, ...visEv];
-          // 슬롯별 색상: 아침(파랑) · 점심(오렌지) · 저녁(핑크)
-          const MedBar = ({ m, slot }: { m: typeof activeMeds[0]; slot: 'am' | 'pm' | 'ev' }) => {
-            const isDone = medChecked.has(m.id);
-            const col = '#6BABDA';
-            return (
-              <div onClick={() => handleToggleMed(m.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(107,171,218,.32)' : 'rgba(107,171,218,.18)', cursor: 'pointer', transition: 'background .18s' }}>
-                <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(107,171,218,.5)' : col}`, background: isDone ? 'rgba(107,171,218,.4)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                  {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={col} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                </div>
-                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{slotTime(m, slot)}</span>
-                <span style={{ fontFamily: fMed, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
-              </div>
-            );
-          };
-
-          return (
-            <>
-              <SectionHeader title="#Medication" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '0 20px' }}>
-                {visAm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 700, color: '#6BABDA', letterSpacing: '.1em', padding: '2px 2px 2px 4px' }}>아침</div>}
-                {visAm.map(m => <MedBar key={m.id} m={m} slot="am" />)}
-                {visPm.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 700, color: '#6BABDA', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>오후</div>}
-                {visPm.map(m => <MedBar key={m.id} m={m} slot="pm" />)}
-                {visEv.length > 0 && <div style={{ fontFamily: fMed, fontSize: 10, fontWeight: 700, color: '#6BABDA', letterSpacing: '.1em', padding: '6px 2px 2px 4px' }}>저녁</div>}
-                {visEv.map(m => <MedBar key={m.id} m={m} slot="ev" />)}
-                {orphanChecked.map(m => <MedBar key={m.id} m={m} slot="ev" />)}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
-                  <Link href="/setup#medication" style={{ fontFamily: fMed, fontSize: 12, fontWeight: 600, color: '#C7C7CC', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
-                </div>
-              </div>
-            </>
-          );
-        })()}
 
         {/* 다이어트 플랜 섹션 — showInToday=true, 오늘 일차에 맞는 패턴 */}
         {dietPrograms.filter(p => p.showInToday).map(p => {
@@ -3290,70 +3411,6 @@ export default function TodayPage() {
           );
         })}
 
-        {/* 건강 루틴 섹션 — showInToday=true + 오늘 날짜 해당 + ±1시간 창 */}
-        {(() => {
-          const fH = "'Plus Jakarta Sans','Space Grotesk',sans-serif";
-          const _hNowMin = today.getHours() * 60 + today.getMinutes();
-          const _hToMin = (t: string) => { const [hh, mm] = t.split(':').map(Number); return hh * 60 + mm; };
-          const _hInWin = (t: string) => { const tm = _hToMin(t); return _hNowMin >= tm - 60 && _hNowMin <= tm + 60; };
-          // 시간 있으면 ±1시간 창, 없으면 종일 노출
-          const isHealthVisible = (h: { time?: string; entries?: { time: string }[] }) => {
-            const timedEntries = (h.entries ?? []).filter(e => e.time && e.time.includes(':'));
-            if (timedEntries.length > 0) return timedEntries.some(e => _hInWin(e.time));
-            if (h.time && h.time.includes(':')) return _hInWin(h.time);
-            return true;
-          };
-          const visHealth = healthRoutines.filter(h => h.showInToday && isHealthToday(h));
-          if (visHealth.length === 0) return null;
-          // 대표 시간: entries 중 가장 이른 시간, 없으면 h.time, 없으면 ''
-          const primaryTime = (h: { time?: string; entries?: { time: string }[] }) => {
-            const timed = (h.entries ?? []).map(e => e.time).filter(t => t && t.includes(':'));
-            if (timed.length > 0) return timed.sort()[0];
-            return h.time && h.time.includes(':') ? h.time : '';
-          };
-          return (
-          <div>
-            <SectionHeader title="#Health" action={`${visHealth.length}개`} />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '0 40px' }}>
-              {visHealth.map((h) => {
-                const isDone = healthChecked.has(h.id);
-                const pt = primaryTime(h);
-                // interval 루틴 D-N 배지
-                const dBadge = (() => {
-                  if (h.repeatType !== 'interval' || !h.intervalUnit || !h.intervalValue) return null;
-                  const nd = calcNextDueDate(h.lastDoneDate, h.intervalUnit, h.intervalValue);
-                  const d = getDaysUntilDue(nd);
-                  return { label: dueBadgeLabel(d), ...dueBadgeColor(d) };
-                })();
-                return (
-                  <div key={h.id} onClick={() => handleToggleHealth(h.id)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px', borderRadius: 50, background: 'rgb(8,191,16)', opacity: isDone ? 0.5 : 1, cursor: 'pointer', transition: 'opacity .18s' }}>
-                    {/* 동그라미 체크 */}
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.85)', background: isDone ? '#fff' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
-                      {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgb(8,191,16)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                    </div>
-                    {/* 아이콘 */}
-                    <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '🥗'}</span>
-                    {/* 시간 또는 D-N 배지 */}
-                    {dBadge ? (
-                      <span style={{ fontFamily: fH, fontSize: 10, fontWeight: 800, background: dBadge.bg, color: dBadge.color, padding: '2px 7px', borderRadius: 9999, flexShrink: 0 }}>{dBadge.label}</span>
-                    ) : pt ? (
-                      <span style={{ fontFamily: fH, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{pt}</span>
-                    ) : null}
-                    {/* 이름 */}
-                    <span style={{ fontFamily: fH, fontSize: 14, fontWeight: 700, color: '#fff', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>
-                      {h.name}
-                    </span>
-                  </div>
-                );
-              })}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '2px 4px 4px' }}>
-                <Link href="/setup#health" style={{ fontFamily: fH, fontSize: 12, fontWeight: 700, color: '#BCBAB6', textDecoration: 'none', letterSpacing: '.04em' }}>List →</Link>
-              </div>
-            </div>
-          </div>
-          );
-        })()}
 
         {/* 비로그인 시 Habits · Medication · Health · OOTD 기능 소개 */}
         {!user && !authLoading && (() => {
@@ -3380,19 +3437,8 @@ export default function TodayPage() {
           );
         })()}
 
-        {/* ── MY EDIT 영역 — Today ON으로 지정한 콘텐츠 ── */}
-        {/* INTENSIVE PROGRAM(라임 뱃지·다크 카드)과 시각적으로 분리 → 웜 에디토리얼 톤 */}
-        <div style={{ margin: '28px 20px 0', border: '1px solid rgba(12,12,10,.1)', borderRadius: 20, overflow: 'hidden', background: '#FAFAF8' }}>
-
-          {/* MY EDIT 헤더 — 따뜻한 페이퍼 톤, 라임 없음 */}
-          <div style={{ background: '#F0EDE6', padding: '14px 20px 12px', borderBottom: '1px solid rgba(100,70,40,.1)', display: 'flex', alignItems: 'center', gap: 12 }}>
-            {/* 에디토리얼 어센트 바 */}
-            <div style={{ width: 3, height: 22, background: '#C9A882', borderRadius: 2, flexShrink: 0 }} />
-            <div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: '.22em', color: '#2D2926', textTransform: 'uppercase' as const }}>MY EDIT</div>
-              <div style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 10, color: '#9A9490', letterSpacing: '.04em', marginTop: 2 }}>Today ON으로 지정한 콘텐츠</div>
-            </div>
-          </div>
+        {/* ── MY EDIT 영역 — Today ON 콘텐츠 (카드 없이 섹션 나열) ── */}
+        <div style={{ marginTop: 8 }}>
 
           {/* #Intensive Care */}
           <CareSection items={activeCareItems} products={products} />
