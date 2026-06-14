@@ -70,8 +70,8 @@ export default function BottomNav() {
   return (
     <nav
       style={{
-        background: '#FFFFFF',
-        borderTop: '1px solid rgba(0,0,0,.06)',
+        background: '#F2EDE6',
+        borderTop: '1px solid rgba(45,36,32,.08)',
         display: 'flex',
       }}
     >
@@ -93,7 +93,7 @@ export default function BottomNav() {
               padding: '12px 6px 20px',
               textDecoration: 'none',
               borderRadius: '20px 20px 0 0',
-              background: isActive ? 'rgba(232,93,107,.09)' : 'transparent',
+              background: isActive ? 'rgba(45,36,32,.08)' : 'transparent',
               paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 14px)',
             }}
           >
@@ -104,7 +104,7 @@ export default function BottomNav() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: isActive ? '#E85D6B' : '#AAAAAA',
+                color: isActive ? '#2D2420' : '#9B8B83',
               }}
             >
               {item.icon}
@@ -116,7 +116,7 @@ export default function BottomNav() {
                 fontWeight: 700,
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
-                color: isActive ? '#E85D6B' : '#AAAAAA',
+                color: isActive ? '#2D2420' : '#9B8B83',
               }}
             >
               {item.label}

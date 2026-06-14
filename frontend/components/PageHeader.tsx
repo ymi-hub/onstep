@@ -49,7 +49,7 @@ export default function PageHeader({ label, title, subtitle, right }: PageHeader
             fontWeight: 700,
             letterSpacing: '.16em',
             textTransform: 'uppercase',
-            color: '#9A9490',
+            color: '#9B8B83',
           }}
         >
           {label}
@@ -68,7 +68,7 @@ export default function PageHeader({ label, title, subtitle, right }: PageHeader
           fontFamily: F,
           fontSize: 40,
           fontWeight: 700,
-          color: '#1C1C1E',
+          color: '#2D2420',
           lineHeight: 1.0,
           letterSpacing: '-.02em',
           margin: '4px 0 0',

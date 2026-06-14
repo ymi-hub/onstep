@@ -22,15 +22,15 @@
  */
 @theme {
   /* ── 색상 팔레트 ── */
-  --color-bg: #FAF8F5;
-  --color-surface: #F4F4F0;
-  --color-surface-low: #EEEDE9;
-  --color-surface-mid: #E4E2DC;
-  --color-surface-high: #D8D6CF;
-  --color-surface-inv: #0C0C0A;
-  --color-ink: #0C0C0A;
-  --color-sub: #4A4846;
-  --color-mist: #9A9490;
+  --color-bg: #F2EDE6;
+  --color-surface: #EDE4D8;
+  --color-surface-low: #E8DDD5;
+  --color-surface-mid: #DDD0C6;
+  --color-surface-high: #C9B9AE;
+  --color-surface-inv: #2D2420;
+  --color-ink: #2D2420;
+  --color-sub: #6B5C55;
+  --color-mist: #9B8B83;
   --color-lime: #C5FF00;
   --color-lime-dark: #A6D900;
   --color-lime-fg: #0C0C0A;
@@ -101,7 +101,7 @@ html {
 body {
   height: 100%;
   overflow: hidden; /* body 자체 스크롤 차단 — main 안에서만 스크롤 */
-  background-color: #E8E6E0;
+  background-color: #E2D9D0;
   color: #0C0C0A;
   font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
   -webkit-font-smoothing: antialiased;

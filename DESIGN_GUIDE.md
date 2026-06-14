@@ -1,225 +1,304 @@
-# OnStep Design Guide v2
-> 참조: Habit Manager 앱 스크린샷 5장 분석 기반 (2026-06-14)
-> 방향: 감성 · 심플 · 편안함 — iOS 네이티브 라이트 테마
+# OnStep Design Guide v3
+> 레퍼런스: MindBridge (마음 밑줄 다이어리) + 좋은 커피 위대한 커피 (2026-06-14)
+> 방향: 웜 샌드 베이지 배경 · 순백 카드 · 초콜릿 브라운 텍스트 — 포근하고 감성적인 라이프 다이어리 느낌
 
 ---
 
 ## 1. 색상 시스템 (Color System)
 
-### 기본 배경
-| 역할 | 값 | 비고 |
+### 배경 계층
+
+| 역할 | 값 | 설명 |
 |------|-----|------|
-| 페이지 배경 | `#F2F2F7` | iOS 시스템 그레이, 부드럽고 눈 편함 |
-| 카드 배경 | `#FFFFFF` | 순백 |
-| 섹션 구분선 | `#E5E5EA` | 매우 연한 |
-| 모달/팝업 배경 | `#FFFFFF` | 흰 카드 |
+| 페이지 배경 | `#F2EDE6` | 웜 샌드 베이지 — MindBridge 핵심 BG |
+| 중첩 배경 (nested) | `#EDE4D8` | 카드 내부 빈 영역, 비활성 배지 |
+| 쉘 배경 (body) | `#E2D9D0` | 앱 외부 테두리 — 더 깊은 모래색 |
 
-### 브랜드 컬러 (단일 액센트)
-| 역할 | 값 | 비고 |
+### 카드
+
+| 역할 | 값 | 설명 |
 |------|-----|------|
-| Primary | `#E85D6B` | 코랄 핑크 — 버튼, 활성 필터, 강조 |
-| Primary Light | `rgba(232,93,107,.12)` | 배경 tint용 |
-| Primary Tint | `#FFDCE8` | 그라데이션 배경 상단 등 |
-
-### 카테고리 컬러 (Habits · Meds · Health)
-| 카테고리 | 색 이름 | 기본값 | 미완료 배경 | 완료 배경 |
-|---------|--------|--------|-----------|---------|
-| Habits  | 피치 오렌지 | `#F2A05E` | `rgba(242,160,94,.18)` | `rgba(242,160,94,.35)` |
-| Meds    | 스카이 블루 | `#6BABDA` | `rgba(107,171,218,.18)` | `rgba(107,171,218,.35)` |
-| Health  | 민트 그린 | `#5CB87E` | `rgba(92,184,126,.18)` | `rgba(92,184,126,.35)` |
-| Skincare | 라벤더 | `#9B8EC4` | `rgba(155,142,196,.18)` | `rgba(155,142,196,.35)` |
-
-> 참조 앱의 습관 바: 미완료 = 매우 연한 tint, 완료 = 더 진한 tint + 체크마크 + 취소선
+| 카드 배경 | `#FFFFFF` | 순백 — 배경과 대비 |
+| 카드 그림자 | `0 4px 16px rgba(45,36,32,.08)` | 웜 셰도우 (차가운 블랙 그림자 ✗) |
+| 카드 테두리 | `1px solid rgba(45,36,32,.06)` | 매우 연한 웜 브라운 테두리 |
 
 ### 텍스트
-| 역할 | 값 |
-|------|-----|
-| Primary | `#1C1C1E` |
-| Secondary | `#8E8E93` |
-| Tertiary / Placeholder | `#C7C7CC` |
-| 파스텔 배경 위 (다크) | `#2D2020` (Habits), `#0E1E2D` (Meds), `#0D2018` (Health) |
-| 완료 텍스트 | `#B0ABA5` + `text-decoration: line-through` |
+
+| 역할 | 값 | 설명 |
+|------|-----|------|
+| Primary (헤드라인) | `#2D2420` | 초콜릿 브라운 — 차갑지 않은 다크 |
+| Secondary (설명) | `#9B8B83` | 웜 그레이 |
+| Tertiary / Placeholder | `#C9B9AE` | 연한 모래색 |
+| 완료 텍스트 | `#B0ABA5` + `line-through` | 취소선 + 흐림 |
+
+### 브랜드 / 카테고리 색
+
+| 역할 | 값 | 설명 |
+|------|-----|------|
+| CTA 버튼 (Primary) | `#2D2420` | 다크 브라운 — MindBridge 스타일 |
+| Habits | `#F2A05E` | 피치 오렌지 |
+| Meds | `#6BABDA` | 스카이 블루 |
+| Health | `#5CB87E` | 민트 그린 |
+| Skincare / 포인트 | `#E85D6B` | 코랄 핑크 (Session 도트 등) |
+| 커피 브라운 (중간 톤) | `#8B6F47` | WeatherWidget 아이콘 tint 등 |
 
 ---
 
-## 2. 타이포그래피 (Typography)
+## 2. 타이포그래피
 
-| 용도 | 폰트 | 크기 | 굵기 |
-|------|------|------|------|
-| 페이지 타이틀 | Plus Jakarta Sans | 40px | 900 |
-| 섹션 헤더 (`#Daily`) | Plus Jakarta Sans | 15px | 700 |
-| 행 타이틀 | Plus Jakarta Sans | 14–15px | 700 |
-| 서브텍스트 / 설명 | Plus Jakarta Sans | 13px | 400–500 |
-| 뱃지 / 레이블 | Plus Jakarta Sans | 11px | 700, letter-spacing .08em |
-| 감성 포인트 (팁, 인용) | NelnaLizzyChae (필기체) | 16–20px | 400 |
-| 브랜드 로고 | Cormorant Garamond | — | 700, letter-spacing 8px |
-
-> 참조 앱: 카드 타이틀은 굵고 검정 / 설명은 연한 회색 / 크기 차이로 계층 표현
+| 용도 | 폰트 | 크기 | 굵기 | 색 |
+|------|------|------|------|-----|
+| 페이지 타이틀 | Plus Jakarta Sans | 40px | 700 | `#2D2420` |
+| 섹션 헤더 (`#Daily`) | Plus Jakarta Sans | 18px | 800 | `#2D2420` |
+| 섹션 서브 레이블 | Plus Jakarta Sans | 11px | 700, letter-spacing .14em | `#9B8B83` |
+| 행 타이틀 | Plus Jakarta Sans | 14px | 600 | `#2D2420` |
+| 시간 레이블 | Plus Jakarta Sans | 13px | 600 | `#2D2420` |
+| 서브텍스트 / 설명 | Plus Jakarta Sans | 13px | 400–500 | `#9B8B83` |
+| 비활성 / placeholder | Plus Jakarta Sans | 12px | 500 | `#C9B9AE` |
+| 필터 칩 레이블 | Plus Jakarta Sans | 11px | 700, letter-spacing .08em | — |
+| 감성 포인트 | NelnaLizzyChae (필기체) | 16–20px | 400 | `#9B8B83` |
 
 ---
 
-## 3. 컴포넌트 스타일 (Components)
+## 3. 카드 디자인 패턴 (Card Patterns)
 
-### 카드 (Card)
+### 기본 카드 (Standard Card)
+> FlowCard, SessionHero, RoutineEmptyCard, LoginRequiredCard 등
+
 ```
 background:    #FFFFFF
 border-radius: 20px
-box-shadow:    0 2px 10px rgba(0,0,0,.06)
-padding:       20px
+border:        1px solid rgba(45,36,32,.06)
+box-shadow:    0 4px 16px rgba(45,36,32,.08)
+padding:       16px–20px
+margin:        0 20px
 ```
 
-### 습관 행 (Habit / Daily Check Row)
+### 중첩 내부 카드 (Inner Card)
+> 카드 안에 또 카드가 들어가는 구조 (e.g. FlowCard 안의 제품 카드)
+
 ```
-/* 미완료 */
-background:    rgba(CAT_COLOR, .18)
-border-radius: 14px
-padding:       11px 14px
-color:         카테고리별 다크 텍스트
-
-/* 완료 */
-background:    rgba(CAT_COLOR, .35)
-text-decoration: line-through
-color:         #B0ABA5
-
-/* 체크박스 */
-width/height:  22px, border-radius 50%
-미완료: border 2px solid CAT_COLOR, bg transparent
-완료:   border 2px solid rgba(CAT,0.4), bg rgba(CAT,0.3)
-체크 SVG: stroke CAT_COLOR
+background:    #FFFFFF
+border-radius: 16px
+border:        1px solid rgba(45,36,32,.06)
+box-shadow:    0 2px 8px rgba(45,36,32,.05)
+padding:       16px
 ```
 
-> 참조 이미지 3의 Habit Bar: 완료=연한 민트 전체 배경, 미완료=더 연한 tint
+### 컬러 배지 카드 (Colored Badge Card)
+> 스텝 번호, 카운트 배지 등
 
-### 필터 칩 (Filter Chip)
 ```
 /* 활성 */
-background: #E85D6B  (또는 카테고리 색)
-color:      #FFFFFF
-border:     none
-height:     32px, padding 0 14px, border-radius 9999px
+background:    #2D2420  (다크 브라운)
+color:         #FFFFFF
+border-radius: 50%
+width/height:  36px
 
 /* 비활성 */
-background: #FFFFFF
-color:      #8E8E93
-border:     1px solid #E5E5EA
+background:    #EDE4D8  (웜 베이지)
+color:         #C9B9AE
 ```
 
-### 섹션 헤더 (Section Header)
+### 섹션 컬러 바 카드 (Color Bar Card)
+> SectionHeader barColor 모드 — Reset Plan 등
+
 ```
-폰트:   Plus Jakarta Sans
-크기:   13px, 700, letter-spacing .1em
-색상:   #8E8E93
-액션:   우측 카운트/링크 — 같은 폰트, #C7C7CC
-구분선: 없음 (공백으로 계층 표현)
+background:    카테고리 색 (tint)
+border-radius: 14px
+padding:       13px 18px
+margin:        16px 20px 8px
 ```
 
-### 하단 네비게이션 (Bottom Nav)
+---
+
+## 4. 바 / 행 디자인 패턴 (Bar / Row Patterns)
+
+### 공통 구조
+모든 체크 행은 동일한 레이아웃을 따른다:
+
 ```
-background:  #FFFFFF
-border-top:  1px solid #E5E5EA
-아이콘 색상(비활성): #8E8E93
-아이콘 색상(활성):   #E85D6B  (코랄 핑크)
-활성 탭 배경: rgba(232,93,107,.1) 작은 pill
+[체크박스 22px] [아이콘/이모지 18px] [시간 42px] [타이틀 flex:1]
+padding:       11px 14px
+border-radius: 14px
+gap:           10px
+transition:    background .18s
 ```
 
-### CTA 버튼 (Primary Button)
+### Habits 바 (피치 오렌지)
+
 ```
-background:    #E85D6B
+/* 미완료 */
+background:    rgba(242,160,94,.18)
+text-color:    #2D2420
+border-radius: 14px
+
+/* 완료 */
+background:    rgba(242,160,94,.32)
+text-color:    #B0ABA5  +  text-decoration: line-through
+
+/* 체크박스 미완료 */
+border:        2px solid #F2A05E
+background:    transparent
+
+/* 체크박스 완료 */
+border:        2px solid rgba(242,160,94,.5)
+background:    rgba(242,160,94,.4)
+SVG stroke:    #F2A05E
+```
+
+### Meds 바 (스카이 블루)
+
+```
+/* 미완료 */
+background:    rgba(107,171,218,.18)
+text-color:    #2D2420
+
+/* 완료 */
+background:    rgba(107,171,218,.32)
+text-color:    #B0ABA5  +  line-through
+
+/* 체크박스 미완료 */
+border:        2px solid #6BABDA
+background:    transparent
+
+/* 체크박스 완료 */
+border:        2px solid rgba(107,171,218,.5)
+background:    rgba(107,171,218,.4)
+SVG stroke:    #6BABDA
+```
+
+### Health 바 (민트 그린) — 미구현, 추후 참고용
+
+```
+/* 미완료 */
+background:    rgba(92,184,126,.18)
+text-color:    #2D2420
+
+/* 완료 */
+background:    rgba(92,184,126,.32)
+text-color:    #B0ABA5  +  line-through
+
+/* 체크박스 */
+border / fill: #5CB87E
+```
+
+---
+
+## 5. 버튼 디자인 패턴 (Button Patterns)
+
+### Primary CTA (다크 브라운 pill)
+> "BOX 열기 →", "Google로 로그인", "저장" 등
+
+```
+background:    #2D2420
 color:         #FFFFFF
-border-radius: 9999px (pill)
-height:        48px
-font:          15px, 700
+border-radius: 9999px  (또는 12px for 사각형)
+height:        44–48px
+font:          13–14px, 700
 ```
 
-### 빈 상태 일러스트 (Empty State)
-```
-/* 참조 이미지 4 - "No Habits" */
-일러스트:  소프트 핑크 원 + 라인 아이콘 (#E85D6B 계열, opacity 50%)
-텍스트:    16px bold + 13px gray subtitle
-배경:      흰색 또는 #F2F2F7
-```
-
----
-
-## 4. 아이콘 스타일 (Icon Style)
-
-참조 이미지 1 (Habit Idea Grid) 기반:
+### Secondary / Outline
 
 ```
-/* 아이콘 컨테이너 */
-width/height:  48px
-border-radius: 16px  (라운드 스퀘어)
-background:    rgba(ICON_COLOR, .15)  (아이콘 색의 연한 tint)
-
-/* 아이콘 자체 */
-size: 28px
-color: 해당 카테고리/기능 컬러 (아이콘마다 고유 색)
-style: 라인 아이콘 (filled 아님)
+background:    transparent
+color:         #2D2420
+border:        1px solid rgba(45,36,32,.20)
+border-radius: 9999px
+height:        40px
+font:          13px, 600
 ```
 
-> 참조 앱: 각 카드마다 다른 색의 아이콘 — 보라, 골드, 민트, 블루, 핑크, 오렌지 등
-> 포인트: 아이콘 하나씩 개성 있는 파스텔 색 부여 → 시각적 다채로움
+### Tab 버튼 (언더라인 스타일)
+> FlowCard Morning / Night 탭
 
----
-
-## 5. 레이아웃 패턴 (Layout Patterns)
-
-### 페이지 구조
 ```
-상단 헤더:  padding 20px, 좌측 타이틀 + 우측 액션
-콘텐츠:    padding 0 20px, gap 12–16px
-하단 네비: fixed, height 60px + safe-area
-```
+/* 활성 */
+border-bottom: 2px solid #2D2420
+color:         #2D2420
+font-weight:   700
+background:    transparent
 
-### 그라데이션 배경 (선택)
-```
-/* 프로필/홈 상단 — 참조 이미지 2 */
-background: linear-gradient(to bottom, #FFDCE8 0%, #F2F2F7 40%)
+/* 비활성 */
+border-bottom: 2px solid transparent
+color:         #C7C7CC
+font-weight:   500
 ```
 
-### 2열 카드 그리드 (참조 이미지 1)
+### 텍스트 링크
+
 ```
-display: grid
-grid-template-columns: 1fr 1fr
-gap: 12px
-padding: 0 20px
-카드: background #fff, radius 20px, shadow 0 2px 8px rgba(0,0,0,.06)
-내부: 아이콘 (상단 좌 or 중앙) + 굵은 타이틀 + 연한 설명
+color:         #C9B9AE
+font-size:     12px, 600
+letter-spacing: .04em
+(e.g. "List →")
 ```
 
 ---
 
-## 6. 인터랙션 패턴 (Interaction)
+## 6. 네비게이션 (Navigation)
 
-| 요소 | 동작 |
-|------|------|
-| 행 탭 (체크인) | background 색 변경 + 체크마크 + 취소선 (transition .2s) |
-| 카드 hover | 없음 (모바일 중심) |
-| 필터 칩 | 즉시 색 전환 (transition .15s) |
-| 스크롤 | 부드러운 스크롤, 오버스크롤 bounce |
+### 하단 탭 (BottomNav)
+
+```
+background:    #F2EDE6  (페이지 BG와 일체감)
+border-top:    1px solid rgba(45,36,32,.08)
+
+/* 활성 탭 */
+background:    rgba(45,36,32,.08)  (작은 pill)
+icon-color:    #2D2420
+label-color:   #2D2420
+border-radius: 20px 20px 0 0
+
+/* 비활성 탭 */
+background:    transparent
+icon-color:    #9B8B83
+label-color:   #9B8B83
+```
+
+### Session 진행 도트
+
+```
+/* 오늘 */
+background:    #E85D6B
+width:         22px (wider pill)
+
+/* 완료일 */
+background:    rgba(232,93,107,.35)
+
+/* 미래일 */
+background:    #E8E7E4
+```
 
 ---
 
-## 7. 현재 OnStep 적용 현황
+## 7. 컴포넌트별 현황
 
-| 페이지 | 적용 상태 |
-|--------|---------|
-| Today | ✅ v2 배경 + 파스텔 바 적용 (2026-06-14) |
-| Log | ⬜ 미적용 |
-| Box | ⬜ 미적용 |
-| Setup | ⬜ 미적용 |
-| 하단 네비 | ⬜ 브랜드 액센트 #C5FF00 → #E85D6B 전환 예정 |
+| 컴포넌트 | 상태 | 비고 |
+|---------|------|------|
+| PageHeader | ✅ 완료 | 웜 다크 타이틀 적용 |
+| SectionHeader | ✅ 완료 | `#2D2420` 타이틀 |
+| WeatherWidget | ✅ 완료 | 커피 브라운 tint 박스 |
+| BottomNav | ✅ 완료 | 다크 브라운 활성, 베이지 BG |
+| SessionHero | ✅ 완료 | 흰 카드 + 코랄 도트 |
+| FlowCard | ✅ 완료 | 언더라인 탭, 웜 셰도우 |
+| Habits 바 | ✅ 완료 | 파스텔 피치 tint |
+| Meds 바 | ✅ 완료 | 파스텔 스카이 tint |
+| Health 바 | ⬜ 미구현 | 민트 그린 tint 예정 |
+| CTA 버튼 | ✅ 완료 | `#2D2420` + `#FFFFFF` |
+| Log 페이지 | ⬜ 미적용 | — |
+| Box 페이지 | ⬜ 미적용 | — |
+| Setup 페이지 | ⬜ 미적용 | — |
 
 ---
 
-## 8. 기존 OnStep과 달라지는 점 요약
+## 8. 이전 버전 대비 변경점
 
-| | 이전 | v2 |
-|--|------|-----|
-| 배경 | `#FAFAF8` 웜 크림 | `#F2F2F7` 라이트 그레이 |
-| 브랜드 포인트 | `#C5FF00` 라임 | `#E85D6B` 코랄 핑크 |
-| 습관 바 | 포화 원색 pill | 파스텔 tint + radius 14px |
-| 완료 처리 | opacity 50% | tint 강도↑ + 취소선 |
-| 카드 radius | 16–20px | 20px 통일 |
-| 섹션 구분 | `#` 해시태그 라벨 | 유지 (브랜드 개성) |
-| 다크 모드 | 없음 | 없음 (라이트 전용) |
+| 요소 | v1 (라임) | v2 (코랄) | v3 (웜 브라운, 현재) |
+|------|-----------|-----------|---------------------|
+| 배경 | `#FAFAF8` | `#FAF8F5` | `#F2EDE6` ← 웜 샌드 베이지 |
+| CTA 버튼 | `#0C0C0A` + `#C5FF00` 라임 | `#0C0C0A` + `#C5FF00` | `#2D2420` + `#FFFFFF` |
+| 타이틀 색 | `#0C0C0A` 차가운 검정 | `#1C1C1E` | `#2D2420` 초콜릿 브라운 |
+| BottomNav 활성 | 다크 블랙 | 코랄 `#E85D6B` | 다크 브라운 `#2D2420` |
+| 카드 그림자 | 차가운 `rgba(0,0,0,.)` | `rgba(0,0,0,.)` | 웜 `rgba(45,36,32,.)` |
+| WeatherWidget | 라임 박스 | 코랄 tint | 커피 브라운 tint |

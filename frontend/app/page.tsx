@@ -166,14 +166,14 @@ function SessionHero({
   const dateStr = format(today, 'M월 d일 (EEE)', { locale: ko });
 
   return (
-    <div style={{ margin: '0 20px 12px', background: '#FFFFFF', borderRadius: 20, boxShadow: '0 2px 10px rgba(0,0,0,.05)', border: '1px solid rgba(0,0,0,.04)', padding: '16px 20px 20px' }}>
+    <div style={{ margin: '0 20px 12px', background: '#FFFFFF', borderRadius: 20, boxShadow: '0 4px 16px rgba(45,36,32,.08)', border: '1px solid rgba(45,36,32,.06)', padding: '16px 20px 20px' }}>
       {/* 회차 번호 */}
       <div
         style={{
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
           fontSize: 12,
           fontWeight: 600,
-          color: '#8E8E93',
+          color: '#9B8B83',
           letterSpacing: '0.10em',
           textTransform: 'uppercase',
           lineHeight: 1.3,
@@ -188,7 +188,7 @@ function SessionHero({
           fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
           fontSize: 13,
           fontWeight: 500,
-          color: '#1C1C1E',
+          color: '#2D2420',
           marginTop: 4,
           marginBottom: 14,
           display: 'flex',
@@ -328,8 +328,8 @@ function FlowCard({
       style={{
         margin: '0 20px',
         background: '#FFFFFF',
-        border: '1px solid rgba(12,12,10,.07)',
-        boxShadow: '0 1px 2px rgba(0,0,0,.04), 0 0 0 1px rgba(0,0,0,.03)',
+        border: '1px solid rgba(45,36,32,.06)',
+        boxShadow: '0 4px 16px rgba(45,36,32,.08)',
         borderRadius: 20,
         overflow: 'hidden',
       }}
@@ -345,14 +345,14 @@ function FlowCard({
               height: 38,
               padding: '0 4px',
               border: 'none',
-              borderBottom: tab === t ? '2px solid #1C1C1E' : '2px solid transparent',
+              borderBottom: tab === t ? '2px solid #2D2420' : '2px solid transparent',
               cursor: 'pointer',
               fontFamily: "'Plus Jakarta Sans', 'Space Grotesk', sans-serif",
               fontSize: 13,
               fontWeight: tab === t ? 700 : 500,
               letterSpacing: '0.04em',
               background: 'transparent',
-              color: tab === t ? '#1C1C1E' : '#C7C7CC',
+              color: tab === t ? '#2D2420' : '#C7C7CC',
               transition: 'all .18s',
               position: 'relative',
               marginBottom: -1,
@@ -802,17 +802,17 @@ function TodayHabitSection({
           const isDone = habitChecked.has(h.id);
           return (
             <div key={h.id} onClick={() => onToggle(h.id)}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(242,160,94,.30)' : 'rgba(242,160,94,.14)', cursor: 'pointer', transition: 'background .18s' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(242,160,94,.32)' : 'rgba(242,160,94,.18)', cursor: 'pointer', transition: 'background .18s' }}>
               <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(242,160,94,.5)' : '#F2A05E'}`, background: isDone ? 'rgba(242,160,94,.4)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
                 {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F2A05E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
               </div>
               <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{h.icon || '✦'}</span>
               {h.time && h.repeatType !== 'allday' && (
-                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#9B5C2A', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
+                <span style={{ fontFamily: f, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>
                   {h.time}
                 </span>
               )}
-              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D1E0E', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>
+              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', textDecoration: isDone ? 'line-through' : 'none', flex: 1, minWidth: 0 }}>
                 {h.name}
               </span>
             </div>
@@ -850,8 +850,8 @@ function RoutineEmptyCard() {
         {steps.map((s, i) => (
           <div key={i} style={{ background: '#fff', borderRadius: 16, padding: '16px', border: '1px solid rgba(12,12,10,.07)', boxShadow: '0 1px 4px rgba(0,0,0,.04)', display: 'flex', alignItems: 'center', gap: 14 }}>
             {/* 번호 배지 */}
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: i === 2 ? '#F4F4F0' : '#0C0C0A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: i === 2 ? '#BCBAB6' : '#C5FF00' }}>{s.num}</span>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: i === 2 ? '#EDE4D8' : '#2D2420', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontFamily: f, fontSize: 14, fontWeight: 800, color: i === 2 ? '#C9B9AE' : '#FFFFFF' }}>{s.num}</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
@@ -861,7 +861,7 @@ function RoutineEmptyCard() {
               <div style={{ fontFamily: f, fontSize: 13, color: '#9A9490' }}>{s.desc}</div>
             </div>
             {s.href && (
-              <Link href={s.href} style={{ flexShrink: 0, height: 34, padding: '0 14px', background: '#C5FF00', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#0C0C0A', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              <Link href={s.href} style={{ flexShrink: 0, height: 34, padding: '0 14px', background: '#2D2420', borderRadius: 9999, display: 'flex', alignItems: 'center', fontFamily: f, fontSize: 11, fontWeight: 800, color: '#FFFFFF', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                 {s.cta}
               </Link>
             )}
@@ -912,8 +912,8 @@ function LoginRequiredCard({ onLogin }: { onLogin: () => void }) {
       <button
         onClick={onLogin}
         style={{
-          background: '#0C0C0A',
-          color: '#C5FF00',
+          background: '#2D2420',
+          color: '#FFFFFF',
           border: 'none',
           borderRadius: 12,
           padding: '12px 24px',
@@ -3025,7 +3025,7 @@ export default function TodayPage() {
 
   // ── 렌더링 ──
   return (
-    <div style={{ background: '#FAF8F5', minHeight: '100%' }}>
+    <div style={{ background: '#F2EDE6', minHeight: '100%' }}>
       <div style={{ paddingBottom: 100 }}>
         {/* 페이지 헤더 — 공통 PageHeader 컴포넌트 */}
         <PageHeader label="Today" title="Today" />
@@ -3035,7 +3035,7 @@ export default function TodayPage() {
 
         {/* ── Skincare 섹션 레이블 ── */}
         <div style={{ padding: '24px 20px 6px' }}>
-          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', color: '#8E8E93', textTransform: 'uppercase' as const }}>#Skincare</span>
+          <span style={{ fontFamily: "'Plus Jakarta Sans','Space Grotesk',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '.14em', color: '#9B8B83', textTransform: 'uppercase' as const }}>#Skincare</span>
         </div>
 
         {/* 세션 히어로 — #Skincare 하위, SESSION 회차·날짜·진행 도트 */}
@@ -3135,12 +3135,12 @@ export default function TodayPage() {
             const col = '#6BABDA';
             return (
               <div onClick={() => handleToggleMed(m.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(107,171,218,.28)' : 'rgba(107,171,218,.13)', cursor: 'pointer', transition: 'background .18s' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px', borderRadius: 14, background: isDone ? 'rgba(107,171,218,.32)' : 'rgba(107,171,218,.18)', cursor: 'pointer', transition: 'background .18s' }}>
                 <div style={{ width: 22, height: 22, borderRadius: '50%', border: `2px solid ${isDone ? 'rgba(107,171,218,.5)' : col}`, background: isDone ? 'rgba(107,171,218,.4)' : 'transparent', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s' }}>
                   {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={col} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </div>
-                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#1A3D52', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{slotTime(m, slot)}</span>
-                <span style={{ fontFamily: fMed, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#1A3D52', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
+                <span style={{ fontFamily: fMed, fontSize: 13, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', width: 42, flexShrink: 0, textDecoration: isDone ? 'line-through' : 'none' }}>{slotTime(m, slot)}</span>
+                <span style={{ fontFamily: fMed, fontSize: 14, fontWeight: 600, color: isDone ? '#B0ABA5' : '#2D2420', textDecoration: isDone ? 'line-through' : 'none', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{m.name}</span>
               </div>
             );
           };
